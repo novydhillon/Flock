@@ -1,0 +1,54 @@
+name: Flock • deploy development game
+
+on:
+  push:
+    branches: [dev/flock-game]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: flock-development-pages
+  cancel-in-progress: true
+
+jobs:
+  test-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Flock
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript and run world tests
+        run: |
+          node --check flock/dev/src/main.js
+          node --check flock/dev/src/render.js
+          node --check flock/dev/src/world.js
+          node --check flock/dev/src/audio.js
+          cd flock/dev && npm test
+      - name: Package Pages site at /flock/dev/
+        run: |
+          mkdir -p _site/flock/dev
+          cp index.html _site/index.html
+          cp -R flock/dev/. _site/flock/dev/
+          rm -f _site/flock/dev/package.json _site/flock/dev/src/*.test.mjs
+          touch _site/.nojekyll
+      - name: Upload GitHub Pages site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: test-and-package
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}flock/dev/
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

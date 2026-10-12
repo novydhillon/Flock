@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#b5e4bc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon.svg">
+  <meta name="description" content="Flock — guide the fluffiest little robots home in a cheerful one-thumb herding adventure.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='17' fill='%23ffe0a4'/%3E%3Ccircle cx='32' cy='32' r='21' fill='%23fff6e9'/%3E%3Ccircle cx='25' cy='29' r='4' fill='%23364f47'/%3E%3Ccircle cx='39' cy='29' r='4' fill='%23364f47'/%3E%3Cpath d='M27 40 Q32 44 37 40' stroke='%23364f47' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <title>Flock — A Little Big Herding Adventure</title>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div class="desktop-ambient" aria-hidden="true"><span class="ambient-cloud cloud-a"></span><span class="ambient-cloud cloud-b"></span><span class="ambient-title">GOOD DAYS<br>GREAT FLOCKS<span>.</span></span><span class="ambient-subtitle">A little big herding adventure</span></div>
+  <main class="game-frame" id="gameFrame">
+    <canvas id="gameCanvas" aria-label="Aerial view of the meadows. Guide your robotic dog to gently herd the sheep into their pen."></canvas>
+    <div class="soft-vignette" aria-hidden="true"></div>
+    <header class="top-hud">
+      <div class="brand-row">
+        <div class="brand-lockup"><span class="brand-flower" aria-hidden="true">✿</span><div><strong>flock<span class="brand-dot">.</span></strong><small>LITTLE BIG ADVENTURES</small></div></div>
+        <div class="header-actions"><button id="soundButton" class="header-circle" type="button" aria-label="Toggle sound" title="Toggle music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-wave" d="M17 9a5 5 0 0 1 0 6M20 6a9 9 0 0 1 0 12"/></svg></button><button id="pauseButton" class="header-circle" type="button" aria-label="Pause game" title="Pause"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg></button></div>
+      </div>
+      <div class="stats-row"><div class="stat-pill level-pill"><span class="stat-icon">✦</span><span id="levelLabel">LEVEL 01</span></div><div class="stat-pill sheep-pill"><span class="stat-icon">◉</span><span id="flockLabel">0 / 4 HOME</span></div><div class="stat-pill coin-pill"><span class="coin-dot">✳</span><span id="coinLabel">0</span></div></div>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+    </header>
+    <section class="quest-note" id="questNote" aria-live="polite"><span class="quest-eyebrow">YOUR MISSION <span>↗</span></span><strong id="questTitle">Bring the little ones home</strong><span id="questDetail">Gather your sheep and guide them to the pen.</span></section>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div class="bottom-controls" id="bottomControls">
+      <div class="joystick-area" id="joystick" role="group" aria-label="Movement joystick: drag to move robotic dog"><div class="joystick-rim"><span class="joystick-cross">✛</span><span class="joystick-thumb" id="joystickThumb"><span class="paw-icon">✥</span></span></div><span class="control-label">DRAG TO MOVE</span></div>
+      <div class="control-right"><button type="button" id="whistleButton" class="whistle-button" aria-label="Use herding whistle"><span class="whistle-glyph">♫</span><span class="whistle-label">WHISTLE</span><span class="whistle-charge" id="whistleCharge"></span></button><button type="button" id="workshopButton" class="workshop-button" aria-label="Open workshop"><span class="tool-glyph">⚙</span><span class="control-label">WORKSHOP</span></button></div>
+    </div>
+    <div class="gesture-caption" id="gestureCaption">One thumb, one good dog, lots of tiny adventures.</div>
+    <div class="screen-dim" id="screenDim" hidden></div>
+    <div id="modalHost" class="modal-host" aria-live="polite"></div>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
