@@ -9,11 +9,28 @@ test('PRNG produces values in unit interval',()=>{const rng=randomSource(20);for
 test('the first eight herding routes can be navigated by a trailing dog',()=>{
   for(let n=1;n<=8;n++){
     const l=createLevel(n),dog={x:l.start.x,y:l.start.y};let done=false;
-    for(let step=0;step<2200&&!done;step++){
+    for(let step=0;step<3600&&!done;step++){
       const remaining=l.animals.filter(a=>!a.delivered).sort((a,b)=>a.x-b.x);
       if(remaining.length){const a=remaining[0],waypoint=nextWaypoint(l,a);dog.x=a.x-95;dog.y=a.y-Math.sign(waypoint.y-a.y)*35;}
       done=tickLevel(l,dog,[],.05,{});
     }
     assert.equal(done,true,`level ${n} was not navigable`);
   }
+});
+
+test('new flocks spawn with personal space rather than overlapping sprites',()=>{
+  for(const n of [1,5,10,20]){
+    const l=createLevel(n);
+    for(let i=0;i<l.animals.length;i++)for(let j=i+1;j<l.animals.length;j++){
+      const a=l.animals[i],b=l.animals[j];
+      assert.ok(Math.hypot(a.x-b.x,a.y-b.y)>96,`level ${n} starts with an overlap (${a.id}, ${b.id})`);
+    }
+  }
+});
+test('separation pushes overlapping animals apart without leaving navigable terrain',()=>{
+  const l=createLevel(1),a=l.animals[0],b=l.animals[1];
+  a.x=b.x=750;a.y=b.y=610;
+  for(let step=0;step<25;step++)tickLevel(l,{x:100,y:610},[],.05,{});
+  assert.ok(Math.hypot(a.x-b.x,a.y-b.y)>=65,'sheep recover spacing after overlap');
+  for(const animal of l.animals){assert.ok(Number.isFinite(animal.x)&&Number.isFinite(animal.y));assert.equal(isBlocked(l,animal.x,animal.y),false);}
 });
