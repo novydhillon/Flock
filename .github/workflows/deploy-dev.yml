@@ -1,18 +1,14 @@
-name: Flock • deploy development game
+name: Flock • check development game
 
 on:
   push:
     branches: [dev/flock-game]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: flock-development-pages
-  cancel-in-progress: true
 
 jobs:
   test-and-package:
@@ -29,26 +25,16 @@ jobs:
           node --check flock/dev/src/main.js
           node --check flock/dev/src/render.js
           node --check flock/dev/src/world.js
+          node --check flock/dev/src/helpers.js
           node --check flock/dev/src/audio.js
           cd flock/dev && npm test
-      - name: Package Pages site at /flock/dev/
+      - name: Package standalone site at /flock/dev/
         run: |
           mkdir -p _site/flock/dev
           cp index.html _site/index.html
           cp -R flock/dev/. _site/flock/dev/
           rm -f _site/flock/dev/package.json _site/flock/dev/src/*.test.mjs
           touch _site/.nojekyll
-      - name: Upload GitHub Pages site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-  deploy:
-    needs: test-and-package
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}flock/dev/
-    steps:
-      - name: Deploy Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          test -f _site/flock/dev/src/helpers.js
+          test -f _site/flock/dev/index.html
+# GitHub Pages is published by its native gh-pages branch build, not this check.

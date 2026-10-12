@@ -17,12 +17,14 @@ export function createLevel(number=1) {
   const river = n>=3 ? {x:Math.round(width*.52), width:120+Math.min(45,n*4), bridgeY:Math.round(height*(.49+(random()-.5)*.12)), bridgeWidth:170} : null;
   const goal={x:width-300,y:goalY,type:n<=3?'pen':destinations[(n-1)%destinations.length]};
   const start={x:180,y:height*.54};
-  const flockStart={x:475,y:height*.53};
+  const flockStart={x:430,y:height*.53};
   const count=n===1?4:Math.min(26,4+n*2);
   const animals=Array.from({length:count},(_,i)=>{
     const isCow = n>=4 && i%5===4;
-    const x=flockStart.x+(i%4)*45+random()*25;
-    const y=flockStart.y+(Math.floor(i/4)-Math.floor(count/8))*51+(random()-.5)*24;
+    // Start with visible breathing room instead of stacked robots.
+    const rows=Math.ceil(count/4);
+    const x=flockStart.x+(i%4)*112+(Math.floor(i/4)%2)*13+(random()-.5)*9;
+    const y=flockStart.y+(Math.floor(i/4)-(rows-1)/2)*112+(random()-.5)*10;
     return {id:i,x,y,vx:0,vy:0,angle:0,kind:isCow?'cow':'sheep',delivered:false,blink:random()*4,phase:random()*7,energy:0,step:random()*6,spot:random()*Math.PI*2};
   });
   const fields=Array.from({length:32+Math.min(40,n*3)},()=>({x:random()*width,y:random()*height,rx:95+random()*260,ry:75+random()*185,tint:random(),angle:random()*Math.PI}));
@@ -68,43 +70,78 @@ const norm=(x,y)=>{const d=Math.hypot(x,y)||1;return {x:x/d,y:y/d};};
 export function tickLevel(level,dog,helpers,dt,upgrades={}) {
   level.time+=dt;
   if(level.gate){
-    const close=distance(dog,level.gate)<220 || helpers.some(h=>distance(h,level.gate)<155);
+    const close=distance(dog,level.gate)<345 || helpers.some(h=>distance(h,level.gate)<155);
     level.gate.open=close||level.gate.open&&level.animals.some(a=>Math.abs(a.x-level.gate.x)<95 && Math.abs(a.y-level.gate.y)<110);
     level.gate.openness=lerp(level.gate.openness,level.gate.open?1:0,Math.min(1,dt*3.5));
   }
+  // Animals already inside the destination count immediately, before neighbour
+  // separation can gently move them to make room for later arrivals.
+  for(const a of level.animals){
+    if(!a.delivered && Math.hypot(a.x-level.goal.x,a.y-level.goal.y)<93){
+      a.delivered=true;a.vx=0;a.vy=0;level.delivered++;
+    }
+  }
   const alive=level.animals.filter(a=>!a.delivered);
+  // Sample each neighbour from the same instant so updates are order-independent.
+  const neighbors=alive.map(a=>({id:a.id,x:a.x,y:a.y,vx:a.vx,vy:a.vy,kind:a.kind}));
   let cx=0,cy=0;
-  alive.forEach(a=>{cx+=a.x;cy+=a.y;});
-  cx/=alive.length||1;cy/=alive.length||1;
+  neighbors.forEach(a=>{cx+=a.x;cy+=a.y;});
+  cx/=neighbors.length||1;cy/=neighbors.length||1;
   const herdRange=174+(upgrades.bark||0)*29;
   for(const a of alive){
     a.phase+=dt;a.step+=dt*Math.hypot(a.vx,a.vy)*.026;
     const wp=nextWaypoint(level,a);
     const dir=norm(wp.x-a.x,wp.y-a.y);
     const dogDistance=distance(a,dog);
-    const dronePressure=helpers.some(h=>h.active&&distance(h,a)<140 && h.kind==='drone');
-    const buddyPressure=helpers.some(h=>h.active&&distance(h,a)<175 && h.kind==='buddy');
     const dogPressure=clamp((herdRange-dogDistance)/herdRange,0,1);
-    a.energy=clamp(Math.max(a.energy-dt*.28,dogPressure*.95,dronePressure?.7:0,buddyPressure?.55:0),0,1);
+    let helperX=0,helperY=0,helperEnergy=0;
+    for(const h of helpers){
+      if(!h.active)continue;
+      const dx=a.x-h.x,dy=a.y-h.y,dist=Math.hypot(dx,dy);
+      const reach=h.kind==='drone'?205:230;
+      const pressure=clamp((reach-dist)/reach,0,1);
+      if(pressure>0){
+        const away=norm(dx,dy);
+        const strength=pressure*(h.kind==='drone'?2.35:2.8);
+        helperX+=away.x*strength;helperY+=away.y*strength;
+        helperEnergy=Math.max(helperEnergy,pressure*(h.kind==='drone'?1.15:1.2));
+      }
+    }
+    a.energy=clamp(Math.max(a.energy-dt*.21,dogPressure*.95,helperEnergy),0,1);
+    let separationX=0,separationY=0,alignX=0,alignY=0,nearCount=0;
+    for(const other of neighbors){
+      if(other.id===a.id)continue;
+      let dx=a.x-other.x,dy=a.y-other.y,dist=Math.hypot(dx,dy);
+      const personalSpace=a.kind==='cow'||other.kind==='cow'?139:121;
+      if(dist<personalSpace){
+        // Stable fallback also handles two animals exactly on the same spot.
+        if(dist<.001){const angle=(a.id-other.id)*2.399963;dx=Math.cos(angle);dy=Math.sin(angle);dist=1;}
+        const weight=(personalSpace-dist)/personalSpace;
+        separationX+=dx/dist*weight;
+        separationY+=dy/dist*weight;
+      }
+      if(dist<158){alignX+=other.vx;alignY+=other.vy;nearCount++;}
+    }
+    const distanceToFlock=Math.hypot(cx-a.x,cy-a.y);
     const cohesion=norm(cx-a.x,cy-a.y);
     const dogAway=norm(a.x-dog.x,a.y-dog.y);
-    const distanceToFlock=Math.hypot(cx-a.x,cy-a.y);
-    const pressure=dogPressure;
-    const forward= .32 + a.energy*1.7;
-    const flee=dogPressure*2.15;
-    let sx=dir.x*forward+dogAway.x*flee+cohesion.x*(distanceToFlock>130?.75:.12);
-    let sy=dir.y*forward+dogAway.y*flee+cohesion.y*(distanceToFlock>130?.75:.12);
-    // Align animals to the bridge so the flock does not become trapped along a riverbank.
+    const forward=.43+a.energy*1.55;
+    const flee=dogPressure*2.1;
+    const cohesionWeight=distanceToFlock>250?.68:distanceToFlock>160?.26:0;
+    const align=nearCount?norm(alignX,alignY):{x:0,y:0};
+    let sx=dir.x*forward+dogAway.x*flee+helperX+separationX*3.8+cohesion.x*cohesionWeight+align.x*(nearCount?.14:0);
+    let sy=dir.y*forward+dogAway.y*flee+helperY+separationY*3.8+cohesion.y*cohesionWeight+align.y*(nearCount?.14:0);
+    // Align to bridge/gate openings without discarding personal space.
     if(level.river && a.x<level.river.x+level.river.width*.5+50){
       const bank=Math.abs(a.x-level.river.x)<level.river.width*.5+105;
       if(bank){sy+=(level.river.bridgeY-a.y)*.019;sx+=a.x<level.river.x?1.1:.1;}
     }
-    if(level.gate && Math.abs(a.x-level.gate.x)<165 && level.gate.openness<.76) {
+    if(level.gate && Math.abs(a.x-level.gate.x)<165 && level.gate.openness<.76){
       sy+=(level.gate.y-a.y)*.009;
       sx*=.35;
     }
     const v=norm(sx,sy);
-    const maxSpeed=(a.kind==='cow'?78:99)*(a.energy>.05?1:.17);
+    const maxSpeed=(a.kind==='cow'?78:99)*(a.energy>.05?1:.29);
     const intended=Math.min(1,Math.hypot(sx,sy))*maxSpeed;
     a.vx=lerp(a.vx,v.x*intended,Math.min(1,dt*3.2));
     a.vy=lerp(a.vy,v.y*intended,Math.min(1,dt*3.2));
@@ -112,7 +149,21 @@ export function tickLevel(level,dog,helpers,dt,upgrades={}) {
     resolveMotion(level,a,a.x+a.vx*dt,a.y+a.vy*dt,a.kind==='cow'?23:17);
     if(Math.abs(a.x-oldX)+Math.abs(a.y-oldY)<.2 && a.energy>.1){a.vx*=.2;a.vy*=.2;}
     if(Math.hypot(a.vx,a.vy)>6)a.angle=Math.atan2(a.vy,a.vx);
-    // Pen has a broad inviting opening and gently pulls in nearby arrivals.
+  }
+  // A gentle physical separation pass prevents sprites from sitting on top
+  // of each other even when compressed at a gate or crowded riverbank.
+  for(let pass=0;pass<2;pass++)for(let i=0;i<alive.length;i++)for(let j=i+1;j<alive.length;j++){
+    const a=alive[i],b=alive[j];
+    let dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);
+    const minimum=a.kind==='cow'||b.kind==='cow'?103:87;
+    if(d>=minimum)continue;
+    if(d<.001){const angle=(a.id-b.id)*2.399963;dx=Math.cos(angle);dy=Math.sin(angle);d=1;}
+    const amount=(minimum-d)*.48,ux=dx/d,uy=dy/d;
+    resolveMotion(level,a,a.x+ux*amount,a.y+uy*amount,a.kind==='cow'?23:17);
+    resolveMotion(level,b,b.x-ux*amount,b.y-uy*amount,b.kind==='cow'?23:17);
+  }
+  for(const a of alive){
+    // Keep the goal inviting and let each arrival settle instead of bunching up.
     const close=Math.hypot(a.x-level.goal.x,a.y-level.goal.y);
     if(close<93 || (a.x>level.goal.x-100 && a.x<level.goal.x+92 && Math.abs(a.y-level.goal.y)<74)){
       a.delivered=true;a.vx=0;a.vy=0;level.delivered++;
