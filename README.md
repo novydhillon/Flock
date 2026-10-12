@@ -47,7 +47,7 @@ The opening pasture teaches herding with a small sheep flock and a nearby pen. L
 
 GitHub Pages currently publishes the repository's `gh-pages` branch. The game is deployed to **`flock/dev2/` within that branch**, so its full URL includes the case-sensitive repository prefix `/Flock/`.
 
-`.github/workflows/deploy-dev2.yml` tests and builds pushes to `flock_3D_chatgpt-work`, checks out the current `gh-pages` site, and replaces only `flock/dev2/`. It preserves `flock/dev/`, the site root, and all unrelated files. The workflow commits the built output to `gh-pages` and also publishes the complete preserved site with the Pages deployment action. GitHub Pages must be enabled for this repository and the `github-pages` environment must permit this branch to deploy.
+`.github/workflows/deploy-dev2.yml` tests and builds pushes to `flock_3D_chatgpt-work`, then uploads the standalone `dist/` artifact. These checks do not enter the publishing environment. To publish a revision, replace only `flock/dev2/` in the latest `gh-pages` tree with that build and commit/push the Pages branch. Preserve `flock/dev/`, the site root, and all unrelated files. GitHub Pages publishes the existing `gh-pages` branch through its native workflow.
 
 For a local review of exactly what will change, build first and prepare a detached Pages worktree:
 

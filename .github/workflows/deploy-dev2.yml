@@ -1,4 +1,4 @@
-name: Flock 3D — development build
+name: Flock 3D — checks and standalone build
 
 on:
   push:
@@ -6,20 +6,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
-  group: flock-pages
-  cancel-in-progress: false
+  group: flock-dev2-checks
+  cancel-in-progress: true
 
 jobs:
-  test-build-deploy:
+  check-and-package:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}flock/dev2/
     steps:
       - name: Check out game source
         uses: actions/checkout@v4
@@ -30,37 +25,13 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
-      - name: Test simulation
+      - name: Test simulation, controls and scene construction
         run: npm test
       - name: Build standalone game
         run: npm run build
-      - name: Check out existing Pages site
-        uses: actions/checkout@v4
+      - name: Upload standalone game
+        uses: actions/upload-artifact@v4
         with:
-          ref: gh-pages
-          path: _pages
-          fetch-depth: 1
-      - name: Update only the dev2 game
-        run: |
-          test -f dist/index.html
-          mkdir -p _pages/flock/dev2
-          rsync -a --delete dist/ _pages/flock/dev2/
-          touch _pages/.nojekyll
-          git -C _pages config user.name github-actions[bot]
-          git -C _pages config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git -C _pages add -- flock/dev2 .nojekyll
-          if ! git -C _pages diff --cached --quiet; then
-            git -C _pages commit -m "Deploy Flock dev2 from ${GITHUB_SHA}"
-            git -C _pages push origin HEAD:gh-pages
-          fi
-      - name: Package the preserved Pages site
-        run: |
-          mkdir -p _site
-          rsync -a --exclude=.git _pages/ _site/
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-      - name: Deploy complete Pages site
-        id: deployment
-        uses: actions/deploy-pages@v5
+          name: flock-dev2-standalone
+          path: dist/
+          if-no-files-found: error
