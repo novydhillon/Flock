@@ -4,6 +4,12 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 // Rounded sculpted forms and tiny enamel/brass details give the machines a
 // friendly hand-built character. Geometry is shared between flock members.
 const geometryCache = new Map();
+// Static constructor references let the production bundler omit unused Three
+// exports instead of retaining the entire namespace for dynamic lookup.
+const geometryConstructors = {
+  SphereGeometry: THREE.SphereGeometry, BoxGeometry: THREE.BoxGeometry,
+  CylinderGeometry: THREE.CylinderGeometry, ConeGeometry: THREE.ConeGeometry,
+};
 const modelCache = new Map();
 let materialCache;
 
@@ -38,7 +44,7 @@ function cachedModel(key, root) {
 
 function geometry(kind, args) {
   const key = `${kind}:${args.join(',')}`;
-  if (!geometryCache.has(key)) geometryCache.set(key, new THREE[kind](...args));
+  if (!geometryCache.has(key)) geometryCache.set(key, new geometryConstructors[kind](...args));
   return geometryCache.get(key);
 }
 

@@ -38,7 +38,8 @@ The production build is written to `dist/`. Relative asset paths allow it to run
 - Approach the flock from behind to guide it toward the highlighted destination.
 - Keep the flock together while following routes through the countryside.
 - Complete a pasture to earn points, then spend them on skills and helpers.
-- Six skills have three tiers each: Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect and cost.
+- Six skills have three tiers each: Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect, cost, and level requirement. Skills appear throughout the first fifteen levels; the drone starts at level 10, and the more expensive Buddy dog starts at level 20.
+- Companions attend the largest connected herd. When Pip leaves, they hold that herd in place. Recover isolated stragglers yourself and return to lead the delivery.
 - Music starts after a player interaction, following mobile browser audio rules. Use the sound control to mute it.
 
 The opening pasture teaches herding with a small sheep flock and a nearby pen. Later procedural pastures introduce longer routes, rivers and bridges, roads and gates, more animals, and new destinations. Progress is stored locally in the browser; clearing site data clears that progress.
@@ -63,6 +64,8 @@ The preparation script stages the build without committing or pushing. It refuse
 
 This is a playable development build. It stores progress on-device and uses procedural geometry and generated material textures. It has no account system, online multiplayer, or cloud save service.
 
-The campaign contains 100 deterministic procedural meadows. Flock size increases to a mobile-friendly maximum of 65; journey distance continues increasing afterward. Sheep and cows use articulated, instanced leg poses at a stop-motion cadence. Roads pass through actual crossing locations, and helpers focus on animals still waiting at each crossing.
+The campaign contains 100 deterministic procedural meadows. Flock size increases to a maximum of 65; journey distance continues increasing afterward. Levels 1–5 have compact, single-route lessons. From level 6 the fenced roaming area expands, with one or two trails through level 15 and up to three afterward. Destinations rotate across compass directions, and winding trails connect real bridges and gate openings with clear staging space before the goal. Rivers continue beyond the perimeter; scenery hills stay outside playable ground.
+
+Sheep and cows use articulated, instanced leg poses at a stop-motion cadence. Grass and dirt have deterministic tileable color and bump textures, with decorative flowers, grasses and reeds. Puffy clouds drift with soft ground shadows. Later meadows cycle through sunshine, wind, light rain, and snow after level 8. Butterflies, birds and squirrels flee nearby robots; quiet bird and weather ambience shares the sound control.
 
 Automated checks cover simulation, upgrades, controller navigation, touch cancellation, denied storage, renderer matrices and resource disposal. The renderer tests use real Three.js geometry with a substituted GPU interface; they do not verify rendered pixels or phone frame rates. Actual mobile play, sound balance and GPU performance need device testing.

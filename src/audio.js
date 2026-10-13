@@ -5,6 +5,13 @@ export class FarmAudio {
     this.master = null;
     this.music = null;
     this.effects = null;
+    this.ambience = null;
+    this.ambientSources = new Set();
+    this.weatherSource = null;
+    this.weatherKind = null;
+    this.weatherVolume = -1;
+    this.noiseBuffer = null;
+    this.birdCountdown = 4 + Math.random() * 6;
     this.muted = false;
     this.paused = false;
     this.timer = null;
@@ -25,11 +32,14 @@ export class FarmAudio {
         this.master = this.context.createGain();
         this.music = this.context.createGain();
         this.effects = this.context.createGain();
+        this.ambience = this.context.createGain();
         this.master.gain.value = this.muted ? 0 : 0.65;
         this.music.gain.value = 0.42;
         this.effects.gain.value = 0.6;
+        this.ambience.gain.value = 0.38;
         this.music.connect(this.master);
         this.effects.connect(this.master);
+        this.ambience.connect(this.master);
         this.master.connect(this.context.destination);
       }
       await this.context.resume();
@@ -45,6 +55,7 @@ export class FarmAudio {
 
   setMuted(muted) {
     this.muted = Boolean(muted);
+    if (this.muted) this._stopAmbience();
     if (!this.context || !this.master) return;
     const now = this.context.currentTime;
     this.master.gain.cancelScheduledValues(now);
@@ -54,6 +65,7 @@ export class FarmAudio {
   pause() {
     this.paused = true;
     this._stopScheduler();
+    this._stopAmbience();
     if (this.context && this.context.state !== 'closed') this.music.gain.setTargetAtTime(0.0001, this.context.currentTime, 0.025);
   }
 
@@ -124,6 +136,114 @@ export class FarmAudio {
     }
   }
 
+  /** Driven by gameplay frames: never starts audio without a user gesture. */
+  updateAmbience(dt, state = {}) {
+    if (!this.context || this.context.state !== 'running' || this.paused || this.muted || this.disposed) return;
+    const raw = state.weather || 'sun';
+    const type = typeof raw === 'string' ? raw : raw.type || 'sun';
+    const intensity = typeof raw === 'object' && Number.isFinite(raw.intensity)
+      ? Math.max(0, Math.min(1, raw.intensity)) : 0.3;
+    const kind = ['rain', 'wind', 'snow'].includes(type) ? type : 'sun';
+    this._weather(kind, intensity);
+    // Clamp frame gaps so resuming a hidden tab cannot emit a burst of birds.
+    this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, 0.25)) : 0;
+    if (this.birdCountdown > 0) return;
+    this.birdCountdown = kind === 'rain' ? 10 + Math.random() * 10 : 4 + Math.random() * 6;
+    if (kind === 'rain' && intensity >= 0.7) return;
+    this._chirp(kind === 'rain' ? 0.018 : 0.03);
+  }
+
+  _chirp(volume) {
+    const now = this.context.currentTime + 0.015;
+    const base = 1600 + Math.random() * 1100;
+    const notes = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < notes; i++) {
+      const oscillator = this.context.createOscillator();
+      const envelope = this.context.createGain();
+      const time = now + i * (0.14 + Math.random() * 0.035);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(base * (1 + i * 0.1), time);
+      oscillator.frequency.exponentialRampToValueAtTime(base * (i % 2 ? 0.9 : 1.28), time + 0.07);
+      oscillator.frequency.exponentialRampToValueAtTime(base * 0.95, time + 0.13);
+      envelope.gain.setValueAtTime(0.0001, time);
+      envelope.gain.exponentialRampToValueAtTime(volume, time + 0.025);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, time + 0.15);
+      oscillator.connect(envelope);
+      envelope.connect(this.ambience);
+      this._trackAmbience(oscillator, [envelope]);
+      oscillator.start(time);
+      oscillator.stop(time + 0.17);
+    }
+  }
+
+  _trackAmbience(source, nodes) {
+    this.active.add(source);
+    this.ambientSources.add(source);
+    source.onended = () => {
+      source.disconnect();
+      for (const node of nodes) node.disconnect();
+      this.active.delete(source);
+      this.ambientSources.delete(source);
+    };
+  }
+
+  _weather(kind, intensity) {
+    if (this.weatherKind !== kind) {
+      this._stopWeather();
+      this.weatherKind = kind;
+      if (kind !== 'sun') {
+        const context = this.context;
+        if (!this.noiseBuffer) {
+          this.noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+          const samples = this.noiseBuffer.getChannelData(0);
+          for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+        }
+        const source = context.createBufferSource();
+        const filter = context.createBiquadFilter();
+        const gain = context.createGain();
+        source.buffer = this.noiseBuffer;
+        source.loop = true;
+        filter.type = 'lowpass';
+        filter.frequency.value = kind === 'rain' ? 2200 : 500;
+        filter.Q.value = 0.3;
+        gain.gain.value = 0.0001;
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ambience);
+        this._trackAmbience(source, [filter, gain]);
+        this.weatherSource = { source, gain, filter };
+        source.start();
+      }
+    }
+    if (this.weatherSource) {
+      const volume = (kind === 'rain' ? 0.032 : kind === 'snow' ? 0.012 : 0.024) * intensity;
+      if (Math.abs(volume - this.weatherVolume) > 0.001) {
+        this.weatherSource.gain.gain.setTargetAtTime(volume, this.context.currentTime, 0.8);
+        this.weatherVolume = volume;
+      }
+    }
+  }
+
+  _stopWeather() {
+    if (this.weatherSource) this._releaseAmbience(this.weatherSource.source);
+    this.weatherSource = null;
+    this.weatherKind = null;
+    this.weatherVolume = -1;
+  }
+
+  _releaseAmbience(source) {
+    try { source.stop(); } catch { /* Already ended. */ }
+    // Disconnect synchronously too: browsers dispatch onended asynchronously.
+    source.onended?.();
+    source.onended = null;
+  }
+
+  _stopAmbience() {
+    this._stopWeather();
+    for (const source of [...this.ambientSources]) this._releaseAmbience(source);
+    this.birdCountdown = 4 + Math.random() * 6;
+  }
+
   _note(midi, time, duration, volume, voice = 'marimba', destination = this.effects) {
     if (!this.context || !destination || this.disposed) return;
     const context = this.context;
@@ -188,6 +308,7 @@ export class FarmAudio {
     if (this.disposed) return;
     this.disposed = true;
     this._stopScheduler();
+    this._stopAmbience();
     for (const source of this.active) {
       try { source.stop(); } catch { /* Already ended. */ }
       source.disconnect();
@@ -195,6 +316,7 @@ export class FarmAudio {
     this.active.clear();
     if (this.context && this.context.state !== 'closed') this.context.close().catch(() => {});
     this.context = null;
-    this.master = this.music = this.effects = null;
+    this.master = this.music = this.effects = this.ambience = null;
+    this.noiseBuffer = null;
   }
 }

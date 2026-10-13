@@ -1,0 +1,163 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { FarmAudio } from '../src/audio.js';
+
+class Param {
+  constructor() { this.value = 0; this.targets = []; }
+  setValueAtTime(value) { this.value = value; }
+  exponentialRampToValueAtTime(value) { this.value = value; }
+  setTargetAtTime(value) { this.value = value; this.targets.push(value); }
+  cancelScheduledValues() {}
+}
+class Node {
+  constructor() {
+    this.gain = new Param(); this.frequency = new Param(); this.Q = new Param();
+    this.connections = []; this.started = false; this.stops = []; this.disconnected = false;
+  }
+  connect(node) { this.connections.push(node); }
+  disconnect() { this.disconnected = true; }
+  start(time = 0) { this.started = true; this.startTime = time; }
+  stop(time) { this.stops.push(time); }
+  end() { this.onended?.(); }
+}
+class Context {
+  constructor() { this.state = 'suspended'; this.currentTime = 0; this.sampleRate = 100; this.destination = new Node(); this.oscillators = []; this.buffers = []; this.sources = []; }
+  createGain() { return new Node(); }
+  createOscillator() { const node = new Node(); this.oscillators.push(node); return node; }
+  createBiquadFilter() { return new Node(); }
+  createBuffer(channels, count) { const buffer = { getChannelData: () => new Float32Array(count) }; this.buffers.push(buffer); return buffer; }
+  createBufferSource() { const node = new Node(); this.sources.push(node); return node; }
+  async resume() { this.state = 'running'; }
+  async close() { this.state = 'closed'; }
+}
+
+async function withAudio(fn) {
+  const originals = { AudioContext: globalThis.AudioContext, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval };
+  const timers = new Set();
+  globalThis.AudioContext = Context;
+  globalThis.setInterval = (callback) => { const id = { callback }; timers.add(id); return id; };
+  globalThis.clearInterval = (id) => timers.delete(id);
+  const audio = new FarmAudio();
+  try { await fn(audio, timers); }
+  finally { audio.dispose(); Object.assign(globalThis, originals); }
+}
+
+test('ambience never creates audio before start, start is reusable, and frames add no timers', async () => {
+  await withAudio(async (audio, timers) => {
+    audio.updateAmbience(10, { weather: 'rain' });
+    assert.equal(audio.context, null);
+    assert.equal(timers.size, 0);
+    assert.equal(await audio.start(), true);
+    const context = audio.context;
+    await audio.start();
+    assert.equal(audio.context, context);
+    assert.equal(timers.size, 1);
+    for (let i = 0; i < 12; i++) audio.updateAmbience(0.25, { weather: 'rain' });
+    assert.equal(timers.size, 1);
+    assert.equal(context.sources.length, 1);
+    assert.equal(context.buffers.length, 1);
+  });
+});
+
+test('birds are varied short quiet phrases and do not burst after a long frame gap', async () => {
+  await withAudio(async (audio) => {
+    await audio.start();
+    const context = audio.context;
+    audio.birdCountdown = 1;
+    const before = context.oscillators.length;
+    audio.updateAmbience(1000, { weather: 'sun' });
+    assert.equal(context.oscillators.length, before);
+    for (let i = 0; i < 3; i++) audio.updateAmbience(0.25, { weather: 'sun' });
+    assert.ok(context.oscillators.length - before >= 2);
+    assert.ok(context.oscillators.length - before <= 3);
+    const birds = [...audio.ambientSources];
+    for (const bird of birds) {
+      assert.equal(bird.type, 'sine');
+      assert.ok(bird.stops[0] - bird.startTime < 0.2);
+      bird.end();
+      assert.equal(bird.disconnected, true);
+    }
+    assert.equal(audio.ambientSources.size, 0);
+    assert.ok(audio.birdCountdown >= 4 && audio.birdCountdown <= 10);
+  });
+});
+
+test('pause and mute stop ambience and prevent new chirps, UI sounds remain on pause', async () => {
+  await withAudio(async (audio, timers) => {
+    await audio.start();
+    audio.updateAmbience(0.1, { weather: 'wind' });
+    const source = audio.weatherSource.source;
+    audio.birdCountdown = 0;
+    audio.updateAmbience(0.1);
+    const birds = [...audio.ambientSources];
+    audio.pause();
+    assert.equal(timers.size, 0);
+    assert.equal(source.disconnected, true);
+    assert.equal(audio.ambientSources.size, 0);
+    assert.ok(birds.every((bird) => bird.disconnected));
+    const before = audio.context.oscillators.length;
+    audio.birdCountdown = 0;
+    audio.updateAmbience(1000, { weather: 'rain' });
+    assert.equal(audio.context.oscillators.length, before);
+    audio.play('click');
+    assert.ok(audio.context.oscillators.length > before);
+    await audio.resume();
+    audio.updateAmbience(0.1, { weather: 'rain' });
+    const rain = audio.weatherSource.source;
+    audio.setMuted(true);
+    assert.equal(rain.disconnected, true);
+    const mutedCount = audio.context.oscillators.length;
+    audio.birdCountdown = 0;
+    audio.updateAmbience(1, { weather: 'sun' });
+    audio.play('click');
+    assert.equal(audio.context.oscillators.length, mutedCount);
+    assert.equal(audio.master.gain.value, 0);
+  });
+});
+
+test('weather shares a single noise buffer, bounded gains, and cleans up on weather changes', async () => {
+  await withAudio(async (audio) => {
+    await audio.start();
+    audio.updateAmbience(0.1, { weather: { type: 'rain', intensity: 999 } });
+    const rain = audio.weatherSource;
+    assert.ok(rain.gain.gain.value <= 0.032);
+    assert.equal(rain.source.loop, true);
+    assert.equal(rain.filter.type, 'lowpass');
+    audio.updateAmbience(0.1, { weather: { type: 'wind', intensity: -100 } });
+    assert.equal(rain.source.disconnected, true);
+    assert.equal(rain.gain.disconnected, true);
+    assert.equal(rain.filter.disconnected, true);
+    assert.equal(audio.weatherSource.gain.gain.value, 0);
+    assert.equal(audio.context.buffers.length, 1);
+    const wind = audio.weatherSource.source;
+    audio.updateAmbience(0.1, { weather: 'sun' });
+    assert.equal(wind.disconnected, true);
+    assert.equal(audio.weatherSource, null);
+    audio.birdCountdown = 0;
+    const before = audio.context.oscillators.length;
+    audio.updateAmbience(0.1, { weather: { type: 'rain', intensity: 0.9 } });
+    assert.equal(audio.context.oscillators.length, before);
+  });
+});
+
+test('dispose stops and disconnects every source, releases buffer and timer, and is final', async () => {
+  await withAudio(async (audio, timers) => {
+    await audio.start();
+    audio.updateAmbience(0.1, { weather: 'snow' });
+    audio.birdCountdown = 0;
+    audio.updateAmbience(0.1, { weather: 'snow' });
+    const sources = [...audio.active];
+    const context = audio.context;
+    audio.dispose();
+    assert.equal(timers.size, 0);
+    assert.equal(audio.active.size, 0);
+    assert.equal(audio.ambientSources.size, 0);
+    assert.ok(sources.every((source) => source.disconnected && source.stops.length > 0));
+    assert.equal(context.state, 'closed');
+    assert.equal(audio.noiseBuffer, null);
+    assert.equal(audio.context, null);
+    assert.equal(await audio.start(), false);
+    audio.updateAmbience(1, { weather: 'rain' });
+    audio.dispose();
+  });
+});

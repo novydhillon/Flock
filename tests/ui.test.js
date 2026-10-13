@@ -4,21 +4,22 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
+import * as simulationAPI from '../src/simulation.js';
+import * as progressionAPI from '../src/progression.js';
+import * as worldAPI from '../src/world.js';
 
 const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', import.meta.url));
 
 // Run the production controller and simulation together. Rendering, browser DOM,
 // and WebAudio are the only substitutes; navigation and rewards are real code.
-function launch({ deniedStorage = false, points = 0 } = {}) {
+function launch({ deniedStorage = false, points = 0, highestLevel = 0 } = {}) {
   const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '');
-  const progression = readFileSync(path.join(root, 'src/progression.js'), 'utf8').replace(/^export /gm, '');
-  const simulation = readFileSync(path.join(root, 'src/simulation.js'), 'utf8').replace(/^import .*;\s*$/gm, '').replace(/^export \{.*\};\s*$/gm, '').replace(/^export /gm, '');
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
   const documentEvents = new Map(), windowEvents = new Map();
   const audioEvents = [];
   let clock = 1000;
-  const storage = new Map([['flock-foundry-v1', JSON.stringify({ points, music: true })]]);
+  const storage = new Map([['flock-foundry-v1', JSON.stringify({ points, highestLevel, music: true })]]);
   const document = {
     hidden: false, activeElement: null,
     getElementById: id => elements.get('modal-card')?.children.find(e => e.id === id) || elements.get(id) || null,
@@ -39,6 +40,8 @@ function launch({ deniedStorage = false, points = 0 } = {}) {
     focus() { document.activeElement = this; }
     closest(selector) {
       if (selector === '#joystick' && this.id === 'joystick') return this;
+      if (selector === '#bark' && this.id === 'bark') return this;
+      if (selector === '#controls' && ['joystick','bark','controls'].includes(this.id)) return this;
       if (selector.includes('button') && this.attrs.tag === 'button') return this;
       return null;
     }
@@ -78,18 +81,21 @@ function launch({ deniedStorage = false, points = 0 } = {}) {
     play(name) { audioEvents.push(name); }
   }
   const context = {
+    ...simulationAPI,...progressionAPI,...worldAPI,
     document, window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
     navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio,
     setTimeout: () => 1, clearTimeout() {}, requestAnimationFrame() {},
     console: { error: (...args) => { throw new Error(`Controller startup failed: ${args.join(' ')}`); } },
   };
-  Object.defineProperty(context, 'localStorage', {
+  const storageDescriptor={configurable:true,
     get() {
       if (deniedStorage) throw new Error('SecurityError: storage denied');
       return { getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value) };
     },
-  });
-  vm.runInNewContext(`${progression}\n${simulation}\n${main}\nglobalThis.app = {
+  };
+  Object.defineProperty(context,'localStorage',storageDescriptor);
+  Object.defineProperty(globalThis,'localStorage',storageDescriptor);
+  vm.runInNewContext(`${main}\nglobalThis.app = {
     begin, menu, shop, complete, frame,
     state: () => ({ mode, previousMode, input, pointer, keyCount: keys.size, level, dog, profile }),
   };`, context, { filename: 'flock-ui-integration.js' });
@@ -99,9 +105,19 @@ function launch({ deniedStorage = false, points = 0 } = {}) {
   const buy = id => { const button = el('modal-card').querySelectorAll('[data-buy]').find(e => e.dataset.buy === id); assert.ok(button, `Expected upgrade ${id}`); assert.equal(button.disabled, false); button.onclick(); };
   const emit = (name, event = {}) => documentEvents.get(name)?.({ type: name, target: el('world'), preventDefault() {}, ...event });
   const tick = () => { clock += 16; app.frame(clock); };
-  const completeFlock = () => { const state = app.state(); for (const animal of state.level.animals) Object.assign(animal, { x: state.level.target.x, z: state.level.target.z, vx: 0, vz: 0 }); tick(); };
-  return { app, el, click, buy, emit, tick, completeFlock, audioEvents, windowEvents, storage };
+  const completeFlock = () => { const state = app.state();state.dog.x=state.level.target.x;state.dog.z=state.level.target.z;for (const animal of state.level.animals) Object.assign(animal, { x: state.level.target.x, z: state.level.target.z, vx: 0, vz: 0 }); tick(); };
+  return { app, el, click, buy, emit, tick, completeFlock, audioEvents, windowEvents, storage, document };
 }
+
+test('nested workshop navigation restores focus to the original pause control', async () => {
+  const ui = launch();
+  await ui.click('play');
+  await ui.click('pause');
+  await ui.click('upgrades-menu');
+  await ui.click('shop-back');
+  assert.equal(ui.app.state().mode, 'playing');
+  assert.equal(ui.document.activeElement, ui.el('pause'));
+});
 
 test('intro starts the tutorial, enables thumb controls and respects audio settings', async () => {
   const ui = launch();
@@ -116,7 +132,7 @@ test('intro starts the tutorial, enables thumb controls and respects audio setti
 });
 
 test('workshop purchase refresh preserves the playing origin and applies one purchase', async () => {
-  const ui = launch({ points: 400 });
+  const ui = launch({ points: 400,highestLevel:14 });
   await ui.click('play'); await ui.click('wallet');
   ui.buy('speed'); ui.buy('flock');
   assert.equal(ui.app.state().profile.points, 200);
@@ -128,7 +144,7 @@ test('workshop purchase refresh preserves the playing origin and applies one pur
 });
 
 test('pause -> workshop -> back resumes play instead of reverting to intro', async () => {
-  const ui = launch({ points: 400 });
+  const ui = launch({ points: 400,highestLevel:14 });
   await ui.click('play'); await ui.click('pause');
   assert.equal(ui.app.state().mode, 'paused');
   await ui.click('upgrades-menu'); ui.buy('speed'); await ui.click('shop-back');
@@ -211,4 +227,29 @@ test('keyboard movement works while Play or Resume retains browser focus', async
   await ui.click('pause'); await ui.click('resume');
   ui.emit('keydown',{key:'w',target:ui.el('resume')}); const z=ui.app.state().dog.z; ui.tick();
   assert.ok(ui.app.state().dog.z<z);
+});
+
+test('the workshop labels level locks and cannot spend on an early drone',async()=>{
+  const ui=launch({points:1000,highestLevel:7});await ui.click('play');await ui.click('wallet');
+  const drone=ui.el('modal-card').querySelectorAll('[data-buy]').find(b=>b.dataset.buy==='drone');
+  assert.equal(drone.disabled,true);assert.match(ui.el('modal-card').innerHTML,/Level 10/);
+  const before=ui.app.state().profile.points;drone.onclick?.();assert.equal(ui.app.state().profile.points,before);
+});
+
+test('double taps and native touch gestures bark without changing the game viewport',async()=>{
+  const ui=launch();await ui.click('play');let prevented=0;
+  const gesture={pointerId:1,clientX:120,clientY:450,preventDefault(){prevented++;}};
+  ui.emit('pointerdown',gesture);ui.emit('pointerup',gesture);ui.tick();
+  ui.emit('pointerdown',{...gesture,pointerId:2});ui.emit('pointerup',{...gesture,pointerId:2});
+  assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
+  ui.emit('dblclick',{preventDefault(){prevented++;}});ui.emit('touchstart',{preventDefault(){prevented++;}});ui.emit('touchend',{preventDefault(){prevented++;}});
+  ui.emit('gesturestart',{preventDefault(){prevented++;}});ui.emit('gesturechange',{preventDefault(){prevented++;}});
+  assert.ok(prevented>=9,'play surface explicitly cancels native zoom defaults');
+  await ui.click('pause');let menuPrevented=false;
+  ui.emit('gesturestart',{preventDefault(){menuPrevented=true;}});assert.equal(menuPrevented,false,'menus retain native behavior');
+});
+
+test('touch Woof still works when compatibility click events are suppressed',async()=>{
+  const ui=launch();await ui.click('play');ui.emit('touchend',{target:ui.el('bark')});
+  assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
 });
