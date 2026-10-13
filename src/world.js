@@ -157,7 +157,9 @@ export function createLevel(index=0,seed=index*7919+42) {
     else {
       riverFunctions.forEach((river,j)=>{
         const z=early?(index===1?0:sign*5):offset+sign*(j%2?-1:1)*(14+random()*5);
-        const x=river.at(z),bridge={x,z,width:early?8.5:10,length:river.width+5,heading};
+        // The first crossing admits the full starter flock's spread; later
+        // lessons narrow the opening once the player has learned retrieval.
+        const x=river.at(z),bridge={x,z,width:index===1?11.5:early?8.5:10,length:river.width+5,heading};
         canonicalRivers[j].bridges.push(bridge);
         const approach=bridge.length/2+(early?3:6);
         // Branches leave the entire set of parallel decks before turning, so

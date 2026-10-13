@@ -104,6 +104,7 @@ function herdThroughLevel(level, seconds = 400) {
 }
 
 for (const { index, seed, direction } of [
+  { index: 1, direction: 'west' },
   { index: 2, direction: 'east' },
   { index: 5, seed: 201, direction: 'north' },
   { index: 9, seed: 203, direction: 'south' },

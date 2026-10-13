@@ -19,11 +19,13 @@ export class FarmAudio {
     this.nextNoteTime = 0;
     this.active = new Set();
     this.disposed = false;
+    this.activationGeneration = 0;
     this.tempo = 106;
   }
 
   async start() {
     if (this.disposed) return false;
+    const generation = ++this.activationGeneration;
     try {
       if (!this.context) {
         const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -42,7 +44,10 @@ export class FarmAudio {
         this.ambience.connect(this.master);
         this.master.connect(this.context.destination);
       }
-      await this.context.resume();
+      const context = this.context;
+      await context.resume();
+      // A later pause, activation, or disposal owns the playback intent.
+      if (this.disposed || generation !== this.activationGeneration || this.context !== context) return false;
       this.paused = false;
       this.music.gain.setTargetAtTime(0.42, this.context.currentTime, 0.025);
       this._begin();
@@ -63,6 +68,7 @@ export class FarmAudio {
   }
 
   pause() {
+    this.activationGeneration++;
     this.paused = true;
     this._stopScheduler();
     this._stopAmbience();
@@ -70,15 +76,7 @@ export class FarmAudio {
   }
 
   async resume() {
-    if (this.disposed) return false;
-    if (!this.context) return this.start();
-    try {
-      await this.context.resume();
-      this.paused = false;
-      this.music.gain.setTargetAtTime(0.42, this.context.currentTime, 0.025);
-      this._begin();
-      return true;
-    } catch { return false; }
+    return this.start();
   }
 
   _begin() {
@@ -94,9 +92,18 @@ export class FarmAudio {
   }
 
   _schedule() {
-    if (!this.context || this.context.state !== 'running' || this.paused) return;
+    if (!this.context || this.context.state !== 'running' || this.paused || this.disposed) return;
     const eighth = 60 / this.tempo / 2;
-    while (this.nextNoteTime < this.context.currentTime + 0.25) {
+    if (!Number.isFinite(eighth) || eighth <= 0) return;
+    const now = this.context.currentTime;
+    if (this.nextNoteTime < now) {
+      // Hidden tabs can miss minutes of callbacks. Skip those beats without
+      // creating overdue oscillators, keeping the phrase at its elapsed step.
+      const skipped = Math.ceil((now - this.nextNoteTime) / eighth);
+      this.step = (this.step + skipped) % 128;
+      this.nextNoteTime = Math.max(now, this.nextNoteTime + skipped * eighth);
+    }
+    for (let scheduled = 0; scheduled < 8 && this.nextNoteTime < now + 0.25; scheduled++) {
       this._musicStep(this.step, this.nextNoteTime, eighth);
       this.step = (this.step + 1) % 128;
       this.nextNoteTime += eighth;
@@ -306,6 +313,7 @@ export class FarmAudio {
 
   dispose() {
     if (this.disposed) return;
+    this.activationGeneration++;
     this.disposed = true;
     this._stopScheduler();
     this._stopAmbience();

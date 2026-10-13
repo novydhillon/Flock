@@ -30,17 +30,124 @@ class Context {
   async resume() { this.state = 'running'; }
   async close() { this.state = 'closed'; }
 }
+class DeferredContext extends Context {
+  constructor() { super(); this.pendingResumes = []; }
+  resume() {
+    return new Promise((resolve) => this.pendingResumes.push(() => {
+      if (this.state !== 'closed') this.state = 'running';
+      resolve();
+    }));
+  }
+}
 
-async function withAudio(fn) {
+async function withAudio(fn, AudioContext = Context) {
   const originals = { AudioContext: globalThis.AudioContext, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval };
   const timers = new Set();
-  globalThis.AudioContext = Context;
+  globalThis.AudioContext = AudioContext;
   globalThis.setInterval = (callback) => { const id = { callback }; timers.add(id); return id; };
   globalThis.clearInterval = (id) => timers.delete(id);
   const audio = new FarmAudio();
   try { await fn(audio, timers); }
   finally { audio.dispose(); Object.assign(globalThis, originals); }
 }
+
+test('a pause during pending start or resume remains paused after activation settles', async () => {
+  for (const operation of ['start', 'resume']) {
+    await withAudio(async (audio, timers) => {
+      if (operation === 'resume') {
+        const initial = audio.start();
+        audio.context.pendingResumes[0]();
+        await initial;
+        audio.pause();
+      }
+      const pending = audio[operation]();
+      const context = audio.context;
+      const before = context.oscillators.length;
+      audio.pause();
+      context.pendingResumes.at(-1)();
+      assert.equal(await pending, false);
+      assert.equal(audio.paused, true);
+      assert.equal(timers.size, 0);
+      assert.equal(context.oscillators.length, before);
+      assert.equal(audio.music.gain.value, 0.0001);
+    }, DeferredContext);
+  }
+});
+
+test('latest concurrent activation wins in either completion order and preserves mute', async () => {
+  for (const order of [[0, 1], [1, 0]]) {
+    await withAudio(async (audio, timers) => {
+      const pending = [audio.start(), audio.resume()];
+      const context = audio.context;
+      audio.setMuted(true);
+      for (const index of order) {
+        const before = context.oscillators.length;
+        context.pendingResumes[index]();
+        assert.equal(await pending[index], index === 1);
+        if (index === 0) assert.equal(context.oscillators.length, before);
+        assert.equal(timers.size, index === 1 || order[0] === 1 ? 1 : 0);
+        assert.equal(audio.muted, true);
+        assert.equal(audio.master.gain.value, 0);
+      }
+      audio.pause();
+      assert.equal(timers.size, 0);
+    }, DeferredContext);
+  }
+});
+
+test('dispose cancels pending activation without touching released nodes', async () => {
+  await withAudio(async (audio, timers) => {
+    const pending = [audio.start(), audio.resume()];
+    const context = audio.context;
+    audio.dispose();
+    for (const complete of context.pendingResumes) complete();
+    assert.deepEqual(await Promise.all(pending), [false, false]);
+    assert.equal(context.state, 'closed');
+    assert.equal(context.oscillators.length, 0);
+    assert.equal(audio.context, null);
+    assert.equal(timers.size, 0);
+  }, DeferredContext);
+});
+
+test('music keeps its normal sequence and skips overdue steps after a stalled timer', async () => {
+  await withAudio(async (audio, timers) => {
+    const steps = [];
+    const musicStep = audio._musicStep.bind(audio);
+    audio._musicStep = (step, time, eighth) => { steps.push({ step, time }); musicStep(step, time, eighth); };
+    await audio.start();
+    const context = audio.context;
+    const callback = [...timers][0].callback;
+    for (const time of [0.1, 0.2, 0.3, 0.4]) { context.currentTime = time; callback(); }
+    assert.deepEqual(steps.map(({ step }) => step), [0, 1, 2]);
+    const eighth = 60 / audio.tempo / 2;
+    assert.ok(Math.abs(steps[1].time - steps[0].time - eighth) < 1e-10);
+    const previousStep = audio.step;
+    const previousTime = audio.nextNoteTime;
+    const before = steps.length;
+    const beforeOscillators = context.oscillators.length;
+    context.currentTime = 60;
+    callback();
+    const resumed = steps.slice(before);
+    assert.ok(resumed.length <= 8);
+    assert.ok(resumed.every(({ time }) => time >= 60 && time < 60.25));
+    assert.ok(context.oscillators.slice(beforeOscillators).every((node) => node.startTime >= 60));
+    const skipped = Math.ceil((60 - previousTime) / eighth);
+    assert.equal(audio.step, (previousStep + skipped + resumed.length) % 128);
+    assert.ok(audio.nextNoteTime >= 60.25);
+  });
+});
+
+test('music scheduling work stays bounded even at extreme tempos', async () => {
+  await withAudio(async (audio, timers) => {
+    await audio.start();
+    audio.tempo = 60000;
+    let count = 0;
+    audio._musicStep = () => { count++; };
+    audio.context.currentTime = 60;
+    [...timers][0].callback();
+    assert.equal(count, 8);
+  });
+});
 
 test('ambience never creates audio before start, start is reusable, and frames add no timers', async () => {
   await withAudio(async (audio, timers) => {

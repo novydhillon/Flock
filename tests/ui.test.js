@@ -12,12 +12,14 @@ const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', impo
 
 // Run the production controller and simulation together. Rendering, browser DOM,
 // and WebAudio are the only substitutes; navigation and rewards are real code.
-function launch({ deniedStorage = false, points = 0, highestLevel = 0 } = {}) {
+function launch({ deniedStorage = false, points = 0, highestLevel = 0, deferAudioStart = false } = {}) {
   const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '');
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
   const documentEvents = new Map(), windowEvents = new Map();
   const audioEvents = [];
+  let resolveAudioStart;
+  const audioActivation = deferAudioStart ? new Promise(resolve => { resolveAudioStart = resolve; }) : Promise.resolve();
   let clock = 1000;
   const storage = new Map([['flock-foundry-v1', JSON.stringify({ points, highestLevel, music: true })]]);
   const document = {
@@ -74,7 +76,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0 } = {}) {
     update() {} drawMap() {} resize() {} bark() {} celebrate() {}
   }
   class FarmAudio {
-    async start() { audioEvents.push('start'); }
+    async start() { audioEvents.push('start'); await audioActivation; }
     setMuted(value) { audioEvents.push(`muted:${value}`); }
     pause() { audioEvents.push('pause'); }
     resume() { audioEvents.push('resume'); }
@@ -106,7 +108,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0 } = {}) {
   const emit = (name, event = {}) => documentEvents.get(name)?.({ type: name, target: el('world'), preventDefault() {}, ...event });
   const tick = () => { clock += 16; app.frame(clock); };
   const completeFlock = () => { const state = app.state();state.dog.x=state.level.target.x;state.dog.z=state.level.target.z;for (const animal of state.level.animals) Object.assign(animal, { x: state.level.target.x, z: state.level.target.z, vx: 0, vz: 0 }); tick(); };
-  return { app, el, click, buy, emit, tick, completeFlock, audioEvents, windowEvents, storage, document };
+  return { app, el, click, buy, emit, tick, completeFlock, audioEvents, windowEvents, storage, document, settleAudioStart: () => resolveAudioStart?.() };
 }
 
 test('nested workshop navigation restores focus to the original pause control', async () => {
@@ -117,6 +119,31 @@ test('nested workshop navigation restores focus to the original pause control', 
   await ui.click('shop-back');
   assert.equal(ui.app.state().mode, 'playing');
   assert.equal(ui.document.activeElement, ui.el('pause'));
+});
+
+test('delayed audio startup cannot undo menu or visibility pause', async () => {
+  for (const cause of ['menu', 'visibility']) {
+    const ui = launch({ deferAudioStart: true });
+    const startup = ui.click('play');
+    assert.equal(ui.app.state().mode, 'playing');
+    if (cause === 'menu') await ui.click('pause');
+    else { ui.document.hidden = true; ui.emit('visibilitychange'); }
+    assert.equal(ui.app.state().mode, 'paused');
+    ui.settleAudioStart(); await startup;
+    assert.equal(ui.app.state().mode, 'paused');
+    assert.equal(ui.audioEvents.at(-1), 'pause');
+    assert.ok(!ui.audioEvents.includes('resume'));
+  }
+});
+
+test('sound activation finishing in a paused menu cannot resume music', async () => {
+  const ui = launch({ deferAudioStart: true });
+  await ui.click('sound'); // Turn sound off without requesting activation.
+  const activation = ui.click('sound');
+  assert.equal(ui.app.state().mode, 'intro');
+  ui.settleAudioStart(); await activation;
+  assert.equal(ui.audioEvents.at(-1), 'pause');
+  assert.ok(!ui.audioEvents.includes('resume'));
 });
 
 test('intro starts the tutorial, enables thumb controls and respects audio settings', async () => {

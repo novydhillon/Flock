@@ -26,7 +26,7 @@ async function begin(index=profile.highestLevel){
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box','destination'])visible(id,true);
   $('level-name').textContent=`LEVEL ${index+1} · ${level.title}`;$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=`/ ${level.animals.length}`;$('saved').textContent=0;$('progress').style.width='0%';
   visible('tip',true);setTip(index===0?'Drag with your thumb to move Pip. Try circling behind the sheep.':level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.');
-  audio.setMuted(!profile.music);await audio.start();audio.resume();updateWallet();
+  audio.setMuted(!profile.music);await audio.start();if(mode!=='playing')audio.pause();updateWallet();
 }
 function setTip(text){$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
 function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
@@ -77,7 +77,7 @@ window.addEventListener('blur',()=>{resetInput();pointer=null;if(mode==='playing
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')menu();});
 window.addEventListener('resize',()=>renderer?.resize());
 $('play').onclick=()=>begin();$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
-$('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode==='playing')audio.resume();else audio.pause();}persist();updateWallet();};
+$('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}persist();updateWallet();};
 $('dismiss-tip').onclick=()=>{tipDismissed=true;visible('tip',false);};
 
 let mapTick=0;

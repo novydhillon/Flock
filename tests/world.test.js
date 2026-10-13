@@ -42,6 +42,23 @@ test('tutorial footprints stay intimate and later meadows expand in the vertical
   assert.ok(createLevel(99).bounds.maxZ-createLevel(99).bounds.minZ>createLevel(5).bounds.maxZ-createLevel(5).bounds.minZ);
   assert.equal(createLevel(5).routes.length,2);assert.equal(createLevel(15).routes.length,3);
 });
+test('the first tutorial bridge fits the starter flock spread while retaining solid rails and water',()=>{
+  const l=createLevel(1),bridge=l.rivers[0].bridges[0],f={x:Math.sin(bridge.heading),z:Math.cos(bridge.heading)};
+  const point=(u,v)=>({x:bridge.x+f.x*u+f.z*v,z:bridge.z+f.z*u-f.x*v});
+  for(const animal of l.animals){
+    const lateral=(animal.x-l.spawn.x)*f.z-(animal.z-l.spawn.z)*f.x;
+    const near=point(-bridge.length/2-1,lateral),far=point(bridge.length/2+1,lateral);
+    assert.ok(hasClearGroundPath(l,near,far,.55),`starter sheep ${animal.id} fits the first deck`);
+  }
+  for(const side of [-1,1]){
+    const rail=point(0,side*bridge.width/2),water=point(0,side*(bridge.width/2+1));
+    assert.equal(canOccupy(l,rail.x,rail.z,.55),false,'the wider deck still has solid rails');
+    assert.equal(canOccupy(l,water.x,water.z,.55),false,'the river still blocks travel outside the deck');
+  }
+  for(const index of [2,3,4,5,15]){
+    assert.ok(createLevel(index).rivers[0].bridges[0].width<bridge.width,'later crossings stay narrower');
+  }
+});
 test('every route in all 100 levels is traversable by cows and actual ground bodies',()=>{
   for(let index=0;index<100;index++){
     const l=createLevel(index);
