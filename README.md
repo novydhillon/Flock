@@ -4,6 +4,8 @@ A cheerful 3D herding game for portrait phones. Guide a robotic sheepdog through
 
 Development branch: `flock_3D_chatgpt-work`.
 
+Remaining work and future-agent handoffs: [Issue tracker](docs/ISSUES.md).
+
 Play the standalone development build at [novydhillon.github.io/Flock/flock/dev2/](https://novydhillon.github.io/Flock/flock/dev2/). The existing `flock/dev/` game is preserved separately.
 
 ## Engine choice
