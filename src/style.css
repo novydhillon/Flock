@@ -3,3 +3,5 @@
 @media(max-height:650px){.intro h1{font-size:35px}.intro p{font-size:11px}.intro-meta{display:none}.intro{bottom:24px}.mission{top:76px;padding:9px 13px}.map-box{top:175px}.destination{top:168px}.tip{bottom:145px}.joystick-ring{width:90px;height:90px}.controls{bottom:16px}.scene-tag{display:none}}
 /* Native mobile gestures must not alter the game's viewport. */
 html,body{touch-action:auto;-webkit-text-size-adjust:100%}button,.topbar{touch-action:manipulation}#world,#controls,#joystick,.bark{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.modal,.modal-card{touch-action:pan-y}.inactive-upgrade{display:block;font-size:8px;line-height:1.4;color:#8a8c76;margin-top:4px}.upgrade.locked .upgrade-icon{background:#e8e6d9;color:#979984}.upgrade.locked button{background:#d9decc;color:#6b7e65}
+
+.intro-actions{width:240px;max-width:100%}.intro-actions .primary{width:100%}.secondary.danger{color:#985440;background:#efe2d5}

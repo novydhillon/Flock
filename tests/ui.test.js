@@ -12,7 +12,7 @@ const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', impo
 
 // Run the production controller and simulation together. Rendering, browser DOM,
 // and WebAudio are the only substitutes; navigation and rewards are real code.
-function launch({ deniedStorage = false, points = 0, highestLevel = 0, deferAudioStart = false } = {}) {
+function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades = {}, completedLevels = [], music = true, deferAudioStart = false } = {}) {
   const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '');
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
@@ -21,7 +21,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, deferAudi
   let resolveAudioStart;
   const audioActivation = deferAudioStart ? new Promise(resolve => { resolveAudioStart = resolve; }) : Promise.resolve();
   let clock = 1000;
-  const storage = new Map([['flock-foundry-v1', JSON.stringify({ points, highestLevel, music: true })]]);
+  const storage = new Map([['flock-foundry-v1', JSON.stringify({ points, highestLevel, upgrades, completedLevels, music })]]);
   const document = {
     hidden: false, activeElement: null,
     getElementById: id => elements.get('modal-card')?.children.find(e => e.id === id) || elements.get(id) || null,
@@ -279,4 +279,89 @@ test('double taps and native touch gestures bark without changing the game viewp
 test('touch Woof still works when compatibility click events are suppressed',async()=>{
   const ui=launch();await ui.click('play');ui.emit('touchend',{target:ui.el('bark')});
   assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
+});
+
+for (const origin of ['main', 'pause']) {
+  test(`Restart Game from ${origin} clears persisted progress, money and every upgrade`, async () => {
+    const ui = launch({ points: 1250, highestLevel: 20, completedLevels: [0, 1, 19], music: false,
+      upgrades: { speed: 3, flock: 3, drone: 3, helper: 1, bark: 3, cohesion: 3 } });
+    if (origin === 'pause') { await ui.click('play'); await ui.click('pause'); }
+    await ui.click(`restart-game-${origin === 'main' ? 'main' : 'menu'}`);
+    assert.equal(ui.app.state().mode, 'reset-confirm');
+    assert.equal(ui.app.state().profile.points, 1250, 'Opening confirmation does not erase progress');
+    assert.match(ui.el('modal-card').innerHTML, /cannot be undone/);
+    await ui.click('confirm-reset');
+    const state = ui.app.state();
+    assert.equal(state.mode, 'playing'); assert.equal(state.level.index, 0);
+    assert.equal(state.level.animals.length, 5); assert.equal(state.profile.points, 0);
+    assert.equal(ui.el('points').textContent, 0);
+    assert.equal(state.profile.highestLevel, 0);
+    assert.equal(state.profile.completedLevels.length, 0);
+    assert.equal(Object.keys(state.profile.upgrades).length, 0);
+    assert.equal(state.profile.music, false);
+    assert.ok(!ui.el('controls').classList.contains('hidden'));
+    assert.ok(ui.el('modal').classList.contains('hidden'));
+    assert.equal(ui.document.activeElement, ui.el('pause'));
+    const reloaded = simulationAPI.loadProfile({ getItem: key => ui.storage.get(key) });
+    assert.deepEqual(reloaded, { ...simulationAPI.defaultProfile(), music: false });
+    await ui.click('pause');
+    assert.equal(ui.el('modal-card').querySelectorAll('[data-level]').length, 1);
+    await ui.click('resume'); ui.completeFlock();
+    assert.equal(ui.app.state().profile.points, 80, 'Fresh tutorial can earn its reward again');
+  });
+}
+
+test('canceling Restart Game restores the main screen or pause menu without erasing anything', async () => {
+  for (const origin of ['main', 'pause']) {
+    for (const exit of ['cancel-reset', 'close', 'Escape']) {
+      const ui = launch({ points: 600, highestLevel: 9, completedLevels: [0, 8], upgrades: { speed: 2, drone: 1 } });
+      if (origin === 'pause') { await ui.click('play'); await ui.click('pause'); }
+      const before = JSON.stringify(ui.app.state().profile), level = ui.app.state().level;
+      const stored = ui.storage.get('flock-foundry-v1');
+      await ui.click(`restart-game-${origin === 'main' ? 'main' : 'menu'}`);
+      ui.tick();
+      if (exit === 'Escape') ui.emit('keydown', { key: 'Escape' });
+      else await ui.click(exit);
+      assert.equal(JSON.stringify(ui.app.state().profile), before);
+      assert.equal(ui.storage.get('flock-foundry-v1'), stored);
+      assert.equal(ui.app.state().level, level);
+      assert.equal(ui.app.state().mode, origin === 'main' ? 'intro' : 'paused');
+      if (origin === 'pause') {
+        assert.ok(ui.el('restart-game-menu'));
+        await ui.click('resume'); assert.equal(ui.app.state().mode, 'playing');
+      } else {
+        assert.ok(ui.el('modal').classList.contains('hidden'));
+        assert.equal(ui.document.activeElement, ui.el('restart-game-main'));
+      }
+    }
+  }
+});
+
+test('Restart this meadow keeps campaign progress and money', async () => {
+  const ui = launch({ points: 600, highestLevel: 9, completedLevels: [0, 8], upgrades: { drone: 1 } });
+  await ui.click('play'); const before = JSON.stringify(ui.app.state().profile);
+  await ui.click('pause'); await ui.click('restart');
+  assert.equal(ui.app.state().mode, 'playing'); assert.equal(ui.app.state().level.index, 9);
+  assert.equal(JSON.stringify(ui.app.state().profile), before);
+});
+
+test('Restart Game still clears session progress when storage is unavailable', async () => {
+  const ui = launch({ deniedStorage: true });
+  await ui.click('play'); ui.completeFlock(); await ui.click('next');
+  await ui.click('pause'); await ui.click('restart-game-menu'); await ui.click('confirm-reset');
+  assert.equal(ui.app.state().profile.points, 0);
+  assert.equal(ui.app.state().profile.highestLevel, 0);
+  assert.equal(ui.app.state().profile.completedLevels.length, 0);
+  assert.equal(ui.app.state().level.index, 0);
+  assert.match(ui.el('toast').textContent, /session/);
+});
+
+test('delayed Restart Game audio does not move focus out of a newly opened pause menu', async () => {
+  const ui = launch({ points: 600, highestLevel: 9, deferAudioStart: true });
+  await ui.click('restart-game-main'); const restarting = ui.click('confirm-reset');
+  await ui.click('pause'); ui.el('resume').focus();
+  ui.settleAudioStart(); await restarting;
+  assert.equal(ui.app.state().mode, 'paused');
+  assert.equal(ui.document.activeElement, ui.el('resume'));
+  assert.equal(ui.audioEvents.at(-1), 'pause');
 });

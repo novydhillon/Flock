@@ -7,7 +7,7 @@ import '@fontsource/dm-sans/latin-600.css';
 import '@fontsource/dm-sans/latin-700.css';
 import { MeadowRenderer } from './render.js';
 import { FarmAudio } from './audio.js';
-import { createLevel, stepSimulation, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG } from './simulation.js';
+import { createLevel, stepSimulation, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG } from './simulation.js';
 import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades } from './progression.js';
 import { nextNavigationPoint } from './world.js';
 
@@ -35,11 +35,26 @@ function openModal(html,newMode='paused'){
 }
 function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');if(mode==='playing')audio.resume();modalFocus?.focus();}resetInput();}
 function menu(){
+  if(mode==='reset-confirm'){$('cancel-reset').onclick();return;}
   if(mode==='shop'){$('shop-back').onclick();return;}
   if(mode==='paused'){closeModal();return;}
   if(mode==='complete')return;
-  openModal(`<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode==='intro'?'Hello, shepherd.':'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode==='intro'?'Back to the meadow':'Keep herding'} <span>➜</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button>${mode==='playing'?'<button class="secondary" id="restart">Restart this meadow</button>':''}<div class="eyebrow" style="margin-top:23px">YOUR MEADOWS</div><div class="level-picker">${Array.from({length:Math.min(100,profile.highestLevel+1)},(_,i)=>`<button class="${i===level.index?'current':''}" data-level="${i}" aria-label="Play level ${i+1}">${i+1}</button>`).join('')}</div>`);
-  $('close').onclick=()=>closeModal();$('resume').onclick=()=>closeModal();$('upgrades-menu').onclick=shop;if($('restart'))$('restart').onclick=()=>begin(level.index);$('modal-card').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>begin(Number(b.dataset.level)));
+  openModal(`<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode==='intro'?'Hello, shepherd.':'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode==='intro'?'Back to the meadow':'Keep herding'} <span>➜</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button>${mode==='playing'?'<button class="secondary" id="restart">Restart this meadow</button>':''}<button class="secondary danger" id="restart-game-menu">Restart Game</button><div class="eyebrow" style="margin-top:23px">YOUR MEADOWS</div><div class="level-picker">${Array.from({length:Math.min(100,profile.highestLevel+1)},(_,i)=>`<button class="${i===level.index?'current':''}" data-level="${i}" aria-label="Play level ${i+1}">${i+1}</button>`).join('')}</div>`);
+  $('close').onclick=()=>closeModal();$('resume').onclick=()=>closeModal();$('upgrades-menu').onclick=shop;$('restart-game-menu').onclick=confirmRestart;if($('restart'))$('restart').onclick=()=>begin(level.index);$('modal-card').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>begin(Number(b.dataset.level)));
+}
+function confirmRestart(){
+  const returnMode=mode,returnPrevious=previousMode;
+  const cancel=()=>{
+    mode=returnMode;previousMode=returnPrevious;
+    if(returnMode==='paused'){mode=returnPrevious;menu();$('restart-game-menu').focus();}
+    else{closeModal(false);modalFocus?.focus();}
+  };
+  openModal(`<button class="close-modal" id="close" aria-label="Cancel restart">×</button><div class="eyebrow">A FRESH START</div><h2>Restart the whole game?</h2><p>This clears all level progress, earned bolts, and purchased upgrades and helpers. You’ll start again at level 1. This cannot be undone.</p><button class="secondary" id="cancel-reset">Keep my progress</button><button class="primary" id="confirm-reset">Restart Game <span>↻</span></button>`,'reset-confirm');
+  $('close').onclick=cancel;$('cancel-reset').onclick=cancel;
+  $('confirm-reset').onclick=async()=>{
+    profile={...defaultProfile(),music:profile.music};lastReward=0;lastTap=-Infinity;lastTapPosition=null;
+    persist();updateWallet();await begin(0);if(mode==='playing')$('pause').focus();
+  };
 }
 function shop(){
   const returnMode=mode==='complete'?'complete':mode==='paused'||mode==='shop'?previousMode:mode;
@@ -76,7 +91,7 @@ document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 window.addEventListener('blur',()=>{resetInput();pointer=null;if(mode==='playing')menu();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')menu();});
 window.addEventListener('resize',()=>renderer?.resize());
-$('play').onclick=()=>begin();$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
+$('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}persist();updateWallet();};
 $('dismiss-tip').onclick=()=>{tipDismissed=true;visible('tip',false);};
 
