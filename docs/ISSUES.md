@@ -1,6 +1,6 @@
 # FLOCK — Remaining issues and change tracker
 
-Updated: 12 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. Working branch: `flock_3D_chatgpt-work`.
+Updated: 14 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. Working branch: `flock_3D_chatgpt-work`.
 
 Baseline source: `88ddb66495acaee94bfbc4653ccc818dfe459bc0` (Restart Game revision). Live game: https://novydhillon.github.io/Flock/flock/dev2/. This document records future work; creating it does not implement the changes below.
 
@@ -21,7 +21,7 @@ Priority: **P1** = correctness/gameplay foundation; **P2** = planned feature/pol
 |---|---|---|---|---|---|
 | F-001 | P1 | Reported defect | Path-corner polygon flicker | Open | — |
 | F-002 | P1 | Reported defect | Bark effect above ground and bridge deck | Open | — |
-| F-003 | P2 | Art/behavior | Detailed squirrel; no spinning in place | Open | — |
+| F-003 | P2 | Art/behavior | Detailed squirrel; species-appropriate motion; no spinning | Open | — |
 | F-004 | P2 | Art | Flowing-water texture | Open | — |
 | F-005 | P1 | Geometry/gameplay | Perpendicular crossings; bridges 25% wider than paths | Open | — |
 | F-006 | P2 | Gameplay | Gates requiring player opening from level 20 | Open | F-005 |
@@ -34,6 +34,15 @@ Priority: **P1** = correctness/gameplay foundation; **P2** = planned feature/pol
 | F-013 | P2 | Known review concern | Level-5 pacing spike | Open | F-005; retest after F-009/F-012 |
 | F-014 | P1 | Validation gap | Real-phone controls, appearance and sound | Open | Feature batches |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
+| F-016 | P1 | Visibility | Camera-facing barn/covered-structure cutaway | Open | F-010 shared enclosure geometry |
+| F-017 | P2 | Wildlife | Detailed hopping rabbits; random size-scaled wildlife counts | Open | F-003, F-022 |
+| F-018 | P1 | QA tooling | Dev-only level, currency and animal-placement menu | Open | — |
+| F-019 | P2 | Environment | Add bushes | Open | — |
+| F-020 | P2 | Environment | Increase tree size | Open | — |
+| F-021 | P2 | Art | Richer bush/tree detail and textures | Open | F-019, F-020 |
+| F-022 | P2 | Wildlife/weather | Species retreat as weather worsens | Open | F-017; shared weather state with F-023/F-024 |
+| F-023 | P2 | Weather/feedback | Weather transitions, clouds, lighting, lightning and thunder | Open | F-008 |
+| F-024 | P2 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Open | F-004; shared weather state with F-023 |
 
 ## Screenshot evidence
 
@@ -68,9 +77,9 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 ### F-003 — Squirrel detail and movement
 
-**Requirement:** recognizable, more detailed squirrel; it must not spin in place.
+**Requirement:** recognizable, more detailed squirrel; it must not spin in place, and must move like a squirrel (expanded user report, 14 October 2026).
 
-**Accept when:** distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys ground collision. Observe blocked and fleeing squirrels, not only open-field movement.
+**Accept when:** distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys ground collision. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.
 
 **Files:** `src/nature.js`; reusable art may belong in `src/models.js`. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.
 
@@ -168,6 +177,88 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Accept when:** measure normal/large/split herds, later expansive worlds, weather/cloud effects and repeated transitions on representative phones. Record frame-time distribution, load behavior and resource growth. Set a device-specific performance target before judging success.
 
+### F-016 — See Pip and the flock under cover
+
+**Requirement:** barns and other covered structures must not obscure nearby Pip or flock animals. When they walk under cover, the roof and wall nearest the camera become transparent so the player can see them.
+
+**Accept when:** camera-facing roof/wall sections fade while occluding Pip or any flock animal beneath the structure, including animals close to the camera, partially entering/exiting and split groups. Select sections from the current camera view, including rotated structures. Restore their normal appearance when no longer obstructing the actors, without flicker or rapid threshold toggles. Keep distant/non-obstructing structure parts readable. Transparency changes visibility only; collision, goal admission and enclosure boundaries remain intact.
+
+**Files/checks:** `src/models.js`, `src/render.js`, renderer tests. Keep roof/wall sections independently controllable; check transparent draw ordering against animals, bark, weather and clouds. Verify with actual rendered views, not only material flags.
+
+### F-017 — Rabbits and variable wildlife populations
+
+**Requirement:** add rabbits alongside squirrels. Rabbits must be recognizably detailed and move like rabbits. Rabbit and squirrel counts are random and depend on level size.
+
+**Accept when:** ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and obey ground barriers. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level's base population.
+
+**Decisions to resolve:** area-to-count ranges/caps, whether either species may be absent, and spawn spacing/habitat. Do not silently replace the requested randomness with a fixed count per level.
+
+**Files:** `src/nature.js`, `src/models.js`, wildlife/resource tests. Coordinate squirrel motion work with F-003.
+
+### F-018 — Dev-build QA menu
+
+**Requirement:** add a QA menu available in development builds. Testers can jump to any level **0–100**, add bolts, remove bolts, and pause the simulation while moving individual flock animals to reproduce scenarios such as animals stuck in game-hindering positions.
+
+**Accept when:** the menu is clearly marked as QA and available in the deployed development build as well as the intended local development configuration. Release builds expose no QA entry point or enabled mutation handlers. Testers can choose a level without campaign unlock restrictions, enter a bolt amount to add/remove, pause gameplay and select/reposition a particular animal. Currency remains finite and nonnegative. Selection and placement work with touch and mouse and identify the selected animal clearly. Editing does not accidentally steer Pip, resume the simulation, advance countdowns, award progress or trigger delivery. Resume uses the edited scenario normally.
+
+**Decisions required:** the campaign currently has 100 public levels (1–100), represented by indexes 0–99. Preserve the requested **0–100** selector requirement pending an explicit mapping for 0 and 100; do not silently clamp 100 to another level or create an unintended extra campaign level. Define whether test currency/progress is isolated from normal saves, whether placement permits invalid positions deliberately, and how the tester resets/exports a scenario (level, seed, animal ID, position). Prefer an explicit placement override if intentionally testing collision-invalid cases.
+
+**Files:** build configuration, `src/main.js`, `src/style.css`, `src/simulation.js`, controller/profile tests. QA pause must permit manual edits while freezing all normal simulation; gameplay pause alone is insufficient. Exercise development and release builds separately to verify gating.
+
+### F-019 — Bushes
+
+**Requirement:** add bushes to the environment.
+
+**Accept when:** organic bush clusters vary in shape/placement and fit fields/woodland edges without hiding critical controls, destinations or crossings. Generation preserves safe spawns, flock staging space and route clearance. Explicitly decide whether bushes are decorative or physical; if physical, mesh and collision footprints must agree and all routes remain traversable. Include visibility/culling and resource cleanup checks.
+
+**Files:** `src/world.js`, `src/models.js`, `src/render.js`, scenery/world tests. Coordinate appearance with F-021 rather than duplicating the assets.
+
+### F-020 — Larger trees
+
+**Requirement:** increase the size of trees.
+
+**Accept when:** trees are visibly larger at the normal camera scale and remain proportionate to Pip, animals and structures. Maintain readable play space and valid routes/entrances. If trunk or canopy dimensions change, update placement clearance, physical footprints where applicable, bounds and shadow/culling data together. Verify that larger near-camera trees do not introduce new actor-visibility problems; F-016 covers structures specifically.
+
+**Decision to resolve:** target scale or size range and variation across levels. `src/models.js`, `src/world.js` and `src/render.js` are likely touch points.
+
+### F-021 — Bush and tree surface detail
+
+**Requirement:** add more detail and textures to bushes and trees.
+
+**Accept when:** foliage has readable volume, color/leaf variation and softened organic forms; trunks/branches have bark detail. Preserve the established cheerful handmade appearance and consistency between new bushes and larger trees. Avoid flat uniform blobs, repetitive obvious tiling and excessive fine-detail shimmer at portrait scale. Assess shader/texture memory, draw submissions, shadows and mobile performance; shared/cached resources must dispose correctly.
+
+**Files:** `src/models.js`, `src/render.js`, scenery/resource tests. Dependencies F-019/F-020 establish the base shapes and size targets.
+
+### F-022 — Weather-aware wildlife and shelter
+
+**Requirement:** light rain and light wind still allow butterflies, birds, squirrels, rabbits and other wildlife. As weather worsens, smaller animals disappear/hide first; larger animals remain until more extreme conditions, then hide too.
+
+**Accept when:** light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals never flee through barriers. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.
+
+**Decisions required:** species size categories, severity thresholds/hysteresis, shelter/exit behavior and return delay. The user supplied the ordering principle, not exact numeric thresholds.
+
+**Files:** `src/nature.js`, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.
+
+### F-023 — Worsening-weather atmosphere and storms
+
+**Requirement:** when weather changes toward rain or storms, increase cloud cover and change lighting to signal worsening conditions. If lightning occurs, show flashes and play thunder sounds.
+
+**Accept when:** transitions adjust cloud coverage and ground lighting smoothly, preserving legibility of Pip, flock and goal. Cloud coverage works with F-008's soft semi-transparent cloud requirement; resolve any storm opacity exception explicitly rather than silently overriding it. Lightning flashes and thunder belong to the same bounded event, with sensible audio timing, and do not create uncontrolled flash bursts or stacked audio sources. Mute, pause, backgrounding, replay and level transitions handle storm effects and pending sounds consistently; clean up event resources. Record real-phone visual/listening checks.
+
+**Decisions required:** severity model/transition timing, whether weather changes during a level, lightning frequency/intensity and thunder timing. A new within-level weather system must explicitly define pause/restart/seed behavior; current fixed per-level choices must not be assumed to provide it.
+
+**Files:** `src/nature.js`, `src/render.js`, `src/audio.js`, weather/audio/resource tests. Provide shared rain/wind severity and event state to F-022 and F-024.
+
+### F-024 — Rain accumulation, puddles and water response
+
+**Requirement:** ground appearance reflects rainfall. Light rain has little effect; sustained heavier rain slowly darkens grass green and dirt tracks brown. Rainstorms produce standing puddles and splashes when animals walk through them. River water also reflects the weather change.
+
+**Accept when:** wetness accumulates with rain amount over simulation time, rather than switching instantly to a fixed dark material. Grass and paths respond distinctly while remaining readable. Storm puddles occupy plausible ground locations without clipping across bridges or raised surfaces, and flock movement through them generates brief localized splashes; stationary animals do not emit continuous splash bursts. River surface appearance responds coherently to rain/storm intensity while retaining directional flow (F-004). These visual effects do not silently alter movement/collision. Pause freezes accumulation and events; restart/level replacement clears transient resources correctly. Preserve mobile performance under large moving flocks.
+
+**Decisions required:** accumulation/saturation and drying rates, puddle formation thresholds/placement, river changes (for example ripples, roughness or color), and whether Pip/helpers/wildlife also splash. Those examples are implementation options, not approved extra mechanics.
+
+**Files:** `src/nature.js`, `src/render.js`, `src/world.js`, weather/renderer/resource tests. Use shared weather state from F-023 and check material sharing does not leak wetness into the next level.
+
 ## Previously repaired — retain as regressions
 
 These are not open defects unless reproduced again: drone selecting the largest herd and holding when Pip leaves; no unattended goal completion; unlocks (drone 10, Buddy 20); path variety/map extent/continuous rivers; scenery hill collision alignment; pending audio activation overriding pause; overdue music scheduling burst; the default level-2 bridge stall; full-game restart persistence and delayed-audio focus. See `docs/QUALITY.md` and current tests for scope and limitations.
@@ -187,3 +278,5 @@ Copy one row per claimed issue; retain older entries when reopening work.
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
 Suggested order: F-001/F-002/F-010 → F-005 → F-009 and gate/wall contracts → F-006/F-007/F-012. Art items F-003/F-004/F-008/F-011 can proceed in coordinated worktrees; F-013–F-015 remain cross-cutting validation work.
+
+Update recorded 14 October 2026: expanded F-003 squirrel locomotion and added F-016–F-024 for visibility, rabbits/population, dev QA tooling, vegetation and linked weather/wildlife/surface behavior. All remain Open and unassigned. Coordinate F-022/F-023/F-024 around one weather-state contract; F-018 can support reproductions without becoming a runtime dependency of other fixes.
