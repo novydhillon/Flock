@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Requirements"><title>Requirements · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" aria-current="page">Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" aria-current="page">Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Product <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="flock-product-requirements">Flock product requirements<a class="heading-link" href="#flock-product-requirements" aria-label="Link to Flock product requirements">#</a></h1>
+<p>Snapshot: 14 October 2026; source <code>d941bf2</code> on <code>flock_3D_chatgpt-work</code>. Audience: implementers, reviewers and players checking intended behavior. Public campaign levels are <strong>1–100</strong>; source indexes are <strong>0–99</strong>.</p>
+<p>This document separates the implemented baseline from requested changes. <strong>Implemented baseline</strong> means present in the inspected source, not proven on a phone. <strong>Pending request</strong> means recorded user intent whose acceptance criteria are still open. <strong>Proposed / unresolved</strong> means an implementation choice that must not be presented as approved. All F-001–F-025 remain Open in <a href="issues.html">ISSUES.md</a>, which owns issue priority, detailed acceptance criteria and execution records. <a href="quality.html">QUALITY.md</a> owns historical test/review evidence and its limits. This document does not implement or deploy anything.</p>
+<h2 id="product-and-approved-engine">Product and approved engine<a class="heading-link" href="#product-and-approved-engine" aria-label="Link to Product and approved engine">#</a></h2>
+<p>Flock: Little Robot, Big Pastures is a cheerful, true-3D robotic herding game for portrait phones, playable with one thumb. The player steers Pip, a robotic sheepdog, behind a flock to guide it along countryside trails to a pen, fenced field or barn. Rewards buy skills and companions; companions support the player rather than delivering the flock unattended. Preserve the rounded, colorful, handmade countryside and visible robotic character details. The requested visual direction was bright, organic, clay/stop-motion countryside inspired by Aardman; characters and assets remain original.</p>
+<p>The original engine request was ThreeRust. Investigation found no publicly documented reusable runtime SDK suitable for this repository; the user approved <strong>Three.js</strong> as the fallback. The implemented stack is Three.js/WebGL, JavaScript modules and Vite, with procedural geometry/textures and generated audio. Do not describe this as ThreeRust, <code>three-rs</code> or <code>threers</code>. See <a href="project.html">README.md</a> and <a href="../../package.json">package.json</a>.</p>
+<p>The current product is a standalone static development build with local browser saves. Accounts, online multiplayer and cloud saves are outside the implemented baseline. A development build does not currently imply the requested QA tools exist.</p>
+<h2 id="implemented-baseline-to-preserve">Implemented baseline to preserve<a class="heading-link" href="#implemented-baseline-to-preserve" aria-label="Link to Implemented baseline to preserve">#</a></h2>
+<h3 id="play-and-state">Play and state<a class="heading-link" href="#play-and-state" aria-label="Link to Play and state">#</a></h3>
+<ul>
+<li>Drag the meadow or movement control to steer; WASD/arrows support desktop. Tap Woof, double-tap the meadow or press Space to bark. Bark applies a short herding burst; the current controller uses a 650 ms burst and 2,100 ms cooldown. Preserve single-thumb access when adding interactions.</li>
+<li>Pip&#39;s proximity pushes animals away; grouping behavior respects barriers. Physical bodies cannot cross fences, bridge rails, rivers outside decks, trees or the map perimeter. Pip&#39;s signal may cross low wooden fences/rails, but barns, water and trees shield it. Companion attendance, movement and delivery use clear ground paths.</li>
+<li>Delivery currently requires Pip near the destination, an unheld animal inside a <strong>radial</strong> goal and clear ground attendance. Saved animals stop moving. The level currently ends only when every animal is saved. There is elapsed-time display, <strong>no arrival countdown or partial-delivery score</strong>; F-009 and F-010 intentionally change that contract.</li>
+<li>Pause/menu/workshop suspend gameplay and audio. Workshop and results support replay/continuation. Restart meadow resets the current scenario; confirmed <strong>Restart Game</strong> clears campaign progress, bolts and purchases and starts level 1. Cancelling preserves progress.</li>
+<li>Music begins after user interaction and shares a mute control with wildlife/weather ambience. Pending audio activation must not undo pause; delayed music scheduling must stay bounded.</li>
+</ul>
+<p>Code: <a href="../../src/main.js">main.js</a> (<code>begin</code>, <code>bark</code>, <code>menu</code>, <code>confirmRestart</code>, <code>complete</code>, <code>frame</code>), <a href="../../src/simulation.js">simulation.js</a> (<code>stepSimulation</code>), <a href="../../src/audio.js">audio.js</a>. Regressions: UI, simulation, audio and herding-journey tests under <a href="../../tests">tests/</a>.</p>
+<figure class="diagram"><figcaption>System diagram</figcaption><pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Intro
+    Intro --&gt; Playing: Play
+    Playing --&gt; Paused: Menu
+    Paused --&gt; Playing: Resume
+    Playing --&gt; Complete: All animals saved
+    Complete --&gt; Playing: Next or replay
+    Paused --&gt; Workshop
+    Complete --&gt; Workshop
+    Workshop --&gt; Playing: Back to active meadow
+    Workshop --&gt; Intro: Back to intro
+    Workshop --&gt; Complete: Return to results
+    Paused --&gt; Playing: Confirm Restart Game</pre><details><summary>Diagram source / text alternative</summary><pre><code>stateDiagram-v2
+    [*] --&gt; Intro
+    Intro --&gt; Playing: Play
+    Playing --&gt; Paused: Menu
+    Paused --&gt; Playing: Resume
+    Playing --&gt; Complete: All animals saved
+    Complete --&gt; Playing: Next or replay
+    Paused --&gt; Workshop
+    Complete --&gt; Workshop
+    Workshop --&gt; Playing: Back to active meadow
+    Workshop --&gt; Intro: Back to intro
+    Workshop --&gt; Complete: Return to results
+    Paused --&gt; Playing: Confirm Restart Game</code></pre></details></figure><p>This diagram summarizes current player states. Workshop return follows its originating gameplay state: opening it through a paused gameplay menu and closing it resumes play; an intro visit returns to intro, and results return to results. The controller also opens the workshop directly from play. Restart confirmation/cancellation is omitted here. Timeout completion is pending F-009.</p>
+<h3 id="campaign-map-size-and-routes">Campaign, map size and routes<a class="heading-link" href="#campaign-map-size-and-routes" aria-label="Link to Campaign, map size and routes">#</a></h3>
+<p>The recorded user baseline asks for a small sheep-to-pen tutorial, increasing flock size and journey distance, procedural fields/rivers/bridges/roads/gates, and progression points unlocking skills and autonomous helpers. Later direction preserves compact single-path levels 1–5, asks for <strong>1–2 routes at levels 6–15</strong> and <strong>1–3 routes from level 16</strong>, expands vertical roaming bounds by <strong>3–4× from level 6</strong>, and continues increasing the playable expanse. Drone starts at 10; the more expensive Buddy starts at 20; other skills appear across the first fifteen levels. These are intent constraints.</p>
+<p>The table below records current generator rules, not newly proposed balance targets. Exact starting count 5, +3 animals per level and cap 65 are implementation-derived, not additional user-specified numbers. The current late generator chooses two or three routes within the requested one-to-three range; it does not generate single-route late levels. Deterministic default seed is <code>index * 7919 + 42</code>; custom seeds are supported by <code>createLevel</code>. Index is clamped to 0–99.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Current implementation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Animal count</td>
+<td><code>min(5 + 3 * index, 65)</code>: levels 1–5 have 5, 8, 11, 14, 17; level 21 onward has 65. Journey distance continues growing.</td>
+</tr>
+<tr>
+<td>Species</td>
+<td>Sheep initially; from level 4 every fourth animal (ID divisible by 4) is a cow.</td>
+</tr>
+<tr>
+<td>Compact levels 1–5</td>
+<td>Canonical bounds: travel axis −32 to <code>30 + 3 * index</code>, cross axis −24 to +24. At level 1 this is 62 × 48 world units; at level 5, 74 × 48.</td>
+</tr>
+<tr>
+<td>Expanded levels 6–100</td>
+<td>Canonical travel bounds −40 to <code>63 + 3 * index</code>; half cross extent <code>84 + 14 * floor(index / 15)</code>. Level 6 is 118 × 168 before rotation/final bounds adjustment. The generator additionally expands final Z bounds to cover ±half cross extent.</td>
+</tr>
+<tr>
+<td>Destination distance</td>
+<td>Canonical destination axis <code>15 + 3 * index</code> for levels 1–5, <code>48 + 3 * index</code> thereafter; spawn is −20 early, −26 later. These are world-coordinate distances, not completion times.</td>
+</tr>
+<tr>
+<td>Route count</td>
+<td>Levels 1–5: one. Levels 6–15: one or two (zero-based odd indexes get two). Level 16 onward: two or three (indexes divisible by 3 get three).</td>
+</tr>
+<tr>
+<td>Direction</td>
+<td>First level fixed; other early levels use two opposing orientations; later levels rotate across four compass directions according to seed.</td>
+</tr>
+<tr>
+<td>Water/gates</td>
+<td>Level 1 has no river; other early levels one. Later levels one until level 15, two from level 16. Gate <strong>openings</strong> begin at level 3; operable closed gates are pending F-006.</td>
+</tr>
+<tr>
+<td>Destinations</td>
+<td>Repeat pen, field, barn by index modulo 3. Current target radius is <code>4.7 + 0.2 * sqrt(animal count)</code>; target fences are square with an entrance. F-010 replaces the mismatched radial goal.</td>
+</tr>
+<tr>
+<td>Roads and bridges</td>
+<td>Roads are 4.1 units wide early, 4.8 later. Current bridge widths: level 2 = 11.5; levels 3–5 = 8.5; later = 10. Length is river width + 5. F-005 supersedes these crossing dimensions/alignment.</td>
+</tr>
+</tbody></table></div>
+<p>Examples: level 8 is index 7, has 26 robots and two routes; level 17 is index 16 and is the first level eligible for the <strong>requested</strong>, currently absent bolting behavior. The special wide level-2 crossing repaired a demonstrated simulated retrieval stall; preserve that regression when changing bridge rules.</p>
+<p>Maps provide alternate trails, winding roads, real bridge/gate openings, destination staging room, continuous rivers beyond boundaries and decorative hills outside playable ground. Alternate routes are generated by level rules, not purchased or independently unlocked. See <a href="../../src/world.js">world.js</a> (<code>createLevel</code>, <code>canOccupy</code>, <code>terrainHeight</code>, <code>navigationTarget</code>, <code>openingSteer</code>) and world/journey tests. Geometry-route reachability is not proof that every human can deliver every flock.</p>
+<h3 id="progress-economy-and-helpers">Progress, economy and helpers<a class="heading-link" href="#progress-economy-and-helpers" aria-label="Link to Progress, economy and helpers">#</a></h3>
+<p>The initial profile has zero bolts, no upgrades, no completed levels and only level 1 available. Finishing a meadow unlocks the next one (capped at level 100). The current first-completion reward is <code>80 + 25 * index</code> bolts; replay gives no duplicate reward. Purchased tiers remain saved, but only tiers unlocked for the meadow being played apply. Invalid profile fields are sanitized; legacy boolean purchases migrate to tier 1. Browser storage failure retains the session and shows feedback. Key: <code>flock-foundry-v1</code>; do not clear or rename it for F-025.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Tier unlock levels</th>
+<th>Tier costs (bolts)</th>
+<th>Current tier effects</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Turbo paws</td>
+<td>2 / 6 / 11</td>
+<td>80 / 120 / 200</td>
+<td>+1.8 / +2.7 / +3.5 m/s</td>
+</tr>
+<tr>
+<td>Friendly signal</td>
+<td>7 / 10 / 15</td>
+<td>120 / 180 / 260</td>
+<td>+2 / +3 / +4 m range</td>
+</tr>
+<tr>
+<td>Scout drone</td>
+<td>10 / 14 / 18</td>
+<td>200 / 360 / 540</td>
+<td>Support strength 0.7 / 0.93 / 1.17</td>
+</tr>
+<tr>
+<td>Buddy dog</td>
+<td>20 / 24 / 28</td>
+<td>600 / 850 / 1200</td>
+<td>Support strength 1 / 1.3 / 1.58</td>
+</tr>
+<tr>
+<td>Happy bark</td>
+<td>4 / 8 / 13</td>
+<td>100 / 160 / 240</td>
+<td>+0.25 / +0.45 / +0.65 strength</td>
+</tr>
+<tr>
+<td>Flock harmony</td>
+<td>12 / 14 / 15</td>
+<td>160 / 220 / 320</td>
+<td>+12% / +23% / +35% regrouping</td>
+</tr>
+</tbody></table></div>
+<p>Drone unlock is exactly level <strong>10</strong>; Buddy is exactly <strong>20</strong> and costs more. Helpers attend the largest connected herd, hold it when Pip leaves, and do not fetch isolated stragglers or autonomously finish. Recover stragglers and return to lead delivery. Ground Buddy must navigate around solid barriers. See <a href="../../src/progression.js">progression.js</a>, profile functions in <a href="../../src/simulation.js">simulation.js</a>, progression/companion tests.</p>
+<h3 id="art-wildlife-and-weather">Art, wildlife and weather<a class="heading-link" href="#art-wildlife-and-weather" aria-label="Link to Art, wildlife and weather">#</a></h3>
+<p>Current sheep/cows have articulated, instanced stop-motion leg poses. Ground uses deterministic tileable color/bump textures, with decorative grass, flowers and reeds. Puffy model clouds drift with soft ground shadows. Butterflies, birds and simple squirrels avoid nearby robots, including saved flock animals and helpers. There are no rabbits, requested bushes or weather-driven shelter system yet.</p>
+<p><code>weatherForLevel</code> in <a href="../../src/nature.js">nature.js</a> uses sun for levels 1–5, then cycles sun/wind/rain/sun/snow, disallowing snow through level 8. Non-sun intensity is currently 0.3; weather is fixed per level and does not affect movement or rewards. Current counts are five clouds, five birds, three squirrels, and eight butterflies (four in rain, zero in snow), subject to safe placement. These fixed counts do not satisfy F-017&#39;s random area-scaled populations. Animated rainfall is not accumulated wetness, storms or puddles.</p>
+<h2 id="requested-change-traceability">Requested change traceability<a class="heading-link" href="#requested-change-traceability" aria-label="Link to Requested change traceability">#</a></h2>
+<p>Every row below is <strong>Pending / Open</strong>. Existing related systems are described to prevent confusing partial support with completed acceptance. Detailed reproduction evidence, dependencies and decisions are in the corresponding sections of <a href="issues.html">ISSUES.md</a>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Priority</th>
+<th>Required outcome and exact constraints</th>
+<th>Current gap / main code touchpoints</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F-025</td>
+<td><strong>P0, first</strong></td>
+<td>Canonical public game at <strong><a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a></strong>; deploy <code>dev2/</code> on <code>gh-pages</code>, preserve unrelated files and saved profiles; explicitly migrate old URL.</td>
+<td>Not implemented. Script still targets <code>flock/dev2/</code>; README describes old path. <code>scripts/deploy-pages.mjs</code>, build/deployment configuration, links.</td>
+</tr>
+<tr>
+<td>F-001</td>
+<td>P1</td>
+<td>Continuous textured path corners without black triangles, gaps, spikes or flicker; check reported levels 4/8.</td>
+<td>Screenshots show artifacts; temporal flicker/root cause still require rendering. <code>render.js</code> ribbon geometry.</td>
+</tr>
+<tr>
+<td>F-002</td>
+<td>P1</td>
+<td>Bark above grass/path/ground and bridge decks, normally occluded by fences/rails.</td>
+<td>Ring currently fixed at world height .08. <code>render.js</code> bark/surface height; preserve depth testing.</td>
+</tr>
+<tr>
+<td>F-003</td>
+<td>P2</td>
+<td>Detailed recognizable squirrel; coordinated scurry/bound/alert motion, stable idle/blocked heading, no spinning.</td>
+<td>Simple art and desired-direction heading exist. <code>nature.js</code>, <code>models.js</code>; actual motion review required.</td>
+</tr>
+<tr>
+<td>F-004</td>
+<td>P2</td>
+<td>Subtle animated running-water texture following local river direction, seamless banks/bends, pause-safe.</td>
+<td>Rivers exist; requested flow treatment pending. <code>render.js</code>, <code>world.js</code>.</td>
+</tr>
+<tr>
+<td>F-005</td>
+<td>P1</td>
+<td>Crossings perpendicular to local river tangent; bridge width <strong>1.25 × crossing path width</strong>; minimal safe dry-ground extension.</td>
+<td>Current crossings use fixed canonical heading/dimensions. Share visual/collision footprint; retain level-2 retrieval. <code>world.js</code>, <code>models.js</code>, <code>render.js</code>.</td>
+</tr>
+<tr>
+<td>F-006</td>
+<td>P2</td>
+<td>Gates requiring player opening at <strong>level 20+</strong>; visible/collidable state and single-thumb interaction. Levels 1–19 retain accessible openings.</td>
+<td>Existing gates are openings, no open/close state. <code>world.js</code>, <code>simulation.js</code>, <code>main.js</code>, renderer.</td>
+</tr>
+<tr>
+<td>F-007</td>
+<td>P2</td>
+<td>Stone walls replace fences on selected levels with consistent collision and usable entrances.</td>
+<td>Fence baseline exists; wall variants pending. <code>world.js</code>, <code>models.js</code>, <code>render.js</code>.</td>
+</tr>
+<tr>
+<td>F-008</td>
+<td>P2</td>
+<td>Soft textured clouds, potentially overlapping blurred blobs, <strong>10–25%</strong> semi-transparency, drifting/shadowed and readable.</td>
+<td>Model clouds currently use .5 material opacity. Opacity interpretation needs confirmation. <code>nature.js</code>.</td>
+</tr>
+<tr>
+<td>F-009</td>
+<td>P1</td>
+<td>First valid arrival starts <strong>30–60 s</strong> countdown by complexity; finish at zero or all delivered; partial score shown as <strong>score / possible score</strong>.</td>
+<td>Full-flock-only completion/reward currently. <code>simulation.js</code>, <code>main.js</code>, <code>progression.js</code>, profile/UI.</td>
+</tr>
+<tr>
+<td>F-010</td>
+<td>P1</td>
+<td>Highlight, delivery region, minimap and rotated pen/field/barn enclosure share the same shape.</td>
+<td>Radial highlight/admission mismatch fenced enclosure. <code>world.js</code>, <code>render.js</code>, <code>simulation.js</code>.</td>
+</tr>
+<tr>
+<td>F-011</td>
+<td>P2</td>
+<td>Pip tail light normally blue, flashes red on bark then restores reliably.</td>
+<td>Dedicated tail feedback absent. <code>models.js</code>, <code>render.js</code>, shared bark event.</td>
+</tr>
+<tr>
+<td>F-012</td>
+<td>P2</td>
+<td>From <strong>level 8</strong>, up to <strong>15%</strong> eligible animals have <strong>33%</strong> chance to wander away while not actively herded. From <strong>level 17</strong>, up to <strong>10%</strong> chance to bolt for <strong>1–3 s</strong>.</td>
+<td>New cohort/probability behavior absent; ordinary tiny idle motion is not this feature. <code>simulation.js</code>, <code>world.js</code>.</td>
+</tr>
+<tr>
+<td>F-013</td>
+<td>P2</td>
+<td>Investigate level-5 pacing with humans, retrieval/chokepoint evidence and unchanged ordinary-input regressions.</td>
+<td>Simulated level-5 time spike known; no confirmed human difficulty verdict. World/journey balance.</td>
+</tr>
+<tr>
+<td>F-014</td>
+<td>P1</td>
+<td>Real-phone controls, portrait readability, gestures, modals, sound and restart verified with device/revision evidence.</td>
+<td>Headless tests cannot close this gap. UI/audio/rendering.</td>
+</tr>
+<tr>
+<td>F-015</td>
+<td>P3</td>
+<td>Measure mobile GPU and repeated transition stability on normal, large/split herds and weather scenes.</td>
+<td>Submission/resource checks exist; phone frame times unmeasured. Set device targets before verdict.</td>
+</tr>
+<tr>
+<td>F-016</td>
+<td>P1</td>
+<td>Under cover, fade roof and wall nearest camera when occluding Pip/flock; restore stably; retain collision.</td>
+<td>Covered-structure cutaway absent. <code>models.js</code>, <code>render.js</code>; test rotated/partial/split occupancy.</td>
+</tr>
+<tr>
+<td>F-017</td>
+<td>P2</td>
+<td>Add detailed hopping rabbits; random rabbit/squirrel populations scale with usable level area.</td>
+<td>Rabbits absent, squirrels fixed count. <code>nature.js</code>, <code>models.js</code>; seeded bounded generation.</td>
+</tr>
+<tr>
+<td>F-018</td>
+<td>P1</td>
+<td>Dev-only QA menu: level <strong>0–100</strong>, add/remove bolts, pause and reposition individual animals using touch/mouse. Available in deployed dev build; absent in release.</td>
+<td>No QA menu. Level mapping unresolved against 1–100 campaign. Build config, <code>main.js</code>, <code>simulation.js</code>, style.</td>
+</tr>
+<tr>
+<td>F-019</td>
+<td>P2</td>
+<td>Organic varied bushes without blocked routes/spawns or hidden critical play areas.</td>
+<td>Bushes absent; decide decorative versus physical. <code>world.js</code>, <code>models.js</code>, <code>render.js</code>.</td>
+</tr>
+<tr>
+<td>F-020</td>
+<td>P2</td>
+<td>Visibly larger trees while maintaining proportion, actor visibility and route clearance.</td>
+<td>Existing trees retain current dimensions. Target scale unresolved. World/model/render bounds.</td>
+</tr>
+<tr>
+<td>F-021</td>
+<td>P2</td>
+<td>Richer tree/bush foliage and bark detail/textures, cheerful organic appearance with mobile budget.</td>
+<td>Current simplified tree baseline; bushes pending. <code>models.js</code>, <code>render.js</code>.</td>
+</tr>
+<tr>
+<td>F-022</td>
+<td>P2</td>
+<td>Light rain/wind retain wildlife; worsening severity makes smaller species hide first, then larger; plausible return.</td>
+<td>Fixed per-level counts lack retreat/shelter transitions. <code>nature.js</code>, shared weather state.</td>
+</tr>
+<tr>
+<td>F-023</td>
+<td>P2</td>
+<td>Worsening rain/storms increase cloud cover/change lighting; lightning flashes paired with thunder.</td>
+<td>No storm/transition/event contract. <code>nature.js</code>, <code>render.js</code>, <code>audio.js</code>.</td>
+</tr>
+<tr>
+<td>F-024</td>
+<td>P2</td>
+<td>Sustained heavier rain gradually darkens grass/dirt; storms form puddles and animal footstep splashes; rivers respond coherently.</td>
+<td>No accumulation/puddle/splash system. <code>nature.js</code>, <code>render.js</code>, <code>world.js</code>.</td>
+</tr>
+</tbody></table></div>
+<h3 id="decisions-still-open">Decisions still open<a class="heading-link" href="#decisions-still-open" aria-label="Link to Decisions still open">#</a></h3>
+<p>Resolve only the choices needed for an implementation; independent repairs can proceed. Record actual approvals in ISSUES.md. The following are <strong>not approved defaults</strong>:</p>
+<ul>
+<li>F-005: whether the 25% comparison excludes decorative path shoulders; safe landing overlap dimensions.</li>
+<li>F-006/F-007: gate action and reclosing; wall selection/height and whether walls block herding signals.</li>
+<li>F-008/F-023: whether “10–25%” means opacity 0.10–0.25, how overlapping blobs compose, and any storm exception.</li>
+<li>F-009: complexity-to-duration formula, score per animal/species, score versus spendable bolts, partial-result unlocks, replay/best-score/reward policy and save migration. Equal points per animal is only a proposal. For example, 8 of 10 delivered at timeout must produce a stable partial result, but its numeric score/reward cannot be specified yet.</li>
+<li>F-011: whether Buddy shares Pip&#39;s tail convention on a real Buddy bark event.</li>
+<li>F-012: eligible-cohort integer rounding, random opportunity interval, wander distance/speed/cooldown, definition of active herding, and whether bolt chance is conditional on wandering. A 33% chance is <strong>not</strong> permission to roll every frame. For a five-animal flock, the treatment of 15% eligibility requires an explicit rounding policy.</li>
+<li>F-017/F-019/F-020: wildlife area/count ranges, caps, absence/spawn rules; bush collision policy; tree scale/range.</li>
+<li>F-018: exact mapping of requested QA selector <strong>0–100</strong> to campaign indexes <strong>0–99</strong>; test-save isolation, invalid-placement override and scenario reset/export. Do not silently clamp 100 or invent a 101st campaign level.</li>
+<li>F-022–F-024: shared severity model, species thresholds/hysteresis/return delay, transition timing and within-level weather policy; lightning frequency/intensity/thunder timing; wetness/drying rates, puddle thresholds/placement, river response and which actors splash. No weather movement penalty is approved.</li>
+<li>F-025: migration behavior at the superseded URL; no independent second maintained copy.</li>
+</ul>
+<figure class="diagram"><figcaption>System diagram</figcaption><pre class="mermaid">flowchart TD
+    W[&quot;Shared weather state: F-023&quot;] --&gt; C[&quot;Clouds and lighting: F-008/F-023&quot;]
+    W --&gt; A[&quot;Wildlife shelter: F-022&quot;]
+    W --&gt; R[&quot;Wetness and puddles: F-024&quot;]
+    W --&gt; S[&quot;Lightning and thunder: F-023&quot;]
+    P[&quot;Population: F-017&quot;] --&gt; A
+    F[&quot;Directional river flow: F-004&quot;] --&gt; R</pre><details><summary>Diagram source / text alternative</summary><pre><code>flowchart TD
+    W[&quot;Shared weather state: F-023&quot;] --&gt; C[&quot;Clouds and lighting: F-008/F-023&quot;]
+    W --&gt; A[&quot;Wildlife shelter: F-022&quot;]
+    W --&gt; R[&quot;Wetness and puddles: F-024&quot;]
+    W --&gt; S[&quot;Lightning and thunder: F-023&quot;]
+    P[&quot;Population: F-017&quot;] --&gt; A
+    F[&quot;Directional river flow: F-004&quot;] --&gt; R</code></pre></details></figure><p>This is a required coordination boundary, not a claim that a shared severity API has already been designed or approved.</p>
+<h2 id="deployment-requirement-and-release-boundary">Deployment requirement and release boundary<a class="heading-link" href="#deployment-requirement-and-release-boundary" aria-label="Link to Deployment requirement and release boundary">#</a></h2>
+<p><strong>F-025 precedes all other queued work.</strong> Required canonical URL: <strong><a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a></strong>. The current recorded live location is <strong><a href="https://novydhillon.github.io/Flock/flock/dev2/">https://novydhillon.github.io/Flock/flock/dev2/</a></strong>; that is historical tracker evidence, not a fresh live check performed for this document. <code>/Flock/</code> is the case-sensitive GitHub Pages repository prefix, not an output subfolder to duplicate.</p>
+<p>Current <code>npm run build</code> uses Vite relative base <code>./</code>, emits <code>dist/</code>, and does not require a runtime CDN/backend. <code>.github/workflows/deploy-dev2.yml</code> tests/packages the working branch; native Pages publishing uses <code>gh-pages</code>. <code>scripts/deploy-pages.mjs</code> currently prepares a detached Pages tree at the <strong>wrong</strong> <code>flock/dev2/</code> path and does not commit/push. It must be corrected before using it for the requested release. Preserve site root, <code>flock/dev/</code> and every unrelated blob; explicitly decide how the old URL migrates. Maintain the profile key and verify progress on the same origin at the new path.</p>
+<p>Source completion, production build, Pages commit, publication and live verification are separate evidence. Acceptance requires direct/fresh reload at the canonical URL, all referenced assets resolving, deployed file hashes matching the intended build, preserved unrelated Pages content, migration behavior recorded, and publication revision/workflow evidence. Documentation alone cannot close F-025 or change the tracker’s current-live claim.</p>
+<h2 id="verification-and-handoff-contract">Verification and handoff contract<a class="heading-link" href="#verification-and-handoff-contract" aria-label="Link to Verification and handoff contract">#</a></h2>
+<p>For each implemented request, record requirement ID, source commit, level/seed, expected/observed outcome, relevant commands/results and remaining limitations in ISSUES.md. Run meaningful regression checks and production build. Retain the solved companion hold/no-autonomous-delivery, level-10/20 unlock, level-2 bridge retrieval, profile/restart and audio pause/scheduling cases.</p>
+<p><code>npm test</code> covers source simulation/profile/controller behavior, real Three.js geometry/matrices behind a substituted GPU interface, resource disposal and synthetic audio lifecycles. <code>npm run build</code> checks production packaging. Existing historical evidence reports <strong>93 passing tests</strong>, route sweeps, bounded legitimate-input flock deliveries and fresh blind reviews at <strong>9.1/10 technical / 8.6/10 gameplay</strong>. These are bounded historical findings from QUALITY.md, not a new assessment of this document or the pending requests.</p>
+<p>Headless checks cannot verify rendered pixels/flicker, motion quality, real Safari gestures, portrait touch ergonomics, perceived sound balance or phone GPU frame time. Screenshots establish visible artifacts; they do not establish temporal flicker/spinning or a root cause. Real-device records must identify device/browser and source/deployment revision, with scenario evidence. Preserve F-013–F-015 as open until their specific evidence exists. Do not convert historical critic scores into a verified overall game score.</p>
+<p>Suggested independent work after F-025: path/bark/goal correctness (F-001/F-002/F-010), crossing contract (F-005), then timer/gates/walls/wandering with resolved design choices. Coordinate shared files and the weather contract; do not treat QA tooling as a mandatory runtime dependency of fixes. This requirements snapshot has been checked against repository source and records only; it adds no gameplay changes or new browser/device validation.</p>
+</main><footer><a href="../REQUIREMENTS.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#product-and-approved-engine">Product and approved engine</a><a class="toc-level-2" href="#implemented-baseline-to-preserve">Implemented baseline to preserve</a><a class="toc-level-3" href="#play-and-state">Play and state</a><a class="toc-level-3" href="#campaign-map-size-and-routes">Campaign, map size and routes</a><a class="toc-level-3" href="#progress-economy-and-helpers">Progress, economy and helpers</a><a class="toc-level-3" href="#art-wildlife-and-weather">Art, wildlife and weather</a><a class="toc-level-2" href="#requested-change-traceability">Requested change traceability</a><a class="toc-level-3" href="#decisions-still-open">Decisions still open</a><a class="toc-level-2" href="#deployment-requirement-and-release-boundary">Deployment requirement and release boundary</a><a class="toc-level-2" href="#verification-and-handoff-contract">Verification and handoff contract</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

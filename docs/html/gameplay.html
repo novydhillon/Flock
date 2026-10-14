@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Gameplay &amp; progression"><title>Gameplay &amp; progression · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" aria-current="page">Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" aria-current="page">Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Systems <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="gameplay-and-progression">Gameplay and progression<a class="heading-link" href="#gameplay-and-progression" aria-label="Link to Gameplay and progression">#</a></h1>
+<p>This describes current source behavior, not the queued design in the <a href="issues.html">issue tracker</a>. Geometry and navigation contracts are in <a href="world.html">WORLD.md</a>. Entry points: <a href="../../src/simulation.js">simulation.js</a>, <a href="../../src/progression.js">progression.js</a>, and browser orchestration in <a href="../../src/main.js">main.js</a>.</p>
+<h2 id="state-and-interfaces">State and interfaces<a class="heading-link" href="#state-and-interfaces" aria-label="Link to State and interfaces">#</a></h2>
+<p>The simulation is renderer-independent ES modules, directly importable in Node. <code>stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {})</code> mutates the level, animals, and supplied dog; it also assigns <code>level.dog = dog</code>. The browser initially copies the generated dog so callers should use that assignment rather than expect the original object identity to persist.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>level.index</code></td>
+<td>Zero-based campaign index, 0–99. UI level number is <code>index + 1</code>.</td>
+</tr>
+<tr>
+<td>Positions/input</td>
+<td>Ground plane <code>{x, z}</code> in world units; input <code>y</code> is accepted only as a fallback for missing <code>z</code>. Renderer height is separate.</td>
+</tr>
+<tr>
+<td>Heading</td>
+<td>Radians, forward vector <code>{x: sin(heading), z: cos(heading)}</code>.</td>
+</tr>
+<tr>
+<td>Animal</td>
+<td><code>{id, type: &#39;sheep&#39; | &#39;cow&#39;, x, z, vx, vz, saved}</code>; stepping adds heading, alert and optional pressure timestamp.</td>
+</tr>
+<tr>
+<td>Input</td>
+<td><code>{x, z, bark}</code>; direction normalized and magnitude capped at 1, so diagonals do not run faster.</td>
+</tr>
+<tr>
+<td>Result</td>
+<td><code>{saved, total, completed, justCompleted, reward, events, helpers, dogCollision}</code>.</td>
+</tr>
+<tr>
+<td>Events</td>
+<td><code>{type:&#39;animalSaved&#39;, id, animalType}</code> and one <code>{type:&#39;levelCompleted&#39;, index, reward}</code> per fresh level instance.</td>
+</tr>
+</tbody></table></div>
+<p><code>stepSimulation</code> defaults to 1/60 second and clamps supplied <code>dt</code> to <code>[0, 0.1]</code>. <strong>This is not a fixed-step browser loop.</strong> <code>main.js</code> calls once per animation frame using elapsed frame time capped at 0.05 seconds, with no accumulator or catch-up. Tests often choose fixed 1/60 or 0.1 steps. <code>level.time</code> and browser completion <code>elapsed</code> advance only during play, using these capped deltas; elapsed is not full wall-clock time after a long stall. Bark lasts 650 ms with a 2100 ms cooldown measured by <code>performance.now()</code>, independently of simulation time.</p>
+<p>Pip moves at <code>7.8 + speedBoost</code> units/second, with radius 0.62. Movement collision reports <code>blockedX</code>/<code>blockedZ</code>; see the <a href="world.html#clearance-is-not-one-query">world clearance distinction</a>. Sheep radius/speed limit are 0.55/4.2, cows 0.78/3.3. These are kinematic bodies, not a rigid-body engine.</p>
+<h2 id="one-simulation-step">One simulation step<a class="heading-link" href="#one-simulation-step" aria-label="Link to One simulation step">#</a></h2>
+<figure class="diagram"><figcaption>System diagram</figcaption><pre class="mermaid">flowchart TD
+  A[Input and active upgrade tiers] --&gt; B[Move Pip with solid collision]
+  B --&gt; C[Select connected main herd]
+  C --&gt; D{Attended herd?}
+  D --&gt;|Yes| E[Lateral companion support]
+  D --&gt;|No| F[Hold stored herd positions]
+  E --&gt; G[Snapshot flock forces and body movement]
+  F --&gt; G
+  G --&gt; H{Admission conditions met?}
+  H --&gt;|Animal enters| I[Mark saved and emit event]
+  I --&gt; J{All animals saved?}
+  J --&gt;|First completion| K[Emit completion event]</pre><details><summary>Diagram source / text alternative</summary><pre><code>flowchart TD
+  A[Input and active upgrade tiers] --&gt; B[Move Pip with solid collision]
+  B --&gt; C[Select connected main herd]
+  C --&gt; D{Attended herd?}
+  D --&gt;|Yes| E[Lateral companion support]
+  D --&gt;|No| F[Hold stored herd positions]
+  E --&gt; G[Snapshot flock forces and body movement]
+  F --&gt; G
+  G --&gt; H{Admission conditions met?}
+  H --&gt;|Animal enters| I[Mark saved and emit event]
+  I --&gt; J{All animals saved?}
+  J --&gt;|First completion| K[Emit completion event]</code></pre></details></figure><p>Each active animal computes forces from a snapshot, so earlier animals&#39; updated positions do not directly affect later ones&#39; force inputs. Separation acts under 2 units; cohesion/alignment use visible neighbors under 18 units. Ground visibility is cached by animal pair and 0.2-unit position cells. Cohesion starts beyond 2.6 units from neighbor center; alignment retains 45% of average neighbor velocity. Unpressured animals also receive small deterministic sinusoidal wandering. Saved animals leave the active flock.</p>
+<p>Pip&#39;s base pressure radius is <code>7.6 + signalBoost</code>, plus 3.3 while barking. Within it, a clear <strong>player signal</strong> produces flee pressure; bark multiplies urgency by <code>1.65 + barkBoost</code>. Animals flee Pip&#39;s position, not the destination. Under pressure, <code>openingSteer</code> can nudge sideways toward a nearby crossing/gate when forward travel is blocked. Velocity smoothing, speed caps, solid body movement, and limited angled escape attempts then resolve movement. Companion support and admission use <strong>ground</strong> paths; do not replace those with the more permissive player signal.</p>
+<h2 id="companions-support-the-player">Companions support the player<a class="heading-link" href="#companions-support-the-player" aria-label="Link to Companions support the player">#</a></h2>
+<p>Owned companion tiers apply only after their current meadow&#39;s unlock gates. The largest connected component is selected using links of at most 6.5 units with a clear ground path (radius 0.15). Ties prefer members from the previous selection, then lowest animal ID. Recompute on active-membership changes or after more than 0.25 simulation seconds. A singleton is not a supported herd: helpers go to standby, and isolated stragglers receive no support.</p>
+<p>Attendance uses the closest ground-visible member of the selected herd, not its centroid. Visibility search is limited to 18 units, so losing a clear path yields infinite attendance distance even if Pip is physically close.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Existing mode</th>
+<th>Hold decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Initial/standby</td>
+<td>Hold when nearest visible member is farther than 14.</td>
+</tr>
+<tr>
+<td>Hold</td>
+<td>Stay holding at distance 12 or greater; return to assist below 12.</td>
+</tr>
+<tr>
+<td>Assist</td>
+<td>Hold beyond 18; stay assisting at 18 or below.</td>
+</tr>
+</tbody></table></div>
+<p>Hold entry captures the herd centroid and each member&#39;s position. Membership change with less than half overlap also recaptures positions. Holding suppresses inherited alignment/cohesion momentum and steers members back toward stored positions. Direct pressure of at least 0.03 overrides holding for that animal. It is a bounded positional behavior, not an immutable freeze.</p>
+<p>In assist, companions tidy lateral flanks relative to Pip→centroid. The force vectors have their mean removed, preventing net propulsion toward a destination. The drone flies over the centroid; Buddy navigates solid ground alongside Pip, or alongside the herd while holding. Buddy&#39;s body has no blanket flee signal. Neither companion chooses a goal or autonomously delivers the flock.</p>
+<p>Tests: <a href="../../tests/companions.test.js">companions.test.js</a> covers selection, hysteresis, fifteen-minute hold, straggler retrieval, blocked signals, zero goal dependence and unattended admission. <a href="../../tests/herding-journey.test.js">herding-journey.test.js</a> uses legitimate dog input to complete five representative crossing journeys; its bounded policy does not prove all seeds/routes solvable.</p>
+<h2 id="admission-rewards-and-profile-lifecycle">Admission, rewards, and profile lifecycle<a class="heading-link" href="#admission-rewards-and-profile-lifecycle" aria-label="Link to Admission, rewards, and profile lifecycle">#</a></h2>
+<p>Admission is currently a circle check, even for rectangular-looking enclosures. An animal is saved when all are true: Pip is within <code>target.radius + 12</code> of target center; the animal is not holding; its center is within <code>target.radius - physicalRadius * 0.5</code>; and Pip→animal has a clear ground path (radius 0.15). There is no countdown or partial-delivery payout. Completion requires a nonempty flock with every animal saved.</p>
+<p><code>justCompleted</code>/result <code>reward</code> prevent repeating the completion event on one level instance. Persistent reward deduplication is separate: <code>applyLevelReward(profile, level)</code> requires <code>level.completed</code> and an index absent from <code>completedLevels</code>, then adds <code>level.reward</code> bolts and unlocks the next meadow. Replaying a fresh instance can complete again but cannot award the same index twice. Completing index 99 keeps <code>highestLevel</code> at 99; the browser&#39;s next button returns to index 0.</p>
+<figure class="diagram"><figcaption>System diagram</figcaption><pre class="mermaid">flowchart TD
+  A[Load validated profile] --&gt; B[Begin highest unlocked meadow]
+  B --&gt; C[Fresh deterministic level instance]
+  C --&gt; D{All saved?}
+  D --&gt;|Yes| E{Index already rewarded?}
+  E --&gt;|No| F[Add bolts and unlock next]
+  E --&gt;|Yes| G[Zero reward]
+  F --&gt; H[Persist and show completion]
+  G --&gt; H
+  H --&gt; I[Replay or next meadow]
+  I --&gt; C
+  A --&gt; J[Confirmed Restart Game]
+  J --&gt; K[Default profile, preserve music]
+  K --&gt; C</pre><details><summary>Diagram source / text alternative</summary><pre><code>flowchart TD
+  A[Load validated profile] --&gt; B[Begin highest unlocked meadow]
+  B --&gt; C[Fresh deterministic level instance]
+  C --&gt; D{All saved?}
+  D --&gt;|Yes| E{Index already rewarded?}
+  E --&gt;|No| F[Add bolts and unlock next]
+  E --&gt;|Yes| G[Zero reward]
+  F --&gt; H[Persist and show completion]
+  G --&gt; H
+  H --&gt; I[Replay or next meadow]
+  I --&gt; C
+  A --&gt; J[Confirmed Restart Game]
+  J --&gt; K[Default profile, preserve music]
+  K --&gt; C</code></pre></details></figure><p><code>defaultProfile()</code> returns <code>{version:1, points:0, upgrades:{}, completedLevels:[], highestLevel:0, music:true}</code>. <code>validateProfile</code> rebuilds this schema: points become bounded whole numbers 0–1e9; upgrade entries are validated; completed indexes are deduplicated/sorted and restricted to 0–99; highest unlocked index is reconciled with completions and capped at 99; only explicit <code>music:false</code> disables music. It does not save level positions or an in-progress run.</p>
+<p><code>loadProfile(storage?, key = &#39;flock-foundry-v1&#39;)</code> and <code>saveProfile(profile, storage?, key?)</code> use a storage object with <code>getItem</code>/<code>setItem</code> (default <code>localStorage</code>). Invalid JSON or inaccessible storage loads defaults; saving failure returns false. The browser retains its in-memory profile and displays a toast on save failure. The same key survives normal restarts and deployment path changes on the same origin.</p>
+<p><code>begin(index)</code> regenerates a meadow, resets elapsed/input/tips/bark state, and keeps profile progress. “Restart this meadow” calls it with the current index. Confirmed “Restart Game” replaces the profile with defaults while retaining music, persists it, resets reward/tap state, and begins index 0. Cancel does not reset progress. Pause/workshop modes stop stepping; the renderer can still update visual effects in intro/completion.</p>
+<h2 id="upgrade-contract">Upgrade contract<a class="heading-link" href="#upgrade-contract" aria-label="Link to Upgrade contract">#</a></h2>
+<p>The six three-tier catalog entries and exact costs/gates live in <a href="../../src/progression.js">progression.js</a>. Use its exports rather than duplicate a pricing table in callers:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>upgradeLevel</code>, <code>validateUpgrades</code></td>
+<td>Accept positive integer tiers (cap at 3); migrate legacy <code>true</code> to tier 1; drop unknown/malformed entries.</td>
+</tr>
+<tr>
+<td><code>upgradeCost</code>, <code>nextUnlockLevel</code></td>
+<td>Price/gate of next tier; <code>null</code> for unknown or maxed upgrade.</td>
+</tr>
+<tr>
+<td><code>upgradeAvailability</code></td>
+<td>Workshop status with <code>unknown</code>, <code>owned</code>, <code>locked</code>, <code>points</code>, or <code>null</code> reason.</td>
+</tr>
+<tr>
+<td><code>purchaseUpgrade</code></td>
+<td>Atomically purchase one tier; failed purchase preserves points.</td>
+</tr>
+<tr>
+<td><code>activeUpgrades</code>, <code>upgradeEffects</code></td>
+<td>Clamp owned tiers to gates of the current one-based meadow number.</td>
+</tr>
+</tbody></table></div>
+<p>Purchase eligibility follows unlocked campaign progress (<code>highestLevel</code> and completions). Activation follows the meadow being played. Thus an owned later tier stays in the save when replaying an early meadow but its effect is inactive there. Effects are absolute arrays by tier, not cumulative additions of each previous tier. See <a href="../../tests/progression.test.js">progression tests</a> and <a href="../../tests/simulation.test.js">simulation tests</a>.</p>
+<p>Run from repository root with Node 22+; no DOM or WebGL is needed:</p>
+<div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh">node --input-type=module &lt;&lt;&#39;JS&#39;
+import assert from &#39;node:assert/strict&#39;;
+import {
+  createLevel, stepSimulation, defaultProfile, applyLevelReward,
+  purchaseUpgrade, saveProfile, loadProfile,
+} from &#39;./src/simulation.js&#39;;
+import { activeUpgrades } from &#39;./src/progression.js&#39;;
+const level = createLevel(0);
+// Synthetic admission fixture, as opposed to a player input policy.
+level.animals.forEach(a =&gt; Object.assign(a, {x:level.target.x, z:level.target.z}));
+const result = stepSimulation(level, {...level.target}, {}, 1/60);
+assert.equal(result.justCompleted, true);
+const profile = defaultProfile();
+assert.equal(applyLevelReward(profile, level), 80);
+assert.equal(applyLevelReward(profile, level), 0);
+assert.equal(purchaseUpgrade(profile, &#39;speed&#39;).ok, true);
+assert.deepEqual(activeUpgrades(profile.upgrades, 1), {});
+assert.deepEqual(activeUpgrades(profile.upgrades, 2), {speed:1});
+let json;
+const storage = {getItem: () =&gt; json, setItem: (_key, value) =&gt; {json=value;}};
+assert.equal(saveProfile(profile, storage), true);
+assert.deepEqual(loadProfile(storage), profile);
+console.log(&#39;completion, reward, tier gates and storage round trip passed&#39;);
+JS</code></pre></div><h2 id="current-versus-proposed">Current versus proposed<a class="heading-link" href="#current-versus-proposed" aria-label="Link to Current versus proposed">#</a></h2>
+<p>The <a href="issues.html">tracker</a> owns future requirements and acceptance criteria: enclosure geometry/admission, arrival countdown/scoring, opening gates, wanderers, balancing and dev tooling are queued changes, not contracts implemented by this document. Source tests establish headless behavior; they do not establish real-phone feel, graphics or audio validation. Deployment URL correction is also pending in the tracker; source documentation does not establish a new live release.</p>
+</main><footer><a href="../systems/GAMEPLAY.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#state-and-interfaces">State and interfaces</a><a class="toc-level-2" href="#one-simulation-step">One simulation step</a><a class="toc-level-2" href="#companions-support-the-player">Companions support the player</a><a class="toc-level-2" href="#admission-rewards-and-profile-lifecycle">Admission, rewards, and profile lifecycle</a><a class="toc-level-2" href="#upgrade-contract">Upgrade contract</a><a class="toc-level-2" href="#current-versus-proposed">Current versus proposed</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

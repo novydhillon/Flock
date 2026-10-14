@@ -22,7 +22,7 @@ Earlier review findings also drove repairs to dry bridge rail collision, rare se
 
 ## Verified checks
 
-- **93 automated tests pass.** They exercise actual simulation/profile logic, production controller code, real Three.js geometry/matrices, resource ownership and synthesized audio lifecycle.
+- **93 automated tests passed at the blind-review retry snapshot.** They exercise actual simulation/profile logic, production controller code, real Three.js geometry/matrices, resource ownership and synthesized audio lifecycle.
 - All routes across 100 default levels are physically traversed by cow-sized bodies. Independent sweeps found no blocked routes or unsafe spawns in 500 additional generated worlds. A separate 1,600-fixture spawn sweep verified the rare-seed repair.
 - Full original flocks in levels 2, 3, 6, 10 and 16 are delivered across four directions by a bounded simulated player using ordinary dog inputs, safe bridge/pen circling and actual collision. No animal positions or saved flags are changed by that policy. This does not establish full-flock completion of every campaign level, route, seed or player strategy.
 - Retry critics independently checked 800 and 3,000 generated worlds before the first-bridge widening, with no unsafe actual-radius spawns or cow-clearance route failures. The refreshed default campaign and first-bridge geometry regressions also pass after widening.
@@ -36,3 +36,7 @@ Earlier review findings also drove repairs to dry bridge rail collision, rare se
 DOM, Canvas, WebGL and WebAudio substitutes support headless checks. No approved browser/phone environment was available for rendered screenshots, real touchscreen interactions, listening or GPU profiling. The tests therefore do not prove visual polish, native Safari zoom/scroll behavior, perceived audio quality or mobile frame rate.
 
 Device priorities are portrait readability and control feel, double-tap bark without page zoom, workshop scrolling, large-flock rendering/level-transition performance, and bird/weather balance through phone speakers. These checks remain necessary before claiming a verified 9/10 game experience.
+
+## Documentation maintenance note — 14 October 2026
+
+The later Restart Game revision added six controller regressions, bringing the source suite to 99 tests; its source CI passed. The historical review scores above were not rerun for that small feature. See [requirements](REQUIREMENTS.md), [system context](ARCHITECTURE.md) and [issue tracker](ISSUES.md) for implemented versus queued behavior. Documentation content/HTML reviews are recorded separately in `docs/REVIEW.md`; their scores do not rate the game itself.

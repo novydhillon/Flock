@@ -25,6 +25,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Check generated documentation
+        run: npm run docs:check
       - name: Test simulation, controls and scene construction
         run: npm test
       - name: Build standalone game

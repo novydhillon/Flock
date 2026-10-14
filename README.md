@@ -4,7 +4,7 @@ A cheerful 3D herding game for portrait phones. Guide a robotic sheepdog through
 
 Development branch: `flock_3D_chatgpt-work`.
 
-Remaining work and future-agent handoffs: [Issue tracker](docs/ISSUES.md).
+Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/index.html) · [Requirements](docs/REQUIREMENTS.md) · [Issue tracker](docs/ISSUES.md).
 
 Play the standalone development build at [novydhillon.github.io/Flock/flock/dev2/](https://novydhillon.github.io/Flock/flock/dev2/). The existing `flock/dev/` game is preserved separately.
 
@@ -48,11 +48,13 @@ The opening pasture teaches herding with a small sheep flock and a nearby pen. L
 
 ## Deployment
 
+**P0 correction pending (F-025):** the required canonical URL is **https://novydhillon.github.io/Flock/dev2/**, with output under `dev2/` on `gh-pages`. The current nested deployment and helper described below are **superseded for the next release**. Correct the helper and verify migration before publishing another game revision. See [development and release context](docs/DEVELOPMENT.md) and [F-025](docs/ISSUES.md#f-025--correct-the-deployment-url-p0--highest-priority).
+
 GitHub Pages currently publishes the repository's `gh-pages` branch. The game is deployed to **`flock/dev2/` within that branch**, so its full URL includes the case-sensitive repository prefix `/Flock/`.
 
-`.github/workflows/deploy-dev2.yml` tests and builds pushes to `flock_3D_chatgpt-work`, then uploads the standalone `dist/` artifact. These checks do not enter the publishing environment. To publish a revision, replace only `flock/dev2/` in the latest `gh-pages` tree with that build and commit/push the Pages branch. Preserve `flock/dev/`, the site root, and all unrelated files. GitHub Pages publishes the existing `gh-pages` branch through its native workflow.
+`.github/workflows/deploy-dev2.yml` tests and builds pushes to `flock_3D_chatgpt-work`, then uploads the standalone `dist/` artifact. These checks do not enter the publishing environment. The existing publication procedure replaced `flock/dev2/` in the latest `gh-pages` tree with that build and committed/pushed the Pages branch. F-025 changes that destination to `dev2/` before the next release. Preserve `flock/dev/`, the site root, and all unrelated files. GitHub Pages publishes the existing `gh-pages` branch through its native workflow.
 
-For a local review of exactly what will change, build first and prepare a detached Pages worktree:
+The following command demonstrates the existing helper’s behavior for inspection only; it still stages the wrong nested path until F-025 is implemented:
 
 ```sh
 npm run build
@@ -60,7 +62,7 @@ node scripts/deploy-pages.mjs /tmp/flock-pages-review
 git -C /tmp/flock-pages-review diff --cached --stat
 ```
 
-The preparation script stages the build without committing or pushing. It refuses an existing destination, validates the build output, and updates only the requested deployment folder.
+The preparation script stages without committing or pushing, refuses an existing worktree destination, and checks only that `dist/index.html` exists. It replaces `flock/dev2/` and also writes/stages the Pages-root `.nojekyll`; it does not validate every asset or guarantee that unrelated root content is unchanged. Inspect the entire staged diff. Its current behavior is not a compliant implementation of F-025.
 
 ## Scope
 

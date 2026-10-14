@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: World &amp; navigation"><title>World &amp; navigation · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" aria-current="page">World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" aria-current="page">World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Systems <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="world-generation-collision-and-navigation">World generation, collision, and navigation<a class="heading-link" href="#world-generation-collision-and-navigation" aria-label="Link to World generation, collision, and navigation">#</a></h1>
+<p>Current contracts come from <a href="../../src/world.js">world.js</a>; <a href="gameplay.html">GAMEPLAY.md</a> explains its simulation callers. The <a href="issues.html">issue tracker</a> is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.</p>
+<h2 id="coordinates-and-generated-state">Coordinates and generated state<a class="heading-link" href="#coordinates-and-generated-state" aria-label="Link to Coordinates and generated state">#</a></h2>
+<p>Positions use <code>{x, z}</code> on a flat ground plane; vertical height belongs to rendering. Distances are Euclidean world units. Heading is radians, with forward <code>{x:sin(h), z:cos(h)}</code> and lateral <code>{x:cos(h), z:-sin(h)}</code>. Do not assume destination progress always means increasing world X.</p>
+<p><code>createLevel(index = 0, seed = index * 7919 + 42)</code> floors/clamps the index to 0–99 and converts the seed to unsigned 32-bit. The default parameter expression uses the argument before index normalization; pass explicit valid indexes for ordinary campaign reproducibility. The same index/seed yields deeply equal fresh state. Randomness is a private seeded generator, not <code>Math.random()</code>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>index</code>, <code>seed</code>, <code>title</code>, <code>description</code>, <code>reward</code></td>
+<td>Campaign metadata; displayed level is <code>index + 1</code>; reward is <code>80 + index * 25</code>.</td>
+</tr>
+<tr>
+<td><code>bounds</code></td>
+<td><code>{minX,maxX,minZ,maxZ}</code> world-space axis-aligned playable bounds.</td>
+</tr>
+<tr>
+<td><code>spawn</code>, <code>dog</code>, <code>animals</code></td>
+<td>Flock origin, Pip origin, initial body states.</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td><code>{x,z,radius,type,heading}</code>; type cycles pen → field → barn by index modulo 3.</td>
+</tr>
+<tr>
+<td><code>rivers</code></td>
+<td>Sampled centerline <code>points</code>, width, rotated bridge deck descriptors.</td>
+</tr>
+<tr>
+<td><code>fenceSegments</code></td>
+<td>Physical <code>{a,b,kind}</code> segments: boundary, interior, target. <code>fences</code> currently starts empty.</td>
+</tr>
+<tr>
+<td><code>gates</code></td>
+<td>Open gap descriptors, not animated door state.</td>
+</tr>
+<tr>
+<td><code>routes</code>, <code>roads</code></td>
+<td>Sampled routes <code>{id,points,length}</code>; roads reference route points plus width.</td>
+</tr>
+<tr>
+<td><code>obstacles</code>, <code>sceneryHills</code></td>
+<td>Circular tree collision footprints; decorative hills outside bounds.</td>
+</tr>
+</tbody></table></div>
+<p>Simulation attaches runtime state such as time, completion, helpers and visibility caches. Do not reuse a stepped level as a pristine generation fixture.</p>
+<p>Generation starts in canonical longitudinal/lateral coordinates, then rotates by quarter turns. Early indexes 0–4 have a 48-unit lateral footprint, one route and longitudinal end <code>15 + 3*index</code>. Index 0 points east; other early levels choose east/west from seed parity. Later levels choose all four directions by <code>seed % 4</code>, use longitudinal end <code>48 + 3*index</code>, and lateral half-width <code>84 + floor(index/15)*14</code>; transformed bounds also retain at least that world-Z span. Thus rotated late bounds may be larger than simply rotating the canonical rectangle.</p>
+<p>Flock count is <code>min(5 + 3*index, 65)</code>. From index 3, every fourth animal is a cow. Bodies start in a compact grid with seeded jitter and Pip behind them. If a curved bank clips a body, the generator tries up to seven half-unit backward translations of the entire grid, preserving its shape. This finite correction is tested on selected custom seeds; it is not a formal proof for every unsigned seed.</p>
+<h2 id="generation-pipeline-and-routes">Generation pipeline and routes<a class="heading-link" href="#generation-pipeline-and-routes" aria-label="Link to Generation pipeline and routes">#</a></h2>
+<figure class="diagram"><figcaption>System diagram</figcaption><pre class="mermaid">flowchart TD
+  A[Index and seed] --&gt; B[Canonical bounds, destinations and routes]
+  B --&gt; C[Sample curved rivers and place crossings]
+  C --&gt; D[Rotate geometry into world coordinates]
+  D --&gt; E[Build boundary, gate and target segments]
+  E --&gt; F[Sample trails and check corridor clearance]
+  F --&gt; G[Spawn flock, correct bank overlaps]
+  G --&gt; H[Place trees away from routes and endpoints]
+  H --&gt; I[Place exterior scenery hills]</pre><details><summary>Diagram source / text alternative</summary><pre><code>flowchart TD
+  A[Index and seed] --&gt; B[Canonical bounds, destinations and routes]
+  B --&gt; C[Sample curved rivers and place crossings]
+  C --&gt; D[Rotate geometry into world coordinates]
+  D --&gt; E[Build boundary, gate and target segments]
+  E --&gt; F[Sample trails and check corridor clearance]
+  F --&gt; G[Spawn flock, correct bank overlaps]
+  G --&gt; H[Place trees away from routes and endpoints]
+  H --&gt; I[Place exterior scenery hills]</code></pre></details></figure><p>Index 0 has no river. Indexes 1–4 have one; indexes 5–14 have one; indexes 15+ have two. River centerlines are gentle sinusoids sampled every 2 canonical lateral units, extending beyond the fenced map. Each route gets a bridge over each river. Route counts are one for early levels; thereafter one on even indexes/two on odd indexes below 15; indexes 15+ have three when divisible by 3, otherwise two. From index 2, an interior fence has open gate gaps for each route.</p>
+<p>Routes connect spawn, bridge approaches/centers, gates and destination approaches. <code>wander</code> samples each leg roughly every 1.2 units; ordinary legs gain seeded meanders. Legs adjoining bridges/gates or ending at target stay straight. A candidate meander is kept only if every sampled segment has 0.85-unit ground clearance against already-built geometry; otherwise that leg uses straight interpolation. Trees are added afterward, excluded from a <code>7 + tree.radius</code> corridor around route segments, within 14 of spawn, or within <code>target.radius + 10</code> of destination. Maximum attempted tree count is <code>min(10 + 2*index,130)</code>, so actual counts vary.</p>
+<p>Roads are visual/guidance data, not forces. Nothing in <code>stepSimulation</code> attracts animals toward <code>routes</code> or <code>target</code>. The route API can guide Pip and ground companions; player pressure drives delivery.</p>
+<h2 id="shared-bridge-and-enclosure-geometry">Shared bridge and enclosure geometry<a class="heading-link" href="#shared-bridge-and-enclosure-geometry" aria-label="Link to Shared bridge and enclosure geometry">#</a></h2>
+<p>A bridge <code>{x,z,width,length,heading}</code> is a straight rotated rectangle. In its local frame a body is over the deck when longitudinal distance is at most <code>length/2 + radius</code> and lateral distance at most <code>width/2 - radius</code>. The longitudinal extension lets bodies enter from dry ground; lateral contraction preserves body clearance. Bridge length is river width plus 5. Index 1 uses width 11.5, indexes 2–4 use 8.5, and later decks use 10. These current dimensions are not a claim that decks already satisfy the queued perpendicular-crossing/path-width requirement.</p>
+<p>Each side rail runs from <code>-length/2 - 0.1</code> to <code>length/2 + 0.1</code> at lateral <code>±width/2</code>, with beam radius 0.05 and four post footprints of radius 0.065 per side. Rails remain solid beyond the wet river edge, so a body on dry land beside a deck cannot cut sideways through its end rail. It must walk around an open end. Rail and river bounds are cached in WeakMaps keyed by geometry object; treat generated descriptors as static or replace the object when editing rather than mutating cached geometry in place.</p>
+<p><code>terrainHeight(level,x,z)</code> returns a deck arch <code>0.18 + 0.12*sin(π*(along/length + 0.5))</code> inside the zero-radius bridge footprint, otherwise 0. It does not change collision into a 3D physics system. See <a href="../../src/render.js">render.js</a> for presentation of these descriptors.</p>
+<p>Destination segments form a box of half-extent <code>target.radius + 1.4</code>, with a 7-unit entrance on its upstream side. The target&#39;s admission circle is a separate current gameplay test; see <a href="gameplay.html#admission-rewards-and-profile-lifecycle">admission</a>. A visual enclosure does not imply an exact rectangular admission region.</p>
+<h2 id="clearance-is-not-one-query">Clearance is not one query<a class="heading-link" href="#clearance-is-not-one-query" aria-label="Link to Clearance is not one query">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Export</th>
+<th>What it answers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>canOccupy(level,x,z,radius=.55)</code></td>
+<td>May a circular body occupy one point? Bounds inset by <code>radius + .18</code>, fence thickness .18, expanded trees/water and solid bridge rails all apply. Water is traversable only within a bridge footprint.</td>
+</tr>
+<tr>
+<td><code>moveBody(level,body,dx,dz,radius=.55)</code></td>
+<td>Mutates position with steps of at most .25 units, tries combined displacement, then axis sliding; returns <code>{blockedX,blockedZ}</code>. It does not set velocity or heading.</td>
+</tr>
+<tr>
+<td><code>hasClearGroundPath(level,a,b,radius=.55)</code></td>
+<td>Is a straight ground segment clear? Solid fences/rails, trees, water and inset endpoint bounds apply. Water checks sample at intervals no greater than .45 units.</td>
+</tr>
+<tr>
+<td><code>hasClearPlayerSignal(level,a,b)</code></td>
+<td>Radius .15 audible pressure line: ignores low fences and bridge rails; target fence segments shield only barns. Trees, water outside decks and bounds still block.</td>
+</tr>
+<tr>
+<td><code>separatedByBank(level,a,b)</code></td>
+<td>Specialized river/rail separation query, not general obstacle clearance or a substitute for ground path validation.</td>
+</tr>
+</tbody></table></div>
+<p>The player signal is used for Pip&#39;s pressure only. Flock cohesion/alignment visibility, companion selection/attendance/support and destination attendance use solid ground paths. A sheep can hear Pip over a low pen rail while neither body can cross it; that does not mean a companion may pull through it or admission may ignore it. Physical separation forces between very close animals are distinct from neighbor visibility.</p>
+<p><code>moveBody</code> subdivides displacement to limit tunneling; <code>stepSimulation</code> additionally caps dt. Neither is a swept 3D rigid-body solver. Rivers are sampled polylines with radius-expanded checks, and trees are circular footprints, not mesh intersection tests.</p>
+<h2 id="navigation-exports">Navigation exports<a class="heading-link" href="#navigation-exports" aria-label="Link to Navigation exports">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Behavior and limit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>distance</code>, <code>closestOnSegment</code>, <code>segmentDistance</code></td>
+<td>Shared ground-plane geometry; projection result includes clamped <code>t</code>.</td>
+</tr>
+<tr>
+<td><code>routeProgress(level,position,routeId?)</code></td>
+<td>Nearest projection on matching sampled route segments; returns route/id, segment index, point, off-route distance, arclength progress and route length; <code>null</code> if none.</td>
+</tr>
+<tr>
+<td><code>nextNavigationPoint(level,position,routeId?)</code></td>
+<td>First sampled point at least 7 arclength units after projection, otherwise target. This is not exactly a point seven straight-line units away.</td>
+</tr>
+<tr>
+<td><code>navigationTarget(level,body,desired,radius=.62)</code></td>
+<td>Returns desired when clear, otherwise route projection/lookahead; near bridge rails builds a small visibility graph around up to two bridges to walk around open ends. It is a local waypoint heuristic, not global pathfinding for arbitrary user geometry.</td>
+</tr>
+<tr>
+<td><code>destinationApproach(level,body)</code></td>
+<td>Oriented waypoint around enclosure walls toward upstream entrance. Used by journey-test player policy, not an animal&#39;s automatic goal drive.</td>
+</tr>
+<tr>
+<td><code>openingSteer(level,body,vx,vz)</code></td>
+<td>Adds lateral steering toward the closest opening on a nearby pressed barrier. Only used under player pressure; alias <code>steeringOpening</code> is also exported.</td>
+</tr>
+</tbody></table></div>
+<p>Run this from repository root with Node 22+:</p>
+<div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh">node --input-type=module &lt;&lt;&#39;JS&#39;
+import assert from &#39;node:assert/strict&#39;;
+import {
+  createLevel, distance, canOccupy, moveBody,
+  hasClearGroundPath, routeProgress, nextNavigationPoint, terrainHeight,
+} from &#39;./src/world.js&#39;;
+const level = createLevel(23, 201);
+assert.deepEqual(level, createLevel(23, 201));
+const bridge = level.rivers[0].bridges[0];
+assert.equal(canOccupy(level, bridge.x, bridge.z, .8), true);
+assert.ok(Math.abs(terrainHeight(level, bridge.x, bridge.z) - .3) &lt; 1e-8);
+const route = level.routes[0], walker = {...level.spawn};
+for (const point of route.points) {
+  assert.ok(hasClearGroundPath(level, walker, point, .8));
+  moveBody(level, walker, point.x-walker.x, point.z-walker.z, .8);
+  assert.ok(distance(walker, point) &lt; .001);
+}
+assert.ok(distance(walker, level.target) &lt; .001);
+const info = routeProgress(level, level.spawn, route.id);
+assert.equal(info.routeId, route.id);
+assert.ok(nextNavigationPoint(level, level.spawn, route.id));
+console.log(&#39;deterministic world, deck height and traversable route passed&#39;);
+JS</code></pre></div><h2 id="evidence-and-queued-changes">Evidence and queued changes<a class="heading-link" href="#evidence-and-queued-changes" aria-label="Link to Evidence and queued changes">#</a></h2>
+<p><a href="../../tests/world.test.js">world.test.js</a> checks all 100 default campaign indexes for cow-clear route traversal with actual <code>moveBody</code> calls, safe default spawns, destination margins, exterior hills and geometry constraints. It also covers selected custom seeds, four rotations, audible-versus-solid fences and dry-end rail navigation. <a href="../../tests/simulation.test.js">simulation.test.js</a> checks actual movement against banks, bounds and destination walls. <a href="../../tests/herding-journey.test.js">herding-journey.test.js</a> covers five bounded full-delivery journeys. Those scopes are narrower than all possible seeds or real-device verification.</p>
+<p>Future bridge orientation/width, interactive gates, stone walls, enclosure shape matching and environment changes remain tracked in <a href="issues.html">ISSUES.md</a>; this document does not implement or approve them. The tracker also records the pending deployment-path correction. No documentation change is evidence of a live deployment.</p>
+</main><footer><a href="../systems/WORLD.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#coordinates-and-generated-state">Coordinates and generated state</a><a class="toc-level-2" href="#generation-pipeline-and-routes">Generation pipeline and routes</a><a class="toc-level-2" href="#shared-bridge-and-enclosure-geometry">Shared bridge and enclosure geometry</a><a class="toc-level-2" href="#clearance-is-not-one-query">Clearance is not one query</a><a class="toc-level-2" href="#navigation-exports">Navigation exports</a><a class="toc-level-2" href="#evidence-and-queued-changes">Evidence and queued changes</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

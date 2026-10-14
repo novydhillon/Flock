@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Quality record"><title>Quality record · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" aria-current="page">Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" aria-current="page">Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="flock-dev2-revision-quality-record">Flock dev2 revision quality record<a class="heading-link" href="#flock-dev2-revision-quality-record" aria-label="Link to Flock dev2 revision quality record">#</a></h1>
+<p>The latest fresh blind-review retry scored <strong>9.1/10 for technical implementation</strong> and <strong>8.6/10 for gameplay implementation</strong> after fixes. Neither critic found a remaining confirmed blocking defect in the bounded recheck. The technical review reaches 9/10; the overall game experience remains unverified at that score. Actual phone appearance, sound balance, Safari gestures, touch scrolling, human campaign pacing and GPU performance remain open validation tasks.</p>
+<p>Review packets excluded README, quality records, writer history and requested score thresholds. Fresh critics independently inspected source and exercised simulation, geometry and controller behavior. An earlier diagnostic gameplay review accidentally read historical scores; it is excluded from the blind final assessment.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Review</th>
+<th align="right">Before fixes</th>
+<th align="right">Final</th>
+<th>Confirmed issues addressed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Runtime diagnostic</td>
+<td align="right">8.0</td>
+<td align="right">—</td>
+<td>Unattended goal admission, distant rendering workload</td>
+</tr>
+<tr>
+<td>Fresh source/technical critic</td>
+<td align="right">8.4</td>
+<td align="right">8.9</td>
+<td>Cohesion through fences/trees; unnecessary engine exports; singleton companion hold</td>
+</tr>
+<tr>
+<td>Fresh gameplay critic</td>
+<td align="right">8.4</td>
+<td align="right">8.7</td>
+<td>Drone treating an isolated singleton as a main herd</td>
+</tr>
+<tr>
+<td>Fresh technical retry</td>
+<td align="right">8.8</td>
+<td align="right">9.1</td>
+<td>Pending audio activation undoing pause; unbounded overdue music scheduling</td>
+</tr>
+<tr>
+<td>Fresh gameplay retry</td>
+<td align="right">8.2</td>
+<td align="right">8.6</td>
+<td>Default level-two bridge retrieval stall under the test controller</td>
+</tr>
+</tbody></table></div>
+<p>The retry used two new critics with no earlier scores or writer context. The default second meadow initially left all eight sheep unsaved after 400 simulated seconds under the existing test controller. Widening only its first bridge from 8.5 m to 11.5 m lets the same unchanged controller deliver all eight in 17.2 seconds. Later early crossings remain 8.5 m, and the map, river and solid rails are retained.</p>
+<p>Audio activation now uses generation checks so a later pause/disposal/request invalidates an older pending browser resume. Controller startup and sound enabling also respect the current game mode. Delayed music callbacks skip missed beats and cap work; the independent 60-second stall probe schedules one future musical step instead of 212 overdue steps.</p>
+<p>The gameplay critic independently completed default levels 1–5 with the unchanged legitimate-input controller: 18.2, 17.2, 28.7, 38.7 and 208.0 simulated seconds. The larger jump at level five is a pacing concern for human playtesting, not proof of an impossible level or a measured human completion time.</p>
+<p>Earlier review findings also drove repairs to dry bridge rail collision, rare seeded spawn clearance, companion clear-ground attendance, workshop focus restoration and wildlife avoidance of delivered animals/helpers. Ground buddies now detour around bridge ends. Cohesion and alignment respect physical barriers. Pip can call over low wood fences/bridge rails, while bodies, companion membership and goal admission use strict ground paths; barns, water and trees still shield Pip&#39;s call.</p>
+<h2 id="verified-checks">Verified checks<a class="heading-link" href="#verified-checks" aria-label="Link to Verified checks">#</a></h2>
+<ul>
+<li><strong>93 automated tests passed at the blind-review retry snapshot.</strong> They exercise actual simulation/profile logic, production controller code, real Three.js geometry/matrices, resource ownership and synthesized audio lifecycle.</li>
+<li>All routes across 100 default levels are physically traversed by cow-sized bodies. Independent sweeps found no blocked routes or unsafe spawns in 500 additional generated worlds. A separate 1,600-fixture spawn sweep verified the rare-seed repair.</li>
+<li>Full original flocks in levels 2, 3, 6, 10 and 16 are delivered across four directions by a bounded simulated player using ordinary dog inputs, safe bridge/pen circling and actual collision. No animal positions or saved flags are changed by that policy. This does not establish full-flock completion of every campaign level, route, seed or player strategy.</li>
+<li>Retry critics independently checked 800 and 3,000 generated worlds before the first-bridge widening, with no unsafe actual-radius spawns or cow-clearance route failures. The refreshed default campaign and first-bridge geometry regressions also pass after widening.</li>
+<li>Independent integration of actual controller and FarmAudio, with browser surfaces substituted, confirms menu/visibility pause during pending activation settles paused, with zero music schedulers and a ducked music gain. Ten audio lifecycle tests cover both completion orders, mute, disposal and delayed scheduling.</li>
+<li>Regression checks cover main-herd selection, isolated-straggler retrieval, fifteen-minute stationary holds, no unattended admission, clear attendance through barriers, singleton standby and reactivation, and exact level-10/20 companion gates with preserved legacy ownership.</li>
+<li>Renderer checks establish finite camera/pose matrices, conservative culling, visible shadow retention, exact articulated pose restoration, bounded scenery and deterministic disposal. Level-100 actor submissions are 238,604 triangles with the full flock visible, 80,712 in the tested split view and zero at a distant view. These are geometry/submission counts, not measured FPS or rendered pixels.</li>
+<li>Explicit geometry constructor references reduce production JavaScript from about 786 kB/212 kB gzip to 575 kB/154 kB gzip. The remaining Vite chunk-size warning is advisory; no runtime/font asset CDN is required.</li>
+</ul>
+<h2 id="verification-boundary">Verification boundary<a class="heading-link" href="#verification-boundary" aria-label="Link to Verification boundary">#</a></h2>
+<p>DOM, Canvas, WebGL and WebAudio substitutes support headless checks. No approved browser/phone environment was available for rendered screenshots, real touchscreen interactions, listening or GPU profiling. The tests therefore do not prove visual polish, native Safari zoom/scroll behavior, perceived audio quality or mobile frame rate.</p>
+<p>Device priorities are portrait readability and control feel, double-tap bark without page zoom, workshop scrolling, large-flock rendering/level-transition performance, and bird/weather balance through phone speakers. These checks remain necessary before claiming a verified 9/10 game experience.</p>
+<h2 id="documentation-maintenance-note--14-october-2026">Documentation maintenance note — 14 October 2026<a class="heading-link" href="#documentation-maintenance-note--14-october-2026" aria-label="Link to Documentation maintenance note — 14 October 2026">#</a></h2>
+<p>The later Restart Game revision added six controller regressions, bringing the source suite to 99 tests; its source CI passed. The historical review scores above were not rerun for that small feature. See <a href="requirements.html">requirements</a>, <a href="architecture.html">system context</a> and <a href="issues.html">issue tracker</a> for implemented versus queued behavior. Documentation content/HTML reviews are recorded separately in <code>docs/REVIEW.md</code>; their scores do not rate the game itself.</p>
+</main><footer><a href="../QUALITY.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#verified-checks">Verified checks</a><a class="toc-level-2" href="#verification-boundary">Verification boundary</a><a class="toc-level-2" href="#documentation-maintenance-note--14-october-2026">Documentation maintenance note — 14 October 2026</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>
