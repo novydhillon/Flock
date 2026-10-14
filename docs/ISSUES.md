@@ -2,7 +2,7 @@
 
 Updated: 14 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. Working branch: `flock_3D_chatgpt-work`.
 
-Baseline source: `88ddb66495acaee94bfbc4653ccc818dfe459bc0` (Restart Game revision). Live game: https://novydhillon.github.io/Flock/flock/dev2/. This document records future work; creating it does not implement the changes below.
+Baseline source: `88ddb66495acaee94bfbc4653ccc818dfe459bc0` (Restart Game revision). Current live game (incorrect path): https://novydhillon.github.io/Flock/flock/dev2/. Required deployment URL: https://novydhillon.github.io/Flock/dev2/ (F-025, highest priority). This document records future work; creating it does not implement the changes below.
 
 ## How agents should use this document
 
@@ -11,14 +11,15 @@ Baseline source: `88ddb66495acaee94bfbc4653ccc818dfe459bc0` (Restart Game revisi
 3. Confirm design decisions listed under each issue before coding dependent behavior. Explicit user requirements take precedence over proposed defaults. Preserve portrait, single-thumb play and the cheerful art direction.
 4. Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: **Open → In progress → Review → Done**, or **Blocked** with the reason.
 5. Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.
-6. A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Publish only `flock/dev2/` on the latest `gh-pages` tree; preserve other content. Changes to this tracker alone do not require a game deployment.
+6. A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to `dev2/` on the latest `gh-pages` tree, giving the public URL `/Flock/dev2/`. The old `flock/dev2/` destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.
 
-Priority: **P1** = correctness/gameplay foundation; **P2** = planned feature/polish; **P3** = broader validation/optimization. All open items are unassigned until explicitly claimed.
+Priority: **P0** = highest priority; complete before other queued work. **P1** = correctness/gameplay foundation; **P2** = planned feature/polish; **P3** = broader validation/optimization. All open items are unassigned until explicitly claimed.
 
 ## Open work overview
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-025 | P0 | Deployment | Correct public deployment URL to /Flock/dev2/ | Open | —; first queued task |
 | F-001 | P1 | Reported defect | Path-corner polygon flicker | Open | — |
 | F-002 | P1 | Reported defect | Bark effect above ground and bridge deck | Open | — |
 | F-003 | P2 | Art/behavior | Detailed squirrel; species-appropriate motion; no spinning | Open | — |
@@ -58,6 +59,18 @@ Picture numbers refer to the user's attachment order, including the duplicate up
 The images are visible in the conversation. Their advertised local attachment paths were unavailable during earlier reads; binaries are not embedded in this repository. Preserve these filenames and descriptions when handing off. Static images establish visible artifacts, not their temporal behavior or root cause.
 
 ## Acceptance criteria and implementation notes
+
+### F-025 — Correct the deployment URL (P0 — highest priority)
+
+**Requirement:** deploy the standalone game at **https://novydhillon.github.io/Flock/dev2/** instead of **https://novydhillon.github.io/Flock/flock/dev2/**. This issue takes precedence over all other open work.
+
+**Accept when:** the current standalone build loads directly at the required URL, including on a fresh visit/reload, with all JavaScript, styles, fonts and other assets resolving successfully beneath `/Flock/dev2/`. The `gh-pages` output directory is **`dev2/`**, not `flock/dev2/`; `/Flock/` is GitHub Pages' repository URL prefix, not an extra output directory. Verify deployed file hashes against the intended production build and record the Pages commit/workflow result and final URL.
+
+**Implementation scope:** inspect and update `scripts/deploy-pages.mjs`, deployment/build configuration, README, tracker instructions and any other hard-coded publish destinations or game links. Keep relative asset support. Preserve the Pages root, existing `flock/dev/` and all unrelated files. Do not clear or rename saved-profile keys as part of this URL correction; verify existing progress remains available at the new path on the same origin.
+
+**Migration decision:** explicitly record what happens to the previous `/Flock/flock/dev2/` URL (for example, a redirect to the canonical URL). Do not leave two independently maintained game copies or delete unrelated legacy content. Any redirect must retain working navigation and use the correct repository prefix.
+
+**Validation:** inspect the proposed Pages-tree diff for the correct directory and preserved unrelated blobs; check the new live entry point and every referenced asset after successful publication. Update the tracker’s current-live URL only after verification. Documentation-only creation of this issue does not itself migrate the deployment.
 
 ### F-001 — Path-corner polygon flicker
 
@@ -277,6 +290,8 @@ Copy one row per claimed issue; retain older entries when reopening work.
 
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
-Suggested order: F-001/F-002/F-010 → F-005 → F-009 and gate/wall contracts → F-006/F-007/F-012. Art items F-003/F-004/F-008/F-011 can proceed in coordinated worktrees; F-013–F-015 remain cross-cutting validation work.
+Suggested order: **F-025 first (P0 deployment correction)** → F-001/F-002/F-010 → F-005 → F-009 and gate/wall contracts → F-006/F-007/F-012. Art items F-003/F-004/F-008/F-011 can proceed in coordinated worktrees; F-013–F-015 remain cross-cutting validation work.
 
 Update recorded 14 October 2026: expanded F-003 squirrel locomotion and added F-016–F-024 for visibility, rabbits/population, dev QA tooling, vegetation and linked weather/wildlife/surface behavior. All remain Open and unassigned. Coordinate F-022/F-023/F-024 around one weather-state contract; F-018 can support reproductions without becoming a runtime dependency of other fixes.
+
+Update recorded 14 October 2026: F-025 added as P0/highest priority. Required canonical URL is https://novydhillon.github.io/Flock/dev2/; the existing nested deployment remains the current live location until migration is implemented and verified.
