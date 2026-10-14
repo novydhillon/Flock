@@ -44,6 +44,9 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-022 | P2 | Wildlife/weather | Species retreat as weather worsens | Open | F-017; shared weather state with F-023/F-024 |
 | F-023 | P2 | Weather/feedback | Weather transitions, clouds, lighting, lightning and thunder | Open | F-008 |
 | F-024 | P2 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Open | F-004; shared weather state with F-023 |
+| F-025 | P2 | Wildlife | Wildlife can pass through fences and leave and enter the game area | Open | F-017 |
+| F-026 | P3 | UI | Pause button should have a quit button to go to landing page | Open | - |
+
 
 ## Screenshot evidence
 
