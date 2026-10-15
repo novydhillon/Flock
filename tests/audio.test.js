@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FarmAudio } from '../src/audio.js';
+import { createWeatherState, stepWeather } from '../src/weather.js';
 
 class Param {
   constructor() { this.value = 0; this.targets = []; this.events = []; }
@@ -25,6 +26,7 @@ class Context {
   createGain() { return new Node(); }
   createOscillator() { const node = new Node(); this.oscillators.push(node); return node; }
   createBiquadFilter() { return new Node(); }
+  createDelay() { const node = new Node(); node.delayTime = new Param(); return node; }
   createBuffer(channels, count) { const buffer = { getChannelData: () => new Float32Array(count) }; this.buffers.push(buffer); return buffer; }
   createBufferSource() { const node = new Node(); this.sources.push(node); return node; }
   async resume() { this.state = 'running'; }
@@ -39,6 +41,26 @@ class DeferredContext extends Context {
     }));
   }
 }
+
+test('shared storm lightning flashes before its paired reverberant thunder starts', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const weather = createWeatherState({index:23,seed:42});
+    stepWeather(weather, weather.lightningStart + .01);
+    assert.ok(weather.lightningFlash > 0, 'the renderer receives the flash before audio starts');
+    audio.updateAmbience(.01, {weather});
+    const thunder = audio.thunderSource;
+    assert.ok(thunder.startTime - audio.context.currentTime >= .79);
+    stepWeather(weather, .3);
+    assert.equal(weather.lightningFlash, 0, 'flash ends before delayed rumble');
+    audio.updateAmbience(.1, {weather});
+    assert.equal(audio.thunderSource, thunder, 'one sound per shared lightning event');
+    const envelope = thunder.connections[0].connections[0];
+    const delays = envelope.connections.slice(1);
+    thunder.end();
+    assert.ok(delays.every(d => d.disconnected && d.connections[0].disconnected));
+  });
+});
 
 async function withAudio(fn, AudioContext = Context) {
   const originals = { AudioContext: globalThis.AudioContext, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval };
@@ -337,16 +359,22 @@ test('thunder has a speaker-audible crack, bounded rumble and music duck that ca
     const weather = { type: 'rain', intensity: .9, lightningId: 'storm:mix', lightningAge: 0, thunderDelay: 1 };
     audio.updateAmbience(.1, { weather });
     const thunder = audio.thunderSource, filter = thunder.connections[0], envelope = filter.connections[0];
-    assert.deepEqual(filter.frequency.events, [['set', 1400, 1], ['ramp', 180, 3.7]]);
+    assert.deepEqual(filter.frequency.events, [['set', 1400, 1], ['ramp', 180, 3.4]]);
     assert.equal(envelope.connections[0], audio.effects, 'thunder bypasses quiet ambience bus');
     const peak = envelope.gain.events.find(([kind, value]) => kind === 'ramp' && value === .65);
     assert.ok(peak && peak[2] === 1.04, 'audible initial crack has a short smooth attack');
     assert.ok(envelope.gain.events.every(([, value]) => value >= .0001 && value <= .65));
     assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .16 && at === 1));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && at === 3.4));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && at === 3.2));
+    const reflections = envelope.connections.slice(1);
+    assert.equal(reflections.length, 5);
+    assert.ok(reflections.every(delay => delay.delayTime.value > 0 && delay.delayTime.value < .4));
+    assert.deepEqual(envelope.gain.events.slice(-3).map(e => e[1]), [.24,.035,.0001]);
+    assert.ok(thunder.stops[0] - thunder.startTime >= 2 && thunder.stops[0] - thunder.startTime <= 3);
     audio.context.currentTime = .5;
     audio.updateAmbience(.1, { weather: { type: 'sun' } });
     assert.equal(thunder.disconnected, true);
+    assert.ok(reflections.every(delay => delay.disconnected && delay.connections[0].disconnected), 'cancel releases dry and reverberant paths');
     assert.deepEqual(audio.music.gain.events.slice(-2), [['cancel', .5], ['target', .42, .5]]);
     weather.lightningId = 'storm:next'; audio.updateAmbience(.1, { weather });
     audio.pause();

@@ -196,21 +196,31 @@ export class FarmAudio {
     // the falling cutoff leaves a rolling low rumble behind it.
     source.buffer = this._noise(); source.loop = true; filter.type = 'lowpass'; filter.Q.value = .5;
     filter.frequency.setValueAtTime(1400, at);
-    filter.frequency.exponentialRampToValueAtTime(180, at + 2.7);
+    filter.frequency.exponentialRampToValueAtTime(180, at + 2.4);
     gain.gain.setValueAtTime(.0001, at);
     gain.gain.exponentialRampToValueAtTime(.65, at + .04);
     gain.gain.exponentialRampToValueAtTime(.24, at + .35);
-    gain.gain.exponentialRampToValueAtTime(.0001, at + 3.1);
+    gain.gain.exponentialRampToValueAtTime(.035, at + 1.55);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + 2.4);
     source.connect(filter); filter.connect(gain); gain.connect(this.effects);
+    // Finite, irregular early reflections give the rumble space without an
+    // unbounded feedback loop. The last reflection decays before cleanup.
+    const reflections = [];
+    for (const [seconds, level] of [[.071,.24],[.113,.18],[.179,.13],[.263,.09],[.397,.06]]) {
+      const delayNode = context.createDelay(.5), wet = context.createGain();
+      delayNode.delayTime.value = seconds; wet.gain.value = level;
+      gain.connect(delayNode); delayNode.connect(wet); wet.connect(this.effects);
+      reflections.push(delayNode, wet);
+    }
     // Preserve the music, with brief room for thunder in the shared mix.
     this.music.gain.cancelScheduledValues(context.currentTime);
     this.music.gain.setValueAtTime(.42, context.currentTime);
     this.music.gain.setTargetAtTime(.16, at, .04);
-    this.music.gain.setTargetAtTime(.42, at + 2.4, .35);
-    this._trackAmbience(source, [filter, gain]); this.thunderSource = source;
+    this.music.gain.setTargetAtTime(.42, at + 2.2, .25);
+    this._trackAmbience(source, [filter, gain, ...reflections]); this.thunderSource = source;
     const ended = source.onended;
     source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
-    source.start(at); source.stop(at + 3.2);
+    source.start(at); source.stop(at + 2.9);
   }
 
   _chirp(volume) {

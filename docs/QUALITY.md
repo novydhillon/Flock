@@ -203,3 +203,7 @@ At 11:22 Vancouver Novy requested removing clouds for now. F-008 is Deferred: th
 At 11:23 Vancouver Novy added F-041 (P2): wanderers/bolters should use their new position for local idle/wandering instead of returning through normal herd cohesion. The tracker, requirements and gameplay context record it as Open; no wandering/simulation code is changed by this cloud-removal release.
 
 Cloud removal validation: source commit `d01f3c3` removes only renderer integration and updates the scene regression. All 13 renderer tests pass, including deterministic rain fixtures at indexes 8/23 (public levels 9/24). Independent blind source review: **8/10**, no substantive defect; rain, wetness and storm lighting hooks are retained. No rendered/browser check is claimed.
+
+## Thunder reverb follow-up - 15 October 2026, 12:56 Vancouver
+
+Thunder now has five finite irregular reflections (71-397 ms), a tapered envelope and total duration 2.9 seconds. Reflections finish before source cleanup, and all nodes are disconnected on normal completion, mute, pause, level change and disposal. The shared storm state flashes first, followed by its paired thunder after 0.8-1.6 seconds. Focused audio/weather checks pass 23/23, including a real shared-weather flash-before-rumble regression; listening acceptance remains pending.
