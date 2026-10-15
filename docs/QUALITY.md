@@ -207,3 +207,7 @@ Cloud removal validation: source commit `d01f3c3` removes only renderer integrat
 ## Thunder reverb follow-up - 15 October 2026, 12:56 Vancouver
 
 Thunder now has five finite irregular reflections (71-397 ms), a tapered envelope and total duration 2.9 seconds. Reflections finish before source cleanup, and all nodes are disconnected on normal completion, mute, pause, level change and disposal. The shared storm state flashes first, followed by its paired thunder after 0.8-1.6 seconds. Focused audio/weather checks pass 23/23, including a real shared-weather flash-before-rumble regression; listening acceptance remains pending.
+
+## Deeper variable thunder - 15 October 2026, 13:21 Vancouver
+
+Supersedes the fixed 2.9-second thunder tuning above. Each lightning event chooses a 3-5 second rumble duration. The lowpass falls from 400 to 85 Hz with Q .35 and a 120 ms attack to reduce metallic high frequencies. Fade and five reflection delays scale together; their full tail ends at 98% of duration before cleanup. Lightning-first timing and pause/mute/disposal behavior are retained. Focused audio/weather tests pass 24/24, including minimum/middle/maximum variation and tail-completion checks. Headless tests do not establish perceived pitch or speaker quality.

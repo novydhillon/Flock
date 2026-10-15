@@ -299,7 +299,7 @@ test('one lightning event schedules one delayed thunder, pause cancels it and re
     const thunder = audio.thunderSource;
     assert.ok(thunder); assert.ok(Math.abs(thunder.startTime - .9) < 1e-10);
     assert.equal(thunder.loop, true);
-    assert.ok(thunder.stops[0] - thunder.startTime <= 3.200001);
+    assert.ok(thunder.stops[0] - thunder.startTime <= 5.000001);
     for (let i = 0; i < 20; i++) audio.updateAmbience(.01, { weather });
     assert.equal(audio.context.sources.length, 2); assert.equal(timers.size, 1);
     audio.pause(); assert.equal(thunder.disconnected, true); assert.equal(audio.thunderSource, null);
@@ -353,24 +353,28 @@ test('muted unseen events and malformed event timing cannot schedule stale thund
 });
 
 
-test('thunder has a speaker-audible crack, bounded rumble and music duck that cancels on exit', async () => {
+test('thunder uses deep filtering, a tapered rumble and music duck that cancels on exit', async () => {
   await withAudio(async audio => {
     await audio.start();
     const weather = { type: 'rain', intensity: .9, lightningId: 'storm:mix', lightningAge: 0, thunderDelay: 1 };
     audio.updateAmbience(.1, { weather });
     const thunder = audio.thunderSource, filter = thunder.connections[0], envelope = filter.connections[0];
-    assert.deepEqual(filter.frequency.events, [['set', 1400, 1], ['ramp', 180, 3.4]]);
+    const duration = thunder.stops[0] - thunder.startTime;
+    assert.equal(filter.type, 'lowpass'); assert.ok(filter.Q.value < .5);
+    assert.deepEqual(filter.frequency.events, [['set', 400, 1], ['ramp', 85, 1 + duration * .65]]);
     assert.equal(envelope.connections[0], audio.effects, 'thunder bypasses quiet ambience bus');
     const peak = envelope.gain.events.find(([kind, value]) => kind === 'ramp' && value === .65);
-    assert.ok(peak && peak[2] === 1.04, 'audible initial crack has a short smooth attack');
+    assert.ok(peak && peak[2] === 1.12, 'rumble has a softened attack');
     assert.ok(envelope.gain.events.every(([, value]) => value >= .0001 && value <= .65));
     assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .16 && at === 1));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && at === 3.2));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && at === 1 + duration * .72));
     const reflections = envelope.connections.slice(1);
     assert.equal(reflections.length, 5);
-    assert.ok(reflections.every(delay => delay.delayTime.value > 0 && delay.delayTime.value < .4));
-    assert.deepEqual(envelope.gain.events.slice(-3).map(e => e[1]), [.24,.035,.0001]);
-    assert.ok(thunder.stops[0] - thunder.startTime >= 2 && thunder.stops[0] - thunder.startTime <= 3);
+    assert.ok(reflections.every(delay => delay.delayTime.value > 0 && delay.delayTime.value <= 1.1));
+    assert.deepEqual(envelope.gain.events.slice(-3).map(e => e[1]), [.32,.035,.0001]);
+    assert.ok(duration >= 3 && duration <= 5);
+    const fadeEnd = envelope.gain.events.at(-1)[2];
+    assert.ok(fadeEnd + reflections.at(-1).delayTime.value < thunder.stops[0], 'full reverb tail finishes before cleanup');
     audio.context.currentTime = .5;
     audio.updateAmbience(.1, { weather: { type: 'sun' } });
     assert.equal(thunder.disconnected, true);
@@ -386,6 +390,25 @@ test('thunder has a speaker-audible crack, bounded rumble and music duck that ca
 });
 
 
+
+test('successive thunder strikes vary their 3-5 second fade and reverb together', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const originalRandom = Math.random, durations = [];
+    try {
+      for (const roll of [0, .5, .999999]) {
+        Math.random = () => roll;
+        audio.updateAmbience(.1, { weather: {type:'rain',kind:'storm',intensity:.9,lightningId:`strike-${roll}`,lightningAge:0,thunderDelay:1} });
+        const source = audio.thunderSource, duration = source.stops[0] - source.startTime;
+        durations.push(duration);
+        assert.ok(duration >= 3 && duration <= 5);
+        const envelope = source.connections[0].connections[0];
+        assert.ok(Math.abs(envelope.connections.at(-1).delayTime.value - duration * .22) < 1e-9);
+      }
+    } finally { Math.random = originalRandom; }
+    assert.ok(durations[0] < durations[1] && durations[1] < durations[2]);
+  });
+});
 
 test('storm suppresses ambient bird calls even when explicit rain intensity is missing', async () => {
   await withAudio(async audio => {

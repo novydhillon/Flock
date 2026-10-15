@@ -192,23 +192,24 @@ export class FarmAudio {
     const context = this.context, source = context.createBufferSource();
     const filter = context.createBiquadFilter(), gain = context.createGain();
     const at = context.currentTime + Math.max(.01, delay - age);
-    // A broadband initial crack remains audible on laptop/phone speakers;
-    // the falling cutoff leaves a rolling low rumble behind it.
-    source.buffer = this._noise(); source.loop = true; filter.type = 'lowpass'; filter.Q.value = .5;
-    filter.frequency.setValueAtTime(1400, at);
-    filter.frequency.exponentialRampToValueAtTime(180, at + 2.4);
+    const duration = 3 + Math.random() * 2;
+    // Suppress the bright metallic crack; a soft onset and nonresonant lowpass
+    // leave a deep rolling rumble. Each strike gets its own bounded decay.
+    source.buffer = this._noise(); source.loop = true; filter.type = 'lowpass'; filter.Q.value = .35;
+    filter.frequency.setValueAtTime(400, at);
+    filter.frequency.exponentialRampToValueAtTime(85, at + duration * .65);
     gain.gain.setValueAtTime(.0001, at);
-    gain.gain.exponentialRampToValueAtTime(.65, at + .04);
-    gain.gain.exponentialRampToValueAtTime(.24, at + .35);
-    gain.gain.exponentialRampToValueAtTime(.035, at + 1.55);
-    gain.gain.exponentialRampToValueAtTime(.0001, at + 2.4);
+    gain.gain.exponentialRampToValueAtTime(.65, at + .12);
+    gain.gain.exponentialRampToValueAtTime(.32, at + duration * .23);
+    gain.gain.exponentialRampToValueAtTime(.035, at + duration * .56);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + duration * .76);
     source.connect(filter); filter.connect(gain); gain.connect(this.effects);
     // Finite, irregular early reflections give the rumble space without an
     // unbounded feedback loop. The last reflection decays before cleanup.
     const reflections = [];
-    for (const [seconds, level] of [[.071,.24],[.113,.18],[.179,.13],[.263,.09],[.397,.06]]) {
-      const delayNode = context.createDelay(.5), wet = context.createGain();
-      delayNode.delayTime.value = seconds; wet.gain.value = level;
+    for (const [fraction, level] of [[.035,.24],[.073,.18],[.119,.13],[.167,.09],[.22,.06]]) {
+      const delayNode = context.createDelay(1.2), wet = context.createGain();
+      delayNode.delayTime.value = duration * fraction; wet.gain.value = level;
       gain.connect(delayNode); delayNode.connect(wet); wet.connect(this.effects);
       reflections.push(delayNode, wet);
     }
@@ -216,11 +217,11 @@ export class FarmAudio {
     this.music.gain.cancelScheduledValues(context.currentTime);
     this.music.gain.setValueAtTime(.42, context.currentTime);
     this.music.gain.setTargetAtTime(.16, at, .04);
-    this.music.gain.setTargetAtTime(.42, at + 2.2, .25);
+    this.music.gain.setTargetAtTime(.42, at + duration * .72, .35);
     this._trackAmbience(source, [filter, gain, ...reflections]); this.thunderSource = source;
     const ended = source.onended;
     source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
-    source.start(at); source.stop(at + 2.9);
+    source.start(at); source.stop(at + duration);
   }
 
   _chirp(volume) {
