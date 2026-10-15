@@ -31,4 +31,6 @@ The HTML copy uses local assets and a bundled Mermaid renderer. Without JavaScri
 
 Latest verified bridge/barn release: Pages `8a76de3`, source `4d3cadc`; 162 source tests pass, both build modes pass, and all 18 intended live files match. See the [validation runbook](validation/P0-P1.md).
 
-Current development release: F-028 goal roaming at Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 live files verified. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver; all earlier P0/P1 sign-offs are Done.
+Prior accepted development release: F-028 goal roaming at Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 live files verified. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver; all earlier P0/P1 sign-offs are Done.
+
+Current P2 development candidate is live at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/): source `b1fdac3`, Pages `cc13865`. Source CI and Pages succeeded; all 18 intended live files match and 18 unrelated blobs are preserved. P2 items remain Review; see [quality record](QUALITY.md#verified-p2-development-publication--15-october-2026) and [tracker](ISSUES.md).

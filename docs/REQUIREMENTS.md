@@ -160,8 +160,10 @@ For each implemented request, record requirement ID, source commit, level/seed, 
 
 Headless checks cannot verify rendered pixels/flicker, motion quality, real Safari gestures, portrait touch ergonomics, perceived sound balance or phone GPU frame time. Screenshots establish visible artifacts; they do not establish temporal flicker/spinning or a root cause. Real-device records must identify device/browser and source/deployment revision, with scenario evidence. Preserve F-013/F-015 as Open. F-014 was accepted by the user on 14 October 2026; separate visual issues retain their own acceptance criteria. Do not convert historical critic scores into a verified overall game score.
 
-Next: complete blind review and rendered/device acceptance for the P2 candidates; preserve F-013/F-015 as Open until human pacing and phone performance evidence exists. Publish/verify any accepted batch separately. This requirements snapshot records implementation candidates and source-level evidence only; it adds no gameplay changes or new browser/device validation.
+Next: obtain rendered/device acceptance for the source-reviewed P2 candidates; preserve F-013/F-015 as Open until human pacing and phone performance evidence exists. Publish/verify any accepted batch separately. This requirements snapshot records implementation candidates and source-level evidence only; it adds no gameplay changes or new browser/device validation.
 
 ## P1 acceptance
 
 Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages `8a76de36bbb61ba824bc9371f85971667f786c35`, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.
+
+P2 source-reviewed candidate publication: runtime source `b1fdac3`, Pages `cc13865`, live at `/Flock/dev2/`; CI/Pages succeeded and live hashes match. Requirements remain Review pending user acceptance, with F-013 Open. See [verified evidence](QUALITY.md#verified-p2-development-publication--15-october-2026).

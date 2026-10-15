@@ -135,3 +135,12 @@ The first Node 22 full run found 205/206 passing: the unchanged public level-16 
 All implemented P2 items remain Review pending Novy's acceptance. No new P0/P1 item is left open by this batch. Human level-5 pacing remains F-013. The source and Pages branches are published separately; publication IDs/live hash evidence follow only after verification.
 
 Documentation follow-up: **8.5/10**, with the stale F-014 Blocked sentence corrected to prior user acceptance and unavailable independent P2 device validation. HTML generation and checks pass: 12 pages, 783 links/anchors, nine parsed Mermaid diagrams and four DOM behavior checks.
+
+
+## Verified P2 development publication — 15 October 2026
+
+Live game: **https://novydhillon.github.io/Flock/dev2/**. Runtime source snapshot `b1fdac3697de6dd597cfb6f98e8d1fbbda1be5a8`; Pages `cc138652cc55f5c88cc36c336f575aa26120ebee`. Source CI [38703120954](https://github.com/novydhillon/Flock/actions/runs/38703120954) and native Pages [38703297030](https://github.com/novydhillon/Flock/actions/runs/38703297030) both succeeded. All 17 development-game files plus the legacy redirect match live SHA-256 hashes; all 18 blobs outside `dev2/` are unchanged. Main runtime asset: `assets/index-BPDTiqRn.js`.
+
+Final source CI passes the 212-test aggregate, generated-documentation checks and both release/development build checks. Local full suites before the final hidden-tab guard passed 211/211 on Node 22 and Node 24; the guard's focused UI/QA tests passed 28/28, and final CI includes its added regression. Blind source reviews meet the 8/10 target; documentation follow-up is 8.5/10. No fresh rendered/device acceptance is claimed.
+
+Implemented P2 items stay **Review** for Novy's acceptance. F-013 remains **Open** pending human level-5 pacing; F-015/F-026 remain **Open** P3 work. Previous P0/P1 and F-028/F-029 sign-offs remain Done. Workstream SHAs elsewhere in this record identify local development evidence; the published runtime snapshot above contains their integrated code. The following documentation-only commit does not change the verified runtime build.
