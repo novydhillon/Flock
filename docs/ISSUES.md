@@ -4,6 +4,8 @@ Updated: 14 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. W
 
 Source checkpoint: integrated P0/P1 batch (delivery `1fee206`, goal view `984fc64`; see execution record). Canonical live game: https://novydhillon.github.io/Flock/dev2/. F-025 migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`; it contains the preceding game revision. The reviewed P1 development build is published at Pages `9346f26c5a145698b34e2c4504236c494023817d` from source `7a8519d37a8f447652f0449e16a050fc76a6d3e0`; all 17 game files plus redirect match live hashes, and all 18 blobs outside `dev2/` are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.
 
+Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`, Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Node 22 CI [38679079215](https://github.com/novydhillon/Flock/actions/runs/38679079215) and native Pages [38679328953](https://github.com/novydhillon/Flock/actions/runs/38679328953) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. F-005/F-016 remain Review for user acceptance; F-014 remains Done.
+
 ## How agents should use this document
 
 1. Read this tracker, README and `docs/QUALITY.md`; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.
@@ -301,10 +303,10 @@ Copy one row per claimed issue; retain older entries when reopening work.
 | F-025 | P0 implementation/release | Done | Integrated source | `6616c41` | Asset graph/helper tests; all 15 live game files + redirect hashes; 17 unrelated blobs preserved; independent blind medium 9/10 | `baca95c7ba618d736730194b433254bf5058dd66` | 14 Oct 2026; P1 release separate |
 | F-001 | P1 surfaces | Review | Integrated source | `eed14e5` | Union topology/coverage regressions; final integrated checks tracked in runbook | `9346f26` | Real-renderer flicker check pending |
 | F-002 | P1 surfaces | Review | Integrated source | `eed14e5` | Surface/deck geometry, pause and ownership checks | `9346f26` | Rendered clipping/occlusion pending |
-| F-005 | P1 world | Review | Integrated source | `4887ea7`, `185116a` | Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys | `9346f26` | Device/render landing checks pending |
+| F-005 | P1 world | Review | Integrated source | `4887ea7`, `185116a` | Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys | `8a76de3` | Device/render landing checks pending |
 | F-009 | P1 delivery | Review | Integrated source | `1fee206` | Timer, proportional score, canonical ledger/migration and controller checks | `9346f26` | Independent source review passed; human pacing pending |
 | F-010 | P1 world/presentation | Review | Integrated source | `4887ea7`, `984fc64` | Rotated corners, full-body containment, goal/map/floor geometry | `9346f26` | Rendered matching pending |
-| F-016 | P1 cutaway | Review | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup | `9346f26` | Actual transparency/device views pending |
+| F-016 | P1 cutaway | Review | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup | `8a76de3` | Actual transparency/device views pending |
 | F-018 | P1 QA | Review | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | Live QA bundle verified; touch checks pending |
 | F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
 

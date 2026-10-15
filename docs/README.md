@@ -28,3 +28,5 @@ F-025 is Done: the canonical game is `https://novydhillon.github.io/Flock/dev2/`
 Node examples are intended to run from the repository root with dependencies installed. Snippets labeled illustrative describe a contract rather than a supported public API. Diagram arrows show ownership, calls or transitions, not network services. This application has no backend.
 
 The HTML copy uses local assets and a bundled Mermaid renderer. Without JavaScript, documentation text and code remain readable; diagram source remains available. Source links in the HTML point back to files in the cloned repository. The repository HTML files are viewable locally; GitHub's file browser displays their source rather than serving them as a website.
+
+Latest verified bridge/barn release: Pages `8a76de3`, source `4d3cadc`; 162 source tests pass, both build modes pass, and all 18 intended live files match. See the [validation runbook](validation/P0-P1.md).

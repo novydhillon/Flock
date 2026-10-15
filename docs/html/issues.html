@@ -4,6 +4,7 @@
 <div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="flock--remaining-issues-and-change-tracker">FLOCK — Remaining issues and change tracker<a class="heading-link" href="#flock--remaining-issues-and-change-tracker" aria-label="Link to FLOCK — Remaining issues and change tracker">#</a></h1>
 <p>Updated: 14 October 2026 (America/Vancouver). Repository: <code>novydhillon/Flock</code>. Working branch: <code>flock_3D_chatgpt-work</code>.</p>
 <p>Source checkpoint: integrated P0/P1 batch (delivery <code>1fee206</code>, goal view <code>984fc64</code>; see execution record). Canonical live game: <a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a>. F-025 migration is published and verified at Pages <code>baca95c7ba618d736730194b433254bf5058dd66</code>; it contains the preceding game revision. The reviewed P1 development build is published at Pages <code>9346f26c5a145698b34e2c4504236c494023817d</code> from source <code>7a8519d37a8f447652f0449e16a050fc76a6d3e0</code>; all 17 game files plus redirect match live hashes, and all 18 blobs outside <code>dev2/</code> are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.</p>
+<p>Latest bridge/barn follow-up: source <code>4d3cadc393c9feaedee4e579099110e25f459c31</code>, Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>. Node 22 CI <a href="https://github.com/novydhillon/Flock/actions/runs/38679079215">38679079215</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38679328953">38679328953</a> succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. F-005/F-016 remain Review for user acceptance; F-014 remains Done.</p>
 <h2 id="how-agents-should-use-this-document">How agents should use this document<a class="heading-link" href="#how-agents-should-use-this-document" aria-label="Link to How agents should use this document">#</a></h2>
 <ol>
 <li>Read this tracker, README and <code>docs/QUALITY.md</code>; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.</li>
@@ -443,7 +444,7 @@
 <td>Integrated source</td>
 <td><code>4887ea7</code>, <code>185116a</code></td>
 <td>Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys</td>
-<td><code>9346f26</code></td>
+<td><code>8a76de3</code></td>
 <td>Device/render landing checks pending</td>
 </tr>
 <tr>
@@ -473,7 +474,7 @@
 <td>Integrated source</td>
 <td><code>4cf9719</code>, <code>b322e7d</code></td>
 <td>Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup</td>
-<td><code>9346f26</code></td>
+<td><code>8a76de3</code></td>
 <td>Actual transparency/device views pending</td>
 </tr>
 <tr>
