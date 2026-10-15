@@ -4,7 +4,7 @@
 
 Medium-effort blind first passes scored gameplay **9.0/10** and technical **8.5/10**. Their follow-up checks of `f0a87a1` scored **9.4/10 gameplay** and **9.0/10 technical**, with no new confirmed defects. The P0 migration separately scored **9/10** and was published at canonical `/Flock/dev2/`. These are bounded source/headless implementation scores, not verified phone visual quality.
 
-Final integrated checks pass **157/157 source tests**, release without QA (15 files, zero QA assets), development with QA (17 files, two QA assets), and generated documentation checks. The new P1 build still requires separate publication/hash verification, recorded in [the validation runbook](validation/P0-P1.md). F-014 remains Blocked; visual acceptance for paths, bark and cutaways remains in Review.
+Final integrated checks pass **159/159 source tests**, release without QA (15 files, zero QA assets), development with QA (17 files, two QA assets), and generated documentation checks. The new P1 build still requires separate publication/hash verification, recorded in [the validation runbook](validation/P0-P1.md). F-014 remains Blocked; visual acceptance for paths, bark and cutaways remains in Review.
 
 The earlier review results below are retained as historical records.
 

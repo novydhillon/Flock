@@ -35,6 +35,7 @@ function fixture(t, { marker = true } = {}) {
   git('update-ref', 'refs/remotes/origin/gh-pages', 'HEAD');
   mkdirSync(join(repo, 'scripts'));
   cpSync(helper, join(repo, 'scripts/deploy-pages.mjs'));
+  symlinkSync(new URL('../node_modules', import.meta.url), join(repo, 'node_modules'), 'dir');
   git('add', 'scripts/deploy-pages.mjs');
   git('commit', '-m', 'Independent source branch commit');
   put('dist/index.html', '<script type="module" src="./assets/game.js"></script><link rel="stylesheet" href="./assets/game.css">');
@@ -154,4 +155,19 @@ test('refuses a destination inside dist before creating a recursively copied wor
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /outside the build directory/);
   assert.equal(existsSync(destination), false);
+});
+
+
+test('JavaScript syntax validation ignores import/export words inside QA markup, strings and comments', t => {
+  const f=fixture(t);
+  f.put('dist/assets/chunk.js', `const panel = '<button id="qa-export">Export scenario JSON</button><button id="qa-resume">Resume</button>';
+// import "./not-a-dependency.js"
+/* export { fake } from "./also-not-a-dependency.js" */
+export const ready = panel;`);
+  const result=f.run();assert.equal(result.status,0,result.stderr);
+});
+
+test('lazy stylesheet dependencies are validated even when referenced by a Vite dependency table', t => {
+  const f=fixture(t);f.put('dist/assets/qa.css', 'body {background:url(./missing-qa-image.png)}');
+  const result=f.run();assert.notEqual(result.status,0);assert.match(result.stderr,/missing-qa-image/);assert.equal(existsSync(f.destination),false);
 });

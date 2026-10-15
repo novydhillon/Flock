@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, rmSync, cpSync, writeFileSync, readFileSync, rea
 import { resolve, join, dirname, relative, extname, isAbsolute, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { parseAst } from 'rollup/parseAst';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const canonical = 'https://novydhillon.github.io/Flock/dev2/';
@@ -42,9 +43,18 @@ function validateBuild(build) {
       collect(/@import\s+["']([^"']+)["']/gi);
     }
     if (extension === '.js' || extension === '.mjs') {
-      collect(/\b(?:import|export)\s*(?:[^;"']*?\sfrom\s*)?["']([^"']+)["']/g);
-      collect(/\bimport\s*\(\s*["']([^"']+)["']\s*\)/g);
-      collect(/new\s+URL\(\s*["']([^"']+)["']\s*,\s*import\.meta\.url\s*\)/g);
+      // Inspect syntax, never prose/HTML strings containing words such as
+      // "Export scenario". The QA bundle contains those labels legitimately.
+      const walkSyntax = node => {
+        if (!node || typeof node !== 'object') return;
+        if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration', 'ImportExpression'].includes(node.type) && typeof node.source?.value === 'string') references.push(node.source.value);
+        if (node.type === 'NewExpression' && node.callee?.type === 'Identifier' && node.callee.name === 'URL' && typeof node.arguments[0]?.value === 'string') {
+          const base = node.arguments[1];
+          if (base?.type === 'MemberExpression' && base.object?.type === 'MetaProperty' && base.object.meta?.name === 'import' && base.object.property?.name === 'meta' && base.property?.name === 'url') references.push(node.arguments[0].value);
+        }
+        for (const value of Object.values(node)) if (Array.isArray(value)) value.forEach(walkSyntax); else if (value && typeof value === 'object') walkSyntax(value);
+      };
+      walkSyntax(parseAst(content));
     }
     for (const reference of references) {
       if (/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(reference)) continue;
@@ -64,6 +74,8 @@ function validateBuild(build) {
     }
   }
   visit(join(build, 'index.html'));
+  // Vite may preload a lazy stylesheet through a generated dependency table.
+  for (const file of files) if (extname(file) === '.css') visit(file);
   if (!scripts || !styles) throw new Error('Build entry must reference local JavaScript and CSS assets.');
 }
 

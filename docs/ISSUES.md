@@ -318,4 +318,4 @@ Approved user decisions today: any positive partial delivery opens the next leve
 
 Integration note, 14 October 2026: remote commit `6ac8eb7` added Quit (F-026) and wildlife crossing fences/edges under a duplicate F-025. Both requests are preserved; the latter is now F-027. Neither P2/P3 feature is included in this P0/P1 implementation batch.
 
-P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at `f0a87a1` gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 157/157 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.
+P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at `f0a87a1` gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 159/159 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.
