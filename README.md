@@ -50,7 +50,9 @@ The opening pasture teaches herding with a small sheep flock and a nearby pen. L
 
 ## Deployment
 
-Latest verified follow-up: shorter bridge landings with actual-body clearance steering, and the entire occupied barn roof/facing sides at 30% transparency (opacity 0.70). Pages `8a76de3`; source `4d3cadc`. All 18 expected live files match; source CI passes 162 tests. See the [validation record](docs/validation/P0-P1.md).
+Latest development release: delivered animals roam gently within the goal with full-body confinement, including the open entrance. Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 expected live files match. [Validation details](docs/validation/P0-P1.md).
+
+Previous verified follow-up: shorter bridge landings with actual-body clearance steering, and the entire occupied barn roof/facing sides at 30% transparency (opacity 0.70). Pages `8a76de3`; source `4d3cadc`. All 18 expected live files match; source CI passes 162 tests. See the [validation record](docs/validation/P0-P1.md).
 
 The canonical development game is [https://novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/), served from `dev2/` on `gh-pages`. F-025 migration was published at Pages commit `baca95c7ba618d736730194b433254bf5058dd66`: all 15 game files and the legacy redirect were hash-verified; 17 unrelated blobs were unchanged. The previous `/Flock/flock/dev2/` address redirects to the canonical game while retaining query and fragment. The reviewed P1 development build is now published at Pages `9346f26c5a145698b34e2c4504236c494023817d` from source `7a8519d37a8f447652f0449e16a050fc76a6d3e0`. All 17 game files plus the legacy redirect match the prepared build hashes; all 18 blobs outside `dev2/` are unchanged.
 

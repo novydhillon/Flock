@@ -8,6 +8,8 @@ Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`,
 
 Current acceptance: **all P0/P1 issues are Done** by user sign-off on 14 October 2026. P2/P3 statuses are unchanged.
 
+Latest development release: F-028 is deployed at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` from source `e03ba169be760a4031d2b57887f0d6998eb07187`. Source CI [38681252991](https://github.com/novydhillon/Flock/actions/runs/38681252991) and native Pages [38681359737](https://github.com/novydhillon/Flock/actions/runs/38681359737) succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 remains Review for user acceptance; previous P0/P1 sign-offs stay Done.
+
 ## How agents should use this document
 
 1. Read this tracker, README and `docs/QUALITY.md`; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.
@@ -321,6 +323,7 @@ Copy one row per claimed issue; retain older entries when reopening work.
 | F-010 | P1 world/presentation | Done | Integrated source | `4887ea7`, `984fc64` | Rotated corners, full-body containment, goal/map/floor geometry | `9346f26` | 14 Oct 2026; user signed off |
 | F-016 | P1 cutaway | Done | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup; user accepted deployed follow-up | `8a76de3` | 14 Oct 2026; user signed off |
 | F-018 | P1 QA | Done | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | 14 Oct 2026; user signed off |
+| F-028 | Goal roaming | Review | Integrated source | `e03ba16` | 165 tests, per-step mixed-species confinement, blind 9.5/10 | `639a9b4` | 14 Oct 2026; user acceptance pending |
 | F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
 
 ## Decisions and session handoff

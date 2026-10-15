@@ -1,5 +1,7 @@
 # Flock dev2 revision quality record
 
+Current release: F-028 confined goal roaming, 165 tests passing and blind source review 9.5/10. Verified publication is recorded below; older checkpoints retain their original totals.
+
 ## P0/P1 implementation batch — 14 October 2026
 
 Medium-effort blind first passes scored gameplay **9.0/10** and technical **8.5/10**. Their follow-up checks of `f0a87a1` scored **9.4/10 gameplay** and **9.0/10 technical**, with no new confirmed defects. The P0 migration separately scored **9/10** and was published at canonical `/Flock/dev2/`. These are bounded source/headless implementation scores, not verified phone visual quality.
@@ -90,3 +92,10 @@ Source `637111e` adds confined, saved-only goal motion. Node 22.23.3 full suite 
 F-028 blind medium review scored **9.5/10** with no actionable defects. The reviewer independently passed the 164-test Node 22 suite and 30,900 per-step whole-body containment checks across rotated goals, mixed sheep/cows and crowded entrance groups with zero escapes. Integration added per-step assertions during recovery/completed roaming and a 12-fixture crowded entrance regression (22/22 focused simulation/delivery checks pass). The final full-suite count includes one additional test.
 
 Final F-028 integrated validation: **165/165** tests pass on Node 22.23.3 (27.20 seconds), including the additional crowded mixed-species entrance test and per-step confinement assertions. Release excludes QA; development includes QA (17 files); documentation checks pass (12 pages, 756 local links/anchors, 9 diagrams and 4 DOM behavior tests).
+
+
+## F-028 verified publication — 14 October 2026 (Vancouver)
+
+F-028 is deployed at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` from source `e03ba169be760a4031d2b57887f0d6998eb07187`. Source CI [38681252991](https://github.com/novydhillon/Flock/actions/runs/38681252991) and native Pages [38681359737](https://github.com/novydhillon/Flock/actions/runs/38681359737) succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 remains Review for user acceptance; previous P0/P1 sign-offs stay Done.
+
+Documentation-only commits after this source revision do not change the deployed game bytes.

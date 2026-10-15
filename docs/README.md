@@ -30,3 +30,5 @@ Node examples are intended to run from the repository root with dependencies ins
 The HTML copy uses local assets and a bundled Mermaid renderer. Without JavaScript, documentation text and code remain readable; diagram source remains available. Source links in the HTML point back to files in the cloned repository. The repository HTML files are viewable locally; GitHub's file browser displays their source rather than serving them as a website.
 
 Latest verified bridge/barn release: Pages `8a76de3`, source `4d3cadc`; 162 source tests pass, both build modes pass, and all 18 intended live files match. See the [validation runbook](validation/P0-P1.md).
+
+Current development release: F-028 goal roaming at Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 live files verified. F-028 remains Review; all earlier P0/P1 sign-offs are Done.
