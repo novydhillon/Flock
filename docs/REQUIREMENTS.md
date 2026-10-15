@@ -204,3 +204,14 @@ Fixed-weather Review candidate is published at `/Flock/dev2/`: runtime source `8
 Current cloud policy: F-008 is Deferred following the 11:22 Vancouver request on 15 October 2026. Cloud puffs and cloud shadows are absent; no removal of rain, storm lighting/thunder or wet-ground effects is requested. This supersedes earlier cloud-visibility requirements until further cloud work is requested.
 
 F-041 was added on 15 October 2026 at 11:23 Vancouver: unattended wanderers/bolters should remain near their new location instead of returning through normal flock cohesion. This is a queued P2 behavior change, not part of cloud removal.
+
+## Queued requests migrated from GitHub Issues - 15 October 2026
+
+The authoritative tracker is [ISSUES.md](ISSUES.md), not GitHub Issues. These requests remain Open; this migration implements no game changes.
+
+- F-042 (P3): investigate and fix apparently missing back legs on small wild animals, both idle and moving.
+- F-043 (P3): make the bark sound recognizably like a barking dog.
+- F-044 (P3): randomized occasional individual sheep bleats and cow moos that together sound like a flock/herd. Wandering calls are more frequent at baseline volume; herding calls are less frequent and 25% louder. Bolting immediately triggers a call, then uses herding frequency and volume.
+- F-045 (P4): add raindrop impacts/splashes to rivers, streams and other water surfaces during heavy rain or stronger, including thunderstorms.
+
+P4 is lower-priority optional polish. Full acceptance criteria and original issue links are retained in the tracker.

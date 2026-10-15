@@ -78,6 +78,11 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-040 | P1 | Weather | Remove snow; choose fixed weather once per level with public-level anchors | Done | Reopens F-008, F-022–F-024 |
 | F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Open | F-012, F-035, F-037, F-039 |
 
+| F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
+| F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
+| F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
+| F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
+
 ## Screenshot evidence
 
 Picture numbers refer to the user's attachment order, including the duplicate uploads.
@@ -555,3 +560,64 @@ At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; b
 ## Rain-volume approval - 15 October 2026, 16:46 Vancouver
 
 Novy approved and requested committing the deployed rain-volume update: gentle rain 50% quieter, heavy rain 15% quieter, storm rain unchanged. Runtime source `a26b8aa`, Pages `107f782`. Approval recorded as Done; no new Review item remains. Existing Open/Deferred items retain their status.
+
+
+## Requests migrated from GitHub Issues - 15 October 2026
+
+This document is the authoritative issue tracker. Record future issue requests here, rather than creating GitHub Issues. GitHub copies #2-#5 are closed because tracking moved here; the work remains Open and unassigned.
+
+### F-042 - Investigate and fix missing back legs on small wild animals (P3)
+
+**Status:** Open, queued only; unassigned.
+
+Small wild animals appear to be missing their back legs. Investigate the cause and fix their appearance.
+
+Acceptance criteria:
+- Identify why the back legs are not visible.
+- Ensure small wild animals display their back legs correctly while idle and moving.
+
+**Migration source:** [GitHub #2](https://github.com/novydhillon/Flock/issues/2); moved to this document without implementing or completing the request.
+
+### F-043 - Make the bark sound resemble a barking dog (P3)
+
+**Status:** Open, queued only; unassigned.
+
+The current bark sound does not sound like a barking dog. Update or replace it so the bark is clearly recognizable as a dog barking.
+
+Acceptance criteria:
+- Triggering the bark plays a recognizable dog bark.
+
+**Migration source:** [GitHub #3](https://github.com/novydhillon/Flock/issues/3); moved to this document without implementing or completing the request.
+
+### F-044 - Add sheep and cow calls with state-dependent frequency and volume (P3)
+
+**Status:** Open, queued only; unassigned.
+
+Add recognizable sheep bleats ("bahhh") and cow moos. Each individual animal should vocalize intermittently at random intervals, so the combined calls sound like a flock/herd rather than synchronized playback.
+
+Behavior by state:
+- Wandering: more frequent calls at baseline volume.
+- Being herded / flocked: less frequent calls, 25% louder than baseline.
+- Bolting: use the same sound behavior as being herded / flocked (less frequent calls, 25% louder than baseline), with a call starting immediately when the animal begins bolting. Subsequent calls occur intermittently at random intervals.
+
+Acceptance criteria:
+- Sheep sound recognizably like sheep and cows sound recognizably like cows.
+- Each animal calls occasionally on its own randomized schedule; combined calls create a natural flock/herd sound.
+- Wandering calls occur more frequently than herding calls and use baseline volume.
+- Herding calls occur less frequently and are 25% louder than baseline.
+- Bolting immediately triggers a call and then follows the herding call frequency and volume.
+
+**Migration source:** [GitHub #4](https://github.com/novydhillon/Flock/issues/4); moved to this document without implementing or completing the request.
+
+### F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)
+
+**Status:** Open, queued only; unassigned.
+
+Add visible raindrop impacts and splashes on rivers, streams, and other water surfaces when heavy rain or stronger rain is falling.
+
+Acceptance criteria:
+- Rivers, streams, and other water surfaces show raindrop impacts/splashes during heavy rain and stronger rainfall, including thunderstorms.
+- The effect is active only at heavy rain intensity or above.
+
+**Migration source:** [GitHub #5](https://github.com/novydhillon/Flock/issues/5); moved to this document without implementing or completing the request.
+
