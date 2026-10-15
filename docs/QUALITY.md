@@ -15,6 +15,12 @@ Final integrated Node 24 suite passes **229/229**; both release/development buil
 
 Weather issues remain **Review** until Novy accepts the new phone appearance and sound. Clouds stay Deferred; unrelated queued gameplay/audio requests remain Open. Publication evidence is recorded separately after deployment. No browser-control or listening capability was available; source review scores are not device experience scores.
 
+### Verified weather follow-up publication
+
+Live: https://novydhillon.github.io/Flock/dev2/. Runtime source `8408e74779c4716063007d166db13f76efa32b71`; Pages `617b4df8edf8193c924dd5c6ca7c8cae563eb79f`. Source CI [38794709512](https://github.com/novydhillon/Flock/actions/runs/38794709512) and Pages [38794867645](https://github.com/novydhillon/Flock/actions/runs/38794867645) completed successfully. All **17/17** live development files match the prepared build's SHA-256 hashes. The Pages comparison changes only `dev2/index.html` and replaces the main JavaScript bundle (`index-C6voS5Qb.js`); the legacy redirect and all unrelated Pages files are retained unchanged.
+
+Implementation worktree commits: rain `0ce1fe1`, storm wildlife/audio `df28504`, puddle accumulation `102abe8`, route-placement follow-up `a22ce97`. Their integration and reviewed documentation have the same source tree as the published runtime source. The publication-evidence update itself is documentation only and does not change game bytes.
+
 Latest accepted P2 release: Pages `cc13865`, source `b1fdac3`. On 15 October 2026 at approximately 10:56 America/Vancouver Novy accepted F-003/F-004/F-006/F-007/F-011/F-012/F-017/F-019/F-020/F-021/F-027. F-008/F-022/F-023/F-024 are reopened P1 work under F-040. The fixed-weather repair below is a new Review candidate; historical checkpoint scores/totals are retained for their own revisions.
 
 ## P0/P1 implementation batch — 14 October 2026
