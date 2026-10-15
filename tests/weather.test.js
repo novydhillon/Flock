@@ -67,9 +67,9 @@ test('storm starts wet and lightning is bounded, spaced, delayed and replayable'
   assert.ok(weather.rainIntensity >= .8); assert.equal(weather.lightningId, null);
   assert.ok(weather.lightningStart >= 8 && weather.lightningStart <= 12);
   assert.ok(weather.lightningInterval >= 20);
-  stepWeather(weather, weather.lightningStart); assert.ok(weather.lightningId); assert.equal(weather.lightningFlash, .38);
+  stepWeather(weather, weather.lightningStart); assert.ok(weather.lightningId); assert.equal(weather.lightningFlash, .9);
   const id = weather.lightningId;
-  stepWeather(weather, .1); assert.equal(weather.lightningId, id); assert.ok(weather.lightningFlash < .38);
+  stepWeather(weather, .1); assert.equal(weather.lightningId, id); assert.ok(weather.lightningFlash < .9);
   stepWeather(weather, .13); assert.equal(weather.lightningFlash, 0);
   assert.ok(weather.thunderDelay >= .8 && weather.thunderDelay <= 1.6);
   stepWeather(weather, weather.lightningInterval - .23); assert.notEqual(weather.lightningId, id);

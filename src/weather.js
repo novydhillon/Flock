@@ -61,6 +61,6 @@ export function stepWeather(state, dt) {
   state.lightningId = `${state.seed}:${state.levelIndex}:${event}`;
   state.lightningAge = Math.max(0, state.elapsed - (state.lightningStart + event * state.lightningInterval));
   state.thunderDelay = .8 + hash(state.seed, state.levelIndex + event + 2000) % 9 / 10;
-  state.lightningFlash = state.lightningAge < .22 ? .38 * (1 - state.lightningAge / .22) : 0;
+  state.lightningFlash = state.lightningAge < .22 ? .9 * (1 - state.lightningAge / .22) : 0;
   return state;
 }

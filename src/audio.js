@@ -38,7 +38,7 @@ export class FarmAudio {
         this.music = this.context.createGain();
         this.effects = this.context.createGain();
         this.ambience = this.context.createGain();
-        this.master.gain.value = this.muted ? 0 : 0.65;
+        this.master.gain.value = this.muted ? 0 : 0.975;
         this.music.gain.value = 0.42;
         this.effects.gain.value = 0.6;
         this.ambience.gain.value = 0.38;
@@ -68,7 +68,7 @@ export class FarmAudio {
     if (!this.context || !this.master) return;
     const now = this.context.currentTime;
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setTargetAtTime(this.muted ? 0 : 0.65, now, 0.025);
+    this.master.gain.setTargetAtTime(this.muted ? 0 : 0.975, now, 0.025);
   }
 
   pause() {

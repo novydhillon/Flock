@@ -211,3 +211,7 @@ Thunder now has five finite irregular reflections (71-397 ms), a tapered envelop
 ## Deeper variable thunder - 15 October 2026, 13:21 Vancouver
 
 Supersedes the fixed 2.9-second thunder tuning above. Each lightning event chooses a 3-5 second rumble duration. The lowpass falls from 400 to 85 Hz with Q .35 and a 120 ms attack to reduce metallic high frequencies. Fade and five reflection delays scale together; their full tail ends at 98% of duration before cleanup. Lightning-first timing and pause/mute/disposal behavior are retained. Focused audio/weather tests pass 24/24, including minimum/middle/maximum variation and tail-completion checks. Headless tests do not establish perceived pitch or speaker quality.
+
+## Audio level and lightning brightness - 15 October 2026, 13:33 Vancouver
+
+The shared master audio gain rises from .65 to .975 (+50% amplitude) at startup and unmute, scaling music, effects and ambience together while preserving their balance. Lightning peak increases from .38 to .90 with the same .22-second fade and 24-second event cadence. Thunder retains its 3-5 second variable deep rumble and lightning-first timing. Device loudness/appearance remain listening/visual acceptance items.

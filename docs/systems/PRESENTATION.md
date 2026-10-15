@@ -123,7 +123,7 @@ Nature has an independent `resources` set. `clear()` disposes instance resources
 
 `weather.js` chooses one seeded weather kind when a level is created. Its `type` is `sun`, `wind` or `rain`; `kind` additionally distinguishes `heavy-rain` and `storm`. Environmental fields are fixed for the entire level. There are no 90-second episodes, ramps or snow; `snowIntensity` is retained as zero for old callers. Levels 1–5 are sunny, 6–8 are dry/sometimes breezy, light rain unlocks at public level 9, heavy rain at 16 and storms at 24. The unlock levels are guaranteed QA fixtures for every seed; other levels use seeded weighted selection among unlocked weather. Heavy/storm thresholds are tuning choices, not explicit user-specified numbers.
 
-`MeadowNature.update` remains the sole weather-time owner. `stepWeather` advances only elapsed time and storm lightning events, never kind/rain/wind/severity/daylight. Presentation time runs during visible playing/intro/results; menus, QA, pause and hidden tabs freeze effects. Lightning begins 8–12 seconds into a storm, repeats at 24-second intervals, peaks at .38 and fades over .22 seconds; thunder uses the same event ID with .8–1.6-second delay. Weather labels in the mission panel identify the fixed condition without a waiting period.
+`MeadowNature.update` remains the sole weather-time owner. `stepWeather` advances only elapsed time and storm lightning events, never kind/rain/wind/severity/daylight. Presentation time runs during visible playing/intro/results; menus, QA, pause and hidden tabs freeze effects. Lightning begins 8–12 seconds into a storm, repeats at 24-second intervals, peaks at .90 and fades over .22 seconds; thunder uses the same event ID with .8–1.6-second delay. Weather labels in the mission panel identify the fixed condition without a waiting period.
 
 | Source candidate | Behavior and limits |
 | --- | --- |
@@ -139,7 +139,7 @@ Novy approved the original squirrel/rabbit/vegetation/gate/wall/tail/wander and 
 
 ## Synthesized audio lifecycle
 
-[audio.js](../../src/audio.js) has no fetched samples. `start()` is intended for a user gesture; it lazily creates one AudioContext and three gain buses (music `.42`, effects `.6`, ambience `.38`) into a master gain (`.65`, or zero when muted). It awaits `context.resume()` and returns a success boolean; unsupported/restricted audio fails silently so gameplay can continue.
+[audio.js](../../src/audio.js) has no fetched samples. `start()` is intended for a user gesture; it lazily creates one AudioContext and three gain buses (music `.42`, effects `.6`, ambience `.38`) into a master gain (`.975`, or zero when muted). It awaits `context.resume()` and returns a success boolean; unsupported/restricted audio fails silently so gameplay can continue.
 
 Each activation increments `activationGeneration`. After asynchronous resume, activation succeeds only if its generation and context remain current and the instance is not disposed. `pause()`, a later start/resume, or `dispose()` invalidates pending completions. Main also rechecks mode after awaiting audio start, preserving a modal opened while activation was pending.
 

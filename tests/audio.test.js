@@ -241,6 +241,8 @@ test('pause and mute stop ambience and prevent new chirps, UI sounds remain on p
     audio.play('click');
     assert.equal(audio.context.oscillators.length, mutedCount);
     assert.equal(audio.master.gain.value, 0);
+    audio.setMuted(false);
+    assert.equal(audio.master.gain.value, .975, 'unmute restores the 50% louder master mix');
   });
 });
 
@@ -361,13 +363,15 @@ test('thunder uses deep filtering, a tapered rumble and music duck that cancels 
     const thunder = audio.thunderSource, filter = thunder.connections[0], envelope = filter.connections[0];
     const duration = thunder.stops[0] - thunder.startTime;
     assert.equal(filter.type, 'lowpass'); assert.ok(filter.Q.value < .5);
-    assert.deepEqual(filter.frequency.events, [['set', 400, 1], ['ramp', 85, 1 + duration * .65]]);
+    assert.deepEqual(filter.frequency.events[0], ['set', 400, 1]);
+    assert.equal(filter.frequency.events[1][1], 85);
+    assert.ok(Math.abs(filter.frequency.events[1][2] - (1 + duration * .65)) < 1e-9);
     assert.equal(envelope.connections[0], audio.effects, 'thunder bypasses quiet ambience bus');
     const peak = envelope.gain.events.find(([kind, value]) => kind === 'ramp' && value === .65);
     assert.ok(peak && peak[2] === 1.12, 'rumble has a softened attack');
     assert.ok(envelope.gain.events.every(([, value]) => value >= .0001 && value <= .65));
     assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .16 && at === 1));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && at === 1 + duration * .72));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && Math.abs(at - (1 + duration * .72)) < 1e-9));
     const reflections = envelope.connections.slice(1);
     assert.equal(reflections.length, 5);
     assert.ok(reflections.every(delay => delay.delayTime.value > 0 && delay.delayTime.value <= 1.1));
