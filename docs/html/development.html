@@ -64,6 +64,10 @@ npm run docs:check
 <td>Perpendicular crossings, deck/path ratio and shared full-body target footprint</td>
 </tr>
 <tr>
+<td><code>tests/gates.test.js</code></td>
+<td>Operable gate reachability/state, stone wall geometry and shared collision/map behavior</td>
+</tr>
+<tr>
 <td><code>tests/surfaces.test.js</code></td>
 <td>Ribbon union topology and bark surfaces on land/deck transitions</td>
 </tr>
@@ -88,6 +92,18 @@ npm run docs:check
 <td>Wildlife, weather, resource budgets and cleanup</td>
 </tr>
 <tr>
+<td><code>tests/weather.test.js</code></td>
+<td>Seeded weather episodes, shared severity, lightning and atmosphere resources</td>
+</tr>
+<tr>
+<td><code>tests/wandering.test.js</code></td>
+<td>Seeded straggler cohorts, five-second opportunities and conditional bolts</td>
+</tr>
+<tr>
+<td><code>tests/water-effects.test.js</code></td>
+<td>Wetness/drying, pause/reset, safe puddles, bounded splashes and directional river flow</td>
+</tr>
+<tr>
 <td><code>tests/audio.test.js</code></td>
 <td>Audio activation races, scheduling, ambience and disposal</td>
 </tr>
@@ -95,6 +111,7 @@ npm run docs:check
 <div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh"># Targeted examples; not a substitute for relevant integration checks.
 node --test tests/ui.test.js tests/audio.test.js
 node --test tests/world.test.js tests/herding-journey.test.js</code></pre></div><p>No screenshot or human listening claim follows from a mocked Canvas/WebGL/WebAudio test. Record real device/browser, revision, scenario and evidence for native touch, scrolling, visibility, audio and GPU performance. Large headless triangle counts are not phone FPS.</p>
+<p>Current P2 source candidates include operable gates/stone walls, weather-driven atmosphere and water, area-scaled wildlife, fence-permeable wildlife movement, vegetation, straggler wandering and bark-state tail lighting. Their focused tests support source-level behavior only; they have independent source reviews recorded in QUALITY.md; rendered/device acceptance remains pending. Keep level-5 human pacing (F-013) and mobile GPU performance (F-015) Open until their respective evidence exists.</p>
 <h2 id="ci-and-current-publishing-behavior">CI and current publishing behavior<a class="heading-link" href="#ci-and-current-publishing-behavior" aria-label="Link to CI and current publishing behavior">#</a></h2>
 <p>The source branch is <code>flock_3D_chatgpt-work</code>. <a href="../../.github/workflows/deploy-dev2.yml">The workflow</a> installs dependencies, checks documentation/tests, builds release and verifies QA exclusion, then builds the development game and verifies QA inclusion before uploading <code>dist/</code>. Its artifact upload <strong>does not publish Pages</strong>. GitHub Pages uses the separate <code>gh-pages</code> branch and its native deployment workflow.</p>
 <p>F-025 is complete. The helper stages the game under <code>dev2/</code> for <strong><a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a></strong> and replaces <code>flock/dev2/</code> with a redirect preserving query/fragment. It validates the emitted relative asset dependency graph before changing a Pages worktree, rejects unsafe/missing assets and build symlinks, and preserves existing root <code>.nojekyll</code> bytes. It uses a locally fetched <code>origin/gh-pages</code> and never fetches, commits or pushes.</p>
@@ -122,7 +139,7 @@ node --test tests/world.test.js tests/herding-journey.test.js</code></pre></div>
 <p>Documentation HTML is a repository deliverable in <code>docs/html/</code>; it is not automatically copied into the game build or published as another Pages site. A future hosted docs URL needs an explicit publishing location and preserved-content review.</p>
 <h2 id="agent-handoff">Agent handoff<a class="heading-link" href="#agent-handoff" aria-label="Link to Agent handoff">#</a></h2>
 <p>Use isolated worktrees for parallel owned files; integrate commits only after inspection. Blind reviewers should receive the candidate, task/requirements and scope, not historical scores or desired wording. Record confirmed problems, concrete evidence and checks. A threshold score is not a reason to relabel unverified browser behavior as tested.</p>
-<p>See <a href="p0-p1-validation.html">P0/P1 runbook</a> for concrete manual scenarios. F-014 remains Blocked without a physical phone. The installed Sites instruction says “If <code>$control-browser</code> is unavailable, skip browser QA” (<code>/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md</code>); capability discovery found no browser tools, so this session supplies no browser screenshots or native-device claim.</p>
+<p>See <a href="p0-p1-validation.html">P0/P1 runbook</a> for concrete manual scenarios. F-014 is Done by Novy’s real-phone acceptance on 14 October 2026. Independent agent/device verification of this new P2 candidate remains unavailable; fresh rendered/device acceptance is pending. The installed Sites instruction says “If <code>$control-browser</code> is unavailable, skip browser QA” (<code>/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md</code>); capability discovery found no browser tools, so this session supplies no browser screenshots or native-device claim.</p>
 <p>Before ending a session, update the issue execution record, regenerate HTML, run documentation checks, commit/push the intended branch and state exactly what was deployed. Do not close open features just because their requirements were documented.</p>
 <h3 id="deployment-validator-parser">Deployment validator parser<a class="heading-link" href="#deployment-validator-parser" aria-label="Link to Deployment validator parser">#</a></h3>
 <p>The Pages preparation helper uses Rollup’s JavaScript AST parser to inspect literal static imports, re-exports, dynamic imports and <code>new URL(..., import.meta.url)</code> assets. It does not treat words such as “Export scenario” in QA markup or comments as dependencies. Every emitted stylesheet is also checked, including lazy QA styles loaded through Vite dependency tables. Runtime-computed URLs still require final live asset verification. Rollup is an explicit development dependency; install the lockfile before invoking the helper.</p>

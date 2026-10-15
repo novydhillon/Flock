@@ -268,3 +268,36 @@ test('dispose stops and disconnects every source, releases buffer and timer, and
     audio.dispose();
   });
 });
+
+test('one lightning event schedules one delayed thunder, pause cancels it and resume does not replay', async () => {
+  await withAudio(async (audio, timers) => {
+    await audio.start();
+    const weather = { type: 'rain', intensity: .9, lightningId: 'storm:1', lightningAge: .1, thunderDelay: 1 };
+    audio.updateAmbience(.1, { weather });
+    const thunder = audio.thunderSource;
+    assert.ok(thunder); assert.ok(Math.abs(thunder.startTime - .9) < 1e-10);
+    assert.equal(thunder.loop, undefined);
+    for (let i = 0; i < 20; i++) audio.updateAmbience(.01, { weather });
+    assert.equal(audio.context.sources.length, 2); assert.equal(timers.size, 1);
+    audio.pause(); assert.equal(thunder.disconnected, true); assert.equal(audio.thunderSource, null);
+    await audio.resume(); audio.updateAmbience(.1, { weather }); assert.equal(audio.thunderSource, null);
+    weather.lightningId = 'storm:2'; weather.lightningAge = 0;
+    audio.updateAmbience(.1, { weather }); assert.ok(audio.thunderSource);
+    const next = audio.thunderSource; audio.setMuted(true); assert.equal(next.disconnected, true);
+    weather.lightningId = 'storm:3'; audio.updateAmbience(.1, { weather });
+    audio.setMuted(false); audio.updateAmbience(.1, { weather }); assert.equal(audio.thunderSource, null);
+  });
+});
+test('weather replacement cancels pending thunder; stale lightning cannot catch up in bursts', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const weather = { type: 'rain', intensity: .9, lightningId: 'storm:1', lightningAge: 0, thunderDelay: 1 };
+    audio.updateAmbience(.1, { weather }); const thunder = audio.thunderSource;
+    audio.updateAmbience(.1, { weather: { ...weather, lightningId: null } });
+    assert.equal(thunder.disconnected, true); assert.equal(audio.thunderSource, null);
+    audio.updateAmbience(50, { weather: { ...weather, lightningAge: 50 } }); assert.equal(audio.thunderSource, null);
+    // New level/replay state owns a fresh event identity, even with the same seeded ID.
+    audio.updateAmbience(.1, { weather: { ...weather } }); assert.ok(audio.thunderSource);
+    const latest = audio.thunderSource; audio.dispose(); assert.equal(latest.disconnected, true);
+  });
+});

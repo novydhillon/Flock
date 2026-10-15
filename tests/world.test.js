@@ -63,6 +63,8 @@ test('the first tutorial bridge fits the starter flock spread while retaining so
 test('every route in all 100 levels is traversable by cows and actual ground bodies',()=>{
   for(let index=0;index<100;index++){
     const l=createLevel(index);
+    // A generated route is potential passage after Pip opens its panel.
+    for(const gate of l.gates)gate.open=true;
     assert.ok(canOccupy(l,l.dog.x,l.dog.z,.62),`dog spawn ${index}`);
     assert.ok(l.animals.every(a=>canOccupy(l,a.x,a.z,a.type==='cow'?.78:.55)),`flock spawns ${index}`);
     for(const route of l.routes){

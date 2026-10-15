@@ -89,6 +89,54 @@ function woodTexture() {
   return texture;
 }
 
+function barkTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 128;
+  const context = canvas.getContext('2d');
+  const data = context.createImageData(128, 128);
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
+    // Long, gently wandering ridges read as bark at phone scale without a
+    // high-frequency stripe pattern that shimmers as the camera moves.
+    const groove = Math.sin(x * .31 + Math.sin(y * .045) * 1.65) * 8
+      + Math.sin(x * .11 + Math.sin(y * .021) * 2.6) * 5;
+    const scar = Math.sin(Math.hypot(x - 35, (y - 74) * .15) * .46) * 4;
+    const grain = ((x * 17 + y * 31 + (x * y) % 29) % 9) - 4;
+    const value = Math.max(0, Math.min(255, Math.round(132 + groove + scar + grain)));
+    const p = (y * 128 + x) * 4;
+    data.data[p] = value; data.data[p + 1] = value; data.data[p + 2] = value; data.data[p + 3] = 255;
+  }
+  context.putImageData(data, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(1.2, 1.7);
+  return texture;
+}
+
+function foliageTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 128;
+  const context = canvas.getContext('2d');
+  const image = context.createImageData(128, 128);
+  const palette = [[188, 203, 148], [210, 207, 153], [164, 191, 137], [223, 207, 155], [154, 184, 133]];
+  // Wide, deterministic mottles suggest layers of leaves. Pixel generation
+  // uses the same minimal Canvas surface as the existing model textures.
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
+    const wave = Math.sin(x * .17 + Math.sin(y * .11) * 1.4) + Math.cos(y * .19 - x * .07);
+    const grain = ((x * 17 + y * 31 + (x * y) % 29) % 13) - 6;
+    const color = palette[(Math.floor((wave + 2) * 1.25) + Math.floor(x / 19) + Math.floor(y / 23)) % palette.length];
+    const p = (y * 128 + x) * 4;
+    image.data[p] = Math.max(0, Math.min(255, color[0] + grain));
+    image.data[p + 1] = Math.max(0, Math.min(255, color[1] + grain));
+    image.data[p + 2] = Math.max(0, Math.min(255, color[2] + grain));
+    image.data[p + 3] = 255;
+  }
+  context.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 export function createMaterials() {
   if (materialCache) return materialCache;
   const tactile = clayTexture();
@@ -109,7 +157,15 @@ export function createMaterials() {
   materialCache.eye = materialCache.white;
   materialCache.pupil = materialCache.black;
   const grain = woodTexture();
-  for (const name of ['wood', 'paleWood', 'bark']) materialCache[name].map = grain;
+  for (const name of ['wood', 'paleWood']) materialCache[name].map = grain;
+  const bark = barkTexture();
+  materialCache.bark.map = bark;
+  materialCache.bark.bumpMap = bark;
+  materialCache.bark.bumpScale = .055;
+  materialCache.bark.needsUpdate = true;
+  const foliage = foliageTexture();
+  for (const name of ['leaves', 'leavesLight', 'leavesDark']) materialCache[name].map = foliage;
+  materialCache.leaves.needsUpdate = materialCache.leavesLight.needsUpdate = materialCache.leavesDark.needsUpdate = true;
   return materialCache;
 }
 
@@ -200,14 +256,15 @@ export function createDog() {
     sphere(head, m.brass, [side * 0.23, 0.14, -0.025], [0.07, 0.07, 0.07]);
   });
   cylinder(dog, m.dark, [0, 0.76, 0.37], 0.18, 0.085);
-  sphere(dog, m.cyan, [0, 0.76, 0.566], [0.08, 0.055, 0.025]);
+  const tailLightMaterial = new THREE.MeshStandardMaterial({ color: '#9ceeff', emissive: '#39bfe8', emissiveIntensity: 1.25, roughness: 0.28 });
   const legs = [leg(dog, m, -0.22, 0.28, 0.34), leg(dog, m, 0.22, 0.28, 0.34), leg(dog, m, -0.22, -0.3, 0.34), leg(dog, m, 0.22, -0.3, 0.34)];
   const tail = new THREE.Group();
   tail.position.set(0, 0.64, -0.44);
   dog.add(tail);
   cylinder(tail, m.brass, [0, 0.16, -0.08], 0.047, 0.32, [-0.42, 0, 0]);
-  sphere(tail, m.cyan, [0, 0.32, -0.15], [0.077, 0.077, 0.077]);
-  dog.userData.parts = { body, head, legs, tail };
+  const tailLight = sphere(tail, tailLightMaterial, [0, 0.32, -0.15], [0.077, 0.077, 0.077]);
+  tailLight.name = 'Pip tail light';tailLight.userData.ownedMaterial = true;
+  dog.userData.parts = { body, head, legs, tail, tailLight };
   return dog;
 }
 
@@ -309,14 +366,34 @@ export function createTree(variant = 0) {
   if (modelCache.has(key)) return modelCache.get(key).clone();
   const m = createMaterials();
   const tree = new THREE.Group();
-  cylinder(tree, m.bark, [0, 0.65, 0], 0.14, 1.3);
-  const branch = cylinder(tree, m.bark, [0.23, 0.97, 0], 0.08, 0.65, [0, 0, -0.7]);
+  // Broad roots, a tapered trunk and stout branches make the tree silhouette
+  // read at the normal orthographic camera distance. The renderer scales its
+  // base against the existing circular trunk collider.
+  const trunk = mesh(tree, 'CylinderGeometry', [0.46, 0.62, 2.25, 12], m.bark, [0, 1.125, 0]);
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2 + variant * .17;
+    const root = cylinder(tree, m.bark, [Math.cos(a) * .31, .13, Math.sin(a) * .31], .16, .92, [0, 0, -Math.cos(a) * .8]);
+    root.rotation.z = Math.sin(a) * .8;
+  }
+  const branch = cylinder(tree, m.bark, [0.36, 1.67, 0], 0.22, 1.1, [0, 0, -0.72]);
   branch.rotation.x = 0.2;
-  const mats = [m.leaves, m.leavesLight, m.leavesDark];
-  sculptedSphere(tree, mats[variant % 3], [0, 1.75, 0], [0.75, 0.75, 0.65], 0.07);
-  sculptedSphere(tree, mats[(variant + 1) % 3], [-0.45, 1.45, 0.18], [0.5, 0.48, 0.5], 0.07);
-  sculptedSphere(tree, mats[variant % 3], [0.49, 1.64, -0.06], [0.51, 0.53, 0.49], 0.07);
-  sculptedSphere(tree, mats[(variant + 1) % 3], [0.12, 2.22, 0.04], [0.38, 0.35, 0.4], 0.07);
+  const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant];
+  const canopy = [
+    [[0, 2.37, 0], [1.08, .92, .94]],
+    [[-.63, 2.05, .22], [.78, .69, .76]],
+    [[.68, 2.22, -.12], [.79, .73, .77]],
+    [[.08, 2.91, .08], [.68, .67, .7]],
+    [[-.2, 2.63, -.58], [.72, .61, .69]],
+    [[.62, 2.62, .54], [.7, .62, .66]],
+  ];
+  for (const [position, scale] of canopy) sculptedSphere(tree, leaf, position, scale, .075);
+  // A handful of larger leaf-shaped lobes break the broad cloud silhouette;
+  // baking folds them into the same three foliage draws as the canopy.
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI * 2 / 6 + variant * .21;
+    const form = sculptedSphere(tree, leaf, [Math.cos(a) * .85, 2.45 + (i % 2) * .22, Math.sin(a) * .75], [.34, .2, .4], .045);
+    form.rotation.y = a; form.rotation.z = (i % 2 ? 1 : -1) * .22;
+  }
   return cachedModel(key, tree);
 }
 
@@ -418,8 +495,16 @@ export function createBush(variant = 0) {
   const m = createMaterials();
   const bush = new THREE.Group();
   const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant % 3];
-  sculptedSphere(bush, leaf, [0, 0.33, 0], [0.52, 0.38, 0.4], 0.07);
-  sculptedSphere(bush, leaf, [-0.34, 0.21, 0.08], [0.3, 0.28, 0.3], 0.07);
-  sculptedSphere(bush, leaf, [0.35, 0.27, -0.05], [0.3, 0.31, 0.29], 0.07);
+  cylinder(bush, m.bark, [0, .16, 0], .08, .3);
+  sculptedSphere(bush, leaf, [0, .42, 0], [.62, .46, .48], .075);
+  sculptedSphere(bush, leaf, [-.42, .28, .12], [.38, .34, .35], .075);
+  sculptedSphere(bush, leaf, [.42, .34, -.1], [.4, .37, .36], .075);
+  sculptedSphere(bush, leaf, [.1, .65, -.13], [.38, .34, .37], .075);
+  for (let i = 0; i < 4; i++) {
+    const angle = i * Math.PI / 2 + variant * .29;
+    const leafForm = sculptedSphere(bush, leaf,
+      [Math.cos(angle) * .52, .46 + (i % 2) * .1, Math.sin(angle) * .42], [.25, .16, .33], .04);
+    leafForm.rotation.y = angle;
+  }
   return cachedModel(key, bush);
 }

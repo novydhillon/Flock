@@ -1,7 +1,12 @@
 import * as THREE from 'three';
+import { Atmosphere } from './atmosphere.js';
+import { generateBushClusters } from './vegetation.js';
+import { setTailLightBarking } from './tail-light.js';
+import { WaterEffects } from './water-effects.js';
 import { MeadowNature } from './nature.js';
+import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
-import { terrainHeight, targetFootprint } from './world.js';
+import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
 import { createDog, createAnimal, createDrone, createTree, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
@@ -40,7 +45,7 @@ export class MeadowRenderer{
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#bdd6df');this.scene.fog=new THREE.Fog('#bdd6df',95,195);
-    this.scene.add(new THREE.HemisphereLight('#eaf7ff','#536747',1.65));
+    this.hemisphere=new THREE.HemisphereLight('#eaf7ff','#536747',1.65);this.scene.add(this.hemisphere);this.skyDay=new THREE.Color('#bdd6df');this.skyStorm=new THREE.Color('#899da7');
     this.sun=new THREE.DirectionalLight('#fff4dc',2.05);this.sun.position.set(-18,35,20);this.sun.castShadow=true;
     this.sun.shadow.mapSize.set(1024,1024);Object.assign(this.sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:100});this.sun.shadow.camera.updateProjectionMatrix();this.sun.shadow.bias=-.0007;this.sun.shadow.normalBias=.035;this.scene.add(this.sun,this.sun.target);
     this.camera=new THREE.OrthographicCamera(-30,30,20,-20,.1,180);this.center=new THREE.Vector3(-7,0,0);this.targetCenter=this.center.clone();
@@ -56,7 +61,7 @@ export class MeadowRenderer{
       new THREE.Mesh(new THREE.BoxGeometry(1,.105,.085),this.materials.wood)
     ];
     this.sceneryBatches=[];this.sceneryFrustum=new THREE.Frustum();this.viewMatrix=new THREE.Matrix4();
-    this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);
+    this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.atmosphere=new Atmosphere(this.scene);this.waterEffects=new WaterEffects(this.scene);
   }
   resize(){this.width=innerWidth;this.height=innerHeight;this.renderer.setSize(this.width,this.height,false);this.aspect=this.width/this.height;}
   place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
@@ -64,6 +69,7 @@ export class MeadowRenderer{
   setLevel(level){
     this.level=level;this.barkEffects=[];
     this.cutaway?.dispose();this.cutaway=null;
+    this.gateView?.dispose();this.gateView?.removeFromParent();this.stoneView?.dispose();this.stoneView?.removeFromParent();this.gateView=this.stoneView=null;
     // Dispose world-owned geometry; model geometry/materials are cached across levels.
     const geometries=new Set(),materials=new Set();
     for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)materials.add(o.material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
@@ -81,10 +87,12 @@ export class MeadowRenderer{
       surface(ribbon(road.points,road.width+.65,{ragged:true,y:.003,seed:level.seed+5}),this.pathShoulder);
       surface(ribbon(road.points,road.width,{ragged:true,y:.007,seed:level.seed}),this.path);
     }
+    const riverViews=[];
     for(const river of level.rivers){
       const bankMat=new THREE.MeshStandardMaterial({color:'#6c8960',roughness:1,side:THREE.DoubleSide});
       const bank=surface(ribbon(river.points,river.width+.8,{y:.002}),bankMat);bank.userData.ownedMaterial=true;
-      surface(ribbon(river.points,river.width,{y:.018}),this.water);
+      const mesh=surface(ribbon(river.points,river.width,{y:.018}),this.water);
+      const a=river.points[0],b=river.points.at(-1);riverViews.push({mesh,points:river.points,width:river.width,heading:Math.atan2(b.x-a.x,b.z-a.z)});
       for(const bridge of river.bridges){const g=createBridge(bridge.width,bridge.length);g.rotation.y=bridge.heading;this.place(g,bridge.x,bridge.z,1,true);}
     }
     const t=level.target,shape=targetFootprint(t),s=shape.halfLength,structure=[];
@@ -95,6 +103,7 @@ export class MeadowRenderer{
     // Every visible blocking perimeter, gate and destination segment comes from
     // the same world objects as collision: no fake scenery walls in play space.
     for(const segment of level.fenceSegments||[]){
+      if(segment.material==='stone')continue;
       const {a,b,kind}=segment,len=Math.hypot(b.x-a.x,b.z-a.z);
       if(kind==='target'&&t.type==='barn'){
         // Short panels reveal only the section hiding an actor, including split flocks.
@@ -112,6 +121,7 @@ export class MeadowRenderer{
         const steps=Math.ceil(len/1.4);for(let i=0;i<steps;i++)this.place(createBush(i),a.x+(b.x-a.x)*(i+.5)/steps,a.z+(b.z-a.z)*(i+.5)/steps,.75);
       }else this.placeFence(a,b);
     }
+    this.gateView=createGateView(level.gates);this.stoneView=createStoneWallView(level.fenceSegments);this.terrain.add(this.gateView,this.stoneView);
     if(t.type==='barn'){
       this.goalFloor=surface(goalSurface(t,.013),this.path);
       // Full pitched roof; the complete roof and camera-facing wall fade together.
@@ -123,7 +133,7 @@ export class MeadowRenderer{
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
-      this.place(createTree(Math.floor(r()*3)),obstacle.x,obstacle.z,obstacle.radius*.95);
+      this.place(createTree(Math.floor(r()*3)),obstacle.x,obstacle.z,obstacle.radius*1.45);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.place(createBush(i),obstacle.x+Math.cos(angle)*obstacle.radius*.48,obstacle.z+Math.sin(angle)*obstacle.radius*.48,obstacle.radius*.7);}
     }
@@ -161,7 +171,9 @@ export class MeadowRenderer{
       if(side<2){x=b.minX-12+r()*(w+24);z=side===0?b.minZ-4-r()*17:b.maxZ+4+r()*17;}else{x=side===2?b.minX-5-r()*18:b.maxX+5+r()*18;z=b.minZ+r()*d;}
       if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;this.place(createTree(i%3),x,z,1.3+r()*1.8);
     }
-    this.nature.setLevel(level);
+    this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
+    this.nature.setLevel(level);this.atmosphere.setLevel(level,this.nature.weather);
+    this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews});
     this.batchScenery();
     this.dog=createDog();this.dog.scale.setScalar(1.35);this.actors.add(this.dog);
     const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
@@ -204,7 +216,7 @@ export class MeadowRenderer{
   }
   batchScenery(){
     this.terrain.updateMatrixWorld(true);const groups=new Map();
-    this.terrain.traverse(o=>{if(!o.isMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
+    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
     for(const pieces of groups.values()){
       if(pieces.length<2)continue;const first=pieces[0],batch=new THREE.InstancedMesh(first.geometry,first.material,pieces.length);
       pieces.forEach((piece,i)=>{batch.setMatrixAt(i,piece.matrixWorld);piece.parent.remove(piece);});
@@ -266,16 +278,20 @@ export class MeadowRenderer{
     const poseTime=Math.floor(this.time*12)/12;
     parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i%3===0?0:Math.PI))*Math.min(.5,speed*.07));parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
-    for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;}}
-    this.updateBarks(dt);
+    for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,false);}}
+    this.updateBarks(dt);setTailLightBarking(this.dog,(this.barkEffects||[]).length>0);this.gateView?.update();
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
     this.cutaway?.update(this.camera,[dog,...level.animals,...(level.helpers||[]).filter(h=>h.type!=='drone')],dt);
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
+    const weather=this.nature.weather;this.atmosphere.update(dt,{weather,camera:this.camera,paused:dt<=0});
+    this.waterEffects.update(dt,{weather,movers:[{...dog,id:'pip'},...level.animals.map(a=>({...a,id:`flock-${a.id}`})),...(level.helpers||[]).filter(h=>h.type!=='drone').map(h=>({...h,id:`helper-${h.type}`}))],paused:dt<=0});
+    this.sun.intensity=2.05*weather.daylight+weather.lightningFlash;this.hemisphere.intensity=1.65*weather.daylight+weather.lightningFlash*.6;this.scene.background.copy(this.skyDay).lerp(this.skyStorm,weather.cloudCoverage*.5);this.scene.fog.color.copy(this.scene.background);
     for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*6;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}
     this.particles=this.particles.filter(p=>p.life>0);this.cullScenery();this.updateAnimalBatches(level,poseTime);this.renderer.render(this.scene,this.camera);
   }
   celebrate(x,z){for(let i=0;i<36;i++){const mesh=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.05),new THREE.MeshBasicMaterial({color:['#f0b65c','#f8e8ad','#e99585','#80b398'][i%4]}));mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;mesh.position.set(x,1.5,z);this.actors.add(mesh);this.particles.push({mesh,velocity:new THREE.Vector3(Math.sin(i*2.4)*3,2+(i%5),Math.cos(i*2.4)*3),life:1.8});}}
   bark(){
+    setTailLightBarking(this.dog,true);
     const origin={x:this.dog.position.x,z:this.dog.position.z};
     const mesh=new THREE.Mesh(barkSurface(this.level,origin),new THREE.MeshBasicMaterial({color:'#fff6d8',side:THREE.DoubleSide,transparent:true,opacity:.8,depthTest:true,depthWrite:false}));
     mesh.renderOrder=1;mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;this.actors.add(mesh);
@@ -299,7 +315,8 @@ export class MeadowRenderer{
     for(const river of level.rivers){line(river.points,river.width*scale,'#5dabb7');for(const bridge of river.bridges){const vx=Math.sin(bridge.heading)*bridge.length/2,vz=Math.cos(bridge.heading)*bridge.length/2;line([{x:bridge.x-vx,z:bridge.z-vz},{x:bridge.x+vx,z:bridge.z+vz}],Math.max(3,bridge.width*scale),'#dfbd8c');}}
     for(const road of level.roads)line(road.points,Math.max(1.5,road.width*scale),'#d4b784');
     drawGoalMap(ctx,level.target,p=>({x:px(p.x),y:pz(p.z)}));
-    for(const fence of level.fenceSegments||[])line([fence.a,fence.b],fence.kind==='boundary'?1:1.5,'#8f7758');
+    for(const fence of level.fenceSegments||[])line([fence.a,fence.b],fence.material==='stone'?2:fence.kind==='boundary'?1:1.5,fence.material==='stone'?'#777d70':'#8f7758');
+    for(const gate of level.gates||[])if(gate.operable&&!gate.open){const segment=gateSegment(gate);line([segment.a,segment.b],2.5,'#b46c35');}
     const dot=(x,z,r,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(px(x),pz(z),r,0,Math.PI*2);ctx.fill();};
     for(const a of level.animals)dot(a.x,a.z,a.type==='cow'?3:2.3,a.saved?'#80a777':'#fff8e7');dot(dog.x,dog.z,4.8,'#c9843b');ctx.strokeStyle='#fff2d0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),6,0,Math.PI*2);ctx.stroke();
     for(const h of level.helpers||[])dot(h.x,h.z,3,'#4a9c9b');

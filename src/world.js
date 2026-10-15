@@ -80,10 +80,17 @@ function segmentsTouch(a,b,c,d,radius){
   if(t1*t2<0&&t3*t4<0)return true;
   return Math.min(segmentDistance(a,c,d),segmentDistance(b,c,d),segmentDistance(c,a,b),segmentDistance(d,a,b))<radius;
 }
+/** Dynamic gate panels share their physical endpoints with rendering and map. */
+export function gateSegment(gate) {
+  const f=yawVector(gate.heading),half=gate.width/2;
+  return {a:{x:gate.x-f.z*half,z:gate.z+f.x*half},b:{x:gate.x+f.z*half,z:gate.z-f.x*half},kind:'gate',material:gate.material||'wood'};
+}
+const barrierRadius=segment=>segment.material==='stone'?.3:.18;
+function solidSegments(level){return [...(level.fenceSegments||[]),...(level.gates||[]).filter(g=>g.operable&&!g.open).map(gateSegment)];}
 export function canOccupy(level,x,z,radius=.55) {
   const p={x,z},b=level.bounds;
   if(x<b.minX+radius+.18||x>b.maxX-radius-.18||z<b.minZ+radius+.18||z>b.maxZ-radius-.18)return false;
-  for(const segment of level.fenceSegments||[]) if(segmentDistance(p,segment.a,segment.b)<radius+.18)return false;
+  for(const segment of solidSegments(level)) if(segmentDistance(p,segment.a,segment.b)<radius+barrierRadius(segment))return false;
   for(const river of level.rivers||[]) {
     if(river.bridges.some(bridge=>collidesWithBridgeRails(bridge,p,radius)))return false;
     const wet=nearWater(river,p,radius);
@@ -104,9 +111,9 @@ export function moveBody(level,body,dx,dz,radius=.55) {
 function clearPath(level,a,b,radius,solidRails,audible=false) {
   const bounds=level.bounds;
   for(const p of [a,b])if(p.x<bounds.minX+radius+.18||p.x>bounds.maxX-radius-.18||p.z<bounds.minZ+radius+.18||p.z>bounds.maxZ-radius-.18)return false;
-  for(const segment of level.fenceSegments||[]){
-    if(audible&&(segment.kind!=='target'||level.target?.type!=='barn'))continue;
-    if(segmentsTouch(a,b,segment.a,segment.b,radius+.18))return false;
+  for(const segment of solidSegments(level)){
+    if(audible&&segment.kind!=='gate'&&segment.material!=='stone'&&(segment.kind!=='target'||level.target?.type!=='barn'))continue;
+    if(segmentsTouch(a,b,segment.a,segment.b,radius+barrierRadius(segment)))return false;
   }
   for(const tree of level.obstacles||[]){
     const reach=radius+tree.radius;
@@ -207,7 +214,8 @@ export function createLevel(index=0,seed=index*7919+42) {
     canonicalRoutes.push(points);
   }
   const rivers=canonicalRivers.map(r=>({width:r.width,points:r.points.map(transform),bridges:r.bridges.map(b=>({...b,...transform(b)}))}));
-  const gates=canonicalGates.map(g=>({...g,...transform(g)}));
+  const stoneWalls=index>=7&&index%4===3;
+  const gates=canonicalGates.map((g,i)=>({...g,...transform(g),id:`gate-${i}`,operable:index>=19,open:index<19,material:stoneWalls?'stone':'wood'}));
   const fenceSegments=perimeter(bounds);
   if(gates.length) {
     const sorted=[...canonicalGates].sort((a,b)=>a.z-b.z);let cursor=-halfV;
@@ -217,6 +225,9 @@ export function createLevel(index=0,seed=index*7919+42) {
   const shape=targetFootprint(target),e=shape.halfLength,w=shape.halfWidth,opening=shape.openingWidth/2;
   const box=[[[-e,-w],[e,-w]],[[e,-w],[e,w]],[[e,w],[-e,w]],[[-e,w],[-e,opening]],[[-e,-opening],[-e,-w]]];
   for(const [a,b]of box)fenceSegments.push({a:targetWorldPoint(target,...a),b:targetWorldPoint(target,...b),kind:'target'});
+  for(const segment of fenceSegments)segment.material=stoneWalls&&segment.kind!=='target'?'stone':'wood';
+  // Routes describe potential passage after the player's deliberate gate action.
+  // Generation validates with panels open; runtime queries use live gate state.
   const corridorGeometry={bounds,rivers,fenceSegments,obstacles:[]};
   const routes=canonicalRoutes.map((points,i)=>{const sampled=wander(points.map(transform),random,corridorGeometry);return{id:`route-${i}`,points:sampled,length:sampled.slice(1).reduce((sum,p,j)=>sum+distance(p,sampled[j]),0)};});
   const roads=routes.map(route=>({routeId:route.id,points:route.points,width:roadWidth}));
@@ -293,30 +304,38 @@ export function destinationApproach(level,body) {
   if(forward<-extent+.7)return point(-extent+2,0);
   return t;
 }
-function routeNavigationTarget(level,body,desired) {
-  if(hasClearGroundPath(level,body,desired,.6))return desired;
+function routeNavigationTarget(level,body,desired,radius) {
+  if(hasClearGroundPath(level,body,desired,radius))return desired;
   const start=routeProgress(level,body),end=routeProgress(level,desired,start?.routeId);
   if(!start||!end)return desired;
   const forward=end.progress>=start.progress,points=start.route.points;
-  if(start.distance>3&&hasClearGroundPath(level,body,start.point,.6))return start.point;
+  if(start.distance>3&&hasClearGroundPath(level,body,start.point,radius))return start.point;
   const aim=forward?Math.min(points.length-1,start.index+5):Math.max(0,start.index-4);
-  for(let i=aim;forward?i>start.index:i<=start.index;i+=forward?-1:1)if(hasClearGroundPath(level,body,points[i],.6))return points[i];
+  for(let i=aim;forward?i>start.index:i<=start.index;i+=forward?-1:1)if(hasClearGroundPath(level,body,points[i],radius))return points[i];
   return start.point;
 }
 export function navigationTarget(level,body,desired,radius=.62) {
   if(hasClearGroundPath(level,body,desired,radius))return desired;
-  const fallback=routeNavigationTarget(level,body,desired);
-  // A ground companion outside a side rail must walk around a dry open end
-  // before joining the deck. Route projection alone can point through a rail.
+  const fallback=routeNavigationTarget(level,body,desired,radius);
+  // Route projection alone can point through a rail or enclosure wall.
+  // Walk around physical corners with the moving body's actual clearance.
   const bridges=(level.rivers||[]).flatMap(r=>r.bridges)
     .filter(b=>distance(body,b)<b.length+b.width+8||pathHitsBridgeRails(b,body,desired,radius))
     .sort((a,b)=>Math.min(distance(body,a),distance(desired,a))-Math.min(distance(body,b),distance(desired,b))).slice(0,2);
-  if(!bridges.length)return fallback;
+  const target=level.target,shape=target&&targetFootprint(target);
+  const nearTarget=shape&&(distance(body,target)<shape.halfLength*2+6||distance(desired,target)<shape.halfLength*2+6);
+  if(!bridges.length&&!nearTarget)return fallback;
   const nodes=[body,desired,fallback];
   for(const b of bridges){
     const f=yawVector(b.heading),u=b.length/2+radius+.4,v=b.width/2+radius+.4;
     for(const [along,side]of [[-u,-v],[-u,v],[u,-v],[u,v],[-u,0],[u,0],[0,0]])
       nodes.push({x:b.x+f.x*along+f.z*side,z:b.z+f.z*along-f.x*side});
+  }
+  if(nearTarget){
+    // Corners are outside the solid walls; paired entrance nodes cross only
+    // the real opening. This supplies local access without changing the goal.
+    const extent=shape.halfLength+radius+.5;
+    for(const [u,v] of [[-extent,-extent],[-extent,extent],[extent,-extent],[extent,extent],[-extent,0],[-shape.halfLength+radius+.5,0]])nodes.push(targetWorldPoint(target,u,v));
   }
   const costs=nodes.map(()=>Infinity),previous=[],visited=new Set();costs[0]=0;
   for(let step=0;step<nodes.length;step++){
@@ -346,16 +365,19 @@ export function openingSteer(level,body,vx,vz,radius=.78) {
     for(const bridge of river.bridges){const d=distance(body,bridge);if(d<best){best=d;opening=bridge;}}
   }
   const t=level.target,shape=targetFootprint(t);
-  const targetGate={...shape.entrance,width:shape.openingWidth,heading:t.heading};
-  for(const gate of [...(level.gates||[]),targetGate]) {
+  const targetGate={...shape.entrance,width:shape.openingWidth,heading:t.heading,enclosure:true};
+  for(const gate of [...(level.gates||[]).filter(g=>!g.operable||g.open),targetGate]) {
     const f=yawVector(gate.heading),dx=body.x-gate.x,dz=body.z-gate.z;
     if(Math.abs(dx*f.x+dz*f.z)<3&&distance(body,gate)<best){best=distance(body,gate);opening=gate;}
   }
+  // A pressed side or far wall needs the same corner detour as a bridge rail.
+  // Merely aligning laterally with the entrance cannot get around that wall.
+  if((level.fenceSegments||[]).some(segment=>segment.kind==='target'&&segmentDistance(body,segment.a,segment.b)<radius+2))opening=targetGate;
   if(!opening)return{x:0,z:0};
-  // Pressure at a short landing can hit either a rail or the curved bank,
-  // even when aligned with the opening. Walk around its dry end first; the
-  // only target is this nearby physical opening, never the destination.
-  if(opening.length){
+  // Walk around a nearby solid barrier first, including when aligned with
+  // its opening. Steering is called only under pressure; no idle goal force
+  // or collision bypass is introduced.
+  if(opening.length||opening.enclosure){
     const waypoint=navigationTarget(level,body,opening,radius),toward=unit(waypoint.x-body.x,waypoint.z-body.z);
     return{x:toward.x*Math.min(2.4,speed*.8+.5),z:toward.z*Math.min(2.4,speed*.8+.5)};
   }

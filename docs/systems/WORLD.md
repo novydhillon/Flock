@@ -15,8 +15,8 @@ Positions use `{x, z}` on a flat ground plane; vertical height belongs to render
 | `spawn`, `dog`, `animals` | Flock origin, Pip origin, initial body states. |
 | `target` | `{x,z,radius,type,heading}`; type cycles pen → field → barn by index modulo 3. |
 | `rivers` | Sampled centerline `points`, width, rotated bridge deck descriptors. |
-| `fenceSegments` | Physical `{a,b,kind}` segments: boundary, interior, target. `fences` currently starts empty. |
-| `gates` | Open gap descriptors, not animated door state. |
+| `fenceSegments` | Physical `{a,b,kind,material}` segments: boundary, interior, target; material is wood or stone. `fences` currently starts empty. |
+| `gates` | `{id,x,z,width,heading,operable,open,material}` panels; displayed levels 20+ begin closed. |
 | `routes`, `roads` | Sampled routes `{id,points,length}`; roads reference route points plus width. |
 | `obstacles`, `sceneryHills` | Circular tree collision footprints; decorative hills outside bounds. |
 
@@ -40,9 +40,13 @@ flowchart TD
   H --> I[Place exterior scenery hills]
 ```
 
-Index 0 has no river. Indexes 1–4 have one; indexes 5–14 have one; indexes 15+ have two. River centerlines are gentle sinusoids sampled every 2 canonical lateral units, extending beyond the fenced map. Each route gets a bridge over each river. Route counts are one for early levels; thereafter one on even indexes/two on odd indexes below 15; indexes 15+ have three when divisible by 3, otherwise two. From index 2, an interior fence has open gate gaps for each route.
+Index 0 has no river. Indexes 1–4 have one; indexes 5–14 have one; indexes 15+ have two. River centerlines are gentle sinusoids sampled every 2 canonical lateral units, extending beyond the fenced map. Each route gets a bridge over each river. Route counts are one for early levels; thereafter one on even indexes/two on odd indexes below 15; indexes 15+ have three when divisible by 3, otherwise two. From index 2, an interior barrier has gate gaps for each route. Displayed levels 1–19 keep open, non-operable gaps; index 19 onward begins with closed operable panels. Gates open permanently for the current run through a contextual button while Pip is within 3.2 units and has an unobstructed ground approach to the panel. Helpers never activate gates. Recreating the level resets every panel. The button is independent of the Woof action and can be tapped after releasing the movement thumb.
 
-Routes connect spawn, bridge approaches/centers, gates and destination approaches. `wander` samples each leg roughly every 1.2 units; ordinary legs gain seeded meanders. Legs adjoining bridges/gates or ending at target stay straight. A candidate meander is kept only if every sampled segment has 0.85-unit ground clearance against already-built geometry; otherwise that leg uses straight interpolation. Trees are added afterward, excluded from a `7 + tree.radius` corridor around route segments, within 14 of spawn, or within `target.radius + 10` of destination. Maximum attempted tree count is `min(10 + 2*index,130)`, so actual counts vary.
+`gateSegment(gate)` derives the physical panel endpoints from width and heading. Closed panels participate in occupancy, solid path and player-signal queries; opening a gate removes that panel and clears the flock visibility cache. `accessibleGate` and `openNearbyGate` in `gates.js` select and revalidate the nearest accessible gate. `createGateControl` owns its contextual DOM button; no cooldown or bark dispatch is involved. A fresh `geometryRevision` increments on opening. `gate-view.js` owns its Three.js resources and returns groups with explicit `dispose()`; its gate group `update()` reads live state. Open panels slide into the adjacent solid barrier instead of projecting into the passage.
+
+Displayed levels 8, 12, 16, 20 and every fourth level thereafter use stone for boundary and interior segments (`index >= 7 && index % 4 === 3`). Target enclosures retain their own geometry and presentation. Stone segments have a .3-unit physical half-thickness and block player signals; ordinary wood remains .18 and transmits the low-fence call. Masonry is .6 units wide and 1.3 high, with gaps inherited from the same segment endpoints. Gate openings do not change width in stone variants.
+
+Routes connect spawn, bridge approaches/centers, gates and destination approaches. They express potential passage after Pip opens panels; generation and connectivity tests validate route clearance with panels open. Runtime movement/path queries always use current closed state. Closed gates are intentionally absent from corridor sampling, so they cannot erase a valid generated route or cause a straight fallback to replace the road. `wander` samples each leg roughly every 1.2 units; ordinary legs gain seeded meanders. Legs adjoining bridges/gates or ending at target stay straight. A candidate meander is kept only if every sampled segment has 0.85-unit ground clearance against already-built geometry; otherwise that leg uses straight interpolation. Trees are added afterward, excluded from a `7 + tree.radius` corridor around route segments, within 14 of spawn, or within `target.radius + 10` of destination. Maximum attempted tree count is `min(10 + 2*index,130)`, so actual counts vary.
 
 Roads are visual/guidance data, not forces. Nothing in `stepSimulation` attracts animals toward `routes` or `target`. The route API can guide Pip and ground companions; player pressure drives delivery.
 
@@ -62,10 +66,10 @@ The renderer's `goal-view.js` uses these world corners for the highlight surface
 
 | Export | What it answers |
 |---|---|
-| `canOccupy(level,x,z,radius=.55)` | May a circular body occupy one point? Bounds inset by `radius + .18`, fence thickness .18, expanded trees/water and solid bridge rails all apply. Water is traversable only within a bridge footprint. |
+| `canOccupy(level,x,z,radius=.55)` | May a circular body occupy one point? Bounds inset by `radius + .18`, wood thickness .18/stone .3, closed gate panels, expanded trees/water and solid bridge rails all apply. Water is traversable only within a bridge footprint. |
 | `moveBody(level,body,dx,dz,radius=.55)` | Mutates position with steps of at most .25 units, tries combined displacement, then axis sliding; returns `{blockedX,blockedZ}`. It does not set velocity or heading. |
 | `hasClearGroundPath(level,a,b,radius=.55)` | Is a straight ground segment clear? Solid fences/rails, trees, water and inset endpoint bounds apply. Water checks sample at intervals no greater than .45 units. |
-| `hasClearPlayerSignal(level,a,b)` | Radius .15 audible pressure line: ignores low fences and bridge rails; target fence segments shield only barns. Trees, water outside decks and bounds still block. |
+| `hasClearPlayerSignal(level,a,b)` | Radius .15 audible pressure line: ignores low wooden fences and bridge rails; stone walls and closed gates shield, and target fence segments shield only barns. Trees, water outside decks and bounds still block. |
 | `separatedByBank(level,a,b)` | Specialized river/rail separation query, not general obstacle clearance or a substitute for ground path validation. |
 
 The player signal is used for Pip's pressure only. Flock cohesion/alignment visibility, companion selection/attendance/support and destination attendance use solid ground paths. A sheep can hear Pip over a low pen rail while neither body can cross it; that does not mean a companion may pull through it or admission may ignore it. Physical separation forces between very close animals are distinct from neighbor visibility.
@@ -79,9 +83,9 @@ The player signal is used for Pip's pressure only. Flock cohesion/alignment visi
 | `distance`, `closestOnSegment`, `segmentDistance` | Shared ground-plane geometry; projection result includes clamped `t`. |
 | `routeProgress(level,position,routeId?)` | Nearest projection on matching sampled route segments; returns route/id, segment index, point, off-route distance, arclength progress and route length; `null` if none. |
 | `nextNavigationPoint(level,position,routeId?)` | First sampled point at least 7 arclength units after projection, otherwise target. This is not exactly a point seven straight-line units away. |
-| `navigationTarget(level,body,desired,radius=.62)` | Returns desired when clear, otherwise route projection/lookahead; near bridge rails builds a small visibility graph around up to two bridges to walk around open ends. It is a local waypoint heuristic, not global pathfinding for arbitrary user geometry. |
+| `navigationTarget(level,body,desired,radius=.62)` | Returns desired when clear, otherwise route projection/lookahead; near bridge rails or the enclosure builds a small visibility graph around up to two bridges plus exterior enclosure corners and real entrance nodes. Route projection/lookahead and graph edges use the caller’s actual body radius. It is a local waypoint heuristic, not global pathfinding for arbitrary user geometry. |
 | `destinationApproach(level,body)` | Oriented waypoint around enclosure walls toward upstream entrance. Used by journey-test player policy, not an animal's automatic goal drive. |
-| `openingSteer(level,body,vx,vz,radius=.78)` | Adds steering toward the closest opening on a nearby pressed barrier, using the moving animal’s physical clearance and walking around bridge rail ends when necessary. Only used under player pressure; alias `steeringOpening` is also exported. |
+| `openingSteer(level,body,vx,vz,radius=.78)` | Adds steering toward the closest opening on a nearby pressed barrier, using the moving animal’s physical clearance and walking around bridge rail ends and enclosure side/far corners when necessary. A nearby pressed target wall selects the enclosure entrance detour; idle animals gain no goal force. Only used under player pressure; alias `steeringOpening` is also exported. |
 
 Run this from repository root with Node 22+:
 
@@ -97,6 +101,7 @@ assert.deepEqual(level, createLevel(23, 201));
 const bridge = level.rivers[0].bridges[0];
 assert.equal(canOccupy(level, bridge.x, bridge.z, .8), true);
 assert.ok(Math.abs(terrainHeight(level, bridge.x, bridge.z) - .3) < 1e-8);
+for (const gate of level.gates) gate.open = true; // Validate passage after interaction.
 const route = level.routes[0], walker = {...level.spawn};
 for (const point of route.points) {
   assert.ok(hasClearGroundPath(level, walker, point, .8));
@@ -115,4 +120,11 @@ JS
 
 [world.test.js](../../tests/world.test.js) checks all 100 default campaign indexes for cow-clear route traversal with actual `moveBody` calls, safe default spawns, destination margins, exterior hills and geometry constraints. It also covers selected custom seeds, four rotations, audible-versus-solid fences and dry-end rail navigation. [simulation.test.js](../../tests/simulation.test.js) checks actual movement against banks, bounds and destination walls. [herding-journey.test.js](../../tests/herding-journey.test.js) covers five bounded full-delivery journeys. Those scopes are narrower than all possible seeds or real-device verification.
 
-Bridge alignment/width and shared enclosure geometry are Done by user acceptance on 14 October 2026; interactive gates, stone walls and broader environment changes remain Open in [ISSUES.md](../ISSUES.md). F-025 deployment migration is Done; the P1 development batch is published and hash-verified (see the validation runbook). Geometry evidence is not rendered/device acceptance.
+Bridge alignment/width and shared enclosure geometry are Done by user acceptance on 14 October 2026; interactive gates and stone walls have implementation and automated evidence in this P2 batch; rendered/device acceptance and broader environment changes remain tracked in [ISSUES.md](../ISSUES.md). F-025 deployment migration is Done; the P1 development batch is published and hash-verified (see the validation runbook). Geometry evidence is not rendered/device acceptance.
+
+`gates.test.js` exercises the level-20 transition, closed movement for dog/sheep/cow radii, four rotations, remote/obstructed interaction rejection, touch activation using the actual controller, restart, visibility-cache invalidation, stone signals, disposable visual state and a companion simulation that cannot open or deliver through a closed panel. Potential-route tests explicitly open panels before validating the full route; this does not assert closed routes are traversable.
+
+
+### P2 Node 22 enclosure retrieval regression
+
+Stone walls changed physical thickness and player-signal visibility, exposing late retrieval behind destination walls in the unchanged public level-16 journey: 46/50 delivered on Node 22. Threading the true radius through route fallback improved clearance but did not fully recover the flock. `30abd2a` adds exterior enclosure corners and real entrance nodes to the local visibility graph and selects this detour for pressured bodies against nearby target walls. The same five ordinary-input journeys pass on Node 22 and Node 24 without changing timers, collision/signal policy, wander cohort or test controls. `enclosure-navigation.test.js` checks 36 rotated side/far-wall paths at sheep, dog and cow radii and rejects unsafe smaller-radius fallback behavior. These are bounded source regressions, not human pacing evidence for F-013.

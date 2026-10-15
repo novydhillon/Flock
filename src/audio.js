@@ -11,6 +11,9 @@ export class FarmAudio {
     this.weatherKind = null;
     this.weatherVolume = -1;
     this.noiseBuffer = null;
+    this.thunderSource = null;
+    this.thunderEvent = null;
+    this.weatherState = null;
     this.birdCountdown = 4 + Math.random() * 6;
     this.muted = false;
     this.paused = false;
@@ -145,8 +148,10 @@ export class FarmAudio {
 
   /** Driven by gameplay frames: never starts audio without a user gesture. */
   updateAmbience(dt, state = {}) {
-    if (!this.context || this.context.state !== 'running' || this.paused || this.muted || this.disposed) return;
     const raw = state.weather || 'sun';
+    const available = this.context && this.context.state === 'running' && !this.paused && !this.muted && !this.disposed;
+    this._updateThunder(typeof raw === 'object' ? raw : null, available);
+    if (!available) return;
     const type = typeof raw === 'string' ? raw : raw.type || 'sun';
     const intensity = typeof raw === 'object' && Number.isFinite(raw.intensity)
       ? Math.max(0, Math.min(1, raw.intensity)) : 0.3;
@@ -158,6 +163,42 @@ export class FarmAudio {
     this.birdCountdown = kind === 'rain' ? 10 + Math.random() * 10 : 4 + Math.random() * 6;
     if (kind === 'rain' && intensity >= 0.7) return;
     this._chirp(kind === 'rain' ? 0.018 : 0.03);
+  }
+
+  _noise() {
+    if (!this.noiseBuffer) {
+      const context = this.context;
+      this.noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+      const samples = this.noiseBuffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+    }
+    return this.noiseBuffer;
+  }
+
+  _updateThunder(weather, available) {
+    if (weather !== this.weatherState) {
+      if (this.thunderSource) this._releaseAmbience(this.thunderSource);
+      this.thunderSource = null; this.thunderEvent = null; this.weatherState = weather;
+    }
+    const id = weather?.lightningId;
+    if (!id || id === this.thunderEvent) return;
+    // Observe muted/paused events too, preventing delayed playback on unmute.
+    this.thunderEvent = id;
+    const age = weather.lightningAge, delay = weather.thunderDelay;
+    if (!available || !Number.isFinite(age) || !Number.isFinite(delay) || age > delay + .2) return;
+    if (this.thunderSource) this._releaseAmbience(this.thunderSource);
+    const context = this.context, source = context.createBufferSource();
+    const filter = context.createBiquadFilter(), gain = context.createGain();
+    const at = context.currentTime + Math.max(.01, delay - age);
+    source.buffer = this._noise(); filter.type = 'lowpass'; filter.frequency.value = 180; filter.Q.value = .4;
+    gain.gain.setValueAtTime(.0001, at);
+    gain.gain.exponentialRampToValueAtTime(.13, at + .12);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + 1.9);
+    source.connect(filter); filter.connect(gain); gain.connect(this.ambience);
+    this._trackAmbience(source, [filter, gain]); this.thunderSource = source;
+    const ended = source.onended;
+    source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
+    source.start(at); source.stop(at + 2);
   }
 
   _chirp(volume) {
@@ -200,11 +241,7 @@ export class FarmAudio {
       this.weatherKind = kind;
       if (kind !== 'sun') {
         const context = this.context;
-        if (!this.noiseBuffer) {
-          this.noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
-          const samples = this.noiseBuffer.getChannelData(0);
-          for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
-        }
+        this._noise();
         const source = context.createBufferSource();
         const filter = context.createBiquadFilter();
         const gain = context.createGain();
@@ -247,6 +284,7 @@ export class FarmAudio {
 
   _stopAmbience() {
     this._stopWeather();
+    this.thunderSource = null;
     for (const source of [...this.ambientSources]) this._releaseAmbience(source);
     this.birdCountdown = 4 + Math.random() * 6;
   }

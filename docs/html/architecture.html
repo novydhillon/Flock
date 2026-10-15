@@ -34,14 +34,49 @@
 <td>Ownership is separate from activation in the selected level</td>
 </tr>
 <tr>
+<td><code>src/wandering.js</code></td>
+<td>Seeded straggler opportunity cohort and conditional bolt selection</td>
+<td>Simulation-time cadence; normal world collision remains authoritative</td>
+</tr>
+<tr>
+<td><code>src/gates.js</code>, <code>src/gate-view.js</code></td>
+<td>Nearby gate action/state and owned gate/stone-wall meshes</td>
+<td>Gate panel state follows <code>level.gates</code>; collision/map read the same geometry</td>
+</tr>
+<tr>
 <td><code>src/models.js</code></td>
 <td>Robot/scenery model construction and shared model resources</td>
 <td>Shared material changes may affect many objects</td>
 </tr>
 <tr>
+<td><code>src/tail-light.js</code></td>
+<td>Pip&#39;s bark-state tail-light color/emission</td>
+<td>Mutates only the dedicated light material; restore after the bark window</td>
+</tr>
+<tr>
 <td><code>src/goal-view.js</code></td>
 <td>Shared-footprint highlight, border, barn floor and minimap polygon</td>
 <td>Consumes world corners; does not define admission</td>
+</tr>
+<tr>
+<td><code>src/vegetation.js</code></td>
+<td>Seeded, route-aware decorative bush clusters</td>
+<td>Decorative only; avoids collision and play-critical areas</td>
+</tr>
+<tr>
+<td><code>src/wildlife.js</code>, <code>src/wildlife-models.js</code></td>
+<td>Area-scaled ambient populations, movement, fence permeability and weather shelter</td>
+<td>Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared</td>
+</tr>
+<tr>
+<td><code>src/weather.js</code></td>
+<td>Seeded shared weather fields and deterministic episode/lightning state</td>
+<td><code>MeadowNature</code> is the single advancing owner; other systems read the same object</td>
+</tr>
+<tr>
+<td><code>src/atmosphere.js</code>, <code>src/water-effects.js</code></td>
+<td>Cloud/light response; directional river flow, surface wetness, puddles and splashes</td>
+<td>Per-level resources are bounded and disposed; zero dt/pause freezes effects</td>
 </tr>
 <tr>
 <td><code>src/surfaces.js</code></td>
@@ -65,8 +100,8 @@
 </tr>
 <tr>
 <td><code>src/nature.js</code></td>
-<td>Decorative weather, clouds and wildlife</td>
-<td>Current weather does not change gameplay rewards or control</td>
+<td>Advances shared weather once and updates instanced fauna/precipitation</td>
+<td>Weather presentation does not change movement speed or rewards</td>
 </tr>
 <tr>
 <td><code>src/audio.js</code></td>
@@ -119,7 +154,7 @@ console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.t
 </tr>
 <tr>
 <td>Changing weather</td>
-<td>One severity/time contract shared by wildlife, clouds/light, audio and accumulated wetness</td>
+<td><code>MeadowNature</code> advances <code>weather.js</code> once; wildlife, <code>Atmosphere</code>, <code>WaterEffects</code>, renderer lighting and audio consume the same mutable fields</td>
 </tr>
 <tr>
 <td>Model size/detail</td>
@@ -130,7 +165,7 @@ console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.t
 <td>Pause ownership, selection/placement override, profile isolation and release gating</td>
 </tr>
 </tbody></table></div>
-<p>F-009 and F-018 now have source implementations documented in Gameplay and the validation runbook. F-012/F-022–F-024 retain unresolved future design semantics. See <a href="issues.html">issue acceptance criteria</a>.</p>
+<p>P2 candidates now cover gates/walls, straggler wandering, area-scaled wildlife, vegetation, dynamic weather, atmosphere, water/wetness and tail-light feedback. Candidate source values and boundaries are in <a href="requirements.html">requirements</a>; they have independent source review evidence in QUALITY.md and still need rendered/device acceptance. F-013/F-015 stay open pending human pacing and phone performance evidence. See <a href="issues.html">issue acceptance criteria</a>.</p>
 <h2 id="resource-and-async-invariants">Resource and async invariants<a class="heading-link" href="#resource-and-async-invariants" aria-label="Link to Resource and async invariants">#</a></h2>
 <p>Level replacement must dispose owned geometries/materials/nature resources without destroying shared cached robot geometry. Culling must retain visible limbs and shadows as well as bodies. Temporary bark/celebration effects must finish and release resources.</p>
 <p>Audio start/resume may complete after a pause, newer activation or disposal. Generation guards invalidate stale requests. Never follow an awaited start with an unconditional resume. Music catch-up skips overdue steps arithmetically and bounds scheduling work rather than replaying a backlog.</p>

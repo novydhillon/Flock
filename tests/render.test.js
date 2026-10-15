@@ -5,10 +5,15 @@ import {readFileSync} from 'node:fs';
 import * as THREE from 'three';
 import * as models from '../src/models.js';
 import {createLevel} from '../src/simulation.js';
-import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget} from '../src/world.js';
+import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
+import {Atmosphere} from '../src/atmosphere.js';
+import {generateBushClusters} from '../src/vegetation.js';
+import {setTailLightBarking} from '../src/tail-light.js';
+import {WaterEffects} from '../src/water-effects.js';
 import {MeadowNature} from '../src/nature.js';
 import {ribbon,barkSurface} from '../src/surfaces.js';
+import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
@@ -19,11 +24,13 @@ function setup({width=390,height=844}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,Atmosphere,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
 
+// P2 adds fixed wildlife anatomy batches and 20 dormant puddle/splash objects.
+// Object count includes hidden pool slots; submitted draw budget remains 170.
 test('portrait scene builds articulated instance poses and finite camera matrices',()=>{
   const renderer=setup();
   for(const index of [0,1,3,20,99]){
@@ -33,13 +40,15 @@ test('portrait scene builds articulated instance poses and finite camera matrice
     level.animals.forEach(a=>{a.vx=2;a.vz=1;});renderer.update(level,dog,1/12,false);
     assert.equal(renderer.dog.rotation.y,0,'north heading remains valid');
     assert.ok(renderer.camera.projectionMatrix.elements.every(Number.isFinite));
+    assert.ok(Number.isFinite(renderer.sun.intensity)&&Number.isFinite(renderer.hemisphere.intensity));
+    for(const color of [renderer.scene.background,renderer.scene.fog.color])assert.ok([color.r,color.g,color.b].every(Number.isFinite));
     assert.ok(renderer.camera.matrixWorld.elements.every(Number.isFinite));
     const limbs=renderer.animalBatches.flatMap(batch=>batch.meshes).filter(m=>m.userData.limbIndex!==undefined);
     assert.equal(limbs.length,index>=3?16:8);
     for(const m of limbs)assert.ok([...m.instanceMatrix.array].every(Number.isFinite));
     assert.notDeepEqual([...firstLimb.instanceMatrix.array],neutral,'walking moves the articulated legs');
     const draws=[];renderer.scene.traverse(o=>{if(o.isMesh)draws.push(o);});
-    assert.ok(draws.length<230,`scene remains batched: ${draws.length}`);
+    assert.ok(draws.length<310,`scene remains batched: ${draws.length}`);
   }
 });
 
@@ -108,7 +117,7 @@ test('mobile scenery submissions remain bounded as the world grows',t=>{
     const level=createLevel(index),start=performance.now();renderer.setLevel(level);
     const budget=sceneBudget(renderer),elapsed=performance.now()-start;
     t.diagnostic(`level ${index+1}: ${JSON.stringify(budget)}; scene setup ${Math.round(elapsed)} ms`);
-    assert.ok(budget.objects<230);assert.ok(budget.draws<170);
+    assert.ok(budget.objects<310);assert.ok(budget.draws<170);
     assert.ok(budget.sceneryTriangles<45000,`nearby scenery triangle budget: ${budget.sceneryTriangles}`);
     const total=renderer.sceneryBatches.reduce((n,v)=>n+v.bounds.length/4,0);
     assert.ok(budget.sceneryInstances<total*.5,'offscreen static instances are omitted from GPU submissions');
@@ -149,7 +158,7 @@ test('static instance culling retains visible geometry across travel, rotation a
 test('shared fence instances preserve collision endpoints, post spacing and near-edge shadows',()=>{
   const renderer=setup(),level=createLevel(99);renderer.setLevel(level);
   const posts=renderer.sceneryBatches.find(({batch})=>batch.geometry===renderer.fenceParts[0].geometry);
-  const fences=level.fenceSegments.filter(s=>s.kind!=='target'||level.target.type!=='barn');
+  const fences=level.fenceSegments.filter(s=>s.material!=='stone'&&(s.kind!=='target'||level.target.type!=='barn'));
   assert.equal(posts.matrices.length/16,fences.reduce((n,s)=>n+Math.ceil(Math.hypot(s.b.x-s.a.x,s.b.z-s.a.z)/1.8)+1,0));
   const positions=[];for(let i=0;i<posts.matrices.length;i+=16)positions.push({x:posts.matrices[i+12],z:posts.matrices[i+14]});
   for(const fence of fences)for(const endpoint of [fence.a,fence.b])assert.ok(positions.some(p=>Math.hypot(p.x-endpoint.x,p.z-endpoint.z)<.0001),'rendered fence reaches exact collision endpoints');
@@ -324,4 +333,16 @@ test('ground bark draws over real decorative blades while opaque fence rails ret
   assert.equal(visible([ground,blade]),blade,'decorative grass remains visible over the ground without bark');
   assert.equal(visible([ground,blade,ring]),ring,'bark covers grass at its projected location');
   assert.equal(visible([ground,blade,ring,rail]),rail,'raised fence still occludes bark and grass');
+});
+
+
+test('integrated tail, live gate view and shared weather freeze with renderer time',()=>{
+ const renderer=setup(),level=createLevel(19);renderer.setLevel(level);
+ const gate=level.gates.find(g=>g.operable);assert.ok(gate);
+ const panel=[];renderer.gateView.traverse(o=>{if(o.name==='gate-panel')panel.push(o);});assert.equal(panel[0].position.x,0);
+ gate.open=true;renderer.update(level,level.dog,.05);assert.ok(panel[0].position.x<0);
+ const material=renderer.dog.userData.parts.tailLight.material,idle=material.color.clone();renderer.bark();assert.ok(!material.color.equals(idle));
+ const before=renderer.nature.weather.elapsed;renderer.update(level,level.dog,0);assert.equal(renderer.nature.weather.elapsed,before);assert.ok(!material.color.equals(idle));
+ for(let i=0;i<8;i++)renderer.update(level,level.dog,.1);assert.ok(material.color.equals(idle));
+ let disposed=0;material.addEventListener('dispose',()=>disposed++);renderer.setLevel(createLevel(0));assert.equal(disposed,1);
 });

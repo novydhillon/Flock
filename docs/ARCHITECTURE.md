@@ -12,13 +12,20 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 | `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
 | `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
 | `src/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
+| `src/wandering.js` | Seeded straggler opportunity cohort and conditional bolt selection | Simulation-time cadence; normal world collision remains authoritative |
+| `src/gates.js`, `src/gate-view.js` | Nearby gate action/state and owned gate/stone-wall meshes | Gate panel state follows `level.gates`; collision/map read the same geometry |
 | `src/models.js` | Robot/scenery model construction and shared model resources | Shared material changes may affect many objects |
+| `src/tail-light.js` | Pip's bark-state tail-light color/emission | Mutates only the dedicated light material; restore after the bark window |
 | `src/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |
+| `src/vegetation.js` | Seeded, route-aware decorative bush clusters | Decorative only; avoids collision and play-critical areas |
+| `src/wildlife.js`, `src/wildlife-models.js` | Area-scaled ambient populations, movement, fence permeability and weather shelter | Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared |
+| `src/weather.js` | Seeded shared weather fields and deterministic episode/lightning state | `MeadowNature` is the single advancing owner; other systems read the same object |
+| `src/atmosphere.js`, `src/water-effects.js` | Cloud/light response; directional river flow, surface wetness, puddles and splashes | Per-level resources are bounded and disposed; zero dt/pause freezes effects |
 | `src/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
 | `src/cutaway.js` | Occupied-structure roof/facing-side visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
 | `src/qa.js` | Development-only isolated QA controls and scenario export | Dynamically imported only in development/QA builds |
 | `src/render.js` | Camera, scene, static/actor batches, map, transient effects | Visual state must not decide rewards or collision |
-| `src/nature.js` | Decorative weather, clouds and wildlife | Current weather does not change gameplay rewards or control |
+| `src/nature.js` | Advances shared weather once and updates instanced fauna/precipitation | Weather presentation does not change movement speed or rewards |
 | `src/audio.js` | Music scheduling, UI/game sounds and ambience lifecycle | Browser activation is asynchronous and can be invalidated |
 
 Source links: [controller](../src/main.js), [world](../src/world.js), [simulation](../src/simulation.js), [progression](../src/progression.js), [renderer](../src/render.js), [models](../src/models.js), [nature](../src/nature.js), [audio](../src/audio.js).
@@ -63,11 +70,11 @@ Rendering consumes the same level and dog, adding mesh/cache/resource state of i
 |---|---|
 | Bridges/gates/walls | Generator, physical footprint, navigation, render model, minimap and journey checks |
 | Goal shape/countdown/scoring | Admission geometry, completion event, reward ledger, UI, replay policy and save migration |
-| Changing weather | One severity/time contract shared by wildlife, clouds/light, audio and accumulated wetness |
+| Changing weather | `MeadowNature` advances `weather.js` once; wildlife, `Atmosphere`, `WaterEffects`, renderer lighting and audio consume the same mutable fields |
 | Model size/detail | Placement clearance, culling bounds, shared materials, shadows and disposal |
 | QA animal editing | Pause ownership, selection/placement override, profile isolation and release gating |
 
-F-009 and F-018 now have source implementations documented in Gameplay and the validation runbook. F-012/F-022–F-024 retain unresolved future design semantics. See [issue acceptance criteria](ISSUES.md).
+P2 candidates now cover gates/walls, straggler wandering, area-scaled wildlife, vegetation, dynamic weather, atmosphere, water/wetness and tail-light feedback. Candidate source values and boundaries are in [requirements](REQUIREMENTS.md); they have independent source review evidence in QUALITY.md and still need rendered/device acceptance. F-013/F-015 stay open pending human pacing and phone performance evidence. See [issue acceptance criteria](ISSUES.md).
 
 ## Resource and async invariants
 

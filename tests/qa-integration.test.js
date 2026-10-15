@@ -6,6 +6,7 @@ import {JSDOM} from 'jsdom';
 import * as simulation from '../src/simulation.js';
 import * as progression from '../src/progression.js';
 import * as world from '../src/world.js';
+import * as gates from '../src/gates.js';
 
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 function launch(){
@@ -16,7 +17,7 @@ function launch(){
   let now=1000;
   class MeadowRenderer {setLevel(){} update(){} drawMap(){} bark(){} celebrate(){}}
   class FarmAudio {async start(){} pause(){} resume(){} play(){} setMuted(){}}
-  const context=vm.createContext({...simulation,...progression,...world,document,window:dom.window,navigator:dom.window.navigator,MeadowRenderer,FarmAudio,__FLOCK_QA__:true,
+  const context=vm.createContext({...simulation,...progression,...world,...gates,document,window:dom.window,navigator:dom.window.navigator,MeadowRenderer,FarmAudio,__FLOCK_QA__:true,
     localStorage:storage,performance:{now:()=>now},requestAnimationFrame(){},setTimeout:()=>1,clearTimeout(){},Blob:dom.window.Blob,URL:dom.window.URL,console});
   const qa=readFileSync(new URL('../src/qa.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
   vm.runInContext(qa,context);

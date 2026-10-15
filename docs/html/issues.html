@@ -5,7 +5,7 @@
 <p>Updated: 15 October 2026 (America/Vancouver). Repository: <code>novydhillon/Flock</code>. Working branch: <code>flock_3D_chatgpt-work</code>.</p>
 <p>Source checkpoint: integrated P0/P1 batch (delivery <code>1fee206</code>, goal view <code>984fc64</code>; see execution record). Canonical live game: <a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a>. F-025 migration is published and verified at Pages <code>baca95c7ba618d736730194b433254bf5058dd66</code>; it contains the preceding game revision. The reviewed P1 development build is published at Pages <code>9346f26c5a145698b34e2c4504236c494023817d</code> from source <code>7a8519d37a8f447652f0449e16a050fc76a6d3e0</code>; all 17 game files plus redirect match live hashes, and all 18 blobs outside <code>dev2/</code> are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.</p>
 <p>Latest bridge/barn follow-up: source <code>4d3cadc393c9feaedee4e579099110e25f459c31</code>, Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>. Node 22 CI <a href="https://github.com/novydhillon/Flock/actions/runs/38679079215">38679079215</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38679328953">38679328953</a> succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. Novy accepted F-005/F-016 on 14 October 2026 (Vancouver); both are Done. F-014 remains Done.</p>
-<p>Current acceptance: <strong>all P0/P1 issues are Done</strong> by user sign-off on 14 October 2026. P2/P3 statuses are unchanged.</p>
+<p>Current acceptance: <strong>all P0/P1 issues are Done</strong> by user sign-off on 14 October 2026. The current P2 candidate batch is in Review; F-013 pacing remains Open pending human playtesting. P3 statuses are unchanged.</p>
 <p>Latest development release: F-028 is deployed at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code> from source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38681252991">38681252991</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38681359737">38681359737</a> succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver for this deployed build; previous P0/P1 sign-offs stay Done.</p>
 <h2 id="how-agents-should-use-this-document">How agents should use this document<a class="heading-link" href="#how-agents-should-use-this-document" aria-label="Link to How agents should use this document">#</a></h2>
 <ol>
@@ -58,7 +58,7 @@
 <td>P2</td>
 <td>Art/behavior</td>
 <td>Detailed squirrel; species-appropriate motion; no spinning</td>
-<td>Open</td>
+<td>Review</td>
 <td>—</td>
 </tr>
 <tr>
@@ -66,7 +66,7 @@
 <td>P2</td>
 <td>Art</td>
 <td>Flowing-water texture</td>
-<td>Open</td>
+<td>Review</td>
 <td>—</td>
 </tr>
 <tr>
@@ -82,7 +82,7 @@
 <td>P2</td>
 <td>Gameplay</td>
 <td>Gates requiring player opening from level 20</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-005</td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@
 <td>P2</td>
 <td>Environment</td>
 <td>Stone walls on selected levels</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-006 interaction contract</td>
 </tr>
 <tr>
@@ -98,7 +98,7 @@
 <td>P2</td>
 <td>Art</td>
 <td>Soft textured clouds at 10–25% opacity</td>
-<td>Open</td>
+<td>Review</td>
 <td>—</td>
 </tr>
 <tr>
@@ -122,7 +122,7 @@
 <td>P2</td>
 <td>Feedback</td>
 <td>Blue dog-tail light; red bark flash</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-002 shared bark event</td>
 </tr>
 <tr>
@@ -130,7 +130,7 @@
 <td>P2</td>
 <td>Gameplay</td>
 <td>Level-gated wanderers and short bolting</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-005, F-009 balance</td>
 </tr>
 <tr>
@@ -170,7 +170,7 @@
 <td>P2</td>
 <td>Wildlife</td>
 <td>Detailed hopping rabbits; random size-scaled wildlife counts</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-003, F-022</td>
 </tr>
 <tr>
@@ -186,7 +186,7 @@
 <td>P2</td>
 <td>Environment</td>
 <td>Add bushes</td>
-<td>Open</td>
+<td>Review</td>
 <td>—</td>
 </tr>
 <tr>
@@ -194,7 +194,7 @@
 <td>P2</td>
 <td>Environment</td>
 <td>Increase tree size</td>
-<td>Open</td>
+<td>Review</td>
 <td>—</td>
 </tr>
 <tr>
@@ -202,7 +202,7 @@
 <td>P2</td>
 <td>Art</td>
 <td>Richer bush/tree detail and textures</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-019, F-020</td>
 </tr>
 <tr>
@@ -210,7 +210,7 @@
 <td>P2</td>
 <td>Wildlife/weather</td>
 <td>Species retreat as weather worsens</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-017; shared weather state with F-023/F-024</td>
 </tr>
 <tr>
@@ -218,7 +218,7 @@
 <td>P2</td>
 <td>Weather/feedback</td>
 <td>Weather transitions, clouds, lighting, lightning and thunder</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-008</td>
 </tr>
 <tr>
@@ -226,7 +226,7 @@
 <td>P2</td>
 <td>Weather/surfaces</td>
 <td>Accumulating wetness, puddles, splashes and river response</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-004; shared weather state with F-023</td>
 </tr>
 <tr>
@@ -242,7 +242,7 @@
 <td>P2</td>
 <td>Wildlife</td>
 <td>Wildlife can pass through fences and leave/enter the game area</td>
-<td>Open</td>
+<td>Review</td>
 <td>F-017</td>
 </tr>
 <tr>
@@ -311,7 +311,7 @@
 <p><strong>Implementation evidence:</strong> <code>eed14e5</code> splits bark geometry at deck and plank boundaries and lifts each piece above its local surface, with depth testing retained. Renderer-owned .6-second lifetime freezes at zero <code>dt</code>, reuses buffers and caps effects at four; replacement clears owned resources. Tests compare against real bridge geometry behind a substituted renderer. Novy accepted F-002 on 14 October 2026.</p>
 <h3 id="f-003--squirrel-detail-and-movement">F-003 — Squirrel detail and movement<a class="heading-link" href="#f-003--squirrel-detail-and-movement" aria-label="Link to F-003 — Squirrel detail and movement">#</a></h3>
 <p><strong>Requirement:</strong> recognizable, more detailed squirrel; it must not spin in place, and must move like a squirrel (expanded user report, 14 October 2026).</p>
-<p><strong>Accept when:</strong> distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys ground collision. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.</p>
+<p><strong>Accept when:</strong> distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys wildlife-specific water/tree/structure collision; ordinary fences and map edges are permeable under F-027. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.</p>
 <p><strong>Files:</strong> <code>src/nature.js</code>; reusable art may belong in <code>src/models.js</code>. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.</p>
 <h3 id="f-004--flowing-water">F-004 — Flowing water<a class="heading-link" href="#f-004--flowing-water" aria-label="Link to F-004 — Flowing water">#</a></h3>
 <p><strong>Requirement:</strong> add water texture conveying running water.</p>
@@ -366,7 +366,7 @@
 <p><strong>Implementation evidence:</strong> initial <code>4cf9719</code> segmented barn roof/walls are retained. Follow-up <code>b322e7d</code> fades all roof panels and full facing wall/trim sides to opacity 0.70 using orthographic camera direction in barn-local coordinates. Pip, helper dogs and all flock animals including saved animals activate coverage; hysteresis/smoothed fades and original material/shadow cleanup remain. Pause freezes fades; collision/admission do not change. Blind source review passed 9/10; Novy accepted F-016 on 14 October 2026.</p>
 <h3 id="f-017--rabbits-and-variable-wildlife-populations">F-017 — Rabbits and variable wildlife populations<a class="heading-link" href="#f-017--rabbits-and-variable-wildlife-populations" aria-label="Link to F-017 — Rabbits and variable wildlife populations">#</a></h3>
 <p><strong>Requirement:</strong> add rabbits alongside squirrels. Rabbits must be recognizably detailed and move like rabbits. Rabbit and squirrel counts are random and depend on level size.</p>
-<p><strong>Accept when:</strong> ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and obey ground barriers. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level&#39;s base population.</p>
+<p><strong>Accept when:</strong> ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and water/tree/structure barriers; ordinary fences/map edges are permeable under F-027. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level&#39;s base population.</p>
 <p><strong>Decisions to resolve:</strong> area-to-count ranges/caps, whether either species may be absent, and spawn spacing/habitat. Do not silently replace the requested randomness with a fixed count per level.</p>
 <p><strong>Files:</strong> <code>src/nature.js</code>, <code>src/models.js</code>, wildlife/resource tests. Coordinate squirrel motion work with F-003.</p>
 <h3 id="f-018--dev-build-qa-menu">F-018 — Dev-build QA menu<a class="heading-link" href="#f-018--dev-build-qa-menu" aria-label="Link to F-018 — Dev-build QA menu">#</a></h3>
@@ -388,7 +388,7 @@
 <p><strong>Files:</strong> <code>src/models.js</code>, <code>src/render.js</code>, scenery/resource tests. Dependencies F-019/F-020 establish the base shapes and size targets.</p>
 <h3 id="f-022--weather-aware-wildlife-and-shelter">F-022 — Weather-aware wildlife and shelter<a class="heading-link" href="#f-022--weather-aware-wildlife-and-shelter" aria-label="Link to F-022 — Weather-aware wildlife and shelter">#</a></h3>
 <p><strong>Requirement:</strong> light rain and light wind still allow butterflies, birds, squirrels, rabbits and other wildlife. As weather worsens, smaller animals disappear/hide first; larger animals remain until more extreme conditions, then hide too.</p>
-<p><strong>Accept when:</strong> light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals never flee through barriers. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.</p>
+<p><strong>Accept when:</strong> light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals retain water/tree/barn/stone-wall barriers while ordinary fences/map edges remain permeable under F-027. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.</p>
 <p><strong>Decisions required:</strong> species size categories, severity thresholds/hysteresis, shelter/exit behavior and return delay. The user supplied the ordering principle, not exact numeric thresholds.</p>
 <p><strong>Files:</strong> <code>src/nature.js</code>, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.</p>
 <h3 id="f-023--worsening-weather-atmosphere-and-storms">F-023 — Worsening-weather atmosphere and storms<a class="heading-link" href="#f-023--worsening-weather-atmosphere-and-storms" aria-label="Link to F-023 — Worsening-weather atmosphere and storms">#</a></h3>
@@ -548,7 +548,7 @@
 </tbody></table></div>
 <h2 id="decisions-and-session-handoff">Decisions and session handoff<a class="heading-link" href="#decisions-and-session-handoff" aria-label="Link to Decisions and session handoff">#</a></h2>
 <p>Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.</p>
-<p>Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. F-028 goal roaming is Done by user acceptance at 00:28 America/Vancouver for deployed Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code>. Other P2/P3 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores.</p>
+<p>Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. F-028 goal roaming is Done by user acceptance at 00:28 America/Vancouver for deployed Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code>. That was the pre-P2 release checkpoint. The current P2 candidate adds squirrel motion, rabbits, vegetation and linked weather systems; see the candidate handoff below for Review status. P3 and F-013 remain Open. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores.</p>
 <p>Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See <a href="p0-p1-validation.html">P0/P1 validation</a> for exact scenarios and limitations.</p>
 <p>Integration note, 14 October 2026: remote commit <code>6ac8eb7</code> added Quit (F-026) and wildlife crossing fences/edges under a duplicate F-025. Both requests are preserved; the latter is now F-027. Neither P2/P3 feature is included in this P0/P1 implementation batch.</p>
 <p>P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at <code>f0a87a1</code> gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 159/159 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.</p>
@@ -564,5 +564,49 @@
 <p>Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.</p>
 <h2 id="current-follow-up--f-028">Current follow-up — F-028<a class="heading-link" href="#current-follow-up--f-028" aria-label="Link to Current follow-up — F-028">#</a></h2>
 <p>F-028 delivered goal roaming is Done by user acceptance on 15 October 2026 at 00:28 America/Vancouver for the deployed build at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code>, source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. The acceptance covers the reported goal-roaming behavior on that build; source review, test counts and device evidence retain their recorded scope. Existing P0/P1 sign-offs remain Done.</p>
-</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#how-agents-should-use-this-document">How agents should use this document</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#screenshot-evidence">Screenshot evidence</a><a class="toc-level-2" href="#acceptance-criteria-and-implementation-notes">Acceptance criteria and implementation notes</a><a class="toc-level-3" href="#f-025--correct-the-deployment-url-p0--highest-priority">F-025 — Correct the deployment URL (P0 — highest priority)</a><a class="toc-level-3" href="#f-001--path-corner-polygon-flicker">F-001 — Path-corner polygon flicker</a><a class="toc-level-3" href="#f-002--bark-effect-above-ground-and-bridge-deck">F-002 — Bark effect above ground and bridge deck</a><a class="toc-level-3" href="#f-003--squirrel-detail-and-movement">F-003 — Squirrel detail and movement</a><a class="toc-level-3" href="#f-004--flowing-water">F-004 — Flowing water</a><a class="toc-level-3" href="#f-005--bridge-and-crossing-alignment">F-005 — Bridge and crossing alignment</a><a class="toc-level-3" href="#f-006--operable-gates-from-level-20">F-006 — Operable gates from level 20</a><a class="toc-level-3" href="#f-007--stone-wall-variants">F-007 — Stone wall variants</a><a class="toc-level-3" href="#f-008--soft-textured-clouds">F-008 — Soft textured clouds</a><a class="toc-level-3" href="#f-009--delivery-countdown-and-score">F-009 — Delivery countdown and score</a><a class="toc-level-3" href="#f-010--goal-shape-matches-enclosure">F-010 — Goal shape matches enclosure</a><a class="toc-level-3" href="#f-011--dog-tail-light-feedback">F-011 — Dog-tail light feedback</a><a class="toc-level-3" href="#f-012--wandering-and-bolting-animals">F-012 — Wandering and bolting animals</a><a class="toc-level-3" href="#f-013--known-level-5-pacing-concern">F-013 — Known level-5 pacing concern</a><a class="toc-level-3" href="#f-014--real-phone-verification-gap">F-014 — Real-phone verification gap</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-016--see-pip-and-the-flock-under-cover">F-016 — See Pip and the flock under cover</a><a class="toc-level-3" href="#f-017--rabbits-and-variable-wildlife-populations">F-017 — Rabbits and variable wildlife populations</a><a class="toc-level-3" href="#f-018--dev-build-qa-menu">F-018 — Dev-build QA menu</a><a class="toc-level-3" href="#f-019--bushes">F-019 — Bushes</a><a class="toc-level-3" href="#f-020--larger-trees">F-020 — Larger trees</a><a class="toc-level-3" href="#f-021--bush-and-tree-surface-detail">F-021 — Bush and tree surface detail</a><a class="toc-level-3" href="#f-022--weather-aware-wildlife-and-shelter">F-022 — Weather-aware wildlife and shelter</a><a class="toc-level-3" href="#f-023--worsening-weather-atmosphere-and-storms">F-023 — Worsening-weather atmosphere and storms</a><a class="toc-level-3" href="#f-024--rain-accumulation-puddles-and-water-response">F-024 — Rain accumulation, puddles and water response</a><a class="toc-level-3" href="#f-026--quit-to-landing-page">F-026 — Quit to landing page</a><a class="toc-level-3" href="#f-027--wildlife-crossing-fences-and-map-edges">F-027 — Wildlife crossing fences and map edges</a><a class="toc-level-3" href="#f-028--delivered-animals-roam-inside-the-goal">F-028 — Delivered animals roam inside the goal</a><a class="toc-level-3" href="#f-029--lifetime-best-score-improvement-pays-only-its-difference">F-029 — Lifetime-best score improvement pays only its difference</a><a class="toc-level-2" href="#previously-repaired--retain-as-regressions">Previously repaired — retain as regressions</a><a class="toc-level-2" href="#execution-record">Execution record</a><a class="toc-level-2" href="#decisions-and-session-handoff">Decisions and session handoff</a><a class="toc-level-2" href="#follow-up-device-reports--14-october-2026-vancouver">Follow-up device reports — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#follow-up-acceptance--14-october-2026-vancouver">Follow-up acceptance — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#final-p1-user-acceptance--14-october-2026">Final P1 user acceptance — 14 October 2026</a><a class="toc-level-2" href="#current-follow-up--f-028">Current follow-up — F-028</a></nav></aside></div>
+<h2 id="p2-candidate-handoff--15-october-2026">P2 candidate handoff — 15 October 2026<a class="heading-link" href="#p2-candidate-handoff--15-october-2026" aria-label="Link to P2 candidate handoff — 15 October 2026">#</a></h2>
+<p>F-003/F-004/F-006/F-007/F-008/F-011/F-012/F-017/F-019/F-020/F-021/F-022/F-023/F-024/F-027 are candidate changes in <strong>Review</strong>, not user sign-off. Code is developed in isolated workstreams and integrated on <code>flock_3D_chatgpt-work</code>. Do not reopen prior P0/P1 acceptance. F-013 remains Open: historical simulated pacing is not a substitute for human level-5 attempts. F-015/F-026 remain Open P3 work.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Workstream</th>
+<th>Owner / worktree</th>
+<th>Source evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gates / stone walls</td>
+<td>p2_gates_walls / <code>flock-gates</code></td>
+<td><code>fb63a6b</code>; public level20 closed gates, nearby independent Open gate control; deterministic stone variants from level8 every fourth level</td>
+</tr>
+<tr>
+<td>Weather / cloud / thunder</td>
+<td>p2_weather / <code>flock-p2-weather</code></td>
+<td><code>c6e877d</code>; one shared deterministic weather state, 90-second episodes with 18-second ramps, bounded paired lightning/thunder</td>
+</tr>
+<tr>
+<td>Ground/water effects</td>
+<td>p2_water / <code>Flock-water-fix</code>, integration root</td>
+<td><code>32fc389</code>, integrated local arc-length UV and persistent-puddle corrections in <code>b431cfe</code></td>
+</tr>
+<tr>
+<td>Vegetation / tail feedback</td>
+<td>p2_vegetation / <code>flock-p2-vegetation</code></td>
+<td><code>979f27b</code>; safe decorative clusters, larger detailed trees, isolated blue/red tail material</td>
+</tr>
+<tr>
+<td>Stragglers</td>
+<td>p2_wandering / <code>Flock-f012-wanderers</code></td>
+<td><code>3fdd2be</code>; fixed seeded cohort and five-second probability opportunities, with integrated duration follow-up <code>8ac64a8</code></td>
+</tr>
+<tr>
+<td>Wildlife</td>
+<td>p2_wildlife / <code>Flock-p2-wildlife</code></td>
+<td><code>b648670</code>, shelter/motion follow-up <code>a6e8cb2</code>, actual stone-material and hysteresis integration fixes</td>
+</tr>
+</tbody></table></div>
+<p>Weather effects are visual and ambient; collisions, rewards and robotic movement do not consume weather severity. No weather opacity exception: cloud materials stay .10–.12, with worsening cover through puff area. Weather, ground wetness and puddles evolve in unpaused presentation time (playing, intro and results) and restart dry; menus/QA freeze them. Delivery and straggler behavior advance only during gameplay. Bushes are decorative. Wildlife-specific permeability never applies to Pip, helpers or flock.</p>
+<p>Blind source review results and test limitations are recorded in <a href="quality.html">QUALITY.md</a>. This batch needs fresh phone appearance/motion/listening acceptance; earlier F-014 acceptance does not automatically validate these new visuals. Source-test scores are not a rendered game rating. Runtime deployment evidence is recorded separately after publication.</p>
+<p>Node 22 integration follow-up <code>30abd2a</code> repairs actual-radius route fallback and pressured enclosure-corner retrieval exposed by stone geometry. Five unchanged journeys pass on Node 22 and Node 24; F-013 still needs human pacing attempts.</p>
+</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#how-agents-should-use-this-document">How agents should use this document</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#screenshot-evidence">Screenshot evidence</a><a class="toc-level-2" href="#acceptance-criteria-and-implementation-notes">Acceptance criteria and implementation notes</a><a class="toc-level-3" href="#f-025--correct-the-deployment-url-p0--highest-priority">F-025 — Correct the deployment URL (P0 — highest priority)</a><a class="toc-level-3" href="#f-001--path-corner-polygon-flicker">F-001 — Path-corner polygon flicker</a><a class="toc-level-3" href="#f-002--bark-effect-above-ground-and-bridge-deck">F-002 — Bark effect above ground and bridge deck</a><a class="toc-level-3" href="#f-003--squirrel-detail-and-movement">F-003 — Squirrel detail and movement</a><a class="toc-level-3" href="#f-004--flowing-water">F-004 — Flowing water</a><a class="toc-level-3" href="#f-005--bridge-and-crossing-alignment">F-005 — Bridge and crossing alignment</a><a class="toc-level-3" href="#f-006--operable-gates-from-level-20">F-006 — Operable gates from level 20</a><a class="toc-level-3" href="#f-007--stone-wall-variants">F-007 — Stone wall variants</a><a class="toc-level-3" href="#f-008--soft-textured-clouds">F-008 — Soft textured clouds</a><a class="toc-level-3" href="#f-009--delivery-countdown-and-score">F-009 — Delivery countdown and score</a><a class="toc-level-3" href="#f-010--goal-shape-matches-enclosure">F-010 — Goal shape matches enclosure</a><a class="toc-level-3" href="#f-011--dog-tail-light-feedback">F-011 — Dog-tail light feedback</a><a class="toc-level-3" href="#f-012--wandering-and-bolting-animals">F-012 — Wandering and bolting animals</a><a class="toc-level-3" href="#f-013--known-level-5-pacing-concern">F-013 — Known level-5 pacing concern</a><a class="toc-level-3" href="#f-014--real-phone-verification-gap">F-014 — Real-phone verification gap</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-016--see-pip-and-the-flock-under-cover">F-016 — See Pip and the flock under cover</a><a class="toc-level-3" href="#f-017--rabbits-and-variable-wildlife-populations">F-017 — Rabbits and variable wildlife populations</a><a class="toc-level-3" href="#f-018--dev-build-qa-menu">F-018 — Dev-build QA menu</a><a class="toc-level-3" href="#f-019--bushes">F-019 — Bushes</a><a class="toc-level-3" href="#f-020--larger-trees">F-020 — Larger trees</a><a class="toc-level-3" href="#f-021--bush-and-tree-surface-detail">F-021 — Bush and tree surface detail</a><a class="toc-level-3" href="#f-022--weather-aware-wildlife-and-shelter">F-022 — Weather-aware wildlife and shelter</a><a class="toc-level-3" href="#f-023--worsening-weather-atmosphere-and-storms">F-023 — Worsening-weather atmosphere and storms</a><a class="toc-level-3" href="#f-024--rain-accumulation-puddles-and-water-response">F-024 — Rain accumulation, puddles and water response</a><a class="toc-level-3" href="#f-026--quit-to-landing-page">F-026 — Quit to landing page</a><a class="toc-level-3" href="#f-027--wildlife-crossing-fences-and-map-edges">F-027 — Wildlife crossing fences and map edges</a><a class="toc-level-3" href="#f-028--delivered-animals-roam-inside-the-goal">F-028 — Delivered animals roam inside the goal</a><a class="toc-level-3" href="#f-029--lifetime-best-score-improvement-pays-only-its-difference">F-029 — Lifetime-best score improvement pays only its difference</a><a class="toc-level-2" href="#previously-repaired--retain-as-regressions">Previously repaired — retain as regressions</a><a class="toc-level-2" href="#execution-record">Execution record</a><a class="toc-level-2" href="#decisions-and-session-handoff">Decisions and session handoff</a><a class="toc-level-2" href="#follow-up-device-reports--14-october-2026-vancouver">Follow-up device reports — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#follow-up-acceptance--14-october-2026-vancouver">Follow-up acceptance — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#final-p1-user-acceptance--14-october-2026">Final P1 user acceptance — 14 October 2026</a><a class="toc-level-2" href="#current-follow-up--f-028">Current follow-up — F-028</a><a class="toc-level-2" href="#p2-candidate-handoff--15-october-2026">P2 candidate handoff — 15 October 2026</a></nav></aside></div>
 <dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

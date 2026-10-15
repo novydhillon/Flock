@@ -69,6 +69,7 @@ test('every crossing is perpendicular to its sampled river and its straight road
 test('rotated custom-seed routes keep cow clearance through every crossing, branch turn and enclosure gate', () => {
   for (let index = 0; index < 100; index++) for (const seed of directions) {
     const level = createLevel(index, seed);
+    for (const gate of level.gates) gate.open = true; // Validate potential routes after interaction.
     for (const route of level.routes) for (let i = 1; i < route.points.length; i++) {
       assert.ok(hasClearGroundPath(level, route.points[i-1], route.points[i], .8), `cow route ${index}/${seed}/${route.id}/${i}`);
     }

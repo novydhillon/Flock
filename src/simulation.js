@@ -1,5 +1,6 @@
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
 import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
+import { advanceWanderClock, evaluateWanderOpportunity } from './wandering.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
 /** Renderer-independent flock behaviour. Companions support Pip's herding;
@@ -237,6 +238,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
   }
   level.time = (level.time || 0) + dt;
+  const wanderOpportunities = dt > 0 ? advanceWanderClock(level, dt) : null;
   roamSavedAnimals(level, dt, level.time);
   const events = [];
   const ix = Number(input.x) || 0, iz = Number(input.z ?? input.y) || 0;
@@ -275,13 +277,25 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
     let desiredX = sx * 2.5, desiredZ = sz * 2.5;
     const dogDistance = distance(old, dog);
-    if (dogDistance < radius && hasClearPlayerSignal(level, old, dog)) {
+    const dogActivelyHerding = dogDistance < radius && hasClearPlayerSignal(level, old, dog);
+    const helperActivelyHerding = !companions.hold && companions.memberIds.has(animal.id);
+    if (dogActivelyHerding || helperActivelyHerding) delete animal.wander;
+    if (dogActivelyHerding) {
       const urgency = Math.pow(1 - dogDistance / radius, 0.65) * (input.bark ? 1.65 + effects.barkBoost : 1);
       const flee = dogDistance > 0.01 ? normal(old.x - dog.x, old.z - dog.z) : normal(Math.sin(dog.heading || 0), Math.cos(dog.heading || 0));
       desiredX += flee.x * urgency * 5.2; desiredZ += flee.z * urgency * 5.2;
       pressure = urgency; animal.lastPlayerPressure = level.time;
     }
     const holding = companions.hold && companions.memberIds.has(animal.id) && pressure < 0.03;
+    if (wanderOpportunities && pressure < 0.03) {
+      const center = companions.centroid || centerOf(snapshot);
+      for (let opportunity = wanderOpportunities.before + 1; opportunity <= wanderOpportunities.after; opportunity++) {
+        const wander = evaluateWanderOpportunity(level, animal, opportunity, center, dogActivelyHerding || helperActivelyHerding);
+        if (wander) { animal.wander = wander; break; }
+      }
+    }
+    let wander = animal.wander;
+    if (wander && level.time >= wander.until) { delete animal.wander; wander = null; }
     if (holding) {
       // Kill inherited forward velocity and alignment. Merely parking the drone
       // would leave the flock's old momentum/cohesion walking toward the goal.
@@ -306,12 +320,17 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
         desiredX += Math.sin(level.time * 0.6 + animal.id * 2.1) * 0.12;
         desiredZ += Math.cos(level.time * 0.5 + animal.id * 1.7) * 0.12;
       }
+      if (wander) {
+        const dx = wander.x - old.x, dz = wander.z - old.z, d = Math.hypot(dx, dz);
+        if (d > 0.35) { desiredX += dx / d * (wander.bolting ? 5.8 : 2.1); desiredZ += dz / d * (wander.bolting ? 5.8 : 2.1); }
+        else { delete animal.wander; wander = null; }
+      }
     }
     if (pressure > 0.03) {
       const steer = openingSteer(level, animal, desiredX, desiredZ, physicalRadius);
       desiredX += steer.x; desiredZ += steer.z;
     }
-    const maxSpeed = animal.type === 'cow' ? 3.3 : 4.2, desiredSpeed = Math.hypot(desiredX, desiredZ);
+    const maxSpeed = wander?.bolting ? 6 : animal.type === 'cow' ? 3.3 : 4.2, desiredSpeed = Math.hypot(desiredX, desiredZ);
     if (desiredSpeed > maxSpeed) { desiredX *= maxSpeed / desiredSpeed; desiredZ *= maxSpeed / desiredSpeed; }
     const smoothing = 1 - Math.exp(-dt * (holding ? 12 : animal.type === 'cow' ? 3.5 : 5.5));
     animal.vx += (desiredX - animal.vx) * smoothing; animal.vz += (desiredZ - animal.vz) * smoothing;
@@ -332,7 +351,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
-      animal.saved = true; animal.vx = 0; animal.vz = 0;
+      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
   }

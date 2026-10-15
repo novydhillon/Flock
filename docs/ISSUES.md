@@ -6,7 +6,7 @@ Source checkpoint: integrated P0/P1 batch (delivery `1fee206`, goal view `984fc6
 
 Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`, Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Node 22 CI [38679079215](https://github.com/novydhillon/Flock/actions/runs/38679079215) and native Pages [38679328953](https://github.com/novydhillon/Flock/actions/runs/38679328953) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. Novy accepted F-005/F-016 on 14 October 2026 (Vancouver); both are Done. F-014 remains Done.
 
-Current acceptance: **all P0/P1 issues are Done** by user sign-off on 14 October 2026. P2/P3 statuses are unchanged.
+Current acceptance: **all P0/P1 issues are Done** by user sign-off on 14 October 2026. The current P2 candidate batch is in Review; F-013 pacing remains Open pending human playtesting. P3 statuses are unchanged.
 
 Latest development release: F-028 is deployed at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` from source `e03ba169be760a4031d2b57887f0d6998eb07187`. Source CI [38681252991](https://github.com/novydhillon/Flock/actions/runs/38681252991) and native Pages [38681359737](https://github.com/novydhillon/Flock/actions/runs/38681359737) succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver for this deployed build; previous P0/P1 sign-offs stay Done.
 
@@ -28,30 +28,30 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-025 | P0 | Deployment | Correct public deployment URL to /Flock/dev2/ | Done | Verified migration |
 | F-001 | P1 | Reported defect | Path-corner polygon flicker | Done | — |
 | F-002 | P1 | Reported defect | Bark effect above ground and bridge deck | Done | — |
-| F-003 | P2 | Art/behavior | Detailed squirrel; species-appropriate motion; no spinning | Open | — |
-| F-004 | P2 | Art | Flowing-water texture | Open | — |
+| F-003 | P2 | Art/behavior | Detailed squirrel; species-appropriate motion; no spinning | Review | — |
+| F-004 | P2 | Art | Flowing-water texture | Review | — |
 | F-005 | P1 | Geometry/gameplay | Perpendicular crossings; bridges 25% wider than paths | Done | — |
-| F-006 | P2 | Gameplay | Gates requiring player opening from level 20 | Open | F-005 |
-| F-007 | P2 | Environment | Stone walls on selected levels | Open | F-006 interaction contract |
-| F-008 | P2 | Art | Soft textured clouds at 10–25% opacity | Open | — |
+| F-006 | P2 | Gameplay | Gates requiring player opening from level 20 | Review | F-005 |
+| F-007 | P2 | Environment | Stone walls on selected levels | Review | F-006 interaction contract |
+| F-008 | P2 | Art | Soft textured clouds at 10–25% opacity | Review | — |
 | F-009 | P1 | Gameplay/economy | Arrival countdown; partial-delivery scoring | Done | F-010 |
 | F-010 | P1 | Correctness | Goal shape matches enclosure | Done | — |
-| F-011 | P2 | Feedback | Blue dog-tail light; red bark flash | Open | F-002 shared bark event |
-| F-012 | P2 | Gameplay | Level-gated wanderers and short bolting | Open | F-005, F-009 balance |
+| F-011 | P2 | Feedback | Blue dog-tail light; red bark flash | Review | F-002 shared bark event |
+| F-012 | P2 | Gameplay | Level-gated wanderers and short bolting | Review | F-005, F-009 balance |
 | F-013 | P2 | Known review concern | Level-5 pacing spike | Open | F-005; retest after F-009/F-012 |
 | F-014 | P1 | Validation gap | Real-phone controls, appearance and sound | Done | User confirmed 14 Oct 2026 |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
 | F-016 | P1 | Visibility | Camera-facing barn/covered-structure cutaway | Done | F-010 shared enclosure geometry |
-| F-017 | P2 | Wildlife | Detailed hopping rabbits; random size-scaled wildlife counts | Open | F-003, F-022 |
+| F-017 | P2 | Wildlife | Detailed hopping rabbits; random size-scaled wildlife counts | Review | F-003, F-022 |
 | F-018 | P1 | QA tooling | Dev-only level, currency and animal-placement menu | Done | — |
-| F-019 | P2 | Environment | Add bushes | Open | — |
-| F-020 | P2 | Environment | Increase tree size | Open | — |
-| F-021 | P2 | Art | Richer bush/tree detail and textures | Open | F-019, F-020 |
-| F-022 | P2 | Wildlife/weather | Species retreat as weather worsens | Open | F-017; shared weather state with F-023/F-024 |
-| F-023 | P2 | Weather/feedback | Weather transitions, clouds, lighting, lightning and thunder | Open | F-008 |
-| F-024 | P2 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Open | F-004; shared weather state with F-023 |
+| F-019 | P2 | Environment | Add bushes | Review | — |
+| F-020 | P2 | Environment | Increase tree size | Review | — |
+| F-021 | P2 | Art | Richer bush/tree detail and textures | Review | F-019, F-020 |
+| F-022 | P2 | Wildlife/weather | Species retreat as weather worsens | Review | F-017; shared weather state with F-023/F-024 |
+| F-023 | P2 | Weather/feedback | Weather transitions, clouds, lighting, lightning and thunder | Review | F-008 |
+| F-024 | P2 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Review | F-004; shared weather state with F-023 |
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
-| F-027 | P2 | Wildlife | Wildlife can pass through fences and leave/enter the game area | Open | F-017 |
+| F-027 | P2 | Wildlife | Wildlife can pass through fences and leave/enter the game area | Review | F-017 |
 | F-028 | P2 | Gameplay | Delivered animals roam inside the goal enclosure | Done | F-010 shared footprint |
 | F-029 | P2 | Gameplay/economy | Pay only lifetime-best score improvements on replay | Done | F-009 |
 
@@ -102,7 +102,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Requirement:** recognizable, more detailed squirrel; it must not spin in place, and must move like a squirrel (expanded user report, 14 October 2026).
 
-**Accept when:** distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys ground collision. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.
+**Accept when:** distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys wildlife-specific water/tree/structure collision; ordinary fences and map edges are permeable under F-027. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.
 
 **Files:** `src/nature.js`; reusable art may belong in `src/models.js`. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.
 
@@ -212,7 +212,7 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Requirement:** add rabbits alongside squirrels. Rabbits must be recognizably detailed and move like rabbits. Rabbit and squirrel counts are random and depend on level size.
 
-**Accept when:** ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and obey ground barriers. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level's base population.
+**Accept when:** ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and water/tree/structure barriers; ordinary fences/map edges are permeable under F-027. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level's base population.
 
 **Decisions to resolve:** area-to-count ranges/caps, whether either species may be absent, and spawn spacing/habitat. Do not silently replace the requested randomness with a fixed count per level.
 
@@ -256,7 +256,7 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Requirement:** light rain and light wind still allow butterflies, birds, squirrels, rabbits and other wildlife. As weather worsens, smaller animals disappear/hide first; larger animals remain until more extreme conditions, then hide too.
 
-**Accept when:** light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals never flee through barriers. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.
+**Accept when:** light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals retain water/tree/barn/stone-wall barriers while ordinary fences/map edges remain permeable under F-027. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.
 
 **Decisions required:** species size categories, severity thresholds/hysteresis, shelter/exit behavior and return delay. The user supplied the ordering principle, not exact numeric thresholds.
 
@@ -342,7 +342,7 @@ Copy one row per claimed issue; retain older entries when reopening work.
 
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
-Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. F-028 goal roaming is Done by user acceptance at 00:28 America/Vancouver for deployed Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d`. Other P2/P3 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores.
+Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. F-028 goal roaming is Done by user acceptance at 00:28 America/Vancouver for deployed Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d`. That was the pre-P2 release checkpoint. The current P2 candidate adds squirrel motion, rabbits, vegetation and linked weather systems; see the candidate handoff below for Review status. P3 and F-013 remain Open. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores.
 
 Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See [P0/P1 validation](validation/P0-P1.md) for exact scenarios and limitations.
 
@@ -369,3 +369,22 @@ Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-
 ## Current follow-up — F-028
 
 F-028 delivered goal roaming is Done by user acceptance on 15 October 2026 at 00:28 America/Vancouver for the deployed build at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d`, source `e03ba169be760a4031d2b57887f0d6998eb07187`. The acceptance covers the reported goal-roaming behavior on that build; source review, test counts and device evidence retain their recorded scope. Existing P0/P1 sign-offs remain Done.
+
+## P2 candidate handoff — 15 October 2026
+
+F-003/F-004/F-006/F-007/F-008/F-011/F-012/F-017/F-019/F-020/F-021/F-022/F-023/F-024/F-027 are candidate changes in **Review**, not user sign-off. Code is developed in isolated workstreams and integrated on `flock_3D_chatgpt-work`. Do not reopen prior P0/P1 acceptance. F-013 remains Open: historical simulated pacing is not a substitute for human level-5 attempts. F-015/F-026 remain Open P3 work.
+
+| Workstream | Owner / worktree | Source evidence |
+| --- | --- | --- |
+| Gates / stone walls | p2_gates_walls / `flock-gates` | `fb63a6b`; public level20 closed gates, nearby independent Open gate control; deterministic stone variants from level8 every fourth level |
+| Weather / cloud / thunder | p2_weather / `flock-p2-weather` | `c6e877d`; one shared deterministic weather state, 90-second episodes with 18-second ramps, bounded paired lightning/thunder |
+| Ground/water effects | p2_water / `Flock-water-fix`, integration root | `32fc389`, integrated local arc-length UV and persistent-puddle corrections in `b431cfe` |
+| Vegetation / tail feedback | p2_vegetation / `flock-p2-vegetation` | `979f27b`; safe decorative clusters, larger detailed trees, isolated blue/red tail material |
+| Stragglers | p2_wandering / `Flock-f012-wanderers` | `3fdd2be`; fixed seeded cohort and five-second probability opportunities, with integrated duration follow-up `8ac64a8` |
+| Wildlife | p2_wildlife / `Flock-p2-wildlife` | `b648670`, shelter/motion follow-up `a6e8cb2`, actual stone-material and hysteresis integration fixes |
+
+Weather effects are visual and ambient; collisions, rewards and robotic movement do not consume weather severity. No weather opacity exception: cloud materials stay .10–.12, with worsening cover through puff area. Weather, ground wetness and puddles evolve in unpaused presentation time (playing, intro and results) and restart dry; menus/QA freeze them. Delivery and straggler behavior advance only during gameplay. Bushes are decorative. Wildlife-specific permeability never applies to Pip, helpers or flock.
+
+Blind source review results and test limitations are recorded in [QUALITY.md](QUALITY.md). This batch needs fresh phone appearance/motion/listening acceptance; earlier F-014 acceptance does not automatically validate these new visuals. Source-test scores are not a rendered game rating. Runtime deployment evidence is recorded separately after publication.
+
+Node 22 integration follow-up `30abd2a` repairs actual-radius route fallback and pressured enclosure-corner retrieval exposed by stone geometry. Five unchanged journeys pass on Node 22 and Node 24; F-013 still needs human pacing attempts.

@@ -1,4 +1,6 @@
 import './style.css';
+import './gates.css';
+import { createGateControl } from './gates.js';
 import '@fontsource/outfit/latin-600.css';
 import '@fontsource/outfit/latin-700.css';
 import '@fontsource/outfit/latin-900.css';
@@ -15,6 +17,7 @@ import { nextNavigationPoint } from './world.js';
 const $=id=>document.getElementById(id);
 let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkUntil=0,barkCooldown=0,tipStep=0,tipDismissed=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
+const gateControl=createGateControl({document,getState:()=>({level,dog,playing:mode==='playing'}),onOpen:()=>toast('Gate open — guide the flock through.')});
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
 let qaSession=false;
 const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
@@ -117,9 +120,10 @@ function frame(now){
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
-  renderer.update(level,dog,mode==='playing'||mode==='intro'||mode==='complete'?dt:0,mode==='intro');
-  if(mode==='playing')audio.updateAmbience?.(dt,{weather:level.weather||renderer.nature?.weather?.type||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
-  mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);const waypoint=nextNavigationPoint(level,dog),dx=waypoint.x-dog.x,dz=waypoint.z-dog.z;$('direction').style.transform=`rotate(${Math.atan2(dz,dx)*180/Math.PI}deg)`;$('distance').textContent=`${Math.round(Math.hypot(dx,dz))} m`;$('destination-text').textContent=waypoint.kind==='bridge'?'Wooden bridge':waypoint.kind==='gate'?'Open gate':waypoint.kind==='target'||waypoint===level.target?(level.target.type==='pen'?'Sunny pen':level.target.type==='barn'?'Home barn':'Clover Field'):'Winding trail';}
+  gateControl.update();
+  renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'||mode==='complete')?dt:0,mode==='intro');
+  if(mode==='playing')audio.updateAmbience?.(dt,{weather:renderer.nature?.weather||level.weather||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
+  mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);const waypoint=nextNavigationPoint(level,dog),dx=waypoint.x-dog.x,dz=waypoint.z-dog.z;$('direction').style.transform=`rotate(${Math.atan2(dz,dx)*180/Math.PI}deg)`;$('distance').textContent=`${Math.round(Math.hypot(dx,dz))} m`;$('destination-text').textContent=waypoint.kind==='bridge'?'Wooden bridge':waypoint.kind==='gate'?(level.gates.some(g=>g.operable&&!g.open&&Math.hypot(g.x-waypoint.x,g.z-waypoint.z)<1)?'Closed gate · approach to open':'Open gate'):waypoint.kind==='target'||waypoint===level.target?(level.target.type==='pen'?'Sunny pen':level.target.type==='barn'?'Home barn':'Clover Field'):'Winding trail';}
 }
 try{
   renderer=new MeadowRenderer($('world'));level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);updateWallet();visible('loading',false);requestAnimationFrame(frame);

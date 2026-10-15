@@ -37,3 +37,10 @@ The external 12ui design workflow was blocked by automatic approval review becau
 ## Maintenance
 
 Update this record when subsequent documentation changes receive new review evidence. Keep writer context and past documentation scores out of any new blind review packet. Rechecks by the original critics are follow-up validation, not a new blind first pass. Regenerate HTML after editing this record and keep requirements/issue statuses unchanged unless implementation evidence justifies a change.
+
+
+## P2 documentation maintenance review — 15 October 2026
+
+A fresh independent source/document critic checked the updated requirements, architecture, system contexts, tracker and generated HTML against the P2 source candidate. Initial result: **7.5/10**. Findings were stale blanket Open/pending-blind-review status summaries and an inaccurate weather time boundary: visual weather advances in playing, intro and visible results, while gameplay simulation advances only during playing. The revisions distinguish Review candidates from the currently deployed F-028 release, link completed source reviews, retain pending physical/device acceptance, and document presentation time. A hidden-intro/results guard now explicitly freezes scenery time while the tab is hidden.
+
+The reviewer executed the Architecture Node example and checked API/river-descriptor shapes against source. HTML validation covers 12 generated pages, local links/anchors, nine parsed Mermaid diagrams and four DOM behavior checks. Final follow-up: **8.5/10**. Status/time-scope findings were resolved; the critic also found a stale F-014 Blocked sentence in Development, now corrected to prior user acceptance plus unavailable independent P2 device verification. Final check: 12 pages, 783 local links/anchors, nine parsed diagrams and four DOM tests. These are content/source and DOM checks; no native browser layout, screenshot or print-quality claim is made.

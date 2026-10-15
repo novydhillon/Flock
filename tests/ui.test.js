@@ -6,6 +6,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import * as simulationAPI from '../src/simulation.js';
 import * as progressionAPI from '../src/progression.js';
+import * as gatesAPI from '../src/gates.js';
 import * as worldAPI from '../src/world.js';
 
 const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', import.meta.url));
@@ -24,6 +25,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   const storage = new Map([['flock-foundry-v1', JSON.stringify({ points, highestLevel, upgrades, completedLevels, music })]]);
   const document = {
     hidden: false, activeElement: null,
+    createElement: tag => new Element('', {tag}),
     getElementById: id => elements.get('modal-card')?.children.find(e => e.id === id) || elements.get(id) || null,
     addEventListener: (event, handler) => documentEvents.set(event, handler),
   };
@@ -38,6 +40,8 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
         toggle: (value, force) => { const add = force === undefined ? !this.classes.has(value) : force; add ? this.classes.add(value) : this.classes.delete(value); return add; },
       };
     }
+    appendChild(child) { this.children.push(child); elements.set(child.id,child); return child; }
+    addEventListener() {}
     setAttribute(key, value) { this.attrs[key] = value; }
     focus() { document.activeElement = this; }
     closest(selector) {
@@ -73,7 +77,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   for (const id of ['modal', 'controls', 'error', 'toast']) elements.get(id)?.classes.add('hidden');
   class MeadowRenderer {
     setLevel(level) { this.level = level; }
-    update() {} drawMap() {} resize() {} bark() {} celebrate() {}
+    update(_level,_dog,dt) { this.lastDt=dt; } drawMap() {} resize() {} bark() {} celebrate() {}
   }
   class FarmAudio {
     async start() { audioEvents.push('start'); await audioActivation; }
@@ -83,7 +87,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     play(name) { audioEvents.push(name); }
   }
   const context = {
-    ...simulationAPI,...progressionAPI,...worldAPI,
+    ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,
     document, window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
     navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio,
     setTimeout: () => 1, clearTimeout() {}, requestAnimationFrame() {},
@@ -99,7 +103,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   Object.defineProperty(globalThis,'localStorage',storageDescriptor);
   vm.runInNewContext(`${main}\nglobalThis.app = {
     begin, menu, shop, complete, frame,
-    state: () => ({ mode, previousMode, input, pointer, keyCount: keys.size, level, dog, profile }),
+    state: () => ({ mode, previousMode, input, pointer, keyCount: keys.size, level, dog, profile, renderer }),
   };`, context, { filename: 'flock-ui-integration.js' });
   const app = context.app;
   const el = id => document.getElementById(id);
@@ -422,4 +426,26 @@ test('Restart Game erases both score and earned-bolt ledgers from an in-progress
   assert.equal(Object.keys(ui.app.state().profile.bestEarnedBolts).length,0);
   assert.equal(ui.app.state().level.delivery,undefined);
   assert.match(ui.el('countdown').textContent,/First arrival starts 30s/);
+});
+
+test('production controller exposes a nearby gate action without barking and restarts with fresh closed panels',async()=>{
+  const ui=launch({highestLevel:19});await ui.click('play');
+  const state=ui.app.state(),gate=state.level.gates[0],f={x:Math.sin(gate.heading),z:Math.cos(gate.heading)};
+  Object.assign(state.dog,{x:gate.x-f.x*2,z:gate.z-f.z*2});ui.tick();
+  assert.equal(ui.el('open-gate').disabled,false);
+  const barks=ui.audioEvents.filter(e=>e==='bark').length;
+  await ui.click('open-gate');assert.equal(gate.open,true);
+  assert.equal(ui.audioEvents.filter(e=>e==='bark').length,barks);
+  await ui.click('bark');assert.equal(ui.audioEvents.filter(e=>e==='bark').length,barks+1);
+  await ui.click('pause');await ui.click('restart');
+  assert.ok(ui.app.state().level.gates.every(g=>g.operable&&!g.open));
+});
+
+
+test('hidden intro and results freeze presentation weather and wetness time',async()=>{
+ const ui=launch();ui.tick();assert.ok(ui.app.state().renderer.lastDt>0);
+ ui.document.hidden=true;ui.tick();assert.equal(ui.app.state().renderer.lastDt,0);
+ ui.document.hidden=false;await ui.click('play');ui.completeFlock();assert.equal(ui.app.state().mode,'complete');
+ ui.document.hidden=true;ui.tick();assert.equal(ui.app.state().renderer.lastDt,0);
+ ui.document.hidden=false;ui.tick();assert.ok(ui.app.state().renderer.lastDt>0);
 });

@@ -58,7 +58,7 @@ F-025 canonical migration is published and verified at Pages `baca95c7ba618d7367
 
 At this historical source checkpoint, F-001/F-002/F-005/F-009/F-010/F-016/F-018 had source implementations in **Review**; all were subsequently accepted by the user on 14 October 2026. The new surface, world/goal, countdown/ledger, cutaway and QA tests support their source contracts. Final integrated totals, independent P1 findings and a separate P1 Pages release must be recorded after the integrated candidate is checked; none is inferred here. The old 93/99-test snapshots and 9.1/8.6 scores above remain historical.
 
-Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages `50128cdef86c47a383938cc0aac01a29e1f072d2`. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing. Agent browser QA was skipped under the installed Sites guidance; no agent device test or GPU profiling is claimed. All P2 work remains Open.
+Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages `50128cdef86c47a383938cc0aac01a29e1f072d2`. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing. Agent browser QA was skipped under the installed Sites guidance; no agent device test or GPU profiling is claimed. At that historical checkpoint all P2 work remained Open; current candidate statuses appear below.
 
 See [P0/P1 validation and release runbook](validation/P0-P1.md) for source checkpoints, build modes, exact manual scenarios and publication boundaries.
 
@@ -99,3 +99,39 @@ Final F-028 integrated validation: **165/165** tests pass on Node 22.23.3 (27.20
 F-028 is deployed at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` from source `e03ba169be760a4031d2b57887f0d6998eb07187`. Source CI [38681252991](https://github.com/novydhillon/Flock/actions/runs/38681252991) and native Pages [38681359737](https://github.com/novydhillon/Flock/actions/runs/38681359737) succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. Novy accepted this deployed build on 15 October 2026 at 00:28 America/Vancouver. This acceptance does not expand the recorded scope of source tests or device evidence; previous P0/P1 sign-offs stay Done.
 
 Documentation-only commits after this source revision do not change the deployed game bytes.
+
+## P2 source candidate — 15 October 2026
+
+This is new candidate work, not a revision of prior P0/P1 sign-offs. F-003/F-004/F-006/F-007/F-008/F-011/F-012/F-017/F-019/F-020/F-021/F-022/F-023/F-024/F-027 are in Review. F-013 stays Open pending human level-5 pacing attempts; F-015 mobile GPU profiling and F-026 Quit remain Open.
+
+Development used separate gates/world/UI, straggler simulation, vegetation/tail, wildlife, weather/audio and water-effects workstreams. The least expensive suitable models were used: Luna at medium effort for bounded implementation/reviews, with Sol at medium for the shared weather/audio lifecycle and gate geometry. Reviewers received requirements and candidate code without author reasoning or earlier scores. Subsequent checks by the same critic are follow-up validation, not a new blind first pass.
+
+| Independent source review | Outcome / repairs |
+| --- | --- |
+| Gates and stone walls | 8/10; live state, nearby interaction, physical/signal collision, reset and disposal checked. A suggested masonry overlap was withdrawn after correcting interval algebra. |
+| Weather/clouds/audio | 8/10 after shared-state integration; deterministic single stepping, pause/mute/restart, cloud alpha and bounded lightning/thunder. Added finite light/sky/fog renderer assertions. |
+| Water and ground wetness | 7/10 initially; fixed dry-sky puddle splashes, local bend flow UVs and entire puddle footprint safety. Follow-up 8.5/10; 800 puddles across 100 default levels, 204,800 circumference checks, zero unsafe footprints. Eight real rotated-river overlays had finite local UVs and disposed owned clones without disposing sources. |
+| Stragglers | Initial review identified premature bolt termination on reaching a short waypoint; `8ac64a8` fixes it with a duration-scaled target and integrated seed-6 regression. Follow-up 9/10. Levels 8/17 thresholds, floor(15%) cohort, fixed five-second opportunity cadence, pressure suppression and saved exclusion checked. |
+| Wildlife | Initial review identified light-weather hiding, frozen shelters, barn-wall permeability, circular movement, blocked waypoints and malformed merged geometry; all repaired in `a6e8cb2`; follow-up 8.2/10. Integration then corrected real `material:stone` descriptors and added a direct threshold hysteresis test. |
+| Vegetation/tail | 8.5/10 source review; 100-level bush probe checked 8,569 safe shrubs. Integration then moved the dedicated light from a mistaken front-body position to the actual wagging tail tip and added a parent/world-position regression; follow-up rechecked the actual tail attachment at `d8c7f32`: 8.5/10, with 17/17 Node 22 vegetation/render checks. The first reviewer missed the attachment error; the later score applies to the corrected tail. |
+
+The first integrated Node 24 run at `b431cfe` passed 201/201 tests. Its source-level renderer budget includes fixed inactive water-effect pool slots and detailed wildlife batches; object cap is 310, submitted draw cap remains 170, and nearby scenery triangle cap remains 45,000. These caps are regression checks, not device FPS measurements. New renderer tests exercise a live gate panel, blue/red bark light, weather pause and material disposal. Local arc-length UV and persistent-puddle tests cover the water repairs.
+
+No supported browser-control capability is available in this environment. Browser QA is skipped under the installed Sites skill; Three.js scene construction, geometry, matrices and DOM substitutes do not establish rendered appearance, native touch behavior or listening quality. Fresh phone testing should cover rabbit/squirrel gait, larger-tree visibility, cloud layering, wet ground/puddles, thunder timing and gate touch controls. Earlier F-014 acceptance applies to the earlier build and is not new P2 acceptance.
+
+
+### Final integration regression
+
+The first Node 22 full run found 205/206 passing: the unchanged public level-16 journey delivered only 46/50. Isolation identified stone physical/signal geometry exposing an existing enclosure-side/far-wall navigation weakness, rather than the new wander rolls. `30abd2a` threads real radius through route fallback and adds collision-checked enclosure-corner/entrance nodes for nearby pressured bodies. Five unchanged journeys then passed on both Node 22.23.3 and Node 24.19.0, plus 50 focused world/gate/companion/simulation checks. No timer, input policy, stone collision/signal or reward relaxation was used. Final full-suite totals and publication evidence follow below.
+
+
+### Final source evidence and handoff
+
+- Full integrated suites at `30abd2a`: **211/211 on Node 22.23.3 and Node 24.19.0**. The subsequent hidden-intro/results presentation-time guard adds one production-controller regression; focused UI/QA checks pass. CI runs the final aggregate after publication to the source branch.
+- Independent navigation follow-up: **8.3/10**, 25 focused checks and 96 generated enclosure approach fixtures across levels 1–100, two seeds, sheep/cow clearances and three exterior sides. All reached the real entrance using collision-clear waypoints. This is local player-assisted routing, not an autonomous-detour guarantee for arbitrary constant pressure.
+- Wildlife follow-ups retain 8.2/10 source assessment; actual generated `material:stone` boundaries were independently rechecked after correcting the initial synthetic fixture. Shelter now has explicit .12 hysteresis and a direct threshold-oscillation regression.
+- Final release and development builds pass QA-exclusion/inclusion checks: 15 release files with no QA assets; 17 development files with two QA assets. The existing large-main-chunk advisory remains; F-015 performance measurement is still Open.
+
+All implemented P2 items remain Review pending Novy's acceptance. No new P0/P1 item is left open by this batch. Human level-5 pacing remains F-013. The source and Pages branches are published separately; publication IDs/live hash evidence follow only after verification.
+
+Documentation follow-up: **8.5/10**, with the stale F-014 Blocked sentence corrected to prior user acceptance and unavailable independent P2 device validation. HTML generation and checks pass: 12 pages, 783 links/anchors, nine parsed Mermaid diagrams and four DOM behavior checks.

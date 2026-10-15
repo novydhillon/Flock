@@ -4,19 +4,19 @@ This describes the implementation at the documentation baseline, not a promise t
 
 ## Boundaries and frame data flow
 
-[main.js](../../src/main.js) owns the animation loop, application mode and the `FarmAudio` instance. Simulation owns positions and gameplay decisions. [render.js](../../src/render.js) reads the level and separate player-dog state to build scene transforms, then renders; [nature.js](../../src/nature.js) maintains its own decorative wildlife/cloud state. Wildlife never pushes the herd or awards progress.
+[main.js](../../src/main.js) owns the animation loop, application mode and the `FarmAudio` instance. Simulation owns robotic positions and gameplay decisions. [render.js](../../src/render.js) reads the level and separate player-dog state to build scene transforms, then renders; [nature.js](../../src/nature.js) advances shared weather and maintains ambient fauna. Wildlife never pushes the robotic herd or awards progress. In the current source candidate, nature advances weather once; atmosphere, water, renderer lighting and audio read that same mutable state.
 
 ```mermaid
 flowchart TD
   Main["main.js frame and mode"] --> Sim["stepSimulation: gameplay state"]
   Sim --> State["level, dog, saved events"]
   State --> Renderer["MeadowRenderer.update"]
-  Renderer --> Nature["MeadowNature.update"]
-  Nature --> Scene["Three.js scene"]
+  Renderer --> Nature["MeadowNature.update + weather step"]
+  Nature --> Atmosphere["Atmosphere + WaterEffects"]
+  Atmosphere --> Scene["Three.js scene"]
   Renderer --> Scene
   Scene --> GPU["WebGLRenderer.render"]
-  State --> Audio["FarmAudio effects and ambience"]
-  Main --> Audio
+  Nature --> Audio["FarmAudio effects and ambience"]
 ```
 
 The frame interval is capped at `.05` seconds. Simulation and event sounds run only in `playing`. The renderer receives positive `dt` in `playing`, `intro` and `complete`; other modes pass zero. Ambience updates only in `playing`. Thus completion/intro can animate visual scenery without advancing gameplay; a modal freezes renderer time but the frame loop still redraws. Backgrounding during play opens the menu, which pauses audio and resets input. There is no main-loop call to `FarmAudio.dispose()` on page teardown.
@@ -34,9 +34,19 @@ renderer.update(level, dog,
   ['playing', 'intro', 'complete'].includes(mode) ? dt : 0,
   mode === 'intro');
 if (mode === 'playing')
-  audio.updateAmbience(dt, {
-    weather: level.weather || renderer.nature?.weather?.type || 'sun'
-  });
+  audio.updateAmbience(dt, { weather: renderer.nature.weather });
+
+// Inside MeadowRenderer.setLevel/update, abridged:
+this.nature.setLevel(level);                 // creates the one shared weather state
+this.atmosphere.setLevel(level, this.nature.weather);
+this.waterEffects.setLevel(level, {
+  grassMaterials: [this.grass], pathMaterials: [this.path], waterMaterial: this.water,
+  rivers: riverViews // { mesh, points, width, heading } per rendered river
+});
+this.nature.update(dt, { dog, animals, paused: dt <= 0 }); // advances weather exactly once
+const weather = this.nature.weather;
+this.atmosphere.update(dt, { weather, camera, paused: dt <= 0 });
+this.waterEffects.update(dt, { weather, movers, paused: dt <= 0 });
 ```
 
 | Interface | Consumer / responsibility |
@@ -48,17 +58,20 @@ if (mode === 'playing')
 | `bark()` / `celebrate(x,z)` | Presentation effects triggered by application actions/events. |
 | `drawMap(canvas, level, dog)` | Separate Canvas 2D map derived from world coordinates, not a scene render. Main updates it at roughly 10 Hz. |
 | `MeadowNature.setLevel/update/dispose` | Owns cosmetic weather/fauna state and all its per-level GPU resources. |
+| `Atmosphere.setLevel/update/dispose` | Owns ten soft cloud clusters and shadows; reads shared cloud cover, wind and daylight. |
+| `WaterEffects.setLevel/update/dispose` | Owns local-arc-length river overlays, wetness material snapshots, up to eight puddles and 12 reusable splashes. |
+| `createGateControl` / `createGateView` / `createStoneWallView` | Contextual one-thumb gate action and render groups whose state/geometry matches world collision. |
 | `FarmAudio.start/resume/pause/setMuted/play/updateAmbience/dispose` | Owns Web Audio lifecycle, music timer, procedural sources and cleanup. |
 
 ## Scene construction and materials
 
 `MeadowRenderer` configures antialiasing, pixel ratio capped at `1.6`, sRGB output, ACES filmic tone mapping and exposure `1.05`. A hemisphere light and moving directional sun light the scene. The sun has a 1024-square PCF soft shadow map and an orthographic shadow volume of ±30 units. Background and fog share a pale blue color; fog spans 95–195 world units. These are configuration values, not measured quality/performance guarantees.
 
-`setLevel` builds a plane larger than the bounds, decorative hills, road/river ribbons, bridge meshes, target marker, fences, structures, obstacle trees and bounded decorative details. Roads and rivers use the sampled centerlines supplied by the world. Road shoulders may wander cosmetically; river width follows the physical half-width. Fence/gate/target segments come from world collision geometry. `surfaces.js` builds ribbons by unioning convex stroke pieces into disjoint trapezoids, then upward triangles with world-coordinate UVs. Bevel center fans bound sharp joins. The union removes stacked coplanar pieces at turns, reversals and self-crossings. Headless topology checks support the repair; Novy accepted the path repair on 14 October 2026.
+`setLevel` builds a plane larger than the bounds, decorative hills, road/river ribbons, bridge meshes, target marker, fences, structures, obstacle trees and bounded decorative details. Roads and rivers use sampled centerlines supplied by the world. Road shoulders may wander cosmetically; river width follows the physical half-width. Fence/gate/target segments come from world collision geometry. Selected fence segments render as stone masonry; level-20+ closed gate panels render and slide open from the contextual action. Seeded bush clusters sit outside routes, water, obstacles, fence lines, spawn and target. `WaterEffects` clones each river ribbon geometry and projects its vertices to local centerline arc-length UVs; the generated streak texture advances along local V, so flow follows bends independently of map compass heading. Each cloned texture uses repeat `1×1`; the overlay owns its geometry, texture and material while preserving the source river mesh/material. `surfaces.js` builds ribbons by unioning convex stroke pieces into disjoint trapezoids, then upward triangles with world-coordinate UVs. Bevel center fans bound sharp joins. The union removes stacked coplanar pieces at turns, reversals and self-crossings. Headless topology checks support the repair; Novy accepted the path repair on 14 October 2026.
 
 [models.js](../../src/models.js) supplies Pip, flock species, helpers, vegetation and structures. Its primitive geometry cache is keyed by constructor/arguments, and its material cache persists across levels. `bakeModel` clones transformed component geometry, merges it by material, disposes temporary clones and returns fewer meshes. Model clones share the baked geometry/materials. `createAnimal` bakes the body separately from four articulated legs: each leg retains `limbIndex` and a hip `pivot`, with shared material meshes in hip coordinates.
 
-Material textures are generated locally. Models use deterministic 128-square clay/wood Canvas textures. The renderer creates deterministic 512-square grass/path color and bump maps; color textures are sRGB and repeat over the ground. Nature uses generated `DataTexture` alpha maps for cloud shadows and precipitation. Grass/path material roughness, water material properties and static lighting do not currently accumulate rain or change with weather severity.
+Material textures are generated locally. Models use deterministic 128-square clay/wood Canvas textures. The renderer creates deterministic 512-square grass/path color and bump maps; color textures are sRGB and repeat over the ground. Nature uses generated `DataTexture` alpha maps for precipitation; `Atmosphere` and `WaterEffects` build procedural cloud/flow textures. `WaterEffects` snapshots only the explicitly passed grass/path/water materials, gradually darkens the base colors and adjusts roughness, then restores original values on level replacement/disposal without disposing shared source maps. Candidate default rates are wetness `+0.012 × rainIntensity/s`, sunny drying `−0.004/s`, puddle fill `+0.04 × rainIntensity/s` and visibility above depth `.28`; they are balance choices awaiting review.
 
 ## Batching, poses and visibility
 
@@ -82,7 +95,7 @@ const limbWorld = animalWorld.clone()
   .multiply(new THREE.Matrix4().makeRotationX(gait));
 ```
 
-World-height samples place Pip, flock and ground helpers on bridges/terrain. Saved animals remain rendered; their heading uses a fixed index-based pose. The rectangular goal marker pulses; `goal-view.js` derives its surface/outline and barn floor from `targetFootprint` world vertices. The map projects those same corners rather than drawing a circular goal dot. Celebration allocates 36 short-lived confetti meshes, updated and disposed in the main renderer update.
+World-height samples place Pip, flock and ground helpers on bridges/terrain. Saved animals remain rendered with their simulated heading and gait. The rectangular goal marker pulses; `goal-view.js` derives its surface/outline and barn floor from `targetFootprint` world vertices. The map projects those same corners rather than drawing a circular goal dot. Celebration allocates 36 short-lived confetti meshes, updated and disposed in the main renderer update.
 
 Bark uses `barkSurface(level,origin,scale,geometry)`: it splits expanding ring pieces at deck and individual plank boundaries before assigning surface heights, keeping triangles above land and raised planks even across deck edges. Depth testing remains enabled and depth writes disabled so fences/rails retain normal occlusion. `updateBarks(dt)` freezes at zero `dt`, finishes after .6 seconds, reuses dynamic geometry buffers, and disposes expired effects; a hard cap of four and level replacement bound resources.
 
@@ -94,30 +107,29 @@ Bark uses `barkSurface(level,origin,scale,geometry)`: it splits expanding ring p
 
 The camera is orthographic and tilted from `(center.x,36,center.z+29)` toward `(center.x,0,center.z-2)`. Normal view height is 39 in portrait aspect below `.8`, otherwise 36; preview height is 50 or 44. Preview follows the spawn. Gameplay follows a weighted dog/unsaved-flock center (or goal when all are saved), with leading space, smoothing, and clamps that retain Pip when a helper moves the flock far away. The sun follows the same center. These clamps are covered by projected-position tests, not physical-device readability checks.
 
-The map draws roads, continuous rivers/bridges, world fence segments, goal, every flock animal, Pip and helpers. It scales x and z independently into the map rectangle, so it is a navigation overview rather than a camera projection or a guaranteed equal-scale plan.
+The map draws roads, continuous rivers/bridges, world fence segments (stone uses a distinct line), closed gates, goal, every flock animal, Pip and helpers. It scales x and z independently into the map rectangle, so it is a navigation overview rather than a camera projection or a guaranteed equal-scale plan.
 
 ## Resource ownership and level changes
 
 Before replacement, `setLevel` traverses terrain and actors, disposes `InstancedMesh` instance resources, and disposes geometries/materials explicitly tagged `ownedGeometry`/`ownedMaterial`. Label textures are disposed via `ownedLabel`. It clears groups and batch/helper/particle state, then builds the next world. Cached model geometry/materials and shared fence geometry deliberately survive. Distinct resources are deduplicated with sets before disposal.
 
-Nature has an independent `resources` set. `clear()` disposes instance resources, removes children, disposes owned geometry/materials/textures, and resets state; `setLevel()` calls it first. `dispose()` additionally removes the nature root from the scene. The renderer has no comprehensive public `dispose()` method for its shared renderer/material/model resources. Bark effects are updated within renderer time and cleared/disposed on level replacement. Structure cutaway restores original materials and shadow flags and disposes its per-panel clones before terrain replacement.
+Nature has an independent `resources` set. `clear()` disposes instance resources, removes children, disposes owned geometry/materials/textures, and resets state; `setLevel()` calls it first. `Atmosphere` similarly owns and clears its clouds/shadows. `WaterEffects` reuses a bounded splash mesh/material pool, caps puddle sites, owns per-river cloned flow maps and per-effect materials, and restores only the explicit surface material snapshots. Source river geometry/maps are shared and never disposed by the overlay; the overlay owns its cloned UV geometry and disposes it on level replacement. `dispose()` removes each system root. The renderer has no comprehensive public `dispose()` method for its shared renderer/material/model resources. Bark effects are updated within renderer time and cleared/disposed on level replacement. Structure cutaway restores original materials and shadow flags and disposes its per-panel clones before terrain replacement.
 
 ## Nature: implemented behavior and requested work
 
-`weatherForLevel(level)` accepts a string or `{type}` override, normalizes unknown types to sun, and disallows snow at indexes 0–7. Default public levels 1–5 are sunny; from level 6 the five-step cycle is sun, wind, rain, sun, snow. Its intensity is fixed at `0` for sun and `.3` otherwise. It does not transition weather during a level or consume a requested intensity field.
+`weather.js` constructs a seeded state of `type`, `rainIntensity`, `snowIntensity`, `windIntensity`, `severity`, `cloudCoverage`, `daylight`, and deterministic lightning identifiers/timing/flash. Levels 1–5 stay sunny; levels 6–8 cycle sun/wind/rain/sun; level 9+ cycle sun/wind/rain/storm/rain/sun/snow. An episode lasts 90 seconds and blends across 18 seconds. `MeadowNature.update` caps dt at `.1` seconds and is the only system that calls `stepWeather`; atmosphere, water and audio consume the resulting same object. Pause or zero dt freezes the visual systems and their time state.
 
-| Current implementation | Open requested behavior |
+| Source candidate | Behavior and limits |
 | --- | --- |
-| Five clouds, four sphere blobs each, Lambert material opacity `.5`; matching soft textured plane shadows drift with wind. | F-008 requests soft textured clouds at 10–25% opacity. F-023 requests changing cloud coverage/lighting and bounded lightning/thunder events. |
-| Up to eight butterflies (four in rain, zero in snow), five birds and three squirrels. Fixed requested counts, with unsafe spawn slots hidden. | F-017 requests recognizable hopping rabbits and random populations scaled to meadow size. Rabbits are absent. |
-| Fauna are simple sphere bodies/wings; squirrel tail uses the `squirrelWing` batch. Idle movement follows a home-centered orbit, with heading from desired movement. | F-003 requests detailed squirrels with readable scurry/bound, alert, blocked and turning motion. Current implementation does not establish visual acceptance. |
-| Rain has 128 particles; snow has 72. `Points` follow the dog, fall, and wrap in a bounded local volume. Wind changes drift speed. | F-022 requests severity-dependent species retreat/return. Current counts vary by weather type only; there is no shelter/severity state machine. |
-| Weather affects decorative motion/particles and audio selection. | F-024 requests accumulated wetness, puddles/splashes and rain-responsive rivers. No such surface state exists. |
-| Barn has a full segmented pitched roof, short independent wall/trim sections and `StructureCutaway`; roof and camera-facing wall(s) fade together at .70 opacity while Pip, a helper dog, or any flock animal is covered. | F-016 source is implemented; actual draw-order/readability verification remains. |
+| `Atmosphere` | Ten soft-textured cloud clusters with moving shadows. Per-cluster material opacity varies `.10`–`.12`; two overlapping max-opacity clusters composite to roughly `.226`. Cloud cover changes cluster scale/tint, shadows and daylight; storm opacity has no separate boost. |
+| Wildlife | Seeded area-scaled populations: squirrels 1–7, rabbits 1–8, birds 2–6, butterflies 0–8. Spawn search tries up to 240 deterministic candidates per animal and hides unavailable slots. Each squirrel/rabbit uses a merged vertex-colored anatomical body batch and a separate animated paw batch; rabbits advance in push/air phases and crouch on landing. Ground fauna can cross fences and travel at most `.45` units beyond the field boundary; trees, water, barn walls and stone walls remain obstacles. |
+| Shelter response | Candidate severity thresholds are butterfly `.54`, squirrel `.58`, bird `.64`, rabbit `.76`; shelter motion builds toward nearby trees at severity and retreats with `.12` hysteresis when severity drops. Default rain severity `.35` remains below these thresholds. Rendered shelter and return readability still need review. |
+| Precipitation | Fixed-capacity `Points` pool has 128 particles from public level 6 onward; rain/snow opacity, size, falling speed and wind drift read shared weather intensities. The pool follows Pip. |
+| Lightning/audio | At most one deterministic event is eligible per 24 seconds when severity sampled at the event is at least `.72`; flash peaks at `.38` and fades over `.22s`. Audio schedules low-pass synthesized thunder from the same event ID after `.8`–`1.6s`, if audio is active in time. |
+| Water and wetness | `WaterEffects` supplies one locally oriented, procedural flow overlay per river ribbon; it snapshots only explicit grass/path/water materials. Wetness accumulates/dries gradually; up to eight seeded land puddles become visible above depth `.28` and evaporate slowly after rain stops. Actor splashes require movement through an existing puddle above that threshold, including sunny weather; at most 12 ring splashes are reused. The full puddle perimeter is sampled against collision/bounds so puddles do not overlap rivers, decks, barriers, trees or leave the playable field. |
+| Gates/walls and vegetation | Gates are operable at public level 20+; contextual opening requires Pip within 3.2 units and a clear approach. The panel slides along its barrier and there is no close action. Stone barrier segments appear on selected levels from public level 8; collision remains world-owned. `vegetation.js` generates seeded, non-colliding bush groups away from roads, water, obstacles, fences, spawn and goal. |
 
-Spawn search is deterministic from the level seed, tries at most 180 candidates per animal, prefers locations beside routes, and requires traversable ground, distance over `5.5` from route centerlines and over `9` from initial threats. Runtime threats include Pip, all flock animals (including saved ones), and helpers. Birds flee within 10 units, other fauna within eight; squirrels use `canOccupy` and axis fallback, while flying species may cross water/fences. Fauna stay within a two-unit map margin. `MeadowNature.update` clamps its own interval to `.1` seconds; explicit pause returns before any motion or transform updates.
-
-The nature layer creates eight instanced batches (cloud, shadow and body/wing for each of three species), plus optional precipitation. Zero-count batches can exist, including butterflies during snow. Tests bound its drawable objects to at most 11; that is a structural limit, not a measured GPU draw/frame-time result.
+These are implementation candidates, not approved balance or visual outcomes. Focused source tests cover determinism, shared-state time advancement, pause/resource cleanup, collisions and bounded pools, including persistent sunlit puddles and a bent river's UV flow; puddle footprint safety samples the perimeter against collision and bounds. The tests do not verify rendered pixel quality, transparency ordering, real touch reachability, perceived storm intensity, frame rate or human pacing. Independent source reviews are recorded in QUALITY.md; physical/device acceptance remains pending. F-013 and F-015 remain Open.
 
 ## Synthesized audio lifecycle
 
@@ -149,7 +161,7 @@ Scheduling is bounded in two ways: there is at most one 100 ms interval, and eac
 
 Birds use two or three short sine sweeps with variation; each lasts `.17` seconds. Their countdown subtracts at most `.25` seconds per ambience update, so a large frame gap cannot replay a backlog. Normal gaps are 4–10 seconds; rain uses 10–20 seconds and suppresses chirps at intensity ≥`.7`. Bird chirps are independent of visual bird instances/positions. Weather loops one shared two-second generated noise buffer through a low-pass filter; gains scale by clamped intensity (rain `.032`, snow `.012`, wind `.024` before bus/master gain). Weather changes stop/disconnect the previous chain.
 
-Main passes `level.weather` when present, otherwise the nature weather **type**, not its complete configuration. Audio defaults missing intensity to `.3` and accepts/clamps explicit intensity, whereas nature currently fixes intensity by type. A future shared weather transition contract must resolve this difference rather than assuming both consumers already share severity.
+Main passes the shared `renderer.nature.weather` object to ambience while playing. Audio reads its current `type`, `intensity`, and lightning event identity/timing; it does not advance weather. Nature remains the single advancing owner, while atmosphere, water and renderer lighting consume the same fields.
 
 `dispose()` is idempotent and final: it invalidates activation, clears the interval, releases ambience synchronously, stops/disconnects tracked sources, closes the context and drops node/buffer references. Subsequent `start()` returns false.
 
@@ -165,7 +177,7 @@ node --test tests/render.test.js tests/nature.test.js tests/audio.test.js
 
 [nature.test.js](../../tests/nature.test.js) checks deterministic weather bounds/snow gating, safe spawning, fleeing from saved animals/helpers, squirrel occupancy, matching cloud-shadow positions, pause freezing and one-time resource disposal. [audio.test.js](../../tests/audio.test.js) uses fake contexts/parameters/timers to check competing pending activation, pause/dispose races, bounded overdue scheduling, one reusable context/timer/noise buffer, chirp limits, mute/pause effects and cleanup. Those substitutes do not verify browser autoplay behavior, audible timbre or listening balance.
 
-F-001/F-002/F-010/F-016 are Done by Novy’s user acceptance on 14 October 2026. F-003 squirrel appearance/motion remains Open. The runbook retains regression scenarios for levels 4/8 path bends, bridge bark, rotated targets, covered structures, transparent overlap, pause/restart and phone audio. See [P0/P1 runbook](../validation/P0-P1.md); headless geometry/ray tests do not close temporal flicker or transparency acceptance.
+F-001/F-002/F-010/F-016 are Done by Novy’s user acceptance on 14 October 2026. P2 candidates including F-003 have independent source reviews recorded in QUALITY.md; rendered/device acceptance remains pending; F-013 and F-015 remain Open. The runbook retains regression scenarios for levels 4/8 path bends, bridge bark, rotated targets, covered structures, transparent overlap, pause/restart and phone audio. See [P0/P1 runbook](../validation/P0-P1.md); headless geometry/ray tests do not close temporal flicker or transparency acceptance.
 
 ### Decorative grass and bark composition
 

@@ -47,12 +47,16 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/delivery.test.js` | First-arrival timer, partial score, lifetime earned ledger and legacy migration |
 | `tests/goal-view.test.js` | Shared target highlight/border/floor and projected minimap corners |
 | `tests/world-geometry.test.js` | Perpendicular crossings, deck/path ratio and shared full-body target footprint |
+| `tests/gates.test.js` | Operable gate reachability/state, stone wall geometry and shared collision/map behavior |
 | `tests/surfaces.test.js` | Ribbon union topology and bark surfaces on land/deck transitions |
 | `tests/cutaway.test.js` | Camera-ray section fading, pause, hysteresis and material restoration |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
 | `tests/deploy-pages.test.js` | Validated relative assets, canonical staging, redirects and preserved Pages bytes |
 | `tests/render.test.js` | Geometry, camera matrices, culling, batches and disposal |
 | `tests/nature.test.js` | Wildlife, weather, resource budgets and cleanup |
+| `tests/weather.test.js` | Seeded weather episodes, shared severity, lightning and atmosphere resources |
+| `tests/wandering.test.js` | Seeded straggler cohorts, five-second opportunities and conditional bolts |
+| `tests/water-effects.test.js` | Wetness/drying, pause/reset, safe puddles, bounded splashes and directional river flow |
 | `tests/audio.test.js` | Audio activation races, scheduling, ambience and disposal |
 
 ```sh
@@ -62,6 +66,8 @@ node --test tests/world.test.js tests/herding-journey.test.js
 ```
 
 No screenshot or human listening claim follows from a mocked Canvas/WebGL/WebAudio test. Record real device/browser, revision, scenario and evidence for native touch, scrolling, visibility, audio and GPU performance. Large headless triangle counts are not phone FPS.
+
+Current P2 source candidates include operable gates/stone walls, weather-driven atmosphere and water, area-scaled wildlife, fence-permeable wildlife movement, vegetation, straggler wandering and bark-state tail lighting. Their focused tests support source-level behavior only; they have independent source reviews recorded in QUALITY.md; rendered/device acceptance remains pending. Keep level-5 human pacing (F-013) and mobile GPU performance (F-015) Open until their respective evidence exists.
 
 ## CI and current publishing behavior
 
@@ -98,7 +104,7 @@ Documentation HTML is a repository deliverable in `docs/html/`; it is not automa
 
 Use isolated worktrees for parallel owned files; integrate commits only after inspection. Blind reviewers should receive the candidate, task/requirements and scope, not historical scores or desired wording. Record confirmed problems, concrete evidence and checks. A threshold score is not a reason to relabel unverified browser behavior as tested.
 
-See [P0/P1 runbook](validation/P0-P1.md) for concrete manual scenarios. F-014 remains Blocked without a physical phone. The installed Sites instruction says “If `$control-browser` is unavailable, skip browser QA” (`/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md`); capability discovery found no browser tools, so this session supplies no browser screenshots or native-device claim.
+See [P0/P1 runbook](validation/P0-P1.md) for concrete manual scenarios. F-014 is Done by Novy’s real-phone acceptance on 14 October 2026. Independent agent/device verification of this new P2 candidate remains unavailable; fresh rendered/device acceptance is pending. The installed Sites instruction says “If `$control-browser` is unavailable, skip browser QA” (`/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md`); capability discovery found no browser tools, so this session supplies no browser screenshots or native-device claim.
 
 Before ending a session, update the issue execution record, regenerate HTML, run documentation checks, commit/push the intended branch and state exactly what was deployed. Do not close open features just because their requirements were documented.
 
