@@ -1,5 +1,10 @@
 # Flock: Little Robot, Big Pastures
 
+## User sign-off - 15 October 2026, 16:34 Vancouver
+
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+
 A cheerful 3D herding game for portrait phones. Guide a robotic sheepdog through handmade-looking countryside and bring your robotic flock home. Start with a small sheep flock, then tackle longer routes, larger groups, bridges, gates, and other destinations. Earn points for upgrades and autonomous helpers.
 
 Development branch: `flock_3D_chatgpt-work`.
@@ -85,4 +90,4 @@ Latest weather candidate is live at [Flock/dev2](https://novydhillon.github.io/F
 
 Clouds are temporarily disabled at Novy’s request on 15 October 2026 (F-008 Deferred), including cloud ground shadows. Rain, fixed-level weather, storm lighting/thunder and wet-ground effects remain active. Test QA 9/16/24 for light/heavy/storm weather; no cloud overlay or cloud shadow should appear.
 
-Current weather repairs: [requirements](docs/REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather remains Review for device acceptance; clouds remain Deferred.
+Current weather repairs: [requirements](docs/REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.

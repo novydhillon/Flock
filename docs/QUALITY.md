@@ -1,5 +1,10 @@
 # Flock dev2 revision quality record
 
+## User sign-off - 15 October 2026, 16:34 Vancouver
+
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+
 ## Weather follow-up validation - 15 October 2026
 
 User report at 12:22 Vancouver requests full-screen rain, angled storm rain, no storm wildlife, clearer thunder beside music, and seeded small/empty puddles that grow during the level. Implementation ran in three isolated worktrees. Independent reviewers received requirements and source/tests without author notes, earlier scores or a requested score threshold. Rain/storm review used Sol at high effort for camera projection and asynchronous audio lifecycle; documentation review uses Luna at medium effort. The requested completion threshold is 8.5/10 for each review.

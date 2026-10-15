@@ -1,6 +1,11 @@
 # FLOCK — Remaining issues and change tracker
 
-Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather remains Review for device acceptance; clouds remain Deferred.
+## User sign-off - 15 October 2026, 16:34 Vancouver
+
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+
+Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.
 
 
 
@@ -53,9 +58,9 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-019 | P2 | Environment | Add bushes | Done | — |
 | F-020 | P2 | Environment | Increase tree size | Done | — |
 | F-021 | P2 | Art | Richer bush/tree detail and textures | Done | F-019, F-020 |
-| F-022 | P1 | Wildlife/weather | Species retreat as weather worsens | Review | F-040 fixed-per-level weather contract |
-| F-023 | P1 | Weather/feedback | Fixed per-level atmosphere, clouds, lightning and thunder | Review | F-040 fixed-per-level weather contract |
-| F-024 | P1 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Review | F-040 fixed-per-level weather contract |
+| F-022 | P1 | Wildlife/weather | Species retreat as weather worsens | Done | F-040 fixed-per-level weather contract |
+| F-023 | P1 | Weather/feedback | Fixed per-level atmosphere, clouds, lightning and thunder | Done | F-040 fixed-per-level weather contract |
+| F-024 | P1 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Done | F-040 fixed-per-level weather contract |
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
 | F-027 | P2 | Wildlife | Wildlife can pass through fences and leave/enter the game area | Done | F-017 |
 | F-028 | P2 | Gameplay | Delivered animals roam inside the goal enclosure | Done | F-010 shared footprint |
@@ -70,7 +75,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-037 | P2 | Gameplay | Eligible wander cohort increases from 15% to 20% | Open | F-012 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
 | F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Open | F-012, F-035, F-037 |
-| F-040 | P1 | Weather | Remove snow; choose fixed weather once per level with public-level anchors | Review | Reopens F-008, F-022–F-024 |
+| F-040 | P1 | Weather | Remove snow; choose fixed weather once per level with public-level anchors | Done | Reopens F-008, F-022–F-024 |
 | F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Open | F-012, F-035, F-037, F-039 |
 
 ## Screenshot evidence

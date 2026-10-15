@@ -1,6 +1,11 @@
 # Architecture and system contracts
 
-Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather remains Review for device acceptance; clouds remain Deferred.
+## User sign-off - 15 October 2026, 16:34 Vancouver
+
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+
+Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.
 
 
 
