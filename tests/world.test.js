@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createLevel,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,separatedByBank,terrainHeight,routeProgress,nextNavigationPoint,navigationTarget,distance} from '../src/world.js';
+import {createLevel,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,separatedByBank,terrainHeight,routeProgress,nextNavigationPoint,navigationTarget,openingSteer,distance} from '../src/world.js';
 
 test('ground helper navigation walks around dry bridge ends instead of pushing through rails',()=>{
   for(const seed of [200,201,202,203])for(const side of [-1,1])for(const end of [-1,1]){
     const level=createLevel(23,seed),b=level.rivers[0].bridges[0],f={x:Math.sin(b.heading),z:Math.cos(b.heading)};
     const point=(u,v)=>({x:b.x+f.x*u+f.z*v,z:b.z+f.z*u-f.x*v});
-    const u=end*(b.length/2-.5),body=point(u,side*(b.width/2+1.5)),goal=point(u,side*(b.width/2-1.5));
+    const u=end*(b.length/2+.05),body=point(u,side*(b.width/2+1.5)),goal=point(u,side*(b.width/2-1.5));
     assert.ok(canOccupy(level,body.x,body.z,.6));assert.ok(canOccupy(level,goal.x,goal.z,.6));
     assert.equal(hasClearGroundPath(level,body,goal,.6),false);
     assert.equal(separatedByBank(level,body,goal),true,'cohesion cannot pull animals through a solid rail');
@@ -164,5 +164,22 @@ test('rotated bridge side rails block dry-end shortcuts but permit walking aroun
     for(const waypoint of around){assert.ok(hasClearGroundPath(l,walker,waypoint,.62));moveBody(l,walker,waypoint.x-walker.x,waypoint.z-walker.z,.62);assert.ok(distance(walker,waypoint)<.001);}
     // Posts protrude farther than the narrow rail beam and remain solid.
     const postSide=p(-4.05,4.31);assert.equal(canOccupy(l,postSide.x,postSide.z,.01),false);
+  }
+});
+
+
+test('pressured animals steer onto dry land around short rail ends before joining the deck',()=>{
+  for(const heading of [0,Math.PI/2,Math.PI,Math.PI*1.5,.37])for(const end of [-1,1])for(const side of [-1,1]){
+    const f={x:Math.sin(heading),z:Math.cos(heading)},l={x:f.z,z:-f.x};
+    const p=(u,v)=>({x:f.x*u+l.x*v,z:f.z*u+l.z*v});
+    const bridge={x:0,z:0,heading,width:6,length:5.5};
+    const level={target:{x:25,z:25,radius:4,heading:0},bounds:{minX:-30,maxX:30,minZ:-30,maxZ:30},obstacles:[],fenceSegments:[],routes:[],rivers:[{width:4,points:[p(0,-25),p(0,25)],bridges:[bridge]}]};
+    const body=p(end*(bridge.length/2+.05),side*4),vx=-side*l.x*2,vz=-side*l.z*2;
+    assert.ok(canOccupy(level,body.x,body.z,.78),'cow is on dry ground beside the rail end');
+    assert.equal(hasClearGroundPath(level,body,bridge,.78),false,'straight entry still hits the rail');
+    const steer=openingSteer(level,body,vx,vz);
+    assert.ok(end*(steer.x*f.x+steer.z*f.z)>.2,'first move walks away from the bank around the open rail end');
+    const next={x:body.x+steer.x*.1,z:body.z+steer.z*.1};
+    assert.ok(hasClearGroundPath(level,body,next,.78),'steering correction preserves cow clearance');
   }
 });

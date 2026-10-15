@@ -112,7 +112,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** orientation uses the local river tangent, not a global axis; approaching/exiting paths align with the deck; mesh, terrain height, deck occupancy and rails share the same footprint. Retain enough landing overlap to cross both banks safely. Validate cow-sized bodies, helpers, the full initial flock, alternative routes, all campaign levels and representative seeds.
 
-**Files:** `src/world.js`, `src/render.js`, `src/models.js`, world/journey tests. Preserve the solved level-2 retrieval case; narrower replacement geometry must not reintroduce its stall. The implementation compares usable road width, excluding decorative shoulders. `4887ea7` aligns decks and straight approaches perpendicular to sampled river segments; deck width is 1.25 × road width, including the widened level-2 road/deck. Geometry and journey regression checks support Review; rendered landings remain pending.
+**Files:** `src/world.js`, `src/render.js`, `src/models.js`, world/journey tests. Preserve the solved level-2 retrieval case; narrower replacement geometry must not reintroduce its stall. The implementation compares usable road width, excluding decorative shoulders. `4887ea7` aligns decks and straight approaches perpendicular to sampled river segments; deck width is 1.25 × road width, including the widened level-2 road/deck. Follow-up shortens decks to river width + 1.5 (0.75 nominal bank overlap per end) without changing width or dry route turning planes. Blocked opening steering follows collision-valid local bridge waypoints rather than pushing sideways through rail/bank corners. Sampled wet-strip coverage and unchanged full-flock journeys support Review; user verification of the reported level-4 landing remains pending.
 
 ### F-006 — Operable gates from level 20
 
@@ -194,11 +194,11 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 ### F-016 — See Pip and the flock under cover
 
-**Requirement:** barns and other covered structures must not obscure nearby Pip or flock animals. When they walk under cover, the roof and wall nearest the camera become transparent so the player can see them.
+**Requirement:** barns and other covered structures must not obscure Pip or flock animals. When any dog or flock animal enters, fade the **entire roof and complete camera-facing wall side(s)** together to **30% transparency (opacity 0.70)**; do not limit fading to individual panels intersecting an actor ray. Restore when the structure is empty.
 
-**Accept when:** camera-facing roof/wall sections fade while occluding Pip or any flock animal beneath the structure, including animals close to the camera, partially entering/exiting and split groups. Select sections from the current camera view, including rotated structures. Restore their normal appearance when no longer obstructing the actors, without flicker or rapid threshold toggles. Keep distant/non-obstructing structure parts readable. Transparency changes visibility only; collision, goal admission and enclosure boundaries remain intact.
+**Accept when:** a dog alone, a flock animal alone (including delivered animals), partial entry and split groups trigger the whole roof and every panel of camera-facing wall sides at opacity 0.70. Select sides using the current camera direction for rotated structures; keep far wall sides opaque. Restore smoothly only after the last actor leaves, without flicker or rapid threshold toggles. Transparency changes visibility only; collision, goal admission and enclosure boundaries remain intact.
 
-**Review / source:** `4cf9719` provides a full segmented barn roof and independent wall/trim panels. `StructureCutaway` casts body-sample camera rays into panel bounds, uses coverage hysteresis/smoothed fades and restores original materials/shadows on cleanup. Pause freezes fades; collision/admission do not change. Rotated, partial-entry and split actor tests support source behavior; actual transparent draw order against animals, bark/weather/clouds remains unverified.
+**Review / source:** initial `4cf9719` segmented barn roof/walls are retained. Follow-up `b322e7d` fades all roof panels and full facing wall/trim sides to opacity 0.70 using orthographic camera direction in barn-local coordinates. Pip, helper dogs and all flock animals including saved animals activate coverage; hysteresis/smoothed fades and original material/shadow cleanup remain. Pause freezes fades; collision/admission do not change. Blind source review passed 9/10; actual transparent draw order against animals, bark/weather/clouds remains a device acceptance check.
 
 ### F-017 — Rabbits and variable wildlife populations
 
@@ -301,10 +301,10 @@ Copy one row per claimed issue; retain older entries when reopening work.
 | F-025 | P0 implementation/release | Done | Integrated source | `6616c41` | Asset graph/helper tests; all 15 live game files + redirect hashes; 17 unrelated blobs preserved; independent blind medium 9/10 | `baca95c7ba618d736730194b433254bf5058dd66` | 14 Oct 2026; P1 release separate |
 | F-001 | P1 surfaces | Review | Integrated source | `eed14e5` | Union topology/coverage regressions; final integrated checks tracked in runbook | `9346f26` | Real-renderer flicker check pending |
 | F-002 | P1 surfaces | Review | Integrated source | `eed14e5` | Surface/deck geometry, pause and ownership checks | `9346f26` | Rendered clipping/occlusion pending |
-| F-005 | P1 world | Review | Integrated source | `4887ea7` | Perpendicular/ratio/cow-route and ordinary-input journey checks | `9346f26` | Device/render landing checks pending |
+| F-005 | P1 world | Review | Integrated source | `4887ea7`, `185116a` | Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys | `9346f26` | Device/render landing checks pending |
 | F-009 | P1 delivery | Review | Integrated source | `1fee206` | Timer, proportional score, canonical ledger/migration and controller checks | `9346f26` | Independent source review passed; human pacing pending |
 | F-010 | P1 world/presentation | Review | Integrated source | `4887ea7`, `984fc64` | Rotated corners, full-body containment, goal/map/floor geometry | `9346f26` | Rendered matching pending |
-| F-016 | P1 cutaway | Review | Integrated source | `4cf9719` | Camera rays, rotations, partial coverage, pause and clone cleanup | `9346f26` | Actual transparency/device views pending |
+| F-016 | P1 cutaway | Review | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup | `9346f26` | Actual transparency/device views pending |
 | F-018 | P1 QA | Review | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | Live QA bundle verified; touch checks pending |
 | F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
 
@@ -319,3 +319,10 @@ Approved user decisions today: any positive partial delivery opens the next leve
 Integration note, 14 October 2026: remote commit `6ac8eb7` added Quit (F-026) and wildlife crossing fences/edges under a duplicate F-025. Both requests are preserved; the latter is now F-027. Neither P2/P3 feature is included in this P0/P1 implementation batch.
 
 P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at `f0a87a1` gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 159/159 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.
+
+
+## Follow-up device reports — 14 October 2026 (Vancouver)
+
+- `IMG_8375.jpeg` (level 4): user confirms deck width is correct but reports excessive length into land and animals caught near the bank/rail ends. F-005 remains Review and requires shorter landings without opening a wet gap or regressing retrieval.
+- `IMG_8376.jpeg` (level 3 barn): roof remains opaque over Pip. F-016 changes from selective ray panels to a whole-roof/camera-facing-side fade when any dog or flock animal enters, at 30% transparency (opacity 0.70).
+- F-014 remains Done by user confirmation; these specific follow-up reports retain their own acceptance checks.

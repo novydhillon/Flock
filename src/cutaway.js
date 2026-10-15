@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 
-const BODY_SAMPLES=[[0,0],[-1,0],[1,0],[0,-1],[0,1]];
-
 // Visual only: world collision and delivery continue to use world.js geometry.
 export class StructureCutaway {
-  constructor(target, meshes, {halfExtent=target.radius+1.4, opacity=.14}={}) {
+  constructor(target, meshes, {halfExtent=target.radius+1.4, opacity=.7}={}) {
     this.target=target;this.halfExtent=halfExtent;this.opacity=opacity;
     this.covered=new Set();this.disposed=false;
     this.parts=meshes.map(mesh=>{
@@ -13,13 +11,19 @@ export class StructureCutaway {
       mesh.geometry.computeBoundingBox();
       return {mesh,original,material,shadow:mesh.castShadow,alpha:1};
     });
-    this.direction=new THREE.Vector3();this.origin=new THREE.Vector3();
-    this.inverse=new THREE.Matrix4();this.ray=new THREE.Ray();this.hit=new THREE.Vector3();
+    this.cameraLocal=new THREE.Vector3();this.cameraDirection=new THREE.Vector3();this.up=new THREE.Vector3(0,1,0);
   }
   update(camera, actors, dt) {
     // A paused frame neither advances fades nor changes cover membership.
     if(this.disposed||!Number.isFinite(dt)||dt<=0)return;
-    camera.updateMatrixWorld(true);camera.getWorldDirection(this.direction).negate();
+    camera.updateMatrixWorld(true);
+    // Orthographic cameras have parallel sightlines, so select the wall from
+    // view direction rather than camera-to-barn position. Roof always opens.
+    camera.getWorldDirection(this.cameraDirection).negate();
+    this.cameraLocal.copy(this.cameraDirection).applyAxisAngle(this.up,-(this.target.heading||0));
+    const sides=new Set();
+    if(Math.abs(this.cameraLocal.x)>.02)sides.add(this.cameraLocal.x>=0?'+x':'-x');
+    if(Math.abs(this.cameraLocal.z)>.02)sides.add(this.cameraLocal.z>=0?'+z':'-z');
     const heading=this.target.heading||0,c=Math.cos(heading),s=Math.sin(heading),inside=[];
     const present=new Set(actors);
     for(const actor of this.covered)if(!present.has(actor))this.covered.delete(actor);
@@ -33,17 +37,8 @@ export class StructureCutaway {
     }
     const blend=-Math.expm1(-12*Math.min(dt,.25));
     for(const part of this.parts){
-      const {mesh,material}=part;mesh.updateWorldMatrix(true,false);this.inverse.copy(mesh.matrixWorld).invert();
-      let occludes=false;
-      for(const {actor,radius} of inside){
-        // Body-width samples retain a cutaway through partial doorway entry.
-        for(const [x,z] of BODY_SAMPLES){
-          this.origin.set(actor.x+x*radius,(actor.y||0)+(actor.type==='cow'?1:.7),actor.z+z*radius);
-          this.ray.set(this.origin,this.direction).applyMatrix4(this.inverse);
-          if(this.ray.intersectBox(mesh.geometry.boundingBox,this.hit)){occludes=true;break;}
-        }
-        if(occludes)break;
-      }
+      const {mesh,material}=part;
+      const occludes=inside.length>0&&(mesh.userData.coverKind==='roof'||sides.has(mesh.userData.coverSide));
       const target=occludes?this.opacity:1;
       part.alpha+=(target-part.alpha)*blend;
       if(Math.abs(part.alpha-target)<.001)part.alpha=target;

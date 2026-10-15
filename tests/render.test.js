@@ -67,7 +67,7 @@ test('actual barn panels reveal Pip and dispose their private materials on level
   assert.ok(controller.parts.length>12,'complete roof and segmented walls exist');
   level.dog.x=target.x;level.dog.z=target.z;
   for(let i=0;i<60;i++)renderer.update(level,level.dog,1/60);
-  assert.ok(controller.parts.some(p=>p.material.opacity<.2),'Pip has a visible cutaway');
+  assert.ok(controller.parts.some(p=>p.material.opacity===.7),'Pip has a visible cutaway');
   assert.ok(controller.parts.some(p=>p.material.opacity===1),'unrelated structure stays opaque');
   assert.equal(JSON.stringify(level.fenceSegments),collision,'visibility never changes collision');
   assert.equal(renderer.materials.barn.opacity,1);assert.equal(renderer.materials.roof.opacity,1);

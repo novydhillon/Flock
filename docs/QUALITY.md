@@ -59,3 +59,10 @@ F-001/F-002/F-005/F-009/F-010/F-016/F-018 now have source implementations and ar
 Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages `50128cdef86c47a383938cc0aac01a29e1f072d2`. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing. Agent browser QA was skipped under the installed Sites guidance; no agent device test or GPU profiling is claimed. All P2 work remains Open.
 
 See [P0/P1 validation and release runbook](validation/P0-P1.md) for source checkpoints, build modes, exact manual scenarios and publication boundaries.
+
+
+## Bridge and barn follow-up — 14 October 2026 (Vancouver)
+
+The bridge landing and coherent barn fade repairs are recorded in the [validation runbook](validation/P0-P1.md). Integrated source `185116a` passes 161/161 tests, including all five unchanged full-flock journeys; the expanded rendered-water quad/bevel coverage tests pass. Barn blind source review scored 9/10, with generated HTML freshness the only finding (regenerated during integration). Separate device acceptance for F-005/F-016 remains Review; F-014 stays Done by user confirmation.
+
+Bridge follow-up blind review scored **9/10**, with 32/32 focused geometry, simulation and journey tests passing and no blocking defects. Full-flock delivery coverage remains five representative scenarios; route/body traversal covers all 100 default levels and representative seeded rotations. Both release and development artifact inspections pass. Generated HTML checks pass: 12 pages, 726 local links/anchors, 9 parsed diagrams and 4 DOM behavior tests.

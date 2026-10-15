@@ -91,7 +91,7 @@ export class MeadowRenderer{
     this.goal=surface(goalSurface(t),this.targetMat);
     this.goalOutline=surface(goalOutline(t),new THREE.MeshBasicMaterial({color:'#fff0b5',side:THREE.DoubleSide}));this.goalOutline.userData.ownedMaterial=true;
     this.goalFloor=null;
-    const beam=(a,b,height,thickness,mat)=>{const length=Math.hypot(b.x-a.x,b.z-a.z),mesh=new THREE.Mesh(new THREE.BoxGeometry(length,height,thickness),mat);mesh.position.set((a.x+b.x)/2,height/2,(a.z+b.z)/2);mesh.rotation.y=-Math.atan2(b.z-a.z,b.x-a.x);mesh.castShadow=mesh.receiveShadow=true;mesh.userData.ownedGeometry=true;this.terrain.add(mesh);return mesh;};
+    const beam=(a,b,height,thickness,mat,coverSide)=>{const length=Math.hypot(b.x-a.x,b.z-a.z),mesh=new THREE.Mesh(new THREE.BoxGeometry(length,height,thickness),mat);mesh.position.set((a.x+b.x)/2,height/2,(a.z+b.z)/2);mesh.rotation.y=-Math.atan2(b.z-a.z,b.x-a.x);mesh.castShadow=mesh.receiveShadow=true;mesh.userData.ownedGeometry=true;if(coverSide)mesh.userData.coverSide=coverSide;this.terrain.add(mesh);return mesh;};
     // Every visible blocking perimeter, gate and destination segment comes from
     // the same world objects as collision: no fake scenery walls in play space.
     for(const segment of level.fenceSegments||[]){
@@ -101,8 +101,10 @@ export class MeadowRenderer{
         const count=Math.ceil(len/3);
         for(let i=0;i<count;i++){
           const start={x:a.x+(b.x-a.x)*i/count,z:a.z+(b.z-a.z)*i/count},end={x:a.x+(b.x-a.x)*(i+1)/count,z:a.z+(b.z-a.z)*(i+1)/count};
-          structure.push(beam(start,end,2.4,.22,this.materials.barn));
-          const trim=beam(start,end,.14,.25,this.materials.barnTrim);trim.position.y=2.35;structure.push(trim);
+          const dx=(start.x+end.x)/2-t.x,dz=(start.z+end.z)/2-t.z,c=Math.cos(t.heading||0),sn=Math.sin(t.heading||0),lx=dx*c-dz*sn,lz=dx*sn+dz*c;
+          const coverSide=Math.abs(Math.abs(lx)-s)<Math.abs(Math.abs(lz)-s)?(lx>=0?'+x':'-x'):(lz>=0?'+z':'-z');
+          structure.push(beam(start,end,2.4,.22,this.materials.barn,coverSide));
+          const trim=beam(start,end,.14,.25,this.materials.barnTrim,coverSide);trim.position.y=2.35;structure.push(trim);
         }
       }else if(kind==='target'&&t.type==='field'){
         // Visible low fence defines the exact collision line; plants soften it.
@@ -112,10 +114,10 @@ export class MeadowRenderer{
     }
     if(t.type==='barn'){
       this.goalFloor=surface(goalSurface(t,.013),this.path);
-      // Full pitched roof; separate panels fade only along covered sightlines.
+      // Full pitched roof; the complete roof and camera-facing wall fade together.
       const roof=new THREE.Group(),heading=t.heading||0;
       const rows=Math.ceil(s*2/2.4),depth=(s*2+.6)/rows;
-      for(const side of [-1,1])for(let i=0;i<rows;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(s+.6,.18,depth),this.materials.roof);m.position.set(side*s/2,3.2,-s-.3+(i+.5)*depth);m.rotation.z=-side*.21;m.castShadow=true;m.userData.ownedGeometry=true;roof.add(m);structure.push(m);}
+      for(const side of [-1,1])for(let i=0;i<rows;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(s+.6,.18,depth),this.materials.roof);m.position.set(side*s/2,3.2,-s-.3+(i+.5)*depth);m.rotation.z=-side*.21;m.castShadow=true;m.userData.ownedGeometry=true;m.userData.coverKind='roof';roof.add(m);structure.push(m);}
       roof.position.set(t.x,0,t.z);roof.rotation.y=heading;this.terrain.add(roof);
       this.cutaway=new StructureCutaway(t,structure,{halfExtent:s+.3});
     }
@@ -267,7 +269,7 @@ export class MeadowRenderer{
     for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;}}
     this.updateBarks(dt);
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
-    this.cutaway?.update(this.camera,[dog,...level.animals],dt);
+    this.cutaway?.update(this.camera,[dog,...level.animals,...(level.helpers||[]).filter(h=>h.type!=='drone')],dt);
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
     for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*6;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}
     this.particles=this.particles.filter(p=>p.life>0);this.cullScenery();this.updateAnimalBatches(level,poseTime);this.renderer.render(this.scene,this.camera);

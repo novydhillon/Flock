@@ -185,11 +185,13 @@ export function createLevel(index=0,seed=index*7919+42) {
         const sampled=canonicalRivers[j].points;
         const k=clamp(Math.floor((z-sampled[0].z)/2),0,sampled.length-2),a=sampled[k],b=sampled[k+1];
         const t=(z-a.z)/(b.z-a.z),x=a.x+(b.x-a.x)*t,f=unit(b.z-a.z,a.x-b.x);
-        const bridge={x,z,width:roadWidth*1.25,length:river.width+5,heading:Math.atan2(f.x,f.z)-angle};
+        // A short .75-unit landing on each bank covers the sampled curvature.
+        const bridge={x,z,width:roadWidth*1.25,length:river.width+1.5,heading:Math.atan2(f.x,f.z)-angle};
         canonicalRivers[j].bridges.push(bridge);
         // Every branch reaches common dry turning planes before changing
         // lanes. This prevents a turn crossing another deck's side rail.
-        const approach=bridge.length/2+(early?3:6);
+        // Turning space belongs to the trail, not the shortened deck.
+        const approach=river.width/2+2.5+(early?3:6);
         const nearU=early?approach:(x-riverBases[j]+approach)/f.x,farU=early?approach:(riverBases[j]+approach-x)/f.x;
         const near={x:x-f.x*nearU,z:z-f.z*nearU},far={x:x+f.x*farU,z:z+f.z*farU};
         points.push({x:near.x-4,z:near.z-sign*(early?3:8)},near,{x,z,kind:'bridge'},far);
@@ -348,6 +350,13 @@ export function openingSteer(level,body,vx,vz) {
     if(Math.abs(dx*f.x+dz*f.z)<3&&distance(body,gate)<best){best=distance(body,gate);opening=gate;}
   }
   if(!opening)return{x:0,z:0};
+  // Pressure at a short landing can hit either a rail or the curved bank,
+  // even when aligned with the opening. Walk around its dry end first; the
+  // only target is this nearby physical opening, never the destination.
+  if(opening.length){
+    const waypoint=navigationTarget(level,body,opening,.78),toward=unit(waypoint.x-body.x,waypoint.z-body.z);
+    return{x:toward.x*Math.min(2.4,speed*.8+.5),z:toward.z*Math.min(2.4,speed*.8+.5)};
+  }
   const f=yawVector(opening.heading),u=(opening.x-body.x)*f.z-(opening.z-body.z)*f.x;
   if(Math.abs(u)<opening.width/2-1)return{x:0,z:0};
   return{x:f.z*Math.sign(u)*Math.min(2.4,speed*.8+.5),z:-f.x*Math.sign(u)*Math.min(2.4,speed*.8+.5)};

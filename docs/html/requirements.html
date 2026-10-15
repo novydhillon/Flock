@@ -91,7 +91,7 @@
 </tr>
 <tr>
 <td>Roads and bridges</td>
-<td>Usable roads are 4.1 units early, except level 2 at 9.4, and 4.8 later; decorative shoulders are excluded. Deck width is exactly 1.25 × usable road width. Decks and straight road approaches align perpendicular to the sampled river segment. Length remains river width + 5 for dry landings.</td>
+<td>Usable roads are 4.1 units early, except level 2 at 9.4, and 4.8 later; decorative shoulders are excluded. Deck width is exactly 1.25 × usable road width. Decks and straight road approaches align perpendicular to the sampled river segment. Length is river width + 1.5 (0.75 nominal bank overlap per end); sampled strip coverage is tested across deck width. Dry route turning planes remain independent of the shorter deck. Blocked animal steering routes toward the nearest local opening around solid rail ends.</td>
 </tr>
 </tbody></table></div>
 <p>Examples: level 8 is index 7, has 26 robots and two routes; level 17 is index 16 and is the first level eligible for the <strong>requested</strong>, currently absent bolting behavior. The special wide level-2 crossing repaired a demonstrated simulated retrieval stall; preserve that regression when changing bridge rules.</p>
@@ -258,8 +258,8 @@
 <tr>
 <td>F-016</td>
 <td>P1</td>
-<td>Under cover, fade roof and wall nearest camera when occluding Pip/flock; restore stably; retain collision.</td>
-<td>Review: full segmented barn roof/walls with camera-ray material fades, coverage hysteresis, pause and cleanup; pixels remain unverified.</td>
+<td>Any dog/flock animal under cover fades the entire roof and full camera-facing wall side(s) to 30% transparency (opacity 0.70); restore when empty; retain collision.</td>
+<td>Review: follow-up replaces selective per-ray fading with coherent roof/side fading; pause, hysteresis and material cleanup remain required.</td>
 </tr>
 <tr>
 <td>F-017</td>

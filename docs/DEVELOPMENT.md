@@ -18,6 +18,10 @@ npm run build:dev
 
 Vite writes `dist/`; `npm run preview -- --host 0.0.0.0` serves that build when a browser-enabled environment is available. Local font assets are included. WebGL 2 is required by the current renderer. Audio requires browser user interaction; initial play or enabling sound initiates activation.
 
+## Agent cost and review policy
+
+Use the least expensive available model and reasoning effort appropriate to the change for implementation and blind review. Escalate only when complexity, failed checks or review findings justify it. Keep blind reviewers independent of implementation reasoning and earlier scores; use an 8/10 minimum for the current repair loop. Before committing, update requirements, system context, tracker, validation records and other affected documents, then regenerate/check HTML.
+
 ## Documentation maintenance
 
 Markdown in `docs/` and the root README is the editable source. Generated HTML is checked in under `docs/html/`, including local CSS, navigation/search JavaScript and Mermaid. To refresh and validate:

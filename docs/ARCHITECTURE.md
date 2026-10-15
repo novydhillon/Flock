@@ -15,7 +15,7 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 | `src/models.js` | Robot/scenery model construction and shared model resources | Shared material changes may affect many objects |
 | `src/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |
 | `src/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
-| `src/cutaway.js` | Camera-ray structure visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
+| `src/cutaway.js` | Occupied-structure roof/facing-side visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
 | `src/qa.js` | Development-only isolated QA controls and scenario export | Dynamically imported only in development/QA builds |
 | `src/render.js` | Camera, scene, static/actor batches, map, transient effects | Visual state must not decide rewards or collision |
 | `src/nature.js` | Decorative weather, clouds and wildlife | Current weather does not change gameplay rewards or control |
