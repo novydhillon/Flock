@@ -1,5 +1,20 @@
 # Flock dev2 revision quality record
 
+## Weather follow-up validation - 15 October 2026
+
+User report at 12:22 Vancouver requests full-screen rain, angled storm rain, no storm wildlife, clearer thunder beside music, and seeded small/empty puddles that grow during the level. Implementation ran in three isolated worktrees. Independent reviewers received requirements and source/tests without author notes, earlier scores or a requested score threshold. Rain/storm review used Sol at high effort for camera projection and asynchronous audio lifecycle; documentation review uses Luna at medium effort. The requested completion threshold is 8.5/10 for each review.
+
+- Integrated Node 24.21.0 source suite passed **228/228** before the placement follow-up. Windows temporary Git fixtures were rerun under a writable workspace temporary directory after the default OS temporary path denied Git configuration writes; no game logic or assertions were relaxed.
+- Both builds pass artifact checks: release has 15 files and zero QA assets; development has 17 files including two QA assets. Offline documentation checks pass 12 pages, 849 links/anchors, nine parsed diagrams and four DOM tests. Small portability repairs normalize generated source URLs to forward slashes and accept CRLF Mermaid fences.
+- Independent rain/storm source review scored **9/10**, with 57 focused tests and 75,600 additional projection frames across seven aspect ratios, camera travel and zoom. Rain stayed finite, downward and bounded to 256 drops; storm slant stayed at least 32.27 degrees from vertical. Audio event/mix and cancellation checks pass. This is not rendered-pixel or speaker verification.
+- Initial independent puddle review scored **8/10**: dense land-footprint sampling passed, but six large rainy levels had no puddles visible along any route in portrait. Placement is being corrected and will be rechecked before publication. The initial score does not satisfy the requested threshold.
+
+The route-placement repair passed independent follow-up at **9/10**. Across all 65 rainy default levels, all eight puddles are visible somewhere along the generated portrait journey, with a site near spawn. Dense footprint sampling across all 100 levels found zero unsafe points/bridge intersections; deterministic restart, growth, pause and disposal checks pass. This is a follow-up by the same blind critic, not a new first-pass review.
+
+Final integrated Node 24 suite passes **229/229**; both release/development build checks pass after the placement repair. Documentation accuracy and clarity reached **9/10** after removing duplicated current specifications, correcting superseded puddle/storm descriptions and distinguishing QA fixtures from provisional permanent thresholds. No requested scope remains below 8.5/10. Implementers used the inherited Sol model; independent source reviewers used Sol at high effort and documentation used Luna at medium effort.
+
+Weather issues remain **Review** until Novy accepts the new phone appearance and sound. Clouds stay Deferred; unrelated queued gameplay/audio requests remain Open. Publication evidence is recorded separately after deployment. No browser-control or listening capability was available; source review scores are not device experience scores.
+
 Latest accepted P2 release: Pages `cc13865`, source `b1fdac3`. On 15 October 2026 at approximately 10:56 America/Vancouver Novy accepted F-003/F-004/F-006/F-007/F-011/F-012/F-017/F-019/F-020/F-021/F-027. F-008/F-022/F-023/F-024 are reopened P1 work under F-040. The fixed-weather repair below is a new Review candidate; historical checkpoint scores/totals are retained for their own revisions.
 
 ## P0/P1 implementation batch — 14 October 2026

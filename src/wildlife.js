@@ -1,4 +1,5 @@
 import { canOccupy } from './world.js';
+import { createWeatherState } from './weather.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -8,7 +9,9 @@ const seeded = seed => () => {
 };
 
 /** A reproducible, area-scaled budget keeps meadow fauna varied and bounded. */
-export function wildlifePopulation(level) {
+export function wildlifePopulation(level, weather = createWeatherState(level)) {
+  // Weather stays fixed for the whole level: storm fauna never spawns.
+  if (weather.kind === 'storm' || weather.storm) return { squirrel: 0, rabbit: 0, bird: 0, butterfly: 0 };
   const area = (level.bounds.maxX - level.bounds.minX) * (level.bounds.maxZ - level.bounds.minZ);
   const random = seeded((level.seed || 42) ^ 0x57494c44);
   const scale = clamp(area / 3600, .55, 2.4);

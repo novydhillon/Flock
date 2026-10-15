@@ -52,7 +52,7 @@ test('all generated diagram sources parse with the pinned Mermaid version',async
   globalThis.window=dom.window;globalThis.document=dom.window.document;
   try{
     const {default:mermaid}=await import('mermaid');mermaid.initialize({startOnLoad:false,securityLevel:'strict'});let diagrams=0;
-    for(const page of pages)for(const match of read(page.source).matchAll(/```mermaid\n([\s\S]*?)```/g)){await mermaid.parse(match[1]);diagrams++;}
+    for(const page of pages)for(const match of read(page.source).matchAll(/```mermaid\r?\n([\s\S]*?)```/g)){await mermaid.parse(match[1]);diagrams++;}
     assert.ok(diagrams>=9);console.log(`Parsed ${diagrams} real Mermaid sources; no SVG layout claim.`);
   }finally{globalThis.window=previousWindow;globalThis.document=previousDocument;dom.window.close();}
 });

@@ -44,7 +44,8 @@ export function createWeatherState(level = {}) {
     intensity: Math.max(preset.rainIntensity, kind === 'wind' ? preset.windIntensity : 0),
     wind: .2 + preset.windIntensity * 1.6, particles: preset.rainIntensity > 0 ? 128 : 0,
     lightningId: null, lightningAge: Infinity, thunderDelay: .8, lightningFlash: 0,
-    clouds: 5, butterflies: preset.rainIntensity > 0 ? 4 : 8, birds: 5, squirrels: 3,
+    clouds: 0, butterflies: kind === 'storm' ? 0 : preset.rainIntensity > 0 ? 4 : 8,
+    birds: kind === 'storm' ? 0 : 5, squirrels: kind === 'storm' ? 0 : 3,
     lightningStart: 8 + hash(seed, levelIndex + 1000) % 401 / 100,
     lightningInterval: 24 };
   return state;

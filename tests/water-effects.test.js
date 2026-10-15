@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { WaterEffects } from '../src/water-effects.js';
+import { WaterEffects, puddleGrowthSeconds } from '../src/water-effects.js';
 import { createLevel } from '../src/simulation.js';
 
 test('rain accumulates wetness gradually, dries in sun, and ignores zero-dt and pause',()=>{
@@ -78,11 +78,68 @@ test('river arc-length flow follows a bend and owns its UV geometry',()=>{
   let disposed=0;overlay.geometry.addEventListener('dispose',()=>disposed++);effects.dispose();assert.equal(disposed,1);assert.deepEqual([...geometry.attributes.uv.array],[0,0,0,2,2,2]);
 });
 
-test('fixed rainy levels begin wet with heavy/storm puddles and restart dry',()=>{
+test('fixed rainy levels begin with wet surfaces and only small seeded puddles, then restart dry',()=>{
  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(23),grass=new THREE.MeshStandardMaterial({color:'#ffffff'}),original=grass.color.clone();
  effects.setLevel(level,{grassMaterials:[grass],weather:{kind:'storm',type:'rain',rainIntensity:.9,cloudCoverage:.85}});
- assert.equal(effects.elapsed,0);assert.equal(effects.wetness,.6);assert.ok(!grass.color.equals(original));assert.ok(effects.puddles.some(p=>p.mesh.visible&&p.depth>.28));
+ assert.equal(effects.elapsed,0);assert.equal(effects.wetness,.6);assert.ok(!grass.color.equals(original));assert.ok(effects.puddles.every(p=>p.depth<=.2));
  const snapshot=effects.wetness;effects.update(1,{weather:{type:'rain',rainIntensity:.9},paused:true});assert.equal(effects.wetness,snapshot);
- effects.setLevel(level,{grassMaterials:[grass],weather:{kind:'rain',type:'rain',rainIntensity:.3}});assert.equal(effects.wetness,.03);assert.ok(effects.puddles.every(p=>!p.mesh.visible));
+ effects.setLevel(level,{grassMaterials:[grass],weather:{kind:'rain',type:'rain',rainIntensity:.3}});assert.equal(effects.wetness,.03);assert.ok(effects.puddles.every(p=>p.depth<=.2));
  effects.setLevel(createLevel(0),{grassMaterials:[grass],weather:{kind:'sun',type:'sun'}});assert.equal(effects.wetness,0);assert.ok(grass.color.equals(original));effects.dispose();
+});
+
+const rainWeather={type:'rain',kind:'storm',rainIntensity:.9};
+function advance(effects,seconds,weather=rainWeather){for(let i=0;i<Math.ceil(seconds*10);i++)effects.update(.1,{weather});}
+
+test('seeded rainy starts vary between none and small puddles and restart identically',()=>{
+  const effects=new WaterEffects(new THREE.Scene());let empty=0,small=0;
+  for(let seed=0;seed<20;seed++){
+    const level=createLevel(seed);effects.setLevel(level,{weather:rainWeather});
+    const start=effects.puddles.map(p=>({depth:p.depth,scale:p.mesh.scale.x}));
+    assert.ok(start.every(p=>p.depth>=0&&p.depth<=.2));
+    if(start.some(p=>p.depth>0))small++;else empty++;
+    advance(effects,15);effects.setLevel(level,{weather:rainWeather});
+    assert.deepEqual(effects.puddles.map(p=>({depth:p.depth,scale:p.mesh.scale.x})),start);
+  }
+  assert.ok(empty>0&&small>0);effects.dispose();
+});
+
+test('puddle area and opacity grow throughout expected level duration and remain bounded',()=>{
+  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(7);effects.setLevel(level,{weather:rainWeather});
+  const p=effects.puddles[0],initial=p.mesh.scale.x,duration=puddleGrowthSeconds(level);
+  assert.ok(duration>=45&&duration<=240);advance(effects,duration/2);
+  const halfway=p.mesh.scale.x;assert.ok(halfway>initial&&halfway<p.site.radius);assert.ok(p.mesh.visible&&p.material.opacity>.18);
+  const depth=p.depth;effects.update(.1,{weather:rainWeather,paused:true});effects.update(0,{weather:rainWeather});assert.equal(p.depth,depth);
+  advance(effects,duration);assert.equal(p.depth,1);assert.equal(p.mesh.scale.x,p.site.radius);
+  advance(effects,duration);assert.equal(p.depth,1);effects.dispose();
+});
+
+test('light rain grows puddles on level pacing while dry levels have no puddles or growth',()=>{
+  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(0),dry={type:'sun',kind:'sun'};
+  effects.setLevel(level,{weather:dry});advance(effects,60,dry);assert.ok(effects.puddles.every(p=>p.depth===0&&!p.mesh.visible));
+  const rain={type:'rain',kind:'rain',rainIntensity:.2};effects.setLevel(level,{weather:rain});advance(effects,puddleGrowthSeconds(level),rain);
+  assert.ok(effects.puddles.every(p=>p.depth>.99&&p.mesh.visible));effects.dispose();
+});
+
+function portraitSeesPuddle(p,point){
+  const half=19.5,aspect=9/16,camera=new THREE.OrthographicCamera(-half*aspect,half*aspect,half,-half,.1,180);
+  camera.position.set(point.x+2,36,point.z+30);camera.lookAt(point.x+2,0,point.z-1);camera.updateMatrixWorld(true);
+  const center=new THREE.Vector3(p.site.x,.024,p.site.z).project(camera);
+  return Math.abs(center.x)<.95&&Math.abs(center.y)<.95&&Math.abs(center.z)<1;
+}
+
+test('portrait players see accumulating puddles along large level routes, including seeded spawn puddles',()=>{
+  const effects=new WaterEffects(new THREE.Scene());
+  // These six levels previously placed every puddle outside every route camera.
+  for(const index of [47,67,71,83,87,99]){
+    const level=createLevel(index);effects.setLevel(level,{weather:rainWeather});advance(effects,puddleGrowthSeconds(level));
+    const routePoints=level.routes.flatMap(r=>r.points);
+    assert.ok(effects.puddles.filter(p=>p.mesh.visible&&routePoints.some(point=>portraitSeesPuddle(p,point))).length>=4,`level ${index+1}: visible journey puddles`);
+    assert.ok(effects.puddles.some(p=>portraitSeesPuddle(p,level.spawn)),`level ${index+1}: near spawn`);
+  }
+  for(let index=0;index<100;index++){
+    const level=createLevel(index);effects.setLevel(level,{weather:rainWeather});
+    const visible=effects.puddles.filter(p=>p.mesh.visible);
+    if(visible.length)assert.ok(visible.some(p=>portraitSeesPuddle(p,level.spawn)),`level ${index+1}: seeded small puddle visible at spawn`);
+  }
+  effects.dispose();
 });

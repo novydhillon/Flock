@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { FarmAudio } from '../src/audio.js';
 
 class Param {
-  constructor() { this.value = 0; this.targets = []; }
-  setValueAtTime(value) { this.value = value; }
-  exponentialRampToValueAtTime(value) { this.value = value; }
-  setTargetAtTime(value) { this.value = value; this.targets.push(value); }
-  cancelScheduledValues() {}
+  constructor() { this.value = 0; this.targets = []; this.events = []; }
+  setValueAtTime(value, time) { this.value = value; this.events.push(['set', value, time]); }
+  exponentialRampToValueAtTime(value, time) { this.value = value; this.events.push(['ramp', value, time]); }
+  setTargetAtTime(value, time) { this.value = value; this.targets.push(value); this.events.push(['target', value, time]); }
+  cancelScheduledValues(time) { this.events.push(['cancel', time]); }
 }
 class Node {
   constructor() {
@@ -276,7 +276,8 @@ test('one lightning event schedules one delayed thunder, pause cancels it and re
     audio.updateAmbience(.1, { weather });
     const thunder = audio.thunderSource;
     assert.ok(thunder); assert.ok(Math.abs(thunder.startTime - .9) < 1e-10);
-    assert.equal(thunder.loop, undefined);
+    assert.equal(thunder.loop, true);
+    assert.ok(thunder.stops[0] - thunder.startTime <= 3.200001);
     for (let i = 0; i < 20; i++) audio.updateAmbience(.01, { weather });
     assert.equal(audio.context.sources.length, 2); assert.equal(timers.size, 1);
     audio.pause(); assert.equal(thunder.disconnected, true); assert.equal(audio.thunderSource, null);
@@ -325,6 +326,47 @@ test('muted unseen events and malformed event timing cannot schedule stale thund
     for (const [age, delay] of [[-1, 1], [0, -1], [NaN, 1], [0, Infinity], [60, 1]]) {
       weather.lightningId += ':next'; weather.lightningAge = age; weather.thunderDelay = delay;
       audio.updateAmbience(.1, { weather }); assert.equal(audio.thunderSource, null);
+    }
+  });
+});
+
+
+test('thunder has a speaker-audible crack, bounded rumble and music duck that cancels on exit', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const weather = { type: 'rain', intensity: .9, lightningId: 'storm:mix', lightningAge: 0, thunderDelay: 1 };
+    audio.updateAmbience(.1, { weather });
+    const thunder = audio.thunderSource, filter = thunder.connections[0], envelope = filter.connections[0];
+    assert.deepEqual(filter.frequency.events, [['set', 1400, 1], ['ramp', 180, 3.7]]);
+    assert.equal(envelope.connections[0], audio.effects, 'thunder bypasses quiet ambience bus');
+    const peak = envelope.gain.events.find(([kind, value]) => kind === 'ramp' && value === .65);
+    assert.ok(peak && peak[2] === 1.04, 'audible initial crack has a short smooth attack');
+    assert.ok(envelope.gain.events.every(([, value]) => value >= .0001 && value <= .65));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .16 && at === 1));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && at === 3.4));
+    audio.context.currentTime = .5;
+    audio.updateAmbience(.1, { weather: { type: 'sun' } });
+    assert.equal(thunder.disconnected, true);
+    assert.deepEqual(audio.music.gain.events.slice(-2), [['cancel', .5], ['target', .42, .5]]);
+    weather.lightningId = 'storm:next'; audio.updateAmbience(.1, { weather });
+    audio.pause();
+    assert.equal(audio.music.gain.value, .0001);
+    assert.equal(audio.thunderSource, null);
+    await audio.resume();
+    assert.equal(audio.music.gain.value, .42);
+  });
+});
+
+
+
+test('storm suppresses ambient bird calls even when explicit rain intensity is missing', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    for (const weather of ['storm', { type: 'storm' }, { kind: 'storm', type: 'rain', intensity: .2 }, { storm: true, type: 'rain' }]) {
+      audio.birdCountdown = 0;
+      const before = audio.context.oscillators.length;
+      audio.updateAmbience(.1, { weather });
+      assert.equal(audio.context.oscillators.length, before);
     }
   });
 });

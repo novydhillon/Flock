@@ -52,6 +52,7 @@ export class FarmAudio {
       // A later pause, activation, or disposal owns the playback intent.
       if (this.disposed || generation !== this.activationGeneration || this.context !== context) return false;
       this.paused = false;
+      this.music.gain.cancelScheduledValues(this.context.currentTime);
       this.music.gain.setTargetAtTime(0.42, this.context.currentTime, 0.025);
       this._begin();
       return true;
@@ -161,7 +162,7 @@ export class FarmAudio {
     this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, 0.25)) : 0;
     if (this.birdCountdown > 0) return;
     this.birdCountdown = kind === 'rain' ? 10 + Math.random() * 10 : 4 + Math.random() * 6;
-    if (kind === 'rain' && intensity >= 0.7) return;
+    if ((typeof raw === 'object' && (raw.storm || raw.kind === 'storm')) || type === 'storm' || (kind === 'rain' && intensity >= 0.7)) return;
     this._chirp(kind === 'rain' ? 0.018 : 0.03);
   }
 
@@ -179,6 +180,7 @@ export class FarmAudio {
     if (weather !== this.weatherState) {
       if (this.thunderSource) this._releaseAmbience(this.thunderSource);
       this.thunderSource = null; this.thunderEvent = null; this.weatherState = weather;
+      this._restoreMusicMix();
     }
     const id = weather?.lightningId;
     if (!id || id === this.thunderEvent) return;
@@ -190,15 +192,25 @@ export class FarmAudio {
     const context = this.context, source = context.createBufferSource();
     const filter = context.createBiquadFilter(), gain = context.createGain();
     const at = context.currentTime + Math.max(.01, delay - age);
-    source.buffer = this._noise(); filter.type = 'lowpass'; filter.frequency.value = 180; filter.Q.value = .4;
+    // A broadband initial crack remains audible on laptop/phone speakers;
+    // the falling cutoff leaves a rolling low rumble behind it.
+    source.buffer = this._noise(); source.loop = true; filter.type = 'lowpass'; filter.Q.value = .5;
+    filter.frequency.setValueAtTime(1400, at);
+    filter.frequency.exponentialRampToValueAtTime(180, at + 2.7);
     gain.gain.setValueAtTime(.0001, at);
-    gain.gain.exponentialRampToValueAtTime(.13, at + .12);
-    gain.gain.exponentialRampToValueAtTime(.0001, at + 1.9);
-    source.connect(filter); filter.connect(gain); gain.connect(this.ambience);
+    gain.gain.exponentialRampToValueAtTime(.65, at + .04);
+    gain.gain.exponentialRampToValueAtTime(.24, at + .35);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + 3.1);
+    source.connect(filter); filter.connect(gain); gain.connect(this.effects);
+    // Preserve the music, with brief room for thunder in the shared mix.
+    this.music.gain.cancelScheduledValues(context.currentTime);
+    this.music.gain.setValueAtTime(.42, context.currentTime);
+    this.music.gain.setTargetAtTime(.16, at, .04);
+    this.music.gain.setTargetAtTime(.42, at + 2.4, .35);
     this._trackAmbience(source, [filter, gain]); this.thunderSource = source;
     const ended = source.onended;
     source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
-    source.start(at); source.stop(at + 2);
+    source.start(at); source.stop(at + 3.2);
   }
 
   _chirp(volume) {
@@ -282,7 +294,15 @@ export class FarmAudio {
     source.onended = null;
   }
 
+  _restoreMusicMix() {
+    if (!this.context || !this.music || this.context.state === 'closed') return;
+    const now = this.context.currentTime;
+    this.music.gain.cancelScheduledValues(now);
+    this.music.gain.setTargetAtTime(this.paused ? .0001 : .42, now, .025);
+  }
+
   _stopAmbience() {
+    this._restoreMusicMix();
     this._stopWeather();
     this.thunderSource = null;
     for (const source of [...this.ambientSources]) this._releaseAmbience(source);

@@ -187,3 +187,27 @@ test('shelter hysteresis prevents return flicker around the species threshold',(
  stepWildlife(level,animal,.1,[],.1,{severity:.53});assert.equal(animal.sheltering,true);assert.ok(animal.shelter>before);
  stepWildlife(level,animal,.1,[],.2,{severity:.4});assert.equal(animal.sheltering,false);
 });
+
+
+test('fixed storm levels start without any wild animals and remain empty through the level', () => {
+  const level = { ...meadow(23), weather: 'storm' };
+  assert.deepEqual(wildlifePopulation(level), { squirrel: 0, rabbit: 0, bird: 0, butterfly: 0 });
+  const nature = new MeadowNature(new THREE.Scene());
+  nature.setLevel(level);
+  assert.equal(nature.weather.kind, 'storm');
+  assert.equal(nature.weather.birds + nature.weather.squirrels + nature.weather.butterflies, 0);
+  assert.equal(nature.wildlife.length, 0);
+  for (let i = 0; i < 120; i++) nature.update(1, { dog: level.dog, animals: level.animals });
+  assert.equal(nature.wildlife.length, 0);
+  nature.setLevel(meadow(0));
+  assert.ok(nature.wildlife.length > 0, 'ordinary levels still spawn fauna after storm exit');
+  nature.dispose();
+});
+
+test('wildlife population follows effective weather unlocks rather than a raw storm request', () => {
+  assert.ok(Object.values(wildlifePopulation({ ...meadow(8), weather: 'storm' })).some(count => count > 0));
+  for (let index = 23; index < 100; index++) {
+    const level = meadow(index);
+    if (weatherForLevel(level).kind === 'storm') assert.ok(Object.values(wildlifePopulation(level)).every(count => count === 0));
+  }
+});

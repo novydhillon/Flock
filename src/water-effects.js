@@ -1,7 +1,15 @@
 import * as THREE from 'three';
 import { canOccupy, terrainHeight } from './world.js';
+import { deliveryCountdownSeconds } from './simulation.js';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+// Travel at 2m/s allows for herding below the cow/sheep maximum speeds, then
+// includes the actual arrival countdown. This is a visual pacing estimate, not a timer.
+export function puddleGrowthSeconds(level){
+  const journey=Math.max(0,...(level.routes||[]).map(r=>Number.isFinite(r.length)?r.length:0));
+  return clamp(journey/2+deliveryCountdownSeconds(level),45,240);
+}
+function puddleRoll(seed,salt){let n=((seed||0)^Math.imul(salt,0x9e3779b9))>>>0;n=Math.imul(n^(n>>>16),0x21f0aaad);n=Math.imul(n^(n>>>15),0x735a2d97);return ((n^(n>>>15))>>>0)/4294967296;}
 const flat=(p)=>p?.position?{x:p.position.x,z:p.position.z}:p;
 const GRASS_WET=new THREE.Color(0x42634a),PATH_WET=new THREE.Color(0x58432f),WATER_RAIN=new THREE.Color(0x75b5c3);
 function segmentDistance(p,a,b){const dx=b.x-a.x,dz=b.z-a.z,t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/(dx*dx+dz*dz||1));return Math.hypot(p.x-a.x-dx*t,p.z-a.z-dz*t);}
@@ -33,7 +41,7 @@ export class WaterEffects {
     this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
   }
   setLevel(level,{grassMaterials=[],pathMaterials=[],waterMaterial=null,terrain=null,rivers=[],weather=null}={}){
-    this.restoreMaterials();this.clearEffects();this.level=level;this.terrain=terrain;this.rivers=rivers;this.wetness=0;this.elapsed=0;this.lastMoverPositions.clear();this.lastSplashAt.clear();
+    this.restoreMaterials();this.clearEffects();this.level=level;this.terrain=terrain;this.rivers=rivers;this.wetness=0;this.elapsed=0;this.puddleGrowthDuration=puddleGrowthSeconds(level);this.rainElapsed=0;this.lastMoverPositions.clear();this.lastSplashAt.clear();
     for(const [kind,materials] of [['grass',grassMaterials],['path',pathMaterials]])for(const material of Array.isArray(materials)?materials:[materials])if(material?.color){
       this.materialSnapshots.push({material,kind,color:material.color.clone(),roughness:material.roughness});
     }
@@ -52,18 +60,47 @@ export class WaterEffects {
     }
     for(let i=0;i<this.maxSplashes;i++){const material=new THREE.MeshBasicMaterial({color:0xc9eef0,transparent:true,opacity:.78,depthWrite:false});const mesh=new THREE.Mesh(this.splashGeometry,material);mesh.visible=false;mesh.rotation.x=-Math.PI/2;this.root.add(mesh);this.splashes.push({mesh,material,age:1});}
     const puddleGeometry=new THREE.CircleGeometry(1,20);this.puddleResources={geometry:puddleGeometry};
-    for(const site of this.findPuddleSites()) {const material=new THREE.MeshBasicMaterial({color:0x456a69,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});const mesh=new THREE.Mesh(puddleGeometry,material);mesh.rotation.x=-Math.PI/2;mesh.visible=false;mesh.position.set(site.x,terrainHeight(level,site.x,site.z)+.024,site.z);mesh.scale.set(site.radius,site.radius*.62,1);this.root.add(mesh);this.puddles.push({mesh,material,depth:0,site});}
-    if(weather){this.wetness=weather.kind==='storm'?.60:weather.kind==='heavy-rain'?.35:weather.type==='rain'?.03:0;for(const p of this.puddles){p.depth=weather.kind==='storm'?.65:weather.kind==='heavy-rain'?.40:0;p.mesh.visible=p.depth>.28;p.material.opacity=p.mesh.visible?.06+p.depth*.24:0;}this.applySurfaceWeather(weather);}
+    const seed=level.seed??level.index??0,initialCount=puddleRoll(seed,71)<.5?0:1+Math.floor(puddleRoll(seed,72)*3);
+    for(const site of this.findPuddleSites()) {const material=new THREE.MeshBasicMaterial({color:0x456a69,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});const mesh=new THREE.Mesh(puddleGeometry,material);mesh.rotation.x=-Math.PI/2;mesh.visible=false;mesh.position.set(site.x,terrainHeight(level,site.x,site.z)+.024,site.z);mesh.scale.set(site.radius,site.radius*.62,1);this.root.add(mesh);this.puddles.push({mesh,material,depth:0,site,initialDepth:this.puddles.length<initialCount?.1+puddleRoll(seed,80+this.puddles.length)*.1:0});}
+    if(weather){this.wetness=weather.kind==='storm'?.60:weather.kind==='heavy-rain'?.35:weather.type==='rain'?.03:0;for(const p of this.puddles){p.depth=weather.type==='rain'?p.initialDepth:0;this.applyPuddleAppearance(p);}this.applySurfaceWeather(weather);}
   }
   findPuddleSites(){
-    const b=this.level.bounds,sites=[],w=b.maxX-b.minX,d=b.maxZ-b.minZ;
+    const level=this.level,b=level.bounds,sites=[],w=b.maxX-b.minX,d=b.maxZ-b.minZ,seed=level.seed??level.index??0;
+    const add=(p,radius)=>{
+      const {x,z}=p;
+      // Overlapping safety probes cover the whole final footprint, including
+      // interior obstacles, before any growing mesh becomes visible.
+      const footprint=Array.from({length:48},(_,j)=>{const ring=1+Math.floor(j/16),angle=(j%16)*Math.PI/8;return{x:x+Math.cos(angle)*radius*ring/3,z:z+Math.sin(angle)*radius*.62*ring/3};});
+      if(!safePuddleSite(level,p)||footprint.some(edge=>!safePuddleSite(level,edge))||sites.some(s=>Math.hypot(s.x-x,s.z-z)<s.radius+radius+.3))return false;
+      sites.push({...p,radius});return true;
+    };
+    const routes=(level.routes||[]).filter(r=>r.points?.length>1);
+    // Allocate sites along the journey before filling unused space. A uniform
+    // field distribution becomes invisible on large maps, especially in portrait.
+    // The first slot stays near spawn so any seeded small puddle is observable.
+    for(let slot=0;slot<this.maxPuddles&&routes.length;slot++){
+      const route=routes[slot%routes.length],points=route.points;
+      const lengths=points.slice(1).map((p,i)=>Math.hypot(p.x-points[i].x,p.z-points[i].z)),total=lengths.reduce((a,v)=>a+v,0);
+      const radius=1.35+puddleRoll(seed,150+slot)*.69,progress=slot/Math.max(1,this.maxPuddles-1);
+      for(let attempt=0;attempt<35;attempt++){
+        let remaining=clamp(progress+(attempt<7?0:(Math.ceil((attempt-6)/7)%2?1:-1)*.035))*total,index=0;
+        while(index<lengths.length-1&&remaining>lengths[index])remaining-=lengths[index++];
+        const a=points[index],next=points[index+1],length=lengths[index]||1,t=clamp(remaining/length);
+        const lateral=[0,2.5,-2.5,4,-4,6,-6][attempt%7]*(puddleRoll(seed,200+slot)<.5?-1:1);
+        const p={x:a.x+(next.x-a.x)*t-(next.z-a.z)/length*lateral,z:a.z+(next.z-a.z)*t+(next.x-a.x)/length*lateral};
+        if(add(p,radius))break;
+      }
+    }
     for(let i=1;i<Math.max(100,this.maxPuddles*80)&&sites.length<this.maxPuddles;i++){
-      const x=b.minX+2+((i*.61803398875)%1)*Math.max(1,w-4),z=b.minZ+2+((i*.75487766625)%1)*Math.max(1,d-4),p={x,z};
-      const radius=.65+((i*37)%30)/100;
-      if(!safePuddleSite(this.level,p)||Array.from({length:16},(_,j)=>({x:x+Math.cos(j*Math.PI/8)*radius,z:z+Math.sin(j*Math.PI/8)*radius*.62})).some(edge=>!safePuddleSite(this.level,edge))||sites.some(s=>Math.hypot(s.x-x,s.z-z)<2.5))continue;
-      sites.push({...p,radius});
+      const x=b.minX+2+((i*.61803398875)%1)*Math.max(1,w-4),z=b.minZ+2+((i*.75487766625)%1)*Math.max(1,d-4);
+      add({x,z},1.35+((i*37)%70)/100);
     }
     return sites;
+  }
+  applyPuddleAppearance(p){
+    // Area and opacity grow together; geometry never exceeds the validated footprint.
+    const size=Math.sqrt(p.depth);p.mesh.scale.set(p.site.radius*size,p.site.radius*.62*size,1);
+    p.mesh.visible=p.depth>.008;p.material.opacity=p.mesh.visible?.18+p.depth*.24:0;
   }
   restoreMaterials(){
     for(const s of this.materialSnapshots){s.material.color.copy(s.color);if(s.roughness!==undefined)s.material.roughness=s.roughness;s.color.dispose?.();}
@@ -86,10 +123,13 @@ export class WaterEffects {
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
     this.applySurfaceWeather(weather);
     for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.08+rain*.18+(weather.daylight??.7)*.025+(weather.lightningFlash||0)*.2;}
-    for(const p of this.puddles){p.depth=clamp(p.depth+rain*dt*.04-dt*(weather.type==='sun'?.006:.0008));p.mesh.visible=p.depth>.28;p.material.opacity=p.mesh.visible?.06+p.depth*.24:0;}
+    // Any fixed rainy tier reaches full size within the expected level duration.
+    // Intensity changes atmosphere density; it must not hide light-rain accumulation.
+    if(rain>0)this.rainElapsed+=dt;
+    for(const p of this.puddles){p.depth=rain>0?clamp(p.initialDepth+(1-p.initialDepth)*this.rainElapsed/this.puddleGrowthDuration):clamp(p.depth-dt*(weather.type==='sun'?.006:.0008));this.applyPuddleAppearance(p);}
     for(const mover of movers){const pos=flat(mover);if(!pos||!Number.isFinite(pos.x)||!Number.isFinite(pos.z))continue;const id=mover.id??mover.kind??'mover',prev=flat(mover.previousPosition)||((Number.isFinite(mover.previousX))?{x:mover.previousX,z:mover.previousZ}:this.lastMoverPositions.get(id));
       const moved=prev&&Math.hypot(pos.x-prev.x,pos.z-prev.z)>.008;
-      const puddle=this.puddles.find(p=>p.depth>.28&&Math.hypot(pos.x-p.site.x,pos.z-p.site.z)<p.site.radius+.4);
+      const puddle=this.puddles.find(p=>p.mesh.visible&&((pos.x-p.site.x)**2/(p.site.radius**2)+(pos.z-p.site.z)**2/(p.site.radius*.62)**2)<p.depth);
       if(moved&&puddle&&safePuddleSite(this.level,pos)&&this.elapsed-(this.lastSplashAt.get(id)||-10)>.22){this.spawnSplash(pos);this.lastSplashAt.set(id,this.elapsed);}
       this.lastMoverPositions.set(id,{x:pos.x,z:pos.z});
     }

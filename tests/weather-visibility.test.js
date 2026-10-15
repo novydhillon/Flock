@@ -68,46 +68,75 @@ test('orthographic camera-ray footprint and cloud alpha cover screen corners acr
   atmosphere.dispose();
 });
 
-test('rain starts spread across the actual orthographic viewport with downward visible streaks', () => {
-  const scene = new THREE.Scene(), rain = new RainView(scene), camera = ortho(.6, 140, -75);
-  rain.update(0, { weather: { kind: 'storm', rainIntensity: .9, windIntensity: .85 } });
-  rain.update(0, { camera, weather: { kind: 'storm', rainIntensity: .9, windIntensity: .85 }, paused: true });
-  assert.equal(rain.active, 256);
-  const attr = rain.geometry.getAttribute('position'); let onScreen = 0, downward = 0;
-  for (let i = 0; i < rain.active; i++) {
-    const start = new THREE.Vector3(attr.getX(i * 2), attr.getY(i * 2), attr.getZ(i * 2)).project(camera);
-    const end = new THREE.Vector3(attr.getX(i * 2 + 1), attr.getY(i * 2 + 1), attr.getZ(i * 2 + 1)).project(camera);
-    if (Math.abs(start.x) <= 1 && Math.abs(start.y) <= 1 && Math.abs(end.x) <= 1 && Math.abs(end.y) <= 1) onScreen++;
-    if (attr.getY(i * 2) > attr.getY(i * 2 + 1) && attr.getY(i * 2) - attr.getY(i * 2 + 1) >= 1.79) downward++;
+function projectedDrops(rain, camera) {
+  const attr = rain.geometry.getAttribute('position');
+  return Array.from({ length: rain.active }, (_, i) => ({
+    start: new THREE.Vector3().fromBufferAttribute(attr, i * 2).project(camera),
+    end: new THREE.Vector3().fromBufferAttribute(attr, i * 2 + 1).project(camera),
+  }));
+}
+
+test('rain curtain covers beyond every viewport edge at actual camera tilt, aspect, zoom and travel', () => {
+  const rain = new RainView(new THREE.Scene());
+  for (const aspect of [.46, .6, 1, 16 / 9, 2.4]) {
+    for (const height of [36, 39, 44, 50]) {
+      const camera = ortho(aspect, 140, -75);
+      camera.left = -height / 2 * aspect; camera.right = height / 2 * aspect;
+      camera.top = height / 2; camera.bottom = -height / 2; camera.updateProjectionMatrix();
+      rain.update(0, { camera, weather: { kind: 'storm', rainIntensity: .9, windIntensity: .85 } });
+      for (let frame = -1; frame < 180; frame++) {
+        camera.position.x += .3; camera.position.z -= .2; camera.updateMatrixWorld(true);
+        rain.update(frame < 0 ? 0 : .1, { camera, weather: { kind: 'storm', rainIntensity: .9, windIntensity: .85 } });
+        const drops = projectedDrops(rain, camera);
+        if (frame === -1 || frame % 30 === 0) {
+          for (const edge of ['left', 'right', 'top', 'bottom']) {
+            const covered = drops.some(({ start }) => edge === 'left' ? start.x < -1 : edge === 'right' ? start.x > 1 : edge === 'top' ? start.y > 1 : start.y < -1);
+            assert.ok(covered, `${edge} edge missing: aspect ${aspect}, height ${height}, frame ${frame}`);
+          }
+          // The old 85% footprint excluded the corners completely.
+          for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+            assert.ok(drops.some(({ start }) => start.x * sx > .85 && start.y * sy > .85), 'rain must populate corner margins');
+          }
+        }
+        assert.ok(drops.every(({ start, end }) => end.y < start.y), 'all streaks fall downward');
+        assert.ok(drops.every(({ start, end }) => Math.abs(end.x - start.x) / (start.y - end.y) > .1), 'storm must have a visible projected slant');
+      }
+    }
   }
-  assert.ok(onScreen >= 240, `only ${onScreen}/256 streaks project into the viewport`);
-  assert.equal(downward, 256);
-  const xs = Array.from({ length: rain.active }, (_, i) => attr.getX(i * 2)); assert.ok(Math.max(...xs) - Math.min(...xs) > 20, 'rain should be spread across view width');
-  for (const [kind, count, length, speed] of [['rain', 96, .8, 16], ['heavy-rain', 176, 1.3, 23], ['storm', 256, 1.8, 30]]) {
-    rain.update(0, { camera, weather: { kind, rainIntensity: kind === 'rain' ? .3 : kind === 'heavy-rain' ? .65 : .9 }, paused: true });
-    assert.equal(rain.active, count);
-    const before = rain.geometry.getAttribute('position').getY(0), drop = rain.geometry.getAttribute('position').getY(1);
-    assert.ok(Math.abs(before - drop - length) < .001);
-    const intensity = kind === 'rain' ? .3 : kind === 'heavy-rain' ? .65 : .9;
-    rain.update(.01, { camera, weather: { kind, rainIntensity: intensity }, paused: false });
-    assert.ok(Math.abs(rain.geometry.getAttribute('position').getY(0) - (before - speed * .01)) < .001);
-  }
-  let wraps = 0, previousY = Array.from({ length: rain.active }, (_, i) => rain.geometry.getAttribute('position').getY(i * 2));
-  for (let frame = 0; frame < 30; frame++) {
-    rain.update(.1, { camera, weather: { kind: 'storm', rainIntensity: .9 }, paused: false });
-    const positions = rain.geometry.getAttribute('position');
-    for (let i = 0; i < rain.active; i++) { const y = positions.getY(i * 2); if (y > previousY[i] + 1) wraps++; previousY[i] = y; }
-  }
-  assert.ok(wraps > 0, 'rain drops should wrap to the top after falling out of view');
-  rain.update(0, { camera, weather: { kind: 'sun', rainIntensity: 0 }, paused: true });
-  const geometry = rain.geometry, material = rain.material; let disposed = 0;
-  geometry.addEventListener('dispose', () => disposed++); material.addEventListener('dispose', () => disposed++);
-  rain.dispose(); assert.equal(disposed, 2);
+  rain.dispose();
 });
 
+test('rain respawns above screen, preserves falling speed, pause and bounded resources', () => {
+  const rain = new RainView(new THREE.Scene()), camera = ortho(.6, 140, -75);
+  for (const [kind, count, length, speed] of [['rain', 96, .8, 16], ['heavy-rain', 176, 1.3, 23], ['storm', 256, 1.8, 30]]) {
+    const weather = { kind, rainIntensity: kind === 'rain' ? .3 : kind === 'heavy-rain' ? .65 : .9 };
+    rain.update(0, { camera, weather }); assert.equal(rain.active, count);
+    const attr = rain.geometry.getAttribute('position');
+    assert.ok(Math.abs(attr.getY(0) - attr.getY(1) - length) < .001);
+    const before = projectedDrops(rain, camera)[0].start.y;
+    const origin = new THREE.Vector3(0, 0, 0).unproject(camera);
+    const expectedDelta = origin.clone().add(new THREE.Vector3(0, -speed * .01, 0)).project(camera).y;
+    rain.update(.01, { camera, weather });
+    assert.ok(Math.abs(projectedDrops(rain, camera)[0].start.y - before - expectedDelta) < .001);
+    const paused = Array.from(attr.array);
+    rain.update(4, { camera, weather, paused: true }); assert.deepEqual(Array.from(attr.array), paused);
+    // Force a particle just beyond the lower viewport margin, then observe its entry point.
+    rain.drops[0].y = -1.251;
+    rain.update(.01, { camera, weather });
+    assert.ok(projectedDrops(rain, camera)[0].start.y > 1, 'recycled rain must enter above the screen');
+  }
+  rain.update(0, { camera, weather: { kind: 'sun', rainIntensity: 0 } });
+  assert.equal(rain.active, 0); assert.equal(rain.geometry.drawRange.count, 0);
+  let disposed = 0;
+  rain.geometry.addEventListener('dispose', () => disposed++); rain.material.addEventListener('dispose', () => disposed++);
+  rain.dispose(); assert.equal(disposed, 2);
+});
 
 test('clouds drifting left and right wrap within their tiles over a long level',()=>{
  const atmosphere=new Atmosphere(new THREE.Scene()),camera=ortho(.52,80,-120);atmosphere.setLevel(level(100),{cloudCoverage:.7});
  for(let i=0;i<240;i++){atmosphere.update(5,{weather:{cloudCoverage:.7,windIntensity:.85},camera});for(const cloud of atmosphere.clouds){assert.ok(cloud.offsetX>=-.5&&cloud.offsetX<.5);assert.ok(cloud.offsetZ>=-.5&&cloud.offsetZ<.5);}}
  atmosphere.dispose();
 });
+
+
+

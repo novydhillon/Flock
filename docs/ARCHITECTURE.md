@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather remains Review for device acceptance; clouds remain Deferred.
+
+
+
 [Documentation home](README.md) · [Requirements](REQUIREMENTS.md) · [Issue tracker](ISSUES.md)
 
 The current game is a static browser application: Vite bundles JavaScript, CSS and local fonts; Three.js renders WebGL 2; WebAudio synthesizes music and ambience. Browser storage holds a validated profile. There is no server, account system, multiplayer or cloud save.
@@ -92,6 +96,6 @@ Use [system documentation](README.md) for narrower APIs. Start work from [the tr
 
 ## Fixed weather contract — 15 October 2026
 
-F-040 supersedes weather cycling and snow. `createWeatherState(level)` chooses the fixed kind/intensity/severity/daylight once; `stepWeather(state,dt)` advances only elapsed time and paired storm events. Nature, rain, terrain, lights and audio consume the same object. Clouds are deferred. The mission panel labels it. `WaterEffects.setLevel` accepts `weather` to establish a rainy meadow's existing wet ground/puddles before the first frame; shared materials restore on replacement. The visibility systems must use true orthographic corner rays and seed rain across the view when the first real camera arrives, not use the camera eye as a perspective-ray origin. [Presentation context](systems/PRESENTATION.md) has the exact tiers and lifecycle.
+F-040 supersedes weather cycling and snow. `createWeatherState(level)` chooses the fixed kind/intensity/severity/daylight once; `stepWeather(state,dt)` advances only elapsed time and paired storm events. Nature, rain, terrain, lights and audio consume the same object. Clouds are deferred. The mission panel labels it. `WaterEffects.setLevel` accepts `weather` to establish wet ground and a seeded empty/small puddle baseline before the first frame; shared materials restore on replacement. RainView uses camera-unprojected screen coordinates, overscanning to +/-1.25 on both axes, with depth testing disabled for the foreground curtain. Camera updates precede its projection. [Presentation context](systems/PRESENTATION.md) has the exact tiers and lifecycle.
 
 Cloud removal, 15 October 2026: `MeadowRenderer` no longer imports, constructs, sets up or updates `Atmosphere`. Its module/tests remain dormant; cloud puffs and associated shadows allocate no runtime resources. Rain/nature, weather state, sky/fog/lights, water effects and audio retain their existing contracts. F-008 is Deferred.
