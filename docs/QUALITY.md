@@ -164,3 +164,12 @@ The geometry critic independently intersected actual camera rays with puff plane
 Full source suites: **219/219 Node 24** before the added wrap regression, then **220/220 Node 22.23.3** including it; focused projection/weather checks also pass. Release/development artifact checks pass (no QA in release; QA included in dev). Generated Markdown/HTML documentation is refreshed and checked. Browser/GPU/pixel/listening verification is unavailable here, so these source/geometry scores are not a claim of perceived weather quality. Novy should retest 9/16/24 on the phone before acceptance. Publication evidence follows after the live build is verified.
 
 Documentation follow-up for the acceptance/weather repair: **8/10**, with 12 generated pages, 828 links/anchors, nine diagrams and four DOM checks passing. Prior deployed behavior is separated from the fixed-weather source candidate, and the 11 accepted P2 items remain Done.
+
+
+## Verified fixed-weather publication — 15 October 2026
+
+Live candidate: **https://novydhillon.github.io/Flock/dev2/**. Runtime source `878efee1db3c781c7d60c3f0f620ed6a9467dbcd`; Pages `27b1bf535c09642f86d5a6ce032b88906eb695c5`. Source CI [38783755137](https://github.com/novydhillon/Flock/actions/runs/38783755137) and native Pages [38783945804](https://github.com/novydhillon/Flock/actions/runs/38783945804) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 blobs outside `dev2/` remain unchanged. Main runtime asset: `assets/index-BLaryV1o.js`.
+
+Final source CI passes 220 tests, documentation checks and release/development QA-exclusion/inclusion builds. Independent source and geometry reviews are 8/10 and 8.3/10; documentation is 8/10. Source publication does not constitute phone appearance/audio acceptance.
+
+The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Open; F-008/F-022/F-023/F-024/F-040 stay Review pending the new weather test. Public QA levels 9/16/24 demonstrate fixed light/heavy/storm conditions without waiting for a transition; storm lightning starts after 8–12 unpaused presentation seconds. No snow is rendered. The thresholds 16/24 remain tuning choices. Development workstream SHAs identify local evidence; the runtime snapshot above contains the integrated source. The following evidence-only documentation commit does not change the verified build.

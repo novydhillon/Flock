@@ -57,10 +57,10 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Open | F-006 |
 | F-032 | P3 | Gameplay/UI | Closed red and open green world-fence button; dog touch activates | Open | F-031 |
-| F-033 | P2 | Environment/art | English-farmhand-built dry-stone wall appearance | Open | F-007 |
+| F-033 | P2 | Environment/art | English farm dry-stone wall appearance | Open | F-007 |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
 | F-035 | P2 | Gameplay | Baseline bolt duration 3–5 seconds | Open | F-012 |
-| F-036 | P3 | Wildlife | Unattended flock spreads out in the field | Open | F-012, F-028 |
+| F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
 | F-037 | P2 | Gameplay | Eligible wander cohort increases from 15% to 20% | Open | F-012 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
 | F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Open | F-012, F-035, F-037 |
@@ -520,3 +520,12 @@ The 11 accepted P2 items remain Done. F-030–F-039 remain Open, queued enhancem
 QA public **9** = light rain, **16** = heavy rain, **24** = storm, for every seed unless an explicit permitted weather override is used. Level 9 is the user-specified light-rain start; 16/24 and seeded weights on other levels are initial tuning choices. Each level's kind/intensity/daylight stays fixed. Ground water accumulation, cloud/rain motion and lightning events can animate without changing that weather. No snow render/audio type remains; the legacy `snow` override maps to an allowed light rain/dry state.
 
 Source review: **8/10**, geometry/visibility review: **8.3/10**. These do not establish perceived appearance on a phone. Geometry review used actual camera rays and texture-alpha sampling, found discrete clouds in portrait/landscape across small/large maps, and verified first-camera rain distribution, shadow motion, pauses and disposal. See [quality record](QUALITY.md) for final test/publication evidence.
+
+
+## Verified fixed-weather publication — 15 October 2026
+
+Live candidate: **https://novydhillon.github.io/Flock/dev2/**. Runtime source `878efee1db3c781c7d60c3f0f620ed6a9467dbcd`; Pages `27b1bf535c09642f86d5a6ce032b88906eb695c5`. Source CI [38783755137](https://github.com/novydhillon/Flock/actions/runs/38783755137) and native Pages [38783945804](https://github.com/novydhillon/Flock/actions/runs/38783945804) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 blobs outside `dev2/` remain unchanged. Main runtime asset: `assets/index-BLaryV1o.js`.
+
+Final source CI passes 220 tests, documentation checks and release/development QA-exclusion/inclusion builds. Independent source and geometry reviews are 8/10 and 8.3/10; documentation is 8/10. Source publication does not constitute phone appearance/audio acceptance.
+
+The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Open; F-008/F-022/F-023/F-024/F-040 stay Review pending the new weather test. Public QA levels 9/16/24 demonstrate fixed light/heavy/storm conditions without waiting for a transition; storm lightning starts after 8–12 unpaused presentation seconds. No snow is rendered. The thresholds 16/24 remain tuning choices. Development workstream SHAs identify local evidence; the runtime snapshot above contains the integrated source. The following evidence-only documentation commit does not change the verified build.
