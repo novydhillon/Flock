@@ -173,3 +173,12 @@ Live candidate: **https://novydhillon.github.io/Flock/dev2/**. Runtime source `8
 Final source CI passes 220 tests, documentation checks and release/development QA-exclusion/inclusion builds. Independent source and geometry reviews are 8/10 and 8.3/10; documentation is 8/10. Source publication does not constitute phone appearance/audio acceptance.
 
 The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Open; F-008/F-022/F-023/F-024/F-040 stay Review pending the new weather test. Public QA levels 9/16/24 demonstrate fixed light/heavy/storm conditions without waiting for a transition; storm lightning starts after 8–12 unpaused presentation seconds. No snow is rendered. The thresholds 16/24 remain tuning choices. Development workstream SHAs identify local evidence; the runtime snapshot above contains the integrated source. The following evidence-only documentation commit does not change the verified build.
+
+
+## Temporary cloud removal and F-041 — 15 October 2026
+
+At 11:22 Vancouver Novy requested removing clouds for now. F-008 is Deferred: the runtime renderer removes its `Atmosphere` import, construction, level setup and update calls, so both visible clouds and their shadows allocate no resources or draw. The dormant module and standalone tests remain for future reference. Fixed rain/storm type, sky/fog/daylight, lightning/thunder, wetness and wildlife remain active. Focused scene regression checks cover repeated level construction without cloud/shadow objects and retain rain geometry. Independent review and publication evidence follow below.
+
+At 11:23 Vancouver Novy added F-041 (P2): wanderers/bolters should use their new position for local idle/wandering instead of returning through normal herd cohesion. The tracker, requirements and gameplay context record it as Open; no wandering/simulation code is changed by this cloud-removal release.
+
+Cloud removal validation: source commit `d01f3c3` removes only renderer integration and updates the scene regression. All 13 renderer tests pass, including deterministic rain fixtures at indexes 8/23 (public levels 9/24). Independent blind source review: **8/10**, no substantive defect; rain, wetness and storm lighting hooks are retained. No rendered/browser check is claimed.

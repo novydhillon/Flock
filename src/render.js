@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Atmosphere } from './atmosphere.js';
 import { generateBushClusters } from './vegetation.js';
 import { setTailLightBarking } from './tail-light.js';
 import { WaterEffects } from './water-effects.js';
@@ -61,7 +60,7 @@ export class MeadowRenderer{
       new THREE.Mesh(new THREE.BoxGeometry(1,.105,.085),this.materials.wood)
     ];
     this.sceneryBatches=[];this.sceneryFrustum=new THREE.Frustum();this.viewMatrix=new THREE.Matrix4();
-    this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.atmosphere=new Atmosphere(this.scene);this.waterEffects=new WaterEffects(this.scene);
+    this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.waterEffects=new WaterEffects(this.scene);
   }
   resize(){this.width=innerWidth;this.height=innerHeight;this.renderer.setSize(this.width,this.height,false);this.aspect=this.width/this.height;}
   place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
@@ -172,7 +171,7 @@ export class MeadowRenderer{
       if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;this.place(createTree(i%3),x,z,1.3+r()*1.8);
     }
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
-    this.nature.setLevel(level);this.atmosphere.setLevel(level,this.nature.weather);
+    this.nature.setLevel(level);
     this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
     this.batchScenery();
     this.dog=createDog();this.dog.scale.setScalar(1.35);this.actors.add(this.dog);
@@ -283,7 +282,7 @@ export class MeadowRenderer{
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
     this.cutaway?.update(this.camera,[dog,...level.animals,...(level.helpers||[]).filter(h=>h.type!=='drone')],dt);
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
-    const weather=this.nature.weather;this.atmosphere.update(dt,{weather,camera:this.camera,paused:dt<=0});
+    const weather=this.nature.weather;
     this.waterEffects.update(dt,{weather,movers:[{...dog,id:'pip'},...level.animals.map(a=>({...a,id:`flock-${a.id}`})),...(level.helpers||[]).filter(h=>h.type!=='drone').map(h=>({...h,id:`helper-${h.type}`}))],paused:dt<=0});
     this.sun.intensity=2.05*weather.daylight+weather.lightningFlash;this.hemisphere.intensity=1.65*weather.daylight+weather.lightningFlash*.6;this.scene.background.copy(this.skyDay).lerp(this.skyStorm,weather.cloudCoverage*.5);this.scene.fog.color.copy(this.scene.background);
     for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*6;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}

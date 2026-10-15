@@ -12,8 +12,8 @@ flowchart TD
   Sim --> State["level, dog, saved events"]
   State --> Renderer["MeadowRenderer.update"]
   Renderer --> Nature["MeadowNature.update + weather step"]
-  Nature --> Atmosphere["Atmosphere + WaterEffects"]
-  Atmosphere --> Scene["Three.js scene"]
+  Nature --> Surfaces["WaterEffects"]
+  Surfaces --> Scene["Three.js scene"]
   Renderer --> Scene
   Scene --> GPU["WebGLRenderer.render"]
   Nature --> Audio["FarmAudio effects and ambience"]
@@ -58,7 +58,7 @@ this.waterEffects.update(dt, { weather, movers, paused: dt <= 0 });
 | `bark()` / `celebrate(x,z)` | Presentation effects triggered by application actions/events. |
 | `drawMap(canvas, level, dog)` | Separate Canvas 2D map derived from world coordinates, not a scene render. Main updates it at roughly 10 Hz. |
 | `MeadowNature.setLevel/update/dispose` | Owns cosmetic weather/fauna state and all its per-level GPU resources. |
-| `Atmosphere.setLevel/update/dispose` | Owns 48 bounded soft cloud puffs and matched shadows; reads shared cloud cover, wind and daylight. |
+| `Atmosphere.setLevel/update/dispose` | Dormant cloud module retained for future work; the game renderer does not instantiate or update it after the 15 October cloud-removal request. |
 | `WaterEffects.setLevel/update/dispose` | Owns local-arc-length river overlays, wetness material snapshots, up to eight puddles and 12 reusable splashes. |
 | `createGateControl` / `createGateView` / `createStoneWallView` | Contextual one-thumb gate action and render groups whose state/geometry matches world collision. |
 | `FarmAudio.start/resume/pause/setMuted/play/updateAmbience/dispose` | Owns Web Audio lifecycle, music timer, procedural sources and cleanup. |
@@ -71,7 +71,7 @@ this.waterEffects.update(dt, { weather, movers, paused: dt <= 0 });
 
 [models.js](../../src/models.js) supplies Pip, flock species, helpers, vegetation and structures. Its primitive geometry cache is keyed by constructor/arguments, and its material cache persists across levels. `bakeModel` clones transformed component geometry, merges it by material, disposes temporary clones and returns fewer meshes. Model clones share the baked geometry/materials. `createAnimal` bakes the body separately from four articulated legs: each leg retains `limbIndex` and a hip `pivot`, with shared material meshes in hip coordinates.
 
-Material textures are generated locally. Models use deterministic 128-square clay/wood Canvas textures. The renderer creates deterministic 512-square grass/path color and bump maps; color textures are sRGB and repeat over the ground. Nature uses generated `DataTexture` alpha maps for precipitation; `Atmosphere` and `WaterEffects` build procedural cloud/flow textures. `WaterEffects` snapshots only the explicitly passed grass/path/water materials, gradually darkens the base colors and adjusts roughness, then restores original values on level replacement/disposal without disposing shared source maps. Candidate default rates are wetness `+0.012 × rainIntensity/s`, sunny drying `−0.004/s`, puddle fill `+0.04 × rainIntensity/s` and visibility above depth `.28`; they are balance choices awaiting review.
+Material textures are generated locally. Models use deterministic 128-square clay/wood Canvas textures. The renderer creates deterministic 512-square grass/path color and bump maps; color textures are sRGB and repeat over the ground. Rain uses line segments; `WaterEffects` builds procedural flow textures. The dormant `Atmosphere` module can build cloud textures in standalone tests, but the game does not create them. `WaterEffects` snapshots only the explicitly passed grass/path/water materials, gradually darkens the base colors and adjusts roughness, then restores original values on level replacement/disposal without disposing shared source maps. Candidate default rates are wetness `+0.012 × rainIntensity/s`, sunny drying `−0.004/s`, puddle fill `+0.04 × rainIntensity/s` and visibility above depth `.28`; they are balance choices awaiting review.
 
 ## Batching, poses and visibility
 
@@ -82,7 +82,7 @@ Static scenery and flock animals have separate submission paths:
 | Static scenery | `batchScenery()` groups eligible terrain pieces by **geometry identity + material identity**. It skips world-owned geometry and transparent materials; groups smaller than two remain meshes. Tufts/reeds are explicitly instanced. | `trackScenery()` retains immutable source matrices and transformed bounding spheres. `cullScenery()` compacts visible matrices into the front of each instance buffer and updates `count` and upload range. |
 | Sheep/cows | One logical `Object3D` pose per animal; separate `InstancedMesh` for every baked body/limb material piece of each species. Original animal indices are stored in the species batch. | A conservative species radius includes limb pivot envelopes. The same compacted `visibleIndices` order feeds every body/leg mesh; gait uses original indices, so disappearing/reappearing animals retain their phase and pose. |
 | Pip/helpers | Normal articulated scene groups; helper meshes are keyed by helper type. | Pip and ground helper legs/tails animate; drone propellers rotate and it bobs above ground. The map is designed for one helper per type. |
-| Nature | Cloud/body/wing/shadow `InstancedMesh` objects plus optional precipitation `Points`. | Rewrites instance transforms; disables automatic frustum culling. Nature does not use the renderer's custom instance compaction. |
+| Nature / rain | Batched wildlife body/wing/paw instances and optional `RainView` line segments; no cloud/shadow batch. | Updates wildlife matrices and bounded rain streaks, with pause handling and owned resource cleanup. |
 
 The renderer creates its own camera frustum before both scenery and animal culling. Automatic aggregate `InstancedMesh` frustum culling is disabled for these batches. Scenery spheres receive two extra world units; flock bounds receive three, retaining edge silhouettes and nearby sun shadows. Only the compacted prefix is uploaded. This reduces submitted instances, while CPU work still scans the stored instances/animals each frame. Only batched fence parts cast shadows in the static batching path; other eligible batched scenery does not inherit arbitrary original shadow flags.
 
@@ -113,7 +113,7 @@ The map draws roads, continuous rivers/bridges, world fence segments (stone uses
 
 Before replacement, `setLevel` traverses terrain and actors, disposes `InstancedMesh` instance resources, and disposes geometries/materials explicitly tagged `ownedGeometry`/`ownedMaterial`. Label textures are disposed via `ownedLabel`. It clears groups and batch/helper/particle state, then builds the next world. Cached model geometry/materials and shared fence geometry deliberately survive. Distinct resources are deduplicated with sets before disposal.
 
-Nature has an independent `resources` set. `clear()` disposes instance resources, removes children, disposes owned geometry/materials/textures, and resets state; `setLevel()` calls it first. `Atmosphere` similarly owns and clears its clouds/shadows. `WaterEffects` reuses a bounded splash mesh/material pool, caps puddle sites, owns per-river cloned flow maps and per-effect materials, and restores only the explicit surface material snapshots. Source river geometry/maps are shared and never disposed by the overlay; the overlay owns its cloned UV geometry and disposes it on level replacement. `dispose()` removes each system root. The renderer has no comprehensive public `dispose()` method for its shared renderer/material/model resources. Bark effects are updated within renderer time and cleared/disposed on level replacement. Structure cutaway restores original materials and shadow flags and disposes its per-panel clones before terrain replacement.
+Nature has an independent `resources` set. `clear()` disposes instance resources, removes children, disposes owned geometry/materials/textures, and resets state; `setLevel()` calls it first. `Atmosphere` is currently dormant: no cloud/shadow resources are created by the game renderer. Its standalone unit tests still exercise ownership for future reference. `WaterEffects` reuses a bounded splash mesh/material pool, caps puddle sites, owns per-river cloned flow maps and per-effect materials, and restores only the explicit surface material snapshots. Source river geometry/maps are shared and never disposed by the overlay; the overlay owns its cloned UV geometry and disposes it on level replacement. `dispose()` removes each system root. The renderer has no comprehensive public `dispose()` method for its shared renderer/material/model resources. Bark effects are updated within renderer time and cleared/disposed on level replacement. Structure cutaway restores original materials and shadow flags and disposes its per-panel clones before terrain replacement.
 
 ## Nature: implemented behavior and requested work
 
@@ -123,7 +123,7 @@ Nature has an independent `resources` set. `clear()` disposes instance resources
 
 | Source candidate | Behavior and limits |
 | --- | --- |
-| `Atmosphere` | A bounded camera-local grid of soft textured puffs and matched sun-projected shadows replaces the sparse whole-map distribution. Placement uses actual orthographic corner rays; camera travel remains covered. Each puff stays within .10–.25 material opacity, with clear gaps retained to preserve actors. Coverage/tint follows the fixed level weather; drift and shadows animate while unpaused. |
+| `Atmosphere` | Disabled at Novy’s 11:22 Vancouver request on 15 October 2026. Neither cloud puffs nor cloud ground shadows are created or updated in the game. The source and standalone tests remain dormant for future work. |
 | Wildlife | Seeded area-scaled populations: squirrels 1–7, rabbits 1–8, birds 2–6, butterflies 0–8. Spawn search tries up to 240 deterministic candidates per animal and hides unavailable slots. Each squirrel/rabbit uses a merged vertex-colored anatomical body batch and a separate animated paw batch; rabbits advance in push/air phases and crouch on landing. Ground fauna can cross fences and travel at most `.45` units beyond the field boundary; trees, water, barn walls and stone walls remain obstacles. |
 | Shelter response | Candidate severity thresholds are butterfly `.54`, squirrel `.58`, bird `.64`, rabbit `.76`; shelter motion builds toward nearby trees at severity and retreats with `.12` hysteresis when severity drops. Light-rain severity `.28` remains below these thresholds. Heavy-rain severity `.6` shelters smaller fauna; storm severity `.88` shelters all supported species after their retreat time. Rendered shelter and return readability still need review. |
 | Precipitation | `RainView` in `rain-view.js` renders bounded downward line streaks rather than pollen-like points: 96 light, 176 heavy and 256 storm drops, with .8/1.3/1.8-unit streaks and 16/23/30-unit-per-second fall speeds. Rain is placed in the actual projected camera footprint, initialized across the view on the first camera frame, and advances only while unpaused. No snow texture/particle path remains. |
@@ -189,3 +189,5 @@ Decorative instanced grass blades are an opacity-one transparent pass with depth
 ### Delivered-animal roaming (F-028)
 
 Delivered animals use their simulated velocity and heading for the same body/leg gait as the active flock; the renderer must not replace saved headings with a fixed decorative angle. Their motion is confined by simulation to the shared goal footprint. Barn cutaways continue to treat delivered animals as covered actors. Result-screen movement is saved-only and cannot change results or rewards; menus, QA editing and hidden-page state freeze it.
+
+Latest rendering policy: visible clouds and their shadows are temporarily removed (F-008 Deferred). `cloudCoverage` is retained as weather metadata for sky/fog/daylight and river color; it creates no cloud meshes. `RainView`, wildlife, wetness and paired storm audio continue normally. This overrides prior cloud visibility/opacity descriptions in historical records.

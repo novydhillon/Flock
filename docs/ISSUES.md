@@ -15,7 +15,7 @@ Accepted F-028 development release: F-028 is deployed at Pages `639a9b45608fa0ad
 1. Read this tracker, README and `docs/QUALITY.md`; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.
 2. Claim an issue by recording owner, branch/worktree, status and date. Use isolated worktrees for parallel implementation; coordinate ownership of shared files. Do not mark screenshot reports reproduced from a still image alone.
 3. Confirm design decisions listed under each issue before coding dependent behavior. Explicit user requirements take precedence over proposed defaults. Preserve portrait, single-thumb play and the cheerful art direction.
-4. Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: **Open → In progress → Review → Done**, or **Blocked** with the reason.
+4. Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: **Open → In progress → Review → Done**, or **Blocked** with the reason; **Deferred** records work explicitly postponed by the user.
 5. Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.
 6. A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to `dev2/` on the latest `gh-pages` tree, giving the public URL `/Flock/dev2/`. The old `flock/dev2/` destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.
 
@@ -33,7 +33,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-005 | P1 | Geometry/gameplay | Perpendicular crossings; bridges 25% wider than paths | Done | — |
 | F-006 | P2 | Gameplay | Gates requiring player opening from level 20 | Done | F-005 |
 | F-007 | P2 | Environment | Stone walls on selected levels | Done | F-006 interaction contract |
-| F-008 | P1 | Art | Soft textured clouds at 10–25% opacity | Review | F-040 fixed-per-level weather contract |
+| F-008 | P1 | Art | Cloud visuals temporarily removed at user request | Deferred | No runtime clouds or cloud shadows |
 | F-009 | P1 | Gameplay/economy | Arrival countdown; partial-delivery scoring | Done | F-010 |
 | F-010 | P1 | Correctness | Goal shape matches enclosure | Done | — |
 | F-011 | P2 | Feedback | Blue dog-tail light; red bark flash | Done | F-002 shared bark event |
@@ -65,6 +65,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
 | F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Open | F-012, F-035, F-037 |
 | F-040 | P1 | Weather | Remove snow; choose fixed weather once per level with public-level anchors | Review | Reopens F-008, F-022–F-024 |
+| F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Open | F-012, F-035, F-037, F-039 |
 
 ## Screenshot evidence
 
@@ -149,13 +150,11 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Decision to resolve:** level/theme distribution and wall height. Candidate files: `src/world.js`, `src/models.js`, `src/render.js`, collision tests.
 
-### F-008 — Soft textured clouds
+### F-008 — Clouds temporarily deferred
 
-**Requirement:** clouds may be overlapping blurred soft-edge blob textures instead of models, remaining semi-transparent at **10–25%**.
+**Current decision, 15 October 2026 at 11:22 America/Vancouver:** Novy requested removing clouds for now because they are not working as intended. Disable all visible cloud puffs and their associated ground shadows. Rain, fixed per-level weather, sky/fog/daylight, lightning/thunder, wet ground and wildlife remain active.
 
-**Accept when:** soft blobs form moving puffy clouds without hard edges or obvious planes; address the user report that clouds/weather are not visible or clear; they do not obscure play. Preserve drifting movement and soft ground shadows, pause behavior and resource cleanup. Validate overlapping transparency and mobile rendering.
-
-**Working interpretation to confirm:** material/composited opacity 0.10–0.25 (not 75–90% opacity). Avoid stacking blobs into a much darker or opaque cloud. Current cloud material opacity is `.5`; see `src/nature.js`.
+**Status:** Deferred. The renderer no longer instantiates or updates `Atmosphere`; its source and unit tests are retained as dormant reference for future work. No cloud texture, billboard or shadow resource is allocated by normal game rendering. Earlier cloud appearance/opacity criteria and review evidence are historical, not current runtime requirements. Do not re-enable clouds as part of routine weather maintenance.
 
 ### F-009 — Delivery countdown and score
 
@@ -273,15 +272,13 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Files:** `src/nature.js`, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.
 
-### F-023 — Worsening-weather atmosphere and storms
+### F-023 — Fixed per-level atmosphere and storm feedback
 
-**Requirement:** when weather changes toward rain or storms, increase cloud cover and change lighting to signal worsening conditions. If lightning occurs, show flashes and play thunder sounds.
+**Current requirement:** the level retains its selected weather; rain/storm intensity is conveyed through rain, sky/fog/daylight and paired lightning/thunder. Visible clouds and cloud shadows are temporarily removed under F-008 at Novy's request on 15 October 2026. Earlier dynamic weather ramps and cloud-coverage requirements are superseded.
 
-**Accept when:** transitions adjust cloud coverage and ground lighting smoothly, preserving legibility of Pip, flock and goal. Cloud coverage works with F-008's soft semi-transparent cloud requirement; resolve any storm opacity exception explicitly rather than silently overriding it. Lightning flashes and thunder belong to the same bounded event, with sensible audio timing, and do not create uncontrolled flash bursts or stacked audio sources. Mute, pause, backgrounding, replay and level transitions handle storm effects and pending sounds consistently; clean up event resources. Record real-phone visual/listening checks.
+**Accept when:** the selected sunny/breezy/light/heavy/storm condition remains fixed throughout the level; storm flashes and thunder share one bounded event with sensible delay. Rain, lighting and ground state remain readable. Mute, pause, backgrounding, replay and level changes cancel pending/stale effects consistently. No cloud meshes or cloud ground shadows appear. Phone appearance/listening acceptance remains pending for the rain/storm effects.
 
-**Decisions required:** severity model/transition timing, whether weather changes during a level, lightning frequency/intensity and thunder timing. A new within-level weather system must explicitly define pause/restart/seed behavior; current fixed per-level choices must not be assumed to provide it.
-
-**Files:** `src/nature.js`, `src/render.js`, `src/audio.js`, weather/audio/resource tests. Provide shared rain/wind severity and event state to F-022 and F-024.
+**Files:** `src/weather.js`, `src/nature.js`, `src/rain-view.js`, `src/render.js`, `src/audio.js` and relevant tests. `Atmosphere` is dormant and no longer part of the runtime contract.
 
 ### F-024 — Rain accumulation, puddles and water response
 
@@ -529,3 +526,17 @@ Live candidate: **https://novydhillon.github.io/Flock/dev2/**. Runtime source `8
 Final source CI passes 220 tests, documentation checks and release/development QA-exclusion/inclusion builds. Independent source and geometry reviews are 8/10 and 8.3/10; documentation is 8/10. Source publication does not constitute phone appearance/audio acceptance.
 
 The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Open; F-008/F-022/F-023/F-024/F-040 stay Review pending the new weather test. Public QA levels 9/16/24 demonstrate fixed light/heavy/storm conditions without waiting for a transition; storm lightning starts after 8–12 unpaused presentation seconds. No snow is rendered. The thresholds 16/24 remain tuning choices. Development workstream SHAs identify local evidence; the runtime snapshot above contains the integrated source. The following evidence-only documentation commit does not change the verified build.
+
+
+## Temporary cloud removal — 15 October 2026
+
+At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; both cloud puffs and cloud shadows are removed from the game renderer. The `cloudCoverage` weather value still influences sky/fog/lighting and river appearance; it does not create visible cloud objects. Rain/storms and the fixed-level contract remain in Review pending weather acceptance. No new queued P2/P3 request is implemented by this change.
+
+
+### F-041 — Wanderers and bolters adopt their new local area (P2)
+
+**Requirement, 15 October 2026 at 11:23 America/Vancouver:** when an animal wanders or bolts, it should continue local wandering where it has reached rather than trying to return to the group.
+
+**Accept when:** spontaneous wandering/bolting establishes a local idle/wander area at the animal's new position. When the event ends, ordinary cohesion/alignment must not automatically pull that unattended animal back to the main flock. It remains calm and moves locally until active player/helper herding guides it elsewhere. Preserve normal physical collision, safe local movement, existing level/probability/duration gates, player-pressure interruption and permanent confinement of delivered animals. Test both a wander and a bolt with the herd distant, event expiry, nearby herding, blocked ground and saved animals. Do not silently replace this with perpetual running away or goal-directed movement.
+
+**Status:** Open, queued only. Current simulation still uses flock cohesion after wander/bolt expiry; this request does not change that code in the cloud-removal release. Coordinate with F-035/F-037/F-039 so later tuning uses the same independent local-area behavior.

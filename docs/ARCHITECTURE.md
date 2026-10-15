@@ -20,7 +20,8 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 | `src/vegetation.js` | Seeded, route-aware decorative bush clusters | Decorative only; avoids collision and play-critical areas |
 | `src/wildlife.js`, `src/wildlife-models.js` | Area-scaled ambient populations, movement, fence permeability and weather shelter | Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared |
 | `src/weather.js` | Fixed seeded level weather and deterministic paired storm events | `MeadowNature` is the single advancing owner; other systems read the same object |
-| `src/atmosphere.js`, `src/water-effects.js` | Cloud/light response; directional river flow, surface wetness, puddles and splashes | Per-level resources are bounded and disposed; zero dt/pause freezes effects |
+| `src/water-effects.js` | Directional river flow, surface wetness, puddles and splashes | Per-level resources are bounded and disposed; zero dt/pause freezes effects |
+| `src/atmosphere.js` | Dormant cloud/shadow implementation, deferred by user | Not instantiated or updated by the game renderer |
 | `src/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
 | `src/cutaway.js` | Occupied-structure roof/facing-side visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
 | `src/qa.js` | Development-only isolated QA controls and scenario export | Dynamically imported only in development/QA builds |
@@ -70,7 +71,7 @@ Rendering consumes the same level and dog, adding mesh/cache/resource state of i
 |---|---|
 | Bridges/gates/walls | Generator, physical footprint, navigation, render model, minimap and journey checks |
 | Goal shape/countdown/scoring | Admission geometry, completion event, reward ledger, UI, replay policy and save migration |
-| Changing weather | `MeadowNature` advances `weather.js` once; wildlife, `Atmosphere`, `WaterEffects`, renderer lighting and audio consume the same mutable fields |
+| Fixed weather | `MeadowNature` advances the weather clock once; wildlife, rain, `WaterEffects`, renderer lighting and audio consume the same object; cloud rendering is disabled |
 | Model size/detail | Placement clearance, culling bounds, shared materials, shadows and disposal |
 | QA animal editing | Pause ownership, selection/placement override, profile isolation and release gating |
 
@@ -91,4 +92,6 @@ Use [system documentation](README.md) for narrower APIs. Start work from [the tr
 
 ## Fixed weather contract — 15 October 2026
 
-F-040 supersedes weather cycling and snow. `createWeatherState(level)` chooses the fixed kind/intensity/severity/daylight once; `stepWeather(state,dt)` advances only elapsed time and paired storm events. Nature, rain, clouds, terrain, lights and audio consume the same object. The mission panel labels it. `WaterEffects.setLevel` accepts `weather` to establish a rainy meadow's existing wet ground/puddles before the first frame; shared materials restore on replacement. The visibility systems must use true orthographic corner rays and seed rain across the view when the first real camera arrives, not use the camera eye as a perspective-ray origin. [Presentation context](systems/PRESENTATION.md) has the exact tiers and lifecycle.
+F-040 supersedes weather cycling and snow. `createWeatherState(level)` chooses the fixed kind/intensity/severity/daylight once; `stepWeather(state,dt)` advances only elapsed time and paired storm events. Nature, rain, terrain, lights and audio consume the same object. Clouds are deferred. The mission panel labels it. `WaterEffects.setLevel` accepts `weather` to establish a rainy meadow's existing wet ground/puddles before the first frame; shared materials restore on replacement. The visibility systems must use true orthographic corner rays and seed rain across the view when the first real camera arrives, not use the camera eye as a perspective-ray origin. [Presentation context](systems/PRESENTATION.md) has the exact tiers and lifecycle.
+
+Cloud removal, 15 October 2026: `MeadowRenderer` no longer imports, constructs, sets up or updates `Atmosphere`. Its module/tests remain dormant; cloud puffs and associated shadows allocate no runtime resources. Rain/nature, weather state, sky/fog/lights, water effects and audio retain their existing contracts. F-008 is Deferred.

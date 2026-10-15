@@ -7,7 +7,6 @@ import * as models from '../src/models.js';
 import {createLevel} from '../src/simulation.js';
 import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
-import {Atmosphere} from '../src/atmosphere.js';
 import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
 import {WaterEffects} from '../src/water-effects.js';
@@ -24,7 +23,7 @@ function setup({width=390,height=844}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,Atmosphere,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -33,8 +32,18 @@ function setup({width=390,height=844}={}){
 // Object count includes hidden pool slots; submitted draw budget remains 170.
 test('portrait scene builds articulated instance poses and finite camera matrices',()=>{
   const renderer=setup();
-  for(const index of [0,1,3,20,99]){
+  for(const index of [0,1,3,8,20,23,99]){
     const level=createLevel(index),dog={...level.dog,heading:0};renderer.setLevel(level);
+    assert.equal(renderer.atmosphere,undefined,'deferred cloud atmosphere is not part of the runtime renderer');
+    const weatherObjects=[];renderer.scene.traverse(o=>{if(/cloud|atmosphere|shadow/i.test(`${o.name} ${o.type}`)&&o!==renderer.sun.shadow.camera&&o!==renderer.sun.shadow)weatherObjects.push(o);});
+    assert.deepEqual(weatherObjects,[],'level rebuilds do not add visible cloud or cloud-shadow objects');
+    renderer.update(level,dog,1/60,false);
+    if(index===8||index===23){
+      const rain=renderer.scene.getObjectByName('Visible rain');
+      assert.ok(rain,'rain view remains in the scene without the deferred atmosphere');
+      assert.ok(rain.children[0].geometry.attributes.position,'rain geometry is retained without the deferred atmosphere');
+      assert.ok([...rain.children[0].geometry.attributes.position.array].every(Number.isFinite),'rain positions remain finite without the deferred atmosphere');
+    }
     const firstLimb=renderer.animalBatches[0].meshes.find(m=>m.userData.limbIndex!==undefined);
     const neutral=[...firstLimb.instanceMatrix.array];
     level.animals.forEach(a=>{a.vx=2;a.vz=1;});renderer.update(level,dog,1/12,false);
