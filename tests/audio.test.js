@@ -246,6 +246,26 @@ test('pause and mute stop ambience and prevent new chirps, UI sounds remain on p
   });
 });
 
+test('rain tiers lower gentle rain and trim heavy rain while preserving storm volume', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const volumes = [];
+    let source;
+    for (const [index, factor] of [[8,.5],[15,.85],[23,1]]) {
+      const weather = createWeatherState({index,seed:42});
+      audio.updateAmbience(.1, {weather});
+      const volume = audio.weatherSource.gain.gain.value;
+      assert.ok(Math.abs(volume - .032 * weather.intensity * factor) < 1e-12);
+      if (source) assert.equal(audio.weatherSource.source, source, 'tier changes reuse the rain loop');
+      source = audio.weatherSource.source; volumes.push(volume);
+    }
+    assert.ok(volumes[0] < volumes[1] && volumes[1] < volumes[2]);
+    audio.setMuted(true); audio.setMuted(false);
+    audio.updateAmbience(.1, {weather:createWeatherState({index:15,seed:42})});
+    assert.ok(Math.abs(audio.weatherSource.gain.gain.value - .032 * .65 * .85) < 1e-12);
+  });
+});
+
 test('weather shares a single noise buffer, bounded gains, and cleans up on weather changes', async () => {
   await withAudio(async (audio) => {
     await audio.start();

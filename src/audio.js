@@ -157,7 +157,9 @@ export class FarmAudio {
     const intensity = typeof raw === 'object' && Number.isFinite(raw.intensity)
       ? Math.max(0, Math.min(1, raw.intensity)) : 0.3;
     const kind = ['rain', 'light-rain', 'heavy-rain', 'storm'].includes(type) ? 'rain' : type === 'wind' ? 'wind' : 'sun';
-    this._weather(kind, intensity);
+    const tier = typeof raw === 'object' ? (raw.storm ? 'storm' : raw.kind || type) : type;
+    const rainScale = tier === 'storm' ? 1 : tier === 'heavy-rain' ? .85 : .5;
+    this._weather(kind, intensity, rainScale);
     // Clamp frame gaps so resuming a hidden tab cannot emit a burst of birds.
     this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, 0.25)) : 0;
     if (this.birdCountdown > 0) return;
@@ -258,7 +260,7 @@ export class FarmAudio {
     };
   }
 
-  _weather(kind, intensity) {
+  _weather(kind, intensity, rainScale = 1) {
     if (this.weatherKind !== kind) {
       this._stopWeather();
       this.weatherKind = kind;
@@ -283,7 +285,7 @@ export class FarmAudio {
       }
     }
     if (this.weatherSource) {
-      const volume = (kind === 'rain' ? 0.032 : 0.024) * intensity;
+      const volume = (kind === 'rain' ? 0.032 * rainScale : 0.024) * intensity;
       if (Math.abs(volume - this.weatherVolume) > 0.001) {
         this.weatherSource.gain.gain.setTargetAtTime(volume, this.context.currentTime, 0.8);
         this.weatherVolume = volume;

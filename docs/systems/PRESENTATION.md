@@ -200,3 +200,7 @@ Decorative instanced grass blades are an opacity-one transparent pass with depth
 Delivered animals use their simulated velocity and heading for the same body/leg gait as the active flock; the renderer must not replace saved headings with a fixed decorative angle. Their motion is confined by simulation to the shared goal footprint. Barn cutaways continue to treat delivered animals as covered actors. Result-screen movement is saved-only and cannot change results or rewards; menus, QA editing and hidden-page state freeze it.
 
 Latest rendering policy: visible clouds and their shadows are temporarily removed (F-008 Deferred). `cloudCoverage` is retained as weather metadata for sky/fog/daylight and river color; it creates no cloud meshes. `RainView`, wildlife, wetness and paired storm audio continue normally. This overrides prior cloud visibility/opacity descriptions in historical records.
+
+### Rain-volume tuning - 15 October 2026, 16:42 Vancouver
+
+The rain loop still scales with intensity, with an additional tier multiplier: gentle/light rain .50, heavy rain .85, thunderstorm 1.00. Gentle rain is 50% quieter than its previous mix; level 16 heavy rain is exactly 15% quieter; storm rain retains its accepted volume. The overall master gain, thunder and music are unchanged. Tier changes reuse the loop and mute/unmute restores the correct tier mix.

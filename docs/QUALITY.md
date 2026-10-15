@@ -220,3 +220,7 @@ Supersedes the fixed 2.9-second thunder tuning above. Each lightning event choos
 ## Audio level and lightning brightness - 15 October 2026, 13:33 Vancouver
 
 The shared master audio gain rises from .65 to .975 (+50% amplitude) at startup and unmute, scaling music, effects and ambience together while preserving their balance. Lightning peak increases from .38 to .90 with the same .22-second fade and 24-second event cadence. Thunder retains its 3-5 second variable deep rumble and lightning-first timing. Device loudness/appearance remain listening/visual acceptance items.
+
+## Rain-volume follow-up - 15 October 2026, 16:42 Vancouver
+
+Adjust only rain-loop gain: gentle rain uses .50 of its previous level, heavy rain .85, storm 1.00. Focused audio/weather suite passes 25/25, including actual public 9/16/24 states, monotonic tier volume, exact preserved storm gain, loop reuse and mute/unmute. Prior user acceptance remains recorded; this subsequent mix tuning requires listening feedback, not a retroactive change to earlier sign-off.
