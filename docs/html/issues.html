@@ -13,12 +13,20 @@
 <p>Accepted F-028 development release: F-028 is deployed at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code> from source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38681252991">38681252991</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38681359737">38681359737</a> succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver for this deployed build; previous P0/P1 sign-offs stay Done.</p>
 <h2 id="how-agents-should-use-this-document">How agents should use this document<a class="heading-link" href="#how-agents-should-use-this-document" aria-label="Link to How agents should use this document">#</a></h2>
 <ol>
-<li>Read this tracker, README and <code>docs/QUALITY.md</code>; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.</li>
-<li>Claim an issue by recording owner, branch/worktree, status and date. Use isolated worktrees for parallel implementation; coordinate ownership of shared files. Do not mark screenshot reports reproduced from a still image alone.</li>
-<li>Confirm design decisions listed under each issue before coding dependent behavior. Explicit user requirements take precedence over proposed defaults. Preserve portrait, single-thumb play and the cheerful art direction.</li>
-<li>Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: <strong>Open → In progress → Review → Done</strong>, or <strong>Blocked</strong> with the reason; <strong>Deferred</strong> records work explicitly postponed by the user.</li>
-<li>Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.</li>
-<li>A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to <code>dev2/</code> on the latest <code>gh-pages</code> tree, giving the public URL <code>/Flock/dev2/</code>. The old <code>flock/dev2/</code> destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.</li>
+<li><p>Read this tracker, README and <code>docs/QUALITY.md</code>; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.</p>
+</li>
+<li><p>Claim an issue by recording owner, branch/worktree, status and date. Use isolated worktrees for parallel implementation; coordinate ownership of shared files. Do not mark screenshot reports reproduced from a still image alone.</p>
+</li>
+<li><p>Confirm design decisions listed under each issue before coding dependent behavior. Explicit user requirements take precedence over proposed defaults. Preserve portrait, single-thumb play and the cheerful art direction.</p>
+</li>
+<li><p>Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: <strong>Open → In progress → Review → Done</strong>, or <strong>Blocked</strong> with the reason; <strong>Deferred</strong> records work explicitly postponed by the user.</p>
+</li>
+<li><p>Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.</p>
+</li>
+<li><p>A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to <code>dev2/</code> on the latest <code>gh-pages</code> tree, giving the public URL <code>/Flock/dev2/</code>. The old <code>flock/dev2/</code> destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.</p>
+</li>
+<li><p>When an issue is closed (Done or Closed), apply Markdown strikethrough (<code>~~text~~</code>) to every cell in its Work overview row and to its detailed heading title after the issue ID. Keep the ID, acceptance criteria and evidence for traceability. Use the current overview status, not historical status notes. Remove strikethrough if reopened; Open, In progress, Review, Blocked and Deferred items are not closed.</p>
+</li>
 </ol>
 <p>Priority: <strong>P0</strong> = highest priority; complete before other queued work. <strong>P1</strong> = correctness/gameplay foundation; <strong>P2</strong> = planned feature/polish; <strong>P3</strong> = broader validation/optimization. All open items are unassigned until explicitly claimed.</p>
 <h2 id="work-overview">Work overview<a class="heading-link" href="#work-overview" aria-label="Link to Work overview">#</a></h2>
@@ -34,68 +42,68 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>F-025</td>
-<td>P0</td>
-<td>Deployment</td>
-<td>Correct public deployment URL to /Flock/dev2/</td>
-<td>Done</td>
-<td>Verified migration</td>
+<td><del>F-025</del></td>
+<td><del>P0</del></td>
+<td><del>Deployment</del></td>
+<td><del>Correct public deployment URL to /Flock/dev2/</del></td>
+<td><del>Done</del></td>
+<td><del>Verified migration</del></td>
 </tr>
 <tr>
-<td>F-001</td>
-<td>P1</td>
-<td>Reported defect</td>
-<td>Path-corner polygon flicker</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-001</del></td>
+<td><del>P1</del></td>
+<td><del>Reported defect</del></td>
+<td><del>Path-corner polygon flicker</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-002</td>
-<td>P1</td>
-<td>Reported defect</td>
-<td>Bark effect above ground and bridge deck</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-002</del></td>
+<td><del>P1</del></td>
+<td><del>Reported defect</del></td>
+<td><del>Bark effect above ground and bridge deck</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-003</td>
-<td>P2</td>
-<td>Art/behavior</td>
-<td>Detailed squirrel; species-appropriate motion; no spinning</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-003</del></td>
+<td><del>P2</del></td>
+<td><del>Art/behavior</del></td>
+<td><del>Detailed squirrel; species-appropriate motion; no spinning</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-004</td>
-<td>P2</td>
-<td>Art</td>
-<td>Flowing-water texture</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-004</del></td>
+<td><del>P2</del></td>
+<td><del>Art</del></td>
+<td><del>Flowing-water texture</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-005</td>
-<td>P1</td>
-<td>Geometry/gameplay</td>
-<td>Perpendicular crossings; bridges 25% wider than paths</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-005</del></td>
+<td><del>P1</del></td>
+<td><del>Geometry/gameplay</del></td>
+<td><del>Perpendicular crossings; bridges 25% wider than paths</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-006</td>
-<td>P2</td>
-<td>Gameplay</td>
-<td>Gates requiring player opening from level 20</td>
-<td>Done</td>
-<td>F-005</td>
+<td><del>F-006</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay</del></td>
+<td><del>Gates requiring player opening from level 20</del></td>
+<td><del>Done</del></td>
+<td><del>F-005</del></td>
 </tr>
 <tr>
-<td>F-007</td>
-<td>P2</td>
-<td>Environment</td>
-<td>Stone walls on selected levels</td>
-<td>Done</td>
-<td>F-006 interaction contract</td>
+<td><del>F-007</del></td>
+<td><del>P2</del></td>
+<td><del>Environment</del></td>
+<td><del>Stone walls on selected levels</del></td>
+<td><del>Done</del></td>
+<td><del>F-006 interaction contract</del></td>
 </tr>
 <tr>
 <td>F-008</td>
@@ -106,36 +114,36 @@
 <td>No runtime clouds or cloud shadows</td>
 </tr>
 <tr>
-<td>F-009</td>
-<td>P1</td>
-<td>Gameplay/economy</td>
-<td>Arrival countdown; partial-delivery scoring</td>
-<td>Done</td>
-<td>F-010</td>
+<td><del>F-009</del></td>
+<td><del>P1</del></td>
+<td><del>Gameplay/economy</del></td>
+<td><del>Arrival countdown; partial-delivery scoring</del></td>
+<td><del>Done</del></td>
+<td><del>F-010</del></td>
 </tr>
 <tr>
-<td>F-010</td>
-<td>P1</td>
-<td>Correctness</td>
-<td>Goal shape matches enclosure</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-010</del></td>
+<td><del>P1</del></td>
+<td><del>Correctness</del></td>
+<td><del>Goal shape matches enclosure</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-011</td>
-<td>P2</td>
-<td>Feedback</td>
-<td>Blue dog-tail light; red bark flash</td>
-<td>Done</td>
-<td>F-002 shared bark event</td>
+<td><del>F-011</del></td>
+<td><del>P2</del></td>
+<td><del>Feedback</del></td>
+<td><del>Blue dog-tail light; red bark flash</del></td>
+<td><del>Done</del></td>
+<td><del>F-002 shared bark event</del></td>
 </tr>
 <tr>
-<td>F-012</td>
-<td>P2</td>
-<td>Gameplay</td>
-<td>Level-gated wanderers and short bolting</td>
-<td>Done</td>
-<td>F-005, F-009 balance</td>
+<td><del>F-012</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay</del></td>
+<td><del>Level-gated wanderers and short bolting</del></td>
+<td><del>Done</del></td>
+<td><del>F-005, F-009 balance</del></td>
 </tr>
 <tr>
 <td>F-013</td>
@@ -146,12 +154,12 @@
 <td>F-005; retest after F-009/F-012</td>
 </tr>
 <tr>
-<td>F-014</td>
-<td>P1</td>
-<td>Validation gap</td>
-<td>Real-phone controls, appearance and sound</td>
-<td>Done</td>
-<td>User confirmed 14 Oct 2026</td>
+<td><del>F-014</del></td>
+<td><del>P1</del></td>
+<td><del>Validation gap</del></td>
+<td><del>Real-phone controls, appearance and sound</del></td>
+<td><del>Done</del></td>
+<td><del>User confirmed 14 Oct 2026</del></td>
 </tr>
 <tr>
 <td>F-015</td>
@@ -162,76 +170,76 @@
 <td>Rendering batches</td>
 </tr>
 <tr>
-<td>F-016</td>
-<td>P1</td>
-<td>Visibility</td>
-<td>Camera-facing barn/covered-structure cutaway</td>
-<td>Done</td>
-<td>F-010 shared enclosure geometry</td>
+<td><del>F-016</del></td>
+<td><del>P1</del></td>
+<td><del>Visibility</del></td>
+<td><del>Camera-facing barn/covered-structure cutaway</del></td>
+<td><del>Done</del></td>
+<td><del>F-010 shared enclosure geometry</del></td>
 </tr>
 <tr>
-<td>F-017</td>
-<td>P2</td>
-<td>Wildlife</td>
-<td>Detailed hopping rabbits; random size-scaled wildlife counts</td>
-<td>Done</td>
-<td>F-003, F-022</td>
+<td><del>F-017</del></td>
+<td><del>P2</del></td>
+<td><del>Wildlife</del></td>
+<td><del>Detailed hopping rabbits; random size-scaled wildlife counts</del></td>
+<td><del>Done</del></td>
+<td><del>F-003, F-022</del></td>
 </tr>
 <tr>
-<td>F-018</td>
-<td>P1</td>
-<td>QA tooling</td>
-<td>Dev-only level, currency and animal-placement menu</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-018</del></td>
+<td><del>P1</del></td>
+<td><del>QA tooling</del></td>
+<td><del>Dev-only level, currency and animal-placement menu</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-019</td>
-<td>P2</td>
-<td>Environment</td>
-<td>Add bushes</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-019</del></td>
+<td><del>P2</del></td>
+<td><del>Environment</del></td>
+<td><del>Add bushes</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-020</td>
-<td>P2</td>
-<td>Environment</td>
-<td>Increase tree size</td>
-<td>Done</td>
-<td>—</td>
+<td><del>F-020</del></td>
+<td><del>P2</del></td>
+<td><del>Environment</del></td>
+<td><del>Increase tree size</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
 </tr>
 <tr>
-<td>F-021</td>
-<td>P2</td>
-<td>Art</td>
-<td>Richer bush/tree detail and textures</td>
-<td>Done</td>
-<td>F-019, F-020</td>
+<td><del>F-021</del></td>
+<td><del>P2</del></td>
+<td><del>Art</del></td>
+<td><del>Richer bush/tree detail and textures</del></td>
+<td><del>Done</del></td>
+<td><del>F-019, F-020</del></td>
 </tr>
 <tr>
-<td>F-022</td>
-<td>P1</td>
-<td>Wildlife/weather</td>
-<td>Species retreat as weather worsens</td>
-<td>Done</td>
-<td>F-040 fixed-per-level weather contract</td>
+<td><del>F-022</del></td>
+<td><del>P1</del></td>
+<td><del>Wildlife/weather</del></td>
+<td><del>Species retreat as weather worsens</del></td>
+<td><del>Done</del></td>
+<td><del>F-040 fixed-per-level weather contract</del></td>
 </tr>
 <tr>
-<td>F-023</td>
-<td>P1</td>
-<td>Weather/feedback</td>
-<td>Fixed per-level atmosphere, clouds, lightning and thunder</td>
-<td>Done</td>
-<td>F-040 fixed-per-level weather contract</td>
+<td><del>F-023</del></td>
+<td><del>P1</del></td>
+<td><del>Weather/feedback</del></td>
+<td><del>Fixed per-level atmosphere, clouds, lightning and thunder</del></td>
+<td><del>Done</del></td>
+<td><del>F-040 fixed-per-level weather contract</del></td>
 </tr>
 <tr>
-<td>F-024</td>
-<td>P1</td>
-<td>Weather/surfaces</td>
-<td>Accumulating wetness, puddles, splashes and river response</td>
-<td>Done</td>
-<td>F-040 fixed-per-level weather contract</td>
+<td><del>F-024</del></td>
+<td><del>P1</del></td>
+<td><del>Weather/surfaces</del></td>
+<td><del>Accumulating wetness, puddles, splashes and river response</del></td>
+<td><del>Done</del></td>
+<td><del>F-040 fixed-per-level weather contract</del></td>
 </tr>
 <tr>
 <td>F-026</td>
@@ -242,28 +250,28 @@
 <td>—</td>
 </tr>
 <tr>
-<td>F-027</td>
-<td>P2</td>
-<td>Wildlife</td>
-<td>Wildlife can pass through fences and leave/enter the game area</td>
-<td>Done</td>
-<td>F-017</td>
+<td><del>F-027</del></td>
+<td><del>P2</del></td>
+<td><del>Wildlife</del></td>
+<td><del>Wildlife can pass through fences and leave/enter the game area</del></td>
+<td><del>Done</del></td>
+<td><del>F-017</del></td>
 </tr>
 <tr>
-<td>F-028</td>
-<td>P2</td>
-<td>Gameplay</td>
-<td>Delivered animals roam inside the goal enclosure</td>
-<td>Done</td>
-<td>F-010 shared footprint</td>
+<td><del>F-028</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay</del></td>
+<td><del>Delivered animals roam inside the goal enclosure</del></td>
+<td><del>Done</del></td>
+<td><del>F-010 shared footprint</del></td>
 </tr>
 <tr>
-<td>F-029</td>
-<td>P2</td>
-<td>Gameplay/economy</td>
-<td>Pay only lifetime-best score improvements on replay</td>
-<td>Done</td>
-<td>F-009</td>
+<td><del>F-029</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay/economy</del></td>
+<td><del>Pay only lifetime-best score improvements on replay</del></td>
+<td><del>Done</del></td>
+<td><del>F-009</del></td>
 </tr>
 <tr>
 <td>F-030</td>
@@ -346,12 +354,12 @@
 <td>F-012, F-035, F-037</td>
 </tr>
 <tr>
-<td>F-040</td>
-<td>P1</td>
-<td>Weather</td>
-<td>Remove snow; choose fixed weather once per level with public-level anchors</td>
-<td>Done</td>
-<td>Reopens F-008, F-022–F-024</td>
+<td><del>F-040</del></td>
+<td><del>P1</del></td>
+<td><del>Weather</del></td>
+<td><del>Remove snow; choose fixed weather once per level with public-level anchors</del></td>
+<td><del>Done</del></td>
+<td><del>Reopens F-008, F-022–F-024</del></td>
 </tr>
 <tr>
 <td>F-041</td>
@@ -361,11 +369,39 @@
 <td>Open</td>
 <td>F-012, F-035, F-037, F-039</td>
 </tr>
+<tr>
+<td>F-042</td>
+<td>P3</td>
+<td>Wildlife/art</td>
+<td>Investigate and fix missing back legs on small wild animals</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-043</td>
+<td>P3</td>
+<td>Audio</td>
+<td>Make the bark sound resemble a barking dog</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-044</td>
+<td>P3</td>
+<td>Audio</td>
+<td>Add sheep and cow calls with state-dependent frequency and volume</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-045</td>
+<td>P4</td>
+<td>Weather/water</td>
+<td>Add rain impacts and splashes on water during heavy rain or stronger</td>
+<td>Open</td>
+<td>-</td>
+</tr>
 </tbody></table></div>
-<p>| F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
-| F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
-| F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
-| F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |</p>
 <h2 id="screenshot-evidence">Screenshot evidence<a class="heading-link" href="#screenshot-evidence" aria-label="Link to Screenshot evidence">#</a></h2>
 <p>Picture numbers refer to the user&#39;s attachment order, including the duplicate uploads.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>

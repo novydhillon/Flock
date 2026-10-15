@@ -30,41 +30,43 @@ Accepted F-028 development release: F-028 is deployed at Pages `639a9b45608fa0ad
 5. Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.
 6. A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to `dev2/` on the latest `gh-pages` tree, giving the public URL `/Flock/dev2/`. The old `flock/dev2/` destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.
 
+7. When an issue is closed (Done or Closed), apply Markdown strikethrough (`~~text~~`) to every cell in its Work overview row and to its detailed heading title after the issue ID. Keep the ID, acceptance criteria and evidence for traceability. Use the current overview status, not historical status notes. Remove strikethrough if reopened; Open, In progress, Review, Blocked and Deferred items are not closed.
+
 Priority: **P0** = highest priority; complete before other queued work. **P1** = correctness/gameplay foundation; **P2** = planned feature/polish; **P3** = broader validation/optimization. All open items are unassigned until explicitly claimed.
 
 ## Work overview
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-025 | P0 | Deployment | Correct public deployment URL to /Flock/dev2/ | Done | Verified migration |
-| F-001 | P1 | Reported defect | Path-corner polygon flicker | Done | — |
-| F-002 | P1 | Reported defect | Bark effect above ground and bridge deck | Done | — |
-| F-003 | P2 | Art/behavior | Detailed squirrel; species-appropriate motion; no spinning | Done | — |
-| F-004 | P2 | Art | Flowing-water texture | Done | — |
-| F-005 | P1 | Geometry/gameplay | Perpendicular crossings; bridges 25% wider than paths | Done | — |
-| F-006 | P2 | Gameplay | Gates requiring player opening from level 20 | Done | F-005 |
-| F-007 | P2 | Environment | Stone walls on selected levels | Done | F-006 interaction contract |
+| ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
+| ~~F-001~~ | ~~P1~~ | ~~Reported defect~~ | ~~Path-corner polygon flicker~~ | ~~Done~~ | ~~—~~ |
+| ~~F-002~~ | ~~P1~~ | ~~Reported defect~~ | ~~Bark effect above ground and bridge deck~~ | ~~Done~~ | ~~—~~ |
+| ~~F-003~~ | ~~P2~~ | ~~Art/behavior~~ | ~~Detailed squirrel; species-appropriate motion; no spinning~~ | ~~Done~~ | ~~—~~ |
+| ~~F-004~~ | ~~P2~~ | ~~Art~~ | ~~Flowing-water texture~~ | ~~Done~~ | ~~—~~ |
+| ~~F-005~~ | ~~P1~~ | ~~Geometry/gameplay~~ | ~~Perpendicular crossings; bridges 25% wider than paths~~ | ~~Done~~ | ~~—~~ |
+| ~~F-006~~ | ~~P2~~ | ~~Gameplay~~ | ~~Gates requiring player opening from level 20~~ | ~~Done~~ | ~~F-005~~ |
+| ~~F-007~~ | ~~P2~~ | ~~Environment~~ | ~~Stone walls on selected levels~~ | ~~Done~~ | ~~F-006 interaction contract~~ |
 | F-008 | P1 | Art | Cloud visuals temporarily removed at user request | Deferred | No runtime clouds or cloud shadows |
-| F-009 | P1 | Gameplay/economy | Arrival countdown; partial-delivery scoring | Done | F-010 |
-| F-010 | P1 | Correctness | Goal shape matches enclosure | Done | — |
-| F-011 | P2 | Feedback | Blue dog-tail light; red bark flash | Done | F-002 shared bark event |
-| F-012 | P2 | Gameplay | Level-gated wanderers and short bolting | Done | F-005, F-009 balance |
+| ~~F-009~~ | ~~P1~~ | ~~Gameplay/economy~~ | ~~Arrival countdown; partial-delivery scoring~~ | ~~Done~~ | ~~F-010~~ |
+| ~~F-010~~ | ~~P1~~ | ~~Correctness~~ | ~~Goal shape matches enclosure~~ | ~~Done~~ | ~~—~~ |
+| ~~F-011~~ | ~~P2~~ | ~~Feedback~~ | ~~Blue dog-tail light; red bark flash~~ | ~~Done~~ | ~~F-002 shared bark event~~ |
+| ~~F-012~~ | ~~P2~~ | ~~Gameplay~~ | ~~Level-gated wanderers and short bolting~~ | ~~Done~~ | ~~F-005, F-009 balance~~ |
 | F-013 | P2 | Known review concern | Level-5 pacing spike | Open | F-005; retest after F-009/F-012 |
-| F-014 | P1 | Validation gap | Real-phone controls, appearance and sound | Done | User confirmed 14 Oct 2026 |
+| ~~F-014~~ | ~~P1~~ | ~~Validation gap~~ | ~~Real-phone controls, appearance and sound~~ | ~~Done~~ | ~~User confirmed 14 Oct 2026~~ |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
-| F-016 | P1 | Visibility | Camera-facing barn/covered-structure cutaway | Done | F-010 shared enclosure geometry |
-| F-017 | P2 | Wildlife | Detailed hopping rabbits; random size-scaled wildlife counts | Done | F-003, F-022 |
-| F-018 | P1 | QA tooling | Dev-only level, currency and animal-placement menu | Done | — |
-| F-019 | P2 | Environment | Add bushes | Done | — |
-| F-020 | P2 | Environment | Increase tree size | Done | — |
-| F-021 | P2 | Art | Richer bush/tree detail and textures | Done | F-019, F-020 |
-| F-022 | P1 | Wildlife/weather | Species retreat as weather worsens | Done | F-040 fixed-per-level weather contract |
-| F-023 | P1 | Weather/feedback | Fixed per-level atmosphere, clouds, lightning and thunder | Done | F-040 fixed-per-level weather contract |
-| F-024 | P1 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Done | F-040 fixed-per-level weather contract |
+| ~~F-016~~ | ~~P1~~ | ~~Visibility~~ | ~~Camera-facing barn/covered-structure cutaway~~ | ~~Done~~ | ~~F-010 shared enclosure geometry~~ |
+| ~~F-017~~ | ~~P2~~ | ~~Wildlife~~ | ~~Detailed hopping rabbits; random size-scaled wildlife counts~~ | ~~Done~~ | ~~F-003, F-022~~ |
+| ~~F-018~~ | ~~P1~~ | ~~QA tooling~~ | ~~Dev-only level, currency and animal-placement menu~~ | ~~Done~~ | ~~—~~ |
+| ~~F-019~~ | ~~P2~~ | ~~Environment~~ | ~~Add bushes~~ | ~~Done~~ | ~~—~~ |
+| ~~F-020~~ | ~~P2~~ | ~~Environment~~ | ~~Increase tree size~~ | ~~Done~~ | ~~—~~ |
+| ~~F-021~~ | ~~P2~~ | ~~Art~~ | ~~Richer bush/tree detail and textures~~ | ~~Done~~ | ~~F-019, F-020~~ |
+| ~~F-022~~ | ~~P1~~ | ~~Wildlife/weather~~ | ~~Species retreat as weather worsens~~ | ~~Done~~ | ~~F-040 fixed-per-level weather contract~~ |
+| ~~F-023~~ | ~~P1~~ | ~~Weather/feedback~~ | ~~Fixed per-level atmosphere, clouds, lightning and thunder~~ | ~~Done~~ | ~~F-040 fixed-per-level weather contract~~ |
+| ~~F-024~~ | ~~P1~~ | ~~Weather/surfaces~~ | ~~Accumulating wetness, puddles, splashes and river response~~ | ~~Done~~ | ~~F-040 fixed-per-level weather contract~~ |
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
-| F-027 | P2 | Wildlife | Wildlife can pass through fences and leave/enter the game area | Done | F-017 |
-| F-028 | P2 | Gameplay | Delivered animals roam inside the goal enclosure | Done | F-010 shared footprint |
-| F-029 | P2 | Gameplay/economy | Pay only lifetime-best score improvements on replay | Done | F-009 |
+| ~~F-027~~ | ~~P2~~ | ~~Wildlife~~ | ~~Wildlife can pass through fences and leave/enter the game area~~ | ~~Done~~ | ~~F-017~~ |
+| ~~F-028~~ | ~~P2~~ | ~~Gameplay~~ | ~~Delivered animals roam inside the goal enclosure~~ | ~~Done~~ | ~~F-010 shared footprint~~ |
+| ~~F-029~~ | ~~P2~~ | ~~Gameplay/economy~~ | ~~Pay only lifetime-best score improvements on replay~~ | ~~Done~~ | ~~F-009~~ |
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Open | F-006 |
 | F-032 | P3 | Gameplay/UI | Closed red and open green world-fence button; dog touch activates | Open | F-031 |
@@ -75,9 +77,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-037 | P2 | Gameplay | Eligible wander cohort increases from 15% to 20% | Open | F-012 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
 | F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Open | F-012, F-035, F-037 |
-| F-040 | P1 | Weather | Remove snow; choose fixed weather once per level with public-level anchors | Done | Reopens F-008, F-022–F-024 |
+| ~~F-040~~ | ~~P1~~ | ~~Weather~~ | ~~Remove snow; choose fixed weather once per level with public-level anchors~~ | ~~Done~~ | ~~Reopens F-008, F-022–F-024~~ |
 | F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Open | F-012, F-035, F-037, F-039 |
-
 | F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
