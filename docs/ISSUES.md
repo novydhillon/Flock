@@ -33,7 +33,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-011 | P2 | Feedback | Blue dog-tail light; red bark flash | Open | F-002 shared bark event |
 | F-012 | P2 | Gameplay | Level-gated wanderers and short bolting | Open | F-005, F-009 balance |
 | F-013 | P2 | Known review concern | Level-5 pacing spike | Open | F-005; retest after F-009/F-012 |
-| F-014 | P1 | Validation gap | Real-phone controls, appearance and sound | Blocked | Physical phone unavailable |
+| F-014 | P1 | Validation gap | Real-phone controls, appearance and sound | Done | User confirmed 14 Oct 2026 |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
 | F-016 | P1 | Visibility | Camera-facing barn/covered-structure cutaway | Review | F-010 shared enclosure geometry |
 | F-017 | P2 | Wildlife | Detailed hopping rabbits; random size-scaled wildlife counts | Open | F-003, F-022 |
@@ -182,7 +182,7 @@ The fresh gameplay critic's unchanged input controller completed default levels 
 
 ### F-014 — Real-phone verification gap
 
-**Blocked:** no actual physical phone is available for portrait readability, thumb control feel, native Safari double-tap zoom prevention, modal focus/scrolling, actual music/bird/weather balance, or rendered visual defects. Capability discovery found no browser tools. Installed Sites guidance is “If `$control-browser` is unavailable, skip browser QA” (`/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md`). Browser QA was skipped; headless checks cannot close this issue. See [manual runbook](validation/P0-P1.md).
+**Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages `50128cdef86c47a383938cc0aac01a29e1f072d2`. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing.**
 
 **Accept when:** record device/browser, tested source/deployment revision, scenarios, results and screenshot/video evidence. Include restart confirmation/cancellation/persistence. Existing user screenshots provide evidence of specific visual issues; they do not validate every input/audio scenario.
 
@@ -306,13 +306,13 @@ Copy one row per claimed issue; retain older entries when reopening work.
 | F-010 | P1 world/presentation | Review | Integrated source | `4887ea7`, `984fc64` | Rotated corners, full-body containment, goal/map/floor geometry | `9346f26` | Rendered matching pending |
 | F-016 | P1 cutaway | Review | Integrated source | `4cf9719` | Camera rays, rotations, partial coverage, pause and clone cleanup | `9346f26` | Actual transparency/device views pending |
 | F-018 | P1 QA | Review | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | Live QA bundle verified; touch checks pending |
-| F-014 | Device QA | Blocked | — | — | No physical phone or discovered browser capability; QA skipped per installed Sites guidance | — | Resume with actual device/revision evidence |
+| F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
 
 ## Decisions and session handoff
 
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
-Current handoff, 15 October 2026: F-025 migration is Done. P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-005/F-009/F-010/F-016/F-018 stay Review; F-014 stays Blocked. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.
+Current handoff, 15 October 2026: F-025 migration is Done. P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-005/F-009/F-010/F-016/F-018 stay Review; F-014 is Done by user confirmation. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.
 
 Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See [P0/P1 validation](validation/P0-P1.md) for exact scenarios and limitations.
 

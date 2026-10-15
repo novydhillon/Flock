@@ -143,8 +143,8 @@
 <td>P1</td>
 <td>Validation gap</td>
 <td>Real-phone controls, appearance and sound</td>
-<td>Blocked</td>
-<td>Physical phone unavailable</td>
+<td>Done</td>
+<td>User confirmed 14 Oct 2026</td>
 </tr>
 <tr>
 <td>F-015</td>
@@ -336,7 +336,7 @@
 <p>The fresh gameplay critic&#39;s unchanged input controller completed default levels 1–5 in <strong>18.2, 17.2, 28.7, 38.7 and 208.0 simulated seconds</strong>. Level 5&#39;s jump warrants human playtesting; it is not proof of an impossible level or a measured human time.</p>
 <p><strong>Accept when:</strong> document human attempts, retrieval/chokepoint behavior and difficulty progression; adjust only where evidence supports it. Re-run the existing ordinary-input journey policies after crossing/countdown/wandering changes. Avoid solving pacing by weakening collision or allowing autonomous completion.</p>
 <h3 id="f-014--real-phone-verification-gap">F-014 — Real-phone verification gap<a class="heading-link" href="#f-014--real-phone-verification-gap" aria-label="Link to F-014 — Real-phone verification gap">#</a></h3>
-<p><strong>Blocked:</strong> no actual physical phone is available for portrait readability, thumb control feel, native Safari double-tap zoom prevention, modal focus/scrolling, actual music/bird/weather balance, or rendered visual defects. Capability discovery found no browser tools. Installed Sites guidance is “If <code>$control-browser</code> is unavailable, skip browser QA” (<code>/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md</code>). Browser QA was skipped; headless checks cannot close this issue. See <a href="p0-p1-validation.html">manual runbook</a>.</p>
+<p><strong>Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages <code>50128cdef86c47a383938cc0aac01a29e1f072d2</code>. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing.</strong></p>
 <p><strong>Accept when:</strong> record device/browser, tested source/deployment revision, scenarios, results and screenshot/video evidence. Include restart confirmation/cancellation/persistence. Existing user screenshots provide evidence of specific visual issues; they do not validate every input/audio scenario.</p>
 <h3 id="f-015--performance-verification-gap">F-015 — Performance verification gap<a class="heading-link" href="#f-015--performance-verification-gap" aria-label="Link to F-015 — Performance verification gap">#</a></h3>
 <p>Real phone GPU frame rate and level-transition memory stability remain unmeasured. The existing bounded submission/resource tests are useful but do not establish FPS. Historical production JavaScript was roughly <strong>576 kB / 155 kB gzip</strong>, with an advisory Vite chunk-size warning; this is an optimization consideration, not a confirmed gameplay bug.</p>
@@ -489,17 +489,17 @@
 <tr>
 <td>F-014</td>
 <td>Device QA</td>
-<td>Blocked</td>
-<td>—</td>
-<td>—</td>
-<td>No physical phone or discovered browser capability; QA skipped per installed Sites guidance</td>
-<td>—</td>
-<td>Resume with actual device/revision evidence</td>
+<td>Done</td>
+<td>User acceptance</td>
+<td><code>b663de7</code></td>
+<td>Novy confirmed real-phone QA; device/browser details not supplied</td>
+<td><code>50128cd</code></td>
+<td>14 Oct 2026 (Vancouver); retain separate visual/performance issues</td>
 </tr>
 </tbody></table></div>
 <h2 id="decisions-and-session-handoff">Decisions and session handoff<a class="heading-link" href="#decisions-and-session-handoff" aria-label="Link to Decisions and session handoff">#</a></h2>
 <p>Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.</p>
-<p>Current handoff, 15 October 2026: F-025 migration is Done. P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-005/F-009/F-010/F-016/F-018 stay Review; F-014 stays Blocked. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.</p>
+<p>Current handoff, 15 October 2026: F-025 migration is Done. P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-005/F-009/F-010/F-016/F-018 stay Review; F-014 is Done by user confirmation. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.</p>
 <p>Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See <a href="p0-p1-validation.html">P0/P1 validation</a> for exact scenarios and limitations.</p>
 <p>Integration note, 14 October 2026: remote commit <code>6ac8eb7</code> added Quit (F-026) and wildlife crossing fences/edges under a duplicate F-025. Both requests are preserved; the latter is now F-027. Neither P2/P3 feature is included in this P0/P1 implementation batch.</p>
 <p>P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at <code>f0a87a1</code> gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 159/159 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.</p>
