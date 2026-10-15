@@ -2,7 +2,7 @@
 
 Snapshot: 15 October 2026; integrated P0/P1 source batch on `flock_3D_chatgpt-work` (source checkpoints and evidence in [validation](validation/P0-P1.md)). Audience: implementers, reviewers and players checking intended behavior. Public campaign levels are **1–100**; source indexes are **0–99**.
 
-This document separates the implemented baseline from requested changes. **Implemented baseline** means present in the inspected source, not proven on a phone. **Pending request** means recorded user intent whose acceptance criteria are still open. **Proposed / unresolved** means an implementation choice that must not be presented as approved. All P0/P1 issues are Done by user confirmation on 14 October 2026. Other P2 items remain Open; F-028 goal roaming is in Review. [ISSUES.md](ISSUES.md) owns priority, acceptance criteria and execution records. [QUALITY.md](QUALITY.md) owns historical test/review evidence and its limits. This document does not implement or deploy anything.
+This document separates the implemented baseline from requested changes. **Implemented baseline** means present in the inspected source, not proven on a phone. **Pending request** means recorded user intent whose acceptance criteria are still open. **Proposed / unresolved** means an implementation choice that must not be presented as approved. All P0/P1 issues are Done by user confirmation on 14 October 2026. F-028 goal roaming was accepted on 15 October 2026 at 00:28 America/Vancouver for the deployed build; other P2/P3 items remain Open. [ISSUES.md](ISSUES.md) owns priority, acceptance criteria and execution records. [QUALITY.md](QUALITY.md) owns historical test/review evidence and its limits. This document does not implement or deploy anything.
 
 ## Product and approved engine
 
@@ -117,7 +117,7 @@ Status: all P0/P1 issues are **Done** by user sign-off on 14 October 2026. Other
 | F-022 | P2 | Light rain/wind retain wildlife; worsening severity makes smaller species hide first, then larger; plausible return. | Fixed per-level counts lack retreat/shelter transitions. `nature.js`, shared weather state. |
 | F-023 | P2 | Worsening rain/storms increase cloud cover/change lighting; lightning flashes paired with thunder. | No storm/transition/event contract. `nature.js`, `render.js`, `audio.js`. |
 | F-024 | P2 | Sustained heavier rain gradually darkens grass/dirt; storms form puddles and animal footstep splashes; rivers respond coherently. | No accumulation/puddle/splash system. `nature.js`, `render.js`, `world.js`. |
-| F-028 | P2 | Delivered animals roam gently inside the rotated enclosure after arrival, including during results; full-body confinement, pause safety and immutable delivery results. | Review: replaces stationary saved animals; F-012 escaping behavior still excludes delivered animals. |
+| F-028 | P2 | Delivered animals roam gently inside the rotated enclosure after arrival, including during results; full-body confinement, pause safety and immutable delivery results. | Done: user accepted deployed Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` on 15 October 2026 at 00:28 America/Vancouver; F-012 escaping behavior still excludes delivered animals. |
 | F-026 | P3 | Pause-menu Quit returns to the landing page while preserving saved progress. | Open; distinct from Restart Game. In-progress-meadow resume policy unresolved. |
 | F-027 | P2 | Wildlife may cross fences and leave/reenter the game area. | Open; robotic animals/dog remain physically fenced. Wildlife obstacle/entry rules need definition with F-017. |
 

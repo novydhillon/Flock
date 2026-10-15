@@ -21,7 +21,7 @@ This is the starting point for humans and agents working on the robotic-herding 
 
 Runtime behavior comes from source and tests. The requirements describe intended behavior and identify gaps; they do not make requested features exist. The issue tracker records pending work. Historical quality scores apply only to the reviewed revision. HTML is generated from Markdown; edit the Markdown and run `npm run docs:build`.
 
-F-025 is Done: the canonical game is `https://novydhillon.github.io/Flock/dev2/`; the nested legacy address redirects there. The reviewed P1 development release is now published and hash-verified. All P0/P1 items are Done following user sign-off on 14 October 2026. F-014 is Done by Novy’s real-phone QA confirmation on 14 October 2026. Other P2 work remains Open; the new F-028 delivered-animal roaming change is in Review. See the validation runbook for separate source and publication milestones.
+F-025 is Done: the canonical game is `https://novydhillon.github.io/Flock/dev2/`; the nested legacy address redirects there. The reviewed P1 development release is now published and hash-verified. All P0/P1 items are Done following user sign-off on 14 October 2026. F-014 is Done by Novy’s real-phone QA confirmation on 14 October 2026. F-028 delivered-animal roaming is Done by user acceptance on 15 October 2026 at 00:28 America/Vancouver for its deployed build. Other P2/P3 work remains Open. See the validation runbook for separate source and publication milestones.
 
 ## Examples and diagrams
 
@@ -31,4 +31,4 @@ The HTML copy uses local assets and a bundled Mermaid renderer. Without JavaScri
 
 Latest verified bridge/barn release: Pages `8a76de3`, source `4d3cadc`; 162 source tests pass, both build modes pass, and all 18 intended live files match. See the [validation runbook](validation/P0-P1.md).
 
-Current development release: F-028 goal roaming at Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 live files verified. F-028 remains Review; all earlier P0/P1 sign-offs are Done.
+Current development release: F-028 goal roaming at Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 live files verified. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver; all earlier P0/P1 sign-offs are Done.

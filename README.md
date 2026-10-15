@@ -50,7 +50,7 @@ The opening pasture teaches herding with a small sheep flock and a nearby pen. L
 
 ## Deployment
 
-Latest development release: delivered animals roam gently within the goal with full-body confinement, including the open entrance. Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 expected live files match. [Validation details](docs/validation/P0-P1.md).
+Latest development release: delivered animals roam gently within the goal with full-body confinement, including the open entrance. Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 expected live files match. User acceptance recorded 15 October 2026 at 00:28 America/Vancouver. [Validation details](docs/validation/P0-P1.md).
 
 Previous verified follow-up: shorter bridge landings with actual-body clearance steering, and the entire occupied barn roof/facing sides at 30% transparency (opacity 0.70). Pages `8a76de3`; source `4d3cadc`. All 18 expected live files match; source CI passes 162 tests. See the [validation record](docs/validation/P0-P1.md).
 
