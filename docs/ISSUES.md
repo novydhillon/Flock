@@ -4,7 +4,7 @@ Updated: 14 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. W
 
 Source checkpoint: integrated P0/P1 batch (delivery `1fee206`, goal view `984fc64`; see execution record). Canonical live game: https://novydhillon.github.io/Flock/dev2/. F-025 migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`; it contains the preceding game revision. The reviewed P1 development build is published at Pages `9346f26c5a145698b34e2c4504236c494023817d` from source `7a8519d37a8f447652f0449e16a050fc76a6d3e0`; all 17 game files plus redirect match live hashes, and all 18 blobs outside `dev2/` are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.
 
-Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`, Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Node 22 CI [38679079215](https://github.com/novydhillon/Flock/actions/runs/38679079215) and native Pages [38679328953](https://github.com/novydhillon/Flock/actions/runs/38679328953) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. F-005/F-016 remain Review for user acceptance; F-014 remains Done.
+Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`, Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Node 22 CI [38679079215](https://github.com/novydhillon/Flock/actions/runs/38679079215) and native Pages [38679328953](https://github.com/novydhillon/Flock/actions/runs/38679328953) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. Novy accepted F-005/F-016 on 14 October 2026 (Vancouver); both are Done. F-014 remains Done.
 
 ## How agents should use this document
 
@@ -303,10 +303,10 @@ Copy one row per claimed issue; retain older entries when reopening work.
 | F-025 | P0 implementation/release | Done | Integrated source | `6616c41` | Asset graph/helper tests; all 15 live game files + redirect hashes; 17 unrelated blobs preserved; independent blind medium 9/10 | `baca95c7ba618d736730194b433254bf5058dd66` | 14 Oct 2026; P1 release separate |
 | F-001 | P1 surfaces | Review | Integrated source | `eed14e5` | Union topology/coverage regressions; final integrated checks tracked in runbook | `9346f26` | Real-renderer flicker check pending |
 | F-002 | P1 surfaces | Review | Integrated source | `eed14e5` | Surface/deck geometry, pause and ownership checks | `9346f26` | Rendered clipping/occlusion pending |
-| F-005 | P1 world | Review | Integrated source | `4887ea7`, `185116a` | Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys | `8a76de3` | Device/render landing checks pending |
+| F-005 | P1 world | Done | Integrated source | `4887ea7`, `185116a` | Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys; user accepted deployed follow-up | `8a76de3` | Accepted by Novy 14 Oct 2026 (Vancouver) |
 | F-009 | P1 delivery | Review | Integrated source | `1fee206` | Timer, proportional score, canonical ledger/migration and controller checks | `9346f26` | Independent source review passed; human pacing pending |
 | F-010 | P1 world/presentation | Review | Integrated source | `4887ea7`, `984fc64` | Rotated corners, full-body containment, goal/map/floor geometry | `9346f26` | Rendered matching pending |
-| F-016 | P1 cutaway | Review | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup | `8a76de3` | Actual transparency/device views pending |
+| F-016 | P1 cutaway | Done | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup; user accepted deployed follow-up | `8a76de3` | Accepted by Novy 14 Oct 2026 (Vancouver) |
 | F-018 | P1 QA | Review | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | Live QA bundle verified; touch checks pending |
 | F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
 
@@ -314,7 +314,7 @@ Copy one row per claimed issue; retain older entries when reopening work.
 
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
-Current handoff, 15 October 2026: F-025 migration is Done. P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-005/F-009/F-010/F-016/F-018 stay Review; F-014 is Done by user confirmation. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.
+Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 stay Review; F-014 is Done by user confirmation. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.
 
 Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See [P0/P1 validation](validation/P0-P1.md) for exact scenarios and limitations.
 
@@ -325,6 +325,10 @@ P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; 
 
 ## Follow-up device reports — 14 October 2026 (Vancouver)
 
-- `IMG_8375.jpeg` (level 4): user confirms deck width is correct but reports excessive length into land and animals caught near the bank/rail ends. F-005 remains Review and requires shorter landings without opening a wet gap or regressing retrieval.
-- `IMG_8376.jpeg` (level 3 barn): roof remains opaque over Pip. F-016 changes from selective ray panels to a whole-roof/camera-facing-side fade when any dog or flock animal enters, at 30% transparency (opacity 0.70).
+- `IMG_8375.jpeg` (level 4): user confirmed deck width and reported excessive length into land and animals caught near the bank/rail ends. Shorter landing follow-up was deployed and accepted; F-005 is Done.
+- `IMG_8376.jpeg` (level 3 barn): roof remained opaque over Pip. Whole-roof/camera-facing-side fade was deployed and accepted; F-016 is Done.
 - F-014 remains Done by user confirmation; these specific follow-up reports retain their own acceptance checks.
+
+## Follow-up acceptance — 14 October 2026 (Vancouver)
+
+Novy replied “Looks good” to the deployed bridge (F-005) and barn cutaway (F-016) follow-up at Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Mark F-005 and F-016 Done by user acceptance. The historical blind reviews and device limitation records above remain historical evidence; this acceptance applies to the deployed reported fixes only. F-014 was already Done.

@@ -2,7 +2,7 @@
 
 Snapshot: 14 October 2026; integrated P0/P1 source batch on `flock_3D_chatgpt-work` (source checkpoints and evidence in [validation](validation/P0-P1.md)). Audience: implementers, reviewers and players checking intended behavior. Public campaign levels are **1–100**; source indexes are **0–99**.
 
-This document separates the implemented baseline from requested changes. **Implemented baseline** means present in the inspected source, not proven on a phone. **Pending request** means recorded user intent whose acceptance criteria are still open. **Proposed / unresolved** means an implementation choice that must not be presented as approved. F-025 is Done; F-001/F-002/F-005/F-009/F-010/F-016/F-018 are source-implemented / Review; F-014 is Done by user confirmation on 14 October 2026. All P2 items remain Open. [ISSUES.md](ISSUES.md) owns priority, acceptance criteria and execution records. [QUALITY.md](QUALITY.md) owns historical test/review evidence and its limits. This document does not implement or deploy anything.
+This document separates the implemented baseline from requested changes. **Implemented baseline** means present in the inspected source, not proven on a phone. **Pending request** means recorded user intent whose acceptance criteria are still open. **Proposed / unresolved** means an implementation choice that must not be presented as approved. F-025/F-005/F-016 are Done; F-001/F-002/F-009/F-010/F-018 remain Review; F-014 is Done by user confirmation on 14 October 2026. All P2 items remain Open. [ISSUES.md](ISSUES.md) owns priority, acceptance criteria and execution records. [QUALITY.md](QUALITY.md) owns historical test/review evidence and its limits. This document does not implement or deploy anything.
 
 ## Product and approved engine
 
@@ -88,7 +88,7 @@ Current sheep/cows have articulated, instanced stop-motion leg poses. Ground use
 
 ## Requested change traceability
 
-Status: F-025 is **Done**; F-001/F-002/F-005/F-009/F-010/F-016/F-018 are **Review** (source implementation, pending independent/applicable rendered or device checks); F-014 is **Done**. Other rows remain **Open**. Existing systems must not be confused with completed visual acceptance. Detailed reproduction evidence, dependencies and decisions are in the corresponding sections of [ISSUES.md](ISSUES.md).
+Status: F-025/F-005/F-016 are **Done**; F-001/F-002/F-009/F-010/F-018 remain **Review** (source implementation, pending independent/applicable rendered or device checks); F-014 is **Done**. Other rows remain **Open**. Detailed evidence, dependencies and decisions are in the corresponding sections of [ISSUES.md](ISSUES.md).
 
 | ID | Priority | Required outcome and exact constraints | Current gap / main code touchpoints |
 |---|---|---|---|
@@ -97,7 +97,7 @@ Status: F-025 is **Done**; F-001/F-002/F-005/F-009/F-010/F-016/F-018 are **Revie
 | F-002 | P1 | Bark above grass/path/ground and bridge decks, normally occluded by fences/rails. | Review: `barkSurface` splits at deck/plank edges, lifts above each surface, retains depth testing and bounded pause-aware lifetime. |
 | F-003 | P2 | Detailed recognizable squirrel; coordinated scurry/bound/alert motion, stable idle/blocked heading, no spinning. | Simple art and desired-direction heading exist. `nature.js`, `models.js`; actual motion review required. |
 | F-004 | P2 | Subtle animated running-water texture following local river direction, seamless banks/bends, pause-safe. | Rivers exist; requested flow treatment pending. `render.js`, `world.js`. |
-| F-005 | P1 | Crossings perpendicular to local river tangent; bridge width **1.25 × crossing path width**; minimal safe dry-ground extension. | Review: local sampled tangent, straight approaches and 1.25 × usable path width; level-2 road/deck widen together. Visual checks remain. |
+| F-005 | P1 | Crossings perpendicular to local river tangent; bridge width **1.25 × crossing path width**; minimal safe dry-ground extension. | Done: Novy accepted the deployed bridge follow-up on 14 October 2026 (Vancouver), Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. |
 | F-006 | P2 | Gates requiring player opening at **level 20+**; visible/collidable state and single-thumb interaction. Levels 1–19 retain accessible openings. | Existing gates are openings, no open/close state. `world.js`, `simulation.js`, `main.js`, renderer. |
 | F-007 | P2 | Stone walls replace fences on selected levels with consistent collision and usable entrances. | Fence baseline exists; wall variants pending. `world.js`, `models.js`, `render.js`. |
 | F-008 | P2 | Soft textured clouds, potentially overlapping blurred blobs, **10–25%** semi-transparency, drifting/shadowed and readable. | Model clouds currently use .5 material opacity. Opacity interpretation needs confirmation. `nature.js`. |
@@ -108,7 +108,7 @@ Status: F-025 is **Done**; F-001/F-002/F-005/F-009/F-010/F-016/F-018 are **Revie
 | F-013 | P2 | Investigate level-5 pacing with humans, retrieval/chokepoint evidence and unchanged ordinary-input regressions. | Simulated level-5 time spike known; no confirmed human difficulty verdict. World/journey balance. |
 | F-014 | P1 | Real-phone controls, portrait readability, gestures, modals, sound and restart verified with device/revision evidence. | Done: user confirmed real-phone QA on 14 October 2026; device/browser details not supplied. |
 | F-015 | P3 | Measure mobile GPU and repeated transition stability on normal, large/split herds and weather scenes. | Submission/resource checks exist; phone frame times unmeasured. Set device targets before verdict. |
-| F-016 | P1 | Any dog/flock animal under cover fades the entire roof and full camera-facing wall side(s) to 30% transparency (opacity 0.70); restore when empty; retain collision. | Review: follow-up replaces selective per-ray fading with coherent roof/side fading; pause, hysteresis and material cleanup remain required. |
+| F-016 | P1 | Any dog/flock animal under cover fades the entire roof and full camera-facing wall side(s) to 30% transparency (opacity 0.70); restore when empty; retain collision. | Done: Novy accepted the deployed barn follow-up on 14 October 2026 (Vancouver), Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. |
 | F-017 | P2 | Add detailed hopping rabbits; random rabbit/squirrel populations scale with usable level area. | Rabbits absent, squirrels fixed count. `nature.js`, `models.js`; seeded bounded generation. |
 | F-018 | P1 | Dev-only QA menu: level **0–100**, add/remove bolts, pause and reposition individual animals using touch/mouse. Available in deployed dev build; absent in release. | Review: isolated dev-only menu; 0 = tutorial shortcut, 1–100 = public campaign. Paused coordinate edits, bounded override, currency, reset and JSON export; production exclusion tested. Animal selection and coordinate positioning are temporarily hidden in the QA panel. |
 | F-019 | P2 | Organic varied bushes without blocked routes/spawns or hidden critical play areas. | Open: small decorative root/field bushes exist; requested broader organic varied environment and collision policy remain pending. |
