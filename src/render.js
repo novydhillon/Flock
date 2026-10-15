@@ -173,7 +173,7 @@ export class MeadowRenderer{
     }
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
     this.nature.setLevel(level);this.atmosphere.setLevel(level,this.nature.weather);
-    this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews});
+    this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
     this.batchScenery();
     this.dog=createDog();this.dog.scale.setScalar(1.35);this.actors.add(this.dog);
     const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);

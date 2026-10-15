@@ -111,3 +111,8 @@ Before ending a session, update the issue execution record, regenerate HTML, run
 ### Deployment validator parser
 
 The Pages preparation helper uses Rollup’s JavaScript AST parser to inspect literal static imports, re-exports, dynamic imports and `new URL(..., import.meta.url)` assets. It does not treat words such as “Export scenario” in QA markup or comments as dependencies. Every emitted stylesheet is also checked, including lazy QA styles loaded through Vite dependency tables. Runtime-computed URLs still require final live asset verification. Rollup is an explicit development dependency; install the lockfile before invoking the helper.
+
+
+## Fixed-weather smoke checks
+
+Use QA public levels **9** (light rain), **16** (heavy rain) and **24** (storm). The level's weather kind must remain unchanged even after several minutes. Check the mission weather label, visible rain streaks and soft clouds immediately; heavy/storm ground should already be wet with puddles. In level 24, observe a brief lightning flash after 8–12 presentation seconds and delayed thunder with sound enabled. Pause, mute/unmute, hide the tab, restart and jump to a sunny level; no stale thunder, accumulated rain burst or dark-material carry-over should remain. Wildlife stays active in light rain and retreats in heavier weather. New queued gate/wall/wander/map changes are not part of this weather implementation.

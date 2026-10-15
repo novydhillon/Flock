@@ -250,9 +250,9 @@ test('weather shares a single noise buffer, bounded gains, and cleans up on weat
 test('dispose stops and disconnects every source, releases buffer and timer, and is final', async () => {
   await withAudio(async (audio, timers) => {
     await audio.start();
-    audio.updateAmbience(0.1, { weather: 'snow' });
+    audio.updateAmbience(0.1, { weather: 'rain' });
     audio.birdCountdown = 0;
-    audio.updateAmbience(0.1, { weather: 'snow' });
+    audio.updateAmbience(0.1, { weather: 'rain' });
     const sources = [...audio.active];
     const context = audio.context;
     audio.dispose();
@@ -299,5 +299,32 @@ test('weather replacement cancels pending thunder; stale lightning cannot catch 
     // New level/replay state owns a fresh event identity, even with the same seeded ID.
     audio.updateAmbience(.1, { weather: { ...weather } }); assert.ok(audio.thunderSource);
     const latest = audio.thunderSource; audio.dispose(); assert.equal(latest.disconnected, true);
+  });
+});
+
+test('only rain and wind have precipitation ambience; obsolete snow has no audio source', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    for (const type of ['light-rain', 'heavy-rain', 'storm']) {
+      audio.updateAmbience(.1, { weather: { type, intensity: .7 } });
+      assert.equal(audio.weatherKind, 'rain'); assert.ok(audio.weatherSource);
+    }
+    const source = audio.weatherSource.source;
+    audio.updateAmbience(.1, { weather: 'snow' });
+    assert.equal(audio.weatherKind, 'sun'); assert.equal(audio.weatherSource, null);
+    assert.equal(source.disconnected, true);
+  });
+});
+test('muted unseen events and malformed event timing cannot schedule stale thunder', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const weather = { type: 'rain', intensity: .9, lightningId: 'storm:0', lightningAge: 0, thunderDelay: 1 };
+    audio.setMuted(true); audio.updateAmbience(.1, { weather });
+    audio.setMuted(false); audio.updateAmbience(.1, { weather });
+    assert.equal(audio.thunderSource, null);
+    for (const [age, delay] of [[-1, 1], [0, -1], [NaN, 1], [0, Infinity], [60, 1]]) {
+      weather.lightningId += ':next'; weather.lightningAge = age; weather.thunderDelay = delay;
+      audio.updateAmbience(.1, { weather }); assert.equal(audio.thunderSource, null);
+    }
   });
 });

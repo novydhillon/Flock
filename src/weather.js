@@ -1,56 +1,65 @@
-/** Deterministic decorative weather. Advance only with gameplay simulation time. */
-const clamp = n => Math.max(0, Math.min(1, n));
-const smooth = n => { const t = clamp(n); return t * t * (3 - 2 * t); };
+/** Deterministic per-level weather. Only lightning advances with simulation time. */
 const presets = {
-  sun: { rainIntensity: 0, snowIntensity: 0, windIntensity: .12, severity: 0, cloudCoverage: .22, daylight: 1 },
-  wind: { rainIntensity: 0, snowIntensity: 0, windIntensity: .6, severity: .3, cloudCoverage: .4, daylight: .92 },
-  rain: { rainIntensity: .35, snowIntensity: 0, windIntensity: .35, severity: .35, cloudCoverage: .62, daylight: .83 },
-  storm: { rainIntensity: .95, snowIntensity: 0, windIntensity: .9, severity: .92, cloudCoverage: .95, daylight: .64 },
-  snow: { rainIntensity: 0, snowIntensity: .4, windIntensity: .28, severity: .4, cloudCoverage: .65, daylight: .88 },
+  sun: { rainIntensity: 0, windIntensity: .12, severity: 0, cloudCoverage: .22, daylight: 1 },
+  wind: { rainIntensity: 0, windIntensity: .6, severity: .3, cloudCoverage: .4, daylight: .96 },
+  rain: { rainIntensity: .3, windIntensity: .3, severity: .28, cloudCoverage: .5, daylight: .94 },
+  'heavy-rain': { rainIntensity: .65, windIntensity: .55, severity: .6, cloudCoverage: .7, daylight: .82 },
+  storm: { rainIntensity: .9, windIntensity: .85, severity: .88, cloudCoverage: .85, daylight: .70 },
 };
-function initial(level) {
-  const number = (level.index || 0) + 1;
-  const requested = typeof level.weather === 'string' ? level.weather : level.weather?.type;
-  let kind = requested || (number <= 5 ? 'sun' : ['sun', 'wind', 'rain', 'sun', 'snow'][(number - 6) % 5]);
-  if (!presets[kind] || number <= 5 || (number <= 8 && ['snow', 'storm'].includes(kind))) kind = 'sun';
-  return kind;
+// Integer hashing avoids frame randomness and makes seed/index choices replayable.
+function hash(seed, index) {
+  let value = (seed ^ Math.imul(index + 1, 0x9e3779b9)) >>> 0;
+  value = Math.imul(value ^ (value >>> 16), 0x21f0aaad);
+  value = Math.imul(value ^ (value >>> 15), 0x735a2d97);
+  return (value ^ (value >>> 15)) >>> 0;
 }
-function sample(state, time) {
-  const episode = Math.floor(time / 90), local = time % 90;
-  const sequence = state.sequence, next = sequence[episode % sequence.length];
-  const previous = sequence[Math.max(0, episode - 1) % sequence.length];
-  const blend = episode === 0 ? 1 : smooth(local / 18);
-  const fields = {};
-  for (const field of Object.keys(presets.sun)) fields[field] = presets[previous][field] + (presets[next][field] - presets[previous][field]) * blend;
-  fields.kind = blend < .5 ? previous : next;
-  return fields;
+function initial(level, seed, index) {
+  const number = index + 1;
+  if (number <= 5) return 'sun';
+  const requested = typeof level.weather === 'string' ? level.weather : level.weather?.kind || level.weather?.type;
+  const alias = requested === 'light-rain' || requested === 'snow' ? 'rain' : requested;
+  if (alias && presets[alias]) {
+    if (alias === 'sun' || alias === 'wind') return alias;
+    if (number < 9) return 'sun';
+    if (alias === 'storm' && number >= 24) return 'storm';
+    if ((alias === 'storm' || alias === 'heavy-rain') && number >= 16) return 'heavy-rain';
+    return 'rain';
+  }
+  // Unlock levels are reliable visual QA fixtures, independent of seed.
+  if (number === 9) return 'rain';
+  if (number === 16) return 'heavy-rain';
+  if (number === 24) return 'storm';
+  const roll = hash(seed, index) / 0x100000000;
+  if (number < 9) return roll < .65 ? 'sun' : 'wind';
+  if (number < 16) return roll < .35 ? 'sun' : roll < .5 ? 'wind' : 'rain';
+  if (number < 24) return roll < .25 ? 'sun' : roll < .35 ? 'wind' : roll < .65 ? 'rain' : 'heavy-rain';
+  return roll < .2 ? 'sun' : roll < .3 ? 'wind' : roll < .5 ? 'rain' : roll < .75 ? 'heavy-rain' : 'storm';
 }
 export function createWeatherState(level = {}) {
-  const kind = initial(level), number = (level.index || 0) + 1;
-  const cycle = number <= 5 ? ['sun'] : number <= 8 ? ['sun', 'wind', 'rain', 'sun'] : ['sun', 'wind', 'rain', 'storm', 'rain', 'sun', 'snow'];
-  const offset = cycle.indexOf(kind);
-  const sequence = offset >= 0 ? [...cycle.slice(offset), ...cycle.slice(0, offset)] : [kind, ...cycle];
-  const state = { elapsed: 0, sequence, seed: level.seed || 42, levelIndex: level.index || 0, lightningId: null,
-    lightningAge: Infinity, thunderDelay: .8, lightningFlash: 0, clouds: 5, butterflies: kind === 'snow' ? 0 : kind === 'rain' || kind === 'storm' ? 4 : 8, birds: 5, squirrels: 3 };
-  return stepWeather(state, 0);
+  const levelIndex = Number.isFinite(level.index) ? Math.max(0, Math.floor(level.index)) : 0;
+  const seed = Number.isFinite(level.seed) ? level.seed >>> 0 : 42;
+  const kind = initial(level, seed, levelIndex), preset = presets[kind];
+  const state = { ...preset, kind, type: kind === 'heavy-rain' || kind === 'storm' ? 'rain' : kind,
+    snowIntensity: 0, storm: kind === 'storm', elapsed: 0, seed, levelIndex,
+    intensity: Math.max(preset.rainIntensity, kind === 'wind' ? preset.windIntensity : 0),
+    wind: .2 + preset.windIntensity * 1.6, particles: preset.rainIntensity > 0 ? 128 : 0,
+    lightningId: null, lightningAge: Infinity, thunderDelay: .8, lightningFlash: 0,
+    clouds: 5, butterflies: preset.rainIntensity > 0 ? 4 : 8, birds: 5, squirrels: 3,
+    lightningStart: 8 + hash(seed, levelIndex + 1000) % 401 / 100,
+    lightningInterval: 24 };
+  return state;
 }
 export function weatherForLevel(level = {}) { return createWeatherState(level); }
 export function stepWeather(state, dt) {
   if (Number.isFinite(dt) && dt > 0) state.elapsed += dt;
-  const fields = sample(state, state.elapsed);
-  Object.assign(state, fields);
-  state.type = fields.kind === 'storm' ? 'rain' : fields.kind;
-  state.storm = fields.kind === 'storm';
-  state.intensity = Math.max(state.rainIntensity, state.snowIntensity, state.type === 'wind' ? state.windIntensity : 0);
-  state.wind = .2 + state.windIntensity * 1.6;
-  state.particles = state.levelIndex < 5 ? 0 : 128;
-  // One brief, low-strength flash per 24 seconds of severe weather, followed by
-  // thunder from the same ID. No wall-clock timers or random frame decisions.
-  const event = Math.floor((state.elapsed - 30) / 24), at = 30 + event * 24;
-  const eligible = event >= 0 && sample(state, at).severity >= .72;
-  state.lightningId = eligible ? `${state.seed}:${state.levelIndex}:${event}` : null;
-  state.lightningAge = eligible ? state.elapsed - at : Infinity;
-  state.thunderDelay = .8 + ((state.seed + event * 17) >>> 0) % 9 / 10;
-  state.lightningFlash = eligible && state.lightningAge < .22 ? .38 * (1 - state.lightningAge / .22) : 0;
+  if (!state.storm) return state;
+  // A low-strength brief flash, then thunder from that same event ID. Large
+  // frame gaps sample the latest event without replaying skipped strikes.
+  const event = Math.floor((state.elapsed - state.lightningStart) / state.lightningInterval);
+  if (event < 0) return state;
+  state.lightningId = `${state.seed}:${state.levelIndex}:${event}`;
+  state.lightningAge = Math.max(0, state.elapsed - (state.lightningStart + event * state.lightningInterval));
+  state.thunderDelay = .8 + hash(state.seed, state.levelIndex + event + 2000) % 9 / 10;
+  state.lightningFlash = state.lightningAge < .22 ? .38 * (1 - state.lightningAge / .22) : 0;
   return state;
 }

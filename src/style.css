@@ -7,3 +7,5 @@ html,body{touch-action:auto;-webkit-text-size-adjust:100%}button,.topbar{touch-a
 .intro-actions{width:240px;max-width:100%}.intro-actions .primary{width:100%}.secondary.danger{color:#985440;background:#efe2d5}
 
 .delivery-status{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:10px;color:#75856a}.delivery-status .running{color:#93622f;font-weight:700}#mission-score{white-space:nowrap}@media(max-width:700px){.delivery-status{font-size:9px;margin-top:6px}.map-box{top:212px}.destination{top:203px}}@media(max-height:650px){.map-box{top:195px}.destination{top:188px}}
+
+.weather-status{margin-top:7px;font-size:11px;font-weight:700;color:#547461;letter-spacing:.2px}

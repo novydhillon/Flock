@@ -449,3 +449,9 @@ test('hidden intro and results freeze presentation weather and wetness time',asy
  ui.document.hidden=true;ui.tick();assert.equal(ui.app.state().renderer.lastDt,0);
  ui.document.hidden=false;ui.tick();assert.ok(ui.app.state().renderer.lastDt>0);
 });
+
+test('mission identifies fixed weather without requiring a wait or affecting the delivery HUD',()=>{
+ const ui=launch(),renderer=ui.app.state().renderer;renderer.nature={weather:{kind:'heavy-rain',type:'rain'}};ui.tick();assert.match(ui.el('weather-status').textContent,/Heavy rain/);
+ renderer.nature.weather={kind:'storm',type:'rain'};ui.tick();assert.match(ui.el('weather-status').textContent,/Thunderstorm/);
+ assert.ok(ui.el('mission-score'));assert.ok(ui.el('countdown'));
+});

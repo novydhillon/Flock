@@ -19,7 +19,7 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 | `src/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |
 | `src/vegetation.js` | Seeded, route-aware decorative bush clusters | Decorative only; avoids collision and play-critical areas |
 | `src/wildlife.js`, `src/wildlife-models.js` | Area-scaled ambient populations, movement, fence permeability and weather shelter | Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared |
-| `src/weather.js` | Seeded shared weather fields and deterministic episode/lightning state | `MeadowNature` is the single advancing owner; other systems read the same object |
+| `src/weather.js` | Fixed seeded level weather and deterministic paired storm events | `MeadowNature` is the single advancing owner; other systems read the same object |
 | `src/atmosphere.js`, `src/water-effects.js` | Cloud/light response; directional river flow, surface wetness, puddles and splashes | Per-level resources are bounded and disposed; zero dt/pause freezes effects |
 | `src/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
 | `src/cutaway.js` | Occupied-structure roof/facing-side visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
@@ -87,3 +87,8 @@ Audio start/resume may complete after a pause, newer activation or disposal. Gen
 Tests run actual simulation/profile code and construct real Three.js geometry, with browser graphics/audio surfaces substituted where needed. They do not establish rendered appearance, physical Safari interactions, sound quality or mobile FPS. [Quality record](QUALITY.md) preserves those limits and historical review scores.
 
 Use [system documentation](README.md) for narrower APIs. Start work from [the tracker](ISSUES.md), claim ownership, retain regression checks and record source versus deployment milestones separately.
+
+
+## Fixed weather contract — 15 October 2026
+
+F-040 supersedes weather cycling and snow. `createWeatherState(level)` chooses the fixed kind/intensity/severity/daylight once; `stepWeather(state,dt)` advances only elapsed time and paired storm events. Nature, rain, clouds, terrain, lights and audio consume the same object. The mission panel labels it. `WaterEffects.setLevel` accepts `weather` to establish a rainy meadow's existing wet ground/puddles before the first frame; shared materials restore on replacement. The visibility systems must use true orthographic corner rays and seed rain across the view when the first real camera arrives, not use the camera eye as a perspective-ray origin. [Presentation context](systems/PRESENTATION.md) has the exact tiers and lifecycle.

@@ -77,3 +77,12 @@ test('river arc-length flow follows a bend and owns its UV geometry',()=>{
   effects.update(.1,{weather:{type:'sun'}});assert.equal(overlay.material.map.offset.x,0);assert.ok(overlay.material.map.offset.y>0);
   let disposed=0;overlay.geometry.addEventListener('dispose',()=>disposed++);effects.dispose();assert.equal(disposed,1);assert.deepEqual([...geometry.attributes.uv.array],[0,0,0,2,2,2]);
 });
+
+test('fixed rainy levels begin wet with heavy/storm puddles and restart dry',()=>{
+ const effects=new WaterEffects(new THREE.Scene()),level=createLevel(23),grass=new THREE.MeshStandardMaterial({color:'#ffffff'}),original=grass.color.clone();
+ effects.setLevel(level,{grassMaterials:[grass],weather:{kind:'storm',type:'rain',rainIntensity:.9,cloudCoverage:.85}});
+ assert.equal(effects.elapsed,0);assert.equal(effects.wetness,.6);assert.ok(!grass.color.equals(original));assert.ok(effects.puddles.some(p=>p.mesh.visible&&p.depth>.28));
+ const snapshot=effects.wetness;effects.update(1,{weather:{type:'rain',rainIntensity:.9},paused:true});assert.equal(effects.wetness,snapshot);
+ effects.setLevel(level,{grassMaterials:[grass],weather:{kind:'rain',type:'rain',rainIntensity:.3}});assert.equal(effects.wetness,.03);assert.ok(effects.puddles.every(p=>!p.mesh.visible));
+ effects.setLevel(createLevel(0),{grassMaterials:[grass],weather:{kind:'sun',type:'sun'}});assert.equal(effects.wetness,0);assert.ok(grass.color.equals(original));effects.dispose();
+});

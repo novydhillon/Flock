@@ -1,6 +1,6 @@
 # Flock dev2 revision quality record
 
-Current release: F-028 confined goal roaming, accepted by the user for deployed Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` on 15 October 2026 at 00:28 America/Vancouver. Its source checkpoint passed 165 tests and blind review 9.5/10. Verified publication and historical review evidence are recorded below; older checkpoints retain their original totals.
+Latest accepted P2 release: Pages `cc13865`, source `b1fdac3`. On 15 October 2026 at approximately 10:56 America/Vancouver Novy accepted F-003/F-004/F-006/F-007/F-011/F-012/F-017/F-019/F-020/F-021/F-027. F-008/F-022/F-023/F-024 are reopened P1 work under F-040. The fixed-weather repair below is a new Review candidate; historical checkpoint scores/totals are retained for their own revisions.
 
 ## P0/P1 implementation batch — 14 October 2026
 
@@ -144,3 +144,23 @@ Live game: **https://novydhillon.github.io/Flock/dev2/**. Runtime source snapsho
 Final source CI passes the 212-test aggregate, generated-documentation checks and both release/development build checks. Local full suites before the final hidden-tab guard passed 211/211 on Node 22 and Node 24; the guard's focused UI/QA tests passed 28/28, and final CI includes its added regression. Blind source reviews meet the 8/10 target; documentation follow-up is 8.5/10. No fresh rendered/device acceptance is claimed.
 
 Implemented P2 items stay **Review** for Novy's acceptance. F-013 remains **Open** pending human level-5 pacing; F-015/F-026 remain **Open** P3 work. Previous P0/P1 and F-028/F-029 sign-offs remain Done. Workstream SHAs elsewhere in this record identify local development evidence; the published runtime snapshot above contains their integrated code. The following documentation-only commit does not change the verified runtime build.
+
+
+## Fixed-weather P1 repair — 15 October 2026
+
+User feedback supersedes the changing-weather/snow implementation. Eleven original P2 features are accepted; new F-030–F-039 changes remain queued and are not included in this repair. F-008/F-022/F-023/F-024/F-040 are Review candidates pending fresh phone weather acceptance.
+
+The candidate selects fixed weather once per level, removes snow, adds visible line rain and correct orthographic cloud/rain placement, starts heavy/storm levels wet, and labels weather in the mission panel. Public levels 9/16/24 reliably show light/heavy/storm; the later thresholds and other-level seeded weights are source tuning choices. Storm flashes start after 8–12 seconds with delayed thunder and a 24-second spacing. There is no within-level tier transition.
+
+Parallel work used `Flock-weather-state` (`58b563c`) and `Flock-visible-weather` / `Flock-weather-projection` (`2afe4de`, `7b4b515`), with root integrating wet-ground/label/lifecycle feedback (`8afd27e`). Developers used Luna medium for bounded visual implementation and Sol medium for state/audio; an independent Sol medium geometry critic was appropriate for orthographic projection, and a Luna medium critic reviewed state/lifecycle integration. Both began without author reasoning or prior scores.
+
+| Independent review | Result and confirmed repairs |
+| --- | --- |
+| Fixed weather/state/audio/integration | **8/10**. Focused 88-test source run passes; deterministic fixed fields, unlock/legacy aliases, no snow, first-frame wetness/labels, pause/hidden behavior and replay-safe thunder checked. |
+| Visibility geometry | **8.3/10**. Corrected perspective-style footprint math for an orthographic camera, rain initially centered at the camera eye, first-camera rain collapsed into one column, static/disconnected shadows, excessive portrait overlap and transparent double-pass submissions. |
+
+The geometry critic independently intersected actual camera rays with puff planes and sampled the texture alpha: discrete cloud patches occurred in portrait/landscape across small/large worlds and camera travel; final sampled average aggregate alpha was 3.4–4.5%, with 24–30% of sampled viewport positions above 6%. Initial rain distributes all 96/176/256 drops across the view and its projected strokes fall downward. Clouds/shadows track motion, pause matrices freeze, and repeated disposal releases owned resources. Two single-pass cloud/shadow batches plus one rain submission keep the added draw count bounded. A follow-up normalized signed cloud drift and added a 20-minute tile-wrap regression.
+
+Full source suites: **219/219 Node 24** before the added wrap regression, then **220/220 Node 22.23.3** including it; focused projection/weather checks also pass. Release/development artifact checks pass (no QA in release; QA included in dev). Generated Markdown/HTML documentation is refreshed and checked. Browser/GPU/pixel/listening verification is unavailable here, so these source/geometry scores are not a claim of perceived weather quality. Novy should retest 9/16/24 on the phone before acceptance. Publication evidence follows after the live build is verified.
+
+Documentation follow-up for the acceptance/weather repair: **8/10**, with 12 generated pages, 828 links/anchors, nine diagrams and four DOM checks passing. Prior deployed behavior is separated from the fixed-weather source candidate, and the 11 accepted P2 items remain Done.

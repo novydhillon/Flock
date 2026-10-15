@@ -11,17 +11,17 @@ function meadow(index = 0) {
     roads: [{ points: [{ x: -25, z: 0 }, { x: 40, z: 0 }], width: 4 }], rivers: [], obstacles: [], fenceSegments: [] };
 }
 
-test('weather is bounded, deterministic, and snow is unavailable during first eight levels', () => {
-  const types = new Set();
+test('weather presets are bounded, deterministic, and never expose snow', () => {
+  const kinds = new Set();
   for (let index = 0; index < 100; index++) {
-    const config = weatherForLevel(meadow(index)); types.add(config.type);
+    const config = weatherForLevel(meadow(index)); kinds.add(config.kind);
     assert.deepEqual(config, weatherForLevel(meadow(index)));
     assert.ok(config.particles <= 128); assert.ok(config.birds + config.squirrels + config.butterflies <= 16);
-    if (index < 8) assert.notEqual(config.type, 'snow');
+    assert.notEqual(config.kind, 'snow'); assert.equal(config.snowIntensity, 0);
   }
-  assert.equal(types.size, 4);
-  assert.equal(weatherForLevel({ index: 7, weather: 'snow' }).type, 'sun');
-  assert.equal(weatherForLevel({ index: 8, weather: { type: 'snow' } }).type, 'snow');
+  assert.deepEqual([...kinds].sort(), ['heavy-rain', 'rain', 'storm', 'sun', 'wind']);
+  assert.equal(weatherForLevel({ index: 7, weather: 'snow' }).kind, 'sun');
+  assert.equal(weatherForLevel({ index: 8, weather: { kind: 'snow' } }).kind, 'rain');
 });
 
 test('wildlife spawns off routes on traversable ground and clear of the flock', () => {

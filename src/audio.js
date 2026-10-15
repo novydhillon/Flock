@@ -155,7 +155,7 @@ export class FarmAudio {
     const type = typeof raw === 'string' ? raw : raw.type || 'sun';
     const intensity = typeof raw === 'object' && Number.isFinite(raw.intensity)
       ? Math.max(0, Math.min(1, raw.intensity)) : 0.3;
-    const kind = ['rain', 'wind', 'snow'].includes(type) ? type : 'sun';
+    const kind = ['rain', 'light-rain', 'heavy-rain', 'storm'].includes(type) ? 'rain' : type === 'wind' ? 'wind' : 'sun';
     this._weather(kind, intensity);
     // Clamp frame gaps so resuming a hidden tab cannot emit a burst of birds.
     this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, 0.25)) : 0;
@@ -185,7 +185,7 @@ export class FarmAudio {
     // Observe muted/paused events too, preventing delayed playback on unmute.
     this.thunderEvent = id;
     const age = weather.lightningAge, delay = weather.thunderDelay;
-    if (!available || !Number.isFinite(age) || !Number.isFinite(delay) || age > delay + .2) return;
+    if (!available || !Number.isFinite(age) || !Number.isFinite(delay) || age < 0 || delay < 0 || age > delay + .2) return;
     if (this.thunderSource) this._releaseAmbience(this.thunderSource);
     const context = this.context, source = context.createBufferSource();
     const filter = context.createBiquadFilter(), gain = context.createGain();
@@ -260,7 +260,7 @@ export class FarmAudio {
       }
     }
     if (this.weatherSource) {
-      const volume = (kind === 'rain' ? 0.032 : kind === 'snow' ? 0.012 : 0.024) * intensity;
+      const volume = (kind === 'rain' ? 0.032 : 0.024) * intensity;
       if (Math.abs(volume - this.weatherVolume) > 0.001) {
         this.weatherSource.gain.gain.setTargetAtTime(volume, this.context.currentTime, 0.8);
         this.weatherVolume = volume;

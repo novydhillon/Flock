@@ -32,7 +32,7 @@ export class WaterEffects {
     this.splashGeometry=new THREE.TorusGeometry(.2,.025,4,12);
     this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
   }
-  setLevel(level,{grassMaterials=[],pathMaterials=[],waterMaterial=null,terrain=null,rivers=[]}={}){
+  setLevel(level,{grassMaterials=[],pathMaterials=[],waterMaterial=null,terrain=null,rivers=[],weather=null}={}){
     this.restoreMaterials();this.clearEffects();this.level=level;this.terrain=terrain;this.rivers=rivers;this.wetness=0;this.elapsed=0;this.lastMoverPositions.clear();this.lastSplashAt.clear();
     for(const [kind,materials] of [['grass',grassMaterials],['path',pathMaterials]])for(const material of Array.isArray(materials)?materials:[materials])if(material?.color){
       this.materialSnapshots.push({material,kind,color:material.color.clone(),roughness:material.roughness});
@@ -53,6 +53,7 @@ export class WaterEffects {
     for(let i=0;i<this.maxSplashes;i++){const material=new THREE.MeshBasicMaterial({color:0xc9eef0,transparent:true,opacity:.78,depthWrite:false});const mesh=new THREE.Mesh(this.splashGeometry,material);mesh.visible=false;mesh.rotation.x=-Math.PI/2;this.root.add(mesh);this.splashes.push({mesh,material,age:1});}
     const puddleGeometry=new THREE.CircleGeometry(1,20);this.puddleResources={geometry:puddleGeometry};
     for(const site of this.findPuddleSites()) {const material=new THREE.MeshBasicMaterial({color:0x456a69,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});const mesh=new THREE.Mesh(puddleGeometry,material);mesh.rotation.x=-Math.PI/2;mesh.visible=false;mesh.position.set(site.x,terrainHeight(level,site.x,site.z)+.024,site.z);mesh.scale.set(site.radius,site.radius*.62,1);this.root.add(mesh);this.puddles.push({mesh,material,depth:0,site});}
+    if(weather){this.wetness=weather.kind==='storm'?.60:weather.kind==='heavy-rain'?.35:weather.type==='rain'?.03:0;for(const p of this.puddles){p.depth=weather.kind==='storm'?.65:weather.kind==='heavy-rain'?.40:0;p.mesh.visible=p.depth>.28;p.material.opacity=p.mesh.visible?.06+p.depth*.24:0;}this.applySurfaceWeather(weather);}
   }
   findPuddleSites(){
     const b=this.level.bounds,sites=[],w=b.maxX-b.minX,d=b.maxZ-b.minZ;
@@ -73,13 +74,17 @@ export class WaterEffects {
     if(this.puddleResources){this.puddleResources.geometry.dispose();this.puddleResources=null;}
     for(const child of [...this.root.children])if(child.name==='River flow'){this.root.remove(child);child.material.userData.ownedFlowMap?.dispose();child.material.dispose();child.geometry.dispose();}
   }
+  applySurfaceWeather(weather={}){
+    const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
+    for(const s of this.materialSnapshots){const amount=this.wetness*(s.kind==='grass'?.62:.85);s.material.color.copy(s.color).lerp(s.kind==='grass'?GRASS_WET:PATH_WET,amount);if(s.roughness!==undefined)s.material.roughness=Math.max(.28,s.roughness-this.wetness*.22);}
+    if(this.waterSnapshot){const s=this.waterSnapshot,cloud=clamp(weather.cloudCoverage??0);if(s.material.color&&s.color)s.material.color.copy(s.color).lerp(WATER_RAIN,clamp((weather.rainIntensity??rain)*.11+cloud*.035+(weather.severity||0)*.025+(weather.lightningFlash||0)*.09));if(s.roughness!==undefined)s.material.roughness=clamp(s.roughness-(weather.rainIntensity??rain)*.16,.12,1);}
+  }
   update(dt,{weather={},movers=[],paused=false}={}){
     if(!this.level||paused||!(dt>0))return;
     dt=Math.min(dt,.1);this.elapsed+=dt;
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
-    for(const s of this.materialSnapshots){const amount=this.wetness*(s.kind==='grass'?.62:.85);s.material.color.copy(s.color).lerp(s.kind==='grass'?GRASS_WET:PATH_WET,amount);if(s.roughness!==undefined)s.material.roughness=Math.max(.28,s.roughness-this.wetness*.22);}
-    if(this.waterSnapshot){const s=this.waterSnapshot,cloud=clamp(weather.cloudCoverage??0);if(s.material.color&&s.color)s.material.color.copy(s.color).lerp(WATER_RAIN,clamp((weather.rainIntensity??rain)*.11+cloud*.035+(weather.severity||0)*.025+(weather.lightningFlash||0)*.09));if(s.roughness!==undefined)s.material.roughness=clamp(s.roughness-(weather.rainIntensity??rain)*.16,.12,1);}
+    this.applySurfaceWeather(weather);
     for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.08+rain*.18+(weather.daylight??.7)*.025+(weather.lightningFlash||0)*.2;}
     for(const p of this.puddles){p.depth=clamp(p.depth+rain*dt*.04-dt*(weather.type==='sun'?.006:.0008));p.mesh.visible=p.depth>.28;p.material.opacity=p.mesh.visible?.06+p.depth*.24:0;}
     for(const mover of movers){const pos=flat(mover);if(!pos||!Number.isFinite(pos.x)||!Number.isFinite(pos.z))continue;const id=mover.id??mover.kind??'mover',prev=flat(mover.previousPosition)||((Number.isFinite(mover.previousX))?{x:mover.previousX,z:mover.previousZ}:this.lastMoverPositions.get(id));
