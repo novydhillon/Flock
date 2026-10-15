@@ -62,7 +62,7 @@ git -C /tmp/flock-pages-review diff --cached --stat
 
 The helper validates local HTML/CSS/JavaScript asset references before creating a detached worktree from the locally fetched `origin/gh-pages`. It stages `dev2/`, the legacy redirect and `.nojekyll` only if missing; it never fetches, commits or pushes. Review the full diff, preserve unrelated content, and verify live hashes after native Pages publication. See [release instructions](docs/DEVELOPMENT.md) and the [P0/P1 validation runbook](docs/validation/P0-P1.md).
 
-Local development and explicit development builds expose **QA · dev**. Opening it starts an isolated test profile: QA 0 is a tutorial shortcut, public levels remain 1–100, and test edits never save to the normal profile. Jump levels, adjust test bolts, select an animal and edit its world coordinates while paused; invalid-placement override still respects meadow bounds. Reset starts a fresh test session, export downloads scenario JSON, and reload exits QA. Physical touch usability remains awaiting device validation.
+Local development and explicit development builds expose **QA · dev**. Opening it starts an isolated test profile: QA 0 is a tutorial shortcut, public levels remain 1–100, and test edits never save to the normal profile. Jump levels, adjust test bolts, reset the session, or export scenario JSON. Animal selection and coordinate positioning are temporarily hidden. Close QA with the × button or Resume; reload also exits QA. Physical touch usability remains awaiting device validation.
 
 ## Scope
 

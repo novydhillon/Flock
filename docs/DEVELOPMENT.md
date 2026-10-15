@@ -69,6 +69,8 @@ The verified migration Pages commit is `baca95c7ba618d736730194b433254bf5058dd66
 
 `npm run dev` and `npm run build:dev` enable QA; normal `npm run build` removes the dynamic QA branch/module and its mutation handlers. CI packages the checked development build after checking both modes. `node scripts/check-build-mode.mjs release` rejects QA chunks/signatures in a release artifact; `node scripts/check-build-mode.mjs development` requires the QA JavaScript/CSS and expected entry/export signatures. For a development publication, use the checked final `build:dev` artifact.
 
+The isolated QA panel supports level jumps, test bolts, session reset and scenario export. Animal selection and coordinate positioning are temporarily hidden; the panel can be closed with its × button or Resume.
+
 ```mermaid
 flowchart TD
   Source["Commit source branch"] --> CI["Tests + build + artifact"]

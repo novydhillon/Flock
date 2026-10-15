@@ -33,21 +33,21 @@ test('production controller and QA editor freeze timed delivery and protect the 
     ui.document.getElementById('qa-toggle').click();await settle();
     assert.equal(ui.app.state().mode,'qa');assert.equal(ui.app.state().qaSession,true);
     assert.equal(ui.app.state().level.index,0);assert.equal(ui.app.state().profile.points,0);
+    assert.equal(ui.document.getElementById('qa-move').hidden,true,'animal selection and coordinate positioning are temporarily hidden');
+    assert.equal(ui.document.getElementById('qa-animal').closest('[hidden]')!==null,true,'hidden positioning controls are outside the focus trap');
+    ui.document.getElementById('qa-toggle').click();assert.equal(ui.app.state().mode,'qa');assert.equal(ui.document.getElementById('qa-panel').hidden,false,'repeated QA trigger click keeps the QA panel open');
     const state=ui.app.state();state.level.delivery={started:true,duration:30,remaining:12};
     const time=state.level.time||0,elapsed=state.elapsed;
     for(let i=0;i<100;i++)ui.tick();
     assert.equal(state.level.delivery.remaining,12);assert.equal(state.level.time||0,time);assert.equal(ui.app.state().elapsed,elapsed);
     ui.document.getElementById('qa-amount').value='500';submit(ui,'qa-bolts');await settle();
     assert.equal(ui.app.state().profile.points,500);assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial);
-    const animal=state.level.animals[0];ui.document.getElementById('qa-animal').value=String(animal.id);
-    ui.document.getElementById('qa-x').value=String(state.level.spawn.x+.5);ui.document.getElementById('qa-z').value=String(state.level.spawn.z);
-    submit(ui,'qa-move');await settle();assert.equal(animal.x,state.level.spawn.x+.5);assert.equal(state.level.delivery.remaining,12);
-    ui.document.getElementById('qa-resume').click();assert.equal(ui.app.state().mode,'playing');
+    ui.document.getElementById('qa-close').click();assert.equal(ui.app.state().mode,'playing');assert.equal(ui.document.getElementById('modal').classList.contains('hidden'),true,'closing QA does not open the level menu');
     Object.assign(state.dog,{x:state.level.target.x,z:state.level.target.z});for(const a of state.level.animals)Object.assign(a,{x:state.level.target.x,z:state.level.target.z,vx:0,vz:0});
     ui.tick();assert.equal(ui.app.state().mode,'complete');assert.ok(ui.app.state().profile.points>500);
     assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial,'QA completion cannot persist rewards over the real profile');
     const earned=ui.app.state().profile.points;ui.document.getElementById('qa-toggle').click();await settle();
-    assert.equal(ui.app.state().mode,'qa');ui.document.getElementById('qa-resume').click();
+    assert.equal(ui.app.state().mode,'qa');ui.document.getElementById('qa-close').click();
     assert.equal(ui.app.state().mode,'complete');assert.ok(!ui.document.getElementById('modal').classList.contains('hidden'));
     assert.ok(ui.document.getElementById('next'));assert.equal(ui.app.state().profile.points,earned,'Restoring results must not award again');
   }finally{ui.close();}
@@ -58,8 +58,9 @@ test('QA public-level jump remains paused through controller startup and cannot 
     await settle();ui.document.getElementById('qa-toggle').click();await settle();
     ui.document.getElementById('qa-level').value='100';submit(ui,'qa-jump');
     assert.equal(ui.app.state().mode,'qa');await settle();assert.equal(ui.app.state().level.index,99);assert.equal(ui.app.state().mode,'qa');
-    ui.document.dispatchEvent(new ui.dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));assert.equal(ui.app.state().mode,'qa');
-    for(let i=0;i<5;i++)ui.tick();assert.equal(ui.app.state().level.time||0,0);
+    ui.document.dispatchEvent(new ui.dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));assert.equal(ui.app.state().mode,'playing');
+    assert.equal(ui.document.getElementById('modal').classList.contains('hidden'),true,'Escape closes QA without leaking to the level menu');
+    ui.document.getElementById('qa-toggle').click();await settle();assert.equal(ui.app.state().mode,'qa');ui.document.getElementById('qa-resume').click();assert.equal(ui.app.state().mode,'playing');
     assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial);
   }finally{ui.close();}
 });

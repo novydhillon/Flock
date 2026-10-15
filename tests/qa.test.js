@@ -54,17 +54,19 @@ test('scenario export retains seed, per-animal delivery and level countdown stat
   assert.equal(exported.publicLevel,100);assert.equal(exported.seed,level.seed);assert.equal(exported.level.deliveryRemaining,24);assert.equal(exported.animals[0].deliveryRemaining,3);
 });
 
-test('QA editor calls pause, provides touch-friendly coordinate edits and isolates background controls', async () => {
+test('QA editor hides positioning, closes safely, and isolates background controls', async () => {
   const dom=new JSDOM('<body><button id="game">Normal game</button></body>');
   const doc=dom.window.document, state={level:createLevel(0),profile:defaultProfile(),dog:{},elapsed:0};
   let paused=false, entered=0,resumed=0,jumpIndex=null;
   const qa=installQA({getState:()=>state,enterSession:async()=>{entered++;},pause:()=>{paused=true;},isPaused:()=>paused,resume:()=>{paused=false;resumed++;},jump:async index=>{jumpIndex=index;state.level=createLevel(index);},resetSession:async()=>{},updateWallet:()=>{},canOccupy},doc);
   doc.querySelector('#qa-toggle').click();await new Promise(resolve=>setTimeout(resolve,0));
   assert.equal(entered,1);assert.equal(paused,true);assert.equal(doc.querySelector('#game').inert,true);assert.equal(doc.querySelector('#qa-panel').hidden,false);
+  assert.equal(doc.querySelector('#qa-move').hidden,true);
   assert.equal(doc.querySelector('#qa-level').options.length,101);
   doc.querySelector('#qa-level').value='100';doc.querySelector('#qa-jump').dispatchEvent(new dom.window.Event('submit',{cancelable:true}));await new Promise(resolve=>setTimeout(resolve,0));assert.equal(jumpIndex,99);
-  const key=new dom.window.KeyboardEvent('keydown',{key:'Escape',cancelable:true,bubbles:true});doc.body.dispatchEvent(key);assert.equal(paused,true);
-  doc.querySelector('#qa-resume').click();assert.equal(resumed,1);assert.equal(doc.querySelector('#qa-panel').hidden,true);assert.ok(!doc.querySelector('#game').inert);
+  const key=new dom.window.KeyboardEvent('keydown',{key:'Escape',cancelable:true,bubbles:true});doc.body.dispatchEvent(key);assert.equal(paused,false);
+  assert.equal(doc.querySelector('#qa-panel').hidden,true);assert.equal(resumed,1);
+  doc.querySelector('#qa-toggle').click();await new Promise(resolve=>setTimeout(resolve,0));doc.querySelector('#qa-close').click();assert.equal(resumed,2);assert.equal(doc.querySelector('#qa-panel').hidden,true);assert.ok(!doc.querySelector('#game').inert);
   assert.equal(doc.querySelector('#qa-toggle').textContent,'QA · test session');
   qa.destroy();assert.equal(doc.querySelector('#qa-toggle'),null);
 });

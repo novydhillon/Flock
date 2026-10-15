@@ -44,7 +44,8 @@ export function installQA(bridge, doc = document) {
   panel.innerHTML = `<h2 id="qa-title">Development QA · paused</h2><p>Isolated test session. Progress and bolts never save to your normal game. Reload to leave QA.</p>
     <form id="qa-jump"><label>QA level <select id="qa-level"><option value="0">QA 0 · tutorial shortcut</option>${Array.from({length:100},(_,i)=>`<option value="${i+1}">Level ${i+1}</option>`).join('')}</select></label><button>Jump · no unlock required</button></form>
     <form id="qa-bolts"><label>Bolts to add / remove <input id="qa-amount" type="number" min="0" step="1" value="100"></label><div><button value="add">Add bolts</button><button value="remove">Remove bolts</button></div><output id="qa-balance"></output></form>
-    <form id="qa-move"><label>Individual flock animal <select id="qa-animal"></select></label><div class="qa-coordinates"><label>World X <input id="qa-x" type="number" step="any" required></label><label>World Z <input id="qa-z" type="number" step="any" required></label></div><p id="qa-bounds"></p><label class="qa-check"><input id="qa-override" type="checkbox"> Allow invalid placement (water, fences, trees); meadow bounds still apply</label><button>Move selected animal</button></form>
+    <button id="qa-close" class="qa-close" aria-label="Close QA">×</button>
+    <form id="qa-move" hidden><label>Individual flock animal <select id="qa-animal"></select></label><div class="qa-coordinates"><label>World X <input id="qa-x" type="number" step="any" required></label><label>World Z <input id="qa-z" type="number" step="any" required></label></div><p id="qa-bounds"></p><label class="qa-check"><input id="qa-override" type="checkbox"> Allow invalid placement (water, fences, trees); meadow bounds still apply</label><button>Move selected animal</button></form>
     <div class="qa-actions"><button id="qa-reset">Reset test session</button><button id="qa-export">Export scenario JSON</button><button id="qa-resume">Resume test play</button></div><p id="qa-status" role="status" aria-live="polite"></p>`;
   doc.body.append(button, panel);
   const $ = id => panel.querySelector(`#${id}`);
@@ -64,10 +65,12 @@ export function installQA(bridge, doc = document) {
     $('qa-override').checked = false; coordinates();
   };
   const run = async action => { if (busy) return; busy = true; try { await action(); } catch (error) { report(error.message); } finally { busy = false; } };
-  button.onclick = () => run(async () => {
+  button.onclick = event => { event.preventDefault(); event.stopPropagation(); if (open) return; return run(async () => {
     await bridge.enterSession(); bridge.pause(); doc.title = 'FLOCK · QA test session'; open = true; panel.hidden = false; button.setAttribute('aria-expanded', 'true'); refresh(); freezeBackground(); report('Simulation, delivery countdowns and rewards are frozen while editing.'); $('qa-level').focus();
-  });
-  $('qa-resume').onclick = () => { if (busy) return; open = false; panel.hidden = true; button.setAttribute('aria-expanded', 'false'); restoreBackground(); bridge.resume(); button.textContent = 'QA · test session'; button.focus(); };
+  }); };
+  const closePanel = () => { if (!open || busy) return; open = false; panel.hidden = true; button.setAttribute('aria-expanded', 'false'); restoreBackground(); bridge.resume(); button.textContent = 'QA · test session'; button.focus(); };
+  $('qa-close').onclick = closePanel;
+  $('qa-resume').onclick = closePanel;
   $('qa-jump').onsubmit = event => { event.preventDefault(); run(async () => { const index = qaLevelIndex($('qa-level').value); await bridge.jump(index); refresh(); report(`Paused at public level ${index + 1}.`); }); };
   $('qa-bolts').onsubmit = event => { event.preventDefault(); run(() => { adjustQABolts(bridge.getState().profile, $('qa-amount').value, event.submitter?.value === 'remove' ? -1 : 1); bridge.updateWallet(); $('qa-balance').textContent = `Test balance: ${bridge.getState().profile.points} bolts`; report('Test balance updated.'); }); };
   $('qa-animal').onchange = coordinates;
@@ -76,8 +79,8 @@ export function installQA(bridge, doc = document) {
   $('qa-export').onclick = () => run(() => { const blob = new Blob([exportQAScenario(bridge.getState())], {type:'application/json'}), url = URL.createObjectURL(blob), link = doc.createElement('a'); link.href = url; link.download = `flock-qa-level-${bridge.getState().level.index+1}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); report('Scenario exported with level seed, profile, dog and animal state.'); });
   const keydown = event => {
     if (!open) return;
-    if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); $('qa-resume').focus(); }
-    if (event.key === 'Tab') { const nodes = [...panel.querySelectorAll('button,input,select')], first=nodes[0],last=nodes.at(-1); if (event.shiftKey && doc.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first.focus(); } }
+    if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); closePanel(); }
+    if (event.key === 'Tab') { const nodes = [...panel.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled])')].filter(node => !node.closest('[hidden]')), first=nodes[0],last=nodes.at(-1); if (event.shiftKey && doc.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first.focus(); } }
   };
   doc.addEventListener('keydown', keydown, true);
   return { destroy() { restoreBackground(); doc.removeEventListener('keydown', keydown, true); button.remove(); panel.remove(); } };
