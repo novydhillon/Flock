@@ -183,3 +183,20 @@ test('pressured animals steer onto dry land around short rail ends before joinin
     assert.ok(hasClearGroundPath(level,body,next,.78),'steering correction preserves cow clearance');
   }
 });
+
+
+test('sheep rail-end steering uses its own footprint when the same start is too wet for a cow',()=>{
+  for(const heading of [0,Math.PI/2,Math.PI,Math.PI*1.5,.37])for(const end of [-1,1])for(const side of [-1,1]){
+    const f={x:Math.sin(heading),z:Math.cos(heading)},l={x:f.z,z:-f.x};
+    const p=(u,v)=>({x:f.x*u+l.x*v,z:f.z*u+l.z*v});
+    const bridge={x:0,z:0,heading,width:6,length:5.5};
+    const level={target:{x:25,z:25,radius:4,heading:0},bounds:{minX:-30,maxX:30,minZ:-30,maxZ:30},obstacles:[],fenceSegments:[],routes:[],rivers:[{width:4,points:[p(0,-25),p(0,25)],bridges:[bridge]}]};
+    const body=p(end*2.58,side*3.8);
+    assert.ok(canOccupy(level,body.x,body.z,.55),'the sheep start is valid');
+    assert.equal(canOccupy(level,body.x,body.z,.78),false,'a cow footprint incorrectly rejects the same starting point');
+    assert.equal(hasClearGroundPath(level,body,bridge,.55),false,'the rail remains solid for sheep');
+    const steer=openingSteer(level,body,-side*l.x*2,-side*l.z*2,.55);
+    assert.ok(end*(steer.x*f.x+steer.z*f.z)>.2,'sheep plans around the dry end with its actual clearance');
+    assert.ok(hasClearGroundPath(level,body,{x:body.x+steer.x*.1,z:body.z+steer.z*.1},.55));
+  }
+});

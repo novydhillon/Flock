@@ -334,9 +334,11 @@ export function navigationTarget(level,body,desired,radius=.62) {
   while(previous[first]!==0&&previous[first]!==undefined)first=previous[first];
   return nodes[first];
 }
-export function openingSteer(level,body,vx,vz) {
+// Plan with the moving body's clearance: a valid sheep position near a bank
+// can be wet for a cow, leaving a cow-sized visibility graph disconnected.
+export function openingSteer(level,body,vx,vz,radius=.78) {
   const speed=Math.hypot(vx,vz);if(speed<.01)return{x:0,z:0};
-  const future={x:body.x+vx/speed*2,z:body.z+vz/speed*2};if(hasClearGroundPath(level,body,future,.78))return{x:0,z:0};
+  const future={x:body.x+vx/speed*2,z:body.z+vz/speed*2};if(hasClearGroundPath(level,body,future,radius))return{x:0,z:0};
   // Select the closest opening on the barrier being pressed, never chase a goal.
   let opening=null,best=Infinity;
   for(const river of level.rivers||[]) {
@@ -354,7 +356,7 @@ export function openingSteer(level,body,vx,vz) {
   // even when aligned with the opening. Walk around its dry end first; the
   // only target is this nearby physical opening, never the destination.
   if(opening.length){
-    const waypoint=navigationTarget(level,body,opening,.78),toward=unit(waypoint.x-body.x,waypoint.z-body.z);
+    const waypoint=navigationTarget(level,body,opening,radius),toward=unit(waypoint.x-body.x,waypoint.z-body.z);
     return{x:toward.x*Math.min(2.4,speed*.8+.5),z:toward.z*Math.min(2.4,speed*.8+.5)};
   }
   const f=yawVector(opening.heading),u=(opening.x-body.x)*f.z-(opening.z-body.z)*f.x;

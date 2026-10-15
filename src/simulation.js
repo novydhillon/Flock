@@ -244,7 +244,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       }
     }
     if (pressure > 0.03) {
-      const steer = openingSteer(level, animal, desiredX, desiredZ);
+      const steer = openingSteer(level, animal, desiredX, desiredZ, physicalRadius);
       desiredX += steer.x; desiredZ += steer.z;
     }
     const maxSpeed = animal.type === 'cow' ? 3.3 : 4.2, desiredSpeed = Math.hypot(desiredX, desiredZ);
