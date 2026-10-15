@@ -8,9 +8,9 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 
 | Source | Responsibility | Important boundary |
 |---|---|---|
-| `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; simulation is called only while playing |
+| `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
 | `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
-| `src/simulation.js` | Herd movement, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
+| `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
 | `src/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
 | `src/models.js` | Robot/scenery model construction and shared model resources | Shared material changes may affect many objects |
 | `src/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |

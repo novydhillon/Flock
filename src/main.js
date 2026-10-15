@@ -7,7 +7,7 @@ import '@fontsource/dm-sans/latin-600.css';
 import '@fontsource/dm-sans/latin-700.css';
 import { MeadowRenderer } from './render.js';
 import { FarmAudio } from './audio.js';
-import { createLevel, stepSimulation, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG, deliveryCountdownSeconds } from './simulation.js';
+import { createLevel, stepSimulation, stepSavedRoaming, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG, deliveryCountdownSeconds } from './simulation.js';
 import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades } from './progression.js';
 import { canOccupy } from './world.js';
 import { nextNavigationPoint } from './world.js';
@@ -116,7 +116,7 @@ function frame(now){
       else if(elapsed>14)visible('tip',false);
     }
     if(result.justCompleted)complete();
-  }
+  } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
   renderer.update(level,dog,mode==='playing'||mode==='intro'||mode==='complete'?dt:0,mode==='intro');
   if(mode==='playing')audio.updateAmbience?.(dt,{weather:level.weather||renderer.nature?.weather?.type||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
   mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);const waypoint=nextNavigationPoint(level,dog),dx=waypoint.x-dog.x,dz=waypoint.z-dog.z;$('direction').style.transform=`rotate(${Math.atan2(dz,dx)*180/Math.PI}deg)`;$('distance').textContent=`${Math.round(Math.hypot(dx,dz))} m`;$('destination-text').textContent=waypoint.kind==='bridge'?'Wooden bridge':waypoint.kind==='gate'?'Open gate':waypoint.kind==='target'||waypoint===level.target?(level.target.type==='pen'?'Sunny pen':level.target.type==='barn'?'Home barn':'Clover Field'):'Winding trail';}

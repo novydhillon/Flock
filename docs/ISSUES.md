@@ -50,6 +50,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-024 | P2 | Weather/surfaces | Accumulating wetness, puddles, splashes and river response | Open | F-004; shared weather state with F-023 |
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
 | F-027 | P2 | Wildlife | Wildlife can pass through fences and leave/enter the game area | Open | F-017 |
+| F-028 | P2 | Gameplay | Delivered animals roam inside the goal enclosure | Review | F-010 shared footprint |
 
 ## Screenshot evidence
 
@@ -172,7 +173,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Requirement:** up to **15%** of animals may have a **33%** chance to move randomly away from the flock when not actively herded. This begins at **level 8**. Such an animal has up to **10%** chance to bolt away for **1–3 seconds**; bolting begins **after level 16** (level 17 onward).
 
-**Accept when:** levels 1–7 have no new wandering; levels 1–16 have no bolting. Eligible cohort never exceeds 15% of the flock; document integer rounding. Probabilities are tied to defined behavior opportunities/time, never rolled every frame. No fleeing through rails, walls, river or map fences; saved animals never wander. Active herding suppresses this behavior, and brief bolts end within the specified range. Pause/restart reset behavior safely and seeded tests exercise gates, duration, collision and statistical bounds without flaky expectations.
+**Accept when:** levels 1–7 have no new wandering; levels 1–16 have no bolting. Eligible cohort never exceeds 15% of the flock; document integer rounding. Probabilities are tied to defined behavior opportunities/time, never rolled every frame. No fleeing through rails, walls, river or map fences; saved animals never use this straggler/bolting behavior; their confined goal roaming is F-028. Active herding suppresses this behavior, and brief bolts end within the specified range. Pause/restart reset behavior safely and seeded tests exercise gates, duration, collision and statistical bounds without flaky expectations.
 
 **Decisions required:** selection/rounding, probability evaluation interval, wander distance/speed/cooldown, what counts as active herding (Pip versus companions), and whether the 10% is conditional on a wander event. Do not silently interpret a chance as a per-second or per-frame rate. Balance together with F-009 to avoid unfair late losses.
 
@@ -290,6 +291,16 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Accept when:** the wildlife movement/spawn rules explicitly support crossing fences and departing/returning at the playable perimeter without permitting the robotic flock or Pip to cross their physical boundaries. Coordinate population budgets and natural entry/exit behavior with F-017. Decide how ground wildlife handles rivers, other obstacles and weather shelter; do not silently remove all wildlife collision checks.
 
+### F-028 — Delivered animals roam inside the goal
+
+**Requirement:** once an animal is delivered, let it continue gentle movement within the goal instead of stopping at the entry edge. Its entire body must remain inside the shared rotated enclosure footprint, including the entrance opening. Keep saved state permanent and the score/countdown/result contract unchanged.
+
+**Accept when:** sheep and cows entering at any wall/corner move into and roam around the enclosure without leaving through the entrance, crossing solid obstacles or jittering at boundaries. Saved animals stay excluded from herding, companion membership and additional admission events. Gentle deterministic roaming continues behind completed results without moving Pip/undelivered animals, changing finalized counts/rewards or advancing the recovery clock. Pause, workshop, QA editing and hidden/background state freeze roaming. Restart/level replacement clears transient roaming state. Test rotated pen, field and barn footprints, actual species radii, timeout/full completion and multiple delivered animals.
+
+**Implementation:** source `637111e` uses deterministic per-animal interior targets, gentle movement capped at 0.65 units/second, saved-only separation and full-body rotated-footprint validation after world collision. Saved animals stay excluded from active herding/admission. A saved-only step continues behind visible results and freezes with menus/QA editing/hidden-page state. Normal moving headings and gaits replace fixed saved headings. Node 22.23.3 final source suite passes 165/165; Node 24 journeys pass 5/5. Blind review passed 9.5/10 with 30,900 independent per-step containment checks and zero escapes. User acceptance remains pending.
+
+**Scope:** approved replacement for stationary delivered animals. This is separate from F-012 straggler wandering/bolting. User requested 14 October 2026 (America/Vancouver). Existing P0/P1 sign-offs remain closed.
+
 ## Previously repaired — retain as regressions
 
 These are not open defects unless reproduced again: drone selecting the largest herd and holding when Pip leaves; no unattended goal completion; unlocks (drone 10, Buddy 20); path variety/map extent/continuous rivers; scenery hill collision alignment; pending audio activation overriding pause; overdue music scheduling burst; the default level-2 bridge stall; full-game restart persistence and delayed-audio focus. See `docs/QUALITY.md` and current tests for scope and limitations.
@@ -316,7 +327,7 @@ Copy one row per claimed issue; retain older entries when reopening work.
 
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
-Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. All P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems. Historical reviews are retained as historical evidence, not current game scores.
+Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. Other P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems; F-028 goal roaming is in Review. Historical reviews are retained as historical evidence, not current game scores.
 
 Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See [P0/P1 validation](validation/P0-P1.md) for exact scenarios and limitations.
 
@@ -338,3 +349,8 @@ Novy replied “Looks good” to the deployed bridge (F-005) and barn cutaway (F
 ## Final P1 user acceptance — 14 October 2026
 
 Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages `8a76de36bbb61ba824bc9371f85971667f786c35`, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.
+
+
+## Current follow-up — F-028
+
+Delivered goal roaming is source-implemented in Review; existing P0/P1 user sign-offs remain Done. See the F-028 acceptance criteria and validation record before continuing work.

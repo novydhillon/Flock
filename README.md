@@ -39,6 +39,7 @@ The production build is written to `dist/`. Relative asset paths allow it to run
 - Drag anywhere on the meadow to steer, or use WASD/arrow keys on desktop. Double-tap the meadow or tap Woof for a short herding burst.
 - Approach the flock from behind to guide it toward the highlighted destination.
 - Keep the flock together while following routes through the countryside.
+- Delivered robots keep roaming gently inside the goal enclosure, with full-body confinement even at the entrance. They remain delivered; pause and QA editing freeze their motion.
 - The first attended arrival starts a 30–60 second recovery countdown. Bring everyone home early or finish with a partial score at timeout. Any positive delivery opens the next meadow.
 - Earn bolts equal to improvements in your lifetime best proportional score, then spend them on skills and helpers. Replays at the same or a lower score pay no extra bolts.
 - Six skills have three tiers each: Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect, cost, and level requirement. Skills appear throughout the first fifteen levels; the drone starts at level 10, and the more expensive Buddy dog starts at level 20.

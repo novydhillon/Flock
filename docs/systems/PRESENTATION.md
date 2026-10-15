@@ -170,3 +170,8 @@ F-001/F-002/F-010/F-016 are Done by Novy’s user acceptance on 14 October 2026.
 ### Decorative grass and bark composition
 
 Decorative instanced grass blades are an opacity-one transparent pass with depth testing enabled and depth writes disabled. They render over the opaque meadow normally. Bark renders afterward (`renderOrder=1`) while keeping depth testing; opaque fences and bridge rails still supply depth and hide the lower ring. This specifically prevents blade tips from cutting holes in the bark without raising it above rails or disabling scene depth globally. A real Three.js blade/ring/fence ray-and-queue regression supports the policy; actual transparent-pass appearance still requires device rendering.
+
+
+### Delivered-animal roaming (F-028)
+
+Delivered animals use their simulated velocity and heading for the same body/leg gait as the active flock; the renderer must not replace saved headings with a fixed decorative angle. Their motion is confined by simulation to the shared goal footprint. Barn cutaways continue to treat delivered animals as covered actors. Result-screen movement is saved-only and cannot change results or rewards; menus, QA editing and hidden-page state freeze it.

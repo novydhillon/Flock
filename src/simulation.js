@@ -1,5 +1,5 @@
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
-import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal, containsTarget } from './world.js';
+import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
 /** Renderer-independent flock behaviour. Companions support Pip's herding;
@@ -161,6 +161,69 @@ function companionAssist(level, companions, dog, effects) {
   return forces;
 }
 
+// Delivered animals keep gently milling inside the pen while the recovery
+// countdown runs. Their moving target is expressed in pen-local coordinates,
+// so rotated goals have the same clearance and the open entrance stays closed
+// to saved bodies. This is deliberately a cheap per-animal oscillator.
+function roamSavedAnimals(level, dt, phaseTime) {
+  if (dt <= 0) return;
+  const shape = targetFootprint(level.target);
+  for (const animal of level.animals) {
+    if (!animal.saved) continue;
+    const radius = animal.type === 'cow' ? 0.78 : 0.55;
+    const local = targetLocalPoint(level.target, animal);
+    const phase = animal.roamPhase ?? (animal.id * 2.399963229728653);
+    animal.roamPhase = phase;
+    const halfForward = shape.halfLength - radius - 0.48;
+    const halfLateral = shape.halfWidth - radius - 0.24;
+    const goal = {
+      forward: Math.sin(phaseTime * 0.22 + phase) * halfForward * 0.72,
+      lateral: Math.cos(phaseTime * 0.19 + phase * 1.7) * halfLateral * 0.72,
+    };
+    let vx = (goal.forward - local.forward) * 0.32;
+    let vz = (goal.lateral - local.lateral) * 0.32;
+    for (const other of level.animals) {
+      if (other === animal || !other.saved) continue;
+      const dx = animal.x - other.x, dz = animal.z - other.z, d = Math.hypot(dx, dz);
+      const separation = radius + (other.type === 'cow' ? 0.78 : 0.55) + 0.35;
+      if (d > 1e-4 && d < separation) {
+        const force = (separation - d) / d * 0.6;
+        vx += (dx * shape.forward.x + dz * shape.forward.z) * force;
+        vz += (dx * shape.side.x + dz * shape.side.z) * force;
+      }
+    }
+    // The entrance is open to incoming flock. Saved animals turn inward before
+    // reaching that opening, while still accepting arrivals at the full
+    // physical admission boundary.
+    const entranceEdge = -shape.halfLength + radius;
+    if (local.forward < entranceEdge + 0.45) vx += (entranceEdge + 0.45 - local.forward) * 1.2;
+    // Convert the local steering vector to world space, then cap its gentle
+    // drift. The contracted target footprint below prevents any route through
+    // the open doorway.
+    const f = shape.forward, s = shape.side;
+    let wx = f.x * vx + s.x * vz, wz = f.z * vx + s.z * vz;
+    const speed = Math.hypot(wx, wz);
+    if (speed > 0.65) { wx *= 0.65 / speed; wz *= 0.65 / speed; }
+    const before = { x: animal.x, z: animal.z };
+    moveBody(level, animal, wx * dt, wz * dt, radius);
+    if (!(canOccupy(level, animal.x, animal.z, radius) && containsTarget(level.target, animal, radius))) {
+      animal.x = before.x; animal.z = before.z;
+    }
+    animal.vx = (animal.x - before.x) / dt; animal.vz = (animal.z - before.z) / dt;
+    animal.heading = Math.hypot(animal.vx, animal.vz) > 0.03 ? Math.atan2(animal.vx, animal.vz) : (animal.heading || 0);
+  }
+}
+
+/** Advance only the decorative, saved-animal pen roaming. Safe to call after
+ * completion: it does not touch result, reward, timer, dog, or unsaved animals. */
+export function stepSavedRoaming(level, dt = 1 / 60) {
+  dt = clamp(Number(dt) || 0, 0, 0.1);
+  if (level.completed && dt > 0) {
+    level.savedRoamTime = (level.savedRoamTime ?? (level.time || 0)) + dt;
+    roamSavedAnimals(level, dt, level.savedRoamTime);
+  }
+}
+
 export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {}) {
   const effects = upgradeEffects(upgrades, level.index + 1);
   dt = clamp(Number(dt) || 0, 0, 0.1);
@@ -174,6 +237,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
   }
   level.time = (level.time || 0) + dt;
+  roamSavedAnimals(level, dt, level.time);
   const events = [];
   const ix = Number(input.x) || 0, iz = Number(input.z ?? input.y) || 0;
   const magnitude = Math.min(1, Math.hypot(ix, iz));

@@ -376,8 +376,10 @@ test('first delivery starts the visible timer and pause, workshop and hidden tab
   assert.equal(level.delivery.remaining,30);
   assert.match(ui.el('countdown').textContent,/30s to gather/);
   assert.equal(ui.el('mission-score').textContent,'Score 16 / 80');
+  const savedAnimal=level.animals[0],parked={x:savedAnimal.x,z:savedAnimal.z};
   await ui.click('pause');const paused=level.delivery.remaining;ui.tick();ui.tick();
   assert.equal(level.delivery.remaining,paused);
+  assert.deepEqual({x:savedAnimal.x,z:savedAnimal.z},parked,'pause freezes the saved animals too');
   await ui.click('upgrades-menu');ui.tick();assert.equal(level.delivery.remaining,paused);
   await ui.click('shop-back');ui.tick();assert.ok(level.delivery.remaining<paused);
   ui.document.hidden=true;ui.emit('visibilitychange');const hidden=level.delivery.remaining;
@@ -397,7 +399,12 @@ test('partial timeout displays score, awards once, unlocks next and pays only re
   assert.match(ui.el('modal-card').innerHTML,/2 \/ 5 robots delivered/);
   assert.match(ui.el('modal-card').innerHTML,/Score 32 \/ 80 · Best 32 \/ 80/);
   assert.match(ui.el('modal-card').innerHTML,/next meadow is open/);
-  ui.tick();assert.equal(ui.app.state().profile.points,32);
+  const level=ui.app.state().level,saved=level.animals[0],position={x:saved.x,z:saved.z},result=JSON.stringify(level.result),remaining=level.delivery.remaining;
+  for(let i=0;i<180;i++)ui.tick();
+  assert.ok(Math.hypot(saved.x-position.x,saved.z-position.z)>.1,'saved animals mill while the results screen is open');
+  assert.equal(JSON.stringify(level.result),result,'roaming cannot rewrite the delivered score');
+  assert.equal(level.delivery.remaining,remaining,'the recovery timer remains frozen after completion');
+  assert.equal(ui.app.state().profile.points,32);
   await ui.click('reward-shop');await ui.click('shop-back');assert.equal(ui.app.state().mode,'complete');
   await ui.click('replay');deliver(1);assert.equal(ui.app.state().profile.points,32);
   await ui.click('replay');deliver(4);assert.equal(ui.app.state().profile.points,64);

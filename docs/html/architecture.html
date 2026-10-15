@@ -16,7 +16,7 @@
 <tbody><tr>
 <td><code>src/main.js</code></td>
 <td>Browser UI state, input, game loop, profile actions, effect/audio dispatch</td>
-<td>Owns mode and pause; simulation is called only while playing</td>
+<td>Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results</td>
 </tr>
 <tr>
 <td><code>src/world.js</code></td>
@@ -25,7 +25,7 @@
 </tr>
 <tr>
 <td><code>src/simulation.js</code></td>
-<td>Herd movement, companion behavior, delivery and profile functions</td>
+<td>Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions</td>
 <td>Mutates the level/dog; returns events, not DOM operations</td>
 </tr>
 <tr>

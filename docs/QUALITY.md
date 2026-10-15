@@ -81,3 +81,12 @@ Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`,
 ## Final P1 user acceptance — 14 October 2026
 
 Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages `8a76de36bbb61ba824bc9371f85971667f786c35`, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.
+
+
+## F-028 delivered-animal roaming
+
+Source `637111e` adds confined, saved-only goal motion. Node 22.23.3 full suite passes 164/164; Node 24.19.0 unchanged full-flock journeys pass 5/5. Existing P0/P1 acceptance remains Done; the new F-028 feature is in Review. See the validation runbook for boundaries and manual scenarios.
+
+F-028 blind medium review scored **9.5/10** with no actionable defects. The reviewer independently passed the 164-test Node 22 suite and 30,900 per-step whole-body containment checks across rotated goals, mixed sheep/cows and crowded entrance groups with zero escapes. Integration added per-step assertions during recovery/completed roaming and a 12-fixture crowded entrance regression (22/22 focused simulation/delivery checks pass). The final full-suite count includes one additional test.
+
+Final F-028 integrated validation: **165/165** tests pass on Node 22.23.3 (27.20 seconds), including the additional crowded mixed-species entrance test and per-step confinement assertions. Release excludes QA; development includes QA (17 files); documentation checks pass (12 pages, 756 local links/anchors, 9 diagrams and 4 DOM behavior tests).

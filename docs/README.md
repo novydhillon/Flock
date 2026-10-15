@@ -21,7 +21,7 @@ This is the starting point for humans and agents working on the robotic-herding 
 
 Runtime behavior comes from source and tests. The requirements describe intended behavior and identify gaps; they do not make requested features exist. The issue tracker records pending work. Historical quality scores apply only to the reviewed revision. HTML is generated from Markdown; edit the Markdown and run `npm run docs:build`.
 
-F-025 is Done: the canonical game is `https://novydhillon.github.io/Flock/dev2/`; the nested legacy address redirects there. The reviewed P1 development release is now published and hash-verified. All P0/P1 items are Done following user sign-off on 14 October 2026. F-014 is Done by Novy’s real-phone QA confirmation on 14 October 2026. All P2 work remains Open. See the validation runbook for separate source and publication milestones.
+F-025 is Done: the canonical game is `https://novydhillon.github.io/Flock/dev2/`; the nested legacy address redirects there. The reviewed P1 development release is now published and hash-verified. All P0/P1 items are Done following user sign-off on 14 October 2026. F-014 is Done by Novy’s real-phone QA confirmation on 14 October 2026. Other P2 work remains Open; the new F-028 delivered-animal roaming change is in Review. See the validation runbook for separate source and publication milestones.
 
 ## Examples and diagrams
 

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createLevel, stepSimulation, deliveryCountdownSeconds, deliveryScore, defaultProfile, validateProfile, applyLevelReward, saveProfile, loadProfile } from '../src/simulation.js';
+import { createLevel, stepSimulation, deliveryCountdownSeconds, deliveryScore, defaultProfile, validateProfile, applyLevelReward, saveProfile, loadProfile, canOccupy } from '../src/simulation.js';
+import { targetFootprint, targetWorldPoint, containsTarget } from '../src/world.js';
 
 function arrive(level, count = 1) {
   Object.assign(level.dog, { x: level.target.x, z: level.target.z });
@@ -47,6 +48,30 @@ test('there is no travel deadline; only the first attended arrival starts recove
   const second = arrive(level);
   assert.equal(second.saved, 2); assert.ok(Math.abs(second.remaining - 29.9) < 1e-8);
   assert.equal(second.events.some(e => e.type === 'countdownStarted'), false);
+});
+
+test('an animal admitted at minimum entrance clearance roams inward without a second delivery event',()=>{
+  const level=createLevel(23,203),animal=level.animals[0],radius=animal.type==='cow'?.78:.55,shape=targetFootprint(level.target);
+  Object.assign(animal,targetWorldPoint(level.target,-shape.halfLength+radius+.01,0),{vx:0,vz:0});
+  Object.assign(level.dog,targetWorldPoint(level.target,0,4));
+  assert.ok(canOccupy(level,animal.x,animal.z,radius));
+  assert.ok(containsTarget(level.target,animal,radius));
+  const first=stepSimulation(level,level.dog,{},.1);
+  assert.equal(animal.saved,true);assert.equal(first.saved,1);
+  assert.equal(first.events.filter(e=>e.type==='animalSaved').length,1);
+  const start={x:animal.x,z:animal.z},countdown=level.delivery.remaining,score=first.score;
+  let laterEvents=[];
+  for(let i=0;i<50;i++){
+    laterEvents.push(...stepSimulation(level,level.dog,{},.1).events);
+    assert.ok(containsTarget(level.target,animal,radius),`delivered animal stays confined during recovery step ${i}`);
+  }
+  assert.ok(Math.hypot(animal.x-start.x,animal.z-start.z)>.05,'saved animal turns into the pen');
+  assert.ok(containsTarget(level.target,animal,radius));
+  assert.ok(canOccupy(level,animal.x,animal.z,radius));
+  assert.equal(level.animals.filter(a=>a.saved).length,1);
+  assert.equal(laterEvents.filter(e=>e.type==='animalSaved').length,0);
+  assert.equal(deliveryScore(level),score);
+  assert.ok(Math.abs(level.delivery.remaining-(countdown-5))<1e-8);
 });
 
 test('zero time cannot deliver or decrement a timer; empty herds do not finish', () => {

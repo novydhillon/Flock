@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createLevel, stepSimulation, canOccupy, defaultProfile, purchaseUpgrade, applyLevelReward, validateProfile, loadProfile, saveProfile } from '../src/simulation.js';
-import { distance } from '../src/world.js';
+import { createLevel, stepSimulation, stepSavedRoaming, canOccupy, defaultProfile, purchaseUpgrade, applyLevelReward, validateProfile, loadProfile, saveProfile } from '../src/simulation.js';
+import { distance, targetFootprint, targetLocalPoint, targetWorldPoint, containsTarget } from '../src/world.js';
 
 test('idle waiting cannot finish the tutorial, but player herding can', () => {
   const idle=createLevel(0); for(let i=0;i<2400;i++)stepSimulation(idle,idle.dog,{},1/60);
@@ -43,6 +43,33 @@ test('visible destination walls stop bodies while their oriented entrance permit
     for(let i=0;i<240;i++)stepSimulation(level,dog,{x:f.x,z:f.z},1/60);
     const position=(dog.x-t.x)*f.x+(dog.z-t.z)*f.z;
     assert.ok(position>0&&position<extent,'Pip enters through gap and stops at rear wall');
+  }
+});
+
+test('saved animals roam gently inside rotated goal footprints without changing a finished result',()=>{
+  for(const [index,seed] of [[0,201],[3,202],[23,203],[70,204]]){
+    const level=createLevel(index,seed),shape=targetFootprint(level.target);
+    const saved=level.animals[0],radius=saved.type==='cow'?.78:.55;
+    const nearEntrance=targetWorldPoint(level.target,-shape.halfLength+radius+.01,0);
+    Object.assign(saved,nearEntrance,{saved:true,vx:0,vz:0});
+    level.animals[1].x+=2;
+    const unsavedBefore={...level.animals[1]},dogBefore={...level.dog};
+    level.completed=true;level.result={saved:1,total:level.animals.length,score:16,possibleScore:80,reason:'timeout'};
+    const resultBefore=JSON.stringify(level.result),start={x:saved.x,z:saved.z};
+    stepSavedRoaming(level,0);
+    assert.deepEqual({x:saved.x,z:saved.z},start,'zero dt is a pause');
+    for(let i=0;i<3000;i++){
+      stepSavedRoaming(level,.1);
+      assert.ok(containsTarget(level.target,saved,radius),`saved body never escapes at step ${i}, level ${index}`);
+    }
+    assert.ok(distance(saved,start)>1,`saved animal mills in the rotated goal for level ${index}`);
+    assert.ok(canOccupy(level,saved.x,saved.z,radius),`correct body radius remains clear for level ${index}`);
+    assert.ok(containsTarget(level.target,saved,radius),`entire body stays inside for level ${index}`);
+    const local=targetLocalPoint(level.target,saved);
+    assert.ok(local.forward>targetLocalPoint(level.target,start).forward,'a newly admitted animal at the entrance moves inward');
+    assert.equal(JSON.stringify(level.result),resultBefore,'the frozen score and result remain unchanged');
+    assert.deepEqual(level.animals[1],unsavedBefore,'unsaved QA positions are preserved');
+    assert.deepEqual(level.dog,dogBefore,'Pip is not moved');
   }
 });
 
@@ -90,5 +117,30 @@ test('larger flocks and longer destination journeys continue through the campaig
     assert.ok(level.animals.length>=previous.animals.length);
     assert.ok(distance(level.spawn,level.target)>distance(previous.spawn,previous.target));
     assert.ok(level.animals.length<=65);previous=level;
+  }
+});
+
+
+test('crowded delivered sheep and cows never leave rotated goal entrances at any step',()=>{
+  for(const index of [6,7,8])for(const seed of [200,201,202,203]){
+    const level=createLevel(index,seed),shape=targetFootprint(level.target);
+    level.animals=level.animals.slice(0,9);
+    level.animals.forEach((animal,i)=>{
+      animal.type=i%2?'cow':'sheep';
+      const radius=animal.type==='cow'?.78:.55;
+      Object.assign(animal,targetWorldPoint(level.target,-shape.halfLength+radius+.005,(i-4)*.35),{saved:true,vx:0,vz:0});
+      assert.ok(canOccupy(level,animal.x,animal.z,radius),'entrance fixture is physically valid');
+    });
+    level.completed=true;level.result={saved:9,total:9,score:level.reward,possibleScore:level.reward,reason:'all-arrived'};
+    const result=JSON.stringify(level.result);
+    for(let frame=0;frame<300;frame++){
+      stepSavedRoaming(level,.1);
+      for(const animal of level.animals){
+        const radius=animal.type==='cow'?.78:.55;
+        assert.ok(containsTarget(level.target,animal,radius),`no escape: level ${index+1}, seed ${seed}, frame ${frame}`);
+        assert.equal(animal.saved,true);
+      }
+    }
+    assert.equal(JSON.stringify(level.result),result);
   }
 });

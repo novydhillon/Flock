@@ -46,7 +46,13 @@ test('production controller and QA editor freeze timed delivery and protect the 
     Object.assign(state.dog,{x:state.level.target.x,z:state.level.target.z});for(const a of state.level.animals)Object.assign(a,{x:state.level.target.x,z:state.level.target.z,vx:0,vz:0});
     ui.tick();assert.equal(ui.app.state().mode,'complete');assert.ok(ui.app.state().profile.points>500);
     assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial,'QA completion cannot persist rewards over the real profile');
-    const earned=ui.app.state().profile.points;ui.document.getElementById('qa-toggle').click();await settle();
+    const earned=ui.app.state().profile.points,completed=ui.app.state().level,result=JSON.stringify(completed.result),savedStart=completed.animals.map(a=>({x:a.x,z:a.z}));
+    Object.defineProperty(ui.document,'hidden',{configurable:true,value:false});
+    for(let i=0;i<120;i++)ui.tick();
+    assert.ok(completed.animals.some((a,i)=>Math.hypot(a.x-savedStart[i].x,a.z-savedStart[i].z)>.1),'visible QA results still animate delivered animals');
+    assert.equal(JSON.stringify(completed.result),result,'QA roaming leaves the displayed score intact');
+    assert.equal(ui.app.state().profile.points,earned,'QA roaming does not issue another reward');
+    ui.document.getElementById('qa-toggle').click();await settle();
     assert.equal(ui.app.state().mode,'qa');ui.document.getElementById('qa-close').click();
     assert.equal(ui.app.state().mode,'complete');assert.ok(!ui.document.getElementById('modal').classList.contains('hidden'));
     assert.ok(ui.document.getElementById('next'));assert.equal(ui.app.state().profile.points,earned,'Restoring results must not award again');
