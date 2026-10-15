@@ -4,7 +4,7 @@
 
 Medium-effort blind first passes scored gameplay **9.0/10** and technical **8.5/10**. Their follow-up checks of `f0a87a1` scored **9.4/10 gameplay** and **9.0/10 technical**, with no new confirmed defects. The P0 migration separately scored **9/10** and was published at canonical `/Flock/dev2/`. These are bounded source/headless implementation scores, not verified phone visual quality.
 
-Final integrated checks pass **159/159 source tests**, release without QA (15 files, zero QA assets), development with QA (17 files, two QA assets), and generated documentation checks. The new P1 build still requires separate publication/hash verification, recorded in [the validation runbook](validation/P0-P1.md). F-014 remains Blocked; visual acceptance for paths, bark and cutaways remains in Review.
+Final integrated checks pass **159/159 source tests**, release without QA (15 files, zero QA assets), development with QA (17 files, two QA assets), and generated documentation checks. The P1 development build is published at Pages `9346f26c5a145698b34e2c4504236c494023817d`; all 17 game files and the legacy redirect match live hashes. Source CI and native Pages publication succeeded. See [the validation runbook](validation/P0-P1.md). F-014 remains Blocked; visual acceptance for paths, bark and cutaways remains in Review.
 
 The earlier review results below are retained as historical records.
 
@@ -52,7 +52,7 @@ The later Restart Game revision added six controller regressions, bringing the s
 
 ## P0/P1 source batch — 14 October 2026
 
-F-025 canonical migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`, serving https://novydhillon.github.io/Flock/dev2/. All 15 game files plus the legacy redirect matched intended hashes; 17 unrelated blobs remained unchanged. An independent blind medium review scored the bounded P0 migration **9/10**. That score concerns deployment migration only. The migration published the preceding game revision; it does not establish that the new P1 source is live.
+F-025 canonical migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`, serving https://novydhillon.github.io/Flock/dev2/. All 15 game files plus the legacy redirect matched intended hashes; 17 unrelated blobs remained unchanged. An independent blind medium review scored the bounded P0 migration **9/10**. That score concerns deployment migration only. The migration published the preceding game revision; the subsequent P1 release is recorded above.
 
 F-001/F-002/F-005/F-009/F-010/F-016/F-018 now have source implementations and are **Review**. The new surface, world/goal, countdown/ledger, cutaway and QA tests support their source contracts. Final integrated totals, independent P1 findings and a separate P1 Pages release must be recorded after the integrated candidate is checked; none is inferred here. The old 93/99-test snapshots and 9.1/8.6 scores above remain historical.
 
