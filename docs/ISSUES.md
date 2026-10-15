@@ -1,6 +1,6 @@
 # FLOCK — Remaining issues and change tracker
 
-Updated: 14 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. Working branch: `flock_3D_chatgpt-work`.
+Updated: 15 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. Working branch: `flock_3D_chatgpt-work`.
 
 Source checkpoint: integrated P0/P1 batch (delivery `1fee206`, goal view `984fc64`; see execution record). Canonical live game: https://novydhillon.github.io/Flock/dev2/. F-025 migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`; it contains the preceding game revision. The reviewed P1 development build is published at Pages `9346f26c5a145698b34e2c4504236c494023817d` from source `7a8519d37a8f447652f0449e16a050fc76a6d3e0`; all 17 game files plus redirect match live hashes, and all 18 blobs outside `dev2/` are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.
 
@@ -53,6 +53,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
 | F-027 | P2 | Wildlife | Wildlife can pass through fences and leave/enter the game area | Open | F-017 |
 | F-028 | P2 | Gameplay | Delivered animals roam inside the goal enclosure | Review | F-010 shared footprint |
+| F-029 | P2 | Gameplay/economy | Pay only lifetime-best score improvements on replay | Done | F-009 |
 
 ## Screenshot evidence
 
@@ -303,6 +304,16 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Scope:** approved replacement for stationary delivered animals. This is separate from F-012 straggler wandering/bolting. User requested 14 October 2026 (America/Vancouver). Existing P0/P1 sign-offs remain closed.
 
+### F-029 — Lifetime-best score improvement pays only its difference
+
+**Requirement:** on each completed level, award only the positive improvement over that level's best previously earned bolts. Equal or lower scores pay zero. Spending bolts, reloading, or replaying must not reset the lifetime best.
+
+**Accept when:** an initial earned score of 32 followed by 64 pays 32 additional bolts; an equal or lower replay pays zero. Spending bolts and reloading preserve the best-earned ledger, so subsequent equal/worse runs still pay zero. The best score and earned-bolt ledger remain consistent.
+
+**Status / evidence:** Done; this was already implemented and verified, not a new economy change. `applyLevelReward` uses `bestEarnedBolts`/`bestScores` to pay only the positive difference. The focused replay tests in `tests/delivery.test.js` cover better, equal and worse replays and persistent ledger behavior. See [Gameplay](systems/GAMEPLAY.md) and [Requirements](REQUIREMENTS.md).
+
+**Report disposition, 15 October 2026 (Vancouver):** the latest P0 “missing bolts on replay” report is withdrawn as invalid because it describes the intended lifetime-best delta rule. No active bug remains. No gameplay or economy code changes are requested or included.
+
 ## Previously repaired — retain as regressions
 
 These are not open defects unless reproduced again: drone selecting the largest herd and holding when Pip leaves; no unattended goal completion; unlocks (drone 10, Buddy 20); path variety/map extent/continuous rivers; scenery hill collision alignment; pending audio activation overriding pause; overdue music scheduling burst; the default level-2 bridge stall; full-game restart persistence and delayed-audio focus. See `docs/QUALITY.md` and current tests for scope and limitations.
@@ -324,13 +335,14 @@ Copy one row per claimed issue; retain older entries when reopening work.
 | F-016 | P1 cutaway | Done | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup; user accepted deployed follow-up | `8a76de3` | 14 Oct 2026; user signed off |
 | F-018 | P1 QA | Done | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | 14 Oct 2026; user signed off |
 | F-028 | Goal roaming | Review | Integrated source | `e03ba16` | 165 tests, per-step mixed-species confinement, blind 9.5/10 | `639a9b4` | 14 Oct 2026; user acceptance pending |
+| F-029 | Best-score replay reward | Done | Existing implementation; docs-only record | `c4422cd` | Focused replay tests in `tests/delivery.test.js`; best improvement pays difference, equal/worse pay zero, ledger survives spending/reload | — | 15 Oct 2026; withdrawn P0 report was invalid |
 | F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
 
 ## Decisions and session handoff
 
 Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
 
-Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. Other P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems; F-028 goal roaming is in Review. Historical reviews are retained as historical evidence, not current game scores.
+Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. Other P2 requests remain Open, including expanded squirrel motion, rabbits, vegetation and linked weather systems; F-028 goal roaming is in Review. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores.
 
 Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See [P0/P1 validation](validation/P0-P1.md) for exact scenarios and limitations.
 
