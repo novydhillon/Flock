@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: P0 / P1 validation"><title>P0 / P1 validation · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" aria-current="page">P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" aria-current="page">P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="p0p1-validation-and-release-runbook">P0/P1 validation and release runbook<a class="heading-link" href="#p0p1-validation-and-release-runbook" aria-label="Link to P0/P1 validation and release runbook">#</a></h1>
+<p>Recorded 14 October 2026. <a href="index.html">Documentation home</a> · <a href="issues.html">Tracker</a> · <a href="quality.html">Quality history</a>. Public levels are 1–100; source indexes are 0–99. This record separates implemented source, publication and physical-device evidence.</p>
+<h2 id="current-evidence-and-status">Current evidence and status<a class="heading-link" href="#current-evidence-and-status" aria-label="Link to Current evidence and status">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Evidence</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0 / F-025</td>
+<td>Helper <code>6616c41</code>; canonical Pages migration <code>baca95c7ba618d736730194b433254bf5058dd66</code>; all 15 game files and legacy redirect hash-verified, 17 unrelated blobs unchanged; independent blind medium review 9/10.</td>
+<td>Done for bounded migration. Published game is the preceding revision, not this P1 batch. Source/HTTP checks do not establish phone play or storage continuity.</td>
+</tr>
+<tr>
+<td>F-001/F-002</td>
+<td>Surface source <code>eed14e5</code>: ribbon union and bark deck/plank splitting, normal depth testing, pause-aware bounded effects.</td>
+<td>Review: geometry tests do not establish pixels, temporal flicker or visible rail occlusion. Record final integrated regression results after all source fixes.</td>
+</tr>
+<tr>
+<td>F-005</td>
+<td>World source <code>4887ea7</code>: perpendicular sampled-river crossings, straight approaches, 1.25 × usable-road deck width and shared collision/render descriptors.</td>
+<td>Review: cow clearance and simulated journeys are bounded source evidence, not human/device acceptance.</td>
+</tr>
+<tr>
+<td>F-009</td>
+<td>Delivery source <code>1fee206</code>: first-arrival recovery timer, proportional partial score, positive unlock, v2 lifetime earned ledger and legacy migration.</td>
+<td>Review: formula/pacing need independent and human assessment.</td>
+</tr>
+<tr>
+<td>F-010</td>
+<td>World <code>4887ea7</code>, goal view <code>984fc64</code>: shared rotated rectangle for walls, full-body admission, highlight/border, barn floor and minimap.</td>
+<td>Review: geometry agreement does not prove rendered appearance.</td>
+</tr>
+<tr>
+<td>F-016</td>
+<td>Cutaway <code>4cf9719</code>: body-sample camera rays, segmented roof/walls, fade hysteresis, material/shadow restoration.</td>
+<td>Review: real transparent draw ordering and readability remain unverified.</td>
+</tr>
+<tr>
+<td>F-018</td>
+<td>QA <code>df1d193</code>, completed-resume fix <code>7acc632</code>: development gating, isolated session, paused animal edits, safe bolt edits, level jump, reset/export.</td>
+<td>Review: QA-enabled publication and physical touch checks remain pending.</td>
+</tr>
+<tr>
+<td>F-014</td>
+<td>No physical phone available. Browser capability discovery exposed no usable browser tools.</td>
+<td>Blocked. No browser/device screenshot, Safari gesture, listening or GPU claim is made.</td>
+</tr>
+</tbody></table></div>
+<p>Historical 9.1 technical / 8.6 gameplay scores in QUALITY.md belong to the earlier bounded game review. P0&#39;s 9/10 belongs only to the migration. No new overall P1/game score is recorded here. All P2 items remain Open.</p>
+<p>Installed Sites guidance is: “If <code>$control-browser</code> is unavailable, skip browser QA” (source: <code>/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md</code>). Browser QA was skipped under that instruction; physical-phone F-014 remains blocked independently of headless source checks.</p>
+<h2 id="repeatable-source-and-bundle-checks">Repeatable source and bundle checks<a class="heading-link" href="#repeatable-source-and-bundle-checks" aria-label="Link to Repeatable source and bundle checks">#</a></h2>
+<p>Run from the intended integrated revision with Node 22+ and locked dependencies:</p>
+<div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh">npm test
+npm run build
+node scripts/check-build-mode.mjs release
+npm run build:dev
+node scripts/check-build-mode.mjs development
+# After Markdown integration and generator page registration:
+npm run docs:build
+npm run docs:check</code></pre></div><p>Record command exit status, source SHA and actual test totals in the final release record. Do not copy intermediate totals into a final claim. <code>build</code> and <code>build:dev</code> both replace <code>dist/</code>; rebuild the intended final artifact before preparing Pages. CI checks release exclusion first, then checks/packages the explicit development build with QA. The artifact inspector rejects QA chunk/signature presence in release, and requires QA JavaScript/CSS plus expected signatures in development.</p>
+<p>Targeted checks identify useful ownership boundaries:</p>
+<div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh">node --test tests/surfaces.test.js tests/world-geometry.test.js tests/goal-view.test.js
+node --test tests/delivery.test.js tests/ui.test.js tests/progression.test.js
+node --test tests/cutaway.test.js tests/render.test.js tests/qa.test.js
+node --test tests/deploy-pages.test.js tests/herding-journey.test.js</code></pre></div><p>These tests use actual production modules and real Three.js geometry/matrices behind substituted browser/graphics/audio surfaces. Synthetic position fixtures verify state/geometry and are distinct from ordinary-input herding journeys. None measures actual rendered pixels, phone FPS, human timing or sound quality.</p>
+<h2 id="device-and-browser-scenarios-to-run">Device and browser scenarios to run<a class="heading-link" href="#device-and-browser-scenarios-to-run" aria-label="Link to Device and browser scenarios to run">#</a></h2>
+<p>For each case record device, OS/browser/version, portrait dimensions, source SHA, build mode, Pages SHA if live, public level/seed, expected and observed outcome, and screenshot/video where relevant. Mark unavailable evidence as pending. Capture motion for flicker, transitions and occlusion; a still image cannot establish temporal correctness.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Reproduction and expected behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Canonical entry/migration</td>
+<td>Fresh-load/reload <code>https://novydhillon.github.io/Flock/dev2/</code>; visit legacy <code>/Flock/flock/dev2/?qa=check#meadow</code>. The legacy page must replace itself with canonical URL retaining query/fragment; assets load locally and there is one maintained game copy. Verify normal saved progress on the same origin.</td>
+</tr>
+<tr>
+<td>F-001 paths</td>
+<td>Public levels 4 and 8, default and alternate seeds/directions. Follow gentle/sharp corners, reversals and branch joins while moving camera. Textured road/shoulder remains continuous without dark triangles, spikes, holes or flicker.</td>
+</tr>
+<tr>
+<td>F-002 bark</td>
+<td>Land, each deck center, both deck ends and dry approaches; bark rings straddling deck/land at small/large radii. Ring stays above grass/path/planks; fences and rails still occlude it. Pause freezes effect age; resume finishes; repeated calls and meadow replacement leave no lingering rings.</td>
+</tr>
+<tr>
+<td>F-005 crossings</td>
+<td>Default and four seeded directions, early/late levels and alternate routes. Check deck axis against local stream tangent, aligned straight approach/departure, width 1.25 × usable road (shoulder excluded), cow/Buddy traversal and dry turning room. Re-run level-2 full-flock retrieval after changes.</td>
+</tr>
+<tr>
+<td>F-010 targets</td>
+<td>Pen/field/barn, each compass rotation and a non-cardinal synthetic fixture. Compare highlight/border, enclosure corners, barn floor and map polygon. Bring full bodies into safe corners beyond former circular goal; edge-straddling bodies must not count. Approach through the 7-unit opening; walls still block bodies.</td>
+</tr>
+<tr>
+<td>F-009 travel/first arrival</td>
+<td>Wait before delivery: no deadline starts. A parked animal without Pip must not count. First attended valid arrival starts exactly one 30–60 second timer with full initial allowance. Later arrivals do not reset it. HUD count and score/possible score remain consistent.</td>
+</tr>
+<tr>
+<td>F-009 finalization</td>
+<td>Deliver all early, then separately time out with a partial flock. Full delivery finishes immediately; timeout finalizes before late movement/admission. Results freeze delivered count and score. Pause/menu/workshop/background/QA do not consume countdown. Restart/replay clears transient timer.</td>
+</tr>
+<tr>
+<td>F-009 reward ledger</td>
+<td>Tutorial two of five: score 32/80, next meadow open, +32 bolts. Spend/reload; equal/worse replay pays zero; improve to four of five: score 64/80, +32; improve to five: +16. Reapply result: zero. Legacy full completion loads fully earned without another payout. Zero deliveries must not pay/unlock (synthetic state fixture; ordinary timeout requires first arrival).</td>
+</tr>
+<tr>
+<td>F-016 under cover</td>
+<td>Barn, rotated views, Pip alone, near-camera animal, partial doorway entry/exit and split flock. Only obstructing camera-facing roof/wall sections fade smoothly and restore after leaving. Pause freezes fades. Check bark/weather/cloud overlap, shadows and readable distant walls; collision/admission remain intact.</td>
+</tr>
+<tr>
+<td>F-018 level/currency</td>
+<td>Confirm local/dev distribution shows QA and production does not. QA 0 and 1 both reach tutorial; 100 reaches final campaign level. No unlock restriction. Add/remove safe whole bolts; zero floor, invalid/fractional/overflow inputs rejected. Reload restores normal save rather than test progress.</td>
+</tr>
+<tr>
+<td>F-018 animal editing</td>
+<td>Open QA while countdown runs: simulation/input/audio/countdown freeze. Select animal by species/ID, edit X/Z with mouse and touch, verify finite coordinates/bounds and body occupancy rejection. Explicit override permits collision-invalid in-bounds repros; out-of-bounds remains rejected. Saved state stays saved and velocity resets. Resume uses active-world edits; a completed meadow returns to results without another award. Reset starts fresh tutorial/profile; export JSON captures seed/world/dog/profile/animals. No normal-save writes.</td>
+</tr>
+<tr>
+<td>F-014 controls/audio</td>
+<td>Portrait thumb steering, double-tap bark without zoom, modal focus and workshop scrolling; pause/background/resume audio, sound toggle, real music/bird/weather balance; restart cancel/confirm and persistence. Record actual phone evidence before changing Blocked status.</td>
+</tr>
+</tbody></table></div>
+<p>QA is a coordinate-form editor, not a drag-to-place map tool. Export is a downloadable reproduction record; there is no import control. Editing delivered animals preserves their delivered state. These limits should be stated when sharing a scenario.</p>
+<h2 id="publish-this-source-batch-separately">Publish this source batch separately<a class="heading-link" href="#publish-this-source-batch-separately" aria-label="Link to Publish this source batch separately">#</a></h2>
+<ol>
+<li>Fetch latest source/Pages references, require a clean intended source revision and record its SHA. Pass relevant checks; rebuild <code>build:dev</code> for the requested QA-enabled development distribution.</li>
+<li>Prepare a fresh absolute worktree path with <code>node scripts/deploy-pages.mjs /tmp/flock-pages-p1-review</code>. Review full staged diff against its Pages parent, including canonical/legacy scope, unchanged unrelated blobs and existing root marker bytes.</li>
+<li>Publish using a checked expected Pages parent; record the Pages SHA and successful native Pages workflow. A source CI artifact upload is not publication.</li>
+<li>Fetch live entry and every generated file, compare hashes with the intended final <code>dist/</code>, verify legacy redirect and preserve unrelated Pages blobs. Record file totals for this particular build; the earlier migration&#39;s 15-file total is not the expected new build count.</li>
+<li>Append actual independent review findings, test/build/doc outcomes and live verification evidence. Keep Review/Blocked items where pixel/device acceptance remains unavailable. Do not re-label old scores as new P1 scores.</li>
+</ol>
+<p>At this snapshot the source batch is reviewable but its final integrated checks and separate publication are not recorded as complete. This page is a runbook, not evidence that pending scenarios ran.</p>
+<h2 id="integration-checks-before-final-review">Integration checks before final review<a class="heading-link" href="#integration-checks-before-final-review" aria-label="Link to Integration checks before final review">#</a></h2>
+<p>The first integrated run found Float32-collapsed path slivers at level 4 seed 9182 and alternate level-8 routes. The fix tests area and winding after GPU-coordinate quantization, retaining neighboring coverage. The complete integrated source suite then passed 156/156 before the final grass-depth regression was added. QA/main integration also verifies timer freezing, no normal-save writes, and restoration of completed results without a second reward. Final totals, blind follow-up scores and P1 deployment verification are recorded below when available.</p>
+<h2 id="completed-blind-review-loop-and-final-local-checks">Completed blind review loop and final local checks<a class="heading-link" href="#completed-blind-review-loop-and-final-local-checks" aria-label="Link to Completed blind review loop and final local checks">#</a></h2>
+<p>The first P1 gameplay and technical reviewers were fresh agents with separate detached worktrees and <strong>medium</strong> effort. They were instructed not to inspect Git history, writer rationale, sibling findings, prior review documents or score targets. The technical critic accidentally encountered an unrelated historical game score in a broad requirements search and reported disregarding it; no prior P1 score was supplied. Follow-ups by the same critics are rechecks, not new blind first passes.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Review</th>
+<th align="right">First pass at <code>a6adfc6</code></th>
+<th align="right">Follow-up at <code>f0a87a1</code></th>
+<th>Confirmed issues resolved</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gameplay</td>
+<td align="right">9.0/10</td>
+<td align="right">9.4/10</td>
+<td>QA resume of a completed scenario now restores results without a second award</td>
+</tr>
+<tr>
+<td>Technical</td>
+<td align="right">8.5/10</td>
+<td align="right">9.0/10</td>
+<td>Decorative grass no longer writes depth over bark; fences/rails retain occlusion. CI now packages the QA-enabled development build</td>
+</tr>
+</tbody></table></div>
+<p>Both follow-ups found no new confirmed defect. The gameplay critic independently exercised full and partial completion, three QA reopen/resume cycles, unchanged rewards/elapsed time, no normal-save writes and Next to level 2 (29 focused tests). The technical critic executed Three’s render-list queue and actual geometry/depth checks, verified release/dev mode checks (including expected failures for the wrong mode), and passed 19 focused scene/surface/controller tests. The infinite cutaway ray beyond a synthetic camera near plane was identified as an unreachable robustness limitation under the fixed gameplay camera, not a present defect.</p>
+<p>Root final checks passed <strong>157/157 source tests</strong>. Both compiled distributions pass <code>scripts/check-build-mode.mjs</code>: release 15 files/0 QA assets, development 17 files/2 QA assets. Documentation is regenerated with the validation page and local links/anchors checked, plus nine real Mermaid sources and four DOM behavior tests. No GPU screenshots, phone frame rate, native gestures or actual phone listening were verified.</p>
+<p>Development agents used medium effort for deployment, surfaces, cutaway and QA; high effort for shared world geometry and delivery/save migration. The integrated Float32 geometry defect was escalated to a separate high-effort fix. Documentation was updated after integrated code was ready. New P2/P3 requests from remote commit <code>6ac8eb7</code> are preserved as F-027 wildlife fence/edge traversal and F-026 Quit; they were not implemented in this batch.</p>
+</main><footer><a href="../validation/P0-P1.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#current-evidence-and-status">Current evidence and status</a><a class="toc-level-2" href="#repeatable-source-and-bundle-checks">Repeatable source and bundle checks</a><a class="toc-level-2" href="#device-and-browser-scenarios-to-run">Device and browser scenarios to run</a><a class="toc-level-2" href="#publish-this-source-batch-separately">Publish this source batch separately</a><a class="toc-level-2" href="#integration-checks-before-final-review">Integration checks before final review</a><a class="toc-level-2" href="#completed-blind-review-loop-and-final-local-checks">Completed blind review loop and final local checks</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

@@ -13,8 +13,8 @@ The simulation is renderer-independent ES modules, directly importable in Node. 
 | Heading | Radians, forward vector `{x: sin(heading), z: cos(heading)}`. |
 | Animal | `{id, type: 'sheep' \| 'cow', x, z, vx, vz, saved}`; stepping adds heading, alert and optional pressure timestamp. |
 | Input | `{x, z, bark}`; direction normalized and magnitude capped at 1, so diagonals do not run faster. |
-| Result | `{saved, total, completed, justCompleted, reward, events, helpers, dogCollision}`. |
-| Events | `{type:'animalSaved', id, animalType}` and one `{type:'levelCompleted', index, reward}` per fresh level instance. |
+| Result | `{saved, total, score, possibleScore, completed, justCompleted, reward, remaining, countdownStarted, events, helpers, dogCollision}`. |
+| Events | `{type:'animalSaved', id, animalType}` `{type:'countdownStarted', duration}` on first valid arrival, and one `{type:'levelCompleted', index, reward, reason}` per fresh level instance. |
 
 `stepSimulation` defaults to 1/60 second and clamps supplied `dt` to `[0, 0.1]`. **This is not a fixed-step browser loop.** `main.js` calls once per animation frame using elapsed frame time capped at 0.05 seconds, with no accumulator or catch-up. Tests often choose fixed 1/60 or 0.1 steps. `level.time` and browser completion `elapsed` advance only during play, using these capped deltas; elapsed is not full wall-clock time after a long stall. Bark lasts 650 ms with a 2100 ms cooldown measured by `performance.now()`, independently of simulation time.
 
@@ -24,7 +24,9 @@ Pip moves at `7.8 + speedBoost` units/second, with radius 0.62. Movement collisi
 
 ```mermaid
 flowchart TD
-  A[Input and active upgrade tiers] --> B[Move Pip with solid collision]
+  T{Started timer exhausted?} -->|Yes| End[Freeze partial result]
+  T -->|No| A[Input and active upgrade tiers]
+  A --> B[Move Pip with solid collision]
   B --> C[Select connected main herd]
   C --> D{Attended herd?}
   D -->|Yes| E[Lateral companion support]
@@ -61,28 +63,28 @@ Tests: [companions.test.js](../../tests/companions.test.js) covers selection, hy
 
 ## Admission, rewards, and profile lifecycle
 
-Admission is currently a circle check, even for rectangular-looking enclosures. An animal is saved when all are true: Pip is within `target.radius + 12` of target center; the animal is not holding; its center is within `target.radius - physicalRadius * 0.5`; and Pip→animal has a clear ground path (radius 0.15). There is no countdown or partial-delivery payout. Completion requires a nonempty flock with every animal saved.
+Admission requires positive simulation time, Pip within `target.radius + 12` of target center, an animal not held by companions, its **entire circular body** inside the shared rectangular target footprint, and Pip→animal clear ground path (radius .15). `containsTarget` contracts both local half-extents by the physical body radius; walls remain physical barriers. Saved animals stop moving.
 
-`justCompleted`/result `reward` prevent repeating the completion event on one level instance. Persistent reward deduplication is separate: `applyLevelReward(profile, level)` requires `level.completed` and an index absent from `completedLevels`, then adds `level.reward` bolts and unlocks the next meadow. Replaying a fresh instance can complete again but cannot award the same index twice. Completing index 99 keeps `highestLevel` at 99; the browser's next button returns to index 0.
+The first valid arrival emits `countdownStarted` and sets `level.delivery = {started:true,duration,remaining}`. There is no travel deadline before it. Duration is `clamp(30 + ceil(max(0,total-5)/5) + 4*(max(1,routeCount)-1) + 2*floor(spawnToGoalDistance/40),30,60)` seconds. The first-arrival step receives the full duration; later positive steps subtract capped simulation `dt` before movement. When time reaches zero admission closes before movement, freezing `level.result = {saved,total,score,possibleScore,reason:'timeout'}`. All arrivals finish immediately with reason `all-arrived`. Completed levels do not step again. Empty flocks do not complete.
+
+Score is `floor(level.reward * saved / total)`, with possible score `80 + 25*index`. A simulation result's one-shot `reward` is the run score; it is **not** the actual wallet delta. `applyLevelReward` validates the profile and pays `max(0,score - bestEarnedBolts[index])`, updates the lifetime ledger, and unlocks the next meadow on any positive delivery. Equal/worse replays and repeated application pay zero. Spending points does not reduce lifetime entitlement. Zero saved gives no bolts/unlock. Index 99 remains the last unlocked index; the browser next button cycles to the first meadow after a positive result there.
 
 ```mermaid
 flowchart TD
-  A[Load validated profile] --> B[Begin highest unlocked meadow]
-  B --> C[Fresh deterministic level instance]
-  C --> D{All saved?}
-  D -->|Yes| E{Index already rewarded?}
-  E -->|No| F[Add bolts and unlock next]
-  E -->|Yes| G[Zero reward]
-  F --> H[Persist and show completion]
-  G --> H
-  H --> I[Replay or next meadow]
-  I --> C
-  A --> J[Confirmed Restart Game]
-  J --> K[Default profile, preserve music]
-  K --> C
+  A[Fresh meadow] --> B[Travel without deadline]
+  B --> C[First attended arrival starts timer]
+  C --> D{All saved or timer exhausted?}
+  D -->|No| C
+  D -->|Yes| E[Freeze delivered count and score]
+  E --> F{Positive delivery?}
+  F -->|Yes| G[Unlock next and pay best improvement]
+  F -->|No| H[Retry without reward]
+  G --> I[Persist and show result]
+  H --> I
+  I --> A
 ```
 
-`defaultProfile()` returns `{version:1, points:0, upgrades:{}, completedLevels:[], highestLevel:0, music:true}`. `validateProfile` rebuilds this schema: points become bounded whole numbers 0–1e9; upgrade entries are validated; completed indexes are deduplicated/sorted and restricted to 0–99; highest unlocked index is reconciled with completions and capped at 99; only explicit `music:false` disables music. It does not save level positions or an in-progress run.
+`defaultProfile()` returns `{version:2, points:0, upgrades:{}, completedLevels:[], bestScores:{}, bestEarnedBolts:{}, highestLevel:0, music:true}`. `validateProfile` bounds points to whole numbers 0–1e9 and validates owned tiers. `bestEarnedBolts` is canonical: valid numeric positive ledger entries use canonical index keys 0–99 and are floored/capped at each level's maximum reward. It rebuilds `bestScores` and sorted completed indexes from that ledger; stale caches cannot inflate entitlements. Highest unlocked index is reconciled and capped at 99; only explicit `music:false` disables music. Pre-ledger version 1/unversioned completed levels migrate to full earned entitlement without adding spendable points or changing ownership. Version-2 completion caches cannot trigger that migration. Profile saves contain no in-progress world positions.
 
 `loadProfile(storage?, key = 'flock-foundry-v1')` and `saveProfile(profile, storage?, key?)` use a storage object with `getItem`/`setItem` (default `localStorage`). Invalid JSON or inaccessible storage loads defaults; saving failure returns false. The browser retains its in-memory profile and displays a toast on save failure. The same key survives normal restarts and deployment path changes on the same origin.
 
@@ -131,6 +133,10 @@ console.log('completion, reward, tier gates and storage round trip passed');
 JS
 ```
 
-## Current versus proposed
+## Development QA and remaining work
 
-The [tracker](../ISSUES.md) owns future requirements and acceptance criteria: enclosure geometry/admission, arrival countdown/scoring, opening gates, wanderers, balancing and dev tooling are queued changes, not contracts implemented by this document. Source tests establish headless behavior; they do not establish real-phone feel, graphics or audio validation. Deployment URL correction is also pending in the tracker; source documentation does not establish a new live release.
+`qa.js` is dynamically imported only when Vite defines `__FLOCK_QA__` for development or explicit `qa` mode. Production builds eliminate the entry point and mutation module. First QA entry replaces the in-memory profile with defaults, begins the tutorial and marks an isolated session; persistence is suppressed until reload. Opening the dialog pauses input, gameplay, countdowns and audio and makes background controls inert. Resume plays an active edited test world; for a completed meadow it restores results without re-awarding bolts. Reset starts a fresh test profile/tutorial. Reload returns to the normal saved profile.
+
+QA 0 maps to tutorial index 0; QA 1–100 map to public levels/indexes 0–99 without unlock restrictions. Bolt edits accept nonnegative safe integers, reject overflow and clamp removals at zero. Animal coordinate edits require paused QA mode, finite coordinates inside the meadow bounds and body-clear occupancy, unless explicit invalid-placement override bypasses occupancy. They zero velocity and preserve delivered state. A select identifies species/ID and delivery state; coordinate inputs support mouse/touch forms. Export downloads JSON containing seed, level, elapsed time, profile, dog and animal/world state; import is not provided. No window mutation API is installed.
+
+The [tracker](../ISSUES.md) retains all P2 work Open, including gates, wanderers and pacing. P1 source implementation is in Review; headless checks do not establish real-phone feel, rendered visuals or listening quality. See [runbook](../validation/P0-P1.md) for release and manual checks.

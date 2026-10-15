@@ -7,6 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0",
     "build": "vite build --base=./",
+    "build:dev": "vite build --mode qa --base=./",
     "test": "node --test tests/*.test.js",
     "docs:build": "node scripts/docs/build.mjs",
     "docs:check": "node scripts/docs/check.mjs && node --test scripts/docs/behavior.test.mjs"

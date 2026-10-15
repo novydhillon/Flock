@@ -365,3 +365,54 @@ test('delayed Restart Game audio does not move focus out of a newly opened pause
   assert.equal(ui.document.activeElement, ui.el('resume'));
   assert.equal(ui.audioEvents.at(-1), 'pause');
 });
+
+test('first delivery starts the visible timer and pause, workshop and hidden tabs freeze it', async () => {
+  const ui=launch();await ui.click('play');
+  const {level,dog}=ui.app.state();
+  assert.match(ui.el('countdown').textContent,/First arrival starts 30s/);
+  Object.assign(dog,{x:level.target.x,z:level.target.z});
+  Object.assign(level.animals[0],{x:level.target.x,z:level.target.z,vx:0,vz:0});ui.tick();
+  assert.equal(ui.app.state().mode,'playing');
+  assert.equal(level.delivery.remaining,30);
+  assert.match(ui.el('countdown').textContent,/30s to gather/);
+  assert.equal(ui.el('mission-score').textContent,'Score 16 / 80');
+  await ui.click('pause');const paused=level.delivery.remaining;ui.tick();ui.tick();
+  assert.equal(level.delivery.remaining,paused);
+  await ui.click('upgrades-menu');ui.tick();assert.equal(level.delivery.remaining,paused);
+  await ui.click('shop-back');ui.tick();assert.ok(level.delivery.remaining<paused);
+  ui.document.hidden=true;ui.emit('visibilitychange');const hidden=level.delivery.remaining;
+  ui.tick();assert.equal(level.delivery.remaining,hidden);
+});
+
+test('partial timeout displays score, awards once, unlocks next and pays only replay improvements', async () => {
+  const ui=launch();await ui.click('play');
+  const deliver=count=>{
+    const {level,dog}=ui.app.state();Object.assign(dog,{x:level.target.x,z:level.target.z});
+    for(const animal of level.animals.slice(0,count))Object.assign(animal,{x:level.target.x,z:level.target.z,vx:0,vz:0});
+    ui.tick();level.delivery.remaining=.001;ui.tick();
+  };
+  deliver(2);
+  assert.equal(ui.app.state().mode,'complete');assert.equal(ui.app.state().profile.points,32);
+  assert.equal(ui.app.state().profile.highestLevel,1);
+  assert.match(ui.el('modal-card').innerHTML,/2 \/ 5 robots delivered/);
+  assert.match(ui.el('modal-card').innerHTML,/Score 32 \/ 80 · Best 32 \/ 80/);
+  assert.match(ui.el('modal-card').innerHTML,/next meadow is open/);
+  ui.tick();assert.equal(ui.app.state().profile.points,32);
+  await ui.click('reward-shop');await ui.click('shop-back');assert.equal(ui.app.state().mode,'complete');
+  await ui.click('replay');deliver(1);assert.equal(ui.app.state().profile.points,32);
+  await ui.click('replay');deliver(4);assert.equal(ui.app.state().profile.points,64);
+  assert.match(ui.el('modal-card').innerHTML,/\+32/);
+  await ui.click('next');assert.equal(ui.app.state().level.index,1);
+});
+
+test('Restart Game erases both score and earned-bolt ledgers from an in-progress countdown', async () => {
+  const ui=launch();await ui.click('play');ui.completeFlock();await ui.click('replay');
+  const {level,dog}=ui.app.state();Object.assign(dog,{x:level.target.x,z:level.target.z});
+  Object.assign(level.animals[0],{x:level.target.x,z:level.target.z,vx:0,vz:0});ui.tick();
+  assert.equal(level.delivery.started,true);assert.equal(ui.app.state().profile.bestEarnedBolts[0],80);
+  await ui.click('pause');await ui.click('restart-game-menu');await ui.click('confirm-reset');
+  assert.equal(Object.keys(ui.app.state().profile.bestScores).length,0);
+  assert.equal(Object.keys(ui.app.state().profile.bestEarnedBolts).length,0);
+  assert.equal(ui.app.state().level.delivery,undefined);
+  assert.match(ui.el('countdown').textContent,/First arrival starts 30s/);
+});

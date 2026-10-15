@@ -5,8 +5,11 @@ import {readFileSync} from 'node:fs';
 import * as THREE from 'three';
 import * as models from '../src/models.js';
 import {createLevel} from '../src/simulation.js';
-import {terrainHeight} from '../src/world.js';
+import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget} from '../src/world.js';
+import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
 import {MeadowNature} from '../src/nature.js';
+import {ribbon,barkSurface} from '../src/surfaces.js';
+import {StructureCutaway} from '../src/cutaway.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
@@ -16,7 +19,7 @@ function setup({width=390,height=844}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,terrainHeight,MeadowNature,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -47,12 +50,31 @@ test('changing levels disposes world resources without disposing cached animal g
   renderer.terrain.traverse(o=>{if(o.userData.ownedGeometry)worldGeometries.add(o.geometry);});
   worldGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>worldDisposed++));
   renderer.animalBatches[0].meshes[0].geometry.addEventListener('dispose',()=>animalDisposed++);
+  renderer.bark();let barkDisposed=0;renderer.barkEffects[0].mesh.material.addEventListener('dispose',()=>barkDisposed++);
   renderer.celebrate(level.target.x,level.target.z);
   let confettiDisposed=0;renderer.particles.forEach(p=>p.mesh.geometry.addEventListener('dispose',()=>confettiDisposed++));
   renderer.setLevel(createLevel(1));
+  assert.equal(barkDisposed,1);assert.equal(renderer.barkEffects.length,0);
   assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.equal(fenceDisposed,0);
   const a=models.createFlowerPatch(1,3),b=models.createFlowerPatch(7,3);
   assert.equal(a.children[0].geometry,b.children[0].geometry,'flower variants reuse bounded geometry');
+});
+
+test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{
+  const renderer=setup(),level=createLevel(2),target=level.target;
+  const collision=JSON.stringify(level.fenceSegments);renderer.setLevel(level);
+  const controller=renderer.cutaway;
+  assert.ok(controller.parts.length>12,'complete roof and segmented walls exist');
+  level.dog.x=target.x;level.dog.z=target.z;
+  for(let i=0;i<60;i++)renderer.update(level,level.dog,1/60);
+  assert.ok(controller.parts.some(p=>p.material.opacity<.2),'Pip has a visible cutaway');
+  assert.ok(controller.parts.some(p=>p.material.opacity===1),'unrelated structure stays opaque');
+  assert.equal(JSON.stringify(level.fenceSegments),collision,'visibility never changes collision');
+  assert.equal(renderer.materials.barn.opacity,1);assert.equal(renderer.materials.roof.opacity,1);
+  const count=controller.parts.length;let disposed=0;
+  for(const part of controller.parts)part.material.addEventListener('dispose',()=>disposed++);
+  renderer.setLevel(createLevel(0));
+  assert.equal(disposed,count);assert.equal(controller.disposed,true);assert.equal(renderer.cutaway,null);
 });
 
 test('portrait camera keeps Pip visible when helpers move the flock far away',()=>{
@@ -239,4 +261,67 @@ test('animal bounds enclose real body vertices, moving limbs and visible ground 
   }
   assert.ok(checked>0);
   assertAnimalMatrices(renderer,level);
+});
+
+test('actual target meshes and map show the shared rectangle across every enclosure type and compass heading',()=>{
+  const renderer=setup();
+  for(const index of [6,7,8])for(const seed of [200,201,202,203]){
+    const level=createLevel(index,seed),target=level.target,shape=targetFootprint(target);renderer.setLevel(level);
+    for(const mesh of [renderer.goal,renderer.goalOutline,...(target.type==='barn'?[renderer.goalFloor]:[])]){
+      assert.ok(mesh?.parent===renderer.terrain,'actual goal surface is in the scene');
+      mesh.updateWorldMatrix(true,false);
+      const positions=mesh.geometry.attributes.position;
+      for(let i=0;i<4;i++){
+        const actual=new THREE.Vector3().fromBufferAttribute(positions,i).applyMatrix4(mesh.matrixWorld),expected=shape.corners[i];
+        assert.ok(Math.hypot(actual.x-expected.x,actual.z-expected.z)<.00001,`${target.type} geometry reaches physical corner ${i}`);
+      }
+    }
+    const admitted=targetWorldPoint(target,shape.halfLength-.98,shape.halfWidth-.98);
+    assert.ok(containsTarget(target,admitted,.78));
+    const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,2,admitted.z),new THREE.Vector3(0,-1,0));
+    assert.ok(ray.intersectObject(renderer.goal).length,'admitted cow corner is visibly inside goal');
+    let path=[],fills=[];
+    const ctx={fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
+    const canvas={width:240,height:160,getContext:()=>ctx};renderer.drawMap(canvas,level,level.dog);
+    const mapGoal=fills.find(p=>p.color==='#f9e7a2');
+    assert.ok(mapGoal,'minimap draws target');assert.equal(mapGoal.path.length,5);assert.equal(mapGoal.path[4],'close');
+    shape.corners.forEach((corner,i)=>{
+      const expected=[8+(corner.x-level.bounds.minX)/(level.bounds.maxX-level.bounds.minX)*224,8+(corner.z-level.bounds.minZ)/(level.bounds.maxZ-level.bounds.minZ)*144];
+      assert.ok(mapGoal.path[i].every((n,j)=>Math.abs(n-expected[j])<1e-8),'minimap uses exact projected physical corners');
+    });
+    if(target.type==='barn')assert.ok(renderer.cutaway?.parts.length>12,'barn cutaway remains installed');
+  }
+});
+
+test('ground bark draws over real decorative blades while opaque fence rails retain depth',()=>{
+  const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
+  const grass=renderer.terrain.children.find(mesh=>mesh.userData.decorativeGrass);
+  assert.ok(grass?.isInstancedMesh);
+  assert.equal(grass.material.transparent,true);assert.equal(grass.material.opacity,1);
+  assert.equal(grass.material.depthWrite,false);assert.equal(grass.material.depthTest,true);
+  const blade=new THREE.Mesh(grass.geometry,grass.material),matrix=new THREE.Matrix4();grass.getMatrixAt(0,matrix);blade.applyMatrix4(matrix);blade.updateMatrixWorld(true);
+  const center=blade.position.clone(),direction=new THREE.Vector3(0,-36,-31).normalize();
+  const ray=new THREE.Raycaster(center.clone().addScaledVector(direction,-10),direction);
+  const land=center.clone().addScaledVector(direction,(.055-center.y)/direction.y);
+  renderer.dog.position.set(land.x-1,0,land.z);renderer.bark();const ring=renderer.barkEffects[0].mesh;ring.updateMatrixWorld(true);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(8,8),renderer.grass);ground.rotation.x=-Math.PI/2;ground.position.set(land.x,-.035,land.z);ground.updateMatrixWorld(true);
+  const rail=renderer.fenceParts[2].clone();rail.scale.x=4;rail.position.copy(center).addScaledVector(direction,(.34-center.y)/direction.y);rail.updateMatrixWorld(true);
+  const hits=new Map([ground,blade,ring,rail].map(mesh=>[mesh,ray.intersectObject(mesh)[0]]));
+  for(const mesh of [ground,blade,ring,rail])assert.ok(hits.get(mesh),'ray intersects actual ground, blade, ring and fence geometry');
+  assert.ok(hits.get(blade).distance<hits.get(ring).distance,'literal blade geometry would hide the lower ring if it wrote depth');
+  assert.ok(hits.get(rail).distance<hits.get(ring).distance,'fence rail is in front of ring');
+  assert.ok(ring.renderOrder>grass.renderOrder);assert.equal(ring.material.depthTest,true);assert.equal(rail.material.depthWrite,true);
+  // Resolve this ray with the same opaque/transparent queues, order and depth
+  // rules as WebGLRenderer. Geometry intersections above reproduce the defect;
+  // this checks the selective drawing policy rather than material flags alone.
+  function visible(meshes){
+    let depth=Infinity,last;
+    const opaque=meshes.filter(m=>!m.material.transparent).sort((a,b)=>hits.get(a).distance-hits.get(b).distance);
+    const transparent=meshes.filter(m=>m.material.transparent).sort((a,b)=>a.renderOrder-b.renderOrder||hits.get(b).distance-hits.get(a).distance);
+    for(const mesh of [...opaque,...transparent])if(!mesh.material.depthTest||hits.get(mesh).distance<=depth){last=mesh;if(mesh.material.depthWrite)depth=hits.get(mesh).distance;}
+    return last;
+  }
+  assert.equal(visible([ground,blade]),blade,'decorative grass remains visible over the ground without bark');
+  assert.equal(visible([ground,blade,ring]),ring,'bark covers grass at its projected location');
+  assert.equal(visible([ground,blade,ring,rail]),rail,'raised fence still occludes bark and grass');
 });

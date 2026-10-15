@@ -29,8 +29,10 @@ jobs:
         run: npm run docs:check
       - name: Test simulation, controls and scene construction
         run: npm test
-      - name: Build standalone game
-        run: npm run build
+      - name: Build and check release without QA
+        run: npm run build && node scripts/check-build-mode.mjs release
+      - name: Build and check development game with QA
+        run: npm run build:dev && node scripts/check-build-mode.mjs development
       - name: Upload standalone game
         uses: actions/upload-artifact@v4
         with:

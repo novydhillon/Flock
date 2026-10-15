@@ -1,6 +1,15 @@
 # Flock dev2 revision quality record
 
-The latest fresh blind-review retry scored **9.1/10 for technical implementation** and **8.6/10 for gameplay implementation** after fixes. Neither critic found a remaining confirmed blocking defect in the bounded recheck. The technical review reaches 9/10; the overall game experience remains unverified at that score. Actual phone appearance, sound balance, Safari gestures, touch scrolling, human campaign pacing and GPU performance remain open validation tasks.
+## P0/P1 implementation batch — 14 October 2026
+
+Medium-effort blind first passes scored gameplay **9.0/10** and technical **8.5/10**. Their follow-up checks of `f0a87a1` scored **9.4/10 gameplay** and **9.0/10 technical**, with no new confirmed defects. The P0 migration separately scored **9/10** and was published at canonical `/Flock/dev2/`. These are bounded source/headless implementation scores, not verified phone visual quality.
+
+Final integrated checks pass **157/157 source tests**, release without QA (15 files, zero QA assets), development with QA (17 files, two QA assets), and generated documentation checks. The new P1 build still requires separate publication/hash verification, recorded in [the validation runbook](validation/P0-P1.md). F-014 remains Blocked; visual acceptance for paths, bark and cutaways remains in Review.
+
+The earlier review results below are retained as historical records.
+
+
+The historical fresh blind-review retry scored **9.1/10 for technical implementation** and **8.6/10 for gameplay implementation** after fixes. Neither critic found a remaining confirmed blocking defect in the bounded recheck. The technical review reaches 9/10; the overall game experience remains unverified at that score. Actual phone appearance, sound balance, Safari gestures, touch scrolling, human campaign pacing and GPU performance remain open validation tasks.
 
 Review packets excluded README, quality records, writer history and requested score thresholds. Fresh critics independently inspected source and exercised simulation, geometry and controller behavior. An earlier diagnostic gameplay review accidentally read historical scores; it is excluded from the blind final assessment.
 
@@ -12,7 +21,7 @@ Review packets excluded README, quality records, writer history and requested sc
 | Fresh technical retry | 8.8 | 9.1 | Pending audio activation undoing pause; unbounded overdue music scheduling |
 | Fresh gameplay retry | 8.2 | 8.6 | Default level-two bridge retrieval stall under the test controller |
 
-The retry used two new critics with no earlier scores or writer context. The default second meadow initially left all eight sheep unsaved after 400 simulated seconds under the existing test controller. Widening only its first bridge from 8.5 m to 11.5 m lets the same unchanged controller deliver all eight in 17.2 seconds. Later early crossings remain 8.5 m, and the map, river and solid rails are retained.
+The retry used two new critics with no earlier scores or writer context. The default second meadow initially left all eight sheep unsaved after 400 simulated seconds under the existing test controller. Widening only its first bridge from 8.5 m to 11.5 m lets the same unchanged controller deliver all eight in 17.2 seconds. At that historical snapshot, later early crossings remained 8.5 m, and the map, river and solid rails are retained.
 
 Audio activation now uses generation checks so a later pause/disposal/request invalidates an older pending browser resume. Controller startup and sound enabling also respect the current game mode. Delayed music callbacks skip missed beats and cap work; the independent 60-second stall probe schedules one future musical step instead of 212 overdue steps.
 
@@ -40,3 +49,13 @@ Device priorities are portrait readability and control feel, double-tap bark wit
 ## Documentation maintenance note — 14 October 2026
 
 The later Restart Game revision added six controller regressions, bringing the source suite to 99 tests; its source CI passed. The historical review scores above were not rerun for that small feature. See [requirements](REQUIREMENTS.md), [system context](ARCHITECTURE.md) and [issue tracker](ISSUES.md) for implemented versus queued behavior. Documentation content/HTML reviews are recorded separately in `docs/REVIEW.md`; their scores do not rate the game itself.
+
+## P0/P1 source batch — 14 October 2026
+
+F-025 canonical migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`, serving https://novydhillon.github.io/Flock/dev2/. All 15 game files plus the legacy redirect matched intended hashes; 17 unrelated blobs remained unchanged. An independent blind medium review scored the bounded P0 migration **9/10**. That score concerns deployment migration only. The migration published the preceding game revision; it does not establish that the new P1 source is live.
+
+F-001/F-002/F-005/F-009/F-010/F-016/F-018 now have source implementations and are **Review**. The new surface, world/goal, countdown/ledger, cutaway and QA tests support their source contracts. Final integrated totals, independent P1 findings and a separate P1 Pages release must be recorded after the integrated candidate is checked; none is inferred here. The old 93/99-test snapshots and 9.1/8.6 scores above remain historical.
+
+F-014 is **Blocked** because no physical phone is available. Browser capability discovery exposed no usable browser tools; the installed Sites instruction says “If `$control-browser` is unavailable, skip browser QA” (`/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md`). No browser screenshots, physical touch/gesture checks, real listening or GPU profiling are claimed. Geometry topology, material flags and camera-ray checks do not prove artifact-free pixels or transparent draw ordering. All P2 work remains Open.
+
+See [P0/P1 validation and release runbook](validation/P0-P1.md) for source checkpoints, build modes, exact manual scenarios and publication boundaries.

@@ -1,5 +1,5 @@
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
-import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal } from './world.js';
+import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal, containsTarget } from './world.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
 /** Renderer-independent flock behaviour. Companions support Pip's herding;
@@ -11,6 +11,38 @@ const normal = (x, z) => {
   return length > 0.0001 ? { x: x / length, z: z / length } : { x: 0, z: 0 };
 };
 const centerOf = group => group.reduce((sum, a) => ({ x: sum.x + a.x / group.length, z: sum.z + a.z / group.length }), { x: 0, z: 0 });
+
+/** Recovery time: 30s + 1s per extra five robots + 4s per extra route
+ * + 2s per 40m of spawn-to-goal distance, capped at 60s. No travel timer. */
+export function deliveryCountdownSeconds(level) {
+  const extraRobots = Math.max(0, (level.animals?.length || 0) - 5);
+  const routes = Math.max(1, level.routes?.length || 1);
+  const journey = level.spawn && level.target ? distance(level.spawn, level.target) : 0;
+  return clamp(30 + Math.ceil(extraRobots / 5) + (routes - 1) * 4 + Math.floor(journey / 40) * 2, 30, 60);
+}
+
+/** A run's score and maximum bolt entitlement share the same integer scale. */
+export function deliveryScore(level, saved = level.animals.filter(a => a.saved).length) {
+  const total = level.animals.length;
+  return total ? Math.floor(Math.max(0, level.reward) * clamp(saved, 0, total) / total) : 0;
+}
+
+function deliveryResult(level, events = [], justCompleted = false, dogCollision = { blockedX: false, blockedZ: false }) {
+  const saved = level.result?.saved ?? level.animals.filter(a => a.saved).length;
+  const total = level.result?.total ?? level.animals.length;
+  const score = level.result?.score ?? deliveryScore(level, saved);
+  return { saved, total, score, possibleScore: level.reward, completed: Boolean(level.completed), justCompleted,
+    reward: justCompleted ? score : 0, remaining: level.delivery?.remaining ?? null,
+    countdownStarted: Boolean(level.delivery?.started), events, helpers: level.helpers || [], dogCollision };
+}
+
+function finishDelivery(level, reason, events = [], dogCollision) {
+  level.completed = true;
+  const saved = level.animals.filter(a => a.saved).length;
+  level.result = { saved, total: level.animals.length, score: deliveryScore(level, saved), possibleScore: level.reward, reason };
+  events.push({ type: 'levelCompleted', index: level.index, reward: level.result.score, reason });
+  return deliveryResult(level, events, true, dogCollision);
+}
 
 // A flying helper must not apply a signal through a solid bank, rail or tree.
 function clearSignal(level, a, b, radius = 0.15) {
@@ -132,6 +164,15 @@ function companionAssist(level, companions, dog, effects) {
 export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {}) {
   const effects = upgradeEffects(upgrades, level.index + 1);
   dt = clamp(Number(dt) || 0, 0, 0.1);
+  if (level.completed) return deliveryResult(level);
+  if (dt > 0 && level.delivery?.started) {
+    level.delivery.remaining = Math.max(0, level.delivery.remaining - dt);
+    // Close admission before movement when the remaining time is exhausted.
+    if (level.delivery.remaining <= 1e-8) {
+      level.delivery.remaining = 0;
+      return finishDelivery(level, 'timeout');
+    }
+  }
   level.time = (level.time || 0) + dt;
   const events = [];
   const ix = Number(input.x) || 0, iz = Number(input.z ?? input.y) || 0;
@@ -226,37 +267,73 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     const playerAtDestination = distance(dog, level.target) < level.target.radius + 12;
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
-    if (playerAtDestination && !holding && distance(animal, level.target) < level.target.radius - physicalRadius * 0.5 && clearSignal(level, dog, animal)) {
+    if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
       animal.saved = true; animal.vx = 0; animal.vz = 0;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
   }
   const saved = level.animals.filter(a => a.saved).length;
-  const completed = saved === level.animals.length && saved > 0;
-  const justCompleted = completed && !level.completed;
-  if (justCompleted) { level.completed = true; events.push({ type: 'levelCompleted', index: level.index, reward: level.reward }); }
-  return { saved, total: level.animals.length, completed, justCompleted, reward: justCompleted ? level.reward : 0, events, helpers: companions.helpers, dogCollision };
+  if (events.some(event => event.type === 'animalSaved') && !level.delivery?.started) {
+    const duration = deliveryCountdownSeconds(level);
+    level.delivery = { started: true, duration, remaining: duration };
+    events.push({ type: 'countdownStarted', duration });
+  }
+  if (saved === level.animals.length && saved > 0) return finishDelivery(level, 'all-arrived', events, dogCollision);
+  return deliveryResult(level, events, false, dogCollision);
 }
 
-export function defaultProfile() { return { version: 1, points: 0, upgrades: {}, completedLevels: [], highestLevel: 0, music: true }; }
+export function defaultProfile() { return { version: 2, points: 0, upgrades: {}, completedLevels: [], bestScores: {}, bestEarnedBolts: {}, highestLevel: 0, music: true }; }
+
+// The campaign's maximum reward is fixed by level, independently of save data.
+const maximumLevelReward = index => 80 + index * 25;
+function validateLedger(raw) {
+  const ledger = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return ledger;
+  for (const [key, score] of Object.entries(raw)) {
+    const index = Number(key);
+    if (String(index) !== key || !Number.isInteger(index) || index < 0 || index > 99 || !Number.isFinite(score) || score <= 0) continue;
+    ledger[index] = clamp(Math.floor(score), 0, maximumLevelReward(index));
+    if (!ledger[index]) delete ledger[index];
+  }
+  return ledger;
+}
 
 export function validateProfile(value) {
   const result = defaultProfile();
   if (!value || typeof value !== 'object') return result;
   result.points = Number.isFinite(value.points) ? clamp(Math.floor(value.points), 0, 1e9) : 0;
   result.upgrades=validateUpgrades(value.upgrades);
-  result.completedLevels = [...new Set((Array.isArray(value.completedLevels) ? value.completedLevels : []).filter(v => Number.isInteger(v) && v >= 0 && v <= 99))].sort((a, b) => a - b);
+  const legacyCompleted = [...new Set((Array.isArray(value.completedLevels) ? value.completedLevels : []).filter(v => Number.isInteger(v) && v >= 0 && v <= 99))];
+  result.bestEarnedBolts = validateLedger(value.bestEarnedBolts);
+  // Only pre-ledger saves receive the old full-reward entitlement. A v2
+  // completedLevels cache must never inflate a partially earned ledger.
+  if (value.version === undefined || value.version === 1) {
+    for (const index of legacyCompleted) result.bestEarnedBolts[index] = maximumLevelReward(index);
+  }
+  // Scores are a display cache of the authoritative earned entitlement. A
+  // stale or malformed cache cannot rewrite a player's lifetime reward cap.
+  result.bestScores = { ...result.bestEarnedBolts };
+  result.completedLevels = Object.keys(result.bestEarnedBolts).map(Number).sort((a, b) => a - b);
   result.highestLevel = clamp(Math.max(Number.isInteger(value.highestLevel) ? value.highestLevel : 0, ...result.completedLevels.map(v => v + 1)), 0, 99);
   result.music = value.music !== false;
   return result;
 }
 
 export function applyLevelReward(profile, level) {
-  if (!level.completed || profile.completedLevels.includes(level.index)) return 0;
-  profile.completedLevels.push(level.index);
+  if (!level.completed || !Number.isInteger(level.index) || level.index < 0 || level.index > 99) return 0;
+  const saved = level.result?.saved ?? level.animals.filter(a => a.saved).length;
+  if (saved <= 0 || !level.animals.length) return 0;
+  Object.assign(profile, validateProfile(profile));
+  const score = Math.min(maximumLevelReward(level.index), deliveryScore(level, saved));
+  const previousEarned = profile.bestEarnedBolts[level.index] || 0;
+  const reward = Math.max(0, score - previousEarned);
+  profile.bestScores[level.index] = Math.max(profile.bestScores[level.index] || 0, score);
+  profile.bestEarnedBolts[level.index] = Math.max(previousEarned, score);
+  if (!profile.completedLevels.includes(level.index)) profile.completedLevels.push(level.index);
+  profile.completedLevels.sort((a, b) => a - b);
   profile.highestLevel = Math.min(99, Math.max(profile.highestLevel, level.index + 1));
-  profile.points += level.reward;
-  return level.reward;
+  profile.points += reward;
+  return reward;
 }
 
 export function loadProfile(storage, key = 'flock-foundry-v1') {

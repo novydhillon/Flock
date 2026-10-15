@@ -36,5 +36,7 @@ for(const page of pages){
 }
 if(diagrams<5)errors.push('Expected meaningful system diagrams in documentation.');
 const issue=readFileSync(resolve(root,'docs/ISSUES.md'),'utf8'),req=readFileSync(resolve(root,'docs/REQUIREMENTS.md'),'utf8');
-for(let i=1;i<=25;i++){const id=`F-${String(i).padStart(3,'0')}`;if(!issue.includes(id)||!req.includes(id))errors.push(`Missing requirement traceability: ${id}`);}
+const issueIds=[...issue.matchAll(/^### (F-\d{3})/gm)].map(m=>m[1]);
+if(new Set(issueIds).size!==issueIds.length)errors.push('Duplicate issue IDs in tracker headings.');
+for(const id of issueIds)if(!req.includes(id))errors.push(`Missing requirement traceability: ${id}`);
 if(errors.length){console.error(errors.join('\n'));process.exitCode=1;}else console.log(`Documentation checks passed: ${pages.length} pages, ${checkedLinks} local links/anchors, ${diagrams} diagrams; deterministic, current and offline assets.`);

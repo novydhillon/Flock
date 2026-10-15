@@ -13,6 +13,10 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 | `src/simulation.js` | Herd movement, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
 | `src/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
 | `src/models.js` | Robot/scenery model construction and shared model resources | Shared material changes may affect many objects |
+| `src/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |
+| `src/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
+| `src/cutaway.js` | Camera-ray structure visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
+| `src/qa.js` | Development-only isolated QA controls and scenario export | Dynamically imported only in development/QA builds |
 | `src/render.js` | Camera, scene, static/actor batches, map, transient effects | Visual state must not decide rewards or collision |
 | `src/nature.js` | Decorative weather, clouds and wildlife | Current weather does not change gameplay rewards or control |
 | `src/audio.js` | Music scheduling, UI/game sounds and ambience lifecycle | Browser activation is asynchronous and can be invalidated |
@@ -32,7 +36,7 @@ flowchart TD
 
 ## Data and coordinate contracts
 
-Public campaign levels are 1–100, while `level.index` and saved completion entries are 0–99. The requested QA selector 0–100 remains an explicit mapping decision (F-018). Do not equate index 100 with public level 100.
+Public campaign levels are 1–100, while `level.index` and saved completion entries are 0–99. The QA selector maps 0 to the tutorial (index 0), and 1–100 to indexes 0–99. Do not equate index 100 with public level 100.
 
 The ground plane uses `x` and `z`; Three.js `y` is elevation. Some input APIs accept `y` as a compatibility alias for planar `z`; that does not change world coordinates. Headings are radians. Bridge longitudinal/lateral coordinates derive from the heading, not an axis-aligned box.
 
@@ -49,9 +53,9 @@ console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.t
 
 ## State ownership
 
-`level` contains mutable runtime animals, helper state, time and completion. `dog` is updated by the simulation. A profile contains points, paid upgrade tiers, completed level indexes, highest unlocked index and music preference. Creating/replaying a level replaces transient state; completing one can mutate the profile once. Full Restart Game replaces profile progress with defaults, keeps music preference, persists the reset and begins the tutorial.
+`level` contains mutable runtime animals, helper state, time and completion. `dog` is updated by the simulation. A version-2 profile contains points, paid upgrade tiers, positive-delivery completion indexes, highest unlocked index, music preference, and per-level `bestEarnedBolts`/`bestScores` ledgers. Creating/replaying a level replaces transient state; a completed run pays only its lifetime best-score improvement. `bestEarnedBolts` is authoritative across spending and reloading; `bestScores` and completion indexes are rebuilt from it when loading. Full Restart Game replaces profile progress with defaults, keeps music preference, persists the reset and begins the tutorial.
 
-Rendering consumes the same level and dog, adding mesh/cache/resource state of its own. Collision belongs in world/simulation queries. Minimap, target highlight and model bounds must remain consistent with the shared world; F-010 records the current circle-versus-enclosure gap.
+Rendering consumes the same level and dog, adding mesh/cache/resource state of its own. Collision belongs in world/simulation queries. Minimap, target highlight, enclosure and full-body admission use `targetFootprint`, `targetWorldPoint`, `targetLocalPoint` and `containsTarget` from `world.js`. The target radius remains a sizing/attendance input, not a circular admission test.
 
 ## Cross-system changes
 
@@ -63,7 +67,7 @@ Rendering consumes the same level and dog, adding mesh/cache/resource state of i
 | Model size/detail | Placement clearance, culling bounds, shared materials, shadows and disposal |
 | QA animal editing | Pause ownership, selection/placement override, profile isolation and release gating |
 
-F-009/F-012/F-018/F-022–F-024 include unresolved design semantics. Their proposed contracts are future work, not hidden runtime features. See [issue acceptance criteria](ISSUES.md).
+F-009 and F-018 now have source implementations documented in Gameplay and the validation runbook. F-012/F-022–F-024 retain unresolved future design semantics. See [issue acceptance criteria](ISSUES.md).
 
 ## Resource and async invariants
 

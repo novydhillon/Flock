@@ -7,15 +7,17 @@ import '@fontsource/dm-sans/latin-600.css';
 import '@fontsource/dm-sans/latin-700.css';
 import { MeadowRenderer } from './render.js';
 import { FarmAudio } from './audio.js';
-import { createLevel, stepSimulation, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG } from './simulation.js';
+import { createLevel, stepSimulation, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG, deliveryCountdownSeconds } from './simulation.js';
 import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades } from './progression.js';
+import { canOccupy } from './world.js';
 import { nextNavigationPoint } from './world.js';
 
 const $=id=>document.getElementById(id);
 let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkUntil=0,barkCooldown=0,tipStep=0,tipDismissed=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
-const persist=()=>{if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
+let qaSession=false;
+const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(message){$('toast').textContent=message;visible('toast',true);clearTimeout(toastTimer);toastTimer=setTimeout(()=>visible('toast',false),2800);}
 function updateWallet(){$('points').textContent=profile.points;$('sound').textContent=profile.music?'♫':'♪';$('sound').setAttribute('aria-label',profile.music?'Mute sound':'Enable sound');$('sound').style.opacity=profile.music?'1':'.55';}
@@ -25,6 +27,7 @@ async function begin(index=profile.highestLevel){
   closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box','destination'])visible(id,true);
   $('level-name').textContent=`LEVEL ${index+1} · ${level.title}`;$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=`/ ${level.animals.length}`;$('saved').textContent=0;$('progress').style.width='0%';
+  $('countdown').textContent=`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',false);$('mission-score').textContent=`Score 0 / ${level.reward}`;
   visible('tip',true);setTip(index===0?'Drag with your thumb to move Pip. Try circling behind the sheep.':level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.');
   audio.setMuted(!profile.music);await audio.start();if(mode!=='playing')audio.pause();updateWallet();
 }
@@ -68,8 +71,9 @@ let lastReward=0;
 function complete(award=true){
   if(award){lastReward=applyLevelReward(profile,level);persist();updateWallet();audio.play('completed');renderer.celebrate(level.target.x,level.target.z);}
   mode='complete';
-  openModal(`<div class="complete-seal">✦</div><div class="eyebrow">A GOOD DAY’S HERDING</div><h2>Everyone’s home.</h2><p>${level.animals.length} happy robots. One very good dog.<br>${Math.floor(elapsed/60)}m ${Math.floor(elapsed%60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward?'Bolts earned. Something clever awaits in the workshop.':'This meadow’s reward has already been collected. Try the next one for more bolts.'}</p><button class="primary" id="next">${level.index>=99?'Return to the first meadow':'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-shop">Visit the workshop</button><button class="secondary" id="replay">Roam this meadow again</button>`,'complete');
-  $('next').onclick=()=>begin(level.index>=99?0:level.index+1);$('reward-shop').onclick=shop;$('replay').onclick=()=>begin(level.index);
+  const saved=level.result?.saved??level.animals.filter(a=>a.saved).length,total=level.animals.length,score=level.result?.score??0;
+  openModal(`<div class="complete-seal">✦</div><div class="eyebrow">${saved===total?'A GOOD DAY’S HERDING':'DELIVERY TIME IS UP'}</div><h2>${saved===total?'Everyone’s home.':saved>0?'A flock brought home.':'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index]||0} / ${level.reward}<br>${Math.floor(elapsed/60)}m ${Math.floor(elapsed%60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward?'Bolts earned from your improved delivery score.':'No extra bolts this time. Deliver more robots to improve your best score.'}${saved>0&&saved<total?' The next meadow is open.':''}</p><button class="primary" id="next">${saved===0?'Try again':level.index>=99?'Return to the first meadow':'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-shop">Visit the workshop</button><button class="secondary" id="replay">Roam this meadow again</button>`,'complete');
+  $('next').onclick=()=>begin(saved===0?level.index:level.index>=99?0:level.index+1);$('reward-shop').onclick=shop;$('replay').onclick=()=>begin(level.index);
 }
 
 // Pointer capture means a single thumb can roam without lifting off the glass.
@@ -103,7 +107,8 @@ function frame(now){
     const ix=keys.has('arrowright')||keys.has('d')?1:keys.has('arrowleft')||keys.has('a')?-1:input.x;
     const iz=keys.has('arrowdown')||keys.has('s')?1:keys.has('arrowup')||keys.has('w')?-1:input.z;
     const result=stepSimulation(level,dog,{x:ix,z:iz,bark:now<barkUntil},dt,profile.upgrades);
-    $('saved').textContent=result.saved;$('progress').style.width=`${result.saved/result.total*100}%`;
+    $('saved').textContent=result.saved;$('progress').style.width=`${result.total?result.saved/result.total*100:0}%`;
+    $('countdown').textContent=result.countdownStarted?`${Math.ceil(result.remaining)}s to gather the rest`:`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',result.countdownStarted);$('mission-score').textContent=`Score ${result.score} / ${result.possibleScore}`;
     for(const event of result.events)if(event.type==='animalSaved')audio.play('saved');
     const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
     if(!tipDismissed){
@@ -119,3 +124,19 @@ function frame(now){
 try{
   renderer=new MeadowRenderer($('world'));level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);updateWallet();visible('loading',false);requestAnimationFrame(frame);
 }catch(error){visible('loading',false);visible('error',true);$('error-message').textContent=`This meadow needs WebGL 2. Try Safari, Chrome or Firefox with graphics enabled. ${error.message}`;console.error(error);}
+
+// Vite removes this entire branch and its module from production builds.
+if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__){
+  import('./qa.js').then(({installQA})=>{
+    const pause=()=>{mode='qa';resetInput();audio.pause();closeModal(false);visible('controls',false);};
+    const jump=async index=>{const pending=begin(index);pause();await pending;pause();};
+    installQA({
+      getState:()=>({level,dog,profile,elapsed}),
+      enterSession:async()=>{if(!qaSession){qaSession=true;profile=defaultProfile();await jump(0);}},
+      pause,isPaused:()=>mode==='qa',
+      resume:()=>{if(level.completed){complete(false);return;}mode='playing';resetInput();visible('controls',true);audio.resume();},
+      jump,resetSession:async()=>{profile=defaultProfile();lastReward=0;await jump(0);},
+      canOccupy,updateWallet
+    });
+  });
+}

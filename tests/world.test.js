@@ -45,6 +45,7 @@ test('tutorial footprints stay intimate and later meadows expand in the vertical
 test('the first tutorial bridge fits the starter flock spread while retaining solid rails and water',()=>{
   const l=createLevel(1),bridge=l.rivers[0].bridges[0],f={x:Math.sin(bridge.heading),z:Math.cos(bridge.heading)};
   const point=(u,v)=>({x:bridge.x+f.x*u+f.z*v,z:bridge.z+f.z*u-f.x*v});
+  assert.equal(bridge.width,l.roads[0].width*1.25,'the starter road and deck widen together');
   for(const animal of l.animals){
     const lateral=(animal.x-l.spawn.x)*f.z-(animal.z-l.spawn.z)*f.x;
     const near=point(-bridge.length/2-1,lateral),far=point(bridge.length/2+1,lateral);

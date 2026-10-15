@@ -12,6 +12,7 @@ export const pages = [
   ['docs/systems/WORLD.md','world.html','World & navigation','Systems'],
   ['docs/systems/PRESENTATION.md','presentation.html','Rendering, nature & audio','Systems'],
   ['docs/DEVELOPMENT.md','development.html','Development & release','Delivery'],
+  ['docs/validation/P0-P1.md','p0-p1-validation.html','P0 / P1 validation','Delivery'],
   ['docs/ISSUES.md','issues.html','Issue tracker','Delivery'],
   ['docs/QUALITY.md','quality.html','Quality record','Delivery'],
   ['docs/REVIEW.md','review.html','Documentation reviews','Delivery'],

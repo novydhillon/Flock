@@ -6,7 +6,7 @@ Development branch: `flock_3D_chatgpt-work`.
 
 Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/index.html) · [Requirements](docs/REQUIREMENTS.md) · [Issue tracker](docs/ISSUES.md).
 
-Play the standalone development build at [novydhillon.github.io/Flock/flock/dev2/](https://novydhillon.github.io/Flock/flock/dev2/). The existing `flock/dev/` game is preserved separately.
+Play the standalone development build at [novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/). The existing `flock/dev/` game is preserved separately.
 
 ## Engine choice
 
@@ -31,7 +31,7 @@ npm run build
 npm run preview -- --host 0.0.0.0
 ```
 
-The production build is written to `dist/`. Relative asset paths allow it to run beneath `/Flock/flock/dev2/` without a backend or CDN dependency.
+The production build is written to `dist/`. Relative asset paths allow it to run beneath `/Flock/dev2/` without a backend or CDN dependency.
 
 ## Playing
 
@@ -39,7 +39,8 @@ The production build is written to `dist/`. Relative asset paths allow it to run
 - Drag anywhere on the meadow to steer, or use WASD/arrow keys on desktop. Double-tap the meadow or tap Woof for a short herding burst.
 - Approach the flock from behind to guide it toward the highlighted destination.
 - Keep the flock together while following routes through the countryside.
-- Complete a pasture to earn points, then spend them on skills and helpers.
+- The first attended arrival starts a 30–60 second recovery countdown. Bring everyone home early or finish with a partial score at timeout. Any positive delivery opens the next meadow.
+- Earn bolts equal to improvements in your lifetime best proportional score, then spend them on skills and helpers. Replays at the same or a lower score pay no extra bolts.
 - Six skills have three tiers each: Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect, cost, and level requirement. Skills appear throughout the first fifteen levels; the drone starts at level 10, and the more expensive Buddy dog starts at level 20.
 - Companions attend the largest connected herd. When Pip leaves, they hold that herd in place. Recover isolated stragglers yourself and return to lead the delivery.
 - Music starts after a player interaction, following mobile browser audio rules. Use the sound control to mute it.
@@ -48,21 +49,20 @@ The opening pasture teaches herding with a small sheep flock and a nearby pen. L
 
 ## Deployment
 
-**P0 correction pending (F-025):** the required canonical URL is **https://novydhillon.github.io/Flock/dev2/**, with output under `dev2/` on `gh-pages`. The current nested deployment and helper described below are **superseded for the next release**. Correct the helper and verify migration before publishing another game revision. See [development and release context](docs/DEVELOPMENT.md) and [F-025](docs/ISSUES.md#f-025--correct-the-deployment-url-p0--highest-priority).
+The canonical development game is [https://novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/), served from `dev2/` on `gh-pages`. F-025 migration was published at Pages commit `baca95c7ba618d736730194b433254bf5058dd66`: all 15 game files and the legacy redirect were hash-verified; 17 unrelated blobs were unchanged. The previous `/Flock/flock/dev2/` address redirects to the canonical game while retaining query and fragment. This migration deployed the preceding game revision; the new P1 source batch is awaiting its own release and verification.
 
-GitHub Pages currently publishes the repository's `gh-pages` branch. The game is deployed to **`flock/dev2/` within that branch**, so its full URL includes the case-sensitive repository prefix `/Flock/`.
-
-`.github/workflows/deploy-dev2.yml` tests and builds pushes to `flock_3D_chatgpt-work`, then uploads the standalone `dist/` artifact. These checks do not enter the publishing environment. The existing publication procedure replaced `flock/dev2/` in the latest `gh-pages` tree with that build and committed/pushed the Pages branch. F-025 changes that destination to `dev2/` before the next release. Preserve `flock/dev/`, the site root, and all unrelated files. GitHub Pages publishes the existing `gh-pages` branch through its native workflow.
-
-The following command demonstrates the existing helper’s behavior for inspection only; it still stages the wrong nested path until F-025 is implemented:
+The source workflow tests the game, builds/checks release without QA, then builds/checks the QA-enabled development distribution for its artifact; upload does not publish Pages. `npm run build` makes a production bundle without QA. `npm run build:dev` makes the explicit development distribution with the QA menu. Use the intended build before preparing a release:
 
 ```sh
-npm run build
+npm run build:dev
+node scripts/check-build-mode.mjs development
 node scripts/deploy-pages.mjs /tmp/flock-pages-review
 git -C /tmp/flock-pages-review diff --cached --stat
 ```
 
-The preparation script stages without committing or pushing, refuses an existing worktree destination, and checks only that `dist/index.html` exists. It replaces `flock/dev2/` and also writes/stages the Pages-root `.nojekyll`; it does not validate every asset or guarantee that unrelated root content is unchanged. Inspect the entire staged diff. Its current behavior is not a compliant implementation of F-025.
+The helper validates local HTML/CSS/JavaScript asset references before creating a detached worktree from the locally fetched `origin/gh-pages`. It stages `dev2/`, the legacy redirect and `.nojekyll` only if missing; it never fetches, commits or pushes. Review the full diff, preserve unrelated content, and verify live hashes after native Pages publication. See [release instructions](docs/DEVELOPMENT.md) and the [P0/P1 validation runbook](docs/validation/P0-P1.md).
+
+Local development and explicit development builds expose **QA · dev**. Opening it starts an isolated test profile: QA 0 is a tutorial shortcut, public levels remain 1–100, and test edits never save to the normal profile. Jump levels, adjust test bolts, select an animal and edit its world coordinates while paused; invalid-placement override still respects meadow bounds. Reset starts a fresh test session, export downloads scenario JSON, and reload exits QA. Physical touch usability remains awaiting device validation.
 
 ## Scope
 

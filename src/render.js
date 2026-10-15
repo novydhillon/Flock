@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { MeadowNature } from './nature.js';
-import { terrainHeight } from './world.js';
+import { StructureCutaway } from './cutaway.js';
+import { terrainHeight, targetFootprint } from './world.js';
+import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
+import { ribbon, barkSurface } from './surfaces.js';
 import { createDog, createAnimal, createDrone, createTree, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
@@ -25,20 +28,6 @@ function texture(kind,bump=false){
 function segmentDistanceSquared(x,z,a,b){const dx=b.x-a.x,dz=b.z-a.z,t=Math.max(0,Math.min(1,((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz||1))),px=x-a.x-t*dx,pz=z-a.z-t*dz;return px*px+pz*pz;}
 function segmentDistance(x,z,a,b){return Math.sqrt(segmentDistanceSquared(x,z,a,b));}
 function lineDistance(x,z,points){let d=Infinity;for(let i=1;i<points.length;i++)d=Math.min(d,segmentDistanceSquared(x,z,points[i-1],points[i]));return Math.sqrt(d);}
-// The exact sampled world centerline is also used by collision. Only cosmetic
-// road shoulders wander; river banks retain their physical half-width.
-function ribbon(points,width,{ragged=false,y=.008,seed=1}={}){
-  const positions=[],uvs=[],indices=[],r=rng(seed);let distance=0;
-  for(let i=0;i<points.length;i++){
-    const p=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];
-    const dx=next.x-prev.x,dz=next.z-prev.z,len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len;
-    if(i)distance+=Math.hypot(p.x-prev.x,p.z-prev.z);
-    const edge=ragged?Math.sin(distance*.72)*.11+(r()-.5)*.17:0;
-    for(const side of [-1,1]){const half=width/2+edge*side;positions.push(p.x+nx*half*side,y,p.z+nz*half*side);uvs.push((side+1)*width/8,distance/4);}
-    if(i){const a=(i-1)*2,b=i*2;indices.push(a,a+1,b,a+1,b+1,b);}
-  }
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();return g;
-}
 function label(text,color='#45684d'){
   const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');
   x.fillStyle='#faf6e9';x.beginPath();x.roundRect(8,12,496,98,35);x.fill();x.fillStyle=color;x.font='bold 34px sans-serif';x.textAlign='center';x.fillText(text,256,76);
@@ -73,7 +62,8 @@ export class MeadowRenderer{
   place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
-    this.level=level;
+    this.level=level;this.barkEffects=[];
+    this.cutaway?.dispose();this.cutaway=null;
     // Dispose world-owned geometry; model geometry/materials are cached across levels.
     const geometries=new Set(),materials=new Set();
     for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)materials.add(o.material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
@@ -97,16 +87,23 @@ export class MeadowRenderer{
       surface(ribbon(river.points,river.width,{y:.018}),this.water);
       for(const bridge of river.bridges){const g=createBridge(bridge.width,bridge.length);g.rotation.y=bridge.heading;this.place(g,bridge.x,bridge.z,1,true);}
     }
-    const t=level.target,s=t.radius+1.4;
-    this.goal=this.flat(new THREE.CircleGeometry(t.radius,64),this.targetMat,t.x,t.z,.033);this.goal.userData.ownedGeometry=true;
-    const outline=this.flat(new THREE.RingGeometry(t.radius-.13,t.radius+.13,64),new THREE.MeshBasicMaterial({color:'#fff0b5',side:THREE.DoubleSide}),t.x,t.z,.04);outline.userData.ownedGeometry=outline.userData.ownedMaterial=true;
+    const t=level.target,shape=targetFootprint(t),s=shape.halfLength,structure=[];
+    this.goal=surface(goalSurface(t),this.targetMat);
+    this.goalOutline=surface(goalOutline(t),new THREE.MeshBasicMaterial({color:'#fff0b5',side:THREE.DoubleSide}));this.goalOutline.userData.ownedMaterial=true;
+    this.goalFloor=null;
     const beam=(a,b,height,thickness,mat)=>{const length=Math.hypot(b.x-a.x,b.z-a.z),mesh=new THREE.Mesh(new THREE.BoxGeometry(length,height,thickness),mat);mesh.position.set((a.x+b.x)/2,height/2,(a.z+b.z)/2);mesh.rotation.y=-Math.atan2(b.z-a.z,b.x-a.x);mesh.castShadow=mesh.receiveShadow=true;mesh.userData.ownedGeometry=true;this.terrain.add(mesh);return mesh;};
     // Every visible blocking perimeter, gate and destination segment comes from
     // the same world objects as collision: no fake scenery walls in play space.
     for(const segment of level.fenceSegments||[]){
       const {a,b,kind}=segment,len=Math.hypot(b.x-a.x,b.z-a.z);
       if(kind==='target'&&t.type==='barn'){
-        beam(a,b,2.4,.22,this.materials.barn);const trim=beam(a,b,.14,.25,this.materials.barnTrim);trim.position.y=2.35;
+        // Short panels reveal only the section hiding an actor, including split flocks.
+        const count=Math.ceil(len/3);
+        for(let i=0;i<count;i++){
+          const start={x:a.x+(b.x-a.x)*i/count,z:a.z+(b.z-a.z)*i/count},end={x:a.x+(b.x-a.x)*(i+1)/count,z:a.z+(b.z-a.z)*(i+1)/count};
+          structure.push(beam(start,end,2.4,.22,this.materials.barn));
+          const trim=beam(start,end,.14,.25,this.materials.barnTrim);trim.position.y=2.35;structure.push(trim);
+        }
       }else if(kind==='target'&&t.type==='field'){
         // Visible low fence defines the exact collision line; plants soften it.
         this.placeFence(a,b);
@@ -114,11 +111,13 @@ export class MeadowRenderer{
       }else this.placeFence(a,b);
     }
     if(t.type==='barn'){
-      const floor=this.flat(new THREE.PlaneGeometry(s*2,s*2),this.path,t.x,t.z,.013);floor.rotation.z=-(t.heading||0);floor.userData.ownedGeometry=true;
-      // Narrow rear roof retains the cosy barn silhouette and reveals the flock.
+      this.goalFloor=surface(goalSurface(t,.013),this.path);
+      // Full pitched roof; separate panels fade only along covered sightlines.
       const roof=new THREE.Group(),heading=t.heading||0;
-      for(const side of [-1,1]){const m=new THREE.Mesh(new THREE.BoxGeometry(s+.6,.18,s*.6),this.materials.roof);m.position.set(side*s/2,2.8,s*.7);m.rotation.z=-side*.21;m.castShadow=true;m.userData.ownedGeometry=true;roof.add(m);}
+      const rows=Math.ceil(s*2/2.4),depth=(s*2+.6)/rows;
+      for(const side of [-1,1])for(let i=0;i<rows;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(s+.6,.18,depth),this.materials.roof);m.position.set(side*s/2,3.2,-s-.3+(i+.5)*depth);m.rotation.z=-side*.21;m.castShadow=true;m.userData.ownedGeometry=true;roof.add(m);structure.push(m);}
       roof.position.set(t.x,0,t.z);roof.rotation.y=heading;this.terrain.add(roof);
+      this.cutaway=new StructureCutaway(t,structure,{halfExtent:s+.3});
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
@@ -149,7 +148,9 @@ export class MeadowRenderer{
     for(let i=0;i<patches;i++){const {x,z}=candidate(i,patches);if(meadowClear(x,z,1)){this.place(createFlowerPatch(i,3),x,z,.85+r()*.6);this.meadowDetails.push({x,z,kind:'flower'});}}
     const tufts=[],tuftBudget=Math.min(650,Math.ceil(w*d/35));
     for(let i=0;i<tuftBudget;i++){const {x,z}=candidate(i,tuftBudget);if(meadowClear(x,z,.4)){tufts.push({x,z});this.meadowDetails.push({x,z,kind:'tuft'});}}
-    if(tufts.length){const blade=new THREE.ConeGeometry(.12,.55,3),bladeMat=new THREE.MeshStandardMaterial({color:'#648844',roughness:1}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,.18,p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);});grass.receiveShadow=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
+    // Decorative blades draw over opaque ground without claiming its depth.
+    // Bark draws after them, while fences/rails retain ordinary depth occlusion.
+    if(tufts.length){const blade=new THREE.ConeGeometry(.12,.55,3),bladeMat=new THREE.MeshStandardMaterial({color:'#648844',roughness:1,transparent:true,opacity:1,depthWrite:false}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,.18,p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);});grass.receiveShadow=true;grass.userData.decorativeGrass=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
     // Thin reeds follow the exact banks and leave crossing entrances clear.
     const reeds=[];for(const river of level.rivers)for(let i=2;i<river.points.length-2;i+=5){const p=river.points[i],next=river.points[i+1],dx=next.x-p.x,dz=next.z-p.z,l=Math.hypot(dx,dz)||1;for(const side of [-1,1]){const x=p.x-dz/l*(river.width/2+.65)*side,z=p.z+dx/l*(river.width/2+.65)*side;if(x>b.minX&&x<b.maxX&&z>b.minZ&&z<b.maxZ&&!river.bridges.some(v=>Math.hypot(x-v.x,z-v.z)<v.length/2+v.width))reeds.push({x,z});}}
     if(reeds.length){const geo=new THREE.ConeGeometry(.18,.95,4),mat=new THREE.MeshStandardMaterial({color:'#5b7951',roughness:1}),batch=new THREE.InstancedMesh(geo,mat,reeds.length),pose=new THREE.Object3D();reeds.forEach((p,i)=>{pose.position.set(p.x,.4,p.z);pose.rotation.z=(r()-.5)*.25;pose.updateMatrix();batch.setMatrixAt(i,pose.matrix);});batch.userData.ownedGeometry=batch.userData.ownedMaterial=true;this.terrain.add(batch);this.trackScenery(batch);}
@@ -264,13 +265,30 @@ export class MeadowRenderer{
     parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i%3===0?0:Math.PI))*Math.min(.5,speed*.07));parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);if(a.saved)m.rotation.y=Math.sin(i*2)*1.3;m.updateMatrix();});
     for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;}}
+    this.updateBarks(dt);
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
+    this.cutaway?.update(this.camera,[dog,...level.animals],dt);
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
     for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*6;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}
     this.particles=this.particles.filter(p=>p.life>0);this.cullScenery();this.updateAnimalBatches(level,poseTime);this.renderer.render(this.scene,this.camera);
   }
   celebrate(x,z){for(let i=0;i<36;i++){const mesh=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.05),new THREE.MeshBasicMaterial({color:['#f0b65c','#f8e8ad','#e99585','#80b398'][i%4]}));mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;mesh.position.set(x,1.5,z);this.actors.add(mesh);this.particles.push({mesh,velocity:new THREE.Vector3(Math.sin(i*2.4)*3,2+(i%5),Math.cos(i*2.4)*3),life:1.8});}}
-  bark(){const r=new THREE.Mesh(new THREE.RingGeometry(.9,1.1,40),new THREE.MeshBasicMaterial({color:'#fff6d8',side:THREE.DoubleSide,transparent:true,opacity:.8}));r.rotation.x=-Math.PI/2;r.position.copy(this.dog.position);r.position.y=.08;this.actors.add(r);const start=performance.now();const animate=()=>{const t=(performance.now()-start)/600;if(t>=1){this.actors.remove(r);r.geometry.dispose();r.material.dispose();return;}r.scale.setScalar(1+t*6);r.material.opacity=.8*(1-t);requestAnimationFrame(animate);};animate();}
+  bark(){
+    const origin={x:this.dog.position.x,z:this.dog.position.z};
+    const mesh=new THREE.Mesh(barkSurface(this.level,origin),new THREE.MeshBasicMaterial({color:'#fff6d8',side:THREE.DoubleSide,transparent:true,opacity:.8,depthTest:true,depthWrite:false}));
+    mesh.renderOrder=1;mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;this.actors.add(mesh);
+    this.barkEffects??=[];this.barkEffects.push({mesh,origin,age:0});
+    // Cooldowns normally limit this to one; retain a hard cap for QA/repeated input.
+    while(this.barkEffects.length>4){const old=this.barkEffects.shift();this.actors.remove(old.mesh);old.mesh.geometry.dispose();old.mesh.material.dispose();}
+  }
+  updateBarks(dt){
+    for(const effect of this.barkEffects||[]){
+      if(dt<=0)continue;effect.age+=dt;
+      if(effect.age>=.6){this.actors.remove(effect.mesh);effect.mesh.geometry.dispose();effect.mesh.material.dispose();continue;}
+      barkSurface(this.level,effect.origin,1+effect.age/.6*6,effect.mesh.geometry);effect.mesh.material.opacity=.8*(1-effect.age/.6);
+    }
+    this.barkEffects=(this.barkEffects||[]).filter(effect=>effect.age<.6);
+  }
   drawMap(canvas,level,dog){
     const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,b=level.bounds,px=x=>8+(x-b.minX)/(b.maxX-b.minX)*(w-16),pz=z=>8+(z-b.minZ)/(b.maxZ-b.minZ)*(h-16);
     ctx.fillStyle='#c9d8b7';ctx.fillRect(0,0,w,h);
@@ -278,9 +296,10 @@ export class MeadowRenderer{
     const scale=Math.min((w-16)/(b.maxX-b.minX),(h-16)/(b.maxZ-b.minZ));
     for(const river of level.rivers){line(river.points,river.width*scale,'#5dabb7');for(const bridge of river.bridges){const vx=Math.sin(bridge.heading)*bridge.length/2,vz=Math.cos(bridge.heading)*bridge.length/2;line([{x:bridge.x-vx,z:bridge.z-vz},{x:bridge.x+vx,z:bridge.z+vz}],Math.max(3,bridge.width*scale),'#dfbd8c');}}
     for(const road of level.roads)line(road.points,Math.max(1.5,road.width*scale),'#d4b784');
+    drawGoalMap(ctx,level.target,p=>({x:px(p.x),y:pz(p.z)}));
     for(const fence of level.fenceSegments||[])line([fence.a,fence.b],fence.kind==='boundary'?1:1.5,'#8f7758');
     const dot=(x,z,r,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(px(x),pz(z),r,0,Math.PI*2);ctx.fill();};
-    dot(level.target.x,level.target.z,9,'#f9e7a2');for(const a of level.animals)dot(a.x,a.z,a.type==='cow'?3:2.3,a.saved?'#80a777':'#fff8e7');dot(dog.x,dog.z,4.8,'#c9843b');ctx.strokeStyle='#fff2d0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),6,0,Math.PI*2);ctx.stroke();
+    for(const a of level.animals)dot(a.x,a.z,a.type==='cow'?3:2.3,a.saved?'#80a777':'#fff8e7');dot(dog.x,dog.z,4.8,'#c9843b');ctx.strokeStyle='#fff2d0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),6,0,Math.PI*2);ctx.stroke();
     for(const h of level.helpers||[])dot(h.x,h.z,3,'#4a9c9b');
   }
 }

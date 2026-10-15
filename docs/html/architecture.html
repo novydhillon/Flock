@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Architecture"><title>Architecture · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
 <body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
-<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" aria-current="page">Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" aria-current="page">Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Systems <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="architecture-and-system-contracts">Architecture and system contracts<a class="heading-link" href="#architecture-and-system-contracts" aria-label="Link to Architecture and system contracts">#</a></h1>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" aria-current="page">Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" aria-current="page">Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Systems <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="architecture-and-system-contracts">Architecture and system contracts<a class="heading-link" href="#architecture-and-system-contracts" aria-label="Link to Architecture and system contracts">#</a></h1>
 <p><a href="index.html">Documentation home</a> · <a href="requirements.html">Requirements</a> · <a href="issues.html">Issue tracker</a></p>
 <p>The current game is a static browser application: Vite bundles JavaScript, CSS and local fonts; Three.js renders WebGL 2; WebAudio synthesizes music and ambience. Browser storage holds a validated profile. There is no server, account system, multiplayer or cloud save.</p>
 <h2 id="module-map">Module map<a class="heading-link" href="#module-map" aria-label="Link to Module map">#</a></h2>
@@ -39,6 +39,26 @@
 <td>Shared material changes may affect many objects</td>
 </tr>
 <tr>
+<td><code>src/goal-view.js</code></td>
+<td>Shared-footprint highlight, border, barn floor and minimap polygon</td>
+<td>Consumes world corners; does not define admission</td>
+</tr>
+<tr>
+<td><code>src/surfaces.js</code></td>
+<td>Non-overlapping ribbon union and surface-aware bark geometry</td>
+<td>Geometry construction only; retains normal depth testing</td>
+</tr>
+<tr>
+<td><code>src/cutaway.js</code></td>
+<td>Camera-ray structure visibility and material clone lifecycle</td>
+<td>Changes visibility only, never collision or rewards</td>
+</tr>
+<tr>
+<td><code>src/qa.js</code></td>
+<td>Development-only isolated QA controls and scenario export</td>
+<td>Dynamically imported only in development/QA builds</td>
+</tr>
+<tr>
 <td><code>src/render.js</code></td>
 <td>Camera, scene, static/actor batches, map, transient effects</td>
 <td>Visual state must not decide rewards or collision</td>
@@ -70,7 +90,7 @@
   Main --&gt; Render[&quot;render.js: view and map&quot;]
   Render --&gt; Nature[&quot;models.js / nature.js&quot;]
   Main --&gt; Audio[&quot;audio.js: scheduled sound&quot;]</code></pre></details></figure><h2 id="data-and-coordinate-contracts">Data and coordinate contracts<a class="heading-link" href="#data-and-coordinate-contracts" aria-label="Link to Data and coordinate contracts">#</a></h2>
-<p>Public campaign levels are 1–100, while <code>level.index</code> and saved completion entries are 0–99. The requested QA selector 0–100 remains an explicit mapping decision (F-018). Do not equate index 100 with public level 100.</p>
+<p>Public campaign levels are 1–100, while <code>level.index</code> and saved completion entries are 0–99. The QA selector maps 0 to the tutorial (index 0), and 1–100 to indexes 0–99. Do not equate index 100 with public level 100.</p>
 <p>The ground plane uses <code>x</code> and <code>z</code>; Three.js <code>y</code> is elevation. Some input APIs accept <code>y</code> as a compatibility alias for planar <code>z</code>; that does not change world coordinates. Headings are radians. Bridge longitudinal/lateral coordinates derive from the heading, not an axis-aligned box.</p>
 <p>The main loop requests animation frames and caps the per-frame simulation <code>dt</code> at 0.05 seconds. It is a variable-step loop, not an accumulator-based fixed-tick loop. Long frame gaps do not simulate the entire elapsed wall time. Headless fixtures commonly use fixed <code>1/60</code> increments for repeatability.</p>
 <div class="code-block"><div class="code-tools"><span>js</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-js">// Runnable: node --input-type=module from the repository root.
@@ -79,8 +99,8 @@ const level = createLevel(0);
 const dog = { ...level.dog };
 const result = stepSimulation(level, dog, { x: 0, z: 0 }, 1 / 60, {});
 console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.total });</code></pre></div><h2 id="state-ownership">State ownership<a class="heading-link" href="#state-ownership" aria-label="Link to State ownership">#</a></h2>
-<p><code>level</code> contains mutable runtime animals, helper state, time and completion. <code>dog</code> is updated by the simulation. A profile contains points, paid upgrade tiers, completed level indexes, highest unlocked index and music preference. Creating/replaying a level replaces transient state; completing one can mutate the profile once. Full Restart Game replaces profile progress with defaults, keeps music preference, persists the reset and begins the tutorial.</p>
-<p>Rendering consumes the same level and dog, adding mesh/cache/resource state of its own. Collision belongs in world/simulation queries. Minimap, target highlight and model bounds must remain consistent with the shared world; F-010 records the current circle-versus-enclosure gap.</p>
+<p><code>level</code> contains mutable runtime animals, helper state, time and completion. <code>dog</code> is updated by the simulation. A version-2 profile contains points, paid upgrade tiers, positive-delivery completion indexes, highest unlocked index, music preference, and per-level <code>bestEarnedBolts</code>/<code>bestScores</code> ledgers. Creating/replaying a level replaces transient state; a completed run pays only its lifetime best-score improvement. <code>bestEarnedBolts</code> is authoritative across spending and reloading; <code>bestScores</code> and completion indexes are rebuilt from it when loading. Full Restart Game replaces profile progress with defaults, keeps music preference, persists the reset and begins the tutorial.</p>
+<p>Rendering consumes the same level and dog, adding mesh/cache/resource state of its own. Collision belongs in world/simulation queries. Minimap, target highlight, enclosure and full-body admission use <code>targetFootprint</code>, <code>targetWorldPoint</code>, <code>targetLocalPoint</code> and <code>containsTarget</code> from <code>world.js</code>. The target radius remains a sizing/attendance input, not a circular admission test.</p>
 <h2 id="cross-system-changes">Cross-system changes<a class="heading-link" href="#cross-system-changes" aria-label="Link to Cross-system changes">#</a></h2>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
 <thead>
@@ -110,7 +130,7 @@ console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.t
 <td>Pause ownership, selection/placement override, profile isolation and release gating</td>
 </tr>
 </tbody></table></div>
-<p>F-009/F-012/F-018/F-022–F-024 include unresolved design semantics. Their proposed contracts are future work, not hidden runtime features. See <a href="issues.html">issue acceptance criteria</a>.</p>
+<p>F-009 and F-018 now have source implementations documented in Gameplay and the validation runbook. F-012/F-022–F-024 retain unresolved future design semantics. See <a href="issues.html">issue acceptance criteria</a>.</p>
 <h2 id="resource-and-async-invariants">Resource and async invariants<a class="heading-link" href="#resource-and-async-invariants" aria-label="Link to Resource and async invariants">#</a></h2>
 <p>Level replacement must dispose owned geometries/materials/nature resources without destroying shared cached robot geometry. Culling must retain visible limbs and shadows as well as bodies. Temporary bark/celebration effects must finish and release resources.</p>
 <p>Audio start/resume may complete after a pause, newer activation or disposal. Generation guards invalidate stale requests. Never follow an awaited start with an unconditional resume. Music catch-up skips overdue steps arithmetically and bounds scheduling work rather than replaying a backlog.</p>

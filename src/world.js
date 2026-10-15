@@ -10,6 +10,26 @@ export function closestOnSegment(p,a,b) {
 }
 export function segmentDistance(p,a,b) {return distance(p,closestOnSegment(p,a,b));}
 const yawVector = heading=>({x:Math.sin(heading),z:Math.cos(heading)});
+/** The enclosure floor, walls, map outline and admission share this rectangle.
+ * Forward points away from the entrance; lateral runs across its opening. */
+export function targetLocalPoint(target,point) {
+  const f=yawVector(target.heading),dx=point.x-target.x,dz=point.z-target.z;
+  return {forward:dx*f.x+dz*f.z,lateral:dx*f.z-dz*f.x};
+}
+export function targetWorldPoint(target,forward,lateral) {
+  const f=yawVector(target.heading);
+  return {x:target.x+f.x*forward+f.z*lateral,z:target.z+f.z*forward-f.x*lateral};
+}
+export function targetFootprint(target) {
+  const halfLength=target.radius+1.4,halfWidth=halfLength,forward=yawVector(target.heading),side={x:forward.z,z:-forward.x};
+  return {x:target.x,z:target.z,heading:target.heading,halfLength,halfWidth,openingWidth:7,forward,side,
+    corners:[[-halfLength,-halfWidth],[halfLength,-halfWidth],[halfLength,halfWidth],[-halfLength,halfWidth]].map(([u,v])=>targetWorldPoint(target,u,v)),
+    entrance:targetWorldPoint(target,-halfLength,0)};
+}
+export function containsTarget(target,point,bodyRadius=0) {
+  const shape=targetFootprint(target),local=targetLocalPoint(target,point),clearance=Math.max(0,bodyRadius);
+  return Math.abs(local.forward)<=shape.halfLength-clearance&&Math.abs(local.lateral)<=shape.halfWidth-clearance;
+}
 function withinBridge(bridge,p,radius) {
   const f=yawVector(bridge.heading),dx=p.x-bridge.x,dz=p.z-bridge.z;
   return Math.abs(dx*f.x+dz*f.z)<=bridge.length/2+radius && Math.abs(dx*f.z-dz*f.x)<=bridge.width/2-radius;
@@ -129,7 +149,9 @@ function wander(points,random,geometry) {
 }
 export function createLevel(index=0,seed=index*7919+42) {
   index=clamp(Math.floor(Number(index)||0),0,99);seed=Number(seed)>>>0;
-  const random=rng(seed),early=index<5,count=Math.min(5+index*3,65);
+  // A broad first crossing accepts the starter flock before later lessons
+  // require collecting stragglers. Its road widens with the physical deck.
+  const random=rng(seed),early=index<5,count=Math.min(5+index*3,65),roadWidth=index===1?9.4:early?4.1:4.8;
   // Early lessons preserve their intimate footprint; level six opens into a
   // meadow 3.5 times deeper, then later chapters expand further.
   const endU=early?15+index*3:48+index*3,minU=early?-32:-40,maxU=endU+15,halfV=early?24:84+Math.floor(index/15)*14;
@@ -157,15 +179,20 @@ export function createLevel(index=0,seed=index*7919+42) {
     else {
       riverFunctions.forEach((river,j)=>{
         const z=early?(index===1?0:sign*5):offset+sign*(j%2?-1:1)*(14+random()*5);
-        // The first crossing admits the full starter flock's spread; later
-        // lessons narrow the opening once the player has learned retrieval.
-        const x=river.at(z),bridge={x,z,width:index===1?11.5:early?8.5:10,length:river.width+5,heading};
+        // Align the deck to the actual sampled bank segment, rather than the
+        // meadow axis. The road's usable surface sets deck width; its rendered
+        // shoulder is decoration and is deliberately excluded.
+        const sampled=canonicalRivers[j].points;
+        const k=clamp(Math.floor((z-sampled[0].z)/2),0,sampled.length-2),a=sampled[k],b=sampled[k+1];
+        const t=(z-a.z)/(b.z-a.z),x=a.x+(b.x-a.x)*t,f=unit(b.z-a.z,a.x-b.x);
+        const bridge={x,z,width:roadWidth*1.25,length:river.width+5,heading:Math.atan2(f.x,f.z)-angle};
         canonicalRivers[j].bridges.push(bridge);
+        // Every branch reaches common dry turning planes before changing
+        // lanes. This prevents a turn crossing another deck's side rail.
         const approach=bridge.length/2+(early?3:6);
-        // Branches leave the entire set of parallel decks before turning, so
-        // their trails cannot cut through a neighboring bridge's dry-end rail.
-        const near=early?x-approach:riverBases[j]-approach,far=early?x+approach:riverBases[j]+approach;
-        points.push({x:early?near-4:near,z:z-sign*(early?3:8)},{x:near,z},{x,z,kind:'bridge'},{x:far,z});
+        const nearU=early?approach:(x-riverBases[j]+approach)/f.x,farU=early?approach:(riverBases[j]+approach-x)/f.x;
+        const near={x:x-f.x*nearU,z:z-f.z*nearU},far={x:x+f.x*farU,z:z+f.z*farU};
+        points.push({x:near.x-4,z:near.z-sign*(early?3:8)},near,{x,z,kind:'bridge'},far);
       });
       if(index>=2) {
         const z=early?sign*-4:offset-sign*(13+random()*4);
@@ -185,12 +212,12 @@ export function createLevel(index=0,seed=index*7919+42) {
     for(const gate of sorted){fenceSegments.push({a:transform({x:gateU,z:cursor}),b:transform({x:gateU,z:gate.z-gate.width/2}),kind:'interior'});cursor=gate.z+gate.width/2;}
     fenceSegments.push({a:transform({x:gateU,z:cursor}),b:transform({x:gateU,z:halfV}),kind:'interior'});
   }
-  const e=target.radius+1.4;
-  const box=[[{x:endU-e,z:-e},{x:endU+e,z:-e}],[{x:endU+e,z:-e},{x:endU+e,z:e}],[{x:endU+e,z:e},{x:endU-e,z:e}],[{x:endU-e,z:e},{x:endU-e,z:3.5}],[{x:endU-e,z:-3.5},{x:endU-e,z:-e}]];
-  for(const [a,b]of box)fenceSegments.push({a:transform(a),b:transform(b),kind:'target'});
+  const shape=targetFootprint(target),e=shape.halfLength,w=shape.halfWidth,opening=shape.openingWidth/2;
+  const box=[[[-e,-w],[e,-w]],[[e,-w],[e,w]],[[e,w],[-e,w]],[[-e,w],[-e,opening]],[[-e,-opening],[-e,-w]]];
+  for(const [a,b]of box)fenceSegments.push({a:targetWorldPoint(target,...a),b:targetWorldPoint(target,...b),kind:'target'});
   const corridorGeometry={bounds,rivers,fenceSegments,obstacles:[]};
   const routes=canonicalRoutes.map((points,i)=>{const sampled=wander(points.map(transform),random,corridorGeometry);return{id:`route-${i}`,points:sampled,length:sampled.slice(1).reduce((sum,p,j)=>sum+distance(p,sampled[j]),0)};});
-  const roads=routes.map(route=>({routeId:route.id,points:route.points,width:early?4.1:4.8}));
+  const roads=routes.map(route=>({routeId:route.id,points:route.points,width:roadWidth}));
   const level={index,seed,title:['First day on the farm','Over the babbling brook','Through the garden gate','A mixed-up meadow','The long way home'][index]||`Pasture patrol ${index+1}`,
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
     bounds,spawn,dog,target,animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
@@ -257,8 +284,8 @@ export function separatedByBank(level,a,b) {
   return false;
 }
 export function destinationApproach(level,body) {
-  const t=level.target,f=yawVector(t.heading),extent=t.radius+1.4,dx=body.x-t.x,dz=body.z-t.z,forward=dx*f.x+dz*f.z,lateral=dx*f.z-dz*f.x;
-  const point=(u,v)=>({x:t.x+f.x*u+f.z*v,z:t.z+f.z*u-f.x*v});
+  const t=level.target,extent=targetFootprint(t).halfLength,{forward,lateral}=targetLocalPoint(t,body);
+  const point=(u,v)=>targetWorldPoint(t,u,v);
   if(forward>extent+.4)return point(extent+2,Math.sign(lateral||1)*(extent+2));
   if(Math.abs(lateral)>extent-.4&&forward>-extent-.8)return point(-extent-2,Math.sign(lateral||1)*(extent+2));
   if(forward<-extent+.7)return point(-extent+2,0);
@@ -314,8 +341,8 @@ export function openingSteer(level,body,vx,vz) {
     if(!nearWater(river,body,3))continue;
     for(const bridge of river.bridges){const d=distance(body,bridge);if(d<best){best=d;opening=bridge;}}
   }
-  const t=level.target,tf=yawVector(t.heading),te=t.radius+1.4;
-  const targetGate={x:t.x-tf.x*te,z:t.z-tf.z*te,width:7,heading:t.heading};
+  const t=level.target,shape=targetFootprint(t);
+  const targetGate={...shape.entrance,width:shape.openingWidth,heading:t.heading};
   for(const gate of [...(level.gates||[]),targetGate]) {
     const f=yawVector(gate.heading),dx=body.x-gate.x,dz=body.z-gate.z;
     if(Math.abs(dx*f.x+dz*f.z)<3&&distance(body,gate)<best){best=distance(body,gate);opening=gate;}

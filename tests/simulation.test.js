@@ -70,6 +70,7 @@ test('rewards are single-award and locked purchases preserve points and saves',(
 
 test('the final campaign reward remains within the supported level range',()=>{
   const profile=defaultProfile(),level=createLevel(99);level.completed=true;
+  level.animals.forEach(animal=>animal.saved=true);
   applyLevelReward(profile,level);assert.equal(profile.highestLevel,99);
 });
 
