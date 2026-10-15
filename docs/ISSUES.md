@@ -551,3 +551,7 @@ At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; b
 **Accept when:** spontaneous wandering/bolting establishes a local idle/wander area at the animal's new position. When the event ends, ordinary cohesion/alignment must not automatically pull that unattended animal back to the main flock. It remains calm and moves locally until active player/helper herding guides it elsewhere. Preserve normal physical collision, safe local movement, existing level/probability/duration gates, player-pressure interruption and permanent confinement of delivered animals. Test both a wander and a bolt with the herd distant, event expiry, nearby herding, blocked ground and saved animals. Do not silently replace this with perpetual running away or goal-directed movement.
 
 **Status:** Open, queued only. Current simulation still uses flock cohesion after wander/bolt expiry; this request does not change that code in the cloud-removal release. Coordinate with F-035/F-037/F-039 so later tuning uses the same independent local-area behavior.
+
+## Rain-volume approval - 15 October 2026, 16:46 Vancouver
+
+Novy approved and requested committing the deployed rain-volume update: gentle rain 50% quieter, heavy rain 15% quieter, storm rain unchanged. Runtime source `a26b8aa`, Pages `107f782`. Approval recorded as Done; no new Review item remains. Existing Open/Deferred items retain their status.

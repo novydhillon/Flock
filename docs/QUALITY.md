@@ -223,4 +223,4 @@ The shared master audio gain rises from .65 to .975 (+50% amplitude) at startup 
 
 ## Rain-volume follow-up - 15 October 2026, 16:42 Vancouver
 
-Adjust only rain-loop gain: gentle rain uses .50 of its previous level, heavy rain .85, storm 1.00. Focused audio/weather suite passes 25/25, including actual public 9/16/24 states, monotonic tier volume, exact preserved storm gain, loop reuse and mute/unmute. Prior user acceptance remains recorded; this subsequent mix tuning requires listening feedback, not a retroactive change to earlier sign-off.
+Adjust only rain-loop gain: gentle rain uses .50 of its previous level, heavy rain .85, storm 1.00. Focused audio/weather suite passes 25/25, including actual public 9/16/24 states, monotonic tier volume, exact preserved storm gain, loop reuse and mute/unmute. Novy approved this rain-volume tuning on 15 October 2026 at 16:46 America/Vancouver and requested a commit. Accepted runtime source: `a26b8aa9838da25e36f2dc22abcef1f861048f2c`; Pages: `107f78237c32f546dfede3276b8432166b372280`. All 17 live files were verified. This is user acceptance of the new mix; the earlier sign-offs remain valid.
