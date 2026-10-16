@@ -147,6 +147,12 @@ At QA public 24, buy Buddy tier 2. Split the flock beyond a 6.5m clear gap and v
 
 With a moving flock, watch animals ahead of the centroid: they should continue in group travel rather than turn back to its middle. Pressure from Pip/Buddy at the rear or side should carry forward; move Pip ahead to deliberately turn them and check that separate groups remain independent. Cohesion is 30% weaker. On a bridge, move Pip away after sheep/cows start walking: they should finish onto the opposite bank, without returning to a drone's old anchor. Pause mid-crossing and restart/jump levels to check frozen/fresh intent. At QA 24 with Buddy tier 2, observe autonomous bark sound/ring/red tail and press Woof independently; tier 1 should not bark and tier 2 should not retrieve a remote stray. Saved counts still require Pip at the goal.
 
+
+## Production root publication
+
+`main` is the production source branch; `flock_3D_chatgpt-work` remains development. Source CI checks both branches independently. For the root [Flock game](https://novydhillon.github.io/Flock/), use a clean `npm run build -- --emptyOutDir` and verify release QA exclusion. Replace root `index.html` and its generated `assets/` only in a fresh Pages worktree. Preserve `dev2/`, legacy `flock/`, workflows and other unrelated files. The normal staging helper still targets development; do not use its `dev2/` output for a root release. Verify every production artifact and canonical root HTML after successful native Pages deployment.
+
+Main CI uploads `flock-production-standalone` immediately after the verified production build. The QA build step is skipped on `main`; development CI continues to build and upload `flock-dev2-standalone`.
 ## F-051 HUD smoke checks and workflow
 
 Use the least expensive suitable model at medium effort for routine implementation and independent reviews, escalating only with evidence. Keep fresh critics unaware of implementation reasoning and prior scores. Flock changes require at least 8/10 blind review, current requirements/context/tracker/validation records, generated HTML checks, full regressions and both artifact-mode checks before development publication. Publish the checked QA build to `dev2/` from `flock_3D_chatgpt-work`; preserve production root and unrelated Pages files, wait for CI/native Pages success, then verify live hashes. Production main changes require the separate release instruction.

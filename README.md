@@ -7,7 +7,9 @@ Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F
 
 A cheerful 3D herding game for portrait phones. Guide a robotic sheepdog through handmade-looking countryside and bring your robotic flock home. Start with a small sheep flock, then tackle longer routes, larger groups, bridges, gates, and other destinations. Earn points for upgrades and autonomous helpers.
 
-Development branch: `flock_3D_chatgpt-work`.
+Production branch: `main`. Development branch: `flock_3D_chatgpt-work`.
+
+Play the production game at [novydhillon.github.io/Flock/](https://novydhillon.github.io/Flock/). The QA-enabled development game remains at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/), and the original 2D game remains at [Flock/flock/dev](https://novydhillon.github.io/Flock/flock/dev/).
 
 Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/index.html) · [Requirements](docs/REQUIREMENTS.md) · [Issue tracker](docs/ISSUES.md).
 
@@ -48,7 +50,7 @@ The production build is written to `dist/`. Relative asset paths allow it to run
 - Delivered robots keep roaming gently inside the goal enclosure, with full-body confinement even at the entrance. They remain delivered; pause and QA editing freeze their motion.
 - The first attended arrival starts a 30–60 second recovery countdown. Bring everyone home early or finish with a partial score at timeout. Any positive delivery opens the next meadow.
 - Earn bolts equal to improvements in your lifetime best proportional score, then spend them on skills and helpers. Replays at the same or a lower score pay no extra bolts.
-- Six skills have three tiers each: Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect, cost, and level requirement. Skills appear throughout the first fifteen levels; the drone starts at level 10, and the more expensive Buddy dog starts at level 20.
+- Six saved skills have three tiers each (Scout drone is hidden from the workshop): Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect, cost, and level requirement. Skills appear throughout the first fifteen levels; the drone starts at level 10, and the more expensive Buddy dog starts at level 20.
 - The drone holds the main herd when Pip leaves. Buddy works from the rear along flock travel; its second tier supports the smaller split flock, guides nearby bridges/goal entrances and barks autonomously; its third tier also retrieves wanderers/bolters to the nearest flock group. Pip still leads admission at the destination.
 - Music starts after a player interaction, following mobile browser audio rules. Use the sound control to mute it.
 
