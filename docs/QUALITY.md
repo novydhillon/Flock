@@ -269,3 +269,8 @@ Focused verification includes cardinal travel, a full reversal, idle/remote isol
 Validation uses source/headless simulation, actual Three.js geometry with a substituted GPU, and controller DOM/audio substitutes. No independent blind reviewer, rendered browser/phone play, audio listening or device frame-rate evidence is claimed. F-046 remains Review for user acceptance.
 
 Final local validation: **254/254 source tests pass**, including 12 dedicated Buddy scenarios and the unchanged journey controller. Release artifact check passes with 15 files and no QA assets; development artifact check passes with 17 files and two QA assets. All 12 documentation pages, local links/anchors, nine Mermaid sources and four documentation DOM tests pass. Publication evidence follows separately.
+
+
+### Verified Buddy behavior publication
+
+Runtime source `d557d92ce57353a4c24b7980fa2d4fb1cb5081c4`; Pages `c30ca36cc263de44630fea06c2ea25e6aa06e49b`. Source CI [38837775933](https://github.com/novydhillon/Flock/actions/runs/38837775933) and native Pages [38837956296](https://github.com/novydhillon/Flock/actions/runs/38837956296) succeeded. All **17/17** live development files at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/) match the checked local build SHA-256 hashes. Only the entry HTML and main runtime bundle changed; all 18 unrelated Pages files, including the legacy redirect, are preserved. Runtime asset: `index-CPSy1nTr.js`. Existing CI independently ran the 254 source tests, documentation checks and both build mode checks. F-046 remains **Review** for user gameplay acceptance; public QA 20/24/28 exercise the three Buddy tiers. This publication record changes documentation only.

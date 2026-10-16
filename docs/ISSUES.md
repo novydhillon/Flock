@@ -656,3 +656,7 @@ F-046 clarification at 18:53 Vancouver: bolters are allowed to get away initiall
 - The second Buddy can reach its maximum upgrade tier by meadow 70, with unlock gates and costs supporting that progression.
 
 **Scope:** queued feature request only; no second Buddy or pricing changes implemented by this tracker update. Coordinate with F-046 Buddy behavior tiers.
+
+### Buddy execution and publication - 15 October 2026
+
+Implemented and published from source `d557d92` to Pages `c30ca36`. Source CI and native Pages deployment succeeded; 254 source tests pass, both release/development artifact checks pass, and all 17 live files match the intended SHA-256 hashes. All 18 unrelated Pages files are unchanged. Test Buddy tiers at public QA 20/24/28. **Review** remains pending user gameplay acceptance. See [publication evidence](QUALITY.md#verified-buddy-behavior-publication). Bolters may escape ahead while Buddy runs to catch up; immediate interception is not required.
