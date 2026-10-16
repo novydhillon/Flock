@@ -245,6 +245,12 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     const clear = hasClearGroundPath(level, a, b, .15);
     visibility.set(key, { position, clear }); return clear;
   };
+  // Cohesion still stabilizes a connected flock, but cannot bridge a real
+  // split. Reuse pair visibility so this adds no duplicate geometry queries.
+  const flockMembership = new Map();
+  flockGroups(level,snapshot,visibleNeighbor).forEach((group,index)=>{
+    for(const animal of group)flockMembership.set(animal.id,index);
+  });
   for (let i = 0; i < active.length; i++) {
     const animal = active[i], old = snapshot[i];
     const physicalRadius = animal.type === 'cow' ? 0.78 : 0.55;
@@ -253,7 +259,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       if (other.id === animal.id) continue;
       const dx = old.x - other.x, dz = old.z - other.z, d = Math.hypot(dx, dz);
       if (d < 2 && d > 0.01) { const force = (2 - d) / d; sx += dx * force; sz += dz * force; }
-      if (d < 18 && visibleNeighbor(old, other)) { cx += other.x; cz += other.z; avx += other.vx; avz += other.vz; neighbors++; }
+      if (d < 18 && flockMembership.get(old.id) === flockMembership.get(other.id) && visibleNeighbor(old, other)) { cx += other.x; cz += other.z; avx += other.vx; avz += other.vz; neighbors++; }
     }
     let desiredX = sx * 2.5, desiredZ = sz * 2.5;
     const dogDistance = distance(old, dog);
@@ -343,7 +349,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
-      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity;
+      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
   }

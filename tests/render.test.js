@@ -372,3 +372,13 @@ test('Buddy bark ring and red tail are independent of Pip and reset on level rep
  assert.equal(dog.userData.parts.tailLight.material.color.getHexString(),'9ceeff');
  renderer.setLevel(createLevel(0));assert.equal(renderer.barkEffects.length,0);assert.equal(renderer.helperMeshes.size,0);
 });
+
+
+test('Buddy rendering preserves simulation heading instead of snapping to tiny reversed displacements',()=>{
+ const renderer=setup(),level=createLevel(23);renderer.setLevel(level);
+ const h={type:'helper',x:level.spawn.x,z:level.spawn.z,heading:.4};level.helpers=[h];
+ renderer.update(level,level.dog,.05);const mesh=renderer.helperMeshes.get('helper');
+ assert.equal(mesh.rotation.y,.4);
+ h.x-=.01;h.heading=.45;renderer.update(level,level.dog,.05);assert.equal(mesh.rotation.y,.45);
+ h.x+=.01;renderer.update(level,level.dog,0);assert.equal(mesh.rotation.y,.45);
+});

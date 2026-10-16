@@ -93,11 +93,11 @@ The initial profile has zero bolts, no upgrades, no completed levels and only le
 | Turbo paws | 2 / 6 / 11 | 80 / 120 / 200 | +1.8 / +2.7 / +3.5 m/s |
 | Friendly signal | 7 / 10 / 15 | 120 / 180 / 260 | +2 / +3 / +4 m range |
 | Scout drone | 10 / 14 / 18 | 200 / 360 / 540 | Support strength 0.7 / 0.93 / 1.17 |
-| Buddy dog | 20 / 24 / 28 | 600 / 850 / 1200 | Rear herding / smaller split flock / retrieval and autonomous bark |
+| Buddy dog | 20 / 24 / 28 | 600 / 850 / 1200 | Rear herding / smaller flock and local bridge-goal help / retrieval and autonomous bark |
 | Happy bark | 4 / 8 / 13 | 100 / 160 / 240 | +0.25 / +0.45 / +0.65 strength |
 | Flock harmony | 12 / 14 / 15 | 160 / 220 / 320 | +12% / +23% / +35% regrouping |
 
-Drone unlock is exactly level **10**; Buddy is exactly **20** and costs more. The drone attends the largest connected herd and holds it when Pip leaves. Buddy tier 1 herds from the rear in measured flock travel direction; tier 2 stays with the smaller split flock; tier 3 returns wandering/bolting or locally settled animals to the closest flock group and barks autonomously. Buddy must navigate solid ground and needs local, clear rear pressure. Helpers cannot admit unattended deliveries; Pip still participates at the destination. See [progression.js](../src/progression.js), profile functions in [simulation.js](../src/simulation.js), progression/companion tests.
+Drone unlock is exactly level **10**; Buddy is exactly **20** and costs more. The drone attends the largest connected herd and holds it when Pip leaves. Buddy tier 1 herds from the rear in measured flock travel direction; tier 2 stays with the smaller split flock and helps through nearby bridges and goal entrances; tier 3 returns wandering/bolting or locally settled animals to the closest flock group and barks autonomously. Buddy must navigate solid ground and needs local, clear rear pressure. Helpers cannot admit unattended deliveries; Pip still participates at the destination. See [progression.js](../src/progression.js), profile functions in [simulation.js](../src/simulation.js), progression/companion tests.
 
 ### Art, wildlife and weather
 
@@ -257,3 +257,8 @@ User clarification (15 October 2026, 18:53 Vancouver): a bolter may get away and
 ## Queued second Buddy progression - F-047 (P4)
 
 After meadow 40, offer a second Buddy dog with independently saved leveling. Price its purchase and upgrades for later-game bolt earnings and make its maximum tier attainable by meadow 70. Exact costs remain to be tuned. This is queued only; see [F-047 in the tracker](ISSUES.md#f-047---second-buddy-dog-with-independent-progression-p4).
+
+
+## Buddy follow-up requirements - 15 October 2026, 19:11 Vancouver
+
+F-046 remains Review for repaired behavior: Buddy must navigate around trees, turn gradually without rapid opposite-facing flicker inside a flock, and guide nearby sheep through bridges and goal entrances from **Buddy tier 2**. Independent flocks and isolated individuals must not automatically attract back together. Cohesion may stabilize a connected flock but must not reunite separated groups. Existing tier-3 retrieval, ground collisions, active-player delivery, purchase gates and costs remain in force. The second Buddy (F-047) is still queued and is not implemented here. Headless regression evidence is recorded separately from user play acceptance.

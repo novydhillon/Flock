@@ -134,3 +134,8 @@ In an isolated QA session, workshop unlocks and purchases use the public level c
 ## Buddy smoke checks
 
 On public QA levels 20, 24 and 28, buy the available Buddy tiers using test bolts. At tier 1, move the flock and observe Buddy behind its actual direction of travel; reverse direction and stop. At tier 2 split a group of at least two from a larger flock: Buddy should stay with the smaller group. At tier 3 let a wanderer/bolter separate and settle: Buddy should run around behind it, bring it to the closest flock group, and bark with its own ring/red tail without consuming Woof. Check a bridge, pause/resume, level restart, and simultaneous Pip bark. Drone ownership should preserve its existing main-herd hold behavior. Human gameplay, rendered effects and listening remain pending review.
+
+
+### Buddy follow-up smoke checks
+
+At QA public 24, buy Buddy tier 2. Split the flock beyond a 6.5m clear gap and verify the groups stay separate. Put a tree between Buddy and its rear position (both on/off a trail): it should walk around the trunk on dry ground. Circle inside a flock and reverse its travel: Buddy should turn progressively and keep a circling side. Approach a bridge from an angle and a goal entrance, including the last sheep after others cross/are delivered; Buddy should help the selected local flock through. Confirm nearby walls and water still block bodies, closed gates require the existing action, and leaving Pip far away prevents scoring. Repeat tier-3 retrieval around a tree and pause/restart during a turn. Rendered/mobile feel remains for user testing.

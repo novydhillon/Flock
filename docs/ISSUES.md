@@ -660,3 +660,10 @@ F-046 clarification at 18:53 Vancouver: bolters are allowed to get away initiall
 ### Buddy execution and publication - 15 October 2026
 
 Implemented and published from source `d557d92` to Pages `c30ca36`. Source CI and native Pages deployment succeeded; 254 source tests pass, both release/development artifact checks pass, and all 17 live files match the intended SHA-256 hashes. All 18 unrelated Pages files are unchanged. Test Buddy tiers at public QA 20/24/28. **Review** remains pending user gameplay acceptance. See [publication evidence](QUALITY.md#verified-buddy-behavior-publication). Bolters may escape ahead while Buddy runs to catch up; immediate interception is not required.
+
+
+### Buddy navigation and split-flock follow-up - 15 October 2026, 19:11 Vancouver
+
+F-046 remains **Review** after the user reported tree stalls and instant opposite-facing flicker, requested independent split flocks, and added tier-2 help across nearby bridges/goal entrances. The repaired source adds cached body-clear tree detours (also for retrieved sheep/cows), stable circling sides, bounded movement/facing turns and explicit local passage guidance. Cohesion/alignment only operate within each connected flock; separated groups and single animals no longer attract back together. The old 18m range remains within a connected group so normal herding is not weakened. Local passage help retains the final singleton; ordinary tier-3 stray retrieval and player-attended scoring stay distinct. F-047 remains queued.
+
+Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gradually inside a flock and after reversal; split groups stay independent; tier 2 guides an off-axis bridge and a rotated pen/field/barn entrance including the final sheep; all bodies respect clearance and no unattended scoring occurs. User play/device acceptance is pending; this is not sign-off.

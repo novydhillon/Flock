@@ -274,3 +274,16 @@ Final local validation: **254/254 source tests pass**, including 12 dedicated Bu
 ### Verified Buddy behavior publication
 
 Runtime source `d557d92ce57353a4c24b7980fa2d4fb1cb5081c4`; Pages `c30ca36cc263de44630fea06c2ea25e6aa06e49b`. Source CI [38837775933](https://github.com/novydhillon/Flock/actions/runs/38837775933) and native Pages [38837956296](https://github.com/novydhillon/Flock/actions/runs/38837956296) succeeded. All **17/17** live development files at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/) match the checked local build SHA-256 hashes. Only the entry HTML and main runtime bundle changed; all 18 unrelated Pages files, including the legacy redirect, are preserved. Runtime asset: `index-CPSy1nTr.js`. Existing CI independently ran the 254 source tests, documentation checks and both build mode checks. F-046 remains **Review** for user gameplay acceptance; public QA 20/24/28 exercise the three Buddy tiers. This publication record changes documentation only.
+
+
+## Buddy navigation, turning, split groups and local passage follow-up
+
+User testing of the first F-046 release found a tree stall and rapid opposite-facing flicker. The user also requested independent split flocks and tier-2 bridge/goal guidance. Repairs add a cached tree visibility graph with actual body clearance, keep one circling side, limit travel/work turns to 1.8rad/s and movement/facing turns to 2.8rad/s, and render simulation heading. Tier 2 commits to the local crossing/entrance and retains its remaining tail, including a final singleton; tier 3 also uses tree detours while retrieving.
+
+An initial attempt to limit all flock cohesion to 6.5m weakened connected-herd stability and failed the tutorial and level-16 journey. The final change retains 18m visible-neighbor forces **inside each 6.5m-linked component**, and removes all attraction/alignment between disconnected groups. The original tutorial and all five full-flock journey tests pass without controller, time-limit, scoring or collision changes. Split pairs/singletons are also checked against independently simulated groups for exact trajectory equality over 60s.
+
+Final source suite: **262/262 tests pass**. New focused scenarios verify on/off-road tree detours with adjacent trunks, actual Buddy/cow ground clearance, jitter/reversal turn-rate bounds and pause, tier-2 off-axis bridge completion, three rotated goal types with 1/3 remaining sheep, local goal guidance without unattended admission, cow retrieval around a trunk, and renderer heading independent of tiny opposite displacements. The expanded Buddy suite has 19 scenarios. Documentation checks validate 12 pages, local links, nine diagrams and four DOM behavior checks. Build/publication results are recorded separately.
+
+These are source/headless tests with substituted rendering/audio interfaces; no independent blind review, real phone rendering, device performance, human pacing or listening evidence is claimed. F-046 remains Review for user play acceptance. F-047 stays queued; no second Buddy is introduced.
+
+Follow-up artifact checks pass: release has 15 files and no QA assets; development has 17 files including two QA assets. The intended development build is prepared for publication.

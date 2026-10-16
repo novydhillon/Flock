@@ -19,7 +19,8 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 |---|---|---|
 | `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
 | `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
-| `src/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; no DOM, profile writes or destination choice |
+| `src/buddy-navigation.js` | Cached tree detours and bounded Buddy turning/movement | Uses physical ground clearance and existing route/crossing navigation |
+| `src/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; local passage guidance; no DOM or profile writes |
 | `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
 | `src/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
 | `src/wandering.js` | Seeded straggler opportunity cohort and conditional bolt selection | Simulation-time cadence; normal world collision remains authoritative |
@@ -116,3 +117,6 @@ QA debug is installed by the development-only qa.js import. It wraps updateAnima
 ## Buddy decisions and events
 
 `buddy.js` shares ground-visible flock grouping with the drone and returns per-animal local forces to `simulation.js`. It owns `level.buddyHerd` (group cache, travel heading, retrieval ID) and Buddy helper fields (mode, members, desired rear position, bark deadlines). The simulation combines Buddy pressure with Pip/drone behavior, interrupts excursions only under effective herding, and preserves player-attended admission. `main.js` routes `buddyBark` events to audio and `render.bark(event)`; rendering maintains separate Buddy/Pip ring origins and dedicated tail lights. All state is transient and cleared with a fresh level; only purchased tiers persist.
+
+
+Buddy navigation follow-up: `buddy-navigation.js` composes route/bridge/goal waypoints with cached tree visibility paths and turn-limited locomotion. `buddy.js` adds committed tier-2 bridge/goal passage state and a stable circling side; per-animal pressure uses actual passage waypoints. The renderer takes Buddy's simulation heading. `simulation.js` computes connected component membership using cached neighbor visibility so cohesion/alignment cannot cross a split; the original 18m range remains available within each component. This grouping also includes singleton components, which receive no distant attraction. Navigation/heading/passage state is transient and never saved to profiles.

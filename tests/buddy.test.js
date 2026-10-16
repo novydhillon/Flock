@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { stepSimulation, canOccupy } from '../src/simulation.js';
 import { prepareWanderCohort } from '../src/wandering.js';
+import { createLevel, targetFootprint, targetWorldPoint } from '../src/world.js';
 
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep', saved: false, nextWanderCheck: 1e9 });
 const center = group => group.reduce((p,a) => ({x:p.x+a.x/group.length,z:p.z+a.z/group.length}),{x:0,z:0});
@@ -171,4 +172,97 @@ test('retrieved cows use their larger collision footprint and return without Pip
  run(level,25,{helper:3},l=>assert.ok(canOccupy(l,stray.x,stray.z,.78)));
  assert.ok(level.animals.slice(0,2).some(a=>distance(a,stray)<6.5));
  assert.equal(stray.wanderHome,undefined);
+});
+
+test('Buddy detours around trees on and off a route instead of pushing against the trunk',()=>{
+ for(const onRoute of [false,true])for(const z of [-3.2,-2.6]){
+  const level=meadow([animal(0,10,0),animal(1,10,2)],{
+   helpers:[{type:'helper',x:-10,z:-3.2,heading:Math.PI/2}],obstacles:[{x:0,z,radius:1.6},{x:3,z:z-1,radius:1.1}],
+   routes:onRoute?[{id:'tree-road',points:[{x:-20,z:-3.2},{x:0,z:-3.2},{x:20,z:-3.2}]}]:[],
+  });
+  run(level,15,{helper:1},l=>assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6)));
+  assert.ok(buddy(level).x>8,'Buddy gets past the trunks');
+  assert.ok(distance(buddy(level),buddy(level).desired)<1,'Buddy reaches the rear position');
+ }
+});
+
+test('separated flocks and single animals do not attract or align across the gap',()=>{
+ for(const herd of [[animal(0,-5,0),animal(1,-3,0),animal(2,5,0),animal(3,7,0)],[animal(0,-5,0),animal(1,5,0)]]){
+  const level=meadow(herd),left=meadow(structuredClone(herd.filter(a=>a.x<0))),right=meadow(structuredClone(herd.filter(a=>a.x>0)));
+  run(level,60,{});run(left,60,{});run(right,60,{});
+  assert.deepEqual(level.animals,[...left.animals,...right.animals],'distant animals add no regrouping force');
+  assert.ok(center(right.animals).x-center(left.animals).x>8,'the split stays open');
+ }
+});
+
+test('Buddy movement and facing turn gradually even with contradictory flock directions inside the herd',()=>{
+ const level=meadow([animal(0,-1,-1,2),animal(1,1,-1,2),animal(2,0,1,2)],{helpers:[{type:'helper',x:0,z:0,heading:0}]});
+ let previous=0,drive=null;
+ for(let i=0;i<150;i++){
+  level.animals.forEach(a=>{a.vx=i%2?2:-2;a.vz=0;});
+  stepSimulation(level,level.dog,{},.05,{helper:2});
+  const h=buddy(level),change=Math.atan2(Math.sin(h.heading-previous),Math.cos(h.heading-previous));
+  assert.ok(Math.abs(change)<=2.8*.05+1e-8,'rendered heading cannot reverse in a frame');
+  const angle=Math.atan2(h.forward.x,h.forward.z);
+  if(drive!==null)assert.ok(Math.abs(Math.atan2(Math.sin(angle-drive),Math.cos(angle-drive)))<=1.8*.05+1e-8);
+  previous=h.heading;drive=angle;
+ }
+ const paused=structuredClone(level);stepSimulation(level,level.dog,{},0,{helper:2});assert.deepEqual(level,paused);
+});
+
+test('tier two actively guides its flock onto and across an off-axis bridge',()=>{
+ const bridge={x:0,z:0,width:7,length:5,heading:Math.PI/2};
+ const level=meadow([animal(0,-9,6,1),animal(1,-7,8,1),animal(2,-7,6,1)],{
+  index:23,helpers:[{type:'helper',x:-12,z:7}],
+  rivers:[{points:[{x:0,z:-100},{x:0,z:100}],width:3,bridges:[bridge]}],
+  routes:[{id:'main',points:[{x:-20,z:8},{x:-4,z:0},{x:4,z:0},{x:20,z:8}]}],
+ });
+ let assisting=false;
+ run(level,45,{helper:2},l=>{
+  assisting ||= buddy(l).mode==='bridge';
+  assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6));
+  assert.ok(l.animals.every(a=>canOccupy(l,a.x,a.z,.55)));
+ });
+ assert.equal(assisting,true);assert.ok(level.animals.every(a=>a.x>bridge.length/2+1),'all sheep reach the far bank');
+});
+
+
+test('tier two guides sheep and a final singleton into a real rotated goal entrance',()=>{
+ for(const index of [23,24,25])for(const count of [1,3]){
+  const level=createLevel(index,42),t=level.target,shape=targetFootprint(t);
+  level.animals=Array.from({length:count},(_,id)=>({...animal(id,0,0),...targetWorldPoint(t,-shape.halfLength-4-id*1.5,id===0?3.5:-1)}));
+  level.dog={...targetWorldPoint(t,-shape.halfLength-10,0)};
+  level.helpers=[{type:'helper',...targetWorldPoint(t,-shape.halfLength-8,4)}];
+  let assisted=false;
+  run(level,40,{helper:2},l=>{
+   assisted ||= buddy(l).mode==='goal';
+   assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6));
+   assert.ok(l.animals.every(a=>canOccupy(l,a.x,a.z,.55)));
+  });
+  assert.equal(assisted,true);assert.ok(level.animals.every(a=>a.saved),'all remaining sheep enter and are admitted with Pip attending');
+ }
+});
+
+
+test('committed tier-two goal help still requires Pip for admission',()=>{
+ const level=meadow([animal(0,-10,-1),animal(1,-11,1)],{
+  index:23,target:{x:0,z:0,radius:5,heading:Math.PI/2,type:'field'},dog:{x:-18,z:0},helpers:[{type:'helper',x:-14,z:0}],
+ });
+ stepSimulation(level,level.dog,{},.05,{helper:2});assert.equal(buddy(level).mode,'goal');
+ level.dog={x:-80,z:-80};let entered=false;
+ run(level,15,{helper:2},l=>{entered ||= l.animals.some(a=>Math.abs(a.x)<6&&Math.abs(a.z)<6);});
+ assert.ok(entered,'Buddy guides the local group inside');
+ assert.ok(level.animals.every(a=>!a.saved));assert.notEqual(level.completed,true);
+});
+
+
+test('tree detours also guide a retrieved cow around the trunk using its full body radius',()=>{
+ const stray={...animal(2,20,0),type:'cow',wanderHome:{x:20,z:0}};
+ const level=meadow([animal(0,-5,-1),animal(1,-5,1),stray],{
+  helpers:[{type:'helper',x:24,z:0}],obstacles:[{x:8,z:0,radius:2}],
+ });
+ run(level,40,{helper:3},l=>{
+  assert.ok(canOccupy(l,stray.x,stray.z,.78));assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6));
+ });
+ assert.ok(level.animals.slice(0,2).some(a=>distance(a,stray)<6.5),'cow returns around the tree');
 });
