@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## User sign-off - 16 October 2026, 00:14 Vancouver
+
+F-035/F-037/F-039/F-041/F-046/F-051/F-052 are **Done** by Novy's explicit sign-off on all items in Review. This accepts the flock/Buddy and bridge follow-ups, compact HUD/tip/bark/goal-pointer refinements and development QA gear. Older pending/Review descriptions are historical and superseded by this record. Open and Deferred requirements are unchanged; no runtime change or new independent device measurement is implied. See the [current tracker](ISSUES.md#user-sign-off---16-october-2026-0014-vancouver).
+
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
 Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
@@ -144,13 +148,13 @@ Status: the original P0/P1 batch and F-028 remain accepted for their deployed bu
 | F-032 | P3 | Closed red/open green world-fence button; dog touch activates. | Open | New request; coordinate with F-031 and F-006. |
 | F-033 | P2 | English-farmhand-built drystone wall appearance. | Open | New appearance request; accepted F-007 functionality remains Done. |
 | F-034 | P3 | Seeded 15% stone-wall chance per level, replacing fixed four-level sequence. | Open | New generation request; depends on F-033. |
-| F-035 | P2 | Baseline bolts 3-5s; public40-69 4-6s,70+5-10s. | **Review** | Seeded durations, pause/restart and interruption checks implemented. |
+| F-035 | P2 | Baseline bolts 3-5s; public40-69 4-6s,70+5-10s. | **Done** | Seeded durations, pause/restart and interruption checks implemented. |
 | F-036 | P3 | Unattended flock spreads across field. | Open | New behavior, separate from straggler behavior F-012 and saved roaming F-028. |
-| F-037 | P2 | Per-level cap floor(20% of current undelivered animals), no cross-level memory. | **Review** | Seeded ranking refreshes after delivery; saved/herded animals excluded from excursions. |
+| F-037 | P2 | Per-level cap floor(20% of current undelivered animals), no cross-level memory. | **Done** | Seeded ranking refreshes after delivery; saved/herded animals excluded from excursions. |
 | F-038 | P2 | Progressively larger multi-directional, less-linear levels over fields/rivers/tree clusters; body clearance, no stuck animals, later difficulty accounts for helpers. | Open | Preserve F-005 and accepted F-006 navigation. |
-| F-039 | P2 | Independent 5-8s checks; 33% early,20% at41-70,25% at71+ wander odds; conditional bolt10% early,20% at41+. | **Review** | New user clarification supersedes former30%/50% ambiguity. See current revision table. |
+| F-039 | P2 | Independent 5-8s checks; 33% early,20% at41-70,25% at71+ wander odds; conditional bolt10% early,20% at41+. | **Done** | New user clarification supersedes former30%/50% ambiguity. See current revision table. |
 | F-040 | P1 | Remove all snow; select a fixed weather type once per level. Public level 9 starts light rain; later levels may become heavier. Public levels 16 and 24 are guaranteed heavy-rain/storm QA fixtures. Their use as permanent unlock thresholds and the seeded selection weights remain provisional tuning choices. | **Done**, user accepted 15 October 2026 at 16:34 Vancouver. | Implemented fixed kinds, no snow, public 9/16/24 QA anchors and seeded other-level selection. Later unlock numbers and weights remain tunable source choices; the current weather build was accepted on 15 October 2026 at 16:34 Vancouver. |
-| F-041 | P2 | Wanderers/bolters settle locally until actively herded. | **Review** | Cohesion/alignment suppressed; calm roaming within3m, collision/player/helper/delivery regressions implemented. |
+| F-041 | P2 | Wanderers/bolters settle locally until actively herded. | **Done** | Cohesion/alignment suppressed; calm roaming within3m, collision/player/helper/delivery regressions implemented. |
 
 ### Decisions still open
 
