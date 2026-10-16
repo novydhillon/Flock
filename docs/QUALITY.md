@@ -242,3 +242,7 @@ Runtime source `41465691e7818d9dceaccd612bcd2779e0560b34`; Pages `6b612619c31e67
 ## QA flock debug validation - 15 October 2026
 
 The single QA debug toggle provides a one-decimal numeric next-eligible-check countdown above Woof, with subtle yellow active-wander/red active-bolt instance tints. All237 source tests pass, including actual Three.js instance-color mapping through compacted order changes, saved exclusion, neutralizing offscreen slots on disable/destroy, read-only countdown selection, pause/resume, level replacement, and QA/controller integration. Both release and development artifact checks pass: the release has no QA debug signatures/assets; development includes them. Documentation checks pass. No rendered/device screenshot or real-touch appearance validation is claimed; the prior flock-behavior items remain Review.
+
+### Verified QA-debug publication
+
+Runtime source `2070b016adaa554f0e94670f1d17d5562face3ff`; Pages `d3276cd6cdefff481c258965de146000d4913ec3`. Source CI [38830952927](https://github.com/novydhillon/Flock/actions/runs/38830952927) and Pages [38831086452](https://github.com/novydhillon/Flock/actions/runs/38831086452) succeeded. All17 live development files match build SHA-256 hashes. Only dev2 entry/main/QA assets changed; unrelated Pages content and legacy redirect retained. No gameplay tuning changed; new QA visual presentation remains subject to player feedback.
