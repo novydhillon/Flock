@@ -108,3 +108,26 @@ test('a delivery shrinks the active excursion cap in the same tick',()=>{
   assert.equal(level.animals.filter(a=>!a.saved&&a.wander).length,5);
   assert.ok(level.animals.some(a=>a.wanderHome),'removed eligibility ends the excursion locally');
 });
+
+test('naturally triggered excursions on generated levels keep stable local homes without returning to the herd',()=>{
+  let settled=0,bolters=0;
+  for(const [index,seed] of [[7,1],[16,6],[40,12],[70,42]]){
+    const level=createLevel(index,seed),homes=new Map(),boltIds=new Set();
+    Object.assign(level.dog,{x:level.bounds.minX+2,z:level.bounds.minZ+2});
+    for(let frame=0;frame<1200;frame++){
+      stepSimulation(level,level.dog,{},.1);
+      for(const a of level.animals){
+        if(a.wander?.bolting)boltIds.add(a.id);
+        if(!a.wanderHome)continue;
+        if(!homes.has(a.id)){homes.set(a.id,{...a.wanderHome});settled++;if(boltIds.has(a.id))bolters++;}
+        assert.deepEqual(a.wanderHome,homes.get(a.id),'unattended local home never migrates toward the flock');
+        assert.ok(Math.hypot(a.x-a.wanderHome.x,a.z-a.wanderHome.z)<=3.000001);
+        assert.ok(canOccupy(level,a.x,a.z,a.type==='cow'?.78:.55));
+        assert.equal(a.wander,undefined,'settled animals do not start new escape excursions');
+      }
+    }
+    assert.equal(level.animals.some(a=>a.saved),false,'unattended excursions do not deliver themselves');
+    assert.ok(homes.size>0,`public level ${index+1} naturally produces settled wanderers`);
+  }
+  assert.ok(settled>4);assert.ok(bolters>0,'real generated cases include bolt-to-local-settle transitions');
+});

@@ -10,6 +10,15 @@ export function nextQAWanderCheck(level) {
 
 export function applyQAWanderTints(renderer, level, enabled) {
   if (!renderer?.animalBatches) return;
+  // Track selections separately from behavior so active herding or settling
+  // cannot erase the diagnostic color before that animal's next check.
+  const history = renderer.qaWanderTintHistory ||= new WeakMap();
+  for (const animal of level.animals) {
+    if (animal.saved) { history.delete(animal); continue; }
+    if (animal.wander && history.get(animal)?.source !== animal.wander) {
+      history.set(animal, {source:animal.wander,bolting:animal.wander.bolting,until:animal.nextWanderCheck});
+    }
+  }
   for (const batch of renderer.animalBatches) for (const mesh of batch.meshes) {
     if (!enabled) {
       if (mesh.instanceColor) { mesh.instanceColor.array.fill(1); mesh.instanceColor.needsUpdate = true; }
@@ -18,7 +27,8 @@ export function applyQAWanderTints(renderer, level, enabled) {
     const first = !mesh.instanceColor;
     batch.visibleIndices.forEach((index, slot) => {
       const animal = level.animals[index];
-      const rgb = enabled && !animal.saved && animal.wander ? (animal.wander.bolting ? [1,.78,.78] : [1,1,.72]) : [1,1,1];
+      const selection = history.get(animal);
+      const rgb = !animal.saved && selection && Number.isFinite(selection.until) && (level.time || 0) < selection.until ? (selection.bolting ? [1,.10,.08] : [1,.88,.08]) : [1,1,1];
       mesh.setColorAt(slot, {toArray(array, offset) { array.set(rgb, offset); }});
     });
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;

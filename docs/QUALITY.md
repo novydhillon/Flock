@@ -246,3 +246,9 @@ The single QA debug toggle provides a one-decimal numeric next-eligible-check co
 ### Verified QA-debug publication
 
 Runtime source `2070b016adaa554f0e94670f1d17d5562face3ff`; Pages `d3276cd6cdefff481c258965de146000d4913ec3`. Source CI [38830952927](https://github.com/novydhillon/Flock/actions/runs/38830952927) and Pages [38831086452](https://github.com/novydhillon/Flock/actions/runs/38831086452) succeeded. All17 live development files match build SHA-256 hashes. Only dev2 entry/main/QA assets changed; unrelated Pages content and legacy redirect retained. No gameplay tuning changed; new QA visual presentation remains subject to player feedback.
+
+## QA tint visibility and local-settling recheck - 15 October 2026, 17:52 Vancouver
+
+The earlier .72/.78 color multipliers were subtle and active-only, ending after a short excursion. Stronger yellow/red multipliers now remain through that animal's original next-check deadline, including settling/herding before the deadline. A QA-only WeakMap records selection kind/deadline separately from simulation; rescheduling cannot extend an old tint. New selection refreshes it, delivery clears it, and disable/destroy neutralizes every instance slot.
+
+Natural generated-level probes at public8/17/41/71 run120 simulated seconds each, observing real seeded wander and bolt events without injecting states. Every recorded local home remains fixed, animals stay within3m with valid body collision, no new excursion starts after settling without herding, and no unattended delivery occurs. No production settling defect was found in these bounded scenarios; actual device perception remains unverified.
