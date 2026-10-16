@@ -73,7 +73,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-029~~ | ~~P2~~ | ~~Gameplay/economy~~ | ~~Pay only lifetime-best score improvements on replay~~ | ~~Done~~ | ~~F-009~~ |
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Open | F-006 |
-| F-032 | P3 | Gameplay/UI | Closed red and open green world-fence button; dog touch activates | Open | F-031 |
+| F-032 | P3 | Gameplay/UI | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates | Open | F-031 |
 | F-033 | P2 | Environment/art | English farm dry-stone wall appearance | Open | F-007 |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
 | ~~F-035~~ | ~~P2~~ | ~~Gameplay~~ | ~~Baseline bolt duration 3–5 seconds~~ | ~~Done~~ | ~~F-012~~ |
@@ -352,9 +352,9 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 ### F-032 — World-fence gate indicator and dog activation (P3)
 
-**Requirement:** show a world-fence button red when closed and green when open; touching the button with the dog activates it.
+**Requirement:** place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.
 
-**Accept when:** the button is visibly red only for closed gates and green only for open gates; dog contact activates the associated gate reliably, updates collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
+**Accept when:** each gate has a reachable button on both sides, including when the gate is closed. Dog contact with either button opens a closed gate or closes an open gate. Both buttons stay synchronized: red when closed and green when open. Each activation reliably updates the same gate and its collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
 
 **Status:** Open. Clarify the interaction mapping during implementation if the visual button/control relationship is ambiguous; do not silently change F-006's accepted action.
 
