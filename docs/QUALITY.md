@@ -403,3 +403,6 @@ A fresh independent blind critic used `gpt-6-luna`, medium effort, without autho
 
 
 Verified weathering publication: source `19413022bac0eecb5f7f264c2f0010742ec0df8e` has the exact reviewed local tree `2b2b69a754d48b59a218a1b6bf62ba3cab0ca34b`; published on `stone_wall` and integrated into development through the connected GitHub integration. Source CI [38965423609](https://github.com/novydhillon/Flock/actions/runs/38965423609) succeeded. Pages `29f48f35455cec31850030534ffba567842ba68b` has the exact checked tree `e7239a80ca01b3cc33a251f4a00352119c8518ea`; native Pages [38965598338](https://github.com/novydhillon/Flock/actions/runs/38965598338) succeeded. All **17/17 live files**, including canonical entry HTML, match the QA build by SHA-256. All 32 unrelated Pages files are preserved; production is unchanged. The refinement remains Review for user visual/mobile acceptance; the previously observed cloud WebGL 2 limitation prevents an independent rendered claim.
+
+
+F-033 acceptance: Novy signed off the deployed weathered wall change on 16 October 2026 at 14:00 America/Vancouver (Pages `29f48f3`, runtime `1941302`). Tracker and requirements are Done; historical source/device evidence limits remain unchanged. F-034 stays Open. This documentation-only sign-off changes no deployed game files.

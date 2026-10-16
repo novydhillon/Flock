@@ -74,7 +74,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Open | F-006 |
 | F-032 | P3 | Gameplay/UI | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates | Open | F-031 |
-| F-033 | P2 | Environment/art | English farm dry-stone wall appearance | Open | F-007 |
+| ~~F-033~~ | ~~P2~~ | ~~Environment/art~~ | ~~English farm dry-stone wall appearance~~ | ~~Done~~ | ~~F-007~~ |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
 | ~~F-035~~ | ~~P2~~ | ~~Gameplay~~ | ~~Baseline bolt duration 3–5 seconds~~ | ~~Done~~ | ~~F-012~~ |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
@@ -358,13 +358,13 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 **Status:** Open. Clarify the interaction mapping during implementation if the visual button/control relationship is ambiguous; do not silently change F-006's accepted action.
 
-### F-033 — English dry-stone wall appearance (P2)
+### F-033 — ~~English dry-stone wall appearance (P2)~~
 
 **Requirement:** stone walls should look like drystone walls built by an English farmhand.
 
 **Accept when:** rendered walls read as hand-laid, irregular dry-stone masonry with plausible varied stones and no visible mortar, while maintaining consistent collision, gates/openings, route clearance and mobile performance. Review at normal game zoom and across wall orientations.
 
-**Status:** Review; claymation appearance implemented on `stone_wall`, pending rendered/gameplay acceptance. Reference photos supplied 16 October 2026 guide irregular dry-laid stones, muted warm greys, broad foundations and uneven upright coping. Three instanced sculpted shapes replace rectangular bricks; staggered variable widths and per-stone colors avoid uniform masonry. The .6-unit collision strip, segment endpoints, gates and level selection are preserved. F-034 remains Open. Source bounds/determinism/resource checks do not establish phone appearance or FPS.
+**Status:** Done; Novy signed off the deployed weathered claymation walls on 16 October 2026 at 14:00 America/Vancouver (source `1941302`, Pages `29f48f3`). Reference photos supplied 16 October 2026 guide irregular dry-laid stones, muted warm greys, broad foundations and uneven upright coping. Three instanced sculpted shapes replace rectangular bricks; staggered variable widths and per-stone colors avoid uniform masonry. The .6-unit collision strip, segment endpoints, gates and level selection are preserved. F-034 remains Open. Source bounds/determinism/resource checks do not establish phone appearance or FPS.
 
 ### F-034 — Seeded per-level stone-wall chance (P3)
 
@@ -777,3 +777,6 @@ F-033 follow-up (16 October 2026, 13:49 Vancouver): Novy approved the initial ap
 
 
 F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [38965423609](https://github.com/novydhillon/Flock/actions/runs/38965423609) and native Pages [38965598338](https://github.com/novydhillon/Flock/actions/runs/38965598338) succeeded. All 17 live artifacts match the checked build; all 32 unrelated Pages files preserved. Blind review 8/10, 279 tests and both build modes pass. Review remains pending acceptance of this added weathering.
+
+
+F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the weathered dry-stone wall change deployed at Pages `29f48f3` (runtime source `1941302`). Marked Done; overview cells and detailed heading struck through under the tracker closure rule. This is user acceptance of the change, not an independent device/FPS measurement. F-034 seeded wall distribution remains Open.
