@@ -88,6 +88,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-046 | P2 | Gameplay/companions | Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark | Review | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
+| F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
 ## Screenshot evidence
 
@@ -692,3 +693,19 @@ Implemented source: cohesion is 30% weaker; leading members reject backward cent
 
 
 Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495](https://github.com/novydhillon/Flock/actions/runs/38857616495) and native Pages [38857820963](https://github.com/novydhillon/Flock/actions/runs/38857820963) succeeded. All 17 live development files and canonical entry HTML match the tested build; all 18 unrelated Pages files remain unchanged. All 274 source tests and both build modes pass. See [publication evidence](QUALITY.md#verified-forward-flow-and-bridge-completion-publication). User gameplay/device acceptance remains pending; F-046 stays Review and the separate F-048 low-speed stutter report stays queued.
+
+
+### F-049 - Keep the QA level dropdown unfocused on menu opening (P4)
+
+**Status:** Open, queued only; unassigned.
+
+**Reported behavior:** Opening the QA menu initially focuses or activates the level dropdown and shows the full level list.
+
+**Requirement:** Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it.
+
+**Accept when:**
+- Opening the QA menu does not automatically focus or activate the level dropdown or show its full list.
+- The level dropdown opens normally when deliberately selected, and the current level value is preserved.
+- Initial focus goes to the QA menu container or a suitable non-dropdown control.
+
+**Scope:** queued QA usability fix only; no implementation or acceptance claimed.

@@ -273,3 +273,8 @@ Animals that start walking on a bridge should proceed to its opposite bank; this
 ## Queued Buddy low-speed movement fix - F-048 (P2)
 
 Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Open, queued only. See [F-048 in the tracker](ISSUES.md#f-048---buddy-stutters-when-moving-slowly-p2).
+
+
+## Queued QA menu focus fix - F-049 (P4)
+
+Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it. Initial focus should go to the menu container or a suitable non-dropdown control. Preserve the current level value. Open, queued only. See [F-049 in the tracker](ISSUES.md#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4).
