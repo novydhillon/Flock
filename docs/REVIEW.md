@@ -59,3 +59,5 @@ Cloud-removal maintenance, 15 October 2026: current requirements/context now def
 A fresh critic reviewed the candidate in a detached worktree without history, implementation reasoning or previous scores, using `gpt-6-luna` at medium effort. Result: **9.3/10**, no source defects. The critic independently passed 29 focused controller tests and a production build. Exact CSS layout and pointer appearance across aspect ratios require native-device acceptance; these were not claimed as rendered tests. Documentation received a separate fresh medium-effort critic.
 
 The separate blind documentation critic scored **8/10**, requesting explicit commit/command evidence, source/test references and sharper distinction between controller checks and rendered geometry/layout. These records now include all three; phone acceptance remains pending.
+
+Documentation follow-up reached **9/10**, with all requested evidence and limitation fixes resolved. The critic independently passed `npm run docs:check`. Exact artifact checks used `node scripts/check-build-mode.mjs release` and `node scripts/check-build-mode.mjs development`.
