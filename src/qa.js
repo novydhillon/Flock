@@ -73,7 +73,8 @@ export function exportQAScenario(state) {
 /** The bridge is deliberately local to a development-only import; no window API. */
 export function installQA(bridge, doc = document) {
   const button = doc.createElement('button');
-  button.id = 'qa-toggle'; button.className = 'qa-toggle'; button.textContent = 'QA · dev';
+  button.id = 'qa-toggle'; button.className = 'qa-toggle'; button.textContent = '⚙';
+  button.setAttribute('aria-label', 'QA · development test session'); button.title = 'QA · development test session';
   button.setAttribute('aria-controls', 'qa-panel'); button.setAttribute('aria-expanded', 'false');
   const panel = doc.createElement('section'); panel.id = 'qa-panel'; panel.className = 'qa-panel'; panel.hidden = true;
   panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-labelledby', 'qa-title');
@@ -114,7 +115,7 @@ export function installQA(bridge, doc = document) {
   button.onclick = event => { event.preventDefault(); event.stopPropagation(); if (open) return; return run(async () => {
     await bridge.enterSession(); bridge.pause(); doc.title = 'FLOCK · QA test session'; open = true; panel.hidden = false; button.setAttribute('aria-expanded', 'true'); refresh(); freezeBackground(); report('Simulation, delivery countdowns and rewards are frozen while editing.'); $('qa-level').focus();
   }); };
-  const closePanel = () => { if (!open || busy) return; open = false; panel.hidden = true; button.setAttribute('aria-expanded', 'false'); restoreBackground(); bridge.resume(); button.textContent = 'QA · test session'; button.focus(); };
+  const closePanel = () => { if (!open || busy) return; open = false; panel.hidden = true; button.setAttribute('aria-expanded', 'false'); restoreBackground(); bridge.resume(); button.focus(); };
   $('qa-close').onclick = closePanel;
   $('qa-resume').onclick = closePanel;
   $('qa-jump').onsubmit = event => { event.preventDefault(); run(async () => { const index = qaLevelIndex($('qa-level').value); await bridge.jump(index); refresh(); report(`Paused at public level ${index + 1}.`); }); };

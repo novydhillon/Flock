@@ -296,3 +296,8 @@ F-051 follow-up: every tutorial tip must remain visible for its full display int
 
 
 F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.
+
+
+### F-052 - QA gear launcher
+
+The development-only QA launcher uses a gear icon centered at the bottom of the screen, with at least a 44px touch target and bottom safe-area clearance. Its accessible name identifies QA and an active test session. Release builds continue excluding QA.

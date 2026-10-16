@@ -91,6 +91,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | F-051 | P2 | UI | Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer | Review | Source checked; phone acceptance pending |
+| F-052 | P3 | QA/UI | Gear QA launcher centered at bottom of viewport | Review | Source validation pending |
 
 ## Screenshot evidence
 
@@ -744,3 +745,8 @@ Tip-02 follow-up execution: runtime source `610fc69` on development passes 275 t
 F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.
 
 Reopened-help execution: source `24f77f5`, Pages `199c94e`; 277 tests, both builds/mode checks, documentation checks and CI/native deployment pass. All 17 live files/canonical HTML verified; 32 unrelated files preserved. Initial playthrough hides after its last tip; manual reopening resets01 and loops. F-051 remains Review for phone acceptance.
+
+
+### F-052 - Bottom-center QA gear
+
+**Status:** Review. Replace the QA text launcher with a gear icon, centered at the bottom of the viewport with safe-area clearance. Retain an accessible QA name and test-session state. Keep existing QA opening/closing, save isolation and production exclusion. Phone appearance remains pending.
