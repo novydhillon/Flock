@@ -86,6 +86,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-046 | P2 | Gameplay/companions | Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark | Review | - |
+| F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 
 ## Screenshot evidence
 
@@ -640,3 +641,18 @@ Added the requested single flock-debug toggle: next eligible check countdown abo
 **Status:** Review; source/headless checks complete, user gameplay acceptance pending. New tests cover cardinal directions and reversal, idle/remote behavior, smaller-group ties and merge, wander/bolt/settled retrieval to the nearest group, activation gates, barriers, real bridge retrieval with a holding drone, bark cooldown/pause/reset, target invalidation, audio routing and independent tail/ring lifecycle. No rendered/device or listening claim is made.
 
 F-046 clarification at 18:53 Vancouver: bolters are allowed to get away initially; Buddy should catch up through ordinary pursuit. Immediate interception is not an acceptance requirement.
+
+
+### F-047 - Second Buddy dog with independent progression (P4)
+
+**Status:** Open, queued only; unassigned.
+
+**Requirement:** after meadow level 40, make a second Buddy dog available with its own independent leveling. Its purchase and upgrade costs should reflect the later stage of the game. Its maximum upgrade tier should be available by meadow level 70.
+
+**Accept when:**
+- A second Buddy becomes available after meadow 40.
+- Each Buddy has its own saved upgrade level and can be upgraded independently.
+- Purchase and upgrade prices are balanced for later-game bolt earnings; exact prices remain to be tuned.
+- The second Buddy can reach its maximum upgrade tier by meadow 70, with unlock gates and costs supporting that progression.
+
+**Scope:** queued feature request only; no second Buddy or pricing changes implemented by this tracker update. Coordinate with F-046 Buddy behavior tiers.

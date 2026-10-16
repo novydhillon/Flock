@@ -252,3 +252,8 @@ In an isolated QA session, workshop unlocks and purchases use the public level c
 F-046 implements the requested tiered behavior: rear herding along actual group movement at tier 1, smaller-group support from tier 2, and retrieval to the closest flock group plus autonomous barking from tier 3. Existing purchase/activation levels 20/24/28 and prices 600/850/1200 are unchanged. This supersedes earlier blanket descriptions that all companions hold the largest flock and never retrieve. Drone behavior remains as before. No goal steering or unattended scoring is added. Source implementation is **Review** pending user gameplay acceptance; see [behavior and tuning](systems/GAMEPLAY.md#buddy-dog-tiers-15-october-2026).
 
 User clarification (15 October 2026, 18:53 Vancouver): a bolter may get away and gain distance; Buddy should pursue and catch up by running. Retrieval does not require immediate interception or prevent the initial escape. No teleport, recall, artificial bolter slowdown or guarantee of catching every bolt before expiry is intended.
+
+
+## Queued second Buddy progression - F-047 (P4)
+
+After meadow 40, offer a second Buddy dog with independently saved leveling. Price its purchase and upgrades for later-game bolt earnings and make its maximum tier attainable by meadow 70. Exact costs remain to be tuned. This is queued only; see [F-047 in the tracker](ISSUES.md#f-047---second-buddy-dog-with-independent-progression-p4).
