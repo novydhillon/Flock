@@ -624,3 +624,7 @@ Acceptance criteria:
 
 **Migration source:** [GitHub #5](https://github.com/novydhillon/Flock/issues/5); moved to this document without implementing or completing the request.
 
+
+## QA testing follow-up - 15 October 2026, 17:37 Vancouver
+
+Added the requested single flock-debug toggle: next eligible check countdown above Woof and subtle yellow wander/red bolt tints. This is read-only development QA instrumentation; F-035/F-037/F-039/F-041 remain Review for gameplay acceptance. Prior F-018 acceptance remains historical; the new debug presentation awaits player testing. See [QA usage](DEVELOPMENT.md#qa-flock-behavior-debug---15-october-2026-1737-vancouver).

@@ -108,3 +108,5 @@ Cloud removal, 15 October 2026: `MeadowRenderer` no longer imports, constructs, 
 ## Per-level straggler state
 
 `wandering.js` owns seeded cohort selection, public-level bands and each animal's 5-8s check schedule. `simulation.js` applies excursions and local home roaming through ordinary body collision. All transient fields live on the level/animals, never profile storage or module globals. See [current behavior](REQUIREMENTS.md#flock-wandering-and-bolting-revision---15-october-2026). F-035/F-037/F-039/F-041 remain Review for new gameplay acceptance.
+
+QA debug is installed by the development-only qa.js import. It wraps updateAnimalBatches to apply colors after visible-instance compaction and before drawing, without altering simulation or shared model-material colors; destruction restores the original method and neutral instance colors. The main loop updates the numeric HUD through a QA-compile-gated callback. Release artifact checks exclude debug identifiers.

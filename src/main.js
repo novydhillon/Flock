@@ -102,7 +102,7 @@ $('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('b
 $('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}persist();updateWallet();};
 $('dismiss-tip').onclick=()=>{tipDismissed=true;visible('tip',false);};
 
-let mapTick=0;
+let mapTick=0,qaFrame;
 function frame(now){
   requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;if(!renderer||!level)return;
   if(mode==='playing'){
@@ -122,6 +122,7 @@ function frame(now){
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
   gateControl.update();
   renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'||mode==='complete')?dt:0,mode==='intro');
+  if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();
   const weather=renderer.nature?.weather;if(weather)$('weather-status').textContent=({sun:'☀ Clear skies',wind:'↝ Breezy',rain:'☂ Light rain','heavy-rain':'☂ Heavy rain',storm:'ϟ Thunderstorm'})[weather.kind||weather.type]||'Clear skies';
   if(mode==='playing')audio.updateAmbience?.(dt,{weather:renderer.nature?.weather||level.weather||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
   mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);const waypoint=nextNavigationPoint(level,dog),dx=waypoint.x-dog.x,dz=waypoint.z-dog.z;$('direction').style.transform=`rotate(${Math.atan2(dz,dx)*180/Math.PI}deg)`;$('distance').textContent=`${Math.round(Math.hypot(dx,dz))} m`;$('destination-text').textContent=waypoint.kind==='bridge'?'Wooden bridge':waypoint.kind==='gate'?(level.gates.some(g=>g.operable&&!g.open&&Math.hypot(g.x-waypoint.x,g.z-waypoint.z)<1)?'Closed gate · approach to open':'Open gate'):waypoint.kind==='target'||waypoint===level.target?(level.target.type==='pen'?'Sunny pen':level.target.type==='barn'?'Home barn':'Clover Field'):'Winding trail';}
@@ -135,7 +136,8 @@ if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__){
   import('./qa.js').then(({installQA})=>{
     const pause=()=>{mode='qa';resetInput();audio.pause();closeModal(false);visible('controls',false);};
     const jump=async index=>{const pending=begin(index);pause();await pending;pause();};
-    installQA({
+    const qa=installQA({
+      getRenderer:()=>renderer,getMode:()=>mode,
       getState:()=>({level,dog,profile,elapsed}),
       enterSession:async()=>{if(!qaSession){qaSession=true;profile=defaultProfile();await jump(0);}},
       pause,isPaused:()=>mode==='qa',
@@ -143,5 +145,6 @@ if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__){
       jump,resetSession:async()=>{profile=defaultProfile();lastReward=0;await jump(0);},
       canOccupy,updateWallet
     });
+    qaFrame=()=>qa.update();
   });
 }

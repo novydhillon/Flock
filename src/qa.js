@@ -1,5 +1,31 @@
 import './qa.css';
 
+/** The displayed number is the next eligible animal's scheduled check. Read only. */
+export function nextQAWanderCheck(level) {
+  if (!level || level.index < 7 || level.completed || !level.wanderCohort) return null;
+  let next = Infinity;
+  for (const animal of level.animals) if (!animal.saved && !animal.wander && !animal.wanderHome && level.wanderCohort.has(animal.id) && Number.isFinite(animal.nextWanderCheck)) next = Math.min(next, animal.nextWanderCheck);
+  return Number.isFinite(next) ? Math.max(0, next - (level.time || 0)) : null;
+}
+
+export function applyQAWanderTints(renderer, level, enabled) {
+  if (!renderer?.animalBatches) return;
+  for (const batch of renderer.animalBatches) for (const mesh of batch.meshes) {
+    if (!enabled) {
+      if (mesh.instanceColor) { mesh.instanceColor.array.fill(1); mesh.instanceColor.needsUpdate = true; }
+      continue;
+    }
+    const first = !mesh.instanceColor;
+    batch.visibleIndices.forEach((index, slot) => {
+      const animal = level.animals[index];
+      const rgb = enabled && !animal.saved && animal.wander ? (animal.wander.bolting ? [1,.78,.78] : [1,1,.72]) : [1,1,1];
+      mesh.setColorAt(slot, {toArray(array, offset) { array.set(rgb, offset); }});
+    });
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    if (first && mesh.instanceColor) for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) material.needsUpdate = true;
+  }
+}
+
 /** QA 0 is a tutorial shortcut, never a 101st campaign level. */
 export function qaLevelIndex(value) {
   const number = Number(value);
@@ -44,11 +70,21 @@ export function installQA(bridge, doc = document) {
   panel.innerHTML = `<h2 id="qa-title">Development QA · paused</h2><p>Isolated test session. Progress and bolts never save to your normal game. Reload to leave QA.</p>
     <form id="qa-jump"><label>QA level <select id="qa-level"><option value="0">QA 0 · tutorial shortcut</option>${Array.from({length:100},(_,i)=>`<option value="${i+1}">Level ${i+1}</option>`).join('')}</select></label><button>Jump · no unlock required</button></form>
     <form id="qa-bolts"><label>Bolts to add / remove <input id="qa-amount" type="number" min="0" step="1" value="100"></label><div><button value="add">Add bolts</button><button value="remove">Remove bolts</button></div><output id="qa-balance"></output></form>
+    <label class="qa-check"><input id="qa-wander-debug" type="checkbox"> Flock debug: next check countdown and wander/bolt tints</label>
     <button id="qa-close" class="qa-close" aria-label="Close QA">×</button>
     <form id="qa-move" hidden><label>Individual flock animal <select id="qa-animal"></select></label><div class="qa-coordinates"><label>World X <input id="qa-x" type="number" step="any" required></label><label>World Z <input id="qa-z" type="number" step="any" required></label></div><p id="qa-bounds"></p><label class="qa-check"><input id="qa-override" type="checkbox"> Allow invalid placement (water, fences, trees); meadow bounds still apply</label><button>Move selected animal</button></form>
     <div class="qa-actions"><button id="qa-reset">Reset test session</button><button id="qa-export">Export scenario JSON</button><button id="qa-resume">Resume test play</button></div><p id="qa-status" role="status" aria-live="polite"></p>`;
   doc.body.append(button, panel);
+  const countdown = doc.createElement('output'); countdown.id = 'qa-wander-countdown'; countdown.hidden = true;
+  countdown.setAttribute('aria-label', 'Seconds until next eligible flock behavior check');
+  countdown.title = 'Seconds until next eligible flock behavior check';
+  const bark = doc.getElementById('bark');
+  if (bark?.parentElement) bark.parentElement.insertBefore(countdown, bark); else doc.body.append(countdown);
+  let debugEnabled = false;
+  const renderer = bridge.getRenderer?.(), originalBatches = renderer?.updateAnimalBatches;
+  if (originalBatches) renderer.updateAnimalBatches = function(level, poseTime) { originalBatches.call(this, level, poseTime); applyQAWanderTints(this, level, debugEnabled); };
   const $ = id => panel.querySelector(`#${id}`);
+  $('qa-wander-debug').onchange = () => { debugEnabled = $('qa-wander-debug').checked; };
   let open = false, busy = false;
   const inertBefore = new Map();
   const freezeBackground = () => { for (const child of doc.body.children) if (child !== panel && child !== button) { if (!inertBefore.has(child)) inertBefore.set(child, child.inert); child.inert = true; } };
@@ -83,5 +119,12 @@ export function installQA(bridge, doc = document) {
     if (event.key === 'Tab') { const nodes = [...panel.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled])')].filter(node => !node.closest('[hidden]')), first=nodes[0],last=nodes.at(-1); if (event.shiftKey && doc.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first.focus(); } }
   };
   doc.addEventListener('keydown', keydown, true);
-  return { destroy() { restoreBackground(); doc.removeEventListener('keydown', keydown, true); button.remove(); panel.remove(); } };
+  return {
+    update() {
+      const {level} = bridge.getState();
+      countdown.hidden = !debugEnabled || level.completed || (bridge.getMode ? bridge.getMode() !== 'playing' : bridge.isPaused());
+      const seconds = nextQAWanderCheck(level); countdown.textContent = seconds === null ? '—' : seconds.toFixed(1);
+    },
+    destroy() { if (originalBatches) { applyQAWanderTints(renderer, bridge.getState().level, false); renderer.updateAnimalBatches = originalBatches; } restoreBackground(); doc.removeEventListener('keydown', keydown, true); countdown.remove(); button.remove(); panel.remove(); }
+  };
 }
