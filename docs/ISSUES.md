@@ -1,6 +1,8 @@
 # FLOCK — Remaining issues and change tracker
 
-Current flock-behavior batch: F-035/F-037/F-039/F-041 are **Review**. Earlier weather/audio user sign-offs remain Done. See the new detailed sections below for the 17:03 user clarification; older fixed-five-second/15% descriptions are historical.
+## User sign-off - 16 October 2026, 00:14 Vancouver
+
+Novy signed off all seven items in Review: **F-035, F-037, F-039, F-041, F-046, F-051 and F-052 are Done**. This covers wandering/bolting tuning and local settling, Buddy behavior and the forward-flow/bridge follow-ups, the compact HUD and revised tips/bark/goal pointer, and the bottom-centre development QA gear. No items remain in Review at this checkpoint. Open items (including F-048 low-speed Buddy stutter) and Deferred clouds remain unchanged. This is user acceptance, not a new independent device/performance measurement. Earlier Review/pending wording below is historical and superseded by this sign-off. Documentation only; game bytes are unchanged.
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
@@ -74,24 +76,24 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-032 | P3 | Gameplay/UI | Closed red and open green world-fence button; dog touch activates | Open | F-031 |
 | F-033 | P2 | Environment/art | English farm dry-stone wall appearance | Open | F-007 |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
-| F-035 | P2 | Gameplay | Baseline bolt duration 3–5 seconds | Review | F-012 |
+| ~~F-035~~ | ~~P2~~ | ~~Gameplay~~ | ~~Baseline bolt duration 3–5 seconds~~ | ~~Done~~ | ~~F-012~~ |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
-| F-037 | P2 | Gameplay | Eligible wander cohort increases from 15% to 20% | Review | F-012 |
+| ~~F-037~~ | ~~P2~~ | ~~Gameplay~~ | ~~Eligible wander cohort increases from 15% to 20%~~ | ~~Done~~ | ~~F-012~~ |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
-| F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Review | F-012, F-035, F-037 |
+| ~~F-039~~ | ~~P2~~ | ~~Gameplay/balance~~ | ~~Late-level wandering/bolting chances and durations~~ | ~~Done~~ | ~~F-012, F-035, F-037~~ |
 | ~~F-040~~ | ~~P1~~ | ~~Weather~~ | ~~Remove snow; choose fixed weather once per level with public-level anchors~~ | ~~Done~~ | ~~Reopens F-008, F-022–F-024~~ |
-| F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Review | F-012, F-035, F-037, F-039 |
+| ~~F-041~~ | ~~P2~~ | ~~Gameplay/behavior~~ | ~~Wanderers and bolters settle near their current location instead of returning to the flock~~ | ~~Done~~ | ~~F-012, F-035, F-037, F-039~~ |
 | F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
-| F-046 | P2 | Gameplay/companions | Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark | Review | - |
+| ~~F-046~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark~~ | ~~Done~~ | ~~-~~ |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
-| F-051 | P2 | UI | Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer | Review | Source checked; phone acceptance pending |
-| F-052 | P3 | QA/UI | Gear QA launcher centered at bottom of viewport | Review | Source validation pending |
+| ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
+| ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 
 ## Screenshot evidence
 
@@ -372,7 +374,7 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 **Status:** Open; depends on the F-033 appearance contract and F-007 accepted wall functionality.
 
-### F-035 — Baseline bolt duration (P2)
+### F-035 — ~~Baseline bolt duration (P2)~~
 
 **Requirement:** baseline bolts last 3-5 seconds (public levels 17-39); public 40-69 uses 4-6 seconds and 70+ uses 5-10 seconds under F-039. Durations are seeded and interrupted only by herding, delivery, or loss of cohort eligibility as undelivered count shrinks.
 
@@ -387,7 +389,7 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 **Status:** Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.
 
-### F-037 — Per-level eligible wander cohort (P2)
+### F-037 — ~~Per-level eligible wander cohort (P2)~~
 
 **Requirement, clarified 15 October 2026 at 17:03 Vancouver:** each level has its own fresh cohort with no cross-level memory; only undelivered animals participate. Implementation retains a cap of floor(20% of the current undelivered flock) on every level, with stable seeded ranking that is recomputed as deliveries reduce that count. Active player/helper pressure suppresses opportunities. Saved animals retain separate confined goal roaming.
 
@@ -402,7 +404,7 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 **Status:** Open.
 
-### F-039 — Late-level wander/bolt tuning (P2)
+### F-039 — ~~Late-level wander/bolt tuning (P2)~~
 
 **User clarification, 15 October 2026 at 17:03 Vancouver:** replace the earlier 30%/50% figures with 20% chance per check above level 40 and 25% above level 70; randomize checks between 5 and 8 seconds. Each level owns its flock cap and transient state; only undelivered animals participate.
 
@@ -558,7 +560,7 @@ The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Op
 At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; both cloud puffs and cloud shadows are removed from the game renderer. The `cloudCoverage` weather value still influences sky/fog/lighting and river appearance; it does not create visible cloud objects. Rain/storms and the fixed-level contract remain in Review pending weather acceptance. No new queued P2/P3 request is implemented by this change.
 
 
-### F-041 — Wanderers and bolters adopt their new local area (P2)
+### F-041 — ~~Wanderers and bolters adopt their new local area (P2)~~
 
 **Requirement:** an animal finishing a spontaneous wander/bolt calmly roams near the position it reached, rather than automatically returning to its flock.
 
@@ -637,7 +639,7 @@ Acceptance criteria:
 Added the requested single flock-debug toggle: next eligible check countdown above Woof and subtle yellow wander/red bolt tints. This is read-only development QA instrumentation; F-035/F-037/F-039/F-041 remain Review for gameplay acceptance. Prior F-018 acceptance remains historical; the new debug presentation awaits player testing. See [QA usage](DEVELOPMENT.md#qa-flock-behavior-debug---15-october-2026-1737-vancouver).
 
 
-### F-046 - Improve Buddy dog behavior by upgrade tier (P2)
+### F-046 - ~~Improve Buddy dog behavior by upgrade tier (P2)~~
 
 **Request (15 October 2026):** Buddy starts at the back of the flock and helps along its actual group direction of travel. From Buddy tier 2, stay with the smaller flock after a split. From tier 3, retrieve wanderers and bolters to the closest flock group and bark autonomously to guide groups or individuals.
 
@@ -727,7 +729,7 @@ Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495]
 
 **Scope:** queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.
 
-### F-051 - Compact HUD and contextual tips (P2)
+### F-051 - ~~Compact HUD and contextual tips (P2)~~
 
 **Status:** Review. Mission card is narrower with its map immediately to the right. Tips end after the final 14-second display cycle (first-level tips also advance without requiring a delivery). A question-mark toggle appears beside pause after automatic or manual dismissal; reopened tips stay visible until toggled off. Woof is circular with title above the symbol and “double tap” below it inside the button. The route label/distance is removed; a triangle outside Pip’s ring points directly to the goal independently of Pip’s heading. Source regression checks cover completion, reopening, hiding and per-level reset; phone layout acceptance is pending. Development publication follows the restored project workflow; production main/root remain unchanged.
 
@@ -747,7 +749,7 @@ F-051 reopened-help refinement: pressing ? to unhide help resets the applicable 
 Reopened-help execution: source `24f77f5`, Pages `199c94e`; 277 tests, both builds/mode checks, documentation checks and CI/native deployment pass. All 17 live files/canonical HTML verified; 32 unrelated files preserved. Initial playthrough hides after its last tip; manual reopening resets01 and loops. F-051 remains Review for phone acceptance.
 
 
-### F-052 - Bottom-center QA gear
+### F-052 - ~~Bottom-center QA gear~~
 
 **Status:** Review. Replace the QA text launcher with a gear icon, centered at the bottom of the viewport with safe-area clearance. Retain an accessible QA name and test-session state. Keep existing QA opening/closing, save isolation and production exclusion. Phone appearance remains pending.
 
