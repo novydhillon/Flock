@@ -457,8 +457,8 @@ test('mission identifies fixed weather without requiring a wait or affecting the
 });
 
 
-test('autonomous Buddy bark reaches audio and renderer without consuming Pip cooldown',async()=>{
- const ui=launch({highestLevel:27,upgrades:{helper:3}});await ui.click('play');
+test('tier-two autonomous Buddy bark reaches audio and renderer without consuming Pip cooldown',async()=>{
+ const ui=launch({highestLevel:23,upgrades:{helper:2}});await ui.click('play');
  const state=ui.app.state(),l=state.level;
  Object.assign(l,{time:0,bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],fenceSegments:[],obstacles:[],routes:[],
   helpers:[{type:'helper',x:-4,z:0}],animals:[0,1].map(id=>({id,x:0,z:id*2,vx:2,vz:0,type:'sheep',saved:false,nextWanderCheck:1e9}))});

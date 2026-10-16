@@ -683,3 +683,9 @@ Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages
 - Slow movement, stopping, and resuming remain smooth while preserving intended herding behavior and collision handling.
 
 **Scope:** bug report only; no fix or user acceptance is claimed by this tracker update.
+
+### Forward flock movement, lower cohesion, tier-2 bark and bridge completion
+
+User follow-ups at 22:33-22:39 Vancouver on 15 October 2026: front animals should keep moving with the flock; back/side animals near the dogs carry pushing pressure forward; lower cohesion; add Buddy barking at tier 2; animals walking onto a bridge should proceed to its opposite side. These extend the current F-046 flock/Buddy behavior work and remain **Review**.
+
+Implemented source: cohesion is 30% weaker; leading members reject backward centre pull while receiving missing forward flow from their own connected group. Direct dog steering is not doubled or overridden, and split flocks stay independent. New per-animal bridge intent commits sheep/cows through the deck to body-clear far-bank ground, with pause/reset and drone far-bank anchors. Bark now starts at tier 2; individual retrieval stays tier 3. Collision, purchase gates/costs and player-attended scoring are unchanged. Human/device play acceptance remains pending.

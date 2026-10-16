@@ -276,3 +276,18 @@ test('an ideal rear position inside a tree is replaced by nearby usable standing
  assert.ok(buddy(level).x>6,'Buddy reaches the flock instead of walking into the impossible rear point');
  assert.ok(distance(buddy(level),buddy(level).desired)<3,'Buddy settles on nearby clear ground');
 });
+
+test('autonomous barking begins at Buddy tier two, with tier gates and no tier-two stray retrieval',()=>{
+ for(const [index,owned,shouldBark] of [[19,1,false],[19,3,false],[23,2,true],[27,3,true]]){
+  const level=meadow([animal(0,0,0,2),animal(1,0,2,2)],{index});
+  const result=stepSimulation(level,level.dog,{},.05,{helper:owned});
+  assert.equal(result.events.some(e=>e.type==='buddyBark'),shouldBark);
+  if(shouldBark){
+   const cooldown=buddy(level).nextBarkAt;
+   stepSimulation(level,level.dog,{},.05,{helper:owned});assert.equal(buddy(level).nextBarkAt,cooldown);
+  }
+ }
+ const stray=animal(2,25,0);stray.wanderHome={x:25,z:0};
+ const level=meadow([animal(0,0,0),animal(1,0,2),stray],{index:23});
+ run(level,.2,{helper:2});assert.equal(buddy(level).targetId,null);assert.ok(stray.wanderHome);
+});

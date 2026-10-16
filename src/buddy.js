@@ -189,7 +189,7 @@ export function updateBuddy(level, active, effects, dt, events) {
     const away = normal(a.x - buddy.x, a.z - buddy.z);
     return away.x * forward.x + away.z * forward.z > .6 && distance(buddy, a) < 8 && hasClearGroundPath(level, buddy, a, .15);
   };
-  if (tier >= 3 && level.time >= (buddy.nextBarkAt || 0) && subjects.some(inPosition)) {
+  if (tier >= 2 && level.time >= (buddy.nextBarkAt || 0) && subjects.some(inPosition)) {
     buddy.barkUntil = level.time + .65; buddy.nextBarkAt = level.time + 3.2; buddy.barking = true;
     events.push({ type: 'buddyBark', x: buddy.x, z: buddy.z });
   }

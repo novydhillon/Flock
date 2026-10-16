@@ -19,6 +19,7 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 |---|---|---|
 | `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
 | `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
+| `src/bridge-crossing.js` | Per-animal committed deck-to-bank traversal | Body-clear local waypoints; no goal choice, score or profile writes |
 | `src/buddy-navigation.js` | Cached tree detours and bounded Buddy turning/movement | Uses physical ground clearance and existing route/crossing navigation |
 | `src/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; local passage guidance; no DOM or profile writes |
 | `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
@@ -120,3 +121,6 @@ QA debug is installed by the development-only qa.js import. It wraps updateAnima
 
 
 Buddy navigation follow-up: `buddy-navigation.js` composes route/bridge/goal waypoints with cached tree visibility paths and turn-limited locomotion. `buddy.js` adds committed tier-2 bridge/goal passage state and a stable circling side; per-animal pressure uses actual passage waypoints. The renderer takes Buddy's simulation heading. `simulation.js` computes connected component membership using cached neighbor visibility so cohesion/alignment cannot cross a split; the original 18m range remains available within each component. This grouping also includes singleton components, which receive no distant attraction. Navigation/heading/passage state is transient and never saved to profiles.
+
+
+Forward-flow follow-up: the simulation caches direct Pip signals once per animal, derives each connected component's travel direction/pressure, and keeps transient `level.flockTravel` member/direction records across stops/splits. Leading animals reject backward cohesion and receive only missing forward flow when outside direct dog pressure. `bridge-crossing.js` owns `animal.bridgeCrossing`, selecting a safe far-bank point with the animal's actual radius. The simulation applies committed local walking before movement and refreshes a held animal's drone anchor upon arrival; saved animals clear traversal state. Profiles, rewards and attended admission are unchanged. Buddy bark availability now uses active tier >=2; retrieval still uses >=3.

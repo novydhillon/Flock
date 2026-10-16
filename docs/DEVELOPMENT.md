@@ -40,6 +40,8 @@ The generator resolves links among the documented pages, creates heading anchors
 |---|---|
 | `tests/simulation.test.js` | Herd delivery, body collision, reward/profile behavior |
 | `tests/companions.test.js` | Drone largest connected herd, holds, attendance, barriers |
+| `tests/flock-flow.test.js` | Leading movement, weaker cohesion, rear/side pressure flow, split isolation and direct steering |
+| `tests/bridge-crossing.test.js` | Committed sheep/cow deck traversal, rotated/reverse crossings, pause and drone far-bank hold |
 | `tests/buddy.test.js` | Buddy tier behavior, rear pressure, split flock, retrieval, bridge traversal and autonomous bark |
 | `tests/world.test.js` | Generation, route/footprint validity, clearance and seeded fixtures |
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
@@ -139,3 +141,8 @@ On public QA levels 20, 24 and 28, buy the available Buddy tiers using test bolt
 ### Buddy follow-up smoke checks
 
 At QA public 24, buy Buddy tier 2. Split the flock beyond a 6.5m clear gap and verify the groups stay separate. Put a tree between Buddy and its rear position (both on/off a trail): it should walk around the trunk on dry ground. Circle inside a flock and reverse its travel: Buddy should turn progressively and keep a circling side. Approach a bridge from an angle and a goal entrance, including the last sheep after others cross/are delivered; Buddy should help the selected local flock through. Confirm nearby walls and water still block bodies, closed gates require the existing action, and leaving Pip far away prevents scoring. Repeat tier-3 retrieval around a tree and pause/restart during a turn. Rendered/mobile feel remains for user testing.
+
+
+### Forward-flow and bridge smoke checks
+
+With a moving flock, watch animals ahead of the centroid: they should continue in group travel rather than turn back to its middle. Pressure from Pip/Buddy at the rear or side should carry forward; move Pip ahead to deliberately turn them and check that separate groups remain independent. Cohesion is 30% weaker. On a bridge, move Pip away after sheep/cows start walking: they should finish onto the opposite bank, without returning to a drone's old anchor. Pause mid-crossing and restart/jump levels to check frozen/fresh intent. At QA 24 with Buddy tier 2, observe autonomous bark sound/ring/red tail and press Woof independently; tier 1 should not bark and tier 2 should not retrieve a remote stray. Saved counts still require Pip at the goal.

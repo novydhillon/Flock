@@ -15,7 +15,7 @@ const catalog = [
   { id: 'helper', name: 'Buddy dog', icon: 'dog', costs: [600, 850, 1200], unlockLevels: [20, 24, 28],
     description: 'Herds from the rear, supports split flocks, and learns to retrieve strays.',
     tierNames: ['Farm friend', 'Trail partner', 'Senior shepherd'],
-    tierDescriptions: ['Herds from behind in the flock’s direction of travel', 'Guides the smaller flock, including bridges and goal entrances', 'Retrieves wanderers and bolters; barks autonomously'] },
+    tierDescriptions: ['Herds from behind in the flock’s direction of travel', 'Guides the smaller flock and passages; barks autonomously', 'Also retrieves wanderers and bolters to the nearest flock'] },
   { id: 'bark', name: 'Happy bark', icon: 'bark', costs: [100, 160, 240], unlockLevels: [4, 8, 13],
     description: 'A stronger bark gives wandering robots a cheerful nudge.',
     tierNames: ['Bright bark', 'Resonant bark', 'Meadow chorus'],

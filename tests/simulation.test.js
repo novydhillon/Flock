@@ -1,18 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createLevel, stepSimulation, stepSavedRoaming, canOccupy, defaultProfile, purchaseUpgrade, applyLevelReward, validateProfile, loadProfile, saveProfile } from '../src/simulation.js';
-import { distance, targetFootprint, targetLocalPoint, targetWorldPoint, containsTarget } from '../src/world.js';
+import { distance, targetFootprint, targetLocalPoint, targetWorldPoint, containsTarget, navigationTarget, destinationApproach } from '../src/world.js';
 
 test('idle waiting cannot finish the tutorial, but player herding can', () => {
   const idle=createLevel(0); for(let i=0;i<2400;i++)stepSimulation(idle,idle.dog,{},1/60);
   assert.equal(idle.animals.filter(a=>a.saved).length,0);
   const level=createLevel(0),start={...level.animals[0]};
+  let chosen,wanted;
   for(let i=0;i<3600&&!level.completed;i++){
-    const active=level.animals.filter(a=>!a.saved);
-    const center=active.reduce((p,a)=>({x:p.x+a.x/active.length,z:p.z+a.z/active.length}),{x:0,z:0});
-    const dx=level.target.x-center.x,dz=level.target.z-center.z,length=Math.hypot(dx,dz)||1;
-    const desired={x:center.x-dx/length*3.3,z:center.z-dz/length*3.3};
-    const x=desired.x-level.dog.x,z=desired.z-level.dog.z,d=Math.max(1,Math.hypot(x,z));
+    // The looser flock no longer promises to regroup around its centroid.
+    // Collect the furthest robot using normal dog input, at the same 60s limit.
+    if(i%18===0||chosen?.saved){
+      chosen=level.animals.filter(a=>!a.saved).sort((a,b)=>distance(b,level.target)-distance(a,level.target))[0];
+      const aim=destinationApproach(level,chosen),dx=aim.x-chosen.x,dz=aim.z-chosen.z,length=Math.hypot(dx,dz)||1;
+      wanted={x:chosen.x-dx/length*3.3,z:chosen.z-dz/length*3.3};
+      if(distance(chosen,level.target)<level.target.radius-.55)wanted={x:level.target.x,z:level.target.z};
+      wanted=navigationTarget(level,level.dog,wanted);
+    }
+    const x=wanted.x-level.dog.x,z=wanted.z-level.dog.z,d=Math.max(1,Math.hypot(x,z));
     stepSimulation(level,level.dog,{x:x/d,z:z/d},1/60);
   }
   assert.equal(level.completed,true);assert.ok(distance(level.animals[0],start)>15);

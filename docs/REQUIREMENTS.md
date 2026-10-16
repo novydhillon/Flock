@@ -93,11 +93,11 @@ The initial profile has zero bolts, no upgrades, no completed levels and only le
 | Turbo paws | 2 / 6 / 11 | 80 / 120 / 200 | +1.8 / +2.7 / +3.5 m/s |
 | Friendly signal | 7 / 10 / 15 | 120 / 180 / 260 | +2 / +3 / +4 m range |
 | Scout drone | 10 / 14 / 18 | 200 / 360 / 540 | Support strength 0.7 / 0.93 / 1.17 |
-| Buddy dog | 20 / 24 / 28 | 600 / 850 / 1200 | Rear herding / smaller flock and local bridge-goal help / retrieval and autonomous bark |
+| Buddy dog | 20 / 24 / 28 | 600 / 850 / 1200 | Rear herding / smaller flock, local passages and autonomous bark / also retrieves strays |
 | Happy bark | 4 / 8 / 13 | 100 / 160 / 240 | +0.25 / +0.45 / +0.65 strength |
 | Flock harmony | 12 / 14 / 15 | 160 / 220 / 320 | +12% / +23% / +35% regrouping |
 
-Drone unlock is exactly level **10**; Buddy is exactly **20** and costs more. The drone attends the largest connected herd and holds it when Pip leaves. Buddy tier 1 herds from the rear in measured flock travel direction; tier 2 stays with the smaller split flock and helps through nearby bridges and goal entrances; tier 3 returns wandering/bolting or locally settled animals to the closest flock group and barks autonomously. Buddy must navigate solid ground and needs local, clear rear pressure. Helpers cannot admit unattended deliveries; Pip still participates at the destination. See [progression.js](../src/progression.js), profile functions in [simulation.js](../src/simulation.js), progression/companion tests.
+Drone unlock is exactly level **10**; Buddy is exactly **20** and costs more. The drone attends the largest connected herd and holds it when Pip leaves. Buddy tier 1 herds from the rear in measured flock travel direction; tier 2 stays with the smaller split flock and helps through nearby bridges and goal entrances, and barks autonomously; tier 3 returns wandering/bolting or locally settled animals to the closest flock group while retaining autonomous bark. Buddy must navigate solid ground and needs local, clear rear pressure. Helpers cannot admit unattended deliveries; Pip still participates at the destination. See [progression.js](../src/progression.js), profile functions in [simulation.js](../src/simulation.js), progression/companion tests.
 
 ### Art, wildlife and weather
 
@@ -263,6 +263,12 @@ After meadow 40, offer a second Buddy dog with independently saved leveling. Pri
 
 F-046 remains Review for repaired behavior: Buddy must navigate around trees, turn gradually without rapid opposite-facing flicker inside a flock, and guide nearby sheep through bridges and goal entrances from **Buddy tier 2**. Independent flocks and isolated individuals must not automatically attract back together. Cohesion may stabilize a connected flock but must not reunite separated groups. Existing tier-3 retrieval, ground collisions, active-player delivery, purchase gates and costs remain in force. The second Buddy (F-047) is still queued and is not implemented here. Headless regression evidence is recorded separately from user play acceptance.
 
+
+## Forward-flow and bridge-completion request - 15 October 2026, 22:33-22:39 Vancouver
+
+Leading animals should keep moving with their flock instead of returning to its centre, with back/side animals near the dogs carrying pushing pressure forward. Interpret the user's "load the flock cohesion" as lowering cohesion: use a 30% reduction from the previous baseline while retaining proportional upgrade effects. Separate groups remain independent. Direct player steering, physical collision and attended scoring remain authoritative.
+
+Animals that start walking on a bridge should proceed to its opposite bank; this applies to sheep and cows at every meadow level and requires no Buddy purchase. Keep body-clear travel and pause/reset semantics. Buddy's own autonomous bark moves from tier 3 to **tier 2**, with unchanged price/unlock progression, effects and cooldown. Individual stray retrieval remains tier 3. These changes remain Review for user gameplay acceptance.
 
 ## Queued Buddy low-speed movement fix - F-048 (P2)
 
