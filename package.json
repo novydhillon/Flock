@@ -1,0 +1,27 @@
+{
+  "name": "flock-meadow-machines",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
+    "build": "vite build --base=./",
+    "build:dev": "vite build --mode qa --base=./",
+    "test": "node --test tests/*.test.js",
+    "docs:build": "node scripts/docs/build.mjs",
+    "docs:check": "node scripts/docs/check.mjs && node --test scripts/docs/behavior.test.mjs"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/outfit": "^5.3.0",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0",
+    "marked": "17.0.1",
+    "mermaid": "11.12.1",
+    "rollup": "4.64.5",
+    "vite": "7.1.9"
+  }
+}

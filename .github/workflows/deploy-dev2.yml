@@ -1,0 +1,41 @@
+name: Flock 3D — checks and standalone build
+
+on:
+  push:
+    branches: [flock_3D_chatgpt-work, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flock-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out game source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Check generated documentation
+        run: npm run docs:check
+      - name: Test simulation, controls and scene construction
+        run: npm test
+      - name: Build and check release without QA
+        run: npm run build && node scripts/check-build-mode.mjs release
+      - name: Build and check development game with QA
+        run: npm run build:dev && node scripts/check-build-mode.mjs development
+      - name: Upload standalone game
+        uses: actions/upload-artifact@v4
+        with:
+          name: flock-dev2-standalone
+          path: dist/
+          if-no-files-found: error

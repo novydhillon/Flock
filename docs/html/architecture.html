@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Architecture"><title>Architecture · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" aria-current="page">Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" aria-current="page">Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Systems <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="architecture-and-system-contracts">Architecture and system contracts<a class="heading-link" href="#architecture-and-system-contracts" aria-label="Link to Architecture and system contracts">#</a></h1>
+<h2 id="user-sign-off---15-october-2026-1634-vancouver">User sign-off - 15 October 2026, 16:34 Vancouver<a class="heading-link" href="#user-sign-off---15-october-2026-1634-vancouver" aria-label="Link to User sign-off - 15 October 2026, 16:34 Vancouver">#</a></h2>
+<p>Novy explicitly signed off all pending Review items: <strong>F-022, F-023, F-024 and F-040 are Done</strong>. Acceptance applies to the live development build at Pages <code>bf26e67732434e902fdbaef10cac72d6814c33b0</code>, runtime source <code>1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa</code>, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. <strong>At that weather sign-off checkpoint no items remained in Review.</strong> The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.</p>
+<p>Current weather repairs: <a href="requirements.html#weather-follow-up---15-october-2026-1222-vancouver">requirements</a>. Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.</p>
+<p><a href="index.html">Documentation home</a> · <a href="requirements.html">Requirements</a> · <a href="issues.html">Issue tracker</a></p>
+<p>The current game is a static browser application: Vite bundles JavaScript, CSS and local fonts; Three.js renders WebGL 2; WebAudio synthesizes music and ambience. Browser storage holds a validated profile. There is no server, account system, multiplayer or cloud save.</p>
+<h2 id="module-map">Module map<a class="heading-link" href="#module-map" aria-label="Link to Module map">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Responsibility</th>
+<th>Important boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>src/main.js</code></td>
+<td>Browser UI state, input, game loop, profile actions, effect/audio dispatch</td>
+<td>Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results</td>
+</tr>
+<tr>
+<td><code>src/world.js</code></td>
+<td>Seeded levels, routes, barrier queries, body movement and navigation</td>
+<td>Shared physical geometry; render geometry must agree</td>
+</tr>
+<tr>
+<td><code>src/bridge-crossing.js</code></td>
+<td>Per-animal committed deck-to-bank traversal</td>
+<td>Body-clear local waypoints; no goal choice, score or profile writes</td>
+</tr>
+<tr>
+<td><code>src/buddy-navigation.js</code></td>
+<td>Cached tree detours and bounded Buddy turning/movement</td>
+<td>Uses physical ground clearance and existing route/crossing navigation</td>
+</tr>
+<tr>
+<td><code>src/buddy.js</code></td>
+<td>Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions</td>
+<td>Per-level transient state; local passage guidance; no DOM or profile writes</td>
+</tr>
+<tr>
+<td><code>src/simulation.js</code></td>
+<td>Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions</td>
+<td>Mutates the level/dog; returns events, not DOM operations</td>
+</tr>
+<tr>
+<td><code>src/progression.js</code></td>
+<td>Upgrade catalog, gates, costs, validation and effects</td>
+<td>Ownership is separate from activation in the selected level</td>
+</tr>
+<tr>
+<td><code>src/wandering.js</code></td>
+<td>Seeded straggler opportunity cohort and conditional bolt selection</td>
+<td>Simulation-time cadence; normal world collision remains authoritative</td>
+</tr>
+<tr>
+<td><code>src/gates.js</code>, <code>src/gate-view.js</code></td>
+<td>Nearby gate action/state and owned gate/stone-wall meshes</td>
+<td>Gate panel state follows <code>level.gates</code>; collision/map read the same geometry</td>
+</tr>
+<tr>
+<td><code>src/models.js</code></td>
+<td>Robot/scenery model construction and shared model resources</td>
+<td>Shared material changes may affect many objects</td>
+</tr>
+<tr>
+<td><code>src/tail-light.js</code></td>
+<td>Pip&#39;s bark-state tail-light color/emission</td>
+<td>Mutates only the dedicated light material; restore after the bark window</td>
+</tr>
+<tr>
+<td><code>src/goal-view.js</code></td>
+<td>Shared-footprint highlight, border, barn floor and minimap polygon</td>
+<td>Consumes world corners; does not define admission</td>
+</tr>
+<tr>
+<td><code>src/vegetation.js</code></td>
+<td>Seeded, route-aware decorative bush clusters</td>
+<td>Decorative only; avoids collision and play-critical areas</td>
+</tr>
+<tr>
+<td><code>src/wildlife.js</code>, <code>src/wildlife-models.js</code></td>
+<td>Area-scaled ambient populations, movement, fence permeability and weather shelter</td>
+<td>Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared</td>
+</tr>
+<tr>
+<td><code>src/weather.js</code></td>
+<td>Fixed seeded level weather and deterministic paired storm events</td>
+<td><code>MeadowNature</code> is the single advancing owner; other systems read the same object</td>
+</tr>
+<tr>
+<td><code>src/water-effects.js</code></td>
+<td>Directional river flow, surface wetness, puddles and splashes</td>
+<td>Per-level resources are bounded and disposed; zero dt/pause freezes effects</td>
+</tr>
+<tr>
+<td><code>src/atmosphere.js</code></td>
+<td>Dormant cloud/shadow implementation, deferred by user</td>
+<td>Not instantiated or updated by the game renderer</td>
+</tr>
+<tr>
+<td><code>src/surfaces.js</code></td>
+<td>Non-overlapping ribbon union and surface-aware bark geometry</td>
+<td>Geometry construction only; retains normal depth testing</td>
+</tr>
+<tr>
+<td><code>src/cutaway.js</code></td>
+<td>Occupied-structure roof/facing-side visibility and material clone lifecycle</td>
+<td>Changes visibility only, never collision or rewards</td>
+</tr>
+<tr>
+<td><code>src/qa.js</code></td>
+<td>Development-only isolated QA controls and scenario export</td>
+<td>Dynamically imported only in development/QA builds</td>
+</tr>
+<tr>
+<td><code>src/render.js</code></td>
+<td>Camera, scene, static/actor batches, map, transient effects</td>
+<td>Visual state must not decide rewards or collision</td>
+</tr>
+<tr>
+<td><code>src/nature.js</code></td>
+<td>Advances shared weather once and updates instanced fauna/precipitation</td>
+<td>Weather presentation does not change movement speed or rewards</td>
+</tr>
+<tr>
+<td><code>src/audio.js</code></td>
+<td>Music scheduling, UI/game sounds and ambience lifecycle</td>
+<td>Browser activation is asynchronous and can be invalidated</td>
+</tr>
+</tbody></table></div>
+<p>Source links: <a href="../../src/main.js">controller</a>, <a href="../../src/world.js">world</a>, <a href="../../src/simulation.js">simulation</a>, <a href="../../src/progression.js">progression</a>, <a href="../../src/render.js">renderer</a>, <a href="../../src/models.js">models</a>, <a href="../../src/nature.js">nature</a>, <a href="../../src/audio.js">audio</a>.</p>
+<figure class="diagram"><figcaption>System diagram</figcaption><pre class="mermaid">flowchart TD
+  Input[&quot;Thumb / keyboard / menus&quot;] --&gt; Main[&quot;main.js: mode and frame&quot;]
+  Main --&gt; Sim[&quot;simulation.js: herd and profile&quot;]
+  Sim --&gt; World[&quot;world.js: physical queries&quot;]
+  Sim --&gt; Progress[&quot;progression.js: active effects&quot;]
+  Main --&gt; Render[&quot;render.js: view and map&quot;]
+  Render --&gt; Nature[&quot;models.js / nature.js&quot;]
+  Main --&gt; Audio[&quot;audio.js: scheduled sound&quot;]</pre><details><summary>Diagram source / text alternative</summary><pre><code>flowchart TD
+  Input[&quot;Thumb / keyboard / menus&quot;] --&gt; Main[&quot;main.js: mode and frame&quot;]
+  Main --&gt; Sim[&quot;simulation.js: herd and profile&quot;]
+  Sim --&gt; World[&quot;world.js: physical queries&quot;]
+  Sim --&gt; Progress[&quot;progression.js: active effects&quot;]
+  Main --&gt; Render[&quot;render.js: view and map&quot;]
+  Render --&gt; Nature[&quot;models.js / nature.js&quot;]
+  Main --&gt; Audio[&quot;audio.js: scheduled sound&quot;]</code></pre></details></figure><h2 id="data-and-coordinate-contracts">Data and coordinate contracts<a class="heading-link" href="#data-and-coordinate-contracts" aria-label="Link to Data and coordinate contracts">#</a></h2>
+<p>Public campaign levels are 1–100, while <code>level.index</code> and saved completion entries are 0–99. The QA selector maps 0 to the tutorial (index 0), and 1–100 to indexes 0–99. Do not equate index 100 with public level 100.</p>
+<p>The ground plane uses <code>x</code> and <code>z</code>; Three.js <code>y</code> is elevation. Some input APIs accept <code>y</code> as a compatibility alias for planar <code>z</code>; that does not change world coordinates. Headings are radians. Bridge longitudinal/lateral coordinates derive from the heading, not an axis-aligned box.</p>
+<p>The main loop requests animation frames and caps the per-frame simulation <code>dt</code> at 0.05 seconds. It is a variable-step loop, not an accumulator-based fixed-tick loop. Long frame gaps do not simulate the entire elapsed wall time. Headless fixtures commonly use fixed <code>1/60</code> increments for repeatability.</p>
+<div class="code-block"><div class="code-tools"><span>js</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-js">// Runnable: node --input-type=module from the repository root.
+import { createLevel, stepSimulation } from &#39;./src/simulation.js&#39;;
+const level = createLevel(0);
+const dog = { ...level.dog };
+const result = stepSimulation(level, dog, { x: 0, z: 0 }, 1 / 60, {});
+console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.total });</code></pre></div><h2 id="state-ownership">State ownership<a class="heading-link" href="#state-ownership" aria-label="Link to State ownership">#</a></h2>
+<p><code>level</code> contains mutable runtime animals, helper state, time and completion. <code>dog</code> is updated by the simulation. A version-2 profile contains points, paid upgrade tiers, positive-delivery completion indexes, highest unlocked index, music preference, and per-level <code>bestEarnedBolts</code>/<code>bestScores</code> ledgers. Creating/replaying a level replaces transient state; a completed run pays only its lifetime best-score improvement. <code>bestEarnedBolts</code> is authoritative across spending and reloading; <code>bestScores</code> and completion indexes are rebuilt from it when loading. Full Restart Game replaces profile progress with defaults, keeps music preference, persists the reset and begins the tutorial.</p>
+<p>Rendering consumes the same level and dog, adding mesh/cache/resource state of its own. Collision belongs in world/simulation queries. Minimap, target highlight, enclosure and full-body admission use <code>targetFootprint</code>, <code>targetWorldPoint</code>, <code>targetLocalPoint</code> and <code>containsTarget</code> from <code>world.js</code>. The target radius remains a sizing/attendance input, not a circular admission test.</p>
+<h2 id="cross-system-changes">Cross-system changes<a class="heading-link" href="#cross-system-changes" aria-label="Link to Cross-system changes">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Coordinate before implementation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bridges/gates/walls</td>
+<td>Generator, physical footprint, navigation, render model, minimap and journey checks</td>
+</tr>
+<tr>
+<td>Goal shape/countdown/scoring</td>
+<td>Admission geometry, completion event, reward ledger, UI, replay policy and save migration</td>
+</tr>
+<tr>
+<td>Fixed weather</td>
+<td><code>MeadowNature</code> advances the weather clock once; wildlife, rain, <code>WaterEffects</code>, renderer lighting and audio consume the same object; cloud rendering is disabled</td>
+</tr>
+<tr>
+<td>Model size/detail</td>
+<td>Placement clearance, culling bounds, shared materials, shadows and disposal</td>
+</tr>
+<tr>
+<td>QA animal editing</td>
+<td>Pause ownership, selection/placement override, profile isolation and release gating</td>
+</tr>
+</tbody></table></div>
+<p>Gates/walls, wildlife, vegetation, tail feedback and fixed weather/wetness have user acceptance recorded in the tracker. Clouds/Atmosphere remain deferred and dormant. The current flock-behavior candidate F-035/F-037/F-039/F-041 is Review; its per-level state and random schedules are described below. F-013/F-015 remain Open for human pacing and phone performance evidence. See <a href="issues.html">current acceptance criteria</a>.</p>
+<h2 id="resource-and-async-invariants">Resource and async invariants<a class="heading-link" href="#resource-and-async-invariants" aria-label="Link to Resource and async invariants">#</a></h2>
+<p>Level replacement must dispose owned geometries/materials/nature resources without destroying shared cached robot geometry. Culling must retain visible limbs and shadows as well as bodies. Temporary bark/celebration effects must finish and release resources.</p>
+<p>Audio start/resume may complete after a pause, newer activation or disposal. Generation guards invalidate stale requests. Never follow an awaited start with an unconditional resume. Music catch-up skips overdue steps arithmetically and bounds scheduling work rather than replaying a backlog.</p>
+<h2 id="evidence-and-extension-points">Evidence and extension points<a class="heading-link" href="#evidence-and-extension-points" aria-label="Link to Evidence and extension points">#</a></h2>
+<p>Tests run actual simulation/profile code and construct real Three.js geometry, with browser graphics/audio surfaces substituted where needed. They do not establish rendered appearance, physical Safari interactions, sound quality or mobile FPS. <a href="quality.html">Quality record</a> preserves those limits and historical review scores.</p>
+<p>Use <a href="index.html">system documentation</a> for narrower APIs. Start work from <a href="issues.html">the tracker</a>, claim ownership, retain regression checks and record source versus deployment milestones separately.</p>
+<h2 id="fixed-weather-contract--15-october-2026">Fixed weather contract — 15 October 2026<a class="heading-link" href="#fixed-weather-contract--15-october-2026" aria-label="Link to Fixed weather contract — 15 October 2026">#</a></h2>
+<p>F-040 supersedes weather cycling and snow. <code>createWeatherState(level)</code> chooses the fixed kind/intensity/severity/daylight once; <code>stepWeather(state,dt)</code> advances only elapsed time and paired storm events. Nature, rain, terrain, lights and audio consume the same object. Clouds are deferred. The mission panel labels it. <code>WaterEffects.setLevel</code> accepts <code>weather</code> to establish wet ground and a seeded empty/small puddle baseline before the first frame; shared materials restore on replacement. RainView uses camera-unprojected screen coordinates, overscanning to +/-1.25 on both axes, with depth testing disabled for the foreground curtain. Camera updates precede its projection. <a href="presentation.html">Presentation context</a> has the exact tiers and lifecycle.</p>
+<p>Cloud removal, 15 October 2026: <code>MeadowRenderer</code> no longer imports, constructs, sets up or updates <code>Atmosphere</code>. Its module/tests remain dormant; cloud puffs and associated shadows allocate no runtime resources. Rain/nature, weather state, sky/fog/lights, water effects and audio retain their existing contracts. F-008 is Deferred.</p>
+<h2 id="per-level-straggler-state">Per-level straggler state<a class="heading-link" href="#per-level-straggler-state" aria-label="Link to Per-level straggler state">#</a></h2>
+<p><code>wandering.js</code> owns seeded cohort selection, public-level bands and each animal&#39;s 5-8s check schedule. <code>simulation.js</code> applies excursions and local home roaming through ordinary body collision. All transient fields live on the level/animals, never profile storage or module globals. See <a href="requirements.html#flock-wandering-and-bolting-revision---15-october-2026">current behavior</a>. F-035/F-037/F-039/F-041 remain Review for new gameplay acceptance.</p>
+<p>QA debug is installed by the development-only qa.js import. It wraps updateAnimalBatches to apply colors after visible-instance compaction and before drawing, without altering simulation or shared model-material colors; destruction restores the original method and neutral instance colors. The main loop updates the numeric HUD through a QA-compile-gated callback. Release artifact checks exclude debug identifiers.</p>
+<h2 id="buddy-decisions-and-events">Buddy decisions and events<a class="heading-link" href="#buddy-decisions-and-events" aria-label="Link to Buddy decisions and events">#</a></h2>
+<p><code>buddy.js</code> shares ground-visible flock grouping with the drone and returns per-animal local forces to <code>simulation.js</code>. It owns <code>level.buddyHerd</code> (group cache, travel heading, retrieval ID) and Buddy helper fields (mode, members, desired rear position, bark deadlines). The simulation combines Buddy pressure with Pip/drone behavior, interrupts excursions only under effective herding, and preserves player-attended admission. <code>main.js</code> routes <code>buddyBark</code> events to audio and <code>render.bark(event)</code>; rendering maintains separate Buddy/Pip ring origins and dedicated tail lights. All state is transient and cleared with a fresh level; only purchased tiers persist.</p>
+<p>Buddy navigation follow-up: <code>buddy-navigation.js</code> composes route/bridge/goal waypoints with cached tree visibility paths and turn-limited locomotion. <code>buddy.js</code> adds committed tier-2 bridge/goal passage state and a stable circling side; per-animal pressure uses actual passage waypoints. The renderer takes Buddy&#39;s simulation heading. <code>simulation.js</code> computes connected component membership using cached neighbor visibility so cohesion/alignment cannot cross a split; the original 18m range remains available within each component. This grouping also includes singleton components, which receive no distant attraction. Navigation/heading/passage state is transient and never saved to profiles.</p>
+<p>Forward-flow follow-up: the simulation caches direct Pip signals once per animal, derives each connected component&#39;s travel direction/pressure, and keeps transient <code>level.flockTravel</code> member/direction records across stops/splits. Leading animals reject backward cohesion and receive only missing forward flow when outside direct dog pressure. <code>bridge-crossing.js</code> owns <code>animal.bridgeCrossing</code>, selecting a safe far-bank point with the animal&#39;s actual radius. The simulation applies committed local walking before movement and refreshes a held animal&#39;s drone anchor upon arrival; saved animals clear traversal state. Profiles, rewards and attended admission are unchanged. Buddy bark availability now uses active tier &gt;=2; retrieval still uses &gt;=3.</p>
+</main><footer><a href="../ARCHITECTURE.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#user-sign-off---15-october-2026-1634-vancouver">User sign-off - 15 October 2026, 16:34 Vancouver</a><a class="toc-level-2" href="#module-map">Module map</a><a class="toc-level-2" href="#data-and-coordinate-contracts">Data and coordinate contracts</a><a class="toc-level-2" href="#state-ownership">State ownership</a><a class="toc-level-2" href="#cross-system-changes">Cross-system changes</a><a class="toc-level-2" href="#resource-and-async-invariants">Resource and async invariants</a><a class="toc-level-2" href="#evidence-and-extension-points">Evidence and extension points</a><a class="toc-level-2" href="#fixed-weather-contract--15-october-2026">Fixed weather contract — 15 October 2026</a><a class="toc-level-2" href="#per-level-straggler-state">Per-level straggler state</a><a class="toc-level-2" href="#buddy-decisions-and-events">Buddy decisions and events</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

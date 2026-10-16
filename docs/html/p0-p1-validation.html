@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: P0 / P1 validation"><title>P0 / P1 validation · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" aria-current="page">P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" aria-current="page">P0 / P1 validation</a><a href="issues.html" >Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="p0p1-validation-and-release-runbook">P0/P1 validation and release runbook<a class="heading-link" href="#p0p1-validation-and-release-runbook" aria-label="Link to P0/P1 validation and release runbook">#</a></h1>
+<p>Updated 15 October 2026. <a href="index.html">Documentation home</a> · <a href="issues.html">Tracker</a> · <a href="quality.html">Quality history</a>. Public levels are 1–100; source indexes are 0–99. This record separates implemented source, publication and physical-device evidence.</p>
+<h2 id="current-evidence-and-status">Current evidence and status<a class="heading-link" href="#current-evidence-and-status" aria-label="Link to Current evidence and status">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Evidence</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0 / F-025</td>
+<td>Helper <code>6616c41</code>; canonical Pages migration <code>baca95c7ba618d736730194b433254bf5058dd66</code>; all 15 game files and legacy redirect hash-verified, 17 unrelated blobs unchanged; independent blind medium review 9/10.</td>
+<td>Done for bounded migration. Initial migration published the preceding revision; the subsequent P1 release is recorded below. Source/HTTP checks do not establish phone play or storage continuity.</td>
+</tr>
+<tr>
+<td>F-001/F-002</td>
+<td>Surface source <code>eed14e5</code>: ribbon union and bark deck/plank splitting, normal depth testing, pause-aware bounded effects.</td>
+<td>Done by user acceptance, 14 October 2026. Source evidence limits: geometry tests do not establish pixels, temporal flicker or visible rail occlusion. Record final integrated regression results after all source fixes.</td>
+</tr>
+<tr>
+<td>F-005</td>
+<td>World source <code>4887ea7</code>: perpendicular sampled-river crossings, straight approaches, 1.25 × usable-road deck width and shared collision/render descriptors.</td>
+<td>Done: Novy accepted the deployed bridge follow-up at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code> on 14 October 2026 (Vancouver).</td>
+</tr>
+<tr>
+<td>F-009</td>
+<td>Delivery source <code>1fee206</code>: first-arrival recovery timer, proportional partial score, positive unlock, v2 lifetime earned ledger and legacy migration.</td>
+<td>Done by user acceptance, 14 October 2026. Source evidence limits: formula/pacing need independent and human assessment.</td>
+</tr>
+<tr>
+<td>F-010</td>
+<td>World <code>4887ea7</code>, goal view <code>984fc64</code>: shared rotated rectangle for walls, full-body admission, highlight/border, barn floor and minimap.</td>
+<td>Done by user acceptance, 14 October 2026. Source evidence limits: geometry agreement does not prove rendered appearance.</td>
+</tr>
+<tr>
+<td>F-016</td>
+<td>Cutaway <code>4cf9719</code>: body-sample camera rays, segmented roof/walls, fade hysteresis, material/shadow restoration.</td>
+<td>Done: Novy accepted the deployed barn follow-up at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code> on 14 October 2026 (Vancouver).</td>
+</tr>
+<tr>
+<td>F-018</td>
+<td>QA <code>df1d193</code>, completed-resume fix <code>7acc632</code>: development gating, isolated session, paused animal edits, safe bolt edits, level jump, reset/export.</td>
+<td>Done by user acceptance, 14 October 2026. Source evidence limits: QA-enabled publication is verified; physical touch checks remain pending.</td>
+</tr>
+<tr>
+<td>F-014</td>
+<td>Novy confirmed real-phone QA on 14 October 2026 after Pages <code>50128cd</code>.</td>
+<td>Done by user acceptance; device/browser details not supplied. Separate visual issues and performance validation remain open.</td>
+</tr>
+</tbody></table></div>
+<p>Historical 9.1 technical / 8.6 gameplay scores in QUALITY.md belong to the earlier bounded game review. P0&#39;s 9/10 belongs only to the migration. The current bounded P1 source review scores are recorded below; no overall phone/game experience score is claimed. All P2 items remain Open.</p>
+<p>Installed Sites guidance is: “If <code>$control-browser</code> is unavailable, skip browser QA” (source: <code>/root/.codex/plugins/cache/openai-curated-remote/sites/1.0.0/skills/sites/SKILL.md</code>). Browser QA was skipped under that instruction; F-014 was subsequently accepted by Novy on 14 October 2026.</p>
+<h2 id="repeatable-source-and-bundle-checks">Repeatable source and bundle checks<a class="heading-link" href="#repeatable-source-and-bundle-checks" aria-label="Link to Repeatable source and bundle checks">#</a></h2>
+<p>Run from the intended integrated revision with Node 22+ and locked dependencies:</p>
+<div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh">npm test
+npm run build
+node scripts/check-build-mode.mjs release
+npm run build:dev
+node scripts/check-build-mode.mjs development
+# After Markdown integration and generator page registration:
+npm run docs:build
+npm run docs:check</code></pre></div><p>Record command exit status, source SHA and actual test totals in the final release record. Do not copy intermediate totals into a final claim. <code>build</code> and <code>build:dev</code> both replace <code>dist/</code>; rebuild the intended final artifact before preparing Pages. CI checks release exclusion first, then checks/packages the explicit development build with QA. The artifact inspector rejects QA chunk/signature presence in release, and requires QA JavaScript/CSS plus expected signatures in development.</p>
+<p>Targeted checks identify useful ownership boundaries:</p>
+<div class="code-block"><div class="code-tools"><span>sh</span><button class="copy-code" type="button">Copy code</button></div><pre><code class="language-sh">node --test tests/surfaces.test.js tests/world-geometry.test.js tests/goal-view.test.js
+node --test tests/delivery.test.js tests/ui.test.js tests/progression.test.js
+node --test tests/cutaway.test.js tests/render.test.js tests/qa.test.js
+node --test tests/deploy-pages.test.js tests/herding-journey.test.js</code></pre></div><p>These tests use actual production modules and real Three.js geometry/matrices behind substituted browser/graphics/audio surfaces. Synthetic position fixtures verify state/geometry and are distinct from ordinary-input herding journeys. None measures actual rendered pixels, phone FPS, human timing or sound quality.</p>
+<h2 id="device-and-browser-scenarios-to-run">Device and browser scenarios to run<a class="heading-link" href="#device-and-browser-scenarios-to-run" aria-label="Link to Device and browser scenarios to run">#</a></h2>
+<p>For each case record device, OS/browser/version, portrait dimensions, source SHA, build mode, Pages SHA if live, public level/seed, expected and observed outcome, and screenshot/video where relevant. Mark unavailable evidence as pending. Capture motion for flicker, transitions and occlusion; a still image cannot establish temporal correctness.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Reproduction and expected behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Canonical entry/migration</td>
+<td>Fresh-load/reload <code>https://novydhillon.github.io/Flock/dev2/</code>; visit legacy <code>/Flock/flock/dev2/?qa=check#meadow</code>. The legacy page must replace itself with canonical URL retaining query/fragment; assets load locally and there is one maintained game copy. Verify normal saved progress on the same origin.</td>
+</tr>
+<tr>
+<td>F-001 paths</td>
+<td>Public levels 4 and 8, default and alternate seeds/directions. Follow gentle/sharp corners, reversals and branch joins while moving camera. Textured road/shoulder remains continuous without dark triangles, spikes, holes or flicker.</td>
+</tr>
+<tr>
+<td>F-002 bark</td>
+<td>Land, each deck center, both deck ends and dry approaches; bark rings straddling deck/land at small/large radii. Ring stays above grass/path/planks; fences and rails still occlude it. Pause freezes effect age; resume finishes; repeated calls and meadow replacement leave no lingering rings.</td>
+</tr>
+<tr>
+<td>F-005 crossings</td>
+<td>Default and four seeded directions, early/late levels and alternate routes. Check deck axis against local stream tangent, aligned straight approach/departure, width 1.25 × usable road (shoulder excluded), cow/Buddy traversal, minimal bank overlap and dry turning room. Reproduce level-4 animals beside rail ends as in IMG_8375.jpeg; retrieval must not trap them against water. Re-run level-2 full-flock retrieval after changes.</td>
+</tr>
+<tr>
+<td>F-010 targets</td>
+<td>Pen/field/barn, each compass rotation and a non-cardinal synthetic fixture. Compare highlight/border, enclosure corners, barn floor and map polygon. Bring full bodies into safe corners beyond former circular goal; edge-straddling bodies must not count. Approach through the 7-unit opening; walls still block bodies.</td>
+</tr>
+<tr>
+<td>F-009 travel/first arrival</td>
+<td>Wait before delivery: no deadline starts. A parked animal without Pip must not count. First attended valid arrival starts exactly one 30–60 second timer with full initial allowance. Later arrivals do not reset it. HUD count and score/possible score remain consistent.</td>
+</tr>
+<tr>
+<td>F-009 finalization</td>
+<td>Deliver all early, then separately time out with a partial flock. Full delivery finishes immediately; timeout finalizes before late movement/admission. Results freeze delivered count and score. Pause/menu/workshop/background/QA do not consume countdown. Restart/replay clears transient timer.</td>
+</tr>
+<tr>
+<td>F-009 reward ledger</td>
+<td>Tutorial two of five: score 32/80, next meadow open, +32 bolts. Spend/reload; equal/worse replay pays zero; improve to four of five: score 64/80, +32; improve to five: +16. Reapply result: zero. Legacy full completion loads fully earned without another payout. Zero deliveries must not pay/unlock (synthetic state fixture; ordinary timeout requires first arrival).</td>
+</tr>
+<tr>
+<td>F-016 under cover</td>
+<td>Barn, rotated views, Pip alone, near-camera animal, partial doorway entry/exit and split flock. The entire roof and all panels/trim of camera-facing wall sides fade together to opacity 0.70 (30% transparency); far walls remain opaque. Delivered animals alone keep the fade active. Restore only when the last actor leaves. Pause freezes fades. Check bark/weather/cloud overlap, shadows and readable distant walls; collision/admission remain intact.</td>
+</tr>
+<tr>
+<td>F-018 level/currency</td>
+<td>Confirm local/dev distribution shows QA and production does not. QA 0 and 1 both reach tutorial; 100 reaches final campaign level. No unlock restriction. Add/remove safe whole bolts; zero floor, invalid/fractional/overflow inputs rejected. Reload restores normal save rather than test progress.</td>
+</tr>
+<tr>
+<td>F-018 simplified QA</td>
+<td>Open QA while countdown runs: simulation/input/audio/countdown freeze. Animal selection/position controls are temporarily hidden and excluded from Tab navigation. Repeated QA-trigger clicks leave the screen open without opening the level menu. X, Escape and Resume close QA; a completed meadow returns to results without another award. Reset starts fresh tutorial/profile; export captures the scenario. No normal-save writes. Coordinate helper invariants remain covered by source tests for future re-enabling.</td>
+</tr>
+<tr>
+<td>F-014 controls/audio</td>
+<td>Portrait thumb steering, double-tap bark without zoom, modal focus and workshop scrolling; pause/background/resume audio, sound toggle, real music/bird/weather balance; restart cancel/confirm and persistence. User accepted F-014 on 14 October 2026; record device/browser details if subsequently supplied.</td>
+</tr>
+</tbody></table></div>
+<p>QA is a coordinate-form editor, not a drag-to-place map tool. Export is a downloadable reproduction record; there is no import control. Editing delivered animals preserves their delivered state. These limits should be stated when sharing a scenario.</p>
+<h2 id="publish-this-source-batch-separately">Publish this source batch separately<a class="heading-link" href="#publish-this-source-batch-separately" aria-label="Link to Publish this source batch separately">#</a></h2>
+<ol>
+<li>Fetch latest source/Pages references, require a clean intended source revision and record its SHA. Pass relevant checks; rebuild <code>build:dev</code> for the requested QA-enabled development distribution.</li>
+<li>Prepare a fresh absolute worktree path with <code>node scripts/deploy-pages.mjs /tmp/flock-pages-p1-review</code>. Review full staged diff against its Pages parent, including canonical/legacy scope, unchanged unrelated blobs and existing root marker bytes.</li>
+<li>Publish using a checked expected Pages parent; record the Pages SHA and successful native Pages workflow. A source CI artifact upload is not publication.</li>
+<li>Fetch live entry and every generated file, compare hashes with the intended final <code>dist/</code>, verify legacy redirect and preserve unrelated Pages blobs. Record file totals for this particular build; the earlier migration&#39;s 15-file total is not the expected new build count.</li>
+<li>Append actual independent review findings, test/build/doc outcomes and live verification evidence. Keep Review/Blocked items where pixel/device acceptance remains unavailable. Do not re-label old scores as new P1 scores.</li>
+</ol>
+<p>At this snapshot the source batch is reviewable but its final integrated checks and separate publication are not recorded as complete. This page is a runbook, not evidence that pending scenarios ran.</p>
+<h2 id="integration-checks-before-final-review">Integration checks before final review<a class="heading-link" href="#integration-checks-before-final-review" aria-label="Link to Integration checks before final review">#</a></h2>
+<p>The first integrated run found Float32-collapsed path slivers at level 4 seed 9182 and alternate level-8 routes. The fix tests area and winding after GPU-coordinate quantization, retaining neighboring coverage. The complete integrated source suite then passed 156/156 before the final grass-depth regression was added. QA/main integration also verifies timer freezing, no normal-save writes, and restoration of completed results without a second reward. Final totals, blind follow-up scores and P1 deployment verification are recorded below when available.</p>
+<h2 id="completed-blind-review-loop-and-final-local-checks">Completed blind review loop and final local checks<a class="heading-link" href="#completed-blind-review-loop-and-final-local-checks" aria-label="Link to Completed blind review loop and final local checks">#</a></h2>
+<p>The first P1 gameplay and technical reviewers were fresh agents with separate detached worktrees and <strong>medium</strong> effort. They were instructed not to inspect Git history, writer rationale, sibling findings, prior review documents or score targets. The technical critic accidentally encountered an unrelated historical game score in a broad requirements search and reported disregarding it; no prior P1 score was supplied. Follow-ups by the same critics are rechecks, not new blind first passes.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Review</th>
+<th align="right">First pass at <code>a6adfc6</code></th>
+<th align="right">Follow-up at <code>f0a87a1</code></th>
+<th>Confirmed issues resolved</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gameplay</td>
+<td align="right">9.0/10</td>
+<td align="right">9.4/10</td>
+<td>QA resume of a completed scenario now restores results without a second award</td>
+</tr>
+<tr>
+<td>Technical</td>
+<td align="right">8.5/10</td>
+<td align="right">9.0/10</td>
+<td>Decorative grass no longer writes depth over bark; fences/rails retain occlusion. CI now packages the QA-enabled development build</td>
+</tr>
+</tbody></table></div>
+<p>Both follow-ups found no new confirmed defect. The gameplay critic independently exercised full and partial completion, three QA reopen/resume cycles, unchanged rewards/elapsed time, no normal-save writes and Next to level 2 (29 focused tests). The technical critic executed Three’s render-list queue and actual geometry/depth checks, verified release/dev mode checks (including expected failures for the wrong mode), and passed 19 focused scene/surface/controller tests. The infinite cutaway ray beyond a synthetic camera near plane was identified as an unreachable robustness limitation under the fixed gameplay camera, not a present defect.</p>
+<p>Root final checks passed <strong>159/159 source tests</strong>, including the two deployment-parser regressions. Both compiled distributions pass <code>scripts/check-build-mode.mjs</code>: release 15 files/0 QA assets, development 17 files/2 QA assets. Documentation is regenerated with the validation page and local links/anchors checked, plus nine real Mermaid sources and four DOM behavior tests. No GPU screenshots, phone frame rate, native gestures or actual phone listening were verified.</p>
+<p>Development agents used medium effort for deployment, surfaces, cutaway and QA; high effort for shared world geometry and delivery/save migration. The integrated Float32 geometry defect was escalated to a separate high-effort fix. Documentation was updated after integrated code was ready. New P2/P3 requests from remote commit <code>6ac8eb7</code> are preserved as F-027 wildlife fence/edge traversal and F-026 Quit; they were not implemented in this batch.</p>
+<h3 id="final-preparation-regression">Final preparation regression<a class="heading-link" href="#final-preparation-regression" aria-label="Link to Final preparation regression">#</a></h3>
+<p>Preparing the real QA bundle exposed a false dependency match on its “Export scenario” label. The helper now parses actual JavaScript syntax instead of searching module keywords with a regular expression. Nineteen deployment fixture tests pass, including prose/comment rejection and missing lazy-stylesheet assets, and the actual 17-file development bundle prepares successfully against Pages <code>baca95c7</code>. This is a release-preparation fix; runtime game bytes are unchanged.</p>
+<p>The parser follow-up received an independent medium-effort <strong>9/10</strong> review at <code>087bf47</code>: 19 deployment fixtures pass, the real 17-file prepared build validates, all 17 unrelated Pages blobs are unchanged, and the legacy redirect is intact. The helper cannot resolve every runtime-generated dependency table; an entirely absent lazy stylesheet may evade its graph scan. The separate development artifact mode check requires QA JS and CSS, and final live verification compares every emitted file. The actual QA stylesheet is present in this prepared build. Generated shader strings include whitespace; source whitespace checks pass.</p>
+<h2 id="published-p1-release--15-october-2026">Published P1 release — 15 October 2026<a class="heading-link" href="#published-p1-release--15-october-2026" aria-label="Link to Published P1 release — 15 October 2026">#</a></h2>
+<ul>
+<li>Source branch <code>flock_3D_chatgpt-work</code>: <code>7a8519d37a8f447652f0449e16a050fc76a6d3e0</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38673879371">run 38673879371</a> succeeded.</li>
+<li>Pages commit <code>9346f26c5a145698b34e2c4504236c494023817d</code>; native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38673883292">run 38673883292</a> succeeded.</li>
+<li>Canonical game: <a href="https://novydhillon.github.io/Flock/dev2/">Play Flock</a>. Explicit QA-enabled development bundle: 17 files including QA JavaScript and CSS. Normal release build still excludes QA.</li>
+<li>HTTP SHA-256 comparison matched <strong>18/18</strong> intended files: all 17 canonical game files and the legacy redirect. Remote tree matches prepared tree <code>b6f79ed7588f4c09e6ca6d91b4cb6ddae399862b</code>. All 18 blobs outside <code>dev2/</code> are unchanged (17 unrelated blobs plus redirect).</li>
+<li>Final source checks: <strong>159/159 tests</strong>, both build-mode inspections and generated documentation checks passed. Blind medium reviews: P0 parser 9/10, gameplay 9.4/10, technical 9/10. These scores concern bounded source/headless evidence.</li>
+<li>F-001/F-002/F-005/F-009/F-010/F-016/F-018 remain Review for applicable rendered/device acceptance. At that release checkpoint F-014 was Blocked. Novy subsequently accepted F-014 on 14 October 2026 following Pages <code>50128cd</code>; separate visual acceptance and performance checks remain open.</li>
+</ul>
+<p>The next session should use this deployed revision for the manual scenarios above, record actual level/seed/device evidence, and close only criteria that were observed. Documentation-only commits after this source revision do not change the deployed game bytes.</p>
+<h2 id="user-acceptance--14-october-2026-americavancouver">User acceptance — 14 October 2026 (America/Vancouver)<a class="heading-link" href="#user-acceptance--14-october-2026-americavancouver" aria-label="Link to User acceptance — 14 October 2026 (America/Vancouver)">#</a></h2>
+<p>Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages <code>50128cdef86c47a383938cc0aac01a29e1f072d2</code>. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing.</p>
+<h2 id="f-005--f-016-follow-up--14-october-2026-vancouver">F-005 / F-016 follow-up — 14 October 2026 (Vancouver)<a class="heading-link" href="#f-005--f-016-follow-up--14-october-2026-vancouver" aria-label="Link to F-005 / F-016 follow-up — 14 October 2026 (Vancouver)">#</a></h2>
+<p>User screenshots IMG_8375.jpeg and IMG_8376.jpeg report long bank landings and an opaque barn roof. F-005 follow-up <code>185116a</code> changes added deck length from 5 to 1.5 units, retaining the 1.25 width ratio and dry trail turning planes. Blocked animal pressure uses collision-valid local opening waypoints around short rail ends; it never selects the destination. Rendered river strip quads and bevel fans are checked against the full deck width, with rotated cow-clearance tests. The unchanged five ordinary-input journeys pass, including 50/50 level-16 animals.</p>
+<p>F-016 follow-up <code>b322e7d</code> fades the entire roof and full camera-facing wall side(s) together at 30% transparency (opacity 0.70), using orthographic viewing direction in barn-local coordinates. Pip, helper dogs and saved/unsaved flock animals activate coverage. Empty structures restore; pause and material disposal remain tested. Blind source review scored 9/10; generated HTML freshness was the only finding and is addressed by regeneration.</p>
+<p>Combined source suite: 161/161 passed (23.46 seconds in the development worktree); expanded water-strip/bevel and world checks: 19/19 passed. These are source/headless checks, not proof of rendered appearance or phone performance. F-005 and F-016 remain Review for acceptance of the reported scenarios. F-014 remains Done.</p>
+<p>Bridge follow-up blind review scored <strong>9/10</strong>, with 32/32 focused geometry, simulation and journey tests passing and no blocking defects. Full-flock delivery coverage remains five representative scenarios; route/body traversal covers all 100 default levels and representative seeded rotations. Both release and development artifact inspections pass. Generated HTML checks pass: 12 pages, 726 local links/anchors, 9 parsed diagrams and 4 DOM behavior tests.</p>
+<h3 id="node-22-ci-follow-up">Node 22 CI follow-up<a class="heading-link" href="#node-22-ci-follow-up" aria-label="Link to Node 22 CI follow-up">#</a></h3>
+<p>The first follow-up source CI (run 38678616308, source <code>c6e9303</code>) failed the level-16 exact-all journey at 49/50 although Node 24 and the blind source run passed. This was reproduced with the exact CI version, Node 22.23.3. <code>8df0fd5</code> corrects a physical-clearance mismatch: sheep previously planned with a .78 cow radius despite moving at .55, disconnecting valid sheep escape routes. The simulation now supplies each animal’s actual radius to the initial blocked-path test and bridge opening planner. A rotated sheep-start regression is valid at .55 but invalid at .78. No time, deck-length or test-policy tuning was retained. Node 22.23.3 full suite passes <strong>162/162</strong> (25.41 seconds); all five unchanged journeys also pass Node 24.19.0. Earlier 161-test evidence is the prior checkpoint, not the final CI result.</p>
+<p>The clearance follow-up received a medium blind recheck at <strong>9.5/10</strong> with no defects found; the reviewer independently ran 33/33 focused checks on Node 22.23.3, including the previously failing level-16 full-flock journey. Both corrected build-mode inspections and regenerated documentation checks pass.</p>
+<h2 id="final-bridgebarn-publication--14-october-2026-vancouver">Final bridge/barn publication — 14 October 2026 (Vancouver)<a class="heading-link" href="#final-bridgebarn-publication--14-october-2026-vancouver" aria-label="Link to Final bridge/barn publication — 14 October 2026 (Vancouver)">#</a></h2>
+<p>Latest bridge/barn follow-up: source <code>4d3cadc393c9feaedee4e579099110e25f459c31</code>, Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>. Node 22 CI <a href="https://github.com/novydhillon/Flock/actions/runs/38679079215">38679079215</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38679328953">38679328953</a> succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. Novy accepted F-005/F-016 on 14 October 2026 (Vancouver); both are Done. F-014 remains Done.</p>
+<p>The initial 8786424 bundle was superseded by this physical-radius correction. Documentation-only commits after the recorded source revision do not change these game bytes.</p>
+<h2 id="user-acceptance--bridge-and-barn-follow-up-14-october-2026-vancouver">User acceptance — bridge and barn follow-up, 14 October 2026 (Vancouver)<a class="heading-link" href="#user-acceptance--bridge-and-barn-follow-up-14-october-2026-vancouver" aria-label="Link to User acceptance — bridge and barn follow-up, 14 October 2026 (Vancouver)">#</a></h2>
+<p>Novy replied “Looks good” to the deployed bridge landing (F-005) and barn cutaway (F-016) follow-up at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>. Both issues are Done by user acceptance. F-014 was already Done. This records acceptance of the deployed fixes; historical review findings and the scope limits of automated evidence above remain unchanged.</p>
+<h2 id="final-p1-user-acceptance--14-october-2026">Final P1 user acceptance — 14 October 2026<a class="heading-link" href="#final-p1-user-acceptance--14-october-2026" aria-label="Link to Final P1 user acceptance — 14 October 2026">#</a></h2>
+<p>Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.</p>
+<h2 id="f-028--delivered-animal-goal-roaming">F-028 — Delivered-animal goal roaming<a class="heading-link" href="#f-028--delivered-animal-goal-roaming" aria-label="Link to F-028 — Delivered-animal goal roaming">#</a></h2>
+<p>Source checkpoint <code>637111e</code>. After attended admission, a saved animal gently moves inward and mills inside the shared rotated enclosure, using .55 sheep/.78 cow clearance and normal world collision. Maximum speed is 0.65 units/second; per-animal phases give deterministic interior targets and saved-only separation softens crowding. Every accepted step keeps the full body within the goal, including the open entrance. Saved state and delivery admission remain one-way.</p>
+<p>Visible results call a saved-only roaming step; finalized score/counts, recovery time, Pip and undelivered animals stay unchanged. Menus, workshop, QA editing and hidden result screens do not advance roaming. Resumed QA test play uses the same behavior without writing normal progress. Restart creates a fresh level and roaming phase state. The renderer uses actual headings and velocity-driven gait rather than a fixed saved heading.</p>
+<p>Validation: Node 22.23.3 full suite 164/164; Node 24.19.0 unchanged full-flock journeys 5/5. Tests cover real minimum-clearance entrance admission, no repeat admission event, rotated goal confinement, pause, immutable completed results and QA controller behavior. Physical-phone motion/readability is not established by these source tests.</p>
+<p>Manual acceptance scenarios: deliver sheep and cows into pen/field/barn across rotations; watch the entrance clear as delivered animals move inward, then watch a partial or full result screen. No full body should leave the enclosure or cross an obstacle. Pause/open QA/workshop, background/reopen, and restart. Check that wallet, delivered counts and final result do not change due to roaming.</p>
+<p>F-028 blind medium review scored <strong>9.5/10</strong> with no actionable defects. The reviewer independently passed the 164-test Node 22 suite and 30,900 per-step whole-body containment checks across rotated goals, mixed sheep/cows and crowded entrance groups with zero escapes. Integration added per-step assertions during recovery/completed roaming and a 12-fixture crowded entrance regression (22/22 focused simulation/delivery checks pass). The final full-suite count includes one additional test.</p>
+<p>Final F-028 integrated validation: <strong>165/165</strong> tests pass on Node 22.23.3 (27.20 seconds), including the additional crowded mixed-species entrance test and per-step confinement assertions. Release excludes QA; development includes QA (17 files); documentation checks pass (12 pages, 756 local links/anchors, 9 diagrams and 4 DOM behavior tests).</p>
+<h2 id="f-028-verified-publication--14-october-2026-vancouver">F-028 verified publication — 14 October 2026 (Vancouver)<a class="heading-link" href="#f-028-verified-publication--14-october-2026-vancouver" aria-label="Link to F-028 verified publication — 14 October 2026 (Vancouver)">#</a></h2>
+<p>F-028 is deployed at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code> from source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38681252991">38681252991</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38681359737">38681359737</a> succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. Previous P0/P1 sign-offs stay Done.</p>
+<h2 id="f-028-user-acceptance--15-october-2026-vancouver">F-028 user acceptance — 15 October 2026 (Vancouver)<a class="heading-link" href="#f-028-user-acceptance--15-october-2026-vancouver" aria-label="Link to F-028 user acceptance — 15 October 2026 (Vancouver)">#</a></h2>
+<p>Novy confirmed “delivered animals roaming goal” at 00:28 America/Vancouver. Mark F-028 Done for the deployed development build at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code>, source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. This closes the feature acceptance; source test totals, blind review findings and device-evidence limits above remain as recorded.</p>
+<p>Documentation-only commits after this source revision do not change the deployed game bytes.</p>
+<h2 id="buddy-behavior-candidate-f-046---15-october-2026">Buddy behavior candidate (F-046) - 15 October 2026<a class="heading-link" href="#buddy-behavior-candidate-f-046---15-october-2026" aria-label="Link to Buddy behavior candidate (F-046) - 15 October 2026">#</a></h2>
+<p>New source/headless scenarios cover rear herding on four travel axes and reversal, smaller-group support and remerge, tier-3 active bolt interception before expiry, wander/settled/cow retrieval to the nearest flock, a real bridge with drone hold, barrier visibility/body clearance, activation gates, and independent bark audio/rings/tails. Existing full-flock journey tests remain unchanged. See <a href="../../tests/buddy.test.js">Buddy tests</a> and <a href="development.html#buddy-smoke-checks">manual smoke steps</a>. F-046 remains Review; source checks do not establish phone play, rendered effects, listening quality or human pacing.</p>
+<p>F-046 is now published for review: runtime source <code>d557d92</code>, Pages <code>c30ca36</code>; source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38837775933">38837775933</a> and Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38837956296">38837956296</a> succeeded. All 17 live development files match the prepared build hashes and all 18 unrelated Pages files remain unchanged. QA public levels 20/24/28 activate Buddy tiers 1/2/3. User gameplay/device acceptance remains pending.</p>
+<h2 id="buddy-navigation-and-split-group-follow-up">Buddy navigation and split-group follow-up<a class="heading-link" href="#buddy-navigation-and-split-group-follow-up" aria-label="Link to Buddy navigation and split-group follow-up">#</a></h2>
+<p>F-046 repairs the reported tree stall and turning flicker, preserves independent split groups, and adds tier-2 local bridge/goal guidance. All <strong>263 source tests pass</strong>, including the unchanged tutorial and five full-flock journey controllers. Added scenarios cover on/off-road tree detours, cow body clearance/retrieval, smooth heading under opposite inputs, exact independent-group trajectories, off-axis bridge traversal, three rotated goal types with a final singleton, and unattended scoring protection. See <a href="development.html#buddy-follow-up-smoke-checks">manual smoke steps</a>. User device/play acceptance remains pending.</p>
+<p>Published after resuming at 22:16 Vancouver on 15 October: runtime source <code>25c77ff</code>, Pages <code>e175cc0</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38840591441">38840591441</a> and Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38854983832">38854983832</a> succeeded. All 17 live game files plus the canonical entry HTML match the checked local build hashes; all 18 unrelated Pages files remain unchanged. This is publication evidence, not user/device sign-off.</p>
+<h2 id="forward-pressure-and-completed-crossings">Forward pressure and completed crossings<a class="heading-link" href="#forward-pressure-and-completed-crossings" aria-label="Link to Forward pressure and completed crossings">#</a></h2>
+<p>The 22:33-22:39 follow-ups are implemented for source review: leaders retain forward travel, cohesion is 30% weaker, Buddy barks from tier 2, and walking animals complete deck-to-bank traversal. All <strong>274 source tests pass</strong>. Existing full-flock journey controllers and assertions are unchanged. The tutorial input policy now collects the furthest animal rather than assuming automatic return to a centroid; the same 60s budget/completion assertion is retained (12.8s simulated full delivery). See <a href="development.html#forward-flow-and-bridge-smoke-checks">manual checks</a>. No user/device sign-off is implied.</p>
+<p>Verified publication: source <code>bf30342</code>, Pages <code>cf41bd1</code>; source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38857616495">38857616495</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38857820963">38857820963</a> succeeded. All 17 live development files and canonical entry HTML match the tested build; all 18 unrelated Pages files remain unchanged. All 274 source tests and both build modes pass. See <a href="quality.html#verified-forward-flow-and-bridge-completion-publication">publication evidence</a>. User gameplay/device acceptance remains pending; F-046 stays Review and the separate F-048 low-speed stutter report stays queued.</p>
+</main><footer><a href="../validation/P0-P1.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#current-evidence-and-status">Current evidence and status</a><a class="toc-level-2" href="#repeatable-source-and-bundle-checks">Repeatable source and bundle checks</a><a class="toc-level-2" href="#device-and-browser-scenarios-to-run">Device and browser scenarios to run</a><a class="toc-level-2" href="#publish-this-source-batch-separately">Publish this source batch separately</a><a class="toc-level-2" href="#integration-checks-before-final-review">Integration checks before final review</a><a class="toc-level-2" href="#completed-blind-review-loop-and-final-local-checks">Completed blind review loop and final local checks</a><a class="toc-level-3" href="#final-preparation-regression">Final preparation regression</a><a class="toc-level-2" href="#published-p1-release--15-october-2026">Published P1 release — 15 October 2026</a><a class="toc-level-2" href="#user-acceptance--14-october-2026-americavancouver">User acceptance — 14 October 2026 (America/Vancouver)</a><a class="toc-level-2" href="#f-005--f-016-follow-up--14-october-2026-vancouver">F-005 / F-016 follow-up — 14 October 2026 (Vancouver)</a><a class="toc-level-3" href="#node-22-ci-follow-up">Node 22 CI follow-up</a><a class="toc-level-2" href="#final-bridgebarn-publication--14-october-2026-vancouver">Final bridge/barn publication — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#user-acceptance--bridge-and-barn-follow-up-14-october-2026-vancouver">User acceptance — bridge and barn follow-up, 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#final-p1-user-acceptance--14-october-2026">Final P1 user acceptance — 14 October 2026</a><a class="toc-level-2" href="#f-028--delivered-animal-goal-roaming">F-028 — Delivered-animal goal roaming</a><a class="toc-level-2" href="#f-028-verified-publication--14-october-2026-vancouver">F-028 verified publication — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#f-028-user-acceptance--15-october-2026-vancouver">F-028 user acceptance — 15 October 2026 (Vancouver)</a><a class="toc-level-2" href="#buddy-behavior-candidate-f-046---15-october-2026">Buddy behavior candidate (F-046) - 15 October 2026</a><a class="toc-level-2" href="#buddy-navigation-and-split-group-follow-up">Buddy navigation and split-group follow-up</a><a class="toc-level-2" href="#forward-pressure-and-completed-crossings">Forward pressure and completed crossings</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

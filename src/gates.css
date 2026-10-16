@@ -1,0 +1,3 @@
+.gate-action{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:158px;min-height:52px;padding:12px 22px;border:2px solid #fff0b5;border-radius:26px;background:#405b38;color:#fff7df;font:700 15px 'DM Sans',sans-serif;box-shadow:0 4px 16px #14250f55;pointer-events:auto;touch-action:none}
+.gate-action:focus-visible{outline:3px solid #fff;outline-offset:4px}
+@media(max-width:600px){.gate-action{right:24px;bottom:145px}}

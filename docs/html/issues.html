@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Issue tracker"><title>Issue tracker · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
+<body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
+<div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="flock--remaining-issues-and-change-tracker">FLOCK — Remaining issues and change tracker<a class="heading-link" href="#flock--remaining-issues-and-change-tracker" aria-label="Link to FLOCK — Remaining issues and change tracker">#</a></h1>
+<p>Current flock-behavior batch: F-035/F-037/F-039/F-041 are <strong>Review</strong>. Earlier weather/audio user sign-offs remain Done. See the new detailed sections below for the 17:03 user clarification; older fixed-five-second/15% descriptions are historical.</p>
+<h2 id="user-sign-off---15-october-2026-1634-vancouver">User sign-off - 15 October 2026, 16:34 Vancouver<a class="heading-link" href="#user-sign-off---15-october-2026-1634-vancouver" aria-label="Link to User sign-off - 15 October 2026, 16:34 Vancouver">#</a></h2>
+<p>Novy explicitly signed off all pending Review items: <strong>F-022, F-023, F-024 and F-040 are Done</strong>. Acceptance applies to the live development build at Pages <code>bf26e67732434e902fdbaef10cac72d6814c33b0</code>, runtime source <code>1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa</code>, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. <strong>At that weather sign-off checkpoint no items remained in Review.</strong> The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.</p>
+<p>Current weather repairs: <a href="requirements.html#weather-follow-up---15-october-2026-1222-vancouver">requirements</a>. Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.</p>
+<p>Updated: 15 October 2026 (America/Vancouver). Repository: <code>novydhillon/Flock</code>. Working branch: <code>flock_3D_chatgpt-work</code>.</p>
+<p>Latest weather follow-up is published: runtime source <code>8408e74</code>, Pages <code>617b4df</code>; CI and Pages succeeded, all 17 live game files match intended hashes, and only the dev2 entry point/main bundle changed. Rain covers the camera edges, storm fauna are omitted, thunder has music ducking, and seeded puddles grow near the playable journey. Independent rain/storm, puddle follow-up and documentation reviews reached 9/10; 229 source tests pass. F-022/F-023/F-024/F-040 remain Review pending fresh phone appearance/listening acceptance. F-008 remains Deferred. See <a href="quality.html#verified-weather-follow-up-publication">quality evidence</a>.</p>
+<p>Source checkpoint: integrated P0/P1 batch (delivery <code>1fee206</code>, goal view <code>984fc64</code>; see execution record). Canonical live game: <a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a>. F-025 migration is published and verified at Pages <code>baca95c7ba618d736730194b433254bf5058dd66</code>; it contains the preceding game revision. The reviewed P1 development build was published at Pages <code>9346f26c5a145698b34e2c4504236c494023817d</code> from source <code>7a8519d37a8f447652f0449e16a050fc76a6d3e0</code>; all 17 game files plus redirect match live hashes, and all 18 blobs outside <code>dev2/</code> are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.</p>
+<p>Latest bridge/barn follow-up: source <code>4d3cadc393c9feaedee4e579099110e25f459c31</code>, Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>. Node 22 CI <a href="https://github.com/novydhillon/Flock/actions/runs/38679079215">38679079215</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38679328953">38679328953</a> succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. Novy accepted F-005/F-016 on 14 October 2026 (Vancouver); both are Done. F-014 remains Done.</p>
+<p>The original P0/P1 batch was signed off on 14 October 2026; F-008 and F-022–F-024 have since been reopened as P1 work under F-040. On 15 October 2026 at approximately 10:56 America/Vancouver, Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-021 and F-027 for the published Pages build <code>cc13865</code> from source <code>b1fdac3</code>; these 11 items are Done. F-008 and F-022–F-024 are reopened as P1 work under the new fixed-per-level weather request F-040; they are not accepted as currently implemented. F-013 pacing and P3 statuses remain Open.</p>
+<p>Accepted F-028 development release: F-028 is deployed at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code> from source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38681252991">38681252991</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38681359737">38681359737</a> succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside <code>dev2/</code> remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver for this deployed build; previous P0/P1 sign-offs stay Done.</p>
+<h2 id="how-agents-should-use-this-document">How agents should use this document<a class="heading-link" href="#how-agents-should-use-this-document" aria-label="Link to How agents should use this document">#</a></h2>
+<ol>
+<li><p>Read this tracker, README and <code>docs/QUALITY.md</code>; inspect current code and branch state before starting. Public level numbers here are one-based; code indexes are zero-based.</p>
+</li>
+<li><p>Claim an issue by recording owner, branch/worktree, status and date. Use isolated worktrees for parallel implementation; coordinate ownership of shared files. Do not mark screenshot reports reproduced from a still image alone.</p>
+</li>
+<li><p>Confirm design decisions listed under each issue before coding dependent behavior. Explicit user requirements take precedence over proposed defaults. Preserve portrait, single-thumb play and the cheerful art direction.</p>
+</li>
+<li><p>Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: <strong>Open → In progress → Review → Done</strong>, or <strong>Blocked</strong> with the reason; <strong>Deferred</strong> records work explicitly postponed by the user.</p>
+</li>
+<li><p>Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.</p>
+</li>
+<li><p>A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to <code>dev2/</code> on the latest <code>gh-pages</code> tree, giving the public URL <code>/Flock/dev2/</code>. The old <code>flock/dev2/</code> destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.</p>
+</li>
+<li><p>When an issue is closed (Done or Closed), apply Markdown strikethrough (<code>~~text~~</code>) to every cell in its Work overview row and to its detailed heading title after the issue ID. Keep the ID, acceptance criteria and evidence for traceability. Use the current overview status, not historical status notes. Remove strikethrough if reopened; Open, In progress, Review, Blocked and Deferred items are not closed.</p>
+</li>
+</ol>
+<p>Priority: <strong>P0</strong> = highest priority; complete before other queued work. <strong>P1</strong> = correctness/gameplay foundation; <strong>P2</strong> = planned feature/polish; <strong>P3</strong> = broader validation/optimization. All open items are unassigned until explicitly claimed.</p>
+<h2 id="work-overview">Work overview<a class="heading-link" href="#work-overview" aria-label="Link to Work overview">#</a></h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Priority</th>
+<th>Type</th>
+<th>Item</th>
+<th>Status</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><del>F-025</del></td>
+<td><del>P0</del></td>
+<td><del>Deployment</del></td>
+<td><del>Correct public deployment URL to /Flock/dev2/</del></td>
+<td><del>Done</del></td>
+<td><del>Verified migration</del></td>
+</tr>
+<tr>
+<td><del>F-001</del></td>
+<td><del>P1</del></td>
+<td><del>Reported defect</del></td>
+<td><del>Path-corner polygon flicker</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-002</del></td>
+<td><del>P1</del></td>
+<td><del>Reported defect</del></td>
+<td><del>Bark effect above ground and bridge deck</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-003</del></td>
+<td><del>P2</del></td>
+<td><del>Art/behavior</del></td>
+<td><del>Detailed squirrel; species-appropriate motion; no spinning</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-004</del></td>
+<td><del>P2</del></td>
+<td><del>Art</del></td>
+<td><del>Flowing-water texture</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-005</del></td>
+<td><del>P1</del></td>
+<td><del>Geometry/gameplay</del></td>
+<td><del>Perpendicular crossings; bridges 25% wider than paths</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-006</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay</del></td>
+<td><del>Gates requiring player opening from level 20</del></td>
+<td><del>Done</del></td>
+<td><del>F-005</del></td>
+</tr>
+<tr>
+<td><del>F-007</del></td>
+<td><del>P2</del></td>
+<td><del>Environment</del></td>
+<td><del>Stone walls on selected levels</del></td>
+<td><del>Done</del></td>
+<td><del>F-006 interaction contract</del></td>
+</tr>
+<tr>
+<td>F-008</td>
+<td>P1</td>
+<td>Art</td>
+<td>Cloud visuals temporarily removed at user request</td>
+<td>Deferred</td>
+<td>No runtime clouds or cloud shadows</td>
+</tr>
+<tr>
+<td><del>F-009</del></td>
+<td><del>P1</del></td>
+<td><del>Gameplay/economy</del></td>
+<td><del>Arrival countdown; partial-delivery scoring</del></td>
+<td><del>Done</del></td>
+<td><del>F-010</del></td>
+</tr>
+<tr>
+<td><del>F-010</del></td>
+<td><del>P1</del></td>
+<td><del>Correctness</del></td>
+<td><del>Goal shape matches enclosure</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-011</del></td>
+<td><del>P2</del></td>
+<td><del>Feedback</del></td>
+<td><del>Blue dog-tail light; red bark flash</del></td>
+<td><del>Done</del></td>
+<td><del>F-002 shared bark event</del></td>
+</tr>
+<tr>
+<td><del>F-012</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay</del></td>
+<td><del>Level-gated wanderers and short bolting</del></td>
+<td><del>Done</del></td>
+<td><del>F-005, F-009 balance</del></td>
+</tr>
+<tr>
+<td>F-013</td>
+<td>P2</td>
+<td>Known review concern</td>
+<td>Level-5 pacing spike</td>
+<td>Open</td>
+<td>F-005; retest after F-009/F-012</td>
+</tr>
+<tr>
+<td><del>F-014</del></td>
+<td><del>P1</del></td>
+<td><del>Validation gap</del></td>
+<td><del>Real-phone controls, appearance and sound</del></td>
+<td><del>Done</del></td>
+<td><del>User confirmed 14 Oct 2026</del></td>
+</tr>
+<tr>
+<td>F-015</td>
+<td>P3</td>
+<td>Validation gap</td>
+<td>Mobile GPU performance and transition stability</td>
+<td>Open</td>
+<td>Rendering batches</td>
+</tr>
+<tr>
+<td><del>F-016</del></td>
+<td><del>P1</del></td>
+<td><del>Visibility</del></td>
+<td><del>Camera-facing barn/covered-structure cutaway</del></td>
+<td><del>Done</del></td>
+<td><del>F-010 shared enclosure geometry</del></td>
+</tr>
+<tr>
+<td><del>F-017</del></td>
+<td><del>P2</del></td>
+<td><del>Wildlife</del></td>
+<td><del>Detailed hopping rabbits; random size-scaled wildlife counts</del></td>
+<td><del>Done</del></td>
+<td><del>F-003, F-022</del></td>
+</tr>
+<tr>
+<td><del>F-018</del></td>
+<td><del>P1</del></td>
+<td><del>QA tooling</del></td>
+<td><del>Dev-only level, currency and animal-placement menu</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-019</del></td>
+<td><del>P2</del></td>
+<td><del>Environment</del></td>
+<td><del>Add bushes</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-020</del></td>
+<td><del>P2</del></td>
+<td><del>Environment</del></td>
+<td><del>Increase tree size</del></td>
+<td><del>Done</del></td>
+<td><del>—</del></td>
+</tr>
+<tr>
+<td><del>F-021</del></td>
+<td><del>P2</del></td>
+<td><del>Art</del></td>
+<td><del>Richer bush/tree detail and textures</del></td>
+<td><del>Done</del></td>
+<td><del>F-019, F-020</del></td>
+</tr>
+<tr>
+<td><del>F-022</del></td>
+<td><del>P1</del></td>
+<td><del>Wildlife/weather</del></td>
+<td><del>Species retreat as weather worsens</del></td>
+<td><del>Done</del></td>
+<td><del>F-040 fixed-per-level weather contract</del></td>
+</tr>
+<tr>
+<td><del>F-023</del></td>
+<td><del>P1</del></td>
+<td><del>Weather/feedback</del></td>
+<td><del>Fixed per-level atmosphere, clouds, lightning and thunder</del></td>
+<td><del>Done</del></td>
+<td><del>F-040 fixed-per-level weather contract</del></td>
+</tr>
+<tr>
+<td><del>F-024</del></td>
+<td><del>P1</del></td>
+<td><del>Weather/surfaces</del></td>
+<td><del>Accumulating wetness, puddles, splashes and river response</del></td>
+<td><del>Done</del></td>
+<td><del>F-040 fixed-per-level weather contract</del></td>
+</tr>
+<tr>
+<td>F-026</td>
+<td>P3</td>
+<td>UI</td>
+<td>Pause-menu Quit returns to landing page</td>
+<td>Open</td>
+<td>—</td>
+</tr>
+<tr>
+<td><del>F-027</del></td>
+<td><del>P2</del></td>
+<td><del>Wildlife</del></td>
+<td><del>Wildlife can pass through fences and leave/enter the game area</del></td>
+<td><del>Done</del></td>
+<td><del>F-017</del></td>
+</tr>
+<tr>
+<td><del>F-028</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay</del></td>
+<td><del>Delivered animals roam inside the goal enclosure</del></td>
+<td><del>Done</del></td>
+<td><del>F-010 shared footprint</del></td>
+</tr>
+<tr>
+<td><del>F-029</del></td>
+<td><del>P2</del></td>
+<td><del>Gameplay/economy</del></td>
+<td><del>Pay only lifetime-best score improvements on replay</del></td>
+<td><del>Done</del></td>
+<td><del>F-009</del></td>
+</tr>
+<tr>
+<td>F-030</td>
+<td>P3</td>
+<td>Environment</td>
+<td>Lighter, more contrasting water waves</td>
+<td>Open</td>
+<td>—</td>
+</tr>
+<tr>
+<td>F-031</td>
+<td>P2</td>
+<td>World generation</td>
+<td>Gates on 20+ levels, with some ungated alternative paths</td>
+<td>Open</td>
+<td>F-006</td>
+</tr>
+<tr>
+<td>F-032</td>
+<td>P3</td>
+<td>Gameplay/UI</td>
+<td>Closed red and open green world-fence button; dog touch activates</td>
+<td>Open</td>
+<td>F-031</td>
+</tr>
+<tr>
+<td>F-033</td>
+<td>P2</td>
+<td>Environment/art</td>
+<td>English farm dry-stone wall appearance</td>
+<td>Open</td>
+<td>F-007</td>
+</tr>
+<tr>
+<td>F-034</td>
+<td>P3</td>
+<td>World generation</td>
+<td>Seeded 15% stone-wall chance per level</td>
+<td>Open</td>
+<td>F-033</td>
+</tr>
+<tr>
+<td>F-035</td>
+<td>P2</td>
+<td>Gameplay</td>
+<td>Baseline bolt duration 3–5 seconds</td>
+<td>Review</td>
+<td>F-012</td>
+</tr>
+<tr>
+<td>F-036</td>
+<td>P3</td>
+<td>Gameplay</td>
+<td>Unattended flock spreads out in the field</td>
+<td>Open</td>
+<td>F-012, F-028</td>
+</tr>
+<tr>
+<td>F-037</td>
+<td>P2</td>
+<td>Gameplay</td>
+<td>Eligible wander cohort increases from 15% to 20%</td>
+<td>Review</td>
+<td>F-012</td>
+</tr>
+<tr>
+<td>F-038</td>
+<td>P2</td>
+<td>World generation/gameplay</td>
+<td>Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers</td>
+<td>Open</td>
+<td>F-005, F-006, F-031</td>
+</tr>
+<tr>
+<td>F-039</td>
+<td>P2</td>
+<td>Gameplay/balance</td>
+<td>Late-level wandering/bolting chances and durations</td>
+<td>Review</td>
+<td>F-012, F-035, F-037</td>
+</tr>
+<tr>
+<td><del>F-040</del></td>
+<td><del>P1</del></td>
+<td><del>Weather</del></td>
+<td><del>Remove snow; choose fixed weather once per level with public-level anchors</del></td>
+<td><del>Done</del></td>
+<td><del>Reopens F-008, F-022–F-024</del></td>
+</tr>
+<tr>
+<td>F-041</td>
+<td>P2</td>
+<td>Gameplay/behavior</td>
+<td>Wanderers and bolters settle near their current location instead of returning to the flock</td>
+<td>Review</td>
+<td>F-012, F-035, F-037, F-039</td>
+</tr>
+<tr>
+<td>F-042</td>
+<td>P3</td>
+<td>Wildlife/art</td>
+<td>Investigate and fix missing back legs on small wild animals</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-043</td>
+<td>P3</td>
+<td>Audio</td>
+<td>Make the bark sound resemble a barking dog</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-044</td>
+<td>P3</td>
+<td>Audio</td>
+<td>Add sheep and cow calls with state-dependent frequency and volume</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-045</td>
+<td>P4</td>
+<td>Weather/water</td>
+<td>Add rain impacts and splashes on water during heavy rain or stronger</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-046</td>
+<td>P2</td>
+<td>Gameplay/companions</td>
+<td>Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark</td>
+<td>Review</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-047</td>
+<td>P4</td>
+<td>Gameplay/companions/economy</td>
+<td>Second Buddy after meadow 40 with independent leveling and max tier by meadow 70</td>
+<td>Open</td>
+<td>F-046</td>
+</tr>
+<tr>
+<td>F-048</td>
+<td>P2</td>
+<td>Gameplay/companions</td>
+<td>Fix Buddy stuttering movement at low speed</td>
+<td>Open</td>
+<td>F-046</td>
+</tr>
+<tr>
+<td>F-049</td>
+<td>P4</td>
+<td>QA/UI</td>
+<td>Prevent automatic level dropdown focus and expansion when opening QA</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+<tr>
+<td>F-050</td>
+<td>P2</td>
+<td>Gameplay/upgrades/UI</td>
+<td>Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown</td>
+<td>Open</td>
+<td>-</td>
+</tr>
+</tbody></table></div>
+<h2 id="screenshot-evidence">Screenshot evidence<a class="heading-link" href="#screenshot-evidence" aria-label="Link to Screenshot evidence">#</a></h2>
+<p>Picture numbers refer to the user&#39;s attachment order, including the duplicate uploads.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Picture</th>
+<th>Filename</th>
+<th>Evidence visible / reported</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>IMG_8372.jpeg</code> / <code>IMG_8372(1).jpeg</code></td>
+<td>Level 4, 10/14 delivered; black triangular/striped artifacts at path corners. User reports flickering.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>IMG_8367.jpeg</code> / <code>IMG_8367(1).jpeg</code></td>
+<td>Level 8; bark ring is visible around but hidden beneath bridge planks.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>IMG_8368.jpeg</code> / <code>IMG_8368(1).jpeg</code></td>
+<td>Level 9; squirrel appears as a simple body and tail. User reports spinning in place.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>IMG_8364.jpeg</code> / <code>IMG_8364(1).jpeg</code></td>
+<td>Level 8; black triangular artifacts at winding path bends near crossing.</td>
+</tr>
+</tbody></table></div>
+<p>The images are visible in the conversation. Their advertised local attachment paths were unavailable during earlier reads; binaries are not embedded in this repository. Preserve these filenames and descriptions when handing off. Static images establish visible artifacts, not their temporal behavior or root cause.</p>
+<h2 id="acceptance-criteria-and-implementation-notes">Acceptance criteria and implementation notes<a class="heading-link" href="#acceptance-criteria-and-implementation-notes" aria-label="Link to Acceptance criteria and implementation notes">#</a></h2>
+<h3 id="f-025--correct-the-deployment-url-p0--highest-priority">F-025 — Correct the deployment URL (P0 — highest priority)<a class="heading-link" href="#f-025--correct-the-deployment-url-p0--highest-priority" aria-label="Link to F-025 — Correct the deployment URL (P0 — highest priority)">#</a></h3>
+<p><strong>Requirement:</strong> deploy the standalone game at <strong><a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a></strong> instead of <strong><a href="https://novydhillon.github.io/Flock/flock/dev2/">https://novydhillon.github.io/Flock/flock/dev2/</a></strong>. This issue takes precedence over all other open work.</p>
+<p><strong>Accept when:</strong> the current standalone build loads directly at the required URL, including on a fresh visit/reload, with all JavaScript, styles, fonts and other assets resolving successfully beneath <code>/Flock/dev2/</code>. The <code>gh-pages</code> output directory is <strong><code>dev2/</code></strong>, not <code>flock/dev2/</code>; <code>/Flock/</code> is GitHub Pages&#39; repository URL prefix, not an extra output directory. Verify deployed file hashes against the intended production build and record the Pages commit/workflow result and final URL.</p>
+<p><strong>Implementation scope:</strong> inspect and update <code>scripts/deploy-pages.mjs</code>, deployment/build configuration, README, tracker instructions and any other hard-coded publish destinations or game links. Keep relative asset support. Preserve the Pages root, existing <code>flock/dev/</code> and all unrelated files. Do not clear or rename saved-profile keys as part of this URL correction; verify existing progress remains available at the new path on the same origin.</p>
+<p><strong>Migration decision:</strong> explicitly record what happens to the previous <code>/Flock/flock/dev2/</code> URL (for example, a redirect to the canonical URL). Do not leave two independently maintained game copies or delete unrelated legacy content. Any redirect must retain working navigation and use the correct repository prefix.</p>
+<p><strong>Done evidence:</strong> helper source <code>6616c41</code>; published Pages commit <code>baca95c7ba618d736730194b433254bf5058dd66</code>; canonical entry and all 15 game files plus redirect hash-verified; 17 unrelated blobs unchanged. Legacy address redirects with query/fragment retained. Independent blind medium review: 9/10 for the bounded P0 migration. This does not score or deploy the P1 batch, verify real pixels or establish phone storage continuity. See <a href="p0-p1-validation.html">validation</a>.</p>
+<h3 id="f-001--path-corner-polygon-flicker">F-001 — Path-corner polygon flicker<a class="heading-link" href="#f-001--path-corner-polygon-flicker" aria-label="Link to F-001 — Path-corner polygon flicker">#</a></h3>
+<p><strong>Requirement:</strong> eliminate polygon flickering at path corners (pictures 1 and 4).</p>
+<p><strong>Accept when:</strong> sharp and gentle turns have continuous textured coverage without black triangles, overlapping flicker, holes or abrupt spikes during camera movement. Check default levels 4 and 8 and multiple seeds/directions on a real renderer.</p>
+<p><strong>Implementation evidence:</strong> <code>eed14e5</code> replaces stacked ribbon pieces with convex-stroke union, disjoint upward triangles and world UVs in <code>surfaces.js</code>; topology/coverage tests include turns, reversals, crossings and reported levels 4/8. Novy accepted F-001 on 14 October 2026; topology tests remain source evidence rather than agent-rendered validation.</p>
+<h3 id="f-002--bark-effect-above-ground-and-bridge-deck">F-002 — Bark effect above ground and bridge deck<a class="heading-link" href="#f-002--bark-effect-above-ground-and-bridge-deck" aria-label="Link to F-002 — Bark effect above ground and bridge deck">#</a></h3>
+<p><strong>Requirement:</strong> bark remains visible above path, grass, ground and bridge planks; fences and railings still occlude it (picture 2).</p>
+<p><strong>Accept when:</strong> bark works on land, center/end of each bridge and both approaches, with no deck clipping and normal occlusion by raised obstacles. Do not force the ring over every object by disabling depth testing globally.</p>
+<p><strong>Implementation evidence:</strong> <code>eed14e5</code> splits bark geometry at deck and plank boundaries and lifts each piece above its local surface, with depth testing retained. Renderer-owned .6-second lifetime freezes at zero <code>dt</code>, reuses buffers and caps effects at four; replacement clears owned resources. Tests compare against real bridge geometry behind a substituted renderer. Novy accepted F-002 on 14 October 2026.</p>
+<h3 id="f-003--squirrel-detail-and-movement">F-003 — Squirrel detail and movement<a class="heading-link" href="#f-003--squirrel-detail-and-movement" aria-label="Link to F-003 — Squirrel detail and movement">#</a></h3>
+<p><strong>Requirement:</strong> recognizable, more detailed squirrel; it must not spin in place, and must move like a squirrel (expanded user report, 14 October 2026).</p>
+<p><strong>Accept when:</strong> distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys wildlife-specific water/tree/structure collision; ordinary fences and map edges are permeable under F-027. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.</p>
+<p><strong>Files:</strong> <code>src/nature.js</code>; reusable art may belong in <code>src/models.js</code>. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.</p>
+<h3 id="f-004--flowing-water">F-004 — Flowing water<a class="heading-link" href="#f-004--flowing-water" aria-label="Link to F-004 — Flowing water">#</a></h3>
+<p><strong>Requirement:</strong> add water texture conveying running water.</p>
+<p><strong>Accept when:</strong> subtle moving ripples/flow follow each river&#39;s local direction across bends; bridges remain clear, banks have no seams, and water continues beyond map bounds. Pause freezes animation. Reuse/dispose resources and assess mobile cost. Collision stays tied to the river geometry.</p>
+<p><strong>Files:</strong> <code>src/render.js</code>, <code>src/world.js</code>, renderer tests.</p>
+<h3 id="f-005--bridge-and-crossing-alignment">F-005 — Bridge and crossing alignment<a class="heading-link" href="#f-005--bridge-and-crossing-alignment" aria-label="Link to F-005 — Bridge and crossing alignment">#</a></h3>
+<p><strong>Requirement:</strong> bridges and path segments crossing water are perpendicular to the river at the crossing. Bridge width is <strong>1.25 × crossing path width</strong>. Minimize unnecessary bridge extension into dry ground so animals do not get stuck.</p>
+<p><strong>Accept when:</strong> orientation uses the local river tangent, not a global axis; approaching/exiting paths align with the deck; mesh, terrain height, deck occupancy and rails share the same footprint. Retain enough landing overlap to cross both banks safely. Validate cow-sized bodies, helpers, the full initial flock, alternative routes, all campaign levels and representative seeds.</p>
+<p><strong>Files:</strong> <code>src/world.js</code>, <code>src/render.js</code>, <code>src/models.js</code>, world/journey tests. Preserve the solved level-2 retrieval case; narrower replacement geometry must not reintroduce its stall. The implementation compares usable road width, excluding decorative shoulders. <code>4887ea7</code> aligns decks and straight approaches perpendicular to sampled river segments; deck width is 1.25 × road width, including the widened level-2 road/deck. Follow-up shortens decks to river width + 1.5 (0.75 nominal bank overlap per end) without changing width or dry route turning planes. Blocked opening steering follows collision-valid local bridge waypoints using each animal’s actual radius (.55 sheep, .78 cow), rather than pushing sideways through rail/bank corners. Sampled wet-strip coverage and unchanged full-flock journeys support the repair; Novy accepted the reported landing fix on 14 October 2026.</p>
+<h3 id="f-006--operable-gates-from-level-20">F-006 — Operable gates from level 20<a class="heading-link" href="#f-006--operable-gates-from-level-20" aria-label="Link to F-006 — Operable gates from level 20">#</a></h3>
+<p><strong>Requirement:</strong> introduce gates that need to be opened on higher levels (<strong>20+</strong>).</p>
+<p><strong>Accept when:</strong> closed gates visibly and physically block dog/flock/helpers; an accessible single-thumb action opens them; geometry, collision, navigation and minimap agree on state. Levels 1–19 retain their existing accessible openings. Generated routes remain solvable and restart resets gate state.</p>
+<p><strong>Decision to resolve:</strong> proximity action, auto-open interaction or dedicated contextual button; whether gates close again. Do not add a second-thumb requirement. Current gate openings do not implement this requested closed/open state.</p>
+<h3 id="f-007--stone-wall-variants">F-007 — Stone wall variants<a class="heading-link" href="#f-007--stone-wall-variants" aria-label="Link to F-007 — Stone wall variants">#</a></h3>
+<p><strong>Requirement:</strong> use stone walls instead of fences on some levels.</p>
+<p><strong>Accept when:</strong> selected deterministic levels have readable stone boundaries, consistent visible/physical footprints and usable entrances. Define whether walls block herding signals and how gates join them; raised walls should occlude effects correctly. Keep goals and route clearance valid.</p>
+<p><strong>Decision to resolve:</strong> level/theme distribution and wall height. Candidate files: <code>src/world.js</code>, <code>src/models.js</code>, <code>src/render.js</code>, collision tests.</p>
+<h3 id="f-008--clouds-temporarily-deferred">F-008 — Clouds temporarily deferred<a class="heading-link" href="#f-008--clouds-temporarily-deferred" aria-label="Link to F-008 — Clouds temporarily deferred">#</a></h3>
+<p><strong>Current decision, 15 October 2026 at 11:22 America/Vancouver:</strong> Novy requested removing clouds for now because they are not working as intended. Disable all visible cloud puffs and their associated ground shadows. Rain, fixed per-level weather, sky/fog/daylight, lightning/thunder, wet ground and wildlife remain active.</p>
+<p><strong>Status:</strong> Deferred. The renderer no longer instantiates or updates <code>Atmosphere</code>; its source and unit tests are retained as dormant reference for future work. No cloud texture, billboard or shadow resource is allocated by normal game rendering. Earlier cloud appearance/opacity criteria and review evidence are historical, not current runtime requirements. Do not re-enable clouds as part of routine weather maintenance.</p>
+<h3 id="f-009--delivery-countdown-and-score">F-009 — Delivery countdown and score<a class="heading-link" href="#f-009--delivery-countdown-and-score" aria-label="Link to F-009 — Delivery countdown and score">#</a></h3>
+<p><strong>Requirement:</strong> the first flock animal entering the goal starts a <strong>30–60 second</strong> countdown, chosen by level complexity. End the level when time reaches zero or the last animal arrives. Score reflects animals delivered and displays <strong>score / possible score</strong>.</p>
+<p><strong>Accept when:</strong> a single first valid delivery starts one timer; no pre-arrival timer; duration stays within 30–60 seconds; all-delivered ends early; timeout produces a partial result. Final counts and score settle once, late arrivals cannot change the finalized result, pause freezes gameplay time, and replay/restart clears transient state. Display delivered count and earned/possible score consistently in play and results. Preserve player-attended delivery; helpers cannot complete the level alone.</p>
+<p><strong>Implementation / decisions recorded 14 October 2026:</strong> user approved positive partial unlock, <code>floor(reward * saved / total)</code> score/earned entitlement and lifetime best improvement paying only its delta. <code>1fee206</code> implements a 30–60 second complexity formula, first-arrival start, timeout-before-admission, early full completion, consistent HUD/results and v2 ledger migration. Legacy completions become fully earned without crediting points again. Replay spending/reload cannot farm duplicate rewards. See <a href="gameplay.html">Gameplay</a> for exact formula. Novy accepted F-009 on 14 October 2026; future pacing changes remain tracked separately.</p>
+<p><strong>Files:</strong> <code>src/simulation.js</code>, <code>src/main.js</code>, <code>src/progression.js</code>, UI/style and persistence tests. Depends on F-010 so timer starts only inside the correct goal.</p>
+<h3 id="f-010--goal-shape-matches-enclosure">F-010 — Goal shape matches enclosure<a class="heading-link" href="#f-010--goal-shape-matches-enclosure" aria-label="Link to F-010 — Goal shape matches enclosure">#</a></h3>
+<p><strong>Requirement:</strong> goal areas follow their pen, barn or fenced-field enclosure shape.</p>
+<p><strong>Accept when:</strong> highlight, valid delivery region, minimap and enclosure footprint agree for rotated destinations; animals outside the wall or near a circular corner cannot score. Entrance remains clear and animal body radius is handled consistently. Check all three destination types across seeds.</p>
+<p><strong>Implementation evidence:</strong> world <code>4887ea7</code> exports rotated target local/world transforms, footprint and full-body containment. Goal view <code>984fc64</code> uses footprint corners for highlight, border, barn floor and minimap. Wall endpoints derive from the same shape. Body-contracted admission includes safe rectangular corners and rejects edge-straddling bodies. Rotated pen/field/barn geometry tests support the contract; Novy accepted F-010 on 14 October 2026.</p>
+<h3 id="f-011--dog-tail-light-feedback">F-011 — Dog-tail light feedback<a class="heading-link" href="#f-011--dog-tail-light-feedback" aria-label="Link to F-011 — Dog-tail light feedback">#</a></h3>
+<p><strong>Requirement:</strong> dog&#39;s tail light is blue normally and flashes red on bark.</p>
+<p><strong>Accept when:</strong> Pip&#39;s blue light visibly flashes red for the bark feedback interval and returns blue reliably. Repeated bark, cooldown, pause and level restart leave no stuck-red state. Decide whether Buddy dog uses the same convention when it has an actual bark event. Do not recolor every shared cyan robotic material.</p>
+<p><strong>Files:</strong> <code>src/models.js</code>, <code>src/render.js</code>, <code>src/main.js</code>; use the same bark event as F-002.</p>
+<h3 id="f-012--wandering-and-bolting-animals">F-012 — Wandering and bolting animals<a class="heading-link" href="#f-012--wandering-and-bolting-animals" aria-label="Link to F-012 — Wandering and bolting animals">#</a></h3>
+<p><strong>Requirement:</strong> up to <strong>15%</strong> of animals may have a <strong>33%</strong> chance to move randomly away from the flock when not actively herded. This begins at <strong>level 8</strong>. Such an animal has up to <strong>10%</strong> chance to bolt away for <strong>1–3 seconds</strong>; bolting begins <strong>after level 16</strong> (level 17 onward).</p>
+<p><strong>Accept when:</strong> levels 1–7 have no new wandering; levels 1–16 have no bolting. Eligible cohort never exceeds 15% of the flock; document integer rounding. Probabilities are tied to defined behavior opportunities/time, never rolled every frame. No fleeing through rails, walls, river or map fences; saved animals never use this straggler/bolting behavior; their confined goal roaming is F-028. Active herding suppresses this behavior, and brief bolts end within the specified range. Pause/restart reset behavior safely and seeded tests exercise gates, duration, collision and statistical bounds without flaky expectations.</p>
+<p><strong>Decisions required:</strong> selection/rounding, probability evaluation interval, wander distance/speed/cooldown, what counts as active herding (Pip versus companions), and whether the 10% is conditional on a wander event. Do not silently interpret a chance as a per-second or per-frame rate. Balance together with F-009 to avoid unfair late losses.</p>
+<p><strong>Files:</strong> <code>src/simulation.js</code>, <code>src/world.js</code>, companion/journey/simulation tests.</p>
+<h3 id="f-013--known-level-5-pacing-concern">F-013 — Known level-5 pacing concern<a class="heading-link" href="#f-013--known-level-5-pacing-concern" aria-label="Link to F-013 — Known level-5 pacing concern">#</a></h3>
+<p>The fresh gameplay critic&#39;s unchanged input controller completed default levels 1–5 in <strong>18.2, 17.2, 28.7, 38.7 and 208.0 simulated seconds</strong>. Level 5&#39;s jump warrants human playtesting; it is not proof of an impossible level or a measured human time.</p>
+<p><strong>Accept when:</strong> document human attempts, retrieval/chokepoint behavior and difficulty progression; adjust only where evidence supports it. Re-run the existing ordinary-input journey policies after crossing/countdown/wandering changes. Avoid solving pacing by weakening collision or allowing autonomous completion.</p>
+<h3 id="f-014--real-phone-verification-gap">F-014 — Real-phone verification gap<a class="heading-link" href="#f-014--real-phone-verification-gap" aria-label="Link to F-014 — Real-phone verification gap">#</a></h3>
+<p><strong>Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages <code>50128cdef86c47a383938cc0aac01a29e1f072d2</code>. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing.</strong></p>
+<p><strong>Accept when:</strong> record device/browser, tested source/deployment revision, scenarios, results and screenshot/video evidence. Include restart confirmation/cancellation/persistence. Existing user screenshots provide evidence of specific visual issues; they do not validate every input/audio scenario.</p>
+<h3 id="f-015--performance-verification-gap">F-015 — Performance verification gap<a class="heading-link" href="#f-015--performance-verification-gap" aria-label="Link to F-015 — Performance verification gap">#</a></h3>
+<p>Real phone GPU frame rate and level-transition memory stability remain unmeasured. The existing bounded submission/resource tests are useful but do not establish FPS. Historical production JavaScript was roughly <strong>576 kB / 155 kB gzip</strong>, with an advisory Vite chunk-size warning; this is an optimization consideration, not a confirmed gameplay bug.</p>
+<p><strong>Accept when:</strong> measure normal/large/split herds, later expansive worlds, weather/cloud effects and repeated transitions on representative phones. Record frame-time distribution, load behavior and resource growth. Set a device-specific performance target before judging success.</p>
+<h3 id="f-016--see-pip-and-the-flock-under-cover">F-016 — See Pip and the flock under cover<a class="heading-link" href="#f-016--see-pip-and-the-flock-under-cover" aria-label="Link to F-016 — See Pip and the flock under cover">#</a></h3>
+<p><strong>Requirement:</strong> barns and other covered structures must not obscure Pip or flock animals. When any dog or flock animal enters, fade the <strong>entire roof and complete camera-facing wall side(s)</strong> together to <strong>30% transparency (opacity 0.70)</strong>; do not limit fading to individual panels intersecting an actor ray. Restore when the structure is empty.</p>
+<p><strong>Accept when:</strong> a dog alone, a flock animal alone (including delivered animals), partial entry and split groups trigger the whole roof and every panel of camera-facing wall sides at opacity 0.70. Select sides using the current camera direction for rotated structures; keep far wall sides opaque. Restore smoothly only after the last actor leaves, without flicker or rapid threshold toggles. Transparency changes visibility only; collision, goal admission and enclosure boundaries remain intact.</p>
+<p><strong>Implementation evidence:</strong> initial <code>4cf9719</code> segmented barn roof/walls are retained. Follow-up <code>b322e7d</code> fades all roof panels and full facing wall/trim sides to opacity 0.70 using orthographic camera direction in barn-local coordinates. Pip, helper dogs and all flock animals including saved animals activate coverage; hysteresis/smoothed fades and original material/shadow cleanup remain. Pause freezes fades; collision/admission do not change. Blind source review passed 9/10; Novy accepted F-016 on 14 October 2026.</p>
+<h3 id="f-017--rabbits-and-variable-wildlife-populations">F-017 — Rabbits and variable wildlife populations<a class="heading-link" href="#f-017--rabbits-and-variable-wildlife-populations" aria-label="Link to F-017 — Rabbits and variable wildlife populations">#</a></h3>
+<p><strong>Requirement:</strong> add rabbits alongside squirrels. Rabbits must be recognizably detailed and move like rabbits. Rabbit and squirrel counts are random and depend on level size.</p>
+<p><strong>Accept when:</strong> ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and water/tree/structure barriers; ordinary fences/map edges are permeable under F-027. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level&#39;s base population.</p>
+<p><strong>Decisions to resolve:</strong> area-to-count ranges/caps, whether either species may be absent, and spawn spacing/habitat. Do not silently replace the requested randomness with a fixed count per level.</p>
+<p><strong>Files:</strong> <code>src/nature.js</code>, <code>src/models.js</code>, wildlife/resource tests. Coordinate squirrel motion work with F-003.</p>
+<h3 id="f-018--dev-build-qa-menu">F-018 — Dev-build QA menu<a class="heading-link" href="#f-018--dev-build-qa-menu" aria-label="Link to F-018 — Dev-build QA menu">#</a></h3>
+<p><strong>Requirement:</strong> add a QA menu available in development builds. Testers can jump to any level <strong>0–100</strong>, add bolts, remove bolts, and pause the simulation while moving individual flock animals to reproduce scenarios such as animals stuck in game-hindering positions.</p>
+<p><strong>Accept when:</strong> the menu is clearly marked as QA and available in the deployed development build as well as the intended local development configuration. Release builds expose no QA entry point or enabled mutation handlers. Testers can choose a level without campaign unlock restrictions, enter a bolt amount to add/remove, pause gameplay and select/reposition a particular animal. Currency remains finite and nonnegative. Selection and placement work with touch and mouse and identify the selected animal clearly. Editing does not accidentally steer Pip, resume the simulation, advance countdowns, award progress or trigger delivery. Resume uses the edited scenario normally.</p>
+<p><strong>Implementation evidence:</strong> <code>df1d193</code> adds a dynamically imported QA module only in local development/explicit <code>build:dev</code>; normal production excludes the entry and handlers. User approved QA 0 = tutorial shortcut and public 1–100 = campaign indexes 0–99. First entry starts an isolated default test profile; persistence is suppressed until reload. Dialog pauses gameplay/countdowns/audio, makes background controls inert, permits finite safe bolt edits, identifies animals by species/ID, and edits finite coordinates within bounds. Explicit invalid-placement override bypasses occupancy only; velocity resets and saved state is retained. Reset starts fresh; export downloads a scenario JSON. <code>7acc632</code> restores results when resuming a completed QA meadow without another award. QA-enabled live publication is verified. Novy accepted F-018 on 14 October 2026; animal selection/position controls remain temporarily hidden as requested.</p>
+<p><strong>Files:</strong> build configuration, <code>src/main.js</code>, <code>src/style.css</code>, <code>src/simulation.js</code>, controller/profile tests. QA pause must permit manual edits while freezing all normal simulation; gameplay pause alone is insufficient. Exercise development and release builds separately to verify gating.</p>
+<h3 id="f-019--bushes">F-019 — Bushes<a class="heading-link" href="#f-019--bushes" aria-label="Link to F-019 — Bushes">#</a></h3>
+<p><strong>Requirement:</strong> add bushes to the environment.</p>
+<p><strong>Accept when:</strong> organic bush clusters vary in shape/placement and fit fields/woodland edges without hiding critical controls, destinations or crossings. Generation preserves safe spawns, flock staging space and route clearance. Explicitly decide whether bushes are decorative or physical; if physical, mesh and collision footprints must agree and all routes remain traversable. Include visibility/culling and resource cleanup checks.</p>
+<p><strong>Files:</strong> <code>src/world.js</code>, <code>src/models.js</code>, <code>src/render.js</code>, scenery/world tests. Coordinate appearance with F-021 rather than duplicating the assets.</p>
+<h3 id="f-020--larger-trees">F-020 — Larger trees<a class="heading-link" href="#f-020--larger-trees" aria-label="Link to F-020 — Larger trees">#</a></h3>
+<p><strong>Requirement:</strong> increase the size of trees.</p>
+<p><strong>Accept when:</strong> trees are visibly larger at the normal camera scale and remain proportionate to Pip, animals and structures. Maintain readable play space and valid routes/entrances. If trunk or canopy dimensions change, update placement clearance, physical footprints where applicable, bounds and shadow/culling data together. Verify that larger near-camera trees do not introduce new actor-visibility problems; F-016 covers structures specifically.</p>
+<p><strong>Decision to resolve:</strong> target scale or size range and variation across levels. <code>src/models.js</code>, <code>src/world.js</code> and <code>src/render.js</code> are likely touch points.</p>
+<h3 id="f-021--bush-and-tree-surface-detail">F-021 — Bush and tree surface detail<a class="heading-link" href="#f-021--bush-and-tree-surface-detail" aria-label="Link to F-021 — Bush and tree surface detail">#</a></h3>
+<p><strong>Requirement:</strong> add more detail and textures to bushes and trees.</p>
+<p><strong>Accept when:</strong> foliage has readable volume, color/leaf variation and softened organic forms; trunks/branches have bark detail. Preserve the established cheerful handmade appearance and consistency between new bushes and larger trees. Avoid flat uniform blobs, repetitive obvious tiling and excessive fine-detail shimmer at portrait scale. Assess shader/texture memory, draw submissions, shadows and mobile performance; shared/cached resources must dispose correctly.</p>
+<p><strong>Files:</strong> <code>src/models.js</code>, <code>src/render.js</code>, scenery/resource tests. Dependencies F-019/F-020 establish the base shapes and size targets.</p>
+<h3 id="f-022--weather-aware-wildlife-and-shelter">F-022 — Weather-aware wildlife and shelter<a class="heading-link" href="#f-022--weather-aware-wildlife-and-shelter" aria-label="Link to F-022 — Weather-aware wildlife and shelter">#</a></h3>
+<p><strong>Requirement:</strong> light rain and light wind still allow butterflies, birds, squirrels, rabbits and other wildlife. As weather worsens, smaller animals disappear/hide first; larger animals remain until more extreme conditions, then hide too.</p>
+<p><strong>Accept when:</strong> light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals retain water/tree/barn/stone-wall barriers while ordinary fences/map edges remain permeable under F-027. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.</p>
+<p><strong>Decisions required:</strong> species size categories, severity thresholds/hysteresis, shelter/exit behavior and return delay. The user supplied the ordering principle, not exact numeric thresholds.</p>
+<p><strong>Files:</strong> <code>src/nature.js</code>, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.</p>
+<h3 id="f-023--fixed-per-level-atmosphere-and-storm-feedback">F-023 — Fixed per-level atmosphere and storm feedback<a class="heading-link" href="#f-023--fixed-per-level-atmosphere-and-storm-feedback" aria-label="Link to F-023 — Fixed per-level atmosphere and storm feedback">#</a></h3>
+<p><strong>Current requirement:</strong> the level retains its selected weather; rain/storm intensity is conveyed through rain, sky/fog/daylight and paired lightning/thunder. Visible clouds and cloud shadows are temporarily removed under F-008 at Novy&#39;s request on 15 October 2026. Earlier dynamic weather ramps and cloud-coverage requirements are superseded.</p>
+<p><strong>Accept when:</strong> the selected sunny/breezy/light/heavy/storm condition remains fixed throughout the level; storm flashes and thunder share one bounded event with sensible delay. Rain, lighting and ground state remain readable. Mute, pause, backgrounding, replay and level changes cancel pending/stale effects consistently. No cloud meshes or cloud ground shadows appear. Phone appearance/listening acceptance remains pending for the rain/storm effects.</p>
+<p><strong>Files:</strong> <code>src/weather.js</code>, <code>src/nature.js</code>, <code>src/rain-view.js</code>, <code>src/render.js</code>, <code>src/audio.js</code> and relevant tests. <code>Atmosphere</code> is dormant and no longer part of the runtime contract.</p>
+<h3 id="f-024--rain-accumulation-puddles-and-water-response">F-024 — Rain accumulation, puddles and water response<a class="heading-link" href="#f-024--rain-accumulation-puddles-and-water-response" aria-label="Link to F-024 — Rain accumulation, puddles and water response">#</a></h3>
+<p><strong>Requirement:</strong> ground appearance reflects rainfall. Light rain has little effect; sustained heavier rain slowly darkens grass green and dirt tracks brown. Rainstorms produce standing puddles and splashes when animals walk through them. River water also reflects the weather change.</p>
+<p><strong>Accept when:</strong> wetness accumulates with rain amount over simulation time, rather than switching instantly to a fixed dark material. Grass and paths respond distinctly while remaining readable. Storm puddles occupy plausible ground locations without clipping across bridges or raised surfaces, and flock movement through them generates brief localized splashes; stationary animals do not emit continuous splash bursts. River surface appearance responds coherently to rain/storm intensity while retaining directional flow (F-004). These visual effects do not silently alter movement/collision. Pause freezes accumulation and events; restart/level replacement clears transient resources correctly. Preserve mobile performance under large moving flocks.</p>
+<p><strong>Decisions required:</strong> accumulation/saturation and drying rates, puddle formation thresholds/placement, river changes (for example ripples, roughness or color), and whether Pip/helpers/wildlife also splash. Those examples are implementation options, not approved extra mechanics.</p>
+<p><strong>Files:</strong> <code>src/nature.js</code>, <code>src/render.js</code>, <code>src/world.js</code>, weather/renderer/resource tests. Use shared weather state from F-023 and check material sharing does not leak wetness into the next level.</p>
+<h3 id="f-026--quit-to-landing-page">F-026 — Quit to landing page<a class="heading-link" href="#f-026--quit-to-landing-page" aria-label="Link to F-026 — Quit to landing page">#</a></h3>
+<p><strong>Requirement:</strong> the pause menu should include a Quit button that returns to the landing page. Added directly on GitHub while this batch was in progress; retained as an Open P3 item.</p>
+<p><strong>Accept when:</strong> Quit returns to the intro/landing screen with movement stopped and transient gameplay/audio handled consistently. Normal saved progress and earned money are preserved. Define whether the current in-progress meadow is discarded or can be resumed; do not treat Quit as Restart Game.</p>
+<h3 id="f-027--wildlife-crossing-fences-and-map-edges">F-027 — Wildlife crossing fences and map edges<a class="heading-link" href="#f-027--wildlife-crossing-fences-and-map-edges" aria-label="Link to F-027 — Wildlife crossing fences and map edges">#</a></h3>
+<p><strong>Requirement:</strong> wildlife can pass through fences and leave and enter the game area. Added directly on GitHub as a second F-025; recorded here as F-027 to preserve the existing P0 deployment issue ID.</p>
+<p><strong>Accept when:</strong> the wildlife movement/spawn rules explicitly support crossing fences and departing/returning at the playable perimeter without permitting the robotic flock or Pip to cross their physical boundaries. Coordinate population budgets and natural entry/exit behavior with F-017. Decide how ground wildlife handles rivers, other obstacles and weather shelter; do not silently remove all wildlife collision checks.</p>
+<h3 id="acceptance-record--p2-items-15-october-2026">Acceptance record — P2 items, 15 October 2026<a class="heading-link" href="#acceptance-record--p2-items-15-october-2026" aria-label="Link to Acceptance record — P2 items, 15 October 2026">#</a></h3>
+<p>Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-021 and F-027 at approximately 10:56 America/Vancouver for the public Pages build <code>cc13865</code>, source <code>b1fdac3</code>. Mark these issues Done for that deployed revision. This acceptance does not imply new requirements F-030–F-039 are implemented, and does not accept the existing dynamic weather behavior: F-008 and F-022–F-024 are reopened as P1 work tied to F-040.</p>
+<h3 id="f-030--lighter-more-contrasting-water-waves-p3">F-030 — Lighter, more contrasting water waves (P3)<a class="heading-link" href="#f-030--lighter-more-contrasting-water-waves-p3" aria-label="Link to F-030 — Lighter, more contrasting water waves (P3)">#</a></h3>
+<p><strong>Requirement:</strong> make river waves lighter and more contrasting.</p>
+<p><strong>Accept when:</strong> wave detail is visibly lighter and has stronger contrast against the river base at normal portrait zoom, follows the local river direction through bends, remains seamless at banks/bridges and stays readable in all fixed weather types. Check pause and mobile rendering cost.</p>
+<p><strong>Status:</strong> Open; no implementation authorized by the acceptance of F-004.</p>
+<h3 id="f-031--random-gates-and-ungated-alternatives-p2">F-031 — Random gates and ungated alternatives (P2)<a class="heading-link" href="#f-031--random-gates-and-ungated-alternatives-p2" aria-label="Link to F-031 — Random gates and ungated alternatives (P2)">#</a></h3>
+<p><strong>Requirement:</strong> gates are present on 20+ levels, but not every level; some gate levels offer an alternative route without a gate.</p>
+<p><strong>Accept when:</strong> deterministic per-level generation can produce gated and gate-free levels at 20+, never places gates on levels below 20, and some gated levels have a complete, navigable ungated alternative. Tests cover multiple seeds, route connectivity, body clearance and helper navigation. Preserve the existing approved gate interaction in F-006.</p>
+<p><strong>Status:</strong> Open. Exact random distribution is unspecified and must not be invented as user-approved.</p>
+<h3 id="f-032--world-fence-gate-indicator-and-dog-activation-p3">F-032 — World-fence gate indicator and dog activation (P3)<a class="heading-link" href="#f-032--world-fence-gate-indicator-and-dog-activation-p3" aria-label="Link to F-032 — World-fence gate indicator and dog activation (P3)">#</a></h3>
+<p><strong>Requirement:</strong> show a world-fence button red when closed and green when open; touching the button with the dog activates it.</p>
+<p><strong>Accept when:</strong> the button is visibly red only for closed gates and green only for open gates; dog contact activates the associated gate reliably, updates collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.</p>
+<p><strong>Status:</strong> Open. Clarify the interaction mapping during implementation if the visual button/control relationship is ambiguous; do not silently change F-006&#39;s accepted action.</p>
+<h3 id="f-033--english-dry-stone-wall-appearance-p2">F-033 — English dry-stone wall appearance (P2)<a class="heading-link" href="#f-033--english-dry-stone-wall-appearance-p2" aria-label="Link to F-033 — English dry-stone wall appearance (P2)">#</a></h3>
+<p><strong>Requirement:</strong> stone walls should look like drystone walls built by an English farmhand.</p>
+<p><strong>Accept when:</strong> rendered walls read as hand-laid, irregular dry-stone masonry with plausible varied stones and no visible mortar, while maintaining consistent collision, gates/openings, route clearance and mobile performance. Review at normal game zoom and across wall orientations.</p>
+<p><strong>Status:</strong> Open; appearance request only, with no runtime change in this documentation task.</p>
+<h3 id="f-034--seeded-per-level-stone-wall-chance-p3">F-034 — Seeded per-level stone-wall chance (P3)<a class="heading-link" href="#f-034--seeded-per-level-stone-wall-chance-p3" aria-label="Link to F-034 — Seeded per-level stone-wall chance (P3)">#</a></h3>
+<p><strong>Requirement:</strong> each level has a seeded 15% chance to use stone walls, replacing the existing fixed four-level sequence.</p>
+<p><strong>Accept when:</strong> each level&#39;s wall selection is reproducible from its seed and uses a 15% per-level probability; no deterministic every-fourth-level rule remains. Statistical tests assess broad distribution across a large seed set without brittle per-seed expectations; route openings and clearance remain valid.</p>
+<p><strong>Status:</strong> Open; depends on the F-033 appearance contract and F-007 accepted wall functionality.</p>
+<h3 id="f-035--baseline-bolt-duration-p2">F-035 — Baseline bolt duration (P2)<a class="heading-link" href="#f-035--baseline-bolt-duration-p2" aria-label="Link to F-035 — Baseline bolt duration (P2)">#</a></h3>
+<p><strong>Requirement:</strong> baseline bolts last 3-5 seconds (public levels 17-39); public 40-69 uses 4-6 seconds and 70+ uses 5-10 seconds under F-039. Durations are seeded and interrupted only by herding, delivery, or loss of cohort eligibility as undelivered count shrinks.</p>
+<p><strong>Status:</strong> Review, implemented with regression coverage; pending user acceptance of the new gameplay build.</p>
+<h3 id="f-036--unattended-flock-spreads-across-the-field-p3">F-036 — Unattended flock spreads across the field (P3)<a class="heading-link" href="#f-036--unattended-flock-spreads-across-the-field-p3" aria-label="Link to F-036 — Unattended flock spreads across the field (P3)">#</a></h3>
+<p><strong>Requirement:</strong> when unattended, the flock spreads out across the field.</p>
+<p><strong>Accept when:</strong> with Pip and helpers not actively controlling the herd, eligible undelivered animals disperse across usable field area; spread remains bounded by gameplay barriers and field edges, does not cause stuck animals or autonomous goal delivery, and stops/reverses appropriately when herding resumes. Saved animals continue to follow F-028&#39;s enclosure roaming contract. Define measurable spread/coverage during implementation without presenting a chosen metric as user-approved.</p>
+<p><strong>Status:</strong> Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.</p>
+<h3 id="f-037--per-level-eligible-wander-cohort-p2">F-037 — Per-level eligible wander cohort (P2)<a class="heading-link" href="#f-037--per-level-eligible-wander-cohort-p2" aria-label="Link to F-037 — Per-level eligible wander cohort (P2)">#</a></h3>
+<p><strong>Requirement, clarified 15 October 2026 at 17:03 Vancouver:</strong> each level has its own fresh cohort with no cross-level memory; only undelivered animals participate. Implementation retains a cap of floor(20% of the current undelivered flock) on every level, with stable seeded ranking that is recomputed as deliveries reduce that count. Active player/helper pressure suppresses opportunities. Saved animals retain separate confined goal roaming.</p>
+<p><strong>Status:</strong> Review, implemented; pending user gameplay acceptance.</p>
+<h3 id="f-038--larger-less-linear-multi-directional-levels-p2">F-038 — Larger, less-linear multi-directional levels (P2)<a class="heading-link" href="#f-038--larger-less-linear-multi-directional-levels-p2" aria-label="Link to F-038 — Larger, less-linear multi-directional levels (P2)">#</a></h3>
+<p><strong>Requirement:</strong> levels should grow progressively larger and less linear, using multiple directions, fields, rivers and tree clusters; routes must preserve body clearance and avoid stuck animals, and later difficulty must account for helpers.</p>
+<p><strong>Accept when:</strong> public level progression includes larger usable fields and more multi-directional route choices across generated fields, rivers and tree clusters. Every route fits the largest applicable animal body and helper footprint, avoids pinches/stalls, and remains connected under gates/walls; later levels are evaluated with helpers present so added companions do not make progression artificially easy. Use seeded route sweeps and ordinary-input journeys while preserving the level-2 bridge retrieval regression. Exact size/progression thresholds remain implementation decisions, not user-approved values.</p>
+<p><strong>Status:</strong> Open.</p>
+<h3 id="f-039--late-level-wanderbolt-tuning-p2">F-039 — Late-level wander/bolt tuning (P2)<a class="heading-link" href="#f-039--late-level-wanderbolt-tuning-p2" aria-label="Link to F-039 — Late-level wander/bolt tuning (P2)">#</a></h3>
+<p><strong>User clarification, 15 October 2026 at 17:03 Vancouver:</strong> replace the earlier 30%/50% figures with 20% chance per check above level 40 and 25% above level 70; randomize checks between 5 and 8 seconds. Each level owns its flock cap and transient state; only undelivered animals participate.</p>
+<p><strong>Implemented bands:</strong> public levels 8-40 retain 33% wander probability per eligible check; levels 41-70 use 20%, and 71+ use 25%. The eligible cohort remains capped at floor(20% of undelivered animals) per F-037. Conditional bolt probability is 10% from public level 17, and 20% at 41+. Bolt duration steps from baseline 3-5 seconds to 4-6 at public 40 and 5-10 at public 70. These are step bands, not interpolated scaling.</p>
+<p>Each animal owns a deterministic sequence of independent seeded 5-8 second check intervals. Pause freezes simulation time; delayed calls never replay a backlog. Saved, actively herded and already-settled animals cannot begin an excursion. Fresh levels/restarts reset schedules, eligibility and local roaming.</p>
+<p><strong>Status:</strong> Review, implemented; pending user gameplay/pacing acceptance. The new clarification supersedes the earlier unresolved 30%/50% interpretation.</p>
+<h3 id="f-040--fixed-per-level-weather-remove-snow-p1">F-040 — Fixed per-level weather; remove snow (P1)<a class="heading-link" href="#f-040--fixed-per-level-weather-remove-snow-p1" aria-label="Link to F-040 — Fixed per-level weather; remove snow (P1)">#</a></h3>
+<p><strong>Requirement:</strong> remove all snow. Choose each level&#39;s weather once and retain it for the whole level, beginning with light rain from public level 9; introduce heavy rain and storms later. No within-level switches to sun or another rain tier.</p>
+<p><strong>Accept when:</strong> no snow renders; one seeded kind/intensity/severity/daylight is chosen at level creation and remains fixed. Public level 9 demonstrates light rain. The implementation currently introduces heavy rain at 16 and storms at 24, with those levels guaranteed examples and seeded weighted selection elsewhere; these later thresholds/weights are source tuning choices, not user-specified requirements. Rain/cloud motion, puddle accumulation and paired lightning/thunder may animate without changing weather kind or tier. Rain/clouds must be visible immediately, including the first camera frame; pause/restart/hidden-tab/audio behavior remains deterministic and safe.</p>
+<p><strong>Dependencies and reopened work:</strong> F-008 clouds, F-022 wildlife shelter, F-023 atmosphere/lightning and F-024 wetness/puddles are all P1 candidate work under this contract. Earlier 90-second episodes and snow behavior are superseded.</p>
+<p><strong>Status:</strong> Review. Fixed weather, orthographic rain/cloud projection, first-frame wet ground, labels and bounded storm events are implemented; independent source reviews meet 8/10. Fresh phone appearance/listening acceptance is pending. See the implementation handoff below.</p>
+<h3 id="f-028--delivered-animals-roam-inside-the-goal">F-028 — Delivered animals roam inside the goal<a class="heading-link" href="#f-028--delivered-animals-roam-inside-the-goal" aria-label="Link to F-028 — Delivered animals roam inside the goal">#</a></h3>
+<p><strong>Requirement:</strong> once an animal is delivered, let it continue gentle movement within the goal instead of stopping at the entry edge. Its entire body must remain inside the shared rotated enclosure footprint, including the entrance opening. Keep saved state permanent and the score/countdown/result contract unchanged.</p>
+<p><strong>Accept when:</strong> sheep and cows entering at any wall/corner move into and roam around the enclosure without leaving through the entrance, crossing solid obstacles or jittering at boundaries. Saved animals stay excluded from herding, companion membership and additional admission events. Gentle deterministic roaming continues behind completed results without moving Pip/undelivered animals, changing finalized counts/rewards or advancing the recovery clock. Pause, workshop, QA editing and hidden/background state freeze roaming. Restart/level replacement clears transient roaming state. Test rotated pen, field and barn footprints, actual species radii, timeout/full completion and multiple delivered animals.</p>
+<p><strong>Implementation:</strong> source <code>637111e</code> uses deterministic per-animal interior targets, gentle movement capped at 0.65 units/second, saved-only separation and full-body rotated-footprint validation after world collision. Saved animals stay excluded from active herding/admission. A saved-only step continues behind visible results and freezes with menus/QA editing/hidden-page state. Normal moving headings and gaits replace fixed saved headings. Node 22.23.3 final source suite passes 165/165; Node 24 journeys pass 5/5. Blind review passed 9.5/10 with 30,900 independent per-step containment checks and zero escapes. User acceptance for deployed build <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code> was recorded 15 October 2026 at 00:28 America/Vancouver.</p>
+<p><strong>Scope:</strong> approved replacement for stationary delivered animals. This is separate from F-012 straggler wandering/bolting. User requested 14 October 2026 (America/Vancouver). Existing P0/P1 sign-offs remain closed.</p>
+<h3 id="f-029--lifetime-best-score-improvement-pays-only-its-difference">F-029 — Lifetime-best score improvement pays only its difference<a class="heading-link" href="#f-029--lifetime-best-score-improvement-pays-only-its-difference" aria-label="Link to F-029 — Lifetime-best score improvement pays only its difference">#</a></h3>
+<p><strong>Requirement:</strong> on each completed level, award only the positive improvement over that level&#39;s best previously earned bolts. Equal or lower scores pay zero. Spending bolts, reloading, or replaying must not reset the lifetime best.</p>
+<p><strong>Accept when:</strong> an initial earned score of 32 followed by 64 pays 32 additional bolts; an equal or lower replay pays zero. Spending bolts and reloading preserve the best-earned ledger, so subsequent equal/worse runs still pay zero. The best score and earned-bolt ledger remain consistent.</p>
+<p><strong>Status / evidence:</strong> Done; this was already implemented and verified, not a new economy change. <code>applyLevelReward</code> uses <code>bestEarnedBolts</code>/<code>bestScores</code> to pay only the positive difference. The focused replay tests in <code>tests/delivery.test.js</code> cover better, equal and worse replays and persistent ledger behavior. See <a href="gameplay.html">Gameplay</a> and <a href="requirements.html">Requirements</a>.</p>
+<p><strong>Report disposition, 15 October 2026 (Vancouver):</strong> the latest P0 “missing bolts on replay” report is withdrawn as invalid because it describes the intended lifetime-best delta rule. No active bug remains. No gameplay or economy code changes are requested or included.</p>
+<h2 id="previously-repaired--retain-as-regressions">Previously repaired — retain as regressions<a class="heading-link" href="#previously-repaired--retain-as-regressions" aria-label="Link to Previously repaired — retain as regressions">#</a></h2>
+<p>These are not open defects unless reproduced again: drone selecting the largest herd and holding when Pip leaves; no unattended goal completion; unlocks (drone 10, Buddy 20); path variety/map extent/continuous rivers; scenery hill collision alignment; pending audio activation overriding pause; overdue music scheduling burst; the default level-2 bridge stall; full-game restart persistence and delayed-audio focus. See <code>docs/QUALITY.md</code> and current tests for scope and limitations.</p>
+<p>The latest Restart Game source passed CI tests/build and deployment byte verification. Historical blind scores <strong>9.1 technical / 8.6 gameplay</strong> describe the earlier bounded review, not a review of these newly requested changes. Do not update scores without a new independent assessment.</p>
+<h2 id="execution-record">Execution record<a class="heading-link" href="#execution-record" aria-label="Link to Execution record">#</a></h2>
+<p>Copy one row per claimed issue; retain older entries when reopening work.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Owner</th>
+<th>Status</th>
+<th>Branch/worktree</th>
+<th>Source commit</th>
+<th>Checks and review evidence</th>
+<th>Deployment commit</th>
+<th>Date / next action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F-025</td>
+<td>P0 implementation/release</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>6616c41</code></td>
+<td>Asset graph/helper tests; all 15 live game files + redirect hashes; 17 unrelated blobs preserved; independent blind medium 9/10</td>
+<td><code>baca95c7ba618d736730194b433254bf5058dd66</code></td>
+<td>14 Oct 2026; P1 release separate</td>
+</tr>
+<tr>
+<td>F-001</td>
+<td>P1 surfaces</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>eed14e5</code></td>
+<td>Union topology/coverage regressions; final integrated checks tracked in runbook</td>
+<td><code>9346f26</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-002</td>
+<td>P1 surfaces</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>eed14e5</code></td>
+<td>Surface/deck geometry, pause and ownership checks</td>
+<td><code>9346f26</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-005</td>
+<td>P1 world</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>4887ea7</code>, <code>185116a</code></td>
+<td>Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys; user accepted deployed follow-up</td>
+<td><code>8a76de3</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-009</td>
+<td>P1 delivery</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>1fee206</code></td>
+<td>Timer, proportional score, canonical ledger/migration and controller checks</td>
+<td><code>9346f26</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-010</td>
+<td>P1 world/presentation</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>4887ea7</code>, <code>984fc64</code></td>
+<td>Rotated corners, full-body containment, goal/map/floor geometry</td>
+<td><code>9346f26</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-016</td>
+<td>P1 cutaway</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>4cf9719</code>, <code>b322e7d</code></td>
+<td>Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup; user accepted deployed follow-up</td>
+<td><code>8a76de3</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-018</td>
+<td>P1 QA</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>df1d193</code></td>
+<td>Isolated session, mapping, pause/edit validation, bundle gating</td>
+<td><code>9346f26</code></td>
+<td>14 Oct 2026; user signed off</td>
+</tr>
+<tr>
+<td>F-028</td>
+<td>Goal roaming</td>
+<td>Done</td>
+<td>Integrated source</td>
+<td><code>e03ba16</code></td>
+<td>165 tests, per-step mixed-species confinement, blind 9.5/10</td>
+<td><code>639a9b4</code></td>
+<td>15 Oct 2026 00:28 Vancouver; user accepted deployed build</td>
+</tr>
+<tr>
+<td>F-029</td>
+<td>Best-score replay reward</td>
+<td>Done</td>
+<td>Existing implementation; docs-only record</td>
+<td><code>c4422cd</code></td>
+<td>Focused replay tests in <code>tests/delivery.test.js</code>; best improvement pays difference, equal/worse pay zero, ledger survives spending/reload</td>
+<td>—</td>
+<td>15 Oct 2026; withdrawn P0 report was invalid</td>
+</tr>
+<tr>
+<td>F-014</td>
+<td>Device QA</td>
+<td>Done</td>
+<td>User acceptance</td>
+<td><code>b663de7</code></td>
+<td>Novy confirmed real-phone QA; device/browser details not supplied</td>
+<td><code>50128cd</code></td>
+<td>14 Oct 2026 (Vancouver); retain separate visual/performance issues</td>
+</tr>
+<tr>
+<td>F-003/004/006/007/011/012/017/019/020/021/027</td>
+<td>Published P2 acceptance</td>
+<td>Done</td>
+<td>Deployed Pages build</td>
+<td><code>b1fdac3</code></td>
+<td>User accepted these 11 items; new weather contract explicitly remains open</td>
+<td><code>cc13865</code></td>
+<td>15 Oct 2026 approx. 10:56 Vancouver; F-008/F-022–F-024 reopened under F-040</td>
+</tr>
+</tbody></table></div>
+<h2 id="decisions-and-session-handoff">Decisions and session handoff<a class="heading-link" href="#decisions-and-session-handoff" aria-label="Link to Decisions and session handoff">#</a></h2>
+<p>Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.</p>
+<p>Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. F-028 goal roaming is Done by user acceptance at 00:28 America/Vancouver for deployed Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code>. That was the pre-P2 release checkpoint. The published P2 candidate added squirrel motion, rabbits, vegetation and linked weather systems. Eleven items were accepted at approximately 10:56 Vancouver for Pages <code>cc13865</code> / source <code>b1fdac3</code>. F-008 and F-022–F-024 are now P1 and reopened under F-040 because the user requested fixed weather and no snow. F-030–F-040 are newly queued and Open; P3 and F-013 work remains Open. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores. The 15 October 10:56 acceptance applies to the already published build only; no F-030–F-040 implementation or newer publication is implied.</p>
+<p>Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See <a href="p0-p1-validation.html">P0/P1 validation</a> for exact scenarios and limitations.</p>
+<p>Integration note, 14 October 2026: remote commit <code>6ac8eb7</code> added Quit (F-026) and wildlife crossing fences/edges under a duplicate F-025. Both requests are preserved; the latter is now F-027. Neither P2/P3 feature is included in this P0/P1 implementation batch.</p>
+<p>P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at <code>f0a87a1</code> gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 159/159 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.</p>
+<h2 id="follow-up-device-reports--14-october-2026-vancouver">Follow-up device reports — 14 October 2026 (Vancouver)<a class="heading-link" href="#follow-up-device-reports--14-october-2026-vancouver" aria-label="Link to Follow-up device reports — 14 October 2026 (Vancouver)">#</a></h2>
+<ul>
+<li><code>IMG_8375.jpeg</code> (level 4): user confirmed deck width and reported excessive length into land and animals caught near the bank/rail ends. Shorter landing follow-up was deployed and accepted; F-005 is Done.</li>
+<li><code>IMG_8376.jpeg</code> (level 3 barn): roof remained opaque over Pip. Whole-roof/camera-facing-side fade was deployed and accepted; F-016 is Done.</li>
+<li>F-014 remains Done by user confirmation; these specific follow-up reports retain their own acceptance checks.</li>
+</ul>
+<h2 id="follow-up-acceptance--14-october-2026-vancouver">Follow-up acceptance — 14 October 2026 (Vancouver)<a class="heading-link" href="#follow-up-acceptance--14-october-2026-vancouver" aria-label="Link to Follow-up acceptance — 14 October 2026 (Vancouver)">#</a></h2>
+<p>Novy replied “Looks good” to the deployed bridge (F-005) and barn cutaway (F-016) follow-up at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>. Mark F-005 and F-016 Done by user acceptance. The historical blind reviews and device limitation records above remain historical evidence; this acceptance applies to the deployed reported fixes only. F-014 was already Done.</p>
+<h2 id="final-p1-user-acceptance--14-october-2026">Final P1 user acceptance — 14 October 2026<a class="heading-link" href="#final-p1-user-acceptance--14-october-2026" aria-label="Link to Final P1 user acceptance — 14 October 2026">#</a></h2>
+<p>Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages <code>8a76de36bbb61ba824bc9371f85971667f786c35</code>, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.</p>
+<h2 id="current-follow-up--f-028">Current follow-up — F-028<a class="heading-link" href="#current-follow-up--f-028" aria-label="Link to Current follow-up — F-028">#</a></h2>
+<p>F-028 delivered goal roaming is Done by user acceptance on 15 October 2026 at 00:28 America/Vancouver for the deployed build at Pages <code>639a9b45608fa0ad6aaa8189dd91dd7ba24b082d</code>, source <code>e03ba169be760a4031d2b57887f0d6998eb07187</code>. The acceptance covers the reported goal-roaming behavior on that build; source review, test counts and device evidence retain their recorded scope. Existing P0/P1 sign-offs remain Done.</p>
+<h2 id="p2-candidate-handoff--15-october-2026">P2 candidate handoff — 15 October 2026<a class="heading-link" href="#p2-candidate-handoff--15-october-2026" aria-label="Link to P2 candidate handoff — 15 October 2026">#</a></h2>
+<p>F-003/F-004/F-006/F-007/F-008/F-011/F-012/F-017/F-019/F-020/F-021/F-022/F-023/F-024/F-027 are candidate changes in <strong>Review</strong>, not user sign-off. Code is developed in isolated workstreams and integrated on <code>flock_3D_chatgpt-work</code>. Do not reopen prior P0/P1 acceptance. F-013 remains Open: historical simulated pacing is not a substitute for human level-5 attempts. F-015/F-026 remain Open P3 work.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Workstream</th>
+<th>Owner / worktree</th>
+<th>Source evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gates / stone walls</td>
+<td>p2_gates_walls / <code>flock-gates</code></td>
+<td><code>fb63a6b</code>; public level20 closed gates, nearby independent Open gate control; deterministic stone variants from level8 every fourth level</td>
+</tr>
+<tr>
+<td>Weather / cloud / thunder</td>
+<td>p2_weather / <code>flock-p2-weather</code></td>
+<td><code>c6e877d</code>; one shared deterministic weather state, 90-second episodes with 18-second ramps, bounded paired lightning/thunder</td>
+</tr>
+<tr>
+<td>Ground/water effects</td>
+<td>p2_water / <code>Flock-water-fix</code>, integration root</td>
+<td><code>32fc389</code>, integrated local arc-length UV and persistent-puddle corrections in <code>b431cfe</code></td>
+</tr>
+<tr>
+<td>Vegetation / tail feedback</td>
+<td>p2_vegetation / <code>flock-p2-vegetation</code></td>
+<td><code>979f27b</code>; safe decorative clusters, larger detailed trees, isolated blue/red tail material</td>
+</tr>
+<tr>
+<td>Stragglers</td>
+<td>p2_wandering / <code>Flock-f012-wanderers</code></td>
+<td><code>3fdd2be</code>; fixed seeded cohort and five-second probability opportunities, with integrated duration follow-up <code>8ac64a8</code></td>
+</tr>
+<tr>
+<td>Wildlife</td>
+<td>p2_wildlife / <code>Flock-p2-wildlife</code></td>
+<td><code>b648670</code>, shelter/motion follow-up <code>a6e8cb2</code>, actual stone-material and hysteresis integration fixes</td>
+</tr>
+</tbody></table></div>
+<p>Weather effects are visual and ambient; collisions, rewards and robotic movement do not consume weather severity. No weather opacity exception: cloud materials stay .10–.12, with worsening cover through puff area. Weather, ground wetness and puddles evolve in unpaused presentation time (playing, intro and results) and restart dry; menus/QA freeze them. Delivery and straggler behavior advance only during gameplay. Bushes are decorative. Wildlife-specific permeability never applies to Pip, helpers or flock.</p>
+<p>Blind source review results and test limitations are recorded in <a href="quality.html">QUALITY.md</a>. This batch needs fresh phone appearance/motion/listening acceptance; earlier F-014 acceptance does not automatically validate these new visuals. Source-test scores are not a rendered game rating. Runtime deployment evidence is recorded separately after publication.</p>
+<p>Node 22 integration follow-up <code>30abd2a</code> repairs actual-radius route fallback and pressured enclosure-corner retrieval exposed by stone geometry. Five unchanged journeys pass on Node 22 and Node 24; F-013 still needs human pacing attempts.</p>
+<h2 id="verified-p2-development-publication--15-october-2026">Verified P2 development publication — 15 October 2026<a class="heading-link" href="#verified-p2-development-publication--15-october-2026" aria-label="Link to Verified P2 development publication — 15 October 2026">#</a></h2>
+<p>Live game: <strong><a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a></strong>. Runtime source snapshot <code>b1fdac3697de6dd597cfb6f98e8d1fbbda1be5a8</code>; Pages <code>cc138652cc55f5c88cc36c336f575aa26120ebee</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38703120954">38703120954</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38703297030">38703297030</a> both succeeded. All 17 development-game files plus the legacy redirect match live SHA-256 hashes; all 18 blobs outside <code>dev2/</code> are unchanged. Main runtime asset: <code>assets/index-BPDTiqRn.js</code>.</p>
+<p>Final source CI passes the 212-test aggregate, generated-documentation checks and both release/development build checks. Local full suites before the final hidden-tab guard passed 211/211 on Node 22 and Node 24; the guard&#39;s focused UI/QA tests passed 28/28, and final CI includes its added regression. Blind source reviews meet the 8/10 target; documentation follow-up is 8.5/10. No fresh rendered/device acceptance is claimed.</p>
+<p>Implemented P2 items stay <strong>Review</strong> for Novy&#39;s acceptance. F-013 remains <strong>Open</strong> pending human level-5 pacing; F-015/F-026 remain <strong>Open</strong> P3 work. Previous P0/P1 and F-028/F-029 sign-offs remain Done. Workstream SHAs elsewhere in this record identify local development evidence; the published runtime snapshot above contains their integrated code. The following documentation-only commit does not change the verified runtime build.</p>
+<h2 id="fixed-weather-implementation-handoff--15-october-2026">Fixed-weather implementation handoff — 15 October 2026<a class="heading-link" href="#fixed-weather-implementation-handoff--15-october-2026" aria-label="Link to Fixed-weather implementation handoff — 15 October 2026">#</a></h2>
+<p>The 11 accepted P2 items remain Done. F-030–F-039 remain Open, queued enhancements; <strong>none of the new gate/wall/wander/map features are implemented in this weather batch</strong>. F-008/F-022/F-023/F-024/F-040 are <strong>Review</strong> after source fixes and independent review, pending Novy&#39;s new weather appearance/listening acceptance. Earlier 90-second transitions and snow are superseded.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
+<thead>
+<tr>
+<th>Candidate ownership</th>
+<th>Branch/worktree</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fixed state / audio</td>
+<td><code>fix/fixed-weather-state</code>, <code>Flock-weather-state</code></td>
+<td><code>58b563c</code>; no snow, no within-level weather changes, deterministic bounded paired storm events</td>
+</tr>
+<tr>
+<td>Cloud/rain projection</td>
+<td><code>fix/weather-visibility</code>, <code>Flock-visible-weather</code>; <code>fix/weather-projection</code>, <code>Flock-weather-projection</code></td>
+<td><code>2afe4de</code>, <code>7b4b515</code>; actual orthographic rays, visible first-camera rain, moving shadows, three bounded weather draws</td>
+</tr>
+<tr>
+<td>Integrated wet ground / labels</td>
+<td>main integration</td>
+<td><code>8afd27e</code>; initial wet heavy/storm meadow, mission weather label, normalized signed cloud drift, pause/reset tests</td>
+</tr>
+</tbody></table></div>
+<p>QA public <strong>9</strong> = light rain, <strong>16</strong> = heavy rain, <strong>24</strong> = storm, for every seed unless an explicit permitted weather override is used. Level 9 is the user-specified light-rain start; 16/24 and seeded weights on other levels are initial tuning choices. Each level&#39;s kind/intensity/daylight stays fixed. Ground water accumulation, cloud/rain motion and lightning events can animate without changing that weather. No snow render/audio type remains; the legacy <code>snow</code> override maps to an allowed light rain/dry state.</p>
+<p>Source review: <strong>8/10</strong>, geometry/visibility review: <strong>8.3/10</strong>. These do not establish perceived appearance on a phone. Geometry review used actual camera rays and texture-alpha sampling, found discrete clouds in portrait/landscape across small/large maps, and verified first-camera rain distribution, shadow motion, pauses and disposal. See <a href="quality.html">quality record</a> for final test/publication evidence.</p>
+<h2 id="verified-fixed-weather-publication--15-october-2026">Verified fixed-weather publication — 15 October 2026<a class="heading-link" href="#verified-fixed-weather-publication--15-october-2026" aria-label="Link to Verified fixed-weather publication — 15 October 2026">#</a></h2>
+<p>Live candidate: <strong><a href="https://novydhillon.github.io/Flock/dev2/">https://novydhillon.github.io/Flock/dev2/</a></strong>. Runtime source <code>878efee1db3c781c7d60c3f0f620ed6a9467dbcd</code>; Pages <code>27b1bf535c09642f86d5a6ce032b88906eb695c5</code>. Source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38783755137">38783755137</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38783945804">38783945804</a> succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 blobs outside <code>dev2/</code> remain unchanged. Main runtime asset: <code>assets/index-BLaryV1o.js</code>.</p>
+<p>Final source CI passes 220 tests, documentation checks and release/development QA-exclusion/inclusion builds. Independent source and geometry reviews are 8/10 and 8.3/10; documentation is 8/10. Source publication does not constitute phone appearance/audio acceptance.</p>
+<p>The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Open; F-008/F-022/F-023/F-024/F-040 stay Review pending the new weather test. Public QA levels 9/16/24 demonstrate fixed light/heavy/storm conditions without waiting for a transition; storm lightning starts after 8–12 unpaused presentation seconds. No snow is rendered. The thresholds 16/24 remain tuning choices. Development workstream SHAs identify local evidence; the runtime snapshot above contains the integrated source. The following evidence-only documentation commit does not change the verified build.</p>
+<h2 id="temporary-cloud-removal--15-october-2026">Temporary cloud removal — 15 October 2026<a class="heading-link" href="#temporary-cloud-removal--15-october-2026" aria-label="Link to Temporary cloud removal — 15 October 2026">#</a></h2>
+<p>At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; both cloud puffs and cloud shadows are removed from the game renderer. The <code>cloudCoverage</code> weather value still influences sky/fog/lighting and river appearance; it does not create visible cloud objects. Rain/storms and the fixed-level contract remain in Review pending weather acceptance. No new queued P2/P3 request is implemented by this change.</p>
+<h3 id="f-041--wanderers-and-bolters-adopt-their-new-local-area-p2">F-041 — Wanderers and bolters adopt their new local area (P2)<a class="heading-link" href="#f-041--wanderers-and-bolters-adopt-their-new-local-area-p2" aria-label="Link to F-041 — Wanderers and bolters adopt their new local area (P2)">#</a></h3>
+<p><strong>Requirement:</strong> an animal finishing a spontaneous wander/bolt calmly roams near the position it reached, rather than automatically returning to its flock.</p>
+<p><strong>Implementation:</strong> excursion motion omits ordinary cohesion/alignment. On expiry or reaching a wander target, save a local home; calm motion remains within 3 metres of it, with normal body collision. It cannot begin another escape while settled. Active clear player pressure or active helper herding clears excursion/home state and restores normal herding. Helper hold behavior remains authoritative. Delivery clears transient excursion fields before confined saved-animal roaming. Cohort shrink may also end a current excursion at its reached position to respect the current undelivered cap.</p>
+<p><strong>Status:</strong> Review, implemented; pending user gameplay acceptance. Test both wander and bolt expiry, nearby herd attraction, collision, player/helper interruption, pause, restart and delivery.</p>
+<h2 id="rain-volume-approval---15-october-2026-1646-vancouver">Rain-volume approval - 15 October 2026, 16:46 Vancouver<a class="heading-link" href="#rain-volume-approval---15-october-2026-1646-vancouver" aria-label="Link to Rain-volume approval - 15 October 2026, 16:46 Vancouver">#</a></h2>
+<p>Novy approved and requested committing the deployed rain-volume update: gentle rain 50% quieter, heavy rain 15% quieter, storm rain unchanged. Runtime source <code>a26b8aa</code>, Pages <code>107f782</code>. Approval recorded as Done; no new Review item remains. Existing Open/Deferred items retain their status.</p>
+<h2 id="requests-migrated-from-github-issues---15-october-2026">Requests migrated from GitHub Issues - 15 October 2026<a class="heading-link" href="#requests-migrated-from-github-issues---15-october-2026" aria-label="Link to Requests migrated from GitHub Issues - 15 October 2026">#</a></h2>
+<p>This document is the authoritative issue tracker. Record future issue requests here, rather than creating GitHub Issues. GitHub copies #2-#5 are closed because tracking moved here; the work remains Open and unassigned.</p>
+<h3 id="f-042---investigate-and-fix-missing-back-legs-on-small-wild-animals-p3">F-042 - Investigate and fix missing back legs on small wild animals (P3)<a class="heading-link" href="#f-042---investigate-and-fix-missing-back-legs-on-small-wild-animals-p3" aria-label="Link to F-042 - Investigate and fix missing back legs on small wild animals (P3)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p>Small wild animals appear to be missing their back legs. Investigate the cause and fix their appearance.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Identify why the back legs are not visible.</li>
+<li>Ensure small wild animals display their back legs correctly while idle and moving.</li>
+</ul>
+<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/2">GitHub #2</a>; moved to this document without implementing or completing the request.</p>
+<h3 id="f-043---make-the-bark-sound-resemble-a-barking-dog-p3">F-043 - Make the bark sound resemble a barking dog (P3)<a class="heading-link" href="#f-043---make-the-bark-sound-resemble-a-barking-dog-p3" aria-label="Link to F-043 - Make the bark sound resemble a barking dog (P3)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p>The current bark sound does not sound like a barking dog. Update or replace it so the bark is clearly recognizable as a dog barking.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Triggering the bark plays a recognizable dog bark.</li>
+</ul>
+<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/3">GitHub #3</a>; moved to this document without implementing or completing the request.</p>
+<h3 id="f-044---add-sheep-and-cow-calls-with-state-dependent-frequency-and-volume-p3">F-044 - Add sheep and cow calls with state-dependent frequency and volume (P3)<a class="heading-link" href="#f-044---add-sheep-and-cow-calls-with-state-dependent-frequency-and-volume-p3" aria-label="Link to F-044 - Add sheep and cow calls with state-dependent frequency and volume (P3)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p>Add recognizable sheep bleats (&quot;bahhh&quot;) and cow moos. Each individual animal should vocalize intermittently at random intervals, so the combined calls sound like a flock/herd rather than synchronized playback.</p>
+<p>Behavior by state:</p>
+<ul>
+<li>Wandering: more frequent calls at baseline volume.</li>
+<li>Being herded / flocked: less frequent calls, 25% louder than baseline.</li>
+<li>Bolting: use the same sound behavior as being herded / flocked (less frequent calls, 25% louder than baseline), with a call starting immediately when the animal begins bolting. Subsequent calls occur intermittently at random intervals.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Sheep sound recognizably like sheep and cows sound recognizably like cows.</li>
+<li>Each animal calls occasionally on its own randomized schedule; combined calls create a natural flock/herd sound.</li>
+<li>Wandering calls occur more frequently than herding calls and use baseline volume.</li>
+<li>Herding calls occur less frequently and are 25% louder than baseline.</li>
+<li>Bolting immediately triggers a call and then follows the herding call frequency and volume.</li>
+</ul>
+<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/4">GitHub #4</a>; moved to this document without implementing or completing the request.</p>
+<h3 id="f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)<a class="heading-link" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4" aria-label="Link to F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p>Add visible raindrop impacts and splashes on rivers, streams, and other water surfaces when heavy rain or stronger rain is falling.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Rivers, streams, and other water surfaces show raindrop impacts/splashes during heavy rain and stronger rainfall, including thunderstorms.</li>
+<li>The effect is active only at heavy rain intensity or above.</li>
+</ul>
+<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/5">GitHub #5</a>; moved to this document without implementing or completing the request.</p>
+<h2 id="qa-testing-follow-up---15-october-2026-1737-vancouver">QA testing follow-up - 15 October 2026, 17:37 Vancouver<a class="heading-link" href="#qa-testing-follow-up---15-october-2026-1737-vancouver" aria-label="Link to QA testing follow-up - 15 October 2026, 17:37 Vancouver">#</a></h2>
+<p>Added the requested single flock-debug toggle: next eligible check countdown above Woof and subtle yellow wander/red bolt tints. This is read-only development QA instrumentation; F-035/F-037/F-039/F-041 remain Review for gameplay acceptance. Prior F-018 acceptance remains historical; the new debug presentation awaits player testing. See <a href="development.html#qa-flock-behavior-debug---15-october-2026-1737-vancouver">QA usage</a>.</p>
+<h3 id="f-046---improve-buddy-dog-behavior-by-upgrade-tier-p2">F-046 - Improve Buddy dog behavior by upgrade tier (P2)<a class="heading-link" href="#f-046---improve-buddy-dog-behavior-by-upgrade-tier-p2" aria-label="Link to F-046 - Improve Buddy dog behavior by upgrade tier (P2)">#</a></h3>
+<p><strong>Request (15 October 2026):</strong> Buddy starts at the back of the flock and helps along its actual group direction of travel. From Buddy tier 2, stay with the smaller flock after a split. From tier 3, retrieve wanderers and bolters to the closest flock group and bark autonomously to guide groups or individuals.</p>
+<p><strong>Implementation:</strong> separate Buddy decisions from drone hold/assist. Measure flock velocity, navigate behind the rearmost member, select smaller connected groups from tier 2, and retain tier-3 retrieval targets until reunited. Bark and pressure require a useful local rear position and clear ground; all bodies retain collision and bridge/gate clearance. Bark audio/rings originate at Buddy and its tail flashes independently. Existing tier unlocks, prices, saved profiles and Pip-attended scoring remain unchanged.</p>
+<p><strong>Status:</strong> Review; source/headless checks complete, user gameplay acceptance pending. New tests cover cardinal directions and reversal, idle/remote behavior, smaller-group ties and merge, wander/bolt/settled retrieval to the nearest group, activation gates, barriers, real bridge retrieval with a holding drone, bark cooldown/pause/reset, target invalidation, audio routing and independent tail/ring lifecycle. No rendered/device or listening claim is made.</p>
+<p>F-046 clarification at 18:53 Vancouver: bolters are allowed to get away initially; Buddy should catch up through ordinary pursuit. Immediate interception is not an acceptance requirement.</p>
+<h3 id="f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)<a class="heading-link" href="#f-047---second-buddy-dog-with-independent-progression-p4" aria-label="Link to F-047 - Second Buddy dog with independent progression (P4)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p><strong>Requirement:</strong> after meadow level 40, make a second Buddy dog available with its own independent leveling. Its purchase and upgrade costs should reflect the later stage of the game. Its maximum upgrade tier should be available by meadow level 70.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>A second Buddy becomes available after meadow 40.</li>
+<li>Each Buddy has its own saved upgrade level and can be upgraded independently.</li>
+<li>Purchase and upgrade prices are balanced for later-game bolt earnings; exact prices remain to be tuned.</li>
+<li>The second Buddy can reach its maximum upgrade tier by meadow 70, with unlock gates and costs supporting that progression.</li>
+</ul>
+<p><strong>Scope:</strong> queued feature request only; no second Buddy or pricing changes implemented by this tracker update. Coordinate with F-046 Buddy behavior tiers.</p>
+<h3 id="buddy-execution-and-publication---15-october-2026">Buddy execution and publication - 15 October 2026<a class="heading-link" href="#buddy-execution-and-publication---15-october-2026" aria-label="Link to Buddy execution and publication - 15 October 2026">#</a></h3>
+<p>Implemented and published from source <code>d557d92</code> to Pages <code>c30ca36</code>. Source CI and native Pages deployment succeeded; 254 source tests pass, both release/development artifact checks pass, and all 17 live files match the intended SHA-256 hashes. All 18 unrelated Pages files are unchanged. Test Buddy tiers at public QA 20/24/28. <strong>Review</strong> remains pending user gameplay acceptance. See <a href="quality.html#verified-buddy-behavior-publication">publication evidence</a>. Bolters may escape ahead while Buddy runs to catch up; immediate interception is not required.</p>
+<h3 id="buddy-navigation-and-split-flock-follow-up---15-october-2026-1911-vancouver">Buddy navigation and split-flock follow-up - 15 October 2026, 19:11 Vancouver<a class="heading-link" href="#buddy-navigation-and-split-flock-follow-up---15-october-2026-1911-vancouver" aria-label="Link to Buddy navigation and split-flock follow-up - 15 October 2026, 19:11 Vancouver">#</a></h3>
+<p>F-046 remains <strong>Review</strong> after the user reported tree stalls and instant opposite-facing flicker, requested independent split flocks, and added tier-2 help across nearby bridges/goal entrances. The repaired source adds cached body-clear tree detours (also for retrieved sheep/cows), stable circling sides, bounded movement/facing turns and explicit local passage guidance. Cohesion/alignment only operate within each connected flock; separated groups and single animals no longer attract back together. The old 18m range remains within a connected group so normal herding is not weakened. Local passage help retains the final singleton; ordinary tier-3 stray retrieval and player-attended scoring stay distinct. F-047 remains queued.</p>
+<p>Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gradually inside a flock and after reversal; split groups stay independent; tier 2 guides an off-axis bridge and a rotated pen/field/barn entrance including the final sheep; all bodies respect clearance and no unattended scoring occurs. User play/device acceptance is pending; this is not sign-off.</p>
+<p>Publication completed after resuming at 22:16 Vancouver: source <code>25c77ff</code>, Pages <code>e175cc0</code>. Source CI and native Pages succeeded; all 17 live files and canonical entry HTML match the checked build, and all 18 unrelated Pages files are preserved. The 263-test suite, release/development checks and generated documentation checks pass. F-046 stays <strong>Review</strong>. Test tree navigation/turning at QA 20, tier-2 passage help at QA 24, and retrieval at QA 28. See <a href="quality.html#verified-buddy-navigation-follow-up-publication">verified publication</a>.</p>
+<h3 id="f-048---buddy-stutters-when-moving-slowly-p2">F-048 - Buddy stutters when moving slowly (P2)<a class="heading-link" href="#f-048---buddy-stutters-when-moving-slowly-p2" aria-label="Link to F-048 - Buddy stutters when moving slowly (P2)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p><strong>Reported behavior:</strong> Buddy dog has stuttering movement when moving slowly. Investigate and fix the low-speed movement so Buddy moves smoothly.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Buddy moves smoothly at low speed without repeated stop-start jitter.</li>
+<li>Slow movement, stopping, and resuming remain smooth while preserving intended herding behavior and collision handling.</li>
+</ul>
+<p><strong>Scope:</strong> bug report only; no fix or user acceptance is claimed by this tracker update.</p>
+<h3 id="forward-flock-movement-lower-cohesion-tier-2-bark-and-bridge-completion">Forward flock movement, lower cohesion, tier-2 bark and bridge completion<a class="heading-link" href="#forward-flock-movement-lower-cohesion-tier-2-bark-and-bridge-completion" aria-label="Link to Forward flock movement, lower cohesion, tier-2 bark and bridge completion">#</a></h3>
+<p>User follow-ups at 22:33-22:39 Vancouver on 15 October 2026: front animals should keep moving with the flock; back/side animals near the dogs carry pushing pressure forward; lower cohesion; add Buddy barking at tier 2; animals walking onto a bridge should proceed to its opposite side. These extend the current F-046 flock/Buddy behavior work and remain <strong>Review</strong>.</p>
+<p>Implemented source: cohesion is 30% weaker; leading members reject backward centre pull while receiving missing forward flow from their own connected group. Direct dog steering is not doubled or overridden, and split flocks stay independent. New per-animal bridge intent commits sheep/cows through the deck to body-clear far-bank ground, with pause/reset and drone far-bank anchors. Bark now starts at tier 2; individual retrieval stays tier 3. Collision, purchase gates/costs and player-attended scoring are unchanged. Human/device play acceptance remains pending.</p>
+<p>Verified publication: source <code>bf30342</code>, Pages <code>cf41bd1</code>; source CI <a href="https://github.com/novydhillon/Flock/actions/runs/38857616495">38857616495</a> and native Pages <a href="https://github.com/novydhillon/Flock/actions/runs/38857820963">38857820963</a> succeeded. All 17 live development files and canonical entry HTML match the tested build; all 18 unrelated Pages files remain unchanged. All 274 source tests and both build modes pass. See <a href="quality.html#verified-forward-flow-and-bridge-completion-publication">publication evidence</a>. User gameplay/device acceptance remains pending; F-046 stays Review and the separate F-048 low-speed stutter report stays queued.</p>
+<h3 id="f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)<a class="heading-link" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4" aria-label="Link to F-049 - Keep the QA level dropdown unfocused on menu opening (P4)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p><strong>Reported behavior:</strong> Opening the QA menu initially focuses or activates the level dropdown and shows the full level list.</p>
+<p><strong>Requirement:</strong> Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Opening the QA menu does not automatically focus or activate the level dropdown or show its full list.</li>
+<li>The level dropdown opens normally when deliberately selected, and the current level value is preserved.</li>
+<li>Initial focus goes to the QA menu container or a suitable non-dropdown control.</li>
+</ul>
+<p><strong>Scope:</strong> queued QA usability fix only; no implementation or acceptance claimed.</p>
+<h3 id="f-050---bark-strength-and-two-bark-upgrade-tiers-p2">F-050 - Bark strength and two-bark upgrade tiers (P2)<a class="heading-link" href="#f-050---bark-strength-and-two-bark-upgrade-tiers-p2" aria-label="Link to F-050 - Bark strength and two-bark upgrade tiers (P2)">#</a></h3>
+<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p><strong>Requirement:</strong> Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Bark level 2 applies a 33% strength increase relative to level 1.</li>
+<li>The workshop clearly displays the level-2 bark strength bonus as +33%.</li>
+<li>Bark level 3 allows two barks before entering cooldown.</li>
+</ul>
+<p><strong>Scope:</strong> queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.</p>
+</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#user-sign-off---15-october-2026-1634-vancouver">User sign-off - 15 October 2026, 16:34 Vancouver</a><a class="toc-level-2" href="#how-agents-should-use-this-document">How agents should use this document</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#screenshot-evidence">Screenshot evidence</a><a class="toc-level-2" href="#acceptance-criteria-and-implementation-notes">Acceptance criteria and implementation notes</a><a class="toc-level-3" href="#f-025--correct-the-deployment-url-p0--highest-priority">F-025 — Correct the deployment URL (P0 — highest priority)</a><a class="toc-level-3" href="#f-001--path-corner-polygon-flicker">F-001 — Path-corner polygon flicker</a><a class="toc-level-3" href="#f-002--bark-effect-above-ground-and-bridge-deck">F-002 — Bark effect above ground and bridge deck</a><a class="toc-level-3" href="#f-003--squirrel-detail-and-movement">F-003 — Squirrel detail and movement</a><a class="toc-level-3" href="#f-004--flowing-water">F-004 — Flowing water</a><a class="toc-level-3" href="#f-005--bridge-and-crossing-alignment">F-005 — Bridge and crossing alignment</a><a class="toc-level-3" href="#f-006--operable-gates-from-level-20">F-006 — Operable gates from level 20</a><a class="toc-level-3" href="#f-007--stone-wall-variants">F-007 — Stone wall variants</a><a class="toc-level-3" href="#f-008--clouds-temporarily-deferred">F-008 — Clouds temporarily deferred</a><a class="toc-level-3" href="#f-009--delivery-countdown-and-score">F-009 — Delivery countdown and score</a><a class="toc-level-3" href="#f-010--goal-shape-matches-enclosure">F-010 — Goal shape matches enclosure</a><a class="toc-level-3" href="#f-011--dog-tail-light-feedback">F-011 — Dog-tail light feedback</a><a class="toc-level-3" href="#f-012--wandering-and-bolting-animals">F-012 — Wandering and bolting animals</a><a class="toc-level-3" href="#f-013--known-level-5-pacing-concern">F-013 — Known level-5 pacing concern</a><a class="toc-level-3" href="#f-014--real-phone-verification-gap">F-014 — Real-phone verification gap</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-016--see-pip-and-the-flock-under-cover">F-016 — See Pip and the flock under cover</a><a class="toc-level-3" href="#f-017--rabbits-and-variable-wildlife-populations">F-017 — Rabbits and variable wildlife populations</a><a class="toc-level-3" href="#f-018--dev-build-qa-menu">F-018 — Dev-build QA menu</a><a class="toc-level-3" href="#f-019--bushes">F-019 — Bushes</a><a class="toc-level-3" href="#f-020--larger-trees">F-020 — Larger trees</a><a class="toc-level-3" href="#f-021--bush-and-tree-surface-detail">F-021 — Bush and tree surface detail</a><a class="toc-level-3" href="#f-022--weather-aware-wildlife-and-shelter">F-022 — Weather-aware wildlife and shelter</a><a class="toc-level-3" href="#f-023--fixed-per-level-atmosphere-and-storm-feedback">F-023 — Fixed per-level atmosphere and storm feedback</a><a class="toc-level-3" href="#f-024--rain-accumulation-puddles-and-water-response">F-024 — Rain accumulation, puddles and water response</a><a class="toc-level-3" href="#f-026--quit-to-landing-page">F-026 — Quit to landing page</a><a class="toc-level-3" href="#f-027--wildlife-crossing-fences-and-map-edges">F-027 — Wildlife crossing fences and map edges</a><a class="toc-level-3" href="#acceptance-record--p2-items-15-october-2026">Acceptance record — P2 items, 15 October 2026</a><a class="toc-level-3" href="#f-030--lighter-more-contrasting-water-waves-p3">F-030 — Lighter, more contrasting water waves (P3)</a><a class="toc-level-3" href="#f-031--random-gates-and-ungated-alternatives-p2">F-031 — Random gates and ungated alternatives (P2)</a><a class="toc-level-3" href="#f-032--world-fence-gate-indicator-and-dog-activation-p3">F-032 — World-fence gate indicator and dog activation (P3)</a><a class="toc-level-3" href="#f-033--english-dry-stone-wall-appearance-p2">F-033 — English dry-stone wall appearance (P2)</a><a class="toc-level-3" href="#f-034--seeded-per-level-stone-wall-chance-p3">F-034 — Seeded per-level stone-wall chance (P3)</a><a class="toc-level-3" href="#f-035--baseline-bolt-duration-p2">F-035 — Baseline bolt duration (P2)</a><a class="toc-level-3" href="#f-036--unattended-flock-spreads-across-the-field-p3">F-036 — Unattended flock spreads across the field (P3)</a><a class="toc-level-3" href="#f-037--per-level-eligible-wander-cohort-p2">F-037 — Per-level eligible wander cohort (P2)</a><a class="toc-level-3" href="#f-038--larger-less-linear-multi-directional-levels-p2">F-038 — Larger, less-linear multi-directional levels (P2)</a><a class="toc-level-3" href="#f-039--late-level-wanderbolt-tuning-p2">F-039 — Late-level wander/bolt tuning (P2)</a><a class="toc-level-3" href="#f-040--fixed-per-level-weather-remove-snow-p1">F-040 — Fixed per-level weather; remove snow (P1)</a><a class="toc-level-3" href="#f-028--delivered-animals-roam-inside-the-goal">F-028 — Delivered animals roam inside the goal</a><a class="toc-level-3" href="#f-029--lifetime-best-score-improvement-pays-only-its-difference">F-029 — Lifetime-best score improvement pays only its difference</a><a class="toc-level-2" href="#previously-repaired--retain-as-regressions">Previously repaired — retain as regressions</a><a class="toc-level-2" href="#execution-record">Execution record</a><a class="toc-level-2" href="#decisions-and-session-handoff">Decisions and session handoff</a><a class="toc-level-2" href="#follow-up-device-reports--14-october-2026-vancouver">Follow-up device reports — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#follow-up-acceptance--14-october-2026-vancouver">Follow-up acceptance — 14 October 2026 (Vancouver)</a><a class="toc-level-2" href="#final-p1-user-acceptance--14-october-2026">Final P1 user acceptance — 14 October 2026</a><a class="toc-level-2" href="#current-follow-up--f-028">Current follow-up — F-028</a><a class="toc-level-2" href="#p2-candidate-handoff--15-october-2026">P2 candidate handoff — 15 October 2026</a><a class="toc-level-2" href="#verified-p2-development-publication--15-october-2026">Verified P2 development publication — 15 October 2026</a><a class="toc-level-2" href="#fixed-weather-implementation-handoff--15-october-2026">Fixed-weather implementation handoff — 15 October 2026</a><a class="toc-level-2" href="#verified-fixed-weather-publication--15-october-2026">Verified fixed-weather publication — 15 October 2026</a><a class="toc-level-2" href="#temporary-cloud-removal--15-october-2026">Temporary cloud removal — 15 October 2026</a><a class="toc-level-3" href="#f-041--wanderers-and-bolters-adopt-their-new-local-area-p2">F-041 — Wanderers and bolters adopt their new local area (P2)</a><a class="toc-level-2" href="#rain-volume-approval---15-october-2026-1646-vancouver">Rain-volume approval - 15 October 2026, 16:46 Vancouver</a><a class="toc-level-2" href="#requests-migrated-from-github-issues---15-october-2026">Requests migrated from GitHub Issues - 15 October 2026</a><a class="toc-level-3" href="#f-042---investigate-and-fix-missing-back-legs-on-small-wild-animals-p3">F-042 - Investigate and fix missing back legs on small wild animals (P3)</a><a class="toc-level-3" href="#f-043---make-the-bark-sound-resemble-a-barking-dog-p3">F-043 - Make the bark sound resemble a barking dog (P3)</a><a class="toc-level-3" href="#f-044---add-sheep-and-cow-calls-with-state-dependent-frequency-and-volume-p3">F-044 - Add sheep and cow calls with state-dependent frequency and volume (P3)</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-2" href="#qa-testing-follow-up---15-october-2026-1737-vancouver">QA testing follow-up - 15 October 2026, 17:37 Vancouver</a><a class="toc-level-3" href="#f-046---improve-buddy-dog-behavior-by-upgrade-tier-p2">F-046 - Improve Buddy dog behavior by upgrade tier (P2)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#buddy-execution-and-publication---15-october-2026">Buddy execution and publication - 15 October 2026</a><a class="toc-level-3" href="#buddy-navigation-and-split-flock-follow-up---15-october-2026-1911-vancouver">Buddy navigation and split-flock follow-up - 15 October 2026, 19:11 Vancouver</a><a class="toc-level-3" href="#f-048---buddy-stutters-when-moving-slowly-p2">F-048 - Buddy stutters when moving slowly (P2)</a><a class="toc-level-3" href="#forward-flock-movement-lower-cohesion-tier-2-bark-and-bridge-completion">Forward flock movement, lower cohesion, tier-2 bark and bridge completion</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-3" href="#f-050---bark-strength-and-two-bark-upgrade-tiers-p2">F-050 - Bark strength and two-bark upgrade tiers (P2)</a></nav></aside></div>
+<dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>
