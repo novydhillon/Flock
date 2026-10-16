@@ -87,6 +87,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-046 | P2 | Gameplay/companions | Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark | Review | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
+| F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
 
 ## Screenshot evidence
 
@@ -669,3 +670,16 @@ F-046 remains **Review** after the user reported tree stalls and instant opposit
 Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gradually inside a flock and after reversal; split groups stay independent; tier 2 guides an off-axis bridge and a rotated pen/field/barn entrance including the final sheep; all bodies respect clearance and no unattended scoring occurs. User play/device acceptance is pending; this is not sign-off.
 
 Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages `e175cc0`. Source CI and native Pages succeeded; all 17 live files and canonical entry HTML match the checked build, and all 18 unrelated Pages files are preserved. The 263-test suite, release/development checks and generated documentation checks pass. F-046 stays **Review**. Test tree navigation/turning at QA 20, tier-2 passage help at QA 24, and retrieval at QA 28. See [verified publication](QUALITY.md#verified-buddy-navigation-follow-up-publication).
+
+
+### F-048 - Buddy stutters when moving slowly (P2)
+
+**Status:** Open, queued only; unassigned.
+
+**Reported behavior:** Buddy dog has stuttering movement when moving slowly. Investigate and fix the low-speed movement so Buddy moves smoothly.
+
+**Accept when:**
+- Buddy moves smoothly at low speed without repeated stop-start jitter.
+- Slow movement, stopping, and resuming remain smooth while preserving intended herding behavior and collision handling.
+
+**Scope:** bug report only; no fix or user acceptance is claimed by this tracker update.

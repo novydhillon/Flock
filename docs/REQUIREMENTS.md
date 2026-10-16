@@ -262,3 +262,8 @@ After meadow 40, offer a second Buddy dog with independently saved leveling. Pri
 ## Buddy follow-up requirements - 15 October 2026, 19:11 Vancouver
 
 F-046 remains Review for repaired behavior: Buddy must navigate around trees, turn gradually without rapid opposite-facing flicker inside a flock, and guide nearby sheep through bridges and goal entrances from **Buddy tier 2**. Independent flocks and isolated individuals must not automatically attract back together. Cohesion may stabilize a connected flock but must not reunite separated groups. Existing tier-3 retrieval, ground collisions, active-player delivery, purchase gates and costs remain in force. The second Buddy (F-047) is still queued and is not implemented here. Headless regression evidence is recorded separately from user play acceptance.
+
+
+## Queued Buddy low-speed movement fix - F-048 (P2)
+
+Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Open, queued only. See [F-048 in the tracker](ISSUES.md#f-048---buddy-stutters-when-moving-slowly-p2).
