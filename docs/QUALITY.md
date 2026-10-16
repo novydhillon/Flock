@@ -307,3 +307,17 @@ All five existing journey controllers, seeds, time limits and full-flock asserti
 ### Verified forward-flow and bridge-completion publication
 
 Runtime source `bf30342767e34c12bbcf239d8fa4854417fd5990`; Pages `cf41bd1f78fe825dee30205f0ff051ba501fa245`. Source CI [38857616495](https://github.com/novydhillon/Flock/actions/runs/38857616495) and native Pages [38857820963](https://github.com/novydhillon/Flock/actions/runs/38857820963) succeeded. All **17/17** live development files match the tested build SHA-256 hashes, and the canonical entry HTML without a query also matches. Only the entry HTML and main runtime bundle changed; all 18 unrelated Pages files, including the legacy redirect, are unchanged. Runtime asset: `index-DkoOvBGa.js`. The 274-test suite, release/development artifact checks and generated documentation checks pass. F-046 remains **Review** for user gameplay/device acceptance; F-048 stays Open and queued. This evidence update changes documentation only.
+
+
+## Verified production root release - 15 October 2026
+
+Merged development `5b950e3f8dc20b8928f2f2066ec2aabf7e250871` into `main` at `00ff015dc0363433915e3ea816349cbdf65b2ac3`, retaining the original 2D URL information and updating production instructions. Pages `6979d97fab9e4ceffed8b9c1509117ac921a4932` serves the production game at [Flock](https://novydhillon.github.io/Flock/). Main source CI [38859559608](https://github.com/novydhillon/Flock/actions/runs/38859559608) and native Pages [38859708558](https://github.com/novydhillon/Flock/actions/runs/38859708558) succeeded. All **274/274 tests**, generated documentation and release QA-exclusion checks pass. All **15/15** live root files match local SHA-256 hashes; canonical root HTML also matches. The release has no QA JavaScript/CSS or menu signatures. Asset: `index-B-ELN4HK.js`. All 34 pre-existing Pages files other than the intentionally replaced root redirect are preserved, including every `dev2/` and legacy `flock/` byte. No fresh device/render/listening validation is claimed.
+
+Main packaging now stops after the release build and names its artifact `flock-production-standalone`; only non-main builds proceed to the QA development artifact. This enforces the user's production QA-menu exclusion for subsequent builds. This follow-up changes workflow/documentation only; deployed runtime bytes remain from the merge above.
+
+### F-051 compact HUD source validation
+
+The compact HUD batch passes all 275 source tests, including a controller regression for final-tip expiry, help reopening/hiding, and next-meadow reset. Production build and release QA-exclusion check pass (15 files, zero QA assets). Generated documentation checks pass. UI geometry and native touch presentation have not been verified on a phone; F-051 remains Review. This branch has not been deployed.
+
+
+F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/main.js`, `index.html`, `src/style.css`; the goal triangle is in `src/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.

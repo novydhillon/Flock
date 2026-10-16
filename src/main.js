@@ -12,10 +12,9 @@ import { FarmAudio } from './audio.js';
 import { createLevel, stepSimulation, stepSavedRoaming, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG, deliveryCountdownSeconds } from './simulation.js';
 import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades } from './progression.js';
 import { canOccupy } from './world.js';
-import { nextNavigationPoint } from './world.js';
 
 const $=id=>document.getElementById(id);
-let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkUntil=0,barkCooldown=0,tipStep=0,tipDismissed=false,toastTimer,modalFocus=null;
+let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkUntil=0,barkCooldown=0,tipStep=0,tipDismissed=false,tipChangedAt=0,tipManual=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
 const gateControl=createGateControl({document,getState:()=>({level,dog,playing:mode==='playing'}),onOpen:()=>toast('Gate open — guide the flock through.')});
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
@@ -28,13 +27,15 @@ function resetInput(){input.x=input.z=0;pointer=null;keys.clear();$('stick').sty
 async function begin(index=profile.highestLevel){
   index=Math.max(0,Math.min(99,Math.floor(Number(index)||0)));
   closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';
-  for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box','destination'])visible(id,true);
+  for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box'])visible(id,true);
   $('level-name').textContent=`LEVEL ${index+1} · ${level.title}`;$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=`/ ${level.animals.length}`;$('saved').textContent=0;$('progress').style.width='0%';
   $('countdown').textContent=`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',false);$('mission-score').textContent=`Score 0 / ${level.reward}`;
-  visible('tip',true);setTip(index===0?'Drag with your thumb to move Pip. Try circling behind the sheep.':level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.');
+  tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(index===0?'Drag with your thumb to move Pip. Try circling behind the sheep.':level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.');
   audio.setMuted(!profile.music);await audio.start();if(mode!=='playing')audio.pause();updateWallet();
 }
-function setTip(text){$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
+const TIP_CYCLE=14;
+function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visible('toggle-tip',true);$('toggle-tip').setAttribute('aria-expanded','false');$('toggle-tip').setAttribute('aria-label','Show tips');}
+function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
 function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
 function openModal(html,newMode='paused'){
   previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
@@ -101,7 +102,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='pl
 window.addEventListener('resize',()=>renderer?.resize());
 $('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}persist();updateWallet();};
-$('dismiss-tip').onclick=()=>{tipDismissed=true;visible('tip',false);};
+$('dismiss-tip').onclick=hideTip;
+$('toggle-tip').onclick=()=>{if(mode!=='playing')return;if(!$('tip').classList.contains('hidden')){hideTip();return;}tipDismissed=false;tipManual=true;visible('tip',true);$('toggle-tip').setAttribute('aria-expanded','true');$('toggle-tip').setAttribute('aria-label','Hide tips');};
 
 let mapTick=0,qaFrame;
 function frame(now){
@@ -115,9 +117,9 @@ function frame(now){
     $('countdown').textContent=result.countdownStarted?`${Math.ceil(result.remaining)}s to gather the rest`:`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',result.countdownStarted);$('mission-score').textContent=`Score ${result.score} / ${result.possibleScore}`;
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
     const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
-    if(!tipDismissed){
-      if(level.index===0){if(elapsed>5&&tipStep===0){tipStep=1;setTip('Sheep move away from Pip. Stay behind them to guide them to the golden pen.');}if(result.saved>0&&tipStep<2){tipStep=2;setTip('Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');}}
-      else if(elapsed>14)visible('tip',false);
+    if(!tipDismissed&&!tipManual){
+      if(level.index===0){if(elapsed>5&&tipStep===0){tipStep=1;setTip('Sheep move away from Pip. Stay behind them to guide them to the golden pen.');}if((result.saved>0||elapsed-tipChangedAt>=TIP_CYCLE)&&tipStep===1){tipStep=2;setTip('Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');}}
+      if((level.index!==0||tipStep===2)&&elapsed-tipChangedAt>=TIP_CYCLE)hideTip();
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
@@ -126,7 +128,7 @@ function frame(now){
   if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();
   const weather=renderer.nature?.weather;if(weather)$('weather-status').textContent=({sun:'☀ Clear skies',wind:'↝ Breezy',rain:'☂ Light rain','heavy-rain':'☂ Heavy rain',storm:'ϟ Thunderstorm'})[weather.kind||weather.type]||'Clear skies';
   if(mode==='playing')audio.updateAmbience?.(dt,{weather:renderer.nature?.weather||level.weather||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
-  mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);const waypoint=nextNavigationPoint(level,dog),dx=waypoint.x-dog.x,dz=waypoint.z-dog.z;$('direction').style.transform=`rotate(${Math.atan2(dz,dx)*180/Math.PI}deg)`;$('distance').textContent=`${Math.round(Math.hypot(dx,dz))} m`;$('destination-text').textContent=waypoint.kind==='bridge'?'Wooden bridge':waypoint.kind==='gate'?(level.gates.some(g=>g.operable&&!g.open&&Math.hypot(g.x-waypoint.x,g.z-waypoint.z)<1)?'Closed gate · approach to open':'Open gate'):waypoint.kind==='target'||waypoint===level.target?(level.target.type==='pen'?'Sunny pen':level.target.type==='barn'?'Home barn':'Clover Field'):'Winding trail';}
+  mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);}
 }
 try{
   renderer=new MeadowRenderer($('world'));level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);updateWallet();visible('loading',false);requestAnimationFrame(frame);

@@ -90,6 +90,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
+| F-051 | P2 | UI | Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer | Review | Source checked; phone acceptance pending |
 
 ## Screenshot evidence
 
@@ -724,3 +725,10 @@ Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495]
 - Bark level 3 allows two barks before entering cooldown.
 
 **Scope:** queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.
+
+### F-051 - Compact HUD and contextual tips (P2)
+
+**Status:** Review. Mission card is narrower with its map immediately to the right. Tips end after the final 14-second display cycle (first-level tips also advance without requiring a delivery). A question-mark toggle appears beside pause after automatic or manual dismissal; reopened tips stay visible until toggled off. Woof is circular with title above the symbol and “double tap” below it inside the button. The route label/distance is removed; a triangle outside Pip’s ring points directly to the goal independently of Pip’s heading. Source regression checks cover completion, reopening, hiding and per-level reset; phone layout acceptance is pending. No production deployment requested for this batch.
+
+
+F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/main.js`, `index.html`, `src/style.css`; the goal triangle is in `src/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.

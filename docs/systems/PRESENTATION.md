@@ -204,3 +204,10 @@ Latest rendering policy: visible clouds and their shadows are temporarily remove
 ### Rain-volume tuning - 15 October 2026, 16:42 Vancouver
 
 The rain loop still scales with intensity, with an additional tier multiplier: gentle/light rain .50, heavy rain .85, thunderstorm 1.00. Gentle rain is 50% quieter than its previous mix; level 16 heavy rain is exactly 15% quieter; storm rain retains its accepted volume. The overall master gain, thunder and music are unchanged. Tier changes reuse the loop and mute/unmute restores the correct tier mix.
+
+### Compact HUD follow-up
+
+Mission and minimap align horizontally. Tip lifetime uses active gameplay time and resets on each displayed message; automatic dismissal exposes the help toggle. Manual help remains open until hidden. The renderer owns a disposable triangle outside Pip’s halo, cancels dog rotation and aims directly at the goal; the old route/distance chip is removed. Phone visual acceptance remains pending.
+
+
+F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/main.js`, `index.html`, `src/style.css`; the goal triangle is in `src/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.

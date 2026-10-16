@@ -53,3 +53,9 @@ The user accepted 11 P2 issues; the tracker records those as Done and queues F-0
 Independent documentation follow-up: **8/10**. Corrected the mistaken attribution of fixed weather to the prior `b1fdac3` runtime and the summary calling already accepted P2 items pending. Current source vs prior release, 11 accepted items, reopened weather and queued requests are now distinct. Checks: 12 pages, 828 links/anchors, nine parsed diagrams and four DOM tests. New weather appearance/audio acceptance is pending; it is not a source-publication blocker.
 
 Cloud-removal maintenance, 15 October 2026: current requirements/context now defer F-008 and remove cloud/shadow runtime ownership while retaining rain/storm effects. F-041 is separately queued P2 behavior. Historical cloud geometry scores remain historical; no new cloud appearance success is claimed.
+
+## F-051 compact HUD blind source review
+
+A fresh critic reviewed the candidate in a detached worktree without history, implementation reasoning or previous scores, using `gpt-6-luna` at medium effort. Result: **9.3/10**, no source defects. The critic independently passed 29 focused controller tests and a production build. Exact CSS layout and pointer appearance across aspect ratios require native-device acceptance; these were not claimed as rendered tests. Documentation received a separate fresh medium-effort critic.
+
+The separate blind documentation critic scored **8/10**, requesting explicit commit/command evidence, source/test references and sharper distinction between controller checks and rendered geometry/layout. These records now include all three; phone acceptance remains pending.

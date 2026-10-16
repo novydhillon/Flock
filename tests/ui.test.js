@@ -474,3 +474,19 @@ test('tier-two autonomous Buddy bark reaches audio and renderer without consumin
  await ui.click('pause');const count=ui.audioEvents.filter(e=>e==='bark').length;ui.tick();
  assert.equal(ui.audioEvents.filter(e=>e==='bark').length,count);
 });
+
+test('tips finish their cycle and can be reopened and hidden beside pause', async () => {
+  const ui=launch();await ui.click('play');
+  for(let i=0;i<2200;i++)ui.tick();
+  assert.equal(ui.el('tip').classList.contains('hidden'),true);
+  assert.equal(ui.el('toggle-tip').classList.contains('hidden'),false);
+  await ui.click('toggle-tip');
+  assert.equal(ui.el('tip').classList.contains('hidden'),false);
+  assert.equal(ui.el('toggle-tip').attrs['aria-expanded'],'true');
+  await ui.click('toggle-tip');
+  assert.equal(ui.el('tip').classList.contains('hidden'),true);
+  await ui.app.begin(1);
+  assert.equal(ui.el('toggle-tip').classList.contains('hidden'),true);
+  for(let i=0;i<900;i++)ui.tick();
+  assert.equal(ui.el('tip').classList.contains('hidden'),true);
+});

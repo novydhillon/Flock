@@ -176,6 +176,9 @@ export class MeadowRenderer{
     this.batchScenery();
     this.dog=createDog();this.dog.scale.setScalar(1.35);this.actors.add(this.dog);
     const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
+    const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
+    this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
+    this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
     for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
@@ -273,6 +276,11 @@ export class MeadowRenderer{
     this.camera.position.set(this.center.x,36,this.center.z+29);this.camera.lookAt(this.center.x,0,this.center.z-2);
     this.sun.position.set(this.center.x-18,35,this.center.z+20);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();
     this.dog.position.set(dog.x,terrainHeight(level,dog.x,dog.z)+Math.sin(this.time*16)*Math.min(.06,Math.hypot(dog.vx||0,dog.vz||0)*.008),dog.z);this.dog.rotation.y=dog.heading??Math.PI/2;
+    // Cancel the dog's heading so the triangle always faces the goal in world space.
+    this.goalPointer.rotation.set(Math.PI/2,0,0);
+    this.goalPointer.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),Math.atan2(level.target.x-dog.x,level.target.z-dog.z)-this.dog.rotation.y));
+    this.goalPointer.position.y=.04;
+    this.goalPointer.visible=!preview;
     const speed=Math.hypot(dog.vx||0,dog.vz||0);const parts=this.dog.userData.parts;
     const poseTime=Math.floor(this.time*12)/12;
     parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i%3===0?0:Math.PI))*Math.min(.5,speed*.07));parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
