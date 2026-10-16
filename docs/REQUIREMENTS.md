@@ -278,3 +278,8 @@ Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and re
 ## Queued QA menu focus fix - F-049 (P4)
 
 Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it. Initial focus should go to the menu container or a suitable non-dropdown control. Preserve the current level value. Open, queued only. See [F-049 in the tracker](ISSUES.md#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4).
+
+
+## Queued bark upgrade tiers - F-050 (P2)
+
+Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES.md#f-050---bark-strength-and-two-bark-upgrade-tiers-p2).

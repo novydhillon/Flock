@@ -89,6 +89,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
+| F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 
 ## Screenshot evidence
 
@@ -709,3 +710,17 @@ Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495]
 - Initial focus goes to the QA menu container or a suitable non-dropdown control.
 
 **Scope:** queued QA usability fix only; no implementation or acceptance claimed.
+
+
+### F-050 - Bark strength and two-bark upgrade tiers (P2)
+
+**Status:** Open, queued only; unassigned.
+
+**Requirement:** Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown.
+
+**Accept when:**
+- Bark level 2 applies a 33% strength increase relative to level 1.
+- The workshop clearly displays the level-2 bark strength bonus as +33%.
+- Bark level 3 allows two barks before entering cooldown.
+
+**Scope:** queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.
