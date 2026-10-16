@@ -61,3 +61,7 @@ A fresh critic reviewed the candidate in a detached worktree without history, im
 The separate blind documentation critic scored **8/10**, requesting explicit commit/command evidence, source/test references and sharper distinction between controller checks and rendered geometry/layout. These records now include all three; phone acceptance remains pending.
 
 Documentation follow-up reached **9/10**, with all requested evidence and limitation fixes resolved. The critic independently passed `npm run docs:check`. Exact artifact checks used `node scripts/check-build-mode.mjs release` and `node scripts/check-build-mode.mjs development`.
+
+### F-051 tip-02 repair blind review
+
+A fresh critic in an isolated detached worktree reviewed only the tutorial fix, requirements and tests, without implementation history or past scores. `gpt-6-luna`, medium effort: **9.4/10**, no source defect; independently passed all 29 UI tests. The critic confirmed mutually exclusive progression, full dwell, pause/manual/reset behavior and documentation consistency. Source/DOM timing evidence does not prove phone appearance.

@@ -118,8 +118,9 @@ function frame(now){
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
     const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
     if(!tipDismissed&&!tipManual){
-      if(level.index===0){if(elapsed>5&&tipStep===0){tipStep=1;setTip('Sheep move away from Pip. Stay behind them to guide them to the golden pen.');}if((result.saved>0||elapsed-tipChangedAt>=TIP_CYCLE)&&tipStep===1){tipStep=2;setTip('Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');}}
-      if((level.index!==0||tipStep===2)&&elapsed-tipChangedAt>=TIP_CYCLE)hideTip();
+      if(level.index===0&&tipStep===0&&elapsed>5){tipStep=1;setTip('Sheep move away from Pip. Stay behind them to guide them to the golden pen.');}
+      else if(level.index===0&&tipStep===1&&elapsed-tipChangedAt>=TIP_CYCLE){tipStep=2;setTip('Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');}
+      else if((level.index!==0||tipStep===2)&&elapsed-tipChangedAt>=TIP_CYCLE)hideTip();
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);

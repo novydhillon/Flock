@@ -211,3 +211,6 @@ Mission and minimap align horizontally. Tip lifetime uses active gameplay time a
 
 
 F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/main.js`, `index.html`, `src/style.css`; the goal triangle is in `src/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.
+
+
+F-051 follow-up: every tutorial tip must remain visible for its full display interval. Early animal delivery must not skip tip 02 or shorten its interval. The automatic sequence advances at most once per frame; reopening/dismissing help and final-tip expiry retain their existing behavior. Source regression includes delivery before the second tip.

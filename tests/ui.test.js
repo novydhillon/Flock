@@ -477,7 +477,31 @@ test('tier-two autonomous Buddy bark reaches audio and renderer without consumin
 
 test('tips finish their cycle and can be reopened and hidden beside pause', async () => {
   const ui=launch();await ui.click('play');
-  for(let i=0;i<2200;i++)ui.tick();
+  const step=()=>ui.el('tip').querySelector('.tip-number').textContent;
+  const text=()=>ui.el('tip-text').textContent;
+  assert.equal(step(),'01');
+  assert.match(text(),/Drag with your thumb/);
+
+  // An early delivery used to cascade through both tutorial conditions in a
+  // single frame and skip tip 2. Keep the delivery present through every tick.
+  const animal=ui.app.state().level.animals[0];animal.saved=true;
+  for(let i=0;i<300;i++)ui.tick();
+  assert.equal(step(),'01','tip 1 remains for the initial five seconds');
+  for(let i=0;i<13;i++)ui.tick();
+  assert.equal(step(),'02');
+  assert.match(text(),/Sheep move away/);
+  await ui.click('pause');
+  for(let i=0;i<100;i++)ui.tick();
+  assert.equal(step(),'02','pause holds the current tip');
+  await ui.click('resume');
+  for(let i=0;i<870;i++)ui.tick();
+  assert.equal(step(),'02','tip 2 remains visible for its full 14-second cycle');
+  for(let i=0;i<10;i++)ui.tick();
+  assert.equal(step(),'03');
+  assert.match(text(),/Lovely!/);
+  for(let i=0;i<870;i++)ui.tick();
+  assert.equal(ui.el('tip').classList.contains('hidden'),false,'tip 3 also gets its full cycle');
+  for(let i=0;i<10;i++)ui.tick();
   assert.equal(ui.el('tip').classList.contains('hidden'),true);
   assert.equal(ui.el('toggle-tip').classList.contains('hidden'),false);
   await ui.click('toggle-tip');
