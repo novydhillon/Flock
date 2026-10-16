@@ -386,3 +386,10 @@ Three instanced beveled clay-stone shapes, smooth normals, warm-grey color varia
 
 
 F-033 publication preparation: runtime source commit `b48c2d6`; checked 17-file QA artifact staged in a detached Pages worktree from `7e52478`, with only the development runtime bundle and entry HTML changed. All files outside `dev2/` were byte-compared and preserved. Repository push was rejected by automatic approval review because explicit external-publication authorization was required. No remote source branch, CI run or Pages publication is claimed for this candidate; publication awaits that approval.
+
+
+### F-033 development publication
+
+Novy explicitly approved pushing and dev2 publication on 16 October 2026 at 13:36 America/Vancouver. Shell Git had no credentials, so the connected GitHub integration published the exact reviewed local tree `0720e47fbb67c3c22912ab7227e570615f316816` as source `673979e4bfaed9efef04035c034a597f1c329ec5` on `stone_wall` and fast-forwarded development. Source CI [38963658849](https://github.com/novydhillon/Flock/actions/runs/38963658849) passed all tests, documentation checks and both artifact modes.
+
+Pages `3a3a97d0b1f9de1c92a7b7a06448a31c4c20dc75` has the exact prepared tree `1c0e0149972f115c265c32e4d40fac7584530cbd`. Only dev2 entry HTML and runtime replacement changed; all 32 unrelated tracked files remain preserved. Native Pages [38963856575](https://github.com/novydhillon/Flock/actions/runs/38963856575) build/deploy/report jobs succeeded. The live canonical page was opened in the cloud browser and its script points to the expected `index-xh40YxdP.js`. After an initially slow connection, parallel direct requests confirmed all **17/17 live development files**, including canonical entry HTML, match the prepared build by SHA-256. The cloud browser cannot create a WebGL 2 context, so it cannot verify wall appearance or gameplay. F-033 remains Review for normal-zoom appearance, gate walkthrough and phone performance. Production is unchanged.
