@@ -382,3 +382,50 @@ test('Buddy rendering preserves simulation heading instead of snapping to tiny r
  h.x-=.01;h.heading=.45;renderer.update(level,level.dog,.05);assert.equal(mesh.rotation.y,.45);
  h.x+=.01;renderer.update(level,level.dog,0);assert.equal(mesh.rotation.y,.45);
 });
+
+test('Pip has twelve hollow hover rings with movement trails, frozen pause and fresh level state',()=>{
+  const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
+  const pip=renderer.dog,parts=pip.userData.parts;
+  assert.equal(parts.rings.length,4);
+  assert.equal(parts.rings.flat().length,12);
+  assert.ok(parts.rings.flat().every(r=>r.geometry.type==='TorusGeometry'));
+  assert.equal(parts.legs.length,0,'hover pods do not perform a walking gait');
+  const buddy=models.createDog();assert.equal(buddy.userData.parts.legs.length,4,'Buddy retains its walking model');
+  renderer.update(level,level.dog,1/60);
+  const before=parts.rings[0].map(r=>r.position.y);
+  level.dog.x+=.8;renderer.update(level,level.dog,1/60);
+  pip.updateMatrixWorld(true);
+  const anchors=parts.rings[0].map(r=>r.getWorldPosition(new THREE.Vector3()));
+  const pod=pip.localToWorld(parts.pods[0].clone());
+  assert.ok(Math.abs(anchors[0].x-pod.x)<1e-8,'top ring follows the pod exactly');
+  assert.ok(anchors[2].x<anchors[1].x&&anchors[1].x<anchors[0].x,'third ring trails actual motion and middle lies between');
+  assert.ok(parts.rings[0][1].position.y<before[1]&&parts.rings[0][2].position.y<before[2],'lower rings descend');
+  assert.ok(parts.rings[0][0].position.y>parts.rings[0][1].position.y&&parts.rings[0][1].position.y>parts.rings[0][2].position.y);
+  const paused=parts.rings.flat().map(r=>[...r.position.toArray(),r.material.opacity]);
+  renderer.update(level,level.dog,0);
+  assert.deepEqual(parts.rings.flat().map(r=>[...r.position.toArray(),r.material.opacity]),paused,'pause freezes ring animation');
+  let sawFade=false,sawRecycle=false,lastOpacity=parts.rings[0][2].material.opacity;
+  for(let i=0;i<60;i++){
+    renderer.update(level,level.dog,1/60);
+    const opacity=parts.rings[0][2].material.opacity;sawFade||=opacity<.05;sawRecycle||=opacity>lastOpacity+.3;lastOpacity=opacity;
+    assert.equal(parts.rings.flat().length,12,'animation never allocates more rings');
+  }
+  assert.ok(sawFade&&sawRecycle,'third ring fades away and the bounded sequence renews');
+  // Observe the visible pulse handoff, rather than a ring slot's identity.
+  level.dog.x+=.8;renderer.update(level,level.dog,1/60);
+  pip.userData.hover.time=.55-1e-6;models.updatePipHover(pip,0);
+  const departing=parts.rings[0][1],oldPosition=departing.position.clone(),oldY=departing.position.y,oldAlpha=departing.material.opacity,oldScale=departing.scale.x;
+  models.updatePipHover(pip,2e-6);
+  const arriving=parts.rings[0][2];
+  assert.ok(Math.abs(arriving.position.y-oldY)<1e-5,'middle hands off continuously to third height');
+  assert.ok(arriving.position.distanceTo(oldPosition)<1e-5,'moving pulse handoff preserves its full position');
+  assert.ok(Math.abs(arriving.material.opacity-oldAlpha)<1e-5,'handoff preserves brightness');
+  assert.ok(Math.abs(arriving.scale.x-oldScale)<1e-5,'handoff preserves pulse radius');
+  assert.ok(parts.rings[0][1].material.opacity<.001,'new pulse emerges invisibly instead of snapping upward');
+
+  level.dog.x+=20;renderer.update(level,level.dog,1/60);
+  pip.updateMatrixWorld(true);
+  assert.ok(Math.abs(parts.rings[0][2].getWorldPosition(new THREE.Vector3()).x-pip.localToWorld(parts.pods[0].clone()).x)<1e-8,'teleports clear the old trail');
+  let disposed=0;parts.rings.flat().forEach(r=>r.material.addEventListener('dispose',()=>disposed++));
+  renderer.setLevel(createLevel(1));assert.equal(disposed,12);assert.notEqual(renderer.dog,pip);
+});

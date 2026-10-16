@@ -305,3 +305,8 @@ F-051 reopened-help refinement: pressing ? to unhide help resets the applicable 
 ### F-052 - QA gear launcher
 
 The development-only QA launcher uses a gear icon centered at the bottom of the screen, with at least a 44px touch target and bottom safe-area clearance. Its accessible name identifies QA and an active test session. Release builds continue excluding QA.
+
+
+### F-053 - Pip reference model and hover rings
+
+On branch `pip_update`, replace player Pip with the reference-inspired angular silver robot dog: metal panels, expressive eyes, plate ears, black nose, blue tail light and four leg pods. No blue thruster flames. Each pod has three blue rings descending and fading in a repeating cycle. The top ring stays attached to Pip; the bottom ring trails his movement and the middle ring lies between. Preserve gameplay collision, control, bark and goal pointer behavior; Buddy retains its existing appearance.

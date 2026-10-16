@@ -757,3 +757,8 @@ F-052 execution: reviewed 9.5/10; source `e8b8e16`, Pages `715b06c`. All 277 tes
 
 
 Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; source CI/native Pages succeeded, 277 tests and release/doc checks pass, 15/15 live root files/canonical HTML verified. All 34 unrelated Pages files preserved. QA excluded from production; dev2 unchanged. User sign-off statuses above are preserved.
+
+
+### F-053 - Pip reference model and hover rings
+
+**Status:** Review on `pip_update`. Reference-inspired metallic player model with four hover pods and three descending blue rings per pod, no flames. Top ring follows Pip, bottom trails motion, middle sits between. Preserve Buddy and gameplay. Independent source review 9/10 and documentation review 9/10; regression/build checks recorded in QUALITY.md. Development deployment evidence follows there; phone appearance requires user review.

@@ -124,3 +124,8 @@ Buddy navigation follow-up: `buddy-navigation.js` composes route/bridge/goal way
 
 
 Forward-flow follow-up: the simulation caches direct Pip signals once per animal, derives each connected component's travel direction/pressure, and keeps transient `level.flockTravel` member/direction records across stops/splits. Leading animals reject backward cohesion and receive only missing forward flow when outside direct dog pressure. `bridge-crossing.js` owns `animal.bridgeCrossing`, selecting a safe far-bank point with the animal's actual radius. The simulation applies committed local walking before movement and refreshes a held animal's drone anchor upon arrival; saved animals clear traversal state. Profiles, rewards and attended admission are unchanged. Buddy bark availability now uses active tier >=2; retrieval still uses >=3.
+
+
+### Pip hover model
+
+F-053 separates player `createPip` from Buddy `createDog`. `updatePipHover` owns a bounded four-pod/twelve-ring presentation pool and per-pod world-space trailing positions. Simulation state and collision remain on their existing ground coordinates. Ring materials are owned by the level actor; baked shell geometries follow the existing disposal lifecycle.

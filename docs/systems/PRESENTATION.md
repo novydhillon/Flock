@@ -220,3 +220,8 @@ F-051 reopened-help refinement: pressing ? to unhide help resets the applicable 
 
 
 F-052: `src/qa.js` owns the gear launcher and accessible QA/test-session identity; `src/qa.css` anchors it at bottom center with safe-area spacing. Existing QA lifecycle and release exclusion remain unchanged.
+
+
+## Pip hover presentation (F-053)
+
+Player Pip uses a reference-inspired angular metallic shell, plate ears, expressive eyes and four fixed hover pods. Buddy keeps its walking model. Blue rings provide the thruster effect without flame meshes. Rendering owns the motion trail and does not change simulation position, collision or herding. Pause must freeze the effect; level recreation clears trail history.

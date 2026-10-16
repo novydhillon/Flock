@@ -7,7 +7,7 @@ const geometryCache = new Map();
 // Static constructor references let the production bundler omit unused Three
 // exports instead of retaining the entire namespace for dynamic lookup.
 const geometryConstructors = {
-  SphereGeometry: THREE.SphereGeometry, BoxGeometry: THREE.BoxGeometry,
+  TorusGeometry: THREE.TorusGeometry, SphereGeometry: THREE.SphereGeometry, BoxGeometry: THREE.BoxGeometry,
   CylinderGeometry: THREE.CylinderGeometry, ConeGeometry: THREE.ConeGeometry,
 };
 const modelCache = new Map();
@@ -266,6 +266,79 @@ export function createDog() {
   tailLight.name = 'Pip tail light';tailLight.userData.ownedMaterial = true;
   dog.userData.parts = { body, head, legs, tail, tailLight };
   return dog;
+}
+
+// Pip has a separate constructor so Buddy keeps its established walking model.
+export function createPip() {
+  const m = createMaterials(), shell = new THREE.Group();
+  const steel = new THREE.MeshStandardMaterial({color:'#a6b4b6',metalness:.72,roughness:.48});
+  const trim = new THREE.MeshStandardMaterial({color:'#667278',metalness:.8,roughness:.38});
+  box(shell,steel,[0,.83,-.06],[.62,.51,.92]);
+  box(shell,trim,[0,1.095,-.08],[.64,.035,.8]);
+  // Recessed seams and small rivets read as sheet-metal panels at game scale.
+  for(const side of [-1,1]) {
+    box(shell,trim,[side*.315,.84,-.08],[.016,.018,.84]);
+    box(shell,trim,[side*.316,.84,-.13],[.018,.48,.018]);
+    for(const z of [-.43,.28])for(const y of [.64,1.03])sphere(shell,m.brass,[side*.327,y,z],[.025,.025,.025]);
+  }
+  cylinder(shell,m.dark,[0,1.03,.38],.21,.18,[Math.PI/2,0,0]);
+  box(shell,steel,[0,1.32,.47],[.57,.45,.43]);
+  box(shell,m.dark,[0,1.35,.696],[.49,.25,.025]);
+  const muzzle=box(shell,steel,[0,1.15,.79],[.49,.25,.45]);muzzle.rotation.x=-.18;
+  box(shell,trim,[0,.99,.8],[.46,.04,.42]);
+  sphere(shell,m.black,[0,1.2,1.025],[.1,.095,.085]);
+  eye(shell,m,-.135,1.36,.72,.109);eye(shell,m,.135,1.36,.72,.109);
+  for(const side of [-1,1]) {
+    const ear=box(shell,steel,[side*.28,1.69,.43],[.22,.4,.12]);ear.rotation.z=side*-.42;
+    box(ear,m.dark,[0,0,.52],[.68,.75,.12]);
+  }
+  const pods=[];
+  for(const x of [-.3,.3])for(const z of [-.35,.29]) {
+    box(shell,steel,[x,.64,z],[.23,.43,.27]);
+    cylinder(shell,trim,[x*1.35,.78,z],.105,.06,[0,0,Math.PI/2]);
+    cylinder(shell,m.dark,[x,.39,z],.12,.09);
+    cylinder(shell,trim,[x,.335,z],.13,.05);
+    pods.push(new THREE.Vector3(x,.3,z));
+  }
+  const dog=bakeModel(shell);dog.name='Pip the hovering robot sheepdog';
+  dog.traverse(o=>{if(o.isMesh){o.userData.ownedGeometry=true;if(o.material===steel||o.material===trim)o.userData.ownedMaterial=true;}});
+  const tail=new THREE.Group();tail.position.set(0,.94,-.52);dog.add(tail);
+  for(let i=0;i<7;i++)cylinder(tail,i%2?m.dark:trim,[0,.04+i*.05,-i*.035],.035,.055,[-.6,0,0]);
+  const light=new THREE.MeshStandardMaterial({color:'#9ceeff',emissive:'#39bfe8',emissiveIntensity:1.25,roughness:.28});
+  const tailLight=sphere(tail,light,[0,.41,-.27],[.075,.075,.075]);tailLight.userData.ownedMaterial=true;
+  // Bounded pool: exactly three hollow rings per pod, with no flame geometry.
+  const rings=pods.map((pod)=>Array.from({length:3},(_,index)=>{
+    const material=new THREE.MeshBasicMaterial({color:'#55dfff',transparent:true,opacity:1,depthWrite:false,toneMapped:false});
+    const ring=new THREE.Mesh(geometry('TorusGeometry',[.135,.014,6,24]),material);
+    ring.name=`Pip thruster ring ${index+1}`;ring.rotation.x=Math.PI/2;ring.userData.ownedMaterial=true;dog.add(ring);return ring;
+  }));
+  dog.userData.parts={body:dog.children[0],legs:[],tail,tailLight,pods,rings};
+  dog.userData.hover={time:0,previous:null,trails:[]};
+  return dog;
+}
+
+export function updatePipHover(dog,dt) {
+  const state=dog.userData.hover;if(!state)return;
+  dog.updateMatrixWorld(true);
+  const current=dog.userData.parts.pods.map(p=>dog.localToWorld(p.clone()));
+  const reset=!state.previous||dog.position.distanceTo(state.previous)>3;
+  if(reset)state.trails=current.map(p=>p.clone());
+  // Pausing freezes both the descent and world-space motion trail.
+  if(dt>0)state.time+=dt;
+  for(let pod=0;pod<current.length;pod++) {
+    if(dt>0)state.trails[pod].lerp(current[pod],1-Math.exp(-dt/.13));
+    const phase=(state.time/.55)%1;
+    for(let index=0;index<3;index++) {
+      const ring=dog.userData.parts.rings[pod][index];
+      const world=current[pod].clone().lerp(state.trails[pod],index===0?0:(index-1+phase)/2);
+      const local=dog.worldToLocal(world);local.y=dog.userData.parts.pods[pod].y-.055-(index===0?0:(index-1+phase)*.1+.055);
+      // At recycle, the old middle becomes the new third at identical
+      // height, brightness and radius; a new middle fades out of the pod.
+      ring.position.copy(local);ring.material.opacity=index===0?.95:index===1?.85*Math.min(1,phase/.15):.85*(1-phase);
+      ring.scale.setScalar(1+(index===0?0:(index-1+phase)*.15));
+    }
+  }
+  state.previous=dog.position.clone();
 }
 
 export function createAnimal(type = 'sheep') {
