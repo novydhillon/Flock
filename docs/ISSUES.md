@@ -762,3 +762,6 @@ Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; 
 ### F-053 - Pip reference model and hover rings
 
 **Status:** Review on `pip_update`. Reference-inspired metallic player model with four hover pods and three descending blue rings per pod, no flames. Top ring follows Pip, bottom trails motion, middle sits between. Preserve Buddy and gameplay. Independent source review 9/10 and documentation review 9/10; regression/build checks recorded in QUALITY.md. Development deployment evidence follows there; phone appearance requires user review.
+
+
+F-053 publication: runtime source `bcbff8f`, Pages `7e52478`; source CI/native Pages succeeded, all 17 live files match the checked build and 30 unrelated Pages files are preserved. 278 tests pass; source/documentation reviews each 9/10. Live at [dev2](https://novydhillon.github.io/Flock/dev2/). Status remains Review for phone appearance.

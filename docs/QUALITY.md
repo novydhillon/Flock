@@ -366,4 +366,11 @@ Implementation uses inherited Sol; independent source review uses Sol at medium 
 
 Final integrated regression: **278/278 passed** on Node 24.19.0. Generated documentation and four documentation behavior tests pass. The nose-only color adjustment passes the focused hover integration test. Native device appearance remains pending.
 
-Source commit `88fa7b0` is local on `pip_update`. Development staging against Pages `ee53e9c` replaces only `dev2/index.html` and its main runtime bundle; all 30 unrelated Pages files are unchanged and all 17 staged development files match the checked build. Automatic approval review rejected GitHub publication because it requires explicit authorization to publish source to the public repository. No source push, CI run or live deployment is claimed. User approval is pending for pushing `pip_update` and publishing the prepared dev2 tree.
+Source commit `88fa7b0` is local on `pip_update`. Development staging against Pages `ee53e9c` replaces only `dev2/index.html` and its main runtime bundle; all 30 unrelated Pages files are unchanged and all 17 staged development files match the checked build. Automatic approval review rejected GitHub publication because it requires explicit authorization to publish source to the public repository. No source push, CI run or live deployment is claimed. User explicitly approved pushing to the remote and deploying on 16 October 2026 at 00:37 America/Vancouver; see the subsequent publication record below.
+
+
+### Verified F-053 development publication
+
+The user approved remote publication on 16 October 2026 at 00:37 America/Vancouver. Runtime source `bcbff8f15ac97dbecd6a94d531e6daeec80efc55` on `pip_update` has the exact reviewed local tree (`9ac06d3`), published through the connected GitHub integration because shell Git lacked authentication. Source CI [38868534700](https://github.com/novydhillon/Flock/actions/runs/38868534700) succeeded with 278 tests, generated documentation checks and both build-mode checks.
+
+Pages commit `7e524782f7d3878ecd90815c9743af6cf36aced2` publishes only the development entry and runtime replacement. Native Pages [38868657430](https://github.com/novydhillon/Flock/actions/runs/38868657430) build/deploy/report jobs succeeded. All **17/17 live development files** match the prepared build by SHA-256; all **30 unrelated Pages files** are preserved byte-for-byte, including production. Live game: https://novydhillon.github.io/Flock/dev2/. F-053 remains Review for native phone appearance; no user acceptance is claimed.
