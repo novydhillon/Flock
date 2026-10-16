@@ -260,11 +260,14 @@ test('keyboard movement works while Play or Resume retains browser focus', async
   assert.ok(ui.app.state().dog.z<z);
 });
 
-test('the workshop labels level locks and cannot spend on an early drone',async()=>{
+test('the workshop hides the drone and labels other level locks',async()=>{
   const ui=launch({points:1000,highestLevel:7});await ui.click('play');await ui.click('wallet');
-  const drone=ui.el('modal-card').querySelectorAll('[data-buy]').find(b=>b.dataset.buy==='drone');
-  assert.equal(drone.disabled,true);assert.match(ui.el('modal-card').innerHTML,/Level 10/);
-  const before=ui.app.state().profile.points;drone.onclick?.();assert.equal(ui.app.state().profile.points,before);
+  const buttons=ui.el('modal-card').querySelectorAll('[data-buy]');
+  assert.equal(buttons.some(b=>b.dataset.buy==='drone'),false);
+  assert.doesNotMatch(ui.el('modal-card').innerHTML,/Scout drone/);
+  const buddy=buttons.find(b=>b.dataset.buy==='helper');
+  assert.equal(buddy.disabled,true);assert.match(ui.el('modal-card').innerHTML,/Level 20/);
+  const before=ui.app.state().profile.points;buddy.onclick?.();assert.equal(ui.app.state().profile.points,before);
 });
 
 test('double taps and native touch gestures bark without changing the game viewport',async()=>{
