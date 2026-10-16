@@ -77,7 +77,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   for (const id of ['modal', 'controls', 'error', 'toast']) elements.get(id)?.classes.add('hidden');
   class MeadowRenderer {
     setLevel(level) { this.level = level; }
-    update(_level,_dog,dt) { this.lastDt=dt; } drawMap() {} resize() {} bark() {} celebrate() {}
+    update(_level,_dog,dt) { this.lastDt=dt; } drawMap() {} resize() {} bark(source) { (this.barks ||= []).push(source); } celebrate() {}
   }
   class FarmAudio {
     async start() { audioEvents.push('start'); await audioActivation; }
@@ -454,4 +454,20 @@ test('mission identifies fixed weather without requiring a wait or affecting the
  const ui=launch(),renderer=ui.app.state().renderer;renderer.nature={weather:{kind:'heavy-rain',type:'rain'}};ui.tick();assert.match(ui.el('weather-status').textContent,/Heavy rain/);
  renderer.nature.weather={kind:'storm',type:'rain'};ui.tick();assert.match(ui.el('weather-status').textContent,/Thunderstorm/);
  assert.ok(ui.el('mission-score'));assert.ok(ui.el('countdown'));
+});
+
+
+test('autonomous Buddy bark reaches audio and renderer without consuming Pip cooldown',async()=>{
+ const ui=launch({highestLevel:27,upgrades:{helper:3}});await ui.click('play');
+ const state=ui.app.state(),l=state.level;
+ Object.assign(l,{time:0,bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],fenceSegments:[],obstacles:[],routes:[],
+  helpers:[{type:'helper',x:-4,z:0}],animals:[0,1].map(id=>({id,x:0,z:id*2,vx:2,vz:0,type:'sheep',saved:false,nextWanderCheck:1e9}))});
+ Object.assign(state.dog,{x:-70,z:-70});
+ ui.tick();assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
+ assert.equal(state.renderer.barks.length,1);assert.ok(Number.isFinite(state.renderer.barks[0].x));
+ assert.equal(ui.el('bark').disabled,false,'Buddy does not consume Pip cooldown');
+ await ui.click('bark');assert.equal(ui.audioEvents.filter(e=>e==='bark').length,2);
+ assert.equal(state.renderer.barks[1],undefined,'Pip uses its own bark origin');
+ await ui.click('pause');const count=ui.audioEvents.filter(e=>e==='bark').length;ui.tick();
+ assert.equal(ui.audioEvents.filter(e=>e==='bark').length,count);
 });

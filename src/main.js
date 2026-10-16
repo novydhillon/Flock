@@ -113,7 +113,7 @@ function frame(now){
     const result=stepSimulation(level,dog,{x:ix,z:iz,bark:now<barkUntil},dt,profile.upgrades);
     $('saved').textContent=result.saved;$('progress').style.width=`${result.total?result.saved/result.total*100:0}%`;
     $('countdown').textContent=result.countdownStarted?`${Math.ceil(result.remaining)}s to gather the rest`:`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',result.countdownStarted);$('mission-score').textContent=`Score ${result.score} / ${result.possibleScore}`;
-    for(const event of result.events)if(event.type==='animalSaved')audio.play('saved');
+    for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
     const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
     if(!tipDismissed){
       if(level.index===0){if(elapsed>5&&tipStep===0){tipStep=1;setTip('Sheep move away from Pip. Stay behind them to guide them to the golden pen.');}if(result.saved>0&&tipStep<2){tipStep=2;setTip('Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');}}

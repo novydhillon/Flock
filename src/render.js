@@ -277,8 +277,9 @@ export class MeadowRenderer{
     const poseTime=Math.floor(this.time*12)/12;
     parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i%3===0?0:Math.PI))*Math.min(.5,speed*.07));parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
-    for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,false);}}
-    this.updateBarks(dt);setTailLightBarking(this.dog,(this.barkEffects||[]).length>0);this.gateView?.update();
+    this.updateBarks(dt);
+    for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,(this.barkEffects||[]).some(e=>e.buddy));}}
+    setTailLightBarking(this.dog,(this.barkEffects||[]).some(e=>!e.buddy));this.gateView?.update();
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
     this.cutaway?.update(this.camera,[dog,...level.animals,...(level.helpers||[]).filter(h=>h.type!=='drone')],dt);
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
@@ -289,12 +290,12 @@ export class MeadowRenderer{
     this.particles=this.particles.filter(p=>p.life>0);this.cullScenery();this.updateAnimalBatches(level,poseTime);this.renderer.render(this.scene,this.camera);
   }
   celebrate(x,z){for(let i=0;i<36;i++){const mesh=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.05),new THREE.MeshBasicMaterial({color:['#f0b65c','#f8e8ad','#e99585','#80b398'][i%4]}));mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;mesh.position.set(x,1.5,z);this.actors.add(mesh);this.particles.push({mesh,velocity:new THREE.Vector3(Math.sin(i*2.4)*3,2+(i%5),Math.cos(i*2.4)*3),life:1.8});}}
-  bark(){
-    setTailLightBarking(this.dog,true);
-    const origin={x:this.dog.position.x,z:this.dog.position.z};
+  bark(source){
+    if(!source)setTailLightBarking(this.dog,true);
+    const origin=source?{x:source.x,z:source.z}:{x:this.dog.position.x,z:this.dog.position.z};
     const mesh=new THREE.Mesh(barkSurface(this.level,origin),new THREE.MeshBasicMaterial({color:'#fff6d8',side:THREE.DoubleSide,transparent:true,opacity:.8,depthTest:true,depthWrite:false}));
     mesh.renderOrder=1;mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;this.actors.add(mesh);
-    this.barkEffects??=[];this.barkEffects.push({mesh,origin,age:0});
+    this.barkEffects??=[];this.barkEffects.push({mesh,origin,age:0,buddy:Boolean(source)});
     // Cooldowns normally limit this to one; retain a hard cap for QA/repeated input.
     while(this.barkEffects.length>4){const old=this.barkEffects.shift();this.actors.remove(old.mesh);old.mesh.geometry.dispose();old.mesh.material.dispose();}
   }

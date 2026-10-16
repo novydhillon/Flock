@@ -13,9 +13,9 @@ const catalog = [
     tierNames: ['Scout', 'Shepherd scout', 'Flock captain'],
     tierDescriptions: ['Keeps the main herd together; holds when you leave', '33% stronger drone support', '67% stronger drone support'] },
   { id: 'helper', name: 'Buddy dog', icon: 'dog', costs: [600, 850, 1200], unlockLevels: [20, 24, 28],
-    description: 'A companion supports the main herd while you lead through crossings.',
+    description: 'Herds from the rear, supports split flocks, and learns to retrieve strays.',
     tierNames: ['Farm friend', 'Trail partner', 'Senior shepherd'],
-    tierDescriptions: ['A friend at your flank; watches the herd while you roam', '30% stronger buddy support', '58% stronger buddy support'] },
+    tierDescriptions: ['Herds from behind in the flock’s direction of travel', 'Stays with the smaller flock when the herd splits', 'Retrieves wanderers and bolters; barks autonomously'] },
   { id: 'bark', name: 'Happy bark', icon: 'bark', costs: [100, 160, 240], unlockLevels: [4, 8, 13],
     description: 'A stronger bark gives wandering robots a cheerful nudge.',
     tierNames: ['Bright bark', 'Resonant bark', 'Meadow chorus'],
@@ -142,6 +142,7 @@ export function upgradeEffects(upgrades, levelNumber = 1) {
     helperStrength: [0, 1, 1.3, 1.58][tier('helper')],
     drone: tier('drone') > 0,
     helper: tier('helper') > 0,
+    helperTier: tier('helper'),
   };
   return effects;
 }

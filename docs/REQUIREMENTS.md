@@ -93,11 +93,11 @@ The initial profile has zero bolts, no upgrades, no completed levels and only le
 | Turbo paws | 2 / 6 / 11 | 80 / 120 / 200 | +1.8 / +2.7 / +3.5 m/s |
 | Friendly signal | 7 / 10 / 15 | 120 / 180 / 260 | +2 / +3 / +4 m range |
 | Scout drone | 10 / 14 / 18 | 200 / 360 / 540 | Support strength 0.7 / 0.93 / 1.17 |
-| Buddy dog | 20 / 24 / 28 | 600 / 850 / 1200 | Support strength 1 / 1.3 / 1.58 |
+| Buddy dog | 20 / 24 / 28 | 600 / 850 / 1200 | Rear herding / smaller split flock / retrieval and autonomous bark |
 | Happy bark | 4 / 8 / 13 | 100 / 160 / 240 | +0.25 / +0.45 / +0.65 strength |
 | Flock harmony | 12 / 14 / 15 | 160 / 220 / 320 | +12% / +23% / +35% regrouping |
 
-Drone unlock is exactly level **10**; Buddy is exactly **20** and costs more. Helpers attend the largest connected herd, hold it when Pip leaves, and do not fetch isolated stragglers or autonomously finish. Recover stragglers and return to lead delivery. Ground Buddy must navigate around solid barriers. See [progression.js](../src/progression.js), profile functions in [simulation.js](../src/simulation.js), progression/companion tests.
+Drone unlock is exactly level **10**; Buddy is exactly **20** and costs more. The drone attends the largest connected herd and holds it when Pip leaves. Buddy tier 1 herds from the rear in measured flock travel direction; tier 2 stays with the smaller split flock; tier 3 returns wandering/bolting or locally settled animals to the closest flock group and barks autonomously. Buddy must navigate solid ground and needs local, clear rear pressure. Helpers cannot admit unattended deliveries; Pip still participates at the destination. See [progression.js](../src/progression.js), profile functions in [simulation.js](../src/simulation.js), progression/companion tests.
 
 ### Art, wildlife and weather
 
@@ -245,3 +245,10 @@ Chosen wanderers have a clear yellow tint; chosen bolters a clear red tint. Each
 ## QA workshop level gates - 15 October 2026
 
 In an isolated QA session, workshop unlocks and purchases use the public level currently being tested, including after backward jumps. Each next tier still requires its normal bolt cost and unlock level. Owned upgrades and test bolts carry between jumps; higher tiers stay inactive below their normal activation level. QA purchases never save to the normal campaign. Normal play continues to use earned campaign progress for purchases.
+
+
+## Buddy dog revision - 15 October 2026
+
+F-046 implements the requested tiered behavior: rear herding along actual group movement at tier 1, smaller-group support from tier 2, and retrieval to the closest flock group plus autonomous barking from tier 3. Existing purchase/activation levels 20/24/28 and prices 600/850/1200 are unchanged. This supersedes earlier blanket descriptions that all companions hold the largest flock and never retrieve. Drone behavior remains as before. No goal steering or unattended scoring is added. Source implementation is **Review** pending user gameplay acceptance; see [behavior and tuning](systems/GAMEPLAY.md#buddy-dog-tiers-15-october-2026).
+
+User clarification (15 October 2026, 18:53 Vancouver): a bolter may get away and gain distance; Buddy should pursue and catch up by running. Retrieval does not require immediate interception or prevent the initial escape. No teleport, recall, artificial bolter slowdown or guarantee of catching every bolt before expiry is intended.

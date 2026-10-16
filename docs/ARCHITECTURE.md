@@ -19,6 +19,7 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 |---|---|---|
 | `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
 | `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
+| `src/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; no DOM, profile writes or destination choice |
 | `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
 | `src/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
 | `src/wandering.js` | Seeded straggler opportunity cohort and conditional bolt selection | Simulation-time cadence; normal world collision remains authoritative |
@@ -110,3 +111,8 @@ Cloud removal, 15 October 2026: `MeadowRenderer` no longer imports, constructs, 
 `wandering.js` owns seeded cohort selection, public-level bands and each animal's 5-8s check schedule. `simulation.js` applies excursions and local home roaming through ordinary body collision. All transient fields live on the level/animals, never profile storage or module globals. See [current behavior](REQUIREMENTS.md#flock-wandering-and-bolting-revision---15-october-2026). F-035/F-037/F-039/F-041 remain Review for new gameplay acceptance.
 
 QA debug is installed by the development-only qa.js import. It wraps updateAnimalBatches to apply colors after visible-instance compaction and before drawing, without altering simulation or shared model-material colors; destruction restores the original method and neutral instance colors. The main loop updates the numeric HUD through a QA-compile-gated callback. Release artifact checks exclude debug identifiers.
+
+
+## Buddy decisions and events
+
+`buddy.js` shares ground-visible flock grouping with the drone and returns per-animal local forces to `simulation.js`. It owns `level.buddyHerd` (group cache, travel heading, retrieval ID) and Buddy helper fields (mode, members, desired rear position, bark deadlines). The simulation combines Buddy pressure with Pip/drone behavior, interrupts excursions only under effective herding, and preserves player-attended admission. `main.js` routes `buddyBark` events to audio and `render.bark(event)`; rendering maintains separate Buddy/Pip ring origins and dedicated tail lights. All state is transient and cleared with a fresh level; only purchased tiers persist.

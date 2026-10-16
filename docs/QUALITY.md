@@ -258,3 +258,14 @@ Natural generated-level probes at public8/17/41/71 run120 simulated seconds each
 QA jumps previously changed the meadow without changing the campaign-based shop gate. Availability and atomic purchase now share an explicit tested public level in QA. Tests cover all 18 upgrade tier gates at the level boundary and one bolt below/exact price, plus real controller/editor/shop flows: jump to level 20, purchase Buddy dog for 600 bolts, reject unaffordable purchases, add exactly 80 bolts and buy speed, jump back to level 1 despite later completion history, and buy Buddy tier 2 only at level 24. Normal-save isolation is checked.
 
 Validation: 240/240 source tests pass. Release artifact exclusion, development QA inclusion, and generated documentation checks pass.
+
+
+## Buddy behavior tiers - 15 October 2026
+
+F-046 separates Buddy from the drone's main-herd hold logic. Buddy uses measured flock velocity for rear herding, chooses the smaller flock from tier 2, and retrieves wanderers/bolters/settled strays to the nearest connected group from tier 3. Autonomous bark has its own simulation-time cooldown, audio event, ground ring and dedicated red tail light. Existing unlock/cost/save/admission contracts remain intact.
+
+Focused verification includes cardinal travel, a full reversal, idle/remote isolation, split-size ties and merging, tier activation at public 20/24/28, nearest-group retrieval for all excursion states, saved/missing targets, wall/river signal blocking, a real off-axis bridge retrieval alongside a holding drone, cow body clearance, bark cadence/pause/reset, controller audio/cooldown independence, and tail/ring lifecycle after gameplay ends. A sustained cohort-eligible bolter probe caught an initial circling defect: Buddy followed beside the running stray without gaining a useful rear position. Interception lead and wider circling fix it; the regression now requires interruption before bolt expiry and actual reunion. Direction reversal also has a regression against a stuck-front smoothing failure.
+
+Validation uses source/headless simulation, actual Three.js geometry with a substituted GPU, and controller DOM/audio substitutes. No independent blind reviewer, rendered browser/phone play, audio listening or device frame-rate evidence is claimed. F-046 remains Review for user acceptance.
+
+Final local validation: **254/254 source tests pass**, including 12 dedicated Buddy scenarios and the unchanged journey controller. Release artifact check passes with 15 files and no QA assets; development artifact check passes with 17 files and two QA assets. All 12 documentation pages, local links/anchors, nine Mermaid sources and four documentation DOM tests pass. Publication evidence follows separately.

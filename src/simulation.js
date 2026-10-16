@@ -1,10 +1,11 @@
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
-import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
+import { createLevel, canOccupy, moveBody, openingSteer, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
+import { flockGroups, updateBuddy } from './buddy.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
-/** Renderer-independent flock behaviour. Companions support Pip's herding;
- * they never choose a destination or move the flock along a route. */
+/** Renderer-independent flock behaviour. Buddy follows flock travel;
+ * the drone holds the main herd when Pip leaves. Pip admits deliveries. */
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const normal = (x, z) => {
@@ -52,19 +53,7 @@ function clearSignal(level, a, b, radius = 0.15) {
 
 /** Connected flock components, with a stable tie-break by animal ID. */
 function largestHerd(level, active, previousIds = []) {
-  const unvisited = new Set(active), groups = [];
-  while (unvisited.size) {
-    const first = unvisited.values().next().value, group = [first];
-    unvisited.delete(first);
-    for (let i = 0; i < group.length; i++) {
-      for (const other of unvisited) {
-        if (distance(group[i], other) <= 6.5 && clearSignal(level, group[i], other)) {
-          group.push(other); unvisited.delete(other);
-        }
-      }
-    }
-    groups.push(group);
-  }
+  const groups = flockGroups(level, active);
   groups.sort((a, b) => b.length - a.length ||
     b.filter(v => previousIds.includes(v.id)).length - a.filter(v => previousIds.includes(v.id)).length ||
     Math.min(...a.map(v => v.id)) - Math.min(...b.map(v => v.id)));
@@ -72,9 +61,9 @@ function largestHerd(level, active, previousIds = []) {
 }
 
 function companionState(level, active, effects, dt) {
-  const kinds = [effects.drone && 'drone', effects.helper && 'helper'].filter(Boolean);
+  const kinds = [effects.drone && 'drone'].filter(Boolean);
   level.helpers ||= [];
-  level.helpers = level.helpers.filter(h => kinds.includes(h.type));
+  level.helpers = level.helpers.filter(h => kinds.includes(h.type) || (effects.helper && h.type === 'helper'));
   if (!kinds.length || !active.length) return { helpers: [], group: [], memberIds: new Set(), hold: false };
   const state = level.companionHerd ||= {};
   const activeSignature = active.map(a => a.id).join(',');
@@ -117,21 +106,11 @@ function companionState(level, active, effects, dt) {
       level.helpers.push(helper);
     }
     helper.mode = state.mode; helper.clusterIds = [...ids]; helper.anchor = { ...state.anchor };
-    // Orbit over the group, rather than repeatedly pursuing its rearmost robot.
-    // The ground buddy joins Pip's flank. Its body has no blanket flee signal.
-    const fromDog = normal(centroid.x - level.dog.x, centroid.z - level.dog.z);
-    const desired = kind === 'drone' ? centroid : hold ? {
-      x: centroid.x - fromDog.z * Math.max(2.8, Math.sqrt(group.length) * 0.6),
-      z: centroid.z + fromDog.x * Math.max(2.8, Math.sqrt(group.length) * 0.6),
-    } : {
-      x: level.dog.x - fromDog.z * 2.1,
-      z: level.dog.z + fromDog.x * 2.1,
-    };
-    const waypoint = kind === 'drone' ? desired : navigationTarget(level, helper, desired);
-    const direction = normal(waypoint.x - helper.x, waypoint.z - helper.z);
-    const travel = Math.min(distance(helper, waypoint), dt * (kind === 'drone' ? 6 : 7));
-    if (kind === 'drone') { helper.x += direction.x * travel; helper.z += direction.z * travel; }
-    else moveBody(level, helper, direction.x * travel, direction.z * travel, 0.6);
+    // The drone remains airborne over the main herd. Ground Buddy has its
+    // own tiered state and navigation in buddy.js.
+    const direction = normal(centroid.x - helper.x, centroid.z - helper.z);
+    const travel = Math.min(distance(helper, centroid), dt * 6);
+    helper.x += direction.x * travel; helper.z += direction.z * travel;
   }
   return { helpers: level.helpers, group, centroid, memberIds, hold, state };
 }
@@ -142,7 +121,7 @@ function companionAssist(level, companions, dog, effects) {
   const { group, centroid } = companions;
   const forward = normal(centroid.x - dog.x, centroid.z - dog.z);
   const lateral = { x: -forward.z, z: forward.x };
-  const strength = Math.min(1.2, effects.droneStrength * 0.35 + effects.helperStrength * 0.25);
+  const strength = Math.min(1.2, effects.droneStrength * 0.35);
   const comfortable = Math.max(2.1, Math.sqrt(group.length) * 0.66);
   for (const animal of group) {
     const offset = (centroid.x - animal.x) * lateral.x + (centroid.z - animal.z) * lateral.z;
@@ -253,6 +232,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   const active = level.animals.filter(a => !a.saved);
   const companions = companionState(level, active, effects, dt);
   const support = companionAssist(level, companions, dog, effects);
+  const buddy = updateBuddy(level, active, effects, dt, events);
   const radius = 7.6 + effects.signalBoost + (input.bark ? 3.3 : 0);
   const snapshot = active.map(a => ({ ...a }));
   const visibility = level.flockVisibility ||= new Map();
@@ -278,13 +258,18 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     let desiredX = sx * 2.5, desiredZ = sz * 2.5;
     const dogDistance = distance(old, dog);
     const dogActivelyHerding = dogDistance < radius && hasClearPlayerSignal(level, old, dog);
-    const helperActivelyHerding = !companions.hold && companions.memberIds.has(animal.id);
+    const buddyActivelyHerding = buddy.memberIds.has(animal.id);
+    const helperActivelyHerding = (!companions.hold && companions.memberIds.has(animal.id)) || buddyActivelyHerding;
     if (dogActivelyHerding || helperActivelyHerding) { delete animal.wander; delete animal.wanderHome; }
     if (dogActivelyHerding) {
       const urgency = Math.pow(1 - dogDistance / radius, 0.65) * (input.bark ? 1.65 + effects.barkBoost : 1);
       const flee = dogDistance > 0.01 ? normal(old.x - dog.x, old.z - dog.z) : normal(Math.sin(dog.heading || 0), Math.cos(dog.heading || 0));
       desiredX += flee.x * urgency * 5.2; desiredZ += flee.z * urgency * 5.2;
       pressure = urgency; animal.lastPlayerPressure = level.time;
+    }
+    if (buddyActivelyHerding) {
+      const force = buddy.forces.get(animal.id);
+      desiredX += force.x; desiredZ += force.z; pressure = Math.max(pressure, .45);
     }
     const holding = companions.hold && companions.memberIds.has(animal.id) && pressure < 0.03;
     const settle = () => { animal.wanderHome = {x:old.x,z:old.z}; delete animal.wander; };
@@ -303,7 +288,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       desiredX = clamp((position.x - old.x) * 2.6 + sx * 0.35, -1.1, 1.1);
       desiredZ = clamp((position.z - old.z) * 2.6 + sz * 0.35, -1.1, 1.1);
     } else {
-      if (neighbors && !wander && !animal.wanderHome) {
+      if (neighbors && !wander && !animal.wanderHome && !(buddyActivelyHerding && level.buddyHerd?.retrieveId === animal.id)) {
         const dx = cx / neighbors - old.x, dz = cz / neighbors - old.z, d = Math.hypot(dx, dz);
         if (d > 2.6) {
           const toward = normal(dx, dz), cohesion = Math.min(2.6, (d - 2.6) * 0.36) * (1 + effects.cohesionBoost);

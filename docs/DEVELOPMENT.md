@@ -39,7 +39,8 @@ The generator resolves links among the documented pages, creates heading anchors
 | Tests | What they support |
 |---|---|
 | `tests/simulation.test.js` | Herd delivery, body collision, reward/profile behavior |
-| `tests/companions.test.js` | Largest connected herd, holds, attendance, barriers |
+| `tests/companions.test.js` | Drone largest connected herd, holds, attendance, barriers |
+| `tests/buddy.test.js` | Buddy tier behavior, rear pressure, split flock, retrieval, bridge traversal and autonomous bark |
 | `tests/world.test.js` | Generation, route/footprint validity, clearance and seeded fixtures |
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
 | `tests/progression.test.js` | Tier cost/unlock/activation and legacy data validation |
@@ -128,3 +129,8 @@ Chosen wanderers have a clear yellow tint; chosen bolters a clear red tint. Each
 ## QA workshop level gates - 15 October 2026
 
 In an isolated QA session, workshop unlocks and purchases use the public level currently being tested, including after backward jumps. Each next tier still requires its normal bolt cost and unlock level. Owned upgrades and test bolts carry between jumps; higher tiers stay inactive below their normal activation level. QA purchases never save to the normal campaign. Normal play continues to use earned campaign progress for purchases.
+
+
+## Buddy smoke checks
+
+On public QA levels 20, 24 and 28, buy the available Buddy tiers using test bolts. At tier 1, move the flock and observe Buddy behind its actual direction of travel; reverse direction and stop. At tier 2 split a group of at least two from a larger flock: Buddy should stay with the smaller group. At tier 3 let a wanderer/bolter separate and settle: Buddy should run around behind it, bring it to the closest flock group, and bark with its own ring/red tail without consuming Woof. Check a bridge, pause/resume, level restart, and simultaneous Pip bark. Drone ownership should preserve its existing main-herd hold behavior. Human gameplay, rendered effects and listening remain pending review.

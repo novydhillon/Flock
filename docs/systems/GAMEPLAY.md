@@ -47,7 +47,7 @@ Pip's base pressure radius is `7.6 + signalBoost`, plus 3.3 while barking. Withi
 
 ## Companions support the player
 
-Owned companion tiers apply only after their current meadow's unlock gates. The largest connected component is selected using links of at most 6.5 units with a clear ground path (radius 0.15). Ties prefer members from the previous selection, then lowest animal ID. Recompute on active-membership changes or after more than 0.25 simulation seconds. A singleton is not a supported herd: helpers go to standby, and isolated stragglers receive no support.
+Owned companion tiers apply only after their current meadow's unlock gates. Buddy now has separate behavior described below. For the drone, the largest connected component is selected using links of at most 6.5 units with a clear ground path (radius 0.15). Ties prefer members from the previous selection, then lowest animal ID. Recompute on active-membership changes or after more than 0.25 simulation seconds. A singleton is not a supported herd: the drone goes to standby and does not retrieve isolated stragglers.
 
 Attendance uses the closest ground-visible member of the selected herd, not its centroid. Visibility search is limited to 18 units, so losing a clear path yields infinite attendance distance even if Pip is physically close.
 
@@ -59,7 +59,21 @@ Attendance uses the closest ground-visible member of the selected herd, not its 
 
 Hold entry captures the herd centroid and each member's position. Membership change with less than half overlap also recaptures positions. Holding suppresses inherited alignment/cohesion momentum and steers members back toward stored positions. Direct pressure of at least 0.03 overrides holding for that animal. It is a bounded positional behavior, not an immutable freeze.
 
-In assist, companions tidy lateral flanks relative to Pip→centroid. The force vectors have their mean removed, preventing net propulsion toward a destination. The drone flies over the centroid; Buddy navigates solid ground alongside Pip, or alongside the herd while holding. Buddy's body has no blanket flee signal. Neither companion chooses a goal or autonomously delivers the flock.
+In assist, the drone tidies lateral flanks relative to Pip→centroid. Its force vectors have their mean removed, preventing net propulsion. It flies over the centroid. Neither companion chooses the goal or admits unattended deliveries. Buddy's local pressure can override drone hold for the affected animal.
+
+### Buddy dog tiers (15 October 2026)
+
+Buddy uses its own level-local state in `buddy.js`. Connected groups require at least two unsaved animals, links at most 6.5m and a clear ground path. Active excursions, settled strays and the current retrieval target are excluded from Buddy's ordinary groups. Membership refreshes on changes or every .25 simulation seconds; equal-size ties favor the previous selection, then lowest animal ID.
+
+- Tier 1 (public level 20): work behind the rearmost flock member along the largest group's measured average velocity. A .28m/s threshold rejects idle jitter. Remember the last direction while stopped, but apply no invented forward drive. Direction smoothing handles turns and full reversals.
+- Tier 2 (public level 24): select the smallest connected flock group, retain it on size ties, and help it along the main flock's direction of travel. Rejoin normal single-flock support after merging.
+- Tier 3 (public level 28): prioritize bolters, then the nearest wanderer or locally settled stray. Retain that target after pressure clears its excursion/home state; choose the closest current flock group by centroid distance, and stop retrieval within 4.5m of a ground-visible member. A group of at least two must remain to receive the stray.
+
+Buddy navigates with a .6m body radius and circles to the rear before exerting pressure. Influence is limited to animals within 8m, behind-to-forward alignment greater than .6 and clear ground visibility. Forward steps require the animal's actual body clearance. Retrieval uses navigation waypoints toward the receiving group and ordinary opening steering/collision. Bolters may escape ahead while Buddy runs to catch up; a short interception lead helps Buddy circle into position. No teleport, forced recall or artificial bolter slowdown is used, and catching every bolt before expiry is not guaranteed. Lower tiers do not chase or remotely cancel excursions.
+
+Tier 3 barks autonomously only when in a useful rear position, with a 3.2s simulation-time cooldown and .65s strength burst. `buddyBark` events drive audio and a ground ring at Buddy's position. Dedicated tail lights flash independently of Pip; the ring lifecycle restores the tail even after results stop gameplay. Buddy does not consume Pip's bark cooldown. Pause/zero dt freeze decisions, pressure and cooldowns; level replacement resets all transient state. Saved animals are excluded.
+
+See [Buddy regression tests](../../tests/buddy.test.js) for rear positioning, reversals, size ties/merges, tier gates, three retrieval states, nearest-group selection, real bridge traversal with a holding drone, blocked signals, cooldown, pause and target invalidation. Controller/renderer tests check event routing, separate bark origins and tail lifecycle. These are headless checks; live feel and device presentation remain for user review.
 
 Tests: [companions.test.js](../../tests/companions.test.js) covers selection, hysteresis, fifteen-minute hold, straggler retrieval, blocked signals, zero goal dependence and unattended admission. [herding-journey.test.js](../../tests/herding-journey.test.js) uses legitimate dog input to complete five representative crossing journeys; its bounded policy does not prove all seeds/routes solvable.
 

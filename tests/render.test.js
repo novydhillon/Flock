@@ -355,3 +355,20 @@ test('integrated tail, live gate view and shared weather freeze with renderer ti
  for(let i=0;i<8;i++)renderer.update(level,level.dog,.1);assert.ok(material.color.equals(idle));
  let disposed=0;material.addEventListener('dispose',()=>disposed++);renderer.setLevel(createLevel(0));assert.equal(disposed,1);
 });
+
+test('Buddy bark ring and red tail are independent of Pip and reset on level replacement',()=>{
+ const renderer=setup(),level=createLevel(27);renderer.setLevel(level);
+ const h={type:'helper',x:level.spawn.x,z:level.spawn.z,barking:true};level.helpers=[h];
+ renderer.bark({x:h.x,z:h.z});renderer.update(level,level.dog,.05);
+ const pip=renderer.dog.userData.parts.tailLight.material.color.clone();
+ const dog=renderer.helperMeshes.get('helper');
+ assert.equal(dog.userData.parts.tailLight.material.color.getHexString(),'ff7062');
+ renderer.update(level,level.dog,.05);
+ assert.equal(renderer.barkEffects[0].origin.x,h.x);assert.equal(renderer.barkEffects[0].origin.z,h.z);
+ assert.ok(renderer.dog.userData.parts.tailLight.material.color.equals(pip),'Buddy does not flash Pip’s tail');
+ for(let i=0;i<8;i++)renderer.update(level,level.dog,.1);
+ renderer.bark();h.barking=false;renderer.update(level,level.dog,.05);
+ assert.ok(!renderer.dog.userData.parts.tailLight.material.color.equals(pip),'Pip can bark independently');
+ assert.equal(dog.userData.parts.tailLight.material.color.getHexString(),'9ceeff');
+ renderer.setLevel(createLevel(0));assert.equal(renderer.barkEffects.length,0);assert.equal(renderer.helperMeshes.size,0);
+});

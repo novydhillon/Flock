@@ -85,6 +85,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
+| F-046 | P2 | Gameplay/companions | Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark | Review | - |
 
 ## Screenshot evidence
 
@@ -628,3 +629,14 @@ Acceptance criteria:
 ## QA testing follow-up - 15 October 2026, 17:37 Vancouver
 
 Added the requested single flock-debug toggle: next eligible check countdown above Woof and subtle yellow wander/red bolt tints. This is read-only development QA instrumentation; F-035/F-037/F-039/F-041 remain Review for gameplay acceptance. Prior F-018 acceptance remains historical; the new debug presentation awaits player testing. See [QA usage](DEVELOPMENT.md#qa-flock-behavior-debug---15-october-2026-1737-vancouver).
+
+
+### F-046 - Improve Buddy dog behavior by upgrade tier (P2)
+
+**Request (15 October 2026):** Buddy starts at the back of the flock and helps along its actual group direction of travel. From Buddy tier 2, stay with the smaller flock after a split. From tier 3, retrieve wanderers and bolters to the closest flock group and bark autonomously to guide groups or individuals.
+
+**Implementation:** separate Buddy decisions from drone hold/assist. Measure flock velocity, navigate behind the rearmost member, select smaller connected groups from tier 2, and retain tier-3 retrieval targets until reunited. Bark and pressure require a useful local rear position and clear ground; all bodies retain collision and bridge/gate clearance. Bark audio/rings originate at Buddy and its tail flashes independently. Existing tier unlocks, prices, saved profiles and Pip-attended scoring remain unchanged.
+
+**Status:** Review; source/headless checks complete, user gameplay acceptance pending. New tests cover cardinal directions and reversal, idle/remote behavior, smaller-group ties and merge, wander/bolt/settled retrieval to the nearest group, activation gates, barriers, real bridge retrieval with a holding drone, bark cooldown/pause/reset, target invalidation, audio routing and independent tail/ring lifecycle. No rendered/device or listening claim is made.
+
+F-046 clarification at 18:53 Vancouver: bolters are allowed to get away initially; Buddy should catch up through ordinary pursuit. Immediate interception is not an acceptance requirement.
