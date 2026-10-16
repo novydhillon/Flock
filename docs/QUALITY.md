@@ -2,7 +2,7 @@
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
-Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
 
 
 ## Weather follow-up validation - 15 October 2026
@@ -224,3 +224,13 @@ The shared master audio gain rises from .65 to .975 (+50% amplitude) at startup 
 ## Rain-volume follow-up - 15 October 2026, 16:42 Vancouver
 
 Adjust only rain-loop gain: gentle rain uses .50 of its previous level, heavy rain .85, storm 1.00. Focused audio/weather suite passes 25/25, including actual public 9/16/24 states, monotonic tier volume, exact preserved storm gain, loop reuse and mute/unmute. Novy approved this rain-volume tuning on 15 October 2026 at 16:46 America/Vancouver and requested a commit. Accepted runtime source: `a26b8aa9838da25e36f2dc22abcef1f861048f2c`; Pages: `107f78237c32f546dfede3276b8432166b372280`. All 17 live files were verified. This is user acceptance of the new mix; the earlier sign-offs remain valid.
+
+## Flock-behavior batch - 15 October 2026
+
+F-035/F-037/F-039/F-041 implement the clarified per-level 20% undelivered cohort, independent seeded 5-8s checks, 20%/25% late wander odds, stepwise bolt duration bands, and calm local settling. Implemented together because their scheduling/state/collision paths overlap. Independent source reviewer used the inherited Sol model at high effort; documentation review used Luna at medium effort. Reviewers received requirements/source without author reasoning or prior scores for their first passes.
+
+Source review reached **9/10** after fixing zero-time mutation. Independent probes checked exact timing schedules at 10/20/30/60Hz, natural 120s behavior on public8/17/40/70/71, local radius/collision, fresh-state reset, player/helper interruption, and no unattended scoring. Follow-up verified same-tick cohort shrink across39 delivery fixtures and all23 focused wandering/companion tests. Five unchanged full-flock journeys pass.
+
+Companion force-isolation fixtures disable spontaneous opportunities so their exact trajectory comparisons measure helper forces. Separate excursion/helper integration tests remain enabled, and the ordinary-input full-flock journeys are unchanged. The blocked-attendance fixture now initializes outside the goal on a positive timestep before restoring entrance positions; zero-time calls freeze the entire state. No timer, route, collision, reward or journey-controller relaxation was used.
+
+Documentation review reached **9/10** after correcting the old summary matrix and scoping weather-only historical sign-offs. Both release/development artifact checks pass (15 release files, zero QA;17 development files,two QA). Generated documentation checks pass. New flock items remain Review for player gameplay/pacing acceptance; no rendered/device test or human completion-time claim is made.

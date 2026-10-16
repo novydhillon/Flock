@@ -144,3 +144,23 @@ QA 0 maps to tutorial index 0; QA 1–100 map to public levels/indexes 0–99 wi
 The [tracker](../ISSUES.md) puts gates and wanderers in Review as P2 candidates; F-013 pacing and unimplemented P3 work remain Open; F-028 delivered-animal roaming is Done by user acceptance on 15 October 2026 at 00:28 America/Vancouver for its deployed build. All P1 gameplay items are Done by user sign-off on 14 October 2026; headless checks do not establish real-phone feel, rendered visuals or listening quality. See [runbook](../validation/P0-P1.md) for release and manual checks.
 
 Queued F-041 (P2), 15 October 2026: after spontaneous wander/bolt travel, keep the unattended animal in a local area at its new position instead of pulling it back through herd cohesion/alignment. Current code still rejoins ordinary flock forces after expiry; this change is not implemented in the cloud-removal batch. Future work must preserve pressure interruption, collision and delivered-animal confinement.
+
+## Flock wandering and bolting revision - 15 October 2026
+
+F-035/F-037/F-039/F-041 are implemented and in **Review** pending new gameplay acceptance. Earlier weather sign-offs remain Done. Each level/restart owns fresh animal schedules and a seeded cohort capped at floor(20% of current undelivered animals). Saved animals are excluded and retain confined goal roaming. Individual opportunity intervals are seeded random 5-8 simulation seconds, not synchronized five-second or per-frame rolls; zero-time calls freeze state and gaps cannot replay a backlog.
+
+| Public levels | Wander chance per eligible check | Conditional bolt chance | Bolt duration |
+|---|---|---|---|
+| 1-7 | None | None | None |
+| 8-16 | 33% | None | None |
+| 17-39 | 33% | 10% | 3-5 seconds |
+| 40 | 33% | 10% | 4-6 seconds |
+| 41-69 | 20% | 20% | 4-6 seconds |
+| 70 | 20% | 20% | 5-10 seconds |
+| 71-100 | 25% | 20% | 5-10 seconds |
+
+The user clarification replaces the earlier 30%/50% late-level odds. Earlier levels retain their accepted 33% opportunity odds; the 20% cohort cap remains per-level at all levels. Duration changes are step bands at 40 and 70. An active wander lasts up to 2.5 seconds or reaching its short target; bolt targets are farther than possible travel during the rolled duration. Active clear Pip pressure or helper herding interrupts either. If delivery reduces cohort eligibility, an excluded active excursion ends locally to preserve the cap.
+
+During an excursion and after local settling, ordinary cohesion/alignment do not pull the animal back. At excursion end, the reached position becomes its home; it calmly roams within 3m, with actual body collision. Settled animals do not repeatedly escape until active herding clears their home. Companion hold remains authoritative; active helper assist restores normal herding. Delivery clears transient excursion/home/scheduling fields before goal roaming.
+
+Regression checks cover seeded odds/boundaries, random schedules/frame-rate independence, changing undelivered counts, local settling under nearby herd attraction, collisions, player/helper interruption, pause, restart and goal confinement. The unchanged full-flock journey controller remains the delivery regression. These are source/headless checks, not measured player pacing. Earlier fixed-five-second/15%/1-3 second descriptions below are historical and superseded.

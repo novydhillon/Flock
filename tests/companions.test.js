@@ -5,6 +5,8 @@ import { createLevel } from '../src/world.js';
 
 const robot = (id, x, z, vx = 0, vz = 0) => ({ id, type: 'sheep', x, z, vx, vz, saved: false });
 function meadow(animals, changes = {}) {
+  // These fixtures isolate companion forces from independently scheduled excursions.
+  for (const animal of animals) animal.nextWanderCheck = 1e9;
   return {
     index: 19, time: 0, reward: 300,
     bounds: { minX: -100, maxX: 100, minZ: -100, maxZ: 100 },
@@ -174,8 +176,12 @@ test('losing a clear signal overrides retained assist hysteresis at the goal wal
   const start = t.radius - .275 + .04;
   level.animals = [robot(0, t.x - f.x * start, t.z - f.z * start, f.x * 4.2, f.z * 4.2), robot(1, t.x - f.x * start + side.x * 2, t.z - f.z * start + side.z * 2)];
   level.dog = { x: t.x - f.x * (start + 3.3), z: t.z - f.z * (start + 3.3) };
-  stepSimulation(level, level.dog, {}, 0, { drone: 1 });
+  const entrancePositions = level.animals.map(a => ({...a}));
+  for (const animal of level.animals) { animal.x -= f.x * 2.5; animal.z -= f.z * 2.5; }
+  stepSimulation(level, level.dog, {}, 1e-6, { drone: 1 });
   assert.equal(level.helpers[0].mode, 'assist');
+  assert.equal(level.animals.some(a => a.saved), false, 'initialization remains outside the admission footprint');
+  level.animals.forEach((animal,i) => Object.assign(animal, entrancePositions[i]));
   level.dog = { x: t.x + side.x * 16, z: t.z + side.z * 16 };
   assert.ok(canOccupy(level, level.dog.x, level.dog.z, .62));
   const result = stepSimulation(level, level.dog, {}, .1, { drone: 1 });

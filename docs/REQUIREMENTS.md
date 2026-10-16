@@ -2,7 +2,7 @@
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
-Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
 
 
 ## Weather follow-up - 15 October 2026, 12:22 Vancouver
@@ -144,13 +144,13 @@ Status: the original P0/P1 batch and F-028 remain accepted for their deployed bu
 | F-032 | P3 | Closed red/open green world-fence button; dog touch activates. | Open | New request; coordinate with F-031 and F-006. |
 | F-033 | P2 | English-farmhand-built drystone wall appearance. | Open | New appearance request; accepted F-007 functionality remains Done. |
 | F-034 | P3 | Seeded 15% stone-wall chance per level, replacing fixed four-level sequence. | Open | New generation request; depends on F-033. |
-| F-035 | P2 | Baseline bolt duration 3–5 seconds. | Open | Current deployed F-012 behavior remains 1–3 seconds. |
+| F-035 | P2 | Baseline bolts 3-5s; public40-69 4-6s,70+5-10s. | **Review** | Seeded durations, pause/restart and interruption checks implemented. |
 | F-036 | P3 | Unattended flock spreads across field. | Open | New behavior, separate from straggler behavior F-012 and saved roaming F-028. |
-| F-037 | P2 | Eligible wander cohort increases from 15% to 20%. | Open | Current deployed F-012 remains 15%. |
+| F-037 | P2 | Per-level cap floor(20% of current undelivered animals), no cross-level memory. | **Review** | Seeded ranking refreshes after delivery; saved/herded animals excluded from excursions. |
 | F-038 | P2 | Progressively larger multi-directional, less-linear levels over fields/rivers/tree clusters; body clearance, no stuck animals, later difficulty accounts for helpers. | Open | Preserve F-005 and accepted F-006 navigation. |
-| F-039 | P2 | Past level 40 wander chance 30%, above 70 up to 50%, bolt chance 20%; duration 4–6s at 40 and 5–10s at 70. | Open | Ambiguous whether 30%/50% mean cohort fraction or opportunity-roll probability; clarification required before implementation. |
-| F-040 | P1 | Remove all snow; select a fixed weather type once per level. Public level 9 starts light rain; later levels may become heavier. Public levels 16 and 24 are guaranteed heavy-rain/storm QA fixtures. Their use as permanent unlock thresholds and the seeded selection weights remain provisional tuning choices. | **Done**, user accepted 15 October 2026 at 16:34 Vancouver. | Implemented fixed kinds, no snow, public 9/16/24 QA anchors and seeded other-level selection. Later unlock numbers and weights are tunable source choices; user acceptance remains pending. |
-| F-041 | P2 | Wanderers/bolters adopt their new position as the local idle/wander area rather than automatically returning to the flock. Active herding still works. | Open | Queued; current post-event flock cohesion remains. Preserve collision, gates, pressure interruption and saved-animal confinement. |
+| F-039 | P2 | Independent 5-8s checks; 33% early,20% at41-70,25% at71+ wander odds; conditional bolt10% early,20% at41+. | **Review** | New user clarification supersedes former30%/50% ambiguity. See current revision table. |
+| F-040 | P1 | Remove all snow; select a fixed weather type once per level. Public level 9 starts light rain; later levels may become heavier. Public levels 16 and 24 are guaranteed heavy-rain/storm QA fixtures. Their use as permanent unlock thresholds and the seeded selection weights remain provisional tuning choices. | **Done**, user accepted 15 October 2026 at 16:34 Vancouver. | Implemented fixed kinds, no snow, public 9/16/24 QA anchors and seeded other-level selection. Later unlock numbers and weights remain tunable source choices; the current weather build was accepted on 15 October 2026 at 16:34 Vancouver. |
+| F-041 | P2 | Wanderers/bolters settle locally until actively herded. | **Review** | Cohesion/alignment suppressed; calm roaming within3m, collision/player/helper/delivery regressions implemented. |
 
 ### Decisions still open
 
@@ -215,3 +215,23 @@ The authoritative tracker is [ISSUES.md](ISSUES.md), not GitHub Issues. These re
 - F-045 (P4): add raindrop impacts/splashes to rivers, streams and other water surfaces during heavy rain or stronger, including thunderstorms.
 
 P4 is lower-priority optional polish. Full acceptance criteria and original issue links are retained in the tracker.
+
+## Flock wandering and bolting revision - 15 October 2026
+
+F-035/F-037/F-039/F-041 are implemented and in **Review** pending new gameplay acceptance. Earlier weather sign-offs remain Done. Each level/restart owns fresh animal schedules and a seeded cohort capped at floor(20% of current undelivered animals). Saved animals are excluded and retain confined goal roaming. Individual opportunity intervals are seeded random 5-8 simulation seconds, not synchronized five-second or per-frame rolls; zero-time calls freeze state and gaps cannot replay a backlog.
+
+| Public levels | Wander chance per eligible check | Conditional bolt chance | Bolt duration |
+|---|---|---|---|
+| 1-7 | None | None | None |
+| 8-16 | 33% | None | None |
+| 17-39 | 33% | 10% | 3-5 seconds |
+| 40 | 33% | 10% | 4-6 seconds |
+| 41-69 | 20% | 20% | 4-6 seconds |
+| 70 | 20% | 20% | 5-10 seconds |
+| 71-100 | 25% | 20% | 5-10 seconds |
+
+The user clarification replaces the earlier 30%/50% late-level odds. Earlier levels retain their accepted 33% opportunity odds; the 20% cohort cap remains per-level at all levels. Duration changes are step bands at 40 and 70. An active wander lasts up to 2.5 seconds or reaching its short target; bolt targets are farther than possible travel during the rolled duration. Active clear Pip pressure or helper herding interrupts either. If delivery reduces cohort eligibility, an excluded active excursion ends locally to preserve the cap.
+
+During an excursion and after local settling, ordinary cohesion/alignment do not pull the animal back. At excursion end, the reached position becomes its home; it calmly roams within 3m, with actual body collision. Settled animals do not repeatedly escape until active herding clears their home. Companion hold remains authoritative; active helper assist restores normal herding. Delivery clears transient excursion/home/scheduling fields before goal roaming.
+
+Regression checks cover seeded odds/boundaries, random schedules/frame-rate independence, changing undelivered counts, local settling under nearby herd attraction, collisions, player/helper interruption, pause, restart and goal confinement. The unchanged full-flock journey controller remains the delivery regression. These are source/headless checks, not measured player pacing. Earlier fixed-five-second/15%/1-3 second descriptions below are historical and superseded.

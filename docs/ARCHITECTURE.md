@@ -2,7 +2,7 @@
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
-Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
 
 
 Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.
@@ -84,7 +84,7 @@ Rendering consumes the same level and dog, adding mesh/cache/resource state of i
 | Model size/detail | Placement clearance, culling bounds, shared materials, shadows and disposal |
 | QA animal editing | Pause ownership, selection/placement override, profile isolation and release gating |
 
-P2 candidates now cover gates/walls, straggler wandering, area-scaled wildlife, vegetation, dynamic weather, atmosphere, water/wetness and tail-light feedback. Candidate source values and boundaries are in [requirements](REQUIREMENTS.md); they have independent source review evidence in QUALITY.md and still need rendered/device acceptance. F-013/F-015 stay open pending human pacing and phone performance evidence. See [issue acceptance criteria](ISSUES.md).
+Gates/walls, wildlife, vegetation, tail feedback and fixed weather/wetness have user acceptance recorded in the tracker. Clouds/Atmosphere remain deferred and dormant. The current flock-behavior candidate F-035/F-037/F-039/F-041 is Review; its per-level state and random schedules are described below. F-013/F-015 remain Open for human pacing and phone performance evidence. See [current acceptance criteria](ISSUES.md).
 
 ## Resource and async invariants
 
@@ -104,3 +104,7 @@ Use [system documentation](README.md) for narrower APIs. Start work from [the tr
 F-040 supersedes weather cycling and snow. `createWeatherState(level)` chooses the fixed kind/intensity/severity/daylight once; `stepWeather(state,dt)` advances only elapsed time and paired storm events. Nature, rain, terrain, lights and audio consume the same object. Clouds are deferred. The mission panel labels it. `WaterEffects.setLevel` accepts `weather` to establish wet ground and a seeded empty/small puddle baseline before the first frame; shared materials restore on replacement. RainView uses camera-unprojected screen coordinates, overscanning to +/-1.25 on both axes, with depth testing disabled for the foreground curtain. Camera updates precede its projection. [Presentation context](systems/PRESENTATION.md) has the exact tiers and lifecycle.
 
 Cloud removal, 15 October 2026: `MeadowRenderer` no longer imports, constructs, sets up or updates `Atmosphere`. Its module/tests remain dormant; cloud puffs and associated shadows allocate no runtime resources. Rain/nature, weather state, sky/fog/lights, water effects and audio retain their existing contracts. F-008 is Deferred.
+
+## Per-level straggler state
+
+`wandering.js` owns seeded cohort selection, public-level bands and each animal's 5-8s check schedule. `simulation.js` applies excursions and local home roaming through ordinary body collision. All transient fields live on the level/animals, never profile storage or module globals. See [current behavior](REQUIREMENTS.md#flock-wandering-and-bolting-revision---15-october-2026). F-035/F-037/F-039/F-041 remain Review for new gameplay acceptance.

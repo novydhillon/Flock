@@ -1,6 +1,6 @@
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
 import { createLevel, canOccupy, moveBody, openingSteer, navigationTarget, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
-import { advanceWanderClock, evaluateWanderOpportunity } from './wandering.js';
+import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
 /** Renderer-independent flock behaviour. Companions support Pip's herding;
@@ -228,7 +228,7 @@ export function stepSavedRoaming(level, dt = 1 / 60) {
 export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {}) {
   const effects = upgradeEffects(upgrades, level.index + 1);
   dt = clamp(Number(dt) || 0, 0, 0.1);
-  if (level.completed) return deliveryResult(level);
+  if (level.completed || dt <= 0) return deliveryResult(level);
   if (dt > 0 && level.delivery?.started) {
     level.delivery.remaining = Math.max(0, level.delivery.remaining - dt);
     // Close admission before movement when the remaining time is exhausted.
@@ -238,7 +238,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
   }
   level.time = (level.time || 0) + dt;
-  const wanderOpportunities = dt > 0 ? advanceWanderClock(level, dt) : null;
+  const wanderCohort = prepareWanderCohort(level);
   roamSavedAnimals(level, dt, level.time);
   const events = [];
   const ix = Number(input.x) || 0, iz = Number(input.z ?? input.y) || 0;
@@ -279,7 +279,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     const dogDistance = distance(old, dog);
     const dogActivelyHerding = dogDistance < radius && hasClearPlayerSignal(level, old, dog);
     const helperActivelyHerding = !companions.hold && companions.memberIds.has(animal.id);
-    if (dogActivelyHerding || helperActivelyHerding) delete animal.wander;
+    if (dogActivelyHerding || helperActivelyHerding) { delete animal.wander; delete animal.wanderHome; }
     if (dogActivelyHerding) {
       const urgency = Math.pow(1 - dogDistance / radius, 0.65) * (input.bark ? 1.65 + effects.barkBoost : 1);
       const flee = dogDistance > 0.01 ? normal(old.x - dog.x, old.z - dog.z) : normal(Math.sin(dog.heading || 0), Math.cos(dog.heading || 0));
@@ -287,15 +287,15 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       pressure = urgency; animal.lastPlayerPressure = level.time;
     }
     const holding = companions.hold && companions.memberIds.has(animal.id) && pressure < 0.03;
-    if (wanderOpportunities && pressure < 0.03) {
+    const settle = () => { animal.wanderHome = {x:old.x,z:old.z}; delete animal.wander; };
+    if (animal.wander && (level.time >= animal.wander.until || !wanderCohort.has(animal.id))) settle();
+    const opportunity = nextWanderOpportunity(level, animal, dt);
+    if (opportunity !== null && pressure < 0.03) {
       const center = companions.centroid || centerOf(snapshot);
-      for (let opportunity = wanderOpportunities.before + 1; opportunity <= wanderOpportunities.after; opportunity++) {
-        const wander = evaluateWanderOpportunity(level, animal, opportunity, center, dogActivelyHerding || helperActivelyHerding);
-        if (wander) { animal.wander = wander; break; }
-      }
+      const candidate = evaluateWanderOpportunity(level, animal, opportunity, center, dogActivelyHerding || helperActivelyHerding || holding);
+      if (candidate) animal.wander = candidate;
     }
     let wander = animal.wander;
-    if (wander && level.time >= wander.until) { delete animal.wander; wander = null; }
     if (holding) {
       // Kill inherited forward velocity and alignment. Merely parking the drone
       // would leave the flock's old momentum/cohesion walking toward the goal.
@@ -303,7 +303,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       desiredX = clamp((position.x - old.x) * 2.6 + sx * 0.35, -1.1, 1.1);
       desiredZ = clamp((position.z - old.z) * 2.6 + sz * 0.35, -1.1, 1.1);
     } else {
-      if (neighbors) {
+      if (neighbors && !wander && !animal.wanderHome) {
         const dx = cx / neighbors - old.x, dz = cz / neighbors - old.z, d = Math.hypot(dx, dz);
         if (d > 2.6) {
           const toward = normal(dx, dz), cohesion = Math.min(2.6, (d - 2.6) * 0.36) * (1 + effects.cohesionBoost);
@@ -323,18 +323,25 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       if (wander) {
         const dx = wander.x - old.x, dz = wander.z - old.z, d = Math.hypot(dx, dz);
         if (d > 0.35) { desiredX += dx / d * (wander.bolting ? 5.8 : 2.1); desiredZ += dz / d * (wander.bolting ? 5.8 : 2.1); }
-        else { delete animal.wander; wander = null; }
+        else { settle(); wander = null; }
+      }
+      if (animal.wanderHome && !dogActivelyHerding && !helperActivelyHerding) {
+        const home = animal.wanderHome, phase = animal.id * 2.39996;
+        desiredX = (home.x + Math.sin(level.time * .24 + phase) * 1.4 - old.x) * .35 + sx * .2;
+        desiredZ = (home.z + Math.cos(level.time * .19 + phase) * 1.4 - old.z) * .35 + sz * .2;
       }
     }
     if (pressure > 0.03) {
       const steer = openingSteer(level, animal, desiredX, desiredZ, physicalRadius);
       desiredX += steer.x; desiredZ += steer.z;
     }
-    const maxSpeed = wander?.bolting ? 6 : animal.type === 'cow' ? 3.3 : 4.2, desiredSpeed = Math.hypot(desiredX, desiredZ);
+    const maxSpeed = animal.wanderHome && !holding ? .75 : wander?.bolting ? 6 : animal.type === 'cow' ? 3.3 : 4.2, desiredSpeed = Math.hypot(desiredX, desiredZ);
     if (desiredSpeed > maxSpeed) { desiredX *= maxSpeed / desiredSpeed; desiredZ *= maxSpeed / desiredSpeed; }
     const smoothing = 1 - Math.exp(-dt * (holding ? 12 : animal.type === 'cow' ? 3.5 : 5.5));
     animal.vx += (desiredX - animal.vx) * smoothing; animal.vz += (desiredZ - animal.vz) * smoothing;
-    const collision = moveBody(level, animal, animal.vx * dt, animal.vz * dt, physicalRadius);
+    const home = !holding && animal.wanderHome;
+    const outsideHome = home && Math.hypot(animal.x + animal.vx * dt - home.x, animal.z + animal.vz * dt - home.z) > 3;
+    const collision = moveBody(level, animal, outsideHome ? 0 : animal.vx * dt, outsideHome ? 0 : animal.vz * dt, physicalRadius);
     if ((collision.blockedX || collision.blockedZ) && pressure > 0.03) {
       const forward = normal(animal.vx, animal.vz), travel = Math.min(0.24, Math.hypot(animal.vx, animal.vz) * dt);
       for (const angle of [Math.PI / 6, -Math.PI / 6, Math.PI / 3, -Math.PI / 3, Math.PI / 2, -Math.PI / 2]) {
@@ -351,9 +358,13 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
-      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander;
+      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
+  }
+  const remainingCohort = prepareWanderCohort(level);
+  for (const animal of level.animals) if (!animal.saved && animal.wander && !remainingCohort.has(animal.id)) {
+    animal.wanderHome = {x:animal.x,z:animal.z}; delete animal.wander;
   }
   const saved = level.animals.filter(a => a.saved).length;
   if (events.some(event => event.type === 'animalSaved') && !level.delivery?.started) {

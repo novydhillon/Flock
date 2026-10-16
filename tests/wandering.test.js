@@ -1,100 +1,110 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateWanderOpportunity, wanderCohortSize, WANDER_OPPORTUNITY_SECONDS } from '../src/wandering.js';
-import { createLevel, stepSimulation, canOccupy } from '../src/simulation.js';
+import {evaluateWanderOpportunity,prepareWanderCohort,wanderCohortSize,wanderTuning,nextWanderOpportunity,WANDER_CHECK_RANGE} from '../src/wandering.js';
+import {createLevel,stepSimulation,canOccupy} from '../src/simulation.js';
+const flock=count=>Array.from({length:count},(_,id)=>({id,x:id*1.5,z:0,saved:false}));
+const center={x:0,z:0};
 
-const flock = count => Array.from({ length: count }, (_, id) => ({ id, x: id * 1.5, z: 0, saved: false }));
-const center = { x: 0, z: 0 };
-
-test('wandering is level gated, seeded, and suppressed while Pip actively herds', () => {
-  const animals = flock(40), subject = animals[0];
-  for (const index of [0, 6]) assert.equal(evaluateWanderOpportunity({ index, seed: 12, animals, time: 10 }, subject, 2, center), null);
-  assert.equal(evaluateWanderOpportunity({ index: 7, seed: 12, animals, time: 10 }, subject, 2, center, true), null);
-  const level = { index: 7, seed: 12, animals, time: 10 };
-  assert.deepEqual(evaluateWanderOpportunity(level, subject, 2, center), evaluateWanderOpportunity(level, subject, 2, center), 'same seed and opportunity repeat exactly');
+test('per-level cohort is floor 20% of undelivered animals and shrinks as deliveries occur',()=>{
+  for(let count=0;count<=65;count++){
+    const level={index:39,seed:42,animals:flock(count)};
+    assert.equal(prepareWanderCohort(level).size,Math.floor(count*.2));
+    level.animals.forEach((a,i)=>a.saved=i%2===0);
+    const ids=prepareWanderCohort(level);
+    assert.equal(ids.size,wanderCohortSize(level.animals.filter(a=>!a.saved).length));
+    assert.ok([...ids].every(id=>!level.animals[id].saved));
+  }
+  assert.equal(wanderCohortSize(5),1);assert.equal(wanderCohortSize(65),13);
+  const a=createLevel(39,42),b=createLevel(40,42),restart=createLevel(39,42);
+  assert.deepEqual([...prepareWanderCohort(a)],[...prepareWanderCohort(restart)]);
+  assert.notDeepEqual([...prepareWanderCohort(a)],[...prepareWanderCohort(b)]);
+  assert.ok(restart.animals.every(a=>!a.wander&&!a.wanderHome&&!a.nextWanderCheck));
 });
 
-test('cohort rounding never exceeds 15 percent and the cadence is fixed-time', () => {
-  assert.equal(wanderCohortSize(5), 0);
-  assert.equal(wanderCohortSize(9), 1);
-  assert.equal(wanderCohortSize(65), 9);
-  assert.equal(WANDER_OPPORTUNITY_SECONDS, 5);
+test('each animal gets reproducible independent 5-8 second checks with pause and no catch-up bursts',()=>{
+  assert.deepEqual(WANDER_CHECK_RANGE,[5,8]);
+  function schedule(dt){const level={index:16,seed:23,time:0},animal={id:7},times=[];for(let i=0;i<100/dt;i++){level.time+=dt;const n=nextWanderOpportunity(level,animal,dt);if(n!==null)times.push({n,next:animal.nextWanderCheck});}return times;}
+  const a=schedule(.1),b=schedule(.05);
+  assert.equal(a.length,b.length);
+  a.forEach((v,i)=>{assert.equal(v.n,b[i].n);assert.ok(Math.abs(v.next-b[i].next)<1e-9);if(i)assert.ok(v.next-a[i-1].next>=5&&v.next-a[i-1].next<=8);});
+  const level={index:16,seed:23,time:.1},one={id:1},two={id:2};
+  nextWanderOpportunity(level,one,.1);nextWanderOpportunity(level,two,.1);
+  assert.notEqual(one.nextWanderCheck,two.nextWanderCheck);
+  const before=structuredClone(one);assert.equal(nextWanderOpportunity(level,one,0),null);assert.deepEqual(one,before);
+  level.time=100;assert.equal(nextWanderOpportunity(level,one,.1),0);assert.ok(one.nextWanderCheck>100);assert.equal(nextWanderOpportunity(level,one,.1),null);
 });
 
-test('wandering and conditional bolts obey gates and bounded durations', () => {
-  const animals = flock(60), subject = animals[0];
-  let wander = null, bolt = null;
-  for (let seed = 0; seed < 2000 && (!wander || !bolt); seed++) {
-    for (let opportunity = 0; opportunity < 10; opportunity++) {
-      const level = { index: 15, seed, animals, time: 20 };
-      wander ||= evaluateWanderOpportunity(level, subject, opportunity, center);
-      const candidate = evaluateWanderOpportunity({ ...level, index: 16 }, subject, opportunity, center);
-      if (candidate?.bolting) bolt ||= candidate;
+test('public level boundaries keep explicit wander, conditional bolt and duration bands',()=>{
+  for(const [number,wanderChance,boltChance,duration] of [[8,.33,.1,[3,5]],[17,.33,.1,[3,5]],[39,.33,.1,[3,5]],[40,.33,.1,[4,6]],[41,.2,.2,[4,6]],[69,.2,.2,[4,6]],[70,.2,.2,[5,10]],[71,.25,.2,[5,10]],[100,.25,.2,[5,10]]]){
+    assert.deepEqual(wanderTuning(number-1),{wanderChance,boltChance,duration});
+  }
+});
+
+test('seeded opportunity rates match all bands, with saved/herded/settled animals excluded',()=>{
+  for(const index of [7,15,16,39,40,69,70,99]){
+    let eligible=0,wandered=0,bolted=0;
+    for(let seed=1;seed<=400;seed++){
+      const level={index,seed,time:20,animals:flock(60)};
+      for(const a of level.animals){const r=evaluateWanderOpportunity(level,a,3,center);if(level.wanderCohort.has(a.id))eligible++;if(r){wandered++;if(r.bolting){bolted++;const [min,max]=wanderTuning(index).duration;assert.ok(r.until-20>=min&&r.until-20<=max);}assert.deepEqual(r,evaluateWanderOpportunity(level,a,3,center));assert.equal(evaluateWanderOpportunity(level,a,3,center,true),null);}}
     }
+    const tuning=wanderTuning(index);assert.equal(eligible,4800);
+    assert.ok(Math.abs(wandered/eligible-tuning.wanderChance)<.035);
+    if(index<16)assert.equal(bolted,0);else assert.ok(Math.abs(bolted/wandered-tuning.boltChance)<.045);
   }
-  assert.ok(wander, 'the deterministic fixture includes a successful 33% wander roll');
-  assert.equal(wander.bolting, false, 'level 16 is public level 16, still no bolts');
-  assert.ok(bolt?.bolting, 'a seeded level-17+ conditional bolt fixture exists');
-  assert.ok(bolt.until - 20 >= 1 && bolt.until - 20 <= 3, 'bolt duration stays within 1–3 seconds');
+  const level={index:16,seed:4,time:0,animals:flock(30)},a=level.animals[0];
+  for(const state of [{saved:true},{wander:{}},{wanderHome:{x:0,z:0}}])assert.equal(evaluateWanderOpportunity(level,{...a,...state},1,center),null);
+  for(const index of [0,6])assert.equal(evaluateWanderOpportunity({...level,index},a,1,center),null);
 });
 
-test('fixed seeded opportunities stay within the intended wander and conditional-bolt bands', () => {
-  let eligible = 0, wandered = 0, bolted = 0;
-  for (let seed = 1; seed <= 500; seed++) {
-    const animals = flock(60), level = { index: 16, seed, animals, time: 20 };
-    for (const animal of animals) {
-      const result = evaluateWanderOpportunity(level, animal, 3, center);
-      if (level.wanderCohort.has(animal.id)) eligible++;
-      if (result) { wandered++; if (result.bolting) bolted++; }
-    }
+function meadow(){const level=createLevel(16,42);Object.assign(level,{bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],obstacles:[],fenceSegments:[],animals:flock(30).map(a=>({...a,x:-10+(a.id%6)*1.5,z:Math.floor(a.id/6)*1.5,vx:0,vz:0,type:'sheep',nextWanderCheck:10000})),dog:{x:-70,z:-70}});Object.assign(level.target,{x:80,z:80});return level;}
+function step(level,seconds,upgrades={}){for(let i=0;i<Math.round(seconds*10);i++)stepSimulation(level,level.dog,{},.1,upgrades);}
+
+test('wander and bolt expiry settle locally against flock cohesion until active Pip pressure resumes',()=>{
+  for(const bolting of [false,true]){
+    const level=meadow(),a=level.animals.find(a=>prepareWanderCohort(level).has(a.id));
+    a.wander={x:a.x+40,z:a.z,until:1,bolting};
+    step(level,.9);assert.equal(a.wander?.bolting,bolting,'timed excursion is not truncated');
+    const paused=structuredClone(a);stepSimulation(level,level.dog,{},0);assert.deepEqual(a,paused);
+    step(level,.2);assert.ok(a.wanderHome);assert.equal(a.wander,undefined);
+    const home={...a.wanderHome};step(level,60);
+    assert.ok(Math.hypot(a.x-home.x,a.z-home.z)<=3.000001,'settled animal remains in its new area');
+    assert.ok(canOccupy(level,a.x,a.z,.55));assert.deepEqual(a.wanderHome,home);
+    Object.assign(level.dog,{x:a.x-1,z:a.z});step(level,.1);
+    assert.equal(a.wanderHome,undefined);assert.equal(a.wander,undefined);
+    const fresh=meadow();assert.ok(fresh.animals.every(a=>!a.wanderHome&&!a.wander));
   }
-  assert.equal(eligible, 4500, 'exactly floor(15% × 60) animals are selected per seed');
-  assert.ok(wandered / eligible > 0.29 && wandered / eligible < 0.37, `33% wander band observed ${wandered}/${eligible}`);
-  assert.ok(bolted / wandered > 0.06 && bolted / wandered < 0.14, `10% conditional bolt band observed ${bolted}/${wandered}`);
 });
 
-test('simulation applies seeded wander goals through normal body collision and excludes saved animals', () => {
-  const level = createLevel(7, 1);
-  level.animals.forEach(animal => { animal.saved = animal.id !== 8; });
-  level.dog = { x: level.bounds.minX + 2, z: level.bounds.minZ + 2 };
-  const saved = level.animals.filter(animal => animal.saved);
-  for (let frame = 0; frame < 51; frame++) stepSimulation(level, level.dog, {}, 0.1);
-  const wanderer = level.animals.find(animal => animal.wander);
-  assert.equal(wanderer?.id, 8, 'the seeded five-second opportunity starts the expected unsaved animal');
-  assert.equal(saved.some(animal => animal.wander), false, 'saved animals never receive straggler state');
-  assert.ok(canOccupy(level, wanderer.x, wanderer.z, 0.55), 'wander movement retains solid collision clearance');
+test('local roaming respects barriers and delivered animals retain goal confinement',()=>{
+  const level=meadow(),a=level.animals[0];
+  Object.assign(a,{x:0,z:0,wanderHome:{x:0,z:0}});
+  level.obstacles=[{x:1.4,z:0,radius:.8}];step(level,25);
+  assert.ok(canOccupy(level,a.x,a.z,.55));assert.ok(Math.hypot(a.x,a.z)<=3.000001);
+  const saved=createLevel(16,6),b=saved.animals[0];
+  Object.assign(b,{x:saved.target.x,z:saved.target.z,wander:{x:999,z:999,until:10,bolting:true},wanderHome:{x:999,z:999}});
+  Object.assign(saved.dog,{x:saved.target.x,z:saved.target.z});
+  step(saved,.1);assert.equal(b.saved,true);assert.equal(b.wander,undefined);assert.equal(b.wanderHome,undefined);
+  step(saved,3);assert.equal(b.saved,true);assert.ok(Math.hypot(b.x-saved.target.x,b.z-saved.target.z)<saved.target.radius+1);
 });
 
-test('seeded bolt remains active for its full rolled duration unless herding or delivery cancels it', () => {
-  const level = createLevel(16, 6), animal = level.animals.find(candidate => candidate.id === 45);
-  level.dog = { x: level.bounds.minX + 2, z: level.bounds.minZ + 2 };
-  for (let frame = 0; frame < 50; frame++) stepSimulation(level, level.dog, {}, 0.1);
-  const bolt = animal.wander;
-  assert.equal(bolt?.bolting, true, 'seed 6 assigns the reported animal a level-17 bolt at the first opportunity');
-  const remaining = bolt.until - level.time;
-  assert.ok(remaining >= 1 && remaining <= 3);
-  for (let frame = 0; level.time + 0.1 < bolt.until; frame++) {
-    stepSimulation(level, level.dog, {}, 0.1);
-    assert.equal(animal.wander, bolt, `bolt state remains active before its deadline (frame ${frame})`);
-  }
-  assert.ok(Math.hypot(animal.x - bolt.x, animal.z - bolt.z) > 0.35, 'the distant target cannot truncate the timed bolt');
-  stepSimulation(level, level.dog, {}, 0.1);
-  assert.equal(animal.wander, undefined, 'the simulation clock ends the bolt at its deadline');
-
-  const herded = createLevel(16, 6), herdedAnimal = herded.animals.find(candidate => candidate.id === 45);
-  herded.dog = { x: herded.bounds.minX + 2, z: herded.bounds.minZ + 2 };
-  for (let frame = 0; frame < 50; frame++) stepSimulation(herded, herded.dog, {}, 0.1);
-  assert.equal(herdedAnimal.wander?.bolting, true);
-  Object.assign(herded.dog, { x: herdedAnimal.x, z: herdedAnimal.z });
-  stepSimulation(herded, herded.dog, {}, 0.1);
-  assert.equal(herdedAnimal.wander, undefined, 'clear active Pip pressure cancels a current bolt');
-
-  const delivered = createLevel(16, 6), deliveredAnimal = delivered.animals.find(candidate => candidate.id === 45);
-  Object.assign(deliveredAnimal, { x: delivered.target.x, z: delivered.target.z,
-    wander: { x: delivered.target.x + 24, z: delivered.target.z, until: 3, bolting: true } });
-  delivered.dog = { x: delivered.target.x, z: delivered.target.z };
-  stepSimulation(delivered, delivered.dog, {}, 0.1);
-  assert.equal(deliveredAnimal.saved, true);
-  assert.equal(deliveredAnimal.wander, undefined, 'delivery clears straggler state before saved-animal roaming');
+test('active helper herding clears excursion and local-home state without nearby Pip pressure',()=>{
+  const level=meadow();
+  level.animals=level.animals.slice(0,4);
+  Object.assign(level.dog,{x:-20,z:0});
+  const a=level.animals[0];a.wander={x:50,z:0,until:10,bolting:true};a.wanderHome={x:a.x,z:a.z};
+  const before=structuredClone(a);stepSimulation(level,level.dog,{},0,{drone:1});assert.deepEqual(a,before);
+  step(level,.1,{drone:1});
+  assert.equal(level.helpers[0].mode,'assist');assert.equal(a.lastPlayerPressure,undefined);
+  assert.equal(a.wander,undefined);assert.equal(a.wanderHome,undefined);
 });
 
+test('a delivery shrinks the active excursion cap in the same tick',()=>{
+  const level=meadow(),ids=prepareWanderCohort(level);
+  for(const a of level.animals)if(ids.has(a.id))a.wander={x:a.x+50,z:a.z,until:100,bolting:true};
+  const arrival=level.animals.find(a=>!ids.has(a.id));
+  Object.assign(arrival,{x:level.target.x,z:level.target.z});
+  Object.assign(level.dog,{x:level.target.x,z:level.target.z});
+  step(level,.1);assert.equal(arrival.saved,true);
+  assert.equal(level.animals.filter(a=>!a.saved&&a.wander).length,5);
+  assert.ok(level.animals.some(a=>a.wanderHome),'removed eligibility ends the excursion locally');
+});

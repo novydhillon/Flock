@@ -1,8 +1,10 @@
 # FLOCK — Remaining issues and change tracker
 
+Current flock-behavior batch: F-035/F-037/F-039/F-041 are **Review**. Earlier weather/audio user sign-offs remain Done. See the new detailed sections below for the 17:03 user clarification; older fixed-five-second/15% descriptions are historical.
+
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
-Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **No items remain in Review.** Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
 
 
 Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.
@@ -72,13 +74,13 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-032 | P3 | Gameplay/UI | Closed red and open green world-fence button; dog touch activates | Open | F-031 |
 | F-033 | P2 | Environment/art | English farm dry-stone wall appearance | Open | F-007 |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
-| F-035 | P2 | Gameplay | Baseline bolt duration 3–5 seconds | Open | F-012 |
+| F-035 | P2 | Gameplay | Baseline bolt duration 3–5 seconds | Review | F-012 |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
-| F-037 | P2 | Gameplay | Eligible wander cohort increases from 15% to 20% | Open | F-012 |
+| F-037 | P2 | Gameplay | Eligible wander cohort increases from 15% to 20% | Review | F-012 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
-| F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Open | F-012, F-035, F-037 |
+| F-039 | P2 | Gameplay/balance | Late-level wandering/bolting chances and durations | Review | F-012, F-035, F-037 |
 | ~~F-040~~ | ~~P1~~ | ~~Weather~~ | ~~Remove snow; choose fixed weather once per level with public-level anchors~~ | ~~Done~~ | ~~Reopens F-008, F-022–F-024~~ |
-| F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Open | F-012, F-035, F-037, F-039 |
+| F-041 | P2 | Gameplay/behavior | Wanderers and bolters settle near their current location instead of returning to the flock | Review | F-012, F-035, F-037, F-039 |
 | F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
@@ -365,11 +367,10 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 ### F-035 — Baseline bolt duration (P2)
 
-**Requirement:** baseline bolts last 3–5 seconds.
+**Requirement:** baseline bolts last 3-5 seconds (public levels 17-39); public 40-69 uses 4-6 seconds and 70+ uses 5-10 seconds under F-039. Durations are seeded and interrupted only by herding, delivery, or loss of cohort eligibility as undelivered count shrinks.
 
-**Accept when:** baseline duration is bounded inclusively between 3 and 5 seconds, seeded behavior is reproducible, pause freezes duration, and restart clears transient bolt state. Any later level scaling belongs to F-039 and must preserve a documented baseline.
+**Status:** Review, implemented with regression coverage; pending user acceptance of the new gameplay build.
 
-**Status:** Open; source currently uses the F-012 accepted 1–3 second range until implementation is authorized and completed.
 
 ### F-036 — Unattended flock spreads across the field (P3)
 
@@ -379,13 +380,12 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 **Status:** Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.
 
-### F-037 — Increase eligible wander cohort to 20% (P2)
+### F-037 — Per-level eligible wander cohort (P2)
 
-**Requirement:** increase the maximum eligible wander cohort from 15% to 20% of the flock.
+**Requirement, clarified 15 October 2026 at 17:03 Vancouver:** each level has its own fresh cohort with no cross-level memory; only undelivered animals participate. Implementation retains a cap of floor(20% of the current undelivered flock) on every level, with stable seeded ranking that is recomputed as deliveries reduce that count. Active player/helper pressure suppresses opportunities. Saved animals retain separate confined goal roaming.
 
-**Accept when:** at most 20% of the eligible undelivered flock may be selected, using a documented integer rounding rule; no saved or actively herded animal is selected. Seeded tests verify cohort bounds and F-009 player-attended completion protections.
+**Status:** Review, implemented; pending user gameplay acceptance.
 
-**Status:** Open; current deployed behavior remains F-012's 15% cohort.
 
 ### F-038 — Larger, less-linear multi-directional levels (P2)
 
@@ -397,13 +397,14 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 ### F-039 — Late-level wander/bolt tuning (P2)
 
-**Requirement:** past level 40, wander chance is 30%; above level 70, it is up to 50%; bolt chance is 20%. Bolt duration is 4–6 seconds at level 40 and 5–10 seconds at level 70.
+**User clarification, 15 October 2026 at 17:03 Vancouver:** replace the earlier 30%/50% figures with 20% chance per check above level 40 and 25% above level 70; randomize checks between 5 and 8 seconds. Each level owns its flock cap and transient state; only undelivered animals participate.
 
-**Accept when:** public level 41+ uses a 30% wander chance, levels 71+ can reach but never exceed 50%, and the bolt chance is 20% in the specified late-level behavior. At public level 40 duration is 4–6 seconds; at level 70 it is 5–10 seconds; transitions between bands are documented, bounded and seeded. Keep chance evaluation opportunity/time semantics explicit and never roll every frame.
+**Implemented bands:** public levels 8-40 retain 33% wander probability per eligible check; levels 41-70 use 20%, and 71+ use 25%. The eligible cohort remains capped at floor(20% of undelivered animals) per F-037. Conditional bolt probability is 10% from public level 17, and 20% at 41+. Bolt duration steps from baseline 3-5 seconds to 4-6 at public 40 and 5-10 at public 70. These are step bands, not interpolated scaling.
 
-**Open decision:** it is unclear whether “30%/50%” describes the fraction of the cohort selected or the probability of a wander opportunity. Preserve this ambiguity; do not implement or assume either interpretation until future user confirmation. Likewise define how the level-40 duration relates to F-035 baseline when implementing.
+Each animal owns a deterministic sequence of independent seeded 5-8 second check intervals. Pause freezes simulation time; delayed calls never replay a backlog. Saved, actively herded and already-settled animals cannot begin an excursion. Fresh levels/restarts reset schedules, eligibility and local roaming.
 
-**Status:** Open; depends on future F-012/F-035/F-037 implementation and clarification.
+**Status:** Review, implemented; pending user gameplay/pacing acceptance. The new clarification supersedes the earlier unresolved 30%/50% interpretation.
+
 
 ### F-040 — Fixed per-level weather; remove snow (P1)
 
@@ -552,11 +553,12 @@ At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; b
 
 ### F-041 — Wanderers and bolters adopt their new local area (P2)
 
-**Requirement, 15 October 2026 at 11:23 America/Vancouver:** when an animal wanders or bolts, it should continue local wandering where it has reached rather than trying to return to the group.
+**Requirement:** an animal finishing a spontaneous wander/bolt calmly roams near the position it reached, rather than automatically returning to its flock.
 
-**Accept when:** spontaneous wandering/bolting establishes a local idle/wander area at the animal's new position. When the event ends, ordinary cohesion/alignment must not automatically pull that unattended animal back to the main flock. It remains calm and moves locally until active player/helper herding guides it elsewhere. Preserve normal physical collision, safe local movement, existing level/probability/duration gates, player-pressure interruption and permanent confinement of delivered animals. Test both a wander and a bolt with the herd distant, event expiry, nearby herding, blocked ground and saved animals. Do not silently replace this with perpetual running away or goal-directed movement.
+**Implementation:** excursion motion omits ordinary cohesion/alignment. On expiry or reaching a wander target, save a local home; calm motion remains within 3 metres of it, with normal body collision. It cannot begin another escape while settled. Active clear player pressure or active helper herding clears excursion/home state and restores normal herding. Helper hold behavior remains authoritative. Delivery clears transient excursion fields before confined saved-animal roaming. Cohort shrink may also end a current excursion at its reached position to respect the current undelivered cap.
 
-**Status:** Open, queued only. Current simulation still uses flock cohesion after wander/bolt expiry; this request does not change that code in the cloud-removal release. Coordinate with F-035/F-037/F-039 so later tuning uses the same independent local-area behavior.
+**Status:** Review, implemented; pending user gameplay acceptance. Test both wander and bolt expiry, nearby herd attraction, collision, player/helper interruption, pause, restart and delivery.
+
 
 ## Rain-volume approval - 15 October 2026, 16:46 Vancouver
 
