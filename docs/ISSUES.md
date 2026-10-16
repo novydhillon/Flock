@@ -774,3 +774,6 @@ F-033 publication approved at 13:36 Vancouver: source `673979e` pushed on `stone
 
 
 F-033 follow-up (16 October 2026, 13:49 Vancouver): Novy approved the initial appearance and requested more varied, weathered walls. The refinement adds asymmetric worn-corner/wedge shapes, stronger width/height variation, gently tilted stones, a lightly undulating coping line and clay-colored surface mottling with subdued lower moss/damp staining. Rolled stones are fitted to their original slots to preserve endpoints and the .6-unit strip. Retain three instanced batches and at most 44 triangles per stone; no textures, extra scenery meshes or collision changes. Latest appearance remains Review pending user acceptance.
+
+
+F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [38965423609](https://github.com/novydhillon/Flock/actions/runs/38965423609) and native Pages [38965598338](https://github.com/novydhillon/Flock/actions/runs/38965598338) succeeded. All 17 live artifacts match the checked build; all 32 unrelated Pages files preserved. Blind review 8/10, 279 tests and both build modes pass. Review remains pending acceptance of this added weathering.
