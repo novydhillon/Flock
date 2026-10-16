@@ -59,7 +59,10 @@ test('QA editor hides positioning, closes safely, and isolates background contro
   const doc=dom.window.document, state={level:createLevel(0),profile:defaultProfile(),dog:{},elapsed:0};
   let paused=false, entered=0,resumed=0,jumpIndex=null;
   const qa=installQA({getState:()=>state,enterSession:async()=>{entered++;},pause:()=>{paused=true;},isPaused:()=>paused,resume:()=>{paused=false;resumed++;},jump:async index=>{jumpIndex=index;state.level=createLevel(index);},resetSession:async()=>{},updateWallet:()=>{},canOccupy},doc);
+  const toggle=doc.querySelector('#qa-toggle');
+  assert.equal(toggle.textContent,'⚙');assert.equal(toggle.getAttribute('aria-label'),'QA · development test session');assert.equal(toggle.title,'QA · development test session');
   doc.querySelector('#qa-toggle').click();await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(toggle.textContent,'⚙');assert.match(toggle.getAttribute('aria-label'),/QA.*test session/i);
   assert.equal(entered,1);assert.equal(paused,true);assert.equal(doc.querySelector('#game').inert,true);assert.equal(doc.querySelector('#qa-panel').hidden,false);
   assert.equal(doc.querySelector('#qa-move').hidden,true);
   assert.equal(doc.querySelector('#qa-level').options.length,101);
@@ -67,6 +70,6 @@ test('QA editor hides positioning, closes safely, and isolates background contro
   const key=new dom.window.KeyboardEvent('keydown',{key:'Escape',cancelable:true,bubbles:true});doc.body.dispatchEvent(key);assert.equal(paused,false);
   assert.equal(doc.querySelector('#qa-panel').hidden,true);assert.equal(resumed,1);
   doc.querySelector('#qa-toggle').click();await new Promise(resolve=>setTimeout(resolve,0));doc.querySelector('#qa-close').click();assert.equal(resumed,2);assert.equal(doc.querySelector('#qa-panel').hidden,true);assert.ok(!doc.querySelector('#game').inert);
-  assert.equal(doc.querySelector('#qa-toggle').textContent,'QA · test session');
+  assert.equal(toggle.textContent,'⚙');assert.match(toggle.getAttribute('aria-label'),/QA.*test session/i);assert.match(toggle.title,/QA.*test session/i);
   qa.destroy();assert.equal(doc.querySelector('#qa-toggle'),null);
 });

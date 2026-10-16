@@ -53,3 +53,27 @@ The user accepted 11 P2 issues; the tracker records those as Done and queues F-0
 Independent documentation follow-up: **8/10**. Corrected the mistaken attribution of fixed weather to the prior `b1fdac3` runtime and the summary calling already accepted P2 items pending. Current source vs prior release, 11 accepted items, reopened weather and queued requests are now distinct. Checks: 12 pages, 828 links/anchors, nine parsed diagrams and four DOM tests. New weather appearance/audio acceptance is pending; it is not a source-publication blocker.
 
 Cloud-removal maintenance, 15 October 2026: current requirements/context now defer F-008 and remove cloud/shadow runtime ownership while retaining rain/storm effects. F-041 is separately queued P2 behavior. Historical cloud geometry scores remain historical; no new cloud appearance success is claimed.
+
+## F-051 compact HUD blind source review
+
+A fresh critic reviewed the candidate in a detached worktree without history, implementation reasoning or previous scores, using `gpt-6-luna` at medium effort. Result: **9.3/10**, no source defects. The critic independently passed 29 focused controller tests and a production build. Exact CSS layout and pointer appearance across aspect ratios require native-device acceptance; these were not claimed as rendered tests. Documentation received a separate fresh medium-effort critic.
+
+The separate blind documentation critic scored **8/10**, requesting explicit commit/command evidence, source/test references and sharper distinction between controller checks and rendered geometry/layout. These records now include all three; phone acceptance remains pending.
+
+Documentation follow-up reached **9/10**, with all requested evidence and limitation fixes resolved. The critic independently passed `npm run docs:check`. Exact artifact checks used `node scripts/check-build-mode.mjs release` and `node scripts/check-build-mode.mjs development`.
+
+### F-051 tip-02 repair blind review
+
+A fresh critic in an isolated detached worktree reviewed only the tutorial fix, requirements and tests, without implementation history or past scores. `gpt-6-luna`, medium effort: **9.4/10**, no source defect; independently passed all 29 UI tests. The critic confirmed mutually exclusive progression, full dwell, pause/manual/reset behavior and documentation consistency. Source/DOM timing evidence does not prove phone appearance.
+
+### F-051 manually reopened loop review
+
+Fresh isolated medium-effort `gpt-6-luna` critic: source 9/10, with two test timing expectations needing correction. Final follow-up passed all 31 UI tests and scored 10/10 with no remaining issue. Controller/source/document consistency checked; no phone rendering claim. The implementation uses one applicable tip list for both automatic and manual display; only manual display loops.
+
+### F-052 QA gear blind review
+
+Fresh isolated medium-effort `gpt-6-luna` critic: **9.5/10**, no source-level defect; all 12 focused QA unit/debug/integration tests passed. Reviewed launcher placement, touch size, accessible identity, lifecycle and production exclusion guards against F-052 documentation. Native phone safe-area/tap appearance remains unverified.
+
+### Production HUD integration review
+
+Fresh medium-effort `gpt-6-luna` critic reviewed the merged production candidate independently: **9.5/10**, no release blocker. Documentation checks passed (12 pages, 1,028 links/anchors, nine diagrams, four DOM behavior checks). An isolated release build independently passed artifact-mode checks with 15 files and zero QA assets. Main workflow skips QA packaging; development workflow remains intact. No fresh phone rendering claim.

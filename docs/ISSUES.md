@@ -90,6 +90,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
+| F-051 | P2 | UI | Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer | Review | Source checked; phone acceptance pending |
+| F-052 | P3 | QA/UI | Gear QA launcher centered at bottom of viewport | Review | Source validation pending |
 
 ## Screenshot evidence
 
@@ -724,3 +726,29 @@ Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495]
 - Bark level 3 allows two barks before entering cooldown.
 
 **Scope:** queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.
+
+### F-051 - Compact HUD and contextual tips (P2)
+
+**Status:** Review. Mission card is narrower with its map immediately to the right. Tips end after the final 14-second display cycle (first-level tips also advance without requiring a delivery). A question-mark toggle appears beside pause after automatic or manual dismissal; reopened tips stay visible until toggled off. Woof is circular with title above the symbol and “double tap” below it inside the button. The route label/distance is removed; a triangle outside Pip’s ring points directly to the goal independently of Pip’s heading. Source regression checks cover completion, reopening, hiding and per-level reset; phone layout acceptance is pending. Development publication follows the restored project workflow; production main/root remain unchanged.
+
+
+F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/main.js`, `index.html`, `src/style.css`; the goal triangle is in `src/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.
+
+F-051 execution: independent source review 9.3/10; documentation 8/10 then 9/10 after evidence fixes. Published reviewed source `20e39cf` to development, Pages `9da398d`; both CI and native deployment succeeded. All 17 live artifacts/canonical HTML match; 32 unrelated Pages files preserved. Production main/root unchanged. See [publication evidence](QUALITY.md#verified-f-051-development-publication). Status remains Review for phone acceptance.
+
+
+F-051 follow-up: every tutorial tip must remain visible for its full display interval. Early animal delivery must not skip tip 02 or shorten its interval. The automatic sequence advances at most once per frame; reopening/dismissing help and final-tip expiry retain their existing behavior. Source regression includes delivery before the second tip.
+
+Tip-02 follow-up execution: runtime source `610fc69` on development passes 275 tests, both artifact-mode checks and documentation checks; blind review 9.4/10. Pages `132ede4` publishes only the development entry/runtime, preserving 32 unrelated files and production main/root. Native Pages and source CI succeeded. Phone acceptance remains pending.
+
+
+F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.
+
+Reopened-help execution: source `24f77f5`, Pages `199c94e`; 277 tests, both builds/mode checks, documentation checks and CI/native deployment pass. All 17 live files/canonical HTML verified; 32 unrelated files preserved. Initial playthrough hides after its last tip; manual reopening resets01 and loops. F-051 remains Review for phone acceptance.
+
+
+### F-052 - Bottom-center QA gear
+
+**Status:** Review. Replace the QA text launcher with a gear icon, centered at the bottom of the viewport with safe-area clearance. Retain an accessible QA name and test-session state. Keep existing QA opening/closing, save isolation and production exclusion. Phone appearance remains pending.
+
+F-052 execution: reviewed 9.5/10; source `e8b8e16`, Pages `715b06c`. All 277 tests, both builds/artifact-mode checks, documentation checks and source/native Pages CI pass. All 17 live files and canonical entry verified, 32 unrelated Pages files preserved. Development-only; production unchanged. Phone acceptance pending, status Review.

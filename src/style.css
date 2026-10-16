@@ -9,3 +9,9 @@ html,body{touch-action:auto;-webkit-text-size-adjust:100%}button,.topbar{touch-a
 .delivery-status{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:10px;color:#75856a}.delivery-status .running{color:#93622f;font-weight:700}#mission-score{white-space:nowrap}@media(max-width:700px){.delivery-status{font-size:9px;margin-top:6px}.map-box{top:212px}.destination{top:203px}}@media(max-height:650px){.map-box{top:195px}.destination{top:188px}}
 
 .weather-status{margin-top:7px;font-size:11px;font-weight:700;color:#547461;letter-spacing:.2px}
+
+/* Compact mission and adjacent map share the same top edge. */
+.mission{width:280px}.map-box{left:326px;right:auto;top:108px}
+.bark{border-radius:50%;width:78px;height:78px;gap:2px}.bark strong{font-size:11px}.bark span{font-size:28px}.bark small{margin:0;font-size:8px;letter-spacing:.2px;color:#8d7650}
+@media(max-width:700px){.mission{width:calc(100% - 138px);padding:11px 12px}.mission h1{font-size:14px}.mission-line{gap:5px}.mission .eyebrow{font-size:7px;letter-spacing:1px}.delivery-status{flex-wrap:wrap;gap:3px;font-size:8px}.map-box{top:83px;left:auto;right:20px;width:88px;padding:5px}.map-box canvas{width:78px;height:65px}.map-box>span{font-size:5px;letter-spacing:.6px}.bark{width:76px;height:76px;border-radius:50%}.top-actions{gap:5px}.top-actions .icon-button{width:32px}.topbar{left:20px;right:20px}.brand{font-size:25px}}
+@media(max-height:650px){.mission,.map-box{top:76px}}
