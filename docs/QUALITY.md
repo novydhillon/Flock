@@ -252,3 +252,9 @@ Runtime source `2070b016adaa554f0e94670f1d17d5562face3ff`; Pages `d3276cd6cdefff
 The earlier .72/.78 color multipliers were subtle and active-only, ending after a short excursion. Stronger yellow/red multipliers now remain through that animal's original next-check deadline, including settling/herding before the deadline. A QA-only WeakMap records selection kind/deadline separately from simulation; rescheduling cannot extend an old tint. New selection refreshes it, delivery clears it, and disable/destroy neutralizes every instance slot.
 
 Natural generated-level probes at public8/17/41/71 run120 simulated seconds each, observing real seeded wander and bolt events without injecting states. Every recorded local home remains fixed, animals stay within3m with valid body collision, no new excursion starts after settling without herding, and no unattended delivery occurs. No production settling defect was found in these bounded scenarios; actual device perception remains unverified.
+
+## QA workshop level-gate validation - 15 October 2026
+
+QA jumps previously changed the meadow without changing the campaign-based shop gate. Availability and atomic purchase now share an explicit tested public level in QA. Tests cover all 18 upgrade tier gates at the level boundary and one bolt below/exact price, plus real controller/editor/shop flows: jump to level 20, purchase Buddy dog for 600 bolts, reject unaffordable purchases, add exactly 80 bolts and buy speed, jump back to level 1 despite later completion history, and buy Buddy tier 2 only at level 24. Normal-save isolation is checked.
+
+Validation: 240/240 source tests pass. Release artifact exclusion, development QA inclusion, and generated documentation checks pass.

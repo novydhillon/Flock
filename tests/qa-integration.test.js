@@ -27,6 +27,40 @@ function launch(){
 }
 function submit(ui,id,submitter){const event=new ui.dom.window.Event('submit',{bubbles:true,cancelable:true});if(submitter)Object.defineProperty(event,'submitter',{value:submitter});ui.document.getElementById(id).dispatchEvent(event);}
 
+test('QA workshop uses tested level and test wallet for unlocks, purchases and backward jumps',async()=>{
+  const ui=launch();try{
+    const doc=ui.document, buy=id=>doc.querySelector(`[data-buy="${id}"]`);
+    const jump=async number=>{
+      doc.getElementById('qa-toggle').click();await settle();
+      doc.getElementById('qa-level').value=String(number);submit(ui,'qa-jump');await settle();
+      doc.getElementById('qa-close').click();doc.getElementById('wallet').click();
+    };
+    await settle();doc.getElementById('qa-toggle').click();await settle();
+    doc.getElementById('qa-amount').value='600';submit(ui,'qa-bolts');await settle();
+    doc.getElementById('qa-level').value='20';submit(ui,'qa-jump');await settle();
+    doc.getElementById('qa-close').click();doc.getElementById('wallet').click();
+    assert.equal(buy('helper').disabled,false,'level 20 unlocks the first buddy tier without campaign progress');
+    buy('helper').click();
+    assert.equal(ui.app.state().profile.upgrades.helper,1);assert.equal(ui.app.state().profile.points,0);
+    assert.equal(buy('speed').disabled,true,'available level still needs enough bolts');
+    doc.getElementById('qa-toggle').click();await settle();
+    doc.getElementById('qa-amount').value='80';submit(ui,'qa-bolts');await settle();
+    doc.getElementById('qa-close').click();doc.getElementById('wallet').click();
+    assert.equal(buy('speed').disabled,false);buy('speed').click();
+    assert.equal(ui.app.state().profile.upgrades.speed,1);assert.equal(ui.app.state().profile.points,0);
+    // Even test completions at a later meadow cannot unlock early-level purchases.
+    Object.assign(ui.app.state().profile,{highestLevel:99,completedLevels:[98],points:10000});
+    await jump(1);
+    assert.equal(buy('speed').disabled,true);assert.match(buy('speed').textContent,/Level 6/);
+    assert.equal(buy('helper').disabled,true);assert.match(buy('helper').textContent,/Level 24/);
+    await jump(24);
+    assert.equal(buy('helper').disabled,false);buy('helper').click();
+    assert.equal(ui.app.state().profile.upgrades.helper,2);assert.equal(ui.app.state().profile.points,9150);
+    assert.equal(buy('helper').disabled,true);assert.match(buy('helper').textContent,/Level 28/);
+    assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial,'QA purchases never alter the normal save');
+  }finally{ui.close();}
+});
+
 test('production controller and QA editor freeze timed delivery and protect the normal save',async()=>{
   const ui=launch();try{
     await settle();ui.document.getElementById('play').click();await settle();

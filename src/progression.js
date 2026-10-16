@@ -85,11 +85,11 @@ function progressionLevel(profileOrLevelNumber) {
   return Math.max(highest + 1, completedLevel);
 }
 
-/** Availability includes both unlock pacing and affordability for workshop labels. */
-export function upgradeAvailability(profileOrLevelNumber, id) {
+/** Availability includes unlock pacing and affordability; QA can supply its tested public level. */
+export function upgradeAvailability(profileOrLevelNumber, id, levelNumber = profileOrLevelNumber) {
   const profile = typeof profileOrLevelNumber === 'object' ? profileOrLevelNumber : null;
   const upgrade = findUpgrade(id);
-  const currentLevelNumber = progressionLevel(profileOrLevelNumber);
+  const currentLevelNumber = progressionLevel(levelNumber);
   const level = upgradeLevel(profile?.upgrades, id);
   const cost = upgradeCost(profile?.upgrades, id);
   const unlockLevel = nextUnlockLevel(profile?.upgrades, id);
@@ -113,8 +113,8 @@ export function activeUpgrades(upgrades, levelNumber = 1) {
   return result;
 }
 
-/** Purchasing one tier is atomic: unsuccessful purchases never mutate points. */
-export function purchaseUpgrade(profile, id) {
+/** Purchasing one tier is atomic; an explicit public level uses the same gate as availability. */
+export function purchaseUpgrade(profile, id, levelNumber = profile) {
   const upgrade = findUpgrade(id);
   if (!upgrade) return { ok: false, reason: 'unknown' };
   if (!profile || typeof profile !== 'object') return { ok: false, reason: 'points' };
@@ -122,7 +122,7 @@ export function purchaseUpgrade(profile, id) {
   const cost = upgradeCost(profile.upgrades, id);
   if (cost === null) return { ok: false, reason: 'owned' };
   const unlockLevel = nextUnlockLevel(profile.upgrades, id);
-  if (progressionLevel(profile) < unlockLevel) return { ok: false, reason: 'locked', unlockLevel };
+  if (progressionLevel(levelNumber) < unlockLevel) return { ok: false, reason: 'locked', unlockLevel };
   if (!Number.isFinite(profile.points) || profile.points < cost) return { ok: false, reason: 'points' };
   profile.points -= cost;
   profile.upgrades = { ...validateUpgrades(profile.upgrades), [id]: level + 1 };

@@ -4,6 +4,26 @@ import { UPGRADE_CATALOG, upgradeLevel, upgradeCost, purchaseUpgrade, validateUp
 
 const richProfile = highestLevel => ({ points: 10000, upgrades: {}, highestLevel, completedLevels: [] });
 
+test('explicit test level gates every tier while preserving affordability and campaign progress', () => {
+  for (const item of UPGRADE_CATALOG) for (let tier = 0; tier < item.costs.length; tier++) {
+    const gate = item.unlockLevels[tier], cost = item.costs[tier];
+    const profile = { ...richProfile(99), completedLevels:[98], upgrades:{[item.id]:tier}, points:cost };
+    const before = structuredClone(profile);
+    assert.equal(upgradeAvailability(profile,item.id,gate-1).reason,'locked');
+    assert.equal(purchaseUpgrade(profile,item.id,gate-1).reason,'locked');
+    assert.deepEqual(profile,before);
+    profile.points=cost-1;
+    assert.equal(upgradeAvailability(profile,item.id,gate).reason,'points');
+    assert.equal(purchaseUpgrade(profile,item.id,gate).reason,'points');
+    profile.points=cost;
+    assert.equal(upgradeAvailability(profile,item.id,gate).available,true);
+    assert.equal(purchaseUpgrade(profile,item.id,gate).level,tier+1);
+    assert.equal(profile.points,0);
+    assert.equal(profile.highestLevel,99);
+    assert.deepEqual(profile.completedLevels,[98]);
+  }
+});
+
 test('six skills have three progressively priced tiers with distinct unlock pacing', () => {
   assert.equal(UPGRADE_CATALOG.length, 6);
   for (const item of UPGRADE_CATALOG) {
