@@ -287,3 +287,7 @@ Final source suite: **263/263 tests pass**. New focused scenarios verify on/off-
 These are source/headless tests with substituted rendering/audio interfaces; no independent blind review, real phone rendering, device performance, human pacing or listening evidence is claimed. F-046 remains Review for user play acceptance. F-047 stays queued; no second Buddy is introduced.
 
 Follow-up artifact checks pass: release has 15 files and no QA assets; development has 17 files including two QA assets. The intended development build is prepared for publication.
+
+### Verified Buddy navigation follow-up publication
+
+Published 15 October 2026 after resuming at 22:16 Vancouver. Runtime source `25c77ff05552c44e31df843631b9a464bcab9772`; Pages `e175cc0d3339988795139a1cd5cd8885838b599b`. Source CI [38840591441](https://github.com/novydhillon/Flock/actions/runs/38840591441) and native Pages [38854983832](https://github.com/novydhillon/Flock/actions/runs/38854983832) succeeded. All **17/17** live files match the checked development build SHA-256 hashes, and the canonical entry HTML without a cache-busting query also matches. Only the main runtime bundle and entry HTML changed; all 18 unrelated Pages files and the legacy redirect are preserved. New runtime asset: `index-D3LKClkf.js`. All 263 source tests, both artifact modes and documentation checks pass. F-046 remains **Review** for user gameplay/device acceptance. This evidence update changes documentation only.
