@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
+import * as THREE from 'three';
 import {createLevel,gateSegment,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,distance} from '../src/world.js';
 import {accessibleGate,openNearbyGate,createGateControl} from '../src/gates.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
@@ -78,4 +79,36 @@ test('closed gate prevents remote companions from delivering a flock, with no au
   const level={index:23,reward:300,bounds:{minX:-40,maxX:40,minZ:-30,maxZ:30},target:{x:18,z:0,radius:5,heading:Math.PI/2,type:'pen'},dog:{x:-15,z:0},animals:Array.from({length:4},(_,id)=>({id,type:'sheep',x:-3-(id%2)*2,z:Math.floor(id/2)*2,vx:5,vz:0,saved:false})),rivers:[],routes:[],obstacles:[],fenceSegments:[{a:{x:0,z:-30},b:{x:0,z:-5},kind:'interior'},{a:{x:0,z:5},b:{x:0,z:30},kind:'interior'}],gates:[{id:'gate-0',x:0,z:0,width:10,heading:Math.PI/2,open:false,operable:true}]};
   for(let i=0;i<600;i++)stepSimulation(level,level.dog,{},.1,{helper:3,drone:3,cohesion:3});
   assert.equal(level.gates[0].open,false);assert.equal(level.animals.filter(a=>a.saved).length,0);assert.ok(level.animals.every(a=>a.x<0));
+});
+
+
+test('clay dry-stone instances are deterministic and contained within rotated wall endpoints and collision width',()=>{
+  for(const angle of [0,Math.PI/2,.67])for(const length of [.005,.2,3.7,40]){
+    const a={x:2,z:-3},b={x:a.x+Math.cos(angle)*length,z:a.z+Math.sin(angle)*length};
+    const segment={a,b,material:'stone'},view=createStoneWallView([segment]),again=createStoneWallView([segment]);
+    assert.ok(view.children.length<=3,'bounded draw calls');
+    const matrix=new THREE.Matrix4(),v=new THREE.Vector3();
+    let colors=new Set(),heights=new Set(),disposed=0;
+    for(const [batch,mesh] of view.children.entries()){
+      assert.deepEqual(mesh.instanceMatrix.array,again.children[batch].instanceMatrix.array);
+      assert.deepEqual(mesh.instanceColor.array,again.children[batch].instanceColor.array);
+      assert.ok((mesh.geometry.index?.count??mesh.geometry.attributes.position.count)/3<=44,'bounded per-stone triangle count');
+      mesh.geometry.addEventListener('dispose',()=>disposed++);
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,matrix);heights.add(matrix.elements[13].toFixed(3));
+        colors.add(Array.from(mesh.instanceColor.array.slice(i*3,i*3+3)).join(','));
+        for(let j=0;j<mesh.geometry.attributes.position.count;j++){
+          v.fromBufferAttribute(mesh.geometry.attributes.position,j).applyMatrix4(matrix);
+          const dx=v.x-a.x,dz=v.z-a.z,along=dx*Math.cos(angle)+dz*Math.sin(angle),across=-dx*Math.sin(angle)+dz*Math.cos(angle);
+          assert.ok(along>=-1e-5&&along<=length+1e-5,'no stones project into openings');
+          assert.ok(Math.abs(across)<=.30001,'visuals fit collision width');
+          assert.ok(v.y>=-.03&&v.y<1.4,'low, grounded field-wall silhouette');
+        }
+      }
+    }
+    assert.ok(colors.size>1);assert.ok(heights.size>=4);
+    const geometryCount=view.children.length;view.dispose();again.dispose();assert.equal(disposed,geometryCount);
+  }
+  const wood={a:{x:0,z:0},b:{x:5,z:0},material:'wood'};
+  assert.equal(createStoneWallView([wood]).children.length,0);
 });

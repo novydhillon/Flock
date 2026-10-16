@@ -129,3 +129,8 @@ Forward-flow follow-up: the simulation caches direct Pip signals once per animal
 ### Pip hover model
 
 F-053 separates player `createPip` from Buddy `createDog`. `updatePipHover` owns a bounded four-pod/twelve-ring presentation pool and per-pod world-space trailing positions. Simulation state and collision remain on their existing ground coordinates. Ring materials are owned by the level actor; baked shell geometries follow the existing disposal lifecycle.
+
+
+## Clay dry-stone wall view (F-033)
+
+`gate-view.js` derives deterministic stone placement from segment coordinates without consuming simulation randomness. Three softly beveled, deformed shared geometries are instanced with a single matte material and muted per-instance colors. Larger foundation stones taper through three variable-width body courses to an uneven upright coping row. All vertices remain inside segment endpoints and the existing ±.30-unit physical strip at every orientation. No mortar, backing slab or scattered obstruction is added. Owned geometry, instance buffers and material are disposed on level replacement. Generation probability, map/collision descriptors and gate interactions are unchanged.

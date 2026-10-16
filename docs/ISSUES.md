@@ -364,7 +364,7 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 **Accept when:** rendered walls read as hand-laid, irregular dry-stone masonry with plausible varied stones and no visible mortar, while maintaining consistent collision, gates/openings, route clearance and mobile performance. Review at normal game zoom and across wall orientations.
 
-**Status:** Open; appearance request only, with no runtime change in this documentation task.
+**Status:** Review; claymation appearance implemented on `stone_wall`, pending rendered/gameplay acceptance. Reference photos supplied 16 October 2026 guide irregular dry-laid stones, muted warm greys, broad foundations and uneven upright coping. Three instanced sculpted shapes replace rectangular bricks; staggered variable widths and per-stone colors avoid uniform masonry. The .6-unit collision strip, segment endpoints, gates and level selection are preserved. F-034 remains Open. Source bounds/determinism/resource checks do not establish phone appearance or FPS.
 
 ### F-034 — Seeded per-level stone-wall chance (P3)
 
@@ -765,3 +765,6 @@ Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; 
 
 
 F-053 publication: runtime source `bcbff8f`, Pages `7e52478`; source CI/native Pages succeeded, all 17 live files match the checked build and 30 unrelated Pages files are preserved. 278 tests pass; source/documentation reviews each 9/10. Live at [dev2](https://novydhillon.github.io/Flock/dev2/). Status remains Review for phone appearance.
+
+
+F-033 execution (16 October 2026): candidate runtime `b48c2d6` on local `stone_wall`; blind source review 8.5/10, full suite 279/279 and final affected gate tests 7/7, documentation and release/development checks pass. Checked development output is prepared for dev2; automatic approval review blocked the external repository push pending explicit authorization. The candidate has not been published. F-033 remains Review for rendered/mobile acceptance.
