@@ -30,10 +30,15 @@ async function begin(index=profile.highestLevel){
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box'])visible(id,true);
   $('level-name').textContent=`LEVEL ${index+1} · ${level.title}`;$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=`/ ${level.animals.length}`;$('saved').textContent=0;$('progress').style.width='0%';
   $('countdown').textContent=`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',false);$('mission-score').textContent=`Score 0 / ${level.reward}`;
-  tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(index===0?'Drag with your thumb to move Pip. Try circling behind the sheep.':level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.');
+  tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(tipsFor(index)[0]);
   audio.setMuted(!profile.music);await audio.start();if(mode!=='playing')audio.pause();updateWallet();
 }
 const TIP_CYCLE=14;
+function tipsFor(index){return index===0?[
+  'Drag with your thumb to move Pip. Try circling behind the sheep.',
+  'Sheep move away from Pip. Stay behind them to guide them to the golden pen.',
+  'Lovely! Circle behind the stragglers. Double-tap anywhere to woof.',
+]:[level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.'];}
 function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visible('toggle-tip',true);$('toggle-tip').setAttribute('aria-expanded','false');$('toggle-tip').setAttribute('aria-label','Show tips');}
 function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
 function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
@@ -103,7 +108,7 @@ window.addEventListener('resize',()=>renderer?.resize());
 $('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}persist();updateWallet();};
 $('dismiss-tip').onclick=hideTip;
-$('toggle-tip').onclick=()=>{if(mode!=='playing')return;if(!$('tip').classList.contains('hidden')){hideTip();return;}tipDismissed=false;tipManual=true;visible('tip',true);$('toggle-tip').setAttribute('aria-expanded','true');$('toggle-tip').setAttribute('aria-label','Hide tips');};
+$('toggle-tip').onclick=()=>{if(mode!=='playing')return;if(!$('tip').classList.contains('hidden')){hideTip();return;}tipDismissed=false;tipManual=true;tipStep=0;tipChangedAt=elapsed;setTip(tipsFor(level.index)[0]);visible('tip',true);$('toggle-tip').setAttribute('aria-expanded','true');$('toggle-tip').setAttribute('aria-label','Hide tips');};
 
 let mapTick=0,qaFrame;
 function frame(now){
@@ -117,10 +122,14 @@ function frame(now){
     $('countdown').textContent=result.countdownStarted?`${Math.ceil(result.remaining)}s to gather the rest`:`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',result.countdownStarted);$('mission-score').textContent=`Score ${result.score} / ${result.possibleScore}`;
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
     const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
-    if(!tipDismissed&&!tipManual){
-      if(level.index===0&&tipStep===0&&elapsed>5){tipStep=1;setTip('Sheep move away from Pip. Stay behind them to guide them to the golden pen.');}
-      else if(level.index===0&&tipStep===1&&elapsed-tipChangedAt>=TIP_CYCLE){tipStep=2;setTip('Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');}
-      else if((level.index!==0||tipStep===2)&&elapsed-tipChangedAt>=TIP_CYCLE)hideTip();
+    if(!tipDismissed){
+      const dwell=tipManual||level.index!==0||tipStep>0?TIP_CYCLE:5;
+      if(elapsed-tipChangedAt>=dwell){
+        const tips=tipsFor(level.index);
+        if(tipManual){tipStep=(tipStep+1)%tips.length;setTip(tips[tipStep]);}
+        else if(tipStep+1<tips.length){tipStep++;setTip(tips[tipStep]);}
+        else hideTip();
+      }
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);

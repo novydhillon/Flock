@@ -65,3 +65,7 @@ Documentation follow-up reached **9/10**, with all requested evidence and limita
 ### F-051 tip-02 repair blind review
 
 A fresh critic in an isolated detached worktree reviewed only the tutorial fix, requirements and tests, without implementation history or past scores. `gpt-6-luna`, medium effort: **9.4/10**, no source defect; independently passed all 29 UI tests. The critic confirmed mutually exclusive progression, full dwell, pause/manual/reset behavior and documentation consistency. Source/DOM timing evidence does not prove phone appearance.
+
+### F-051 manually reopened loop review
+
+Fresh isolated medium-effort `gpt-6-luna` critic: source 9/10, with two test timing expectations needing correction. Final follow-up passed all 31 UI tests and scored 10/10 with no remaining issue. Controller/source/document consistency checked; no phone rendering claim. The implementation uses one applicable tip list for both automatic and manual display; only manual display loops.

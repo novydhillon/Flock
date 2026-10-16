@@ -293,3 +293,6 @@ F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; cont
 
 
 F-051 follow-up: every tutorial tip must remain visible for its full display interval. Early animal delivery must not skip tip 02 or shorten its interval. The automatic sequence advances at most once per frame; reopening/dismissing help and final-tip expiry retain their existing behavior. Source regression includes delivery before the second tip.
+
+
+F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.

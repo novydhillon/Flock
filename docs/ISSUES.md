@@ -739,3 +739,6 @@ F-051 execution: independent source review 9.3/10; documentation 8/10 then 9/10 
 F-051 follow-up: every tutorial tip must remain visible for its full display interval. Early animal delivery must not skip tip 02 or shorten its interval. The automatic sequence advances at most once per frame; reopening/dismissing help and final-tip expiry retain their existing behavior. Source regression includes delivery before the second tip.
 
 Tip-02 follow-up execution: runtime source `610fc69` on development passes 275 tests, both artifact-mode checks and documentation checks; blind review 9.4/10. Pages `132ede4` publishes only the development entry/runtime, preserving 32 unrelated files and production main/root. Native Pages and source CI succeeded. Phone acceptance remains pending.
+
+
+F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.

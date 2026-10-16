@@ -111,9 +111,35 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   const buy = id => { const button = el('modal-card').querySelectorAll('[data-buy]').find(e => e.dataset.buy === id); assert.ok(button, `Expected upgrade ${id}`); assert.equal(button.disabled, false); button.onclick(); };
   const emit = (name, event = {}) => documentEvents.get(name)?.({ type: name, target: el('world'), preventDefault() {}, ...event });
   const tick = () => { clock += 16; app.frame(clock); };
+  const advance = seconds => { for (let i = 0; i < Math.ceil(seconds * 20); i++) { clock += 50; app.frame(clock); } };
   const completeFlock = () => { const state = app.state();state.dog.x=state.level.target.x;state.dog.z=state.level.target.z;for (const animal of state.level.animals) Object.assign(animal, { x: state.level.target.x, z: state.level.target.z, vx: 0, vz: 0 }); tick(); };
-  return { app, el, click, buy, emit, tick, completeFlock, audioEvents, windowEvents, storage, document, settleAudioStart: () => resolveAudioStart?.() };
+  return { app, el, click, buy, emit, tick, advance, completeFlock, audioEvents, windowEvents, storage, document, settleAudioStart: () => resolveAudioStart?.() };
 }
+
+test('manually reopening tips restarts at 01 and cycles through 02, 03, then 01', async () => {
+  const ui = launch(); await ui.click('play');
+  ui.advance(5.1); assert.equal(ui.el('tip-text').textContent, 'Sheep move away from Pip. Stay behind them to guide them to the golden pen.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');
+  ui.advance(14.1); assert.ok(ui.el('tip').classList.contains('hidden'));
+  await ui.click('toggle-tip');
+  assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  assert.equal(ui.el('tip').querySelector('.tip-number').textContent, '01');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Sheep move away from Pip. Stay behind them to guide them to the golden pen.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+});
+
+test('manual tip dwell time freezes while paused and closing then reopening resets to 01', async () => {
+  const ui = launch(); await ui.click('play'); await ui.click('dismiss-tip'); await ui.click('toggle-tip');
+  ui.advance(8); await ui.click('pause'); ui.advance(20);
+  assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  await ui.click('resume'); ui.advance(6.1);
+  assert.equal(ui.el('tip-text').textContent, 'Sheep move away from Pip. Stay behind them to guide them to the golden pen.');
+  await ui.click('toggle-tip'); assert.ok(ui.el('tip').classList.contains('hidden'));
+  await ui.click('toggle-tip');
+  assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  assert.equal(ui.el('tip').querySelector('.tip-number').textContent, '01');
+});
 
 test('nested workshop navigation restores focus to the original pause control', async () => {
   const ui = launch();
