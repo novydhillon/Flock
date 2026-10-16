@@ -151,3 +151,5 @@ With a moving flock, watch animals ahead of the centroid: they should continue i
 ## Production root publication
 
 `main` is the production source branch; `flock_3D_chatgpt-work` remains development. Source CI checks both branches independently. For the root [Flock game](https://novydhillon.github.io/Flock/), use a clean `npm run build -- --emptyOutDir` and verify release QA exclusion. Replace root `index.html` and its generated `assets/` only in a fresh Pages worktree. Preserve `dev2/`, legacy `flock/`, workflows and other unrelated files. The normal staging helper still targets development; do not use its `dev2/` output for a root release. Verify every production artifact and canonical root HTML after successful native Pages deployment.
+
+Main CI uploads `flock-production-standalone` immediately after the verified production build. The QA build step is skipped on `main`; development CI continues to build and upload `flock-dev2-standalone`.

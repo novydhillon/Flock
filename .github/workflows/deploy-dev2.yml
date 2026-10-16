@@ -32,10 +32,11 @@ jobs:
       - name: Build and check release without QA
         run: npm run build && node scripts/check-build-mode.mjs release
       - name: Build and check development game with QA
+        if: github.ref != 'refs/heads/main'
         run: npm run build:dev && node scripts/check-build-mode.mjs development
       - name: Upload standalone game
         uses: actions/upload-artifact@v4
         with:
-          name: flock-dev2-standalone
+          name: ${{ github.ref == 'refs/heads/main' && 'flock-production-standalone' || 'flock-dev2-standalone' }}
           path: dist/
           if-no-files-found: error
