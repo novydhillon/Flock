@@ -266,3 +266,13 @@ test('tree detours also guide a retrieved cow around the trunk using its full bo
  });
  assert.ok(level.animals.slice(0,2).some(a=>distance(a,stray)<6.5),'cow returns around the tree');
 });
+
+
+test('an ideal rear position inside a tree is replaced by nearby usable standing ground',()=>{
+ const level=meadow([animal(0,10,0),animal(1,10,2)],{
+  helpers:[{type:'helper',x:-10,z:-3.2}],obstacles:[{x:10,z:-3.2,radius:1.4}],
+ });
+ run(level,15,{helper:1},l=>assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6)));
+ assert.ok(buddy(level).x>6,'Buddy reaches the flock instead of walking into the impossible rear point');
+ assert.ok(distance(buddy(level),buddy(level).desired)<3,'Buddy settles on nearby clear ground');
+});

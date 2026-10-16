@@ -5,6 +5,21 @@ const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 /** Follow physical route/crossing waypoints, adding a cached visibility detour
  * around circular tree footprints. Every edge uses the moving body's radius. */
 export function buddyNavigationTarget(level, body, desired, radius = .6) {
+  // The ideal rear position can itself overlap a tree, rail or bank. Route
+  // to a nearby valid standing point instead of planning to an impossible end.
+  if(!canOccupy(level,desired.x,desired.z,radius)){
+    let best=null,score=Infinity;
+    for(const reach of [.6,1.2,1.8,2.4,3.2,4.5,6]){
+      for(let i=0;i<24;i++){
+        const angle=i*Math.PI/12,p={x:desired.x+Math.cos(angle)*reach,z:desired.z+Math.sin(angle)*reach};
+        const cost=reach+distance(body,p)*.015;
+        if(cost<score&&canOccupy(level,p.x,p.z,radius+.08)){best=p;score=cost;}
+      }
+      if(best)break;
+    }
+    if(!best)return {x:body.x,z:body.z};
+    desired=best;
+  }
   let aim = navigationTarget(level, body, desired, radius);
   // A road projection can land on a trunk or behind us. Where trees are
   // the only blockers, detour toward the actual work position directly.
