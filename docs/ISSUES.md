@@ -754,3 +754,6 @@ Reopened-help execution: source `24f77f5`, Pages `199c94e`; 277 tests, both buil
 **Status:** Review. Replace the QA text launcher with a gear icon, centered at the bottom of the viewport with safe-area clearance. Retain an accessible QA name and test-session state. Keep existing QA opening/closing, save isolation and production exclusion. Phone appearance remains pending.
 
 F-052 execution: reviewed 9.5/10; source `e8b8e16`, Pages `715b06c`. All 277 tests, both builds/artifact-mode checks, documentation checks and source/native Pages CI pass. All 17 live files and canonical entry verified, 32 unrelated Pages files preserved. Development-only; production unchanged. Phone acceptance pending, status Review.
+
+
+Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; source CI/native Pages succeeded, 277 tests and release/doc checks pass, 15/15 live root files/canonical HTML verified. All 34 unrelated Pages files preserved. QA excluded from production; dev2 unchanged. User sign-off statuses above are preserved.

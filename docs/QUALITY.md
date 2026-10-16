@@ -349,3 +349,10 @@ F-052 verified development publication: source `e8b8e16108a8420c3f0528287550e499
 ### Production HUD release candidate
 
 User authorized merge and root deployment on 16 October 2026. Merged the reviewed development HUD, tip-cycle fixes and QA gear into a release candidate while preserving main's QA-free packaging workflow. Documentation merge conflicts retain both production and development instructions. Fresh independent integration review 9.5/10; isolated release build and docs checks passed. Production target is `/Flock/`; development `/Flock/dev2/` and unrelated Pages bytes must be preserved. Publication evidence follows after deployment verification.
+
+
+### Verified production HUD release - 16 October 2026
+
+Merged development `81efdd780749607e68de58529ed445e9345bdc48` into main with two-parent merge `11d66427b14eab7eab3b88a8a560ef2782c0ffe8`. Pages `ee53e9cba1d042367887d8944f9f4a872c9d932c` publishes the QA-free production build at `/Flock/`. Main CI [38865892516](https://github.com/novydhillon/Flock/actions/runs/38865892516) and native Pages [38866036436](https://github.com/novydhillon/Flock/actions/runs/38866036436) succeeded. All 277 source tests, generated documentation checks and release artifact checks pass: 15 files, zero QA assets. Independent integration review 9.5/10. The Pages update replaces root entry/runtime/styles only; all 34 unrelated files, including dev2 and legacy content, retain their original blob hashes. Runtime asset `index-BnH9alW-.js`. User sign-off is recorded separately in the tracker; QA gear remains development-only. Live-file verification follows below.
+
+Final live production verification: **15/15** artifacts match the local release SHA-256 hashes and canonical `/Flock/` HTML without a query also matches. Zero mismatches. Release QA exclusion was checked before publication; development bytes remain preserved. This records byte/source checks, not a fresh phone-rendering test.
