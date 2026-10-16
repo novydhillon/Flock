@@ -742,3 +742,5 @@ Tip-02 follow-up execution: runtime source `610fc69` on development passes 275 t
 
 
 F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.
+
+Reopened-help execution: source `24f77f5`, Pages `199c94e`; 277 tests, both builds/mode checks, documentation checks and CI/native deployment pass. All 17 live files/canonical HTML verified; 32 unrelated files preserved. Initial playthrough hides after its last tip; manual reopening resets01 and loops. F-051 remains Review for phone acceptance.
