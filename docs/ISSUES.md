@@ -771,3 +771,6 @@ F-033 execution (16 October 2026): candidate runtime `b48c2d6` on local `stone_w
 
 
 F-033 publication approved at 13:36 Vancouver: source `673979e` pushed on `stone_wall` and integrated into development; source CI [38963658849](https://github.com/novydhillon/Flock/actions/runs/38963658849) passed. Pages `3a3a97d` deployed successfully via native workflow [38963856575](https://github.com/novydhillon/Flock/actions/runs/38963856575). Live dev2 entry references the expected new runtime. All 32 unrelated Pages files are preserved. All 17/17 live artifacts match the prepared build by SHA-256. Cloud WebGL 2 is unavailable; rendered/mobile acceptance remains pending, F-033 Review.
+
+
+F-033 follow-up (16 October 2026, 13:49 Vancouver): Novy approved the initial appearance and requested more varied, weathered walls. The refinement adds asymmetric worn-corner/wedge shapes, stronger width/height variation, gently tilted stones, a lightly undulating coping line and clay-colored surface mottling with subdued lower moss/damp staining. Rolled stones are fitted to their original slots to preserve endpoints and the .6-unit strip. Retain three instanced batches and at most 44 triangles per stone; no textures, extra scenery meshes or collision changes. Latest appearance remains Review pending user acceptance.

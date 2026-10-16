@@ -168,3 +168,6 @@ Use `pip_update`, based on the current development branch. Its push runs the sam
 ## F-033 stone wall acceptance
 
 Use QA public 8 and 24 for stone walls, including perimeter/interior runs, corners and gate endpoints. At normal play zoom check softly sculpted clay shapes, varied warm-grey stones, staggered joints and uneven upright coping; compare horizontal, vertical and oblique walls. Walk Pip and the largest animals beside walls and through opened gates; no visible stone should project into the passage. Restart/jump repeatedly to check stable placement and cleanup. Check phone shadow cost/FPS separately; source triangle and draw-call budgets are not device performance evidence. F-034's 15% distribution remains queued.
+
+
+F-033 weathering smoke check: compare nearby stones for different worn-corner profiles, warm/cool tones, faint pale mottling and darker green-grey lower staining. The wall should still read as softly sculpted clay rather than rough photographic rock. Check upright/sideways-looking coping variation and mild irregular tilt at normal zoom, with no floating foundations or visually blocked gate ends. Repeat a restart to confirm deterministic weathering.

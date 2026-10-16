@@ -92,6 +92,12 @@ test('clay dry-stone instances are deterministic and contained within rotated wa
     for(const [batch,mesh] of view.children.entries()){
       assert.deepEqual(mesh.instanceMatrix.array,again.children[batch].instanceMatrix.array);
       assert.deepEqual(mesh.instanceColor.array,again.children[batch].instanceColor.array);
+      assert.equal(mesh.material.vertexColors,true,'weathering is visible on the shared material');
+      const weather=mesh.geometry.attributes.color;
+      assert.equal(weather.count,mesh.geometry.attributes.position.count);
+      assert.deepEqual(weather.array,again.children[batch].geometry.attributes.color.array);
+      assert.ok(Array.from(weather.array).every(Number.isFinite));
+      assert.ok(new Set(Array.from(weather.array,x=>x.toFixed(3))).size>6,'weathering varies across each stone');
       assert.ok((mesh.geometry.index?.count??mesh.geometry.attributes.position.count)/3<=44,'bounded per-stone triangle count');
       mesh.geometry.addEventListener('dispose',()=>disposed++);
       for(let i=0;i<mesh.count;i++){

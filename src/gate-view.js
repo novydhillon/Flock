@@ -45,7 +45,10 @@ function clayStone(variant){
   const points=[];
   // A bevelled 24-vertex hull needs only 44 triangles per stone.
   for(let axis=0;axis<3;axis++)for(const side of [-1,1])for(const u of [-.34,.34])for(const v of [-.34,.34]){
-    const point=new THREE.Vector3();point.setComponent(axis,side*.5);point.setComponent((axis+1)%3,u);point.setComponent((axis+2)%3,v);points.push(point);
+    const point=new THREE.Vector3();point.setComponent(axis,side*.5);point.setComponent((axis+1)%3,u);point.setComponent((axis+2)%3,v);
+    // Different corner wear and wedge profiles, shared by every instance.
+    const wear=1+.13*Math.sin(point.x*11+point.y*7+point.z*9+variant*2.7);
+    point.multiplyScalar(wear);point.x+=point.y*(variant-1)*.16;points.push(point);
   }
   const source=new ConvexGeometry(points),positions=source.attributes.position;
   for(let i=0;i<positions.count;i++){
@@ -59,30 +62,47 @@ function clayStone(variant){
   const size=new THREE.Vector3(),center=new THREE.Vector3();
   geometry.boundingBox.getSize(size);geometry.boundingBox.getCenter(center);
   geometry.translate(-center.x,-center.y,-center.z);geometry.scale(1/size.x,1/size.y,1/size.z);
-  geometry.computeVertexNormals();geometry.computeBoundingBox();return geometry;
+  geometry.computeVertexNormals();geometry.computeBoundingBox();
+  const colors=[],p=geometry.attributes.position,light=new THREE.Color('#eee7d5'),moss=new THREE.Color('#68785a'),neutral=new THREE.Color('#ffffff'),shade=new THREE.Color();
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+    const patch=Math.sin(x*15+z*13+variant*3)*Math.sin(y*11-z*9);
+    // Broad rubbed edges, small pale lichen patches, and damp lower staining.
+    shade.copy(neutral).multiplyScalar(.91+.09*Math.sin(x*8+y*12+z*6+variant));
+    if(patch>.24)shade.lerp(light,(patch-.24)*.42);
+    if(y<-.05&&patch<.3)shade.lerp(moss,Math.min(.34,(-y+.05)*.55));
+    colors.push(shade.r,shade.g,shade.b);
+  }
+  geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));return geometry;
 }
 
 /** Hand-laid dry stone, wholly inside the existing .6-unit collision strip.
  * Broad lower stones, staggered smaller infill and upright coping have no mortar.
  * Three shared low-poly clay shapes keep draw calls independent of wall length. */
 export function createStoneWallView(segments=[]){
-  const group=ownedGroup(),material=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#ffffff',roughness:1}));
-  const batches=[[],[],[]],palette=['#a5a393','#b5ad98','#92978c','#bdb6a5','#989b95','#aaa99b'];
+  const group=ownedGroup(),material=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#ffffff',roughness:1,vertexColors:true}));
+  const batches=[[],[],[]],palette=['#aba595','#c2b59d','#8b9189','#c5bfac','#969d97','#aaa99b','#858c7d','#b4a28d'];
   for(const segment of segments.filter(s=>s.material==='stone')){
     const {a,b}=segment,length=Math.hypot(b.x-a.x,b.z-a.z);if(length<.001)continue;
     const random=wallRandom(Math.round(a.x*997+a.z*7919+b.x*104729+b.z*1543)),yaw=-Math.atan2(b.z-a.z,b.x-a.x);
     for(let row=0;row<4;row++){
       const coping=row===3,nominal=coping?.48:row===0?1.24:.98;
-      const count=Math.max(1,Math.ceil(length/nominal)),weights=Array.from({length:count},()=>.7+random()*.6),sum=weights.reduce((v,w)=>v+w,0);
+      const count=Math.max(1,Math.ceil(length/nominal)),weights=Array.from({length:count},()=>.45+random()*1.2),sum=weights.reduce((v,w)=>v+w,0);
       let start=0;
       for(const weight of weights){
         const span=length*weight/sum,end=start+span,mid=(start+end)/2;
-        // No in-plane rotation: the exact projected bounds retain gate clearance.
+        const width=Math.max(.0001,span-Math.min(.018,span*.08));
+        const height=coping?.19+random()*.20:.29+random()*.105;
+        const tilt=(random()-.5)*2*Math.min(.065,width/(height*2));
+        const sine=Math.abs(Math.sin(tilt)),cosine=Math.cos(tilt);
+        // Fit the rolled box to its original slot, including very short ends.
+        const fittedWidth=Math.max(.00001,(width-height*sine)/cosine);
+        const rise=(fittedWidth*sine+height*cosine)/2;
+        const contour=Math.sin(mid*.79+a.x*.13+a.z*.17)*.035;
         batches[Math.floor(random()*3)].push({
-          x:a.x+(b.x-a.x)*mid/length,z:a.z+(b.z-a.z)*mid/length,yaw,
-          y:coping?1.12+(random()-.5)*.055:.175+row*.325+(random()-.5)*.025,
-          width:Math.max(.0001,span-Math.min(.018,span*.08)),
-          height:coping?.25+random()*.12:.34+random()*.035,
+          x:a.x+(b.x-a.x)*mid/length,z:a.z+(b.z-a.z)*mid/length,yaw:yaw+(random()<.5?Math.PI:0),tilt,
+          y:row===0?rise+.005:coping?1.10+contour+(random()-.5)*.055:.175+row*.325+contour+(random()-.5)*.04,
+          width:fittedWidth,height,
           depth:(coping?.43:.59-row*.055)*( .94+random()*.06),
           color:palette[Math.floor(random()*palette.length)],
         });
@@ -90,13 +110,13 @@ export function createStoneWallView(segments=[]){
       }
     }
   }
-  const matrix=new THREE.Matrix4(),q=new THREE.Quaternion(),axis=new THREE.Vector3(0,1,0),scale=new THREE.Vector3(),position=new THREE.Vector3(),color=new THREE.Color();
+  const matrix=new THREE.Matrix4(),q=new THREE.Quaternion(),roll=new THREE.Quaternion(),axis=new THREE.Vector3(0,1,0),rollAxis=new THREE.Vector3(0,0,1),scale=new THREE.Vector3(),position=new THREE.Vector3(),color=new THREE.Color();
   for(const [variant,blocks] of batches.entries()){
     if(!blocks.length)continue;
     const mesh=new THREE.InstancedMesh(group.ownGeometry(clayStone(variant)),material,blocks.length);
     mesh.name='clay-drystone';
     blocks.forEach((block,i)=>{
-      position.set(block.x,block.y,block.z);q.setFromAxisAngle(axis,block.yaw);scale.set(block.width,block.height,block.depth);
+      position.set(block.x,block.y,block.z);q.setFromAxisAngle(axis,block.yaw).multiply(roll.setFromAxisAngle(rollAxis,block.tilt));scale.set(block.width,block.height,block.depth);
       matrix.compose(position,q,scale);mesh.setMatrixAt(i,matrix);mesh.setColorAt(i,color.set(block.color));
     });
     mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);
