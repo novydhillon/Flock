@@ -295,7 +295,7 @@
 <td>F-032</td>
 <td>P3</td>
 <td>Gameplay/UI</td>
-<td>Closed red and open green world-fence button; dog touch activates</td>
+<td>Open/close buttons on both sides of each gate; closed red/open green; dog touch activates</td>
 <td>Open</td>
 <td>F-031</td>
 </tr>
@@ -614,8 +614,8 @@
 <p><strong>Accept when:</strong> deterministic per-level generation can produce gated and gate-free levels at 20+, never places gates on levels below 20, and some gated levels have a complete, navigable ungated alternative. Tests cover multiple seeds, route connectivity, body clearance and helper navigation. Preserve the existing approved gate interaction in F-006.</p>
 <p><strong>Status:</strong> Open. Exact random distribution is unspecified and must not be invented as user-approved.</p>
 <h3 id="f-032--world-fence-gate-indicator-and-dog-activation-p3">F-032 — World-fence gate indicator and dog activation (P3)<a class="heading-link" href="#f-032--world-fence-gate-indicator-and-dog-activation-p3" aria-label="Link to F-032 — World-fence gate indicator and dog activation (P3)">#</a></h3>
-<p><strong>Requirement:</strong> show a world-fence button red when closed and green when open; touching the button with the dog activates it.</p>
-<p><strong>Accept when:</strong> the button is visibly red only for closed gates and green only for open gates; dog contact activates the associated gate reliably, updates collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.</p>
+<p><strong>Requirement:</strong> place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.</p>
+<p><strong>Accept when:</strong> each gate has a reachable button on both sides, including when the gate is closed. Dog contact with either button opens a closed gate or closes an open gate. Both buttons stay synchronized: red when closed and green when open. Each activation reliably updates the same gate and its collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.</p>
 <p><strong>Status:</strong> Open. Clarify the interaction mapping during implementation if the visual button/control relationship is ambiguous; do not silently change F-006&#39;s accepted action.</p>
 <h3 id="f-033--english-dry-stone-wall-appearance-p2">F-033 — English dry-stone wall appearance (P2)<a class="heading-link" href="#f-033--english-dry-stone-wall-appearance-p2" aria-label="Link to F-033 — English dry-stone wall appearance (P2)">#</a></h3>
 <p><strong>Requirement:</strong> stone walls should look like drystone walls built by an English farmhand.</p>
