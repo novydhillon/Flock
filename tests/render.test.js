@@ -14,6 +14,7 @@ import {MeadowNature} from '../src/nature.js';
 import {ribbon,barkSurface} from '../src/surfaces.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
+import {ThrusterGroundGlow} from '../src/thruster-glow.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
@@ -23,7 +24,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -200,68 +201,57 @@ test('portrait camera keeps Pip visible when helpers move the flock far away',()
   assert.ok(Math.abs(position.y)<.8);
 });
 
-test('Pip size reduction preserves world-sized guidance graphics and adds grounded pod glows',()=>{
+test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=>{
   const renderer=setup(),level=createLevel(0),dog=level.dog;
   renderer.setLevel(level);
-  assert.ok(Math.abs(renderer.dog.scale.x-1.0125)<1e-9,'Pip is 25% smaller than the prior 1.35 scale');
-  renderer.update(level,dog,0,false);
-  renderer.scene.updateMatrixWorld(true);
+  assert.ok(Math.abs(renderer.dog.scale.x-1.0125)<1e-9);
   for(const graphic of [renderer.dog.children.find(o=>o.isMesh&&o.geometry.type==='RingGeometry'),renderer.goalPointer]){
-    assert.ok(graphic,'halo and pointer remain present');
-    assert.ok(Math.abs(graphic.scale.x-4/3)<1e-9,'child compensation cancels the 25% parent reduction');
+    assert.ok(Math.abs(graphic.scale.x-4/3)<1e-9,'guidance world size stays unchanged');
   }
-  assert.ok(renderer.dogGlow?.isGroup,'Pip has a dedicated ground-glow group');
-  const glows=renderer.dogGlow.children.filter(o=>o.isMesh);
-  assert.equal(glows.length,4,'one soft glow mesh per thruster pod');
-  assert.ok(glows.every(o=>o.material.isShaderMaterial&&o.material.transparent&&o.material.blending===THREE.AdditiveBlending),
-    'soft glows use additive shader meshes, not point lights');
-  const glowMaterial=glows[0].material;
-  assert.ok(glows.every(o=>o.material===glowMaterial),'four pods share one glow material');
-  assert.ok(glowMaterial.uniforms.tint.value.b>glowMaterial.uniforms.tint.value.r*1.5,'glow tint is blue');
-  assert.match(glowMaterial.fragmentShader,/falloff\*falloff/,'shader feathers the glow softly toward its edge');
-  let lights=0;renderer.dogGlow.traverse(o=>{if(o.isLight)lights++;});assert.equal(lights,0);
+  assert.equal(renderer.dogGlow,undefined,'no detached glow plane exists');
+  const effect=renderer.thrusterGlow;
+  assert.equal(effect.centers.value.length,4);
+  assert.ok(effect.tint.value.b>effect.tint.value.r*1.5);
+  for(const material of [renderer.grass,renderer.path,renderer.pathShoulder]){
+    const shader={uniforms:{},vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader};
+    material.onBeforeCompile(shader);
+    assert.equal(shader.uniforms.pipGlowCenters,effect.centers,'receiving materials use live shared pod positions');
+    assert.match(shader.fragmentShader,/totalEmissiveRadiance\+=pipGlowTint/,'blue illumination belongs to the surface shader');
+    assert.match(shader.vertexShader,/pipSurfaceWorld=\(modelMatrix\*pipSurfacePosition\)\.xyz/);
+  }
   const pods=renderer.dog.userData.parts.pods;
-  assert.equal(pods.length,4);
-  renderer.dog.rotation.y=.73;
   for(const [x,z] of [[3,-4],[-8,6]]){
-    dog.x=x;dog.z=z;dog.heading=.73;dog.vx=0;dog.vz=0;
-    renderer.update(level,dog,.1,false);renderer.scene.updateMatrixWorld(true);
-    const positions=glows.map(g=>g.getWorldPosition(new THREE.Vector3()));
+    Object.assign(dog,{x,z,heading:.73,vx:0,vz:0});renderer.update(level,dog,.1,false);
     const expected=pods.map(p=>renderer.dog.localToWorld(p.clone()));
-    for(let i=0;i<4;i++){
-      assert.ok(Math.abs(positions[i].x-expected[i].x)<1e-5&&Math.abs(positions[i].z-expected[i].z)<1e-5,
-        'each glow tracks its corresponding pod through movement and heading');
-      assert.ok(Math.abs(positions[i].y-(terrainHeight(level,positions[i].x,positions[i].z)+.025))<1e-5,
-        'glow sits just above the terrain rather than bobbing with Pip');
-    }
+    effect.centers.value.forEach((p,i)=>{
+      assert.ok(Math.abs(p.x-expected[i].x)<1e-5&&Math.abs(p.z-expected[i].z)<1e-5);
+      assert.equal(p.y,terrainHeight(level,p.x,p.z),'centers lie ON the surface with no hovering offset');
+    });
   }
-  // A paused update still keeps the glows attached at their current ground positions.
-  const before=glows.map(g=>g.getWorldPosition(new THREE.Vector3()).toArray());
-  renderer.update(level,dog,0,false);renderer.scene.updateMatrixWorld(true);
-  glows.forEach((g,i)=>assert.ok(g.getWorldPosition(new THREE.Vector3()).distanceTo(new THREE.Vector3(...before[i]))<1e-6));
+  const before=effect.centers.value.map(p=>p.clone());renderer.update(level,dog,0,false);
+  effect.centers.value.forEach((p,i)=>assert.ok(p.distanceTo(before[i])<1e-6));
   const bridgeLevel=createLevel(5),bridge=bridgeLevel.rivers.flatMap(r=>r.bridges)[0];
-  assert.ok(bridge,'bridge regression fixture includes a river crossing');
   renderer.setLevel(bridgeLevel);
-  bridgeLevel.dog.x=bridge.x;bridgeLevel.dog.z=bridge.z;bridgeLevel.dog.heading=bridge.heading;
-  renderer.update(bridgeLevel,bridgeLevel.dog,0,false);renderer.scene.updateMatrixWorld(true);
-  const bridgePositions=renderer.dogGlow.children.map(g=>g.getWorldPosition(new THREE.Vector3()));
-  assert.equal(bridgePositions.length,4);
-  for(const p of bridgePositions){
-    const surface=terrainHeight(bridgeLevel,p.x,p.z);
-    assert.ok(surface>0,'test pod lies over the raised bridge deck');
-    assert.ok(Math.abs(p.y-(surface+.025))<1e-5,'bridge glow follows the raised terrain surface');
-  }
-  renderer.update(bridgeLevel,bridgeLevel.dog,0,false);renderer.scene.updateMatrixWorld(true);
-  renderer.dogGlow.children.forEach((g,i)=>assert.ok(g.getWorldPosition(new THREE.Vector3()).distanceTo(bridgePositions[i])<1e-6,
-    'paused bridge update preserves each ground-glow position'));
-  const currentGlows=renderer.dogGlow.children.filter(o=>o.isMesh);
-  const ownedGeometry=new Set(currentGlows.map(g=>g.geometry)),ownedMaterial=new Set(currentGlows.map(g=>g.material));
-  let geometriesDisposed=0,materialsDisposed=0;
-  ownedGeometry.forEach(g=>g.addEventListener('dispose',()=>geometriesDisposed++));
-  ownedMaterial.forEach(m=>m.addEventListener('dispose',()=>materialsDisposed++));
-  renderer.setLevel(createLevel(1));
-  assert.equal(geometriesDisposed,ownedGeometry.size,'private glow geometries are disposed on replacement');
-  assert.equal(materialsDisposed,ownedMaterial.size,'private glow materials are disposed on replacement');
+  Object.assign(bridgeLevel.dog,{x:bridge.x,z:bridge.z,heading:bridge.heading});
+  renderer.update(bridgeLevel,bridgeLevel.dog,0,false);
+  effect.centers.value.forEach(p=>{
+    assert.ok(p.y>0,'glow targets raised bridge surface');
+    assert.equal(p.y,terrainHeight(bridgeLevel,p.x,p.z));
+  });
+  const privateMaterials=new Set();
+  renderer.terrain.traverse(o=>{
+    if(o.isMesh&&o.userData.ownedMaterial&&o.material.customProgramCacheKey().includes('pip-ground-glow'))privateMaterials.add(o.material);
+  });
+  assert.ok(privateMaterials.size>0,'bridge deck has private receiving materials');
+  assert.ok([...privateMaterials].some(m=>m.color.equals(renderer.materials.wood.color)||m.color.equals(renderer.materials.paleWood.color)),
+    'bridge wood independently receives illumination, not just the river-bank material');
+  assert.ok([...privateMaterials].some(m=>m.color.getHexString()==='6c8960'),'opaque river banks also receive the ground light');
+  assert.ok(!renderer.materials.wood.customProgramCacheKey().includes('pip-ground-glow'),'fence wood remains untouched');
+  let disposed=0;privateMaterials.forEach(m=>m.addEventListener('dispose',()=>disposed++));
+  renderer.setLevel(createLevel(0));
+  assert.equal(disposed,privateMaterials.size);
+  assert.equal(renderer.thrusterGlow,effect,'new level retains the uniform owner');
+  effect.centers.value.forEach(p=>assert.equal(p.y,0,'new meadow clears old bridge height'));
 });
 
 

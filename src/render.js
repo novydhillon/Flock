@@ -5,6 +5,7 @@ import { WaterEffects } from './water-effects.js';
 import { MeadowNature } from './nature.js';
 import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
+import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
@@ -51,6 +52,8 @@ export class MeadowRenderer{
     this.terrain=new THREE.Group();this.actors=new THREE.Group();this.scene.add(this.terrain,this.actors);this.materials=createMaterials();
     this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
     this.path=new THREE.MeshStandardMaterial({color:'#fff1d3',roughness:.95,map:texture('path'),bumpMap:texture('path',true),bumpScale:.08,side:THREE.DoubleSide});this.pathShoulder=new THREE.MeshStandardMaterial({color:'#a99261',roughness:1,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});
+    this.thrusterGlow=new ThrusterGroundGlow();
+    for(const material of [this.grass,this.path,this.pathShoulder])this.thrusterGlow.install(material);
     this.water=new THREE.MeshStandardMaterial({color:'#4b9fae',roughness:.29,metalness:.08,side:THREE.DoubleSide});
     this.targetMat=new THREE.MeshBasicMaterial({color:'#ffe8a0',transparent:true,opacity:.56,depthWrite:false,side:THREE.DoubleSide});
     // Fence parts stay shared across worlds, just like cached animal geometry.
@@ -90,10 +93,19 @@ export class MeadowRenderer{
     const riverViews=[];
     for(const river of level.rivers){
       const bankMat=new THREE.MeshStandardMaterial({color:'#6c8960',roughness:1,side:THREE.DoubleSide});
+      this.thrusterGlow.install(bankMat);
       const bank=surface(ribbon(river.points,river.width+.8,{y:.002}),bankMat);bank.userData.ownedMaterial=true;
       const mesh=surface(ribbon(river.points,river.width,{y:.018}),this.water);
       const a=river.points[0],b=river.points.at(-1);riverViews.push({mesh,points:river.points,width:river.width,heading:Math.atan2(b.x-a.x,b.z-a.z)});
-      for(const bridge of river.bridges){const g=createBridge(bridge.width,bridge.length);g.rotation.y=bridge.heading;this.place(g,bridge.x,bridge.z,1,true);}
+      for(const bridge of river.bridges){
+        const g=createBridge(bridge.width,bridge.length),glowMaterials=new Map();
+        // Bridge wood is shared with fences: keep this surface effect local.
+        g.traverse(mesh=>{if(!mesh.isMesh)return;const source=mesh.material;
+          if(!glowMaterials.has(source))glowMaterials.set(source,this.thrusterGlow.install(source.clone()));
+          mesh.material=glowMaterials.get(source);mesh.userData.ownedMaterial=true;
+        });
+        g.rotation.y=bridge.heading;this.place(g,bridge.x,bridge.z,1,true);
+      }
     }
     const t=level.target,shape=targetFootprint(t),s=shape.halfLength,structure=[];
     this.goal=surface(goalSurface(t),this.targetMat);
@@ -180,21 +192,7 @@ export class MeadowRenderer{
     const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
     this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
     this.goalPointer.scale.setScalar(1/.75);this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
-    // Four soft additive decals, not scene lights: bounded cost and no shadows.
-    // World-space placement keeps the glow on the ground rather than bobbing
-    // with Pip or trailing behind him with the descending rings.
-    this.dogGlow=new THREE.Group();this.dogGlow.name='Pip thruster ground glow';this.actors.add(this.dogGlow);
-    const glowGeometry=new THREE.PlaneGeometry(.7,.7);
-    const glowMaterial=new THREE.ShaderMaterial({
-      uniforms:{tint:{value:new THREE.Color('#39bfff')},opacity:{value:.46}},
-      vertexShader:'varying vec2 glowUv; void main(){glowUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-      fragmentShader:'uniform vec3 tint; uniform float opacity; varying vec2 glowUv; void main(){float falloff=max(0.0,1.0-length(glowUv-0.5)*2.0);gl_FragColor=vec4(tint,opacity*falloff*falloff);}',
-      transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
-    });
-    for(const pod of this.dog.userData.parts.pods){
-      const glow=new THREE.Mesh(glowGeometry,glowMaterial);glow.rotation.x=-Math.PI/2;glow.scale.setScalar(this.dog.scale.x);
-      glow.userData.ownedGeometry=glow.userData.ownedMaterial=true;this.dogGlow.add(glow);
-    }
+    this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
     for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
@@ -300,10 +298,7 @@ export class MeadowRenderer{
     const parts=this.dog.userData.parts;
     const poseTime=Math.floor(this.time*12)/12;
     updatePipHover(this.dog,dt);parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
-    parts.pods.forEach((pod,i)=>{
-      const anchor=this.dog.localToWorld(pod.clone());
-      this.dogGlow.children[i].position.set(anchor.x,terrainHeight(level,anchor.x,anchor.z)+.025,anchor.z);
-    });
+    this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
     this.updateBarks(dt);
     for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Number.isFinite(h.heading))m.rotation.y=h.heading;else if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,(this.barkEffects||[]).some(e=>e.buddy));}}

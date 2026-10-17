@@ -2,7 +2,7 @@
 
 ## Pip size and ground glow follow-up
 
-The latest F-053 size target is 1.0125 (75% of the published 1.35), superseding the unfinished 33% edit. Pale silver steel/trim retain a lighter finish. Pods and rings scale with Pip; inverse-scaled halo/pointer retain world dimensions. A separate actor group holds four ground glows, projected beneath current world-space pod anchors using `terrainHeight` plus 0.025 clearance. Body bob and ring trails do not affect ground height. Four additive quads share one geometry and one radial-feather shader/material; there are no new scene lights or shadows. Existing owned-resource cleanup disposes shared resources once on level replacement. Native appearance/performance require device review.
+The latest F-053 size target is 1.0125 (75% of the published 1.35), superseding the unfinished 33% edit. Pale silver steel/trim retain a lighter finish. Pods and rings scale with Pip; inverse-scaled halo/pointer retain world dimensions. `ThrusterGroundGlow` colors the actual grass, path and bridge receiving surfaces in their material shaders. Four world-space pod centers drive soft blue emissive footprints; the upward-normal and height masks restrict illumination to the ground/deck. Body bob and ring trails do not affect the surface height. There are no separate glow planes, scene lights or shadow passes. Bridge materials are cloned and owned by the level to preserve shared fence materials; ground materials retain the same uniform owner across levels. Native appearance/performance require device review.
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 

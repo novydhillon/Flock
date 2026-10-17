@@ -1,5 +1,11 @@
 # Flock dev2 revision quality record
 
+## F-053 surface-bound blue glow correction
+
+Novy's 16 October 2026 19:16 clarification requires light on the ground. The previous separate additive sheet at `terrainHeight + 0.025` is removed. `ThrusterGroundGlow` injects a blue emissive footprint into the actual grass/path/river-bank/bridge material shaders, using world-space pod x/z, compact radial falloff and upward-normal/height masks. Four centers share uniform holders across all receivers and levels. Bridge material clones are level-owned so cached fence wood stays untouched. Pip's scale, rings, gameplay and concurrent tree art remain unchanged. Tests check real receiving-material shader hooks, translated/rotated pod projection, exact ground/bridge center heights, pause, level reset and bridge material disposal. Implementation uses inherited Sol; blind review uses Sol at high effort for GLSL/world-transform correctness. Source review scored 9/10 after adding opaque river-bank receivers; no source blockers remain. A cloud-browser attempt on the preceding live build failed to create a WebGL2 context, so actual GPU shader compilation, contact appearance and mobile FPS remain unverified.
+
+Final validation: **283/283 tests passed**, both release/development builds and artifact-mode checks passed (15 release files, no QA; 17 development files, QA included). Generated documentation and four documentation behavior tests pass. Publication evidence follows.
+
 ## F-053 smaller Pip and thruster ground glow candidate
 
 Isolated worktree `pip-thruster-glow`, branch `pip_thruster_glow`, starts at remote `pip_update` source `e96126e`, preserving current tree/wall work and the original worktree's unfinished edit. The latest 25% request supersedes the uncommitted 33% reduction. Visual scale is 1.0125; the earlier pending lighter steel/trim finish is retained. Gameplay, Buddy and halo/pointer world sizes are unchanged. Four soft additive blue quads follow pod x/z and terrain/bridge y, independent of body bob and ring motion. Shared geometry/material are owned/disposed with the level. Tests cover scale, guidance transforms, pod tracking, grounding, pause, no added lights and disposal. Independent test ownership uses Luna at medium effort; source review uses Sol at medium effort. No native visual acceptance is claimed.

@@ -1,5 +1,7 @@
 # FLOCK — Remaining issues and change tracker
 
+F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. Replace the previous separate transparent sheet with illumination in the actual grass/path/bridge surface materials. Preserve the requested size and hover rings. This correction remains Review pending source validation, dev2 publication and native appearance acceptance; see QUALITY.md for current evidence.
+
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
 Novy signed off all seven items in Review: **F-035, F-037, F-039, F-041, F-046, F-051 and F-052 are Done**. This covers wandering/bolting tuning and local settling, Buddy behavior and the forward-flow/bridge follow-ups, the compact HUD and revised tips/bark/goal pointer, and the bottom-centre development QA gear. No items remain in Review at this checkpoint. Open items (including F-048 low-speed Buddy stutter) and Deferred clouds remain unchanged. This is user acceptance, not a new independent device/performance measurement. Earlier Review/pending wording below is historical and superseded by this sign-off. Documentation only; game bytes are unchanged.
