@@ -406,3 +406,15 @@ Verified weathering publication: source `19413022bac0eecb5f7f264c2f0010742ec0df8
 
 
 F-033 acceptance: Novy signed off the deployed weathered wall change on 16 October 2026 at 14:00 America/Vancouver (Pages `29f48f3`, runtime `1941302`). Tracker and requirements are Done; historical source/device evidence limits remain unchanged. F-034 stays Open. This documentation-only sign-off changes no deployed game files.
+
+
+## F-054 clay tree source validation
+
+Runtime source `bf5bb48`, based on `pip_update`. Parallel implementation and Markdown ownership used separate worktrees and `gpt-6-luna` at medium effort. Parent integration corrected failures found by the full suite and independent review.
+
+- `npm test`: 280/280 pass, including vegetation dimensions, renderer resource/caching/cleanup and gameplay regressions.
+- `npm run build` and `node scripts/check-build-mode.mjs release`: 15 files, no QA assets.
+- `npm run build:dev -- --emptyOutDir` and `node scripts/check-build-mode.mjs development`: 17 files, two QA assets; this clean build is the publication artifact.
+- Each tree variant remains two cached baked meshes and 1,748 triangles. Nearby scenery triangles at QA 1/6/20/50/100: 39,510 / 31,756 / 18,590 / 14,506 / 7,932, below the unchanged 45,000 limit.
+
+A fresh isolated medium-effort `gpt-6-luna` source critic scored the initial candidate 6.5/10 and found a width regression, incorrect radial root orientation and detached leaf marks. Runtime `bf5bb48` broadens the crowns, orients roots/forks between endpoints and seats normal-oriented leaf ovals against the sculpted surfaces. The same critic’s follow-up at `bf5bb48` scored **9/10**, with no remaining source defect and 21/21 independently passed vegetation/render tests. This is follow-up validation after a blind first pass. A separate fresh documentation critic scored 9/10; its overview-index omission was corrected. GPU/Canvas substitutes establish source geometry, caching and budgets, not rendered likeness, native phone FPS or appearance acceptance. F-054 remains Review.

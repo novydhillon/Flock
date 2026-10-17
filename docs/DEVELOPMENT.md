@@ -171,3 +171,8 @@ Use QA public 8 and 24 for stone walls, including perimeter/interior runs, corne
 
 
 F-033 weathering smoke check: compare nearby stones for different worn-corner profiles, warm/cool tones, faint pale mottling and darker green-grey lower staining. The wall should still read as softly sculpted clay rather than rough photographic rock. Check upright/sideways-looking coping variation and mild irregular tilt at normal zoom, with no floating foundations or visually blocked gate ends. Repeat a restart to confirm deterministic weathering.
+
+
+## F-054 clay tree smoke checks
+
+On `pip_update`, inspect trees at public QA 1, 8 and 24 in portrait and landscape. Compare the warm-brown branching trunks, exposed roots and separate rounded green crowns with the reference. Look for attached crowns/leaf marks, handmade bark detail and a clean silhouette at normal play zoom. Walk Pip/Buddy and cows around trunks and nearby gates; restart and jump repeatedly to check stable placement. Verify shadow cost and FPS on a phone separately from source geometry budgets. Publish only to `dev2/`; appearance remains Review until user sign-off.

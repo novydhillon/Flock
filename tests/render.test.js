@@ -78,6 +78,23 @@ test('changing levels disposes world resources without disposing cached animal g
   assert.equal(a.children[0].geometry,b.children[0].geometry,'flower variants reuse bounded geometry');
 });
 
+test('tree variants cache deterministic two-material clay meshes within a bounded geometry budget',()=>{
+  for(let variant=0;variant<3;variant++){
+    const first=models.createTree(variant),second=models.createTree(variant);
+    assert.equal(first.children.length,2,'bark and foliage remain two baked material meshes');
+    for(let i=0;i<first.children.length;i++)assert.equal(first.children[i].material,second.children[i].material);
+    let triangles=0;
+    for(let i=0;i<first.children.length;i++){
+      const a=first.children[i],b=second.children[i];
+      assert.equal(a.geometry,b.geometry,'cached variants share immutable geometry');
+      const positions=a.geometry.attributes.position.array;
+      assert.ok([...positions].every(Number.isFinite));
+      triangles+=(a.geometry.index?.count||positions.length/3)/3;
+    }
+    assert.ok(triangles<1800,`tree variant geometry stays compact: ${triangles} triangles`);
+  }
+});
+
 test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{
   const renderer=setup(),level=createLevel(2),target=level.target;
   const collision=JSON.stringify(level.fenceSegments);renderer.setLevel(level);

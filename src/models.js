@@ -443,29 +443,64 @@ export function createTree(variant = 0) {
   // read at the normal orthographic camera distance. The renderer scales its
   // base against the existing circular trunk collider.
   const trunk = mesh(tree, 'CylinderGeometry', [0.46, 0.62, 2.25, 12], m.bark, [0, 1.125, 0]);
+  // A narrowing leader reaches into the top crown and keeps it grounded in
+  // the trunk instead of leaving the highest foliage cluster floating.
+  mesh(tree, 'CylinderGeometry', [.09, .25, .98, 10], m.bark, [0, 2.62, 0]);
+  // Orient every root/fork between explicit endpoints so each radial limb
+  // connects the trunk to its crown or the ground in every quadrant.
+  const limbBetween = (start, end, bottom, top) => {
+    const direction = new THREE.Vector3(...end).sub(new THREE.Vector3(...start));
+    const limb = mesh(tree, 'CylinderGeometry', [top, bottom, direction.length(), 10], m.bark,
+      start.map((value, i) => (value + end[i]) / 2));
+    limb.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+  };
   for (let i = 0; i < 4; i++) {
     const a = i * Math.PI / 2 + variant * .17;
-    const root = cylinder(tree, m.bark, [Math.cos(a) * .31, .13, Math.sin(a) * .31], .16, .92, [0, 0, -Math.cos(a) * .8]);
-    root.rotation.z = Math.sin(a) * .8;
+    limbBetween([Math.cos(a) * .18, .32, Math.sin(a) * .18],
+      [Math.cos(a) * .65, .05, Math.sin(a) * .65], .2, .09);
   }
-  const branch = cylinder(tree, m.bark, [0.36, 1.67, 0], 0.22, 1.1, [0, 0, -0.72]);
-  branch.rotation.x = 0.2;
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2;
+    limbBetween([Math.cos(a) * .18, 1.45 + (i % 2) * .12, Math.sin(a) * .18],
+      [Math.cos(a) * .82, 2.44, Math.sin(a) * .82], .19, .11);
+  }
+  // Small uneven bark ridges and knots make the broad trunk read as
+  // hand-shaped clay even when its shared bark texture is distant.
+  for (let i = 0; i < 3; i++) {
+    const a = i * Math.PI * 2 / 3 + variant * .31;
+    const ridge = sculptedSphere(tree, m.bark,
+      [Math.cos(a) * .43, .62 + i * .43, Math.sin(a) * .43], [.065, .34, .06], .035);
+    ridge.rotation.y = a;
+  }
   const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant];
+  // Four lower crowns and one high crown leave branch forks exposed beneath
+  // and between them. Their silhouettes stay dense without merging into a dome.
   const canopy = [
-    [[0, 2.37, 0], [1.08, .92, .94]],
-    [[-.63, 2.05, .22], [.78, .69, .76]],
-    [[.68, 2.22, -.12], [.79, .73, .77]],
-    [[.08, 2.91, .08], [.68, .67, .7]],
-    [[-.2, 2.63, -.58], [.72, .61, .69]],
-    [[.62, 2.62, .54], [.7, .62, .66]],
+    [[-.82, 2.42, 0], [.46, .5, .46]],
+    [[.82, 2.42, 0], [.46, .5, .46]],
+    [[0, 2.42, -.82], [.46, .5, .46]],
+    [[0, 2.42, .82], [.46, .5, .46]],
+    [[.02, 3.09, .01], [.47, .5, .47]],
   ];
   for (const [position, scale] of canopy) sculptedSphere(tree, leaf, position, scale, .075);
-  // A handful of larger leaf-shaped lobes break the broad cloud silhouette;
-  // baking folds them into the same three foliage draws as the canopy.
-  for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI * 2 / 6 + variant * .21;
-    const form = sculptedSphere(tree, leaf, [Math.cos(a) * .85, 2.45 + (i % 2) * .22, Math.sin(a) * .75], [.34, .2, .4], .045);
-    form.rotation.y = a; form.rotation.z = (i % 2 ? 1 : -1) * .22;
+  // Pressed oval leaf marks sit on exposed sides of the separate crowns.
+  // Fifteen low-poly forms add detail without adding materials or submissions.
+  for (let i = 0; i < 15; i++) {
+    const a = i * 2.399963229728653 + variant * .27;
+    const cluster = canopy[i % canopy.length];
+    const center = cluster[0], scale = cluster[1];
+    const ny = ((i % 3) - 1) * .4, ring = Math.sqrt(1 - ny * ny);
+    const nx = Math.cos(a) * ring, nz = Math.sin(a) * ring;
+    // Follow the same sculpting field as the crown, inset enough to intersect
+    // its faceted shell. The thin axis follows the ellipsoid surface normal.
+    const sculpt = 1 + .075 * Math.sin(nx * 4.1 + nz * 2.8) * Math.cos(ny * 3.7 - nz * 1.3);
+    const normal = new THREE.Vector3(nx / scale[0], ny / scale[1], nz / scale[2]).normalize();
+    const leafMark = mesh(tree, 'SphereGeometry', [1, 6, 4], leaf,
+      [center[0] + nx * scale[0] * sculpt * .92,
+        center[1] + ny * scale[1] * sculpt * .92,
+        center[2] + nz * scale[2] * sculpt * .92],
+      [.16 + (i % 2) * .025, .09, .115]);
+    leafMark.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
   }
   return cachedModel(key, tree);
 }

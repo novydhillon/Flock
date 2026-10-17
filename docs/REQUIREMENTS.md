@@ -155,6 +155,7 @@ Status: the original P0/P1 batch and F-028 remain accepted for their deployed bu
 | F-039 | P2 | Independent 5-8s checks; 33% early,20% at41-70,25% at71+ wander odds; conditional bolt10% early,20% at41+. | **Done** | New user clarification supersedes former30%/50% ambiguity. See current revision table. |
 | F-040 | P1 | Remove all snow; select a fixed weather type once per level. Public level 9 starts light rain; later levels may become heavier. Public levels 16 and 24 are guaranteed heavy-rain/storm QA fixtures. Their use as permanent unlock thresholds and the seeded selection weights remain provisional tuning choices. | **Done**, user accepted 15 October 2026 at 16:34 Vancouver. | Implemented fixed kinds, no snow, public 9/16/24 QA anchors and seeded other-level selection. Later unlock numbers and weights remain tunable source choices; the current weather build was accepted on 15 October 2026 at 16:34 Vancouver. |
 | F-041 | P2 | Wanderers/bolters settle locally until actively herded. | **Done** | Cohesion/alignment suppressed; calm roaming within3m, collision/player/helper/delivery regressions implemented. |
+| F-054 | P2 | Refresh tree appearance with oak-like branched warm-brown clay trunks, distinct rounded green foliage clusters and small pressed oval leaf texture; retain handmade roots, grooves and knots. | **Review** on `pip_update`; visual user sign-off pending. | Development publication to `dev2/` is intended. Runtime `bf5bb48`; source regressions and both build-mode checks pass. Native appearance/FPS and user acceptance remain pending. |
 
 ### Decisions still open
 
@@ -310,3 +311,8 @@ The development-only QA launcher uses a gear icon centered at the bottom of the 
 ### F-053 - Pip reference model and hover rings
 
 On branch `pip_update`, replace player Pip with the reference-inspired angular silver robot dog: metal panels, expressive eyes, plate ears, black nose, blue tail light and four leg pods. No blue thruster flames. Each pod has three blue rings descending and fading in a repeating cycle. The top ring stays attached to Pip; the bottom ring trails his movement and the middle ring lies between. Preserve gameplay collision, control, bark and goal pointer behavior; Buddy retains its existing appearance.
+
+
+### F-054 - Oak-like handmade tree appearance
+
+Update tree visuals to use oak-like branching and warm-brown clay trunks, with multiple separated rounded green foliage clusters. Add a small pressed oval leaf texture and handmade trunk details such as exposed roots, grooves and knots. Preserve tree placement, collision footprints, route clearance and actor visibility. Assess texture/shadow cost and mobile performance as applicable. This is a visual request; no numeric dimensions or performance budget are specified.

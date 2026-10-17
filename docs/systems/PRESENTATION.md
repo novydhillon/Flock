@@ -225,3 +225,8 @@ F-052: `src/qa.js` owns the gear launcher and accessible QA/test-session identit
 ## Pip hover presentation (F-053)
 
 Player Pip uses a reference-inspired angular metallic shell, plate ears, expressive eyes and four fixed hover pods. Buddy keeps its walking model. Blue rings provide the thruster effect without flame meshes. Rendering owns the motion trail and does not change simulation position, collision or herding. Pause must freeze the effect; level recreation clears trail history.
+
+
+## Tree appearance request (F-054)
+
+The F-054 visual target is an oak-like branched tree with a warm-brown clay trunk, multiple separated rounded green foliage clusters, and small pressed oval leaf texture. Handmade roots, grooves and knots should remain legible at ordinary play scale. Implemented in `src/models.js` (`bf5bb48`) on the `pip_update` candidate: four radial forks support four lower crowns; a narrowing leader supports the upper crown. Explicit endpoint orientation spreads roots outward. Surface-normal leaf ovals intersect the sculpted crown shell. Three cached palette variants retain two baked meshes each (1,748 triangles); renderer placement, instancing and circular colliders are unchanged. Source validation passes; intended publication is `dev2/`, with native appearance/FPS still pending. The existing tree placement and gameplay collision contracts in [WORLD.md](WORLD.md) continue to apply. Prior F-020/F-021 acceptance remains intact; no new appearance sign-off is implied.

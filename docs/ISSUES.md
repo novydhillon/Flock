@@ -94,6 +94,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
+| F-053 | P2 | Presentation | Pip reference model and hover rings | Review | Phone appearance pending |
+| F-054 | P2 | Presentation | Branched clay trees with separate foliage crowns and pressed leaf detail | Review | Visual sign-off pending |
 
 ## Screenshot evidence
 
@@ -780,3 +782,20 @@ F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [389654
 
 
 F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the weathered dry-stone wall change deployed at Pages `29f48f3` (runtime source `1941302`). Marked Done; overview cells and detailed heading struck through under the tracker closure rule. This is user acceptance of the change, not an independent device/FPS measurement. F-034 seeded wall distribution remains Open.
+
+
+### F-054 - Oak-like handmade tree appearance (P2)
+
+**Status:** Review on `pip_update`; user visual sign-off pending. Development publication to `dev2/` is intended. Runtime source `bf5bb48` implements the candidate; 280/280 source tests and both artifact-mode checks pass. Independent source review: initial 6.5/10; corrected follow-up 9/10 with no remaining source defect. Documentation review 9/10. Publication evidence follows after live verification.
+
+**Requirement:** Give trees an oak-like, branched silhouette with warm-brown clay trunks and multiple separated rounded green foliage clusters. Add a small pressed oval leaf texture and handmade details such as exposed roots, grooves and knots.
+
+**Accept when:**
+- Trunks read clearly as branched oaks and use a warm-brown clay appearance.
+- Foliage reads as several distinct, rounded green clusters rather than one continuous blob.
+- Small pressed oval leaf texture and handmade roots, grooves and knots are visible at ordinary play scale.
+- Tree placement, gameplay collision, route clearance and actor visibility remain sound.
+- Texture/shadow cost and mobile performance are assessed within available evidence.
+- Novy reviews the intended development build and signs off the appearance.
+
+**Scope:** tree visual update only. No numeric dimensions, collision changes or performance thresholds were specified. Preserve prior F-020/F-021 acceptance; this request is a new appearance refinement.
