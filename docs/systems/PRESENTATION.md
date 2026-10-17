@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Pip size and ground glow follow-up
+
+The latest F-053 size target is 1.0125 (75% of the published 1.35), superseding the unfinished 33% edit. Pale silver steel/trim retain a lighter finish. Pods and rings scale with Pip; inverse-scaled halo/pointer retain world dimensions. A separate actor group holds four ground glows, projected beneath current world-space pod anchors using `terrainHeight` plus 0.025 clearance. Body bob and ring trails do not affect ground height. Four additive quads share one geometry and one radial-feather shader/material; there are no new scene lights or shadows. Existing owned-resource cleanup disposes shared resources once on level replacement. Native appearance/performance require device review.
+
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
 Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.

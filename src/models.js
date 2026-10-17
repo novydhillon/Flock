@@ -277,8 +277,8 @@ export function createDog() {
 // Pip has a separate constructor so Buddy keeps its established walking model.
 export function createPip() {
   const m = createMaterials(), shell = new THREE.Group();
-  const steel = new THREE.MeshStandardMaterial({color:'#a6b4b6',metalness:.72,roughness:.48});
-  const trim = new THREE.MeshStandardMaterial({color:'#667278',metalness:.8,roughness:.38});
+  const steel = new THREE.MeshStandardMaterial({color:'#dce4e5',metalness:.45,roughness:.55});
+  const trim = new THREE.MeshStandardMaterial({color:'#9caaae',metalness:.55,roughness:.45});
   box(shell,steel,[0,.83,-.06],[.62,.51,.92]);
   box(shell,trim,[0,1.095,-.08],[.64,.035,.8]);
   // Recessed seams and small rivets read as sheet-metal panels at game scale.

@@ -801,3 +801,5 @@ F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the we
 - Novy reviews the intended development build and signs off the appearance.
 
 **Scope:** tree visual update only. The numeric trunk-thickness endpoints and interpolation are specified above; other numeric geometry, collision changes and performance thresholds remain unspecified. Preserve prior F-020/F-021 acceptance; this request is a new appearance refinement.
+
+F-053 follow-up (16 October 2026): latest request is a 25% reduction from published Pip scale 1.35, replacing the unfinished earlier 33% size change. Worktree branch `pip_thruster_glow` uses scale 1.0125, retains the pending lighter silver finish and adds four soft ground-following blue thruster glows. Halo/pointer world size, Buddy and gameplay are unchanged. Review pending source checks and native visual acceptance; publication evidence belongs in QUALITY.md.

@@ -160,6 +160,70 @@ test('portrait camera keeps Pip visible when helpers move the flock far away',()
   assert.ok(Math.abs(position.y)<.8);
 });
 
+test('Pip size reduction preserves world-sized guidance graphics and adds grounded pod glows',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;
+  renderer.setLevel(level);
+  assert.ok(Math.abs(renderer.dog.scale.x-1.0125)<1e-9,'Pip is 25% smaller than the prior 1.35 scale');
+  renderer.update(level,dog,0,false);
+  renderer.scene.updateMatrixWorld(true);
+  for(const graphic of [renderer.dog.children.find(o=>o.isMesh&&o.geometry.type==='RingGeometry'),renderer.goalPointer]){
+    assert.ok(graphic,'halo and pointer remain present');
+    assert.ok(Math.abs(graphic.scale.x-4/3)<1e-9,'child compensation cancels the 25% parent reduction');
+  }
+  assert.ok(renderer.dogGlow?.isGroup,'Pip has a dedicated ground-glow group');
+  const glows=renderer.dogGlow.children.filter(o=>o.isMesh);
+  assert.equal(glows.length,4,'one soft glow mesh per thruster pod');
+  assert.ok(glows.every(o=>o.material.isShaderMaterial&&o.material.transparent&&o.material.blending===THREE.AdditiveBlending),
+    'soft glows use additive shader meshes, not point lights');
+  const glowMaterial=glows[0].material;
+  assert.ok(glows.every(o=>o.material===glowMaterial),'four pods share one glow material');
+  assert.ok(glowMaterial.uniforms.tint.value.b>glowMaterial.uniforms.tint.value.r*1.5,'glow tint is blue');
+  assert.match(glowMaterial.fragmentShader,/falloff\*falloff/,'shader feathers the glow softly toward its edge');
+  let lights=0;renderer.dogGlow.traverse(o=>{if(o.isLight)lights++;});assert.equal(lights,0);
+  const pods=renderer.dog.userData.parts.pods;
+  assert.equal(pods.length,4);
+  renderer.dog.rotation.y=.73;
+  for(const [x,z] of [[3,-4],[-8,6]]){
+    dog.x=x;dog.z=z;dog.heading=.73;dog.vx=0;dog.vz=0;
+    renderer.update(level,dog,.1,false);renderer.scene.updateMatrixWorld(true);
+    const positions=glows.map(g=>g.getWorldPosition(new THREE.Vector3()));
+    const expected=pods.map(p=>renderer.dog.localToWorld(p.clone()));
+    for(let i=0;i<4;i++){
+      assert.ok(Math.abs(positions[i].x-expected[i].x)<1e-5&&Math.abs(positions[i].z-expected[i].z)<1e-5,
+        'each glow tracks its corresponding pod through movement and heading');
+      assert.ok(Math.abs(positions[i].y-(terrainHeight(level,positions[i].x,positions[i].z)+.025))<1e-5,
+        'glow sits just above the terrain rather than bobbing with Pip');
+    }
+  }
+  // A paused update still keeps the glows attached at their current ground positions.
+  const before=glows.map(g=>g.getWorldPosition(new THREE.Vector3()).toArray());
+  renderer.update(level,dog,0,false);renderer.scene.updateMatrixWorld(true);
+  glows.forEach((g,i)=>assert.ok(g.getWorldPosition(new THREE.Vector3()).distanceTo(new THREE.Vector3(...before[i]))<1e-6));
+  const bridgeLevel=createLevel(5),bridge=bridgeLevel.rivers.flatMap(r=>r.bridges)[0];
+  assert.ok(bridge,'bridge regression fixture includes a river crossing');
+  renderer.setLevel(bridgeLevel);
+  bridgeLevel.dog.x=bridge.x;bridgeLevel.dog.z=bridge.z;bridgeLevel.dog.heading=bridge.heading;
+  renderer.update(bridgeLevel,bridgeLevel.dog,0,false);renderer.scene.updateMatrixWorld(true);
+  const bridgePositions=renderer.dogGlow.children.map(g=>g.getWorldPosition(new THREE.Vector3()));
+  assert.equal(bridgePositions.length,4);
+  for(const p of bridgePositions){
+    const surface=terrainHeight(bridgeLevel,p.x,p.z);
+    assert.ok(surface>0,'test pod lies over the raised bridge deck');
+    assert.ok(Math.abs(p.y-(surface+.025))<1e-5,'bridge glow follows the raised terrain surface');
+  }
+  renderer.update(bridgeLevel,bridgeLevel.dog,0,false);renderer.scene.updateMatrixWorld(true);
+  renderer.dogGlow.children.forEach((g,i)=>assert.ok(g.getWorldPosition(new THREE.Vector3()).distanceTo(bridgePositions[i])<1e-6,
+    'paused bridge update preserves each ground-glow position'));
+  const currentGlows=renderer.dogGlow.children.filter(o=>o.isMesh);
+  const ownedGeometry=new Set(currentGlows.map(g=>g.geometry)),ownedMaterial=new Set(currentGlows.map(g=>g.material));
+  let geometriesDisposed=0,materialsDisposed=0;
+  ownedGeometry.forEach(g=>g.addEventListener('dispose',()=>geometriesDisposed++));
+  ownedMaterial.forEach(m=>m.addEventListener('dispose',()=>materialsDisposed++));
+  renderer.setLevel(createLevel(1));
+  assert.equal(geometriesDisposed,ownedGeometry.size,'private glow geometries are disposed on replacement');
+  assert.equal(materialsDisposed,ownedMaterial.size,'private glow materials are disposed on replacement');
+});
+
 
 function sceneBudget(renderer){
   renderer.scene.updateMatrixWorld(true);renderer.camera.updateMatrixWorld(true);

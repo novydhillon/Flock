@@ -174,11 +174,26 @@ export class MeadowRenderer{
     this.nature.setLevel(level);
     this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
     this.batchScenery();
-    this.dog=createPip();this.dog.scale.setScalar(1.35);this.actors.add(this.dog);
-    const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
+    this.dog=createPip();this.dog.scale.setScalar(1.35*.75);this.actors.add(this.dog);
+    const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.scale.setScalar(1/.75);halo.rotation.x=-Math.PI/2;halo.position.y=.03/.75;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
     const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
     this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
-    this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
+    this.goalPointer.scale.setScalar(1/.75);this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
+    // Four soft additive decals, not scene lights: bounded cost and no shadows.
+    // World-space placement keeps the glow on the ground rather than bobbing
+    // with Pip or trailing behind him with the descending rings.
+    this.dogGlow=new THREE.Group();this.dogGlow.name='Pip thruster ground glow';this.actors.add(this.dogGlow);
+    const glowGeometry=new THREE.PlaneGeometry(.7,.7);
+    const glowMaterial=new THREE.ShaderMaterial({
+      uniforms:{tint:{value:new THREE.Color('#39bfff')},opacity:{value:.46}},
+      vertexShader:'varying vec2 glowUv; void main(){glowUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+      fragmentShader:'uniform vec3 tint; uniform float opacity; varying vec2 glowUv; void main(){float falloff=max(0.0,1.0-length(glowUv-0.5)*2.0);gl_FragColor=vec4(tint,opacity*falloff*falloff);}',
+      transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+    });
+    for(const pod of this.dog.userData.parts.pods){
+      const glow=new THREE.Mesh(glowGeometry,glowMaterial);glow.rotation.x=-Math.PI/2;glow.scale.setScalar(this.dog.scale.x);
+      glow.userData.ownedGeometry=glow.userData.ownedMaterial=true;this.dogGlow.add(glow);
+    }
     for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
@@ -279,11 +294,15 @@ export class MeadowRenderer{
     // Cancel the dog's heading so the triangle always faces the goal in world space.
     this.goalPointer.rotation.set(Math.PI/2,0,0);
     this.goalPointer.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),Math.atan2(level.target.x-dog.x,level.target.z-dog.z)-this.dog.rotation.y));
-    this.goalPointer.position.y=.04;
+    this.goalPointer.position.y=.04/.75;
     this.goalPointer.visible=!preview;
     const parts=this.dog.userData.parts;
     const poseTime=Math.floor(this.time*12)/12;
     updatePipHover(this.dog,dt);parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
+    parts.pods.forEach((pod,i)=>{
+      const anchor=this.dog.localToWorld(pod.clone());
+      this.dogGlow.children[i].position.set(anchor.x,terrainHeight(level,anchor.x,anchor.z)+.025,anchor.z);
+    });
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
     this.updateBarks(dt);
     for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Number.isFinite(h.heading))m.rotation.y=h.heading;else if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,(this.barkEffects||[]).some(e=>e.buddy));}}
