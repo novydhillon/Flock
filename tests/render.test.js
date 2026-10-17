@@ -90,7 +90,7 @@ test('trees share tubular skeleton geometry and grow varied overlapping clay cro
       assert.equal(part.geometry,clone.children[i].geometry,'immutable geometry is shared across repeated models');
       assert.ok([...part.geometry.attributes.position.array].every(Number.isFinite));
       geometries.add(part.geometry);
-      if(part.material===models.createMaterials().bark)woodGeometries.add(part.geometry);
+      if(part.name==='tree-wood')woodGeometries.add(part.geometry);
       triangles+=(part.geometry.index?.count||part.geometry.attributes.position.count)/3;
     });
     assert.ok(triangles<2300,`compact skeleton and foliage: ${triangles}`);
@@ -103,51 +103,71 @@ test('trees share tubular skeleton geometry and grow varied overlapping clay cro
     assert.ok(new Set(crowns.filter(c=>c.radial>1).map(c=>c.size.toFixed(3))).size>2,'similarly radial crowns still vary');
     if(tier)assert.ok(triangles>models.createTree(palette,0).children.reduce((n,o)=>n+(o.geometry.index?.count||o.geometry.attributes.position.count)/3,0));
   }
-  assert.equal(woodGeometries.size,2,'all limbs and joints use two shared unit geometries');
-  assert.equal(geometries.size,11,'nine foliage meshes plus two shared skeleton geometries');
+  assert.equal(woodGeometries.size,3,'each orientation has one welded shared wood surface');
+  assert.equal(geometries.size,12,'nine foliage meshes plus three shared wood geometries');
 });
 
-test('connected bent tree forks obey the area rule after actual instance radial transforms',()=>{
-  const renderer=setup(),base=models.createTree(0,0);
-  assert.ok(Math.abs(models.treeTrunkFactor(1.015)-.7)<1e-12);
-  assert.ok(Math.abs(models.treeTrunkFactor((1.015+3.1)/2)-.8)<1e-12);
-  assert.ok(Math.abs(models.treeTrunkFactor(3.1)-.9)<1e-12);
-  const heights=base.userData.forks.map(f=>f.point[1]);
-  assert.ok(heights.every((h,i)=>!i||h>heights[i-1]+.3),'forks occur at staggered trunk heights');
-  for(const [scale,factor] of [[1.015,.7],[(1.015+3.1)/2,.8],[3.1,.9]]){
-    const instance=renderer.place(models.createTree(0,0),0,0,scale);
-    instance.updateMatrixWorld(true);
-    for(const part of instance.children){
-      if(!part.userData.limb)continue;
-      const original=base.getObjectByName(part.name),limb=part.userData.limb;
-      assert.equal(part.geometry,original.geometry);
-      assert.ok(Math.abs(part.scale.x/limb.bottom-factor)<1e-12);
-      assert.equal(part.scale.y,original.scale.y,'thickness changes preserve segment reach');
-      assert.deepEqual(part.position.toArray(),original.position.toArray());
-      const start=new THREE.Vector3(0,-.5,0).applyMatrix4(part.matrixWorld);
-      const end=new THREE.Vector3(0,.5,0).applyMatrix4(part.matrixWorld);
-      assert.ok(start.distanceTo(new THREE.Vector3(...limb.start).multiplyScalar(scale))<1e-10);
-      assert.ok(end.distanceTo(new THREE.Vector3(...limb.end).multiplyScalar(scale))<1e-10);
+test('tree widths affect actual connected wood without changing branch reach or bush materials',()=>{
+  const renderer=setup(),base=models.createTree(0,0),baseWood=base.getObjectByName('tree-wood');
+  const material=models.createMaterials();
+  assert.notEqual(material.treeWood,material.bark);
+  assert.equal(material.bark.userData.treeWidth,undefined,'bush bark does not require tree shader attributes');
+  assert.ok(material.bark.map&&material.bark.bumpMap);
+  assert.equal(material.treeWood.map,null,'welded forks have no stretched UV bark seams');
+  assert.equal(material.treeWood.bumpMap,null);
+  for(const scale of [1.015,1.1,1.67,(1.015+3.1)/2,2.73,3.1]){
+    const factor=.7+.2*(scale-1.015)/(3.1-1.015);
+    assert.ok(Math.abs(models.treeTrunkFactor(scale)-factor)<1e-12,'width factor is continuous and linear');
+    const instance=renderer.place(models.createTree(0,0),0,0,scale),wood=instance.getObjectByName('tree-wood');
+    assert.equal(wood.geometry,baseWood.geometry);
+    assert.notEqual(wood.material,baseWood.material,'standalone trees have independent uniforms');
+    assert.ok(Math.abs(wood.material.userData.treeWidth.value-factor)<1e-12);
+    assert.ok(Math.abs(wood.userData.treeWidth-factor)<1e-12);
+    const deformed=models.deformTreeGeometry(wood.geometry,factor),p=deformed.attributes.position,c=wood.geometry.attributes.treeCenter;
+    for(const fork of wood.geometry.userData.forks){
+      const radius=(ids,center)=>ids.reduce((n,id)=>n+new THREE.Vector3().fromBufferAttribute(p,id).distanceTo(new THREE.Vector3(...center)),0)/ids.length*scale;
+      const parent=radius(fork.parentRing,[c.getX(fork.parentRing[0]),c.getY(fork.parentRing[0]),c.getZ(fork.parentRing[0])]);
+      const continuing=radius(fork.continuingRing,[c.getX(fork.continuingRing[0]),c.getY(fork.continuingRing[0]),c.getZ(fork.continuingRing[0])]);
+      const branch=radius(fork.branchRings[0].indices,fork.branchRings[0].center);
+      assert.ok(Math.abs(parent**2-continuing**2-branch**2)<parent**2*2e-6,'actual deformed cross sections obey Leonardo including the continuing trunk');
+      for(const ring of fork.branchRings){
+        const centroid=ring.indices.reduce((v,id)=>v.add(new THREE.Vector3().fromBufferAttribute(p,id)),new THREE.Vector3()).multiplyScalar(1/ring.indices.length);
+        assert.ok(centroid.distanceTo(new THREE.Vector3(...ring.center))<1e-6,'width never changes branch reach');
+      }
     }
-    for(const fork of instance.userData.forks){
-      const parent=instance.getObjectByName(fork.incoming),children=fork.outgoing.map(name=>instance.getObjectByName(name));
-      const actualRadius=(mesh,top=false)=>{
-        const y=top?.5:-.5,positions=mesh.geometry.attributes.position;
-        let radius=0;
-        for(let i=0;i<positions.count;i++)if(Math.abs(positions.getY(i)-y)<1e-6){
-          const local=new THREE.Vector3(positions.getX(i),0,positions.getZ(i));
-          local.multiply(new THREE.Vector3(mesh.scale.x,0,mesh.scale.z));radius=Math.max(radius,local.length()*scale);
-        }
-        return radius;
-      };
-      const parentRadius=actualRadius(parent,true),childArea=children.reduce((n,child)=>n+actualRadius(child)**2,0);
-      assert.ok(Math.abs(parentRadius**2-childArea)<parentRadius**2*1e-6,'actual mesh cross sections include the continuing trunk in Leonardo area law');
-      children.forEach(child=>assert.deepEqual(child.userData.limb.start,parent.userData.limb.end,'outgoing limbs meet their parent endpoint'));
-    }
-    const limbDirections=instance.children.filter(o=>o.name.startsWith('tree-branch-1')).map(o=>o.quaternion.toArray().join(','));
-    assert.equal(new Set(limbDirections).size,3,'branch changes direction along its connected path');
+    deformed.dispose();
   }
-  assert.equal(base.getObjectByName('tree-trunk').scale.x,.62,'cached model is never mutated');
+  assert.equal(baseWood.material.userData.treeWidth.value,1,'standalone uniforms do not leak between trees');
+});
+
+test('tree instance widths compact with visible poses, restore after culling and dispose with their batch',()=>{
+  const renderer=setup();renderer.sceneryBatches=[];
+  const source=models.createTree(0,0).getObjectByName('tree-wood').geometry;
+  let privateDisposals=0,batchDisposals=0,sharedDisposals=0;
+  source.addEventListener('dispose',()=>sharedDisposals++);
+  for(const [x,scale]of [[0,1.015],[10000,1.75],[2,3.1]]){
+    const tree=renderer.place(models.createTree(0,0),x,0,scale);
+    tree.getObjectByName('tree-wood').material.addEventListener('dispose',()=>privateDisposals++);
+  }
+  renderer.batchScenery();
+  assert.equal(privateDisposals,3,'temporary standalone materials are released when replaced by the shared batch material');
+  const record=renderer.sceneryBatches.find(v=>v.widths),{batch,widths,matrices}=record;
+  assert.equal(batch.material,models.createMaterials().treeWood);
+  assert.notEqual(batch.geometry,source,'instance width buffer belongs to this level');
+  assert.equal(source.attributes.treeInstanceWidth,undefined,'cached source has no mutable instance attributes');
+  assert.deepEqual([...widths],[Math.fround(.7),Math.fround(models.treeTrunkFactor(1.75)),Math.fround(.9)]);
+  renderer.camera.position.set(0,6,15);renderer.camera.lookAt(0,2,0);renderer.cullScenery();
+  assert.equal(batch.count,2);
+  assert.deepEqual([...batch.geometry.attributes.treeInstanceWidth.array.slice(0,2)],[widths[0],widths[2]]);
+  assert.deepEqual([...batch.instanceMatrix.array.slice(16,32)],[...matrices.slice(32,48)]);
+  renderer.camera.position.set(10000,6,15);renderer.camera.lookAt(10000,2,0);renderer.cullScenery();
+  assert.equal(batch.count,1);assert.equal(batch.geometry.attributes.treeInstanceWidth.array[0],widths[1]);
+  assert.deepEqual([...batch.instanceMatrix.array.slice(0,16)],[...matrices.slice(16,32)]);
+  renderer.camera.position.set(0,6,15);renderer.camera.lookAt(0,2,0);renderer.cullScenery();
+  assert.equal(batch.count,2);assert.equal(batch.geometry.attributes.treeInstanceWidth.array[1],widths[2]);
+  batch.geometry.addEventListener('dispose',()=>batchDisposals++);
+  renderer.setLevel(createLevel(0));
+  assert.equal(batchDisposals,1);assert.equal(sharedDisposals,0);
 });
 
 test('trees have deterministic independent full-yaw rotations in both placement populations',()=>{

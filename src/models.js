@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { createTreeWood, configureTreeMaterial } from './tree-geometry.js';
+export { deformTreeGeometry } from './tree-geometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Rounded sculpted forms and tiny enamel/brass details give the machines a
@@ -165,10 +167,14 @@ export function createMaterials() {
   const grain = woodTexture();
   for (const name of ['wood', 'paleWood']) materialCache[name].map = grain;
   const bark = barkTexture();
-  materialCache.bark.map = bark;
-  materialCache.bark.bumpMap = bark;
+  materialCache.bark.map = materialCache.bark.bumpMap = bark;
   materialCache.bark.bumpScale = .055;
-  materialCache.bark.needsUpdate = true;
+  // Forks have no global cylindrical UV chart. Their dedicated material uses
+  // subtle, seam-free vertex grain; ordinary bush stems retain their bark UVs.
+  materialCache.treeWood = materialCache.bark.clone();
+  materialCache.treeWood.map = materialCache.treeWood.bumpMap = null;
+  materialCache.treeWood.vertexColors = true;
+  configureTreeMaterial(materialCache.treeWood);
   const foliage = foliageTexture();
   for (const name of ['leaves', 'leavesLight', 'leavesDark']) materialCache[name].map = foliage;
   materialCache.leaves.needsUpdate = materialCache.leavesLight.needsUpdate = materialCache.leavesDark.needsUpdate = true;
@@ -443,62 +449,17 @@ export function createTree(variant = 0, maturity = 0) {
   variant = Math.abs(Math.floor(variant)) % 3;
   const tier = Math.max(0, Math.min(2, Math.round(maturity)));
   const key = `tree:${variant}:${tier}`;
-  if (modelCache.has(key)) return modelCache.get(key).clone();
+  if (modelCache.has(key)) return cloneTree(modelCache.get(key));
   const m = createMaterials(), tree = new THREE.Group();
   tree.name = 'clay tree';
-  tree.userData.forks = [];
-  const taper = .82, up = new THREE.Vector3(0, 1, 0);
-  // Every limb shares one open unit frustum. Local radial transforms preserve
-  // circular sections even on tilted limbs and keep instancing/cache bounded.
-  const segment = (start, end, radius, name) => {
-    const direction = new THREE.Vector3(...end).sub(new THREE.Vector3(...start));
-    const limb = mesh(tree, 'CylinderGeometry', [taper, 1, 1, 6, 1, true], m.bark,
-      start.map((value, i) => (value + end[i]) / 2), [radius, direction.length(), radius]);
-    limb.name = name;
-    limb.quaternion.setFromUnitVectors(up, direction.normalize());
-    limb.userData.treeRadialScale = limb.scale.toArray();
-    limb.userData.limb = { start, end, bottom: radius, top: radius * taper };
-    return limb;
-  };
-  const joint = (point, radius) => {
-    const cover = mesh(tree, 'SphereGeometry', [1, 6, 3], m.bark, point, [radius, radius, radius]);
-    cover.userData.treeJointScale = cover.scale.toArray();
-  };
-  const trunkPoints = [[0, -.03, 0], [.025, .58, -.025], [.07, 1.12, -.035],
-    [.12, 1.51, .015], [.08, 1.88, .065], [.035, 2.23, .09], [.08, 2.66, .065], [.14, 3.12, .02]];
-  const tips = [];
-  let radius = .62;
-  for (let i = 0; i < trunkPoints.length - 1; i++) {
-    const incoming = segment(trunkPoints[i], trunkPoints[i + 1], radius, i === 0 ? 'tree-trunk' : `tree-leader-${i}`);
-    radius *= taper;
-    joint(trunkPoints[i + 1], radius);
-    if (i < 1 || i > 4) continue;
-    const point = trunkPoints[i + 1], angle = (i - 1) * 2.399963 + variant * .33;
-    const branchRadius = radius * .6;
-    const continuingRadius = Math.sqrt(radius * radius - branchRadius * branchRadius);
-    const end = [point[0] + Math.cos(angle) * 1.08, 2.43 + (i - 1) * .13, point[2] + Math.sin(angle) * 1.08];
-    const path = [point,
-      [point[0] + Math.cos(angle - .12) * .39, point[1] + (end[1] - point[1]) * .3, point[2] + Math.sin(angle - .12) * .39],
-      [point[0] + Math.cos(angle + .05) * .79, point[1] + (end[1] - point[1]) * .7, point[2] + Math.sin(angle + .05) * .79], end];
-    let limbRadius = branchRadius;
-    const branchName = `tree-branch-${i}`;
-    for (let j = 0; j < 3; j++) {
-      segment(path[j], path[j + 1], limbRadius, `${branchName}-${j}`);
-      limbRadius *= taper; joint(path[j + 1], limbRadius);
-    }
-    tree.userData.forks.push({ incoming: incoming.name, outgoing: [`tree-leader-${i + 1}`, `${branchName}-0`],
-      parentRadius: radius, childRadii: [continuingRadius, branchRadius], point });
-    radius = continuingRadius;
-    tips.push(end);
-  }
-  // Low roots intersect the bent trunk; their exposed ends disappear in soil.
-  for (let i = 0; i < 4; i++) {
-    const angle = i * Math.PI / 2 + variant * .17;
-    const start = [Math.cos(angle) * .23, .23, Math.sin(angle) * .23];
-    const middle = [Math.cos(angle) * .48, .12, Math.sin(angle) * .48];
-    segment(start, middle, .2, `tree-root-${i}-0`); joint(middle, .2 * taper);
-    segment(middle, [Math.cos(angle) * .7, -.015, Math.sin(angle) * .7], .2 * taper, `tree-root-${i}-1`);
-  }
+  const wood = new THREE.Mesh(createTreeWood(variant), m.treeWood);
+  wood.name = 'tree-wood';
+  wood.userData.treeWidth = 1;
+
+  wood.castShadow = false; wood.receiveShadow = true;
+  tree.add(wood);
+  tree.userData.forks = wood.geometry.userData.forks;
+  const tips = wood.geometry.userData.tips, up = new THREE.Vector3(0, 1, 0);
   const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant];
   // Three overlapping central crowns avoid a single ball on a pole. Peripheral
   // crowns sit on branch tips, with seeded size variation at the same radius.
@@ -530,7 +491,18 @@ export function createTree(variant = 0, maturity = 0) {
   }));
   tree.add(bakedFoliage);
   modelCache.set(key, tree);
-  return tree.clone();
+  return cloneTree(tree);
+}
+
+function cloneTree(template) {
+  const tree = template.clone(), wood = tree.getObjectByName('tree-wood');
+  // A standalone tree owns its width uniform. Shared-material onBeforeRender
+  // updates can be skipped by Three's uniform cache between consecutive draws.
+  // Scenery batching disposes these private materials and uses treeWood again.
+  wood.material = wood.material.clone();
+  configureTreeMaterial(wood.material);
+  wood.userData.ownedMaterial = true;
+  return tree;
 }
 
 export function createBarn() {

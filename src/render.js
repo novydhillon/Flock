@@ -66,7 +66,7 @@ export class MeadowRenderer{
     this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.waterEffects=new WaterEffects(this.scene);
   }
   resize(){this.width=innerWidth;this.height=innerHeight;this.renderer.setSize(this.width,this.height,false);this.aspect=this.width/this.height;}
-  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.treeRadialScale){const [x,y,z]=o.userData.treeRadialScale,factor=treeTrunkFactor(scale);o.scale.set(x*factor,y,z*factor);}if(o.userData.treeJointScale){o.scale.fromArray(o.userData.treeJointScale).multiplyScalar(treeTrunkFactor(scale));}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
+  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.treeWidth!==undefined){o.userData.treeWidth=treeTrunkFactor(scale);o.material.userData.treeWidth.value=o.userData.treeWidth;}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
     this.level=level;this.barkEffects=[];
@@ -228,14 +228,19 @@ export class MeadowRenderer{
       bounds.set([sphere.center.x,sphere.center.y,sphere.center.z,sphere.radius],i*4);
     }
     batch.instanceMatrix.setUsage(THREE.DynamicDrawUsage);batch.frustumCulled=false;
-    this.sceneryBatches.push({batch,matrices,bounds});
+    const widths=batch.geometry.attributes.treeInstanceWidth?.array.slice();
+    this.sceneryBatches.push({batch,matrices,bounds,widths});
   }
   batchScenery(){
     this.terrain.updateMatrixWorld(true);const groups=new Map();
-    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
+    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.userData.treeWidth!==undefined?'treeWood':o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
     for(const pieces of groups.values()){
-      if(pieces.length<2)continue;const first=pieces[0],batch=new THREE.InstancedMesh(first.geometry,first.material,pieces.length);
-      pieces.forEach((piece,i)=>{batch.setMatrixAt(i,piece.matrixWorld);piece.parent.remove(piece);});
+      if(pieces.length<2&&pieces[0].userData.treeWidth===undefined)continue;const first=pieces[0],wood=first.userData.treeWidth!==undefined;
+      const geometry=wood?first.geometry.clone():first.geometry;
+      if(wood)geometry.setAttribute('treeInstanceWidth',new THREE.InstancedBufferAttribute(new Float32Array(pieces.map(piece=>piece.userData.treeWidth)),1).setUsage(THREE.DynamicDrawUsage));
+      const batch=new THREE.InstancedMesh(geometry,wood?createMaterials().treeWood:first.material,pieces.length);
+      if(wood){batch.userData.ownedGeometry=true;batch.userData.treeWood=true;}
+      pieces.forEach((piece,i)=>{batch.setMatrixAt(i,piece.matrixWorld);if(wood&&piece.userData.ownedMaterial)piece.material.dispose();piece.parent.remove(piece);});
       batch.castShadow=!!first.userData.fencePart;batch.receiveShadow=true;this.terrain.add(batch);this.trackScenery(batch);
     }
     // Empty model wrappers no longer need a matrix traversal every frame.
@@ -244,16 +249,19 @@ export class MeadowRenderer{
   cullScenery(){
     this.camera.updateMatrixWorld(true);this.viewMatrix.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse);this.sceneryFrustum.setFromProjectionMatrix(this.viewMatrix);
     const planes=this.sceneryFrustum.planes;
-    for(const {batch,matrices,bounds} of this.sceneryBatches){
+    for(const {batch,matrices,bounds,widths} of this.sceneryBatches){
       let count=0;
       for(let i=0;i<bounds.length;i+=4){
         // Two world units retain edge silhouettes and short fence shadows.
         const radius=bounds[i+3]+2;
         if(planes.some(p=>p.normal.x*bounds[i]+p.normal.y*bounds[i+1]+p.normal.z*bounds[i+2]+p.constant < -radius))continue;
-        batch.instanceMatrix.array.set(matrices.subarray(i*4,i*4+16),count++*16);
+        batch.instanceMatrix.array.set(matrices.subarray(i*4,i*4+16),count*16);
+        if(widths)batch.geometry.attributes.treeInstanceWidth.array[count]=widths[i/4];
+        count++;
       }
       batch.count=count;batch.visible=count>0;batch.instanceMatrix.needsUpdate=true;
       batch.instanceMatrix.clearUpdateRanges();if(count)batch.instanceMatrix.addUpdateRange(0,count*16);
+      if(widths){const attribute=batch.geometry.attributes.treeInstanceWidth;attribute.needsUpdate=true;attribute.clearUpdateRanges();if(count)attribute.addUpdateRange(0,count);}
     }
   }
   updateAnimalBatches(level,poseTime){
