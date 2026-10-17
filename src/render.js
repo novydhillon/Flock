@@ -63,7 +63,7 @@ export class MeadowRenderer{
     this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.waterEffects=new WaterEffects(this.scene);
   }
   resize(){this.width=innerWidth;this.height=innerHeight;this.renderer.setSize(this.width,this.height,false);this.aspect=this.width/this.height;}
-  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.trunkThickness){const factor=treeTrunkFactor(scale);o.scale.set(factor,1,factor);}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
+  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.treeRadialScale){const [x,y,z]=o.userData.treeRadialScale,factor=treeTrunkFactor(scale);o.scale.set(x*factor,y,z*factor);}if(o.userData.treeJointScale){o.scale.fromArray(o.userData.treeJointScale).multiplyScalar(treeTrunkFactor(scale));}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
     this.level=level;this.barkEffects=[];
@@ -74,7 +74,8 @@ export class MeadowRenderer{
     for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)materials.add(o.material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
     geometries.forEach(g=>g?.dispose());materials.forEach(m=>m?.dispose());
     this.terrain.clear();this.actors.clear();this.sceneryBatches=[];this.helperMeshes.clear();this.animalMeshes=[];this.animalBatches=[];this.particles=[];
-    const b=level.bounds,w=b.maxX-b.minX,d=b.maxZ-b.minZ,r=rng(level.seed),cx=(b.maxX+b.minX)/2,cz=(b.maxZ+b.minZ)/2;
+    // Orientation has its own stream so scenery positions and palette draws stay stable.
+    const b=level.bounds,w=b.maxX-b.minX,d=b.maxZ-b.minZ,r=rng(level.seed),treeRotation=rng(level.seed^0x746565),cx=(b.maxX+b.minX)/2,cz=(b.maxZ+b.minZ)/2;
     const ground=this.flat(new THREE.PlaneGeometry(w+90,d+90,1,1),this.grass,cx,cz,-.035);ground.userData.ownedGeometry=true;
     this.grass.map.repeat.set((w+90)/15,(d+90)/15);this.grass.bumpMap.repeat.copy(this.grass.map.repeat);
     for(const spec of level.sceneryHills||[]){
@@ -132,7 +133,7 @@ export class MeadowRenderer{
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
-      const treeScale=obstacle.radius*1.45;this.place(createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2),obstacle.x,obstacle.z,treeScale);
+      const treeScale=obstacle.radius*1.45;const tree=createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,obstacle.x,obstacle.z,treeScale);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.place(createBush(i),obstacle.x+Math.cos(angle)*obstacle.radius*.48,obstacle.z+Math.sin(angle)*obstacle.radius*.48,obstacle.radius*.7);}
     }
@@ -168,7 +169,7 @@ export class MeadowRenderer{
     const sceneryCount=Math.min(62,28+Math.floor(level.index/3));for(let i=0;i<sceneryCount;i++){
       let x,z;const side=i%4;
       if(side<2){x=b.minX-12+r()*(w+24);z=side===0?b.minZ-4-r()*17:b.maxZ+4+r()*17;}else{x=side===2?b.minX-5-r()*18:b.maxX+5+r()*18;z=b.minZ+r()*d;}
-      if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;const treeScale=1.3+r()*1.8;this.place(createTree(i%3,treeScale<1.7?0:treeScale<2.4?1:2),x,z,treeScale);
+      if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;const treeScale=1.3+r()*1.8;const tree=createTree(i%3,treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,x,z,treeScale);
     }
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
     this.nature.setLevel(level);

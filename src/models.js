@@ -444,110 +444,93 @@ export function createTree(variant = 0, maturity = 0) {
   const tier = Math.max(0, Math.min(2, Math.round(maturity)));
   const key = `tree:${variant}:${tier}`;
   if (modelCache.has(key)) return modelCache.get(key).clone();
-  const m = createMaterials();
-  const tree = new THREE.Group();
-  // Broad roots, a tapered trunk and stout branches make the tree silhouette
-  // read at the normal orthographic camera distance. The renderer scales its
-  // base against the existing circular trunk collider.
-  const trunk = mesh(tree, 'CylinderGeometry', [0.46, 0.62, 2.25, 12], m.bark, [0, 1.125, 0]);
-  trunk.userData.trunkThickness = true;
-  // A narrowing leader reaches into the top crown and keeps it grounded in
-  // the trunk instead of leaving the highest foliage cluster floating.
-  const leader = mesh(tree, 'CylinderGeometry', [.09, .25, .98, 10], m.bark, [0, 2.62, 0]);
-  leader.userData.trunkThickness = true;
-  // Orient every root/fork between explicit endpoints so each radial limb
-  // connects the trunk to its crown or the ground in every quadrant.
-  const limbBetween = (start, end, bottom, top) => {
+  const m = createMaterials(), tree = new THREE.Group();
+  tree.name = 'clay tree';
+  tree.userData.forks = [];
+  const taper = .82, up = new THREE.Vector3(0, 1, 0);
+  // Every limb shares one open unit frustum. Local radial transforms preserve
+  // circular sections even on tilted limbs and keep instancing/cache bounded.
+  const segment = (start, end, radius, name) => {
     const direction = new THREE.Vector3(...end).sub(new THREE.Vector3(...start));
-    const limb = mesh(tree, 'CylinderGeometry', [top, bottom, direction.length(), 10], m.bark,
-      start.map((value, i) => (value + end[i]) / 2));
-    limb.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+    const limb = mesh(tree, 'CylinderGeometry', [taper, 1, 1, 6, 1, true], m.bark,
+      start.map((value, i) => (value + end[i]) / 2), [radius, direction.length(), radius]);
+    limb.name = name;
+    limb.quaternion.setFromUnitVectors(up, direction.normalize());
+    limb.userData.treeRadialScale = limb.scale.toArray();
+    limb.userData.limb = { start, end, bottom: radius, top: radius * taper };
+    return limb;
   };
-  for (let i = 0; i < 4; i++) {
-    const a = i * Math.PI / 2 + variant * .17;
-    limbBetween([Math.cos(a) * .18, .32, Math.sin(a) * .18],
-      [Math.cos(a) * .65, .05, Math.sin(a) * .65], .2, .09);
+  const joint = (point, radius) => {
+    const cover = mesh(tree, 'SphereGeometry', [1, 6, 3], m.bark, point, [radius, radius, radius]);
+    cover.userData.treeJointScale = cover.scale.toArray();
+  };
+  const trunkPoints = [[0, -.03, 0], [.025, .58, -.025], [.07, 1.12, -.035],
+    [.12, 1.51, .015], [.08, 1.88, .065], [.035, 2.23, .09], [.08, 2.66, .065], [.14, 3.12, .02]];
+  const tips = [];
+  let radius = .62;
+  for (let i = 0; i < trunkPoints.length - 1; i++) {
+    const incoming = segment(trunkPoints[i], trunkPoints[i + 1], radius, i === 0 ? 'tree-trunk' : `tree-leader-${i}`);
+    radius *= taper;
+    joint(trunkPoints[i + 1], radius);
+    if (i < 1 || i > 4) continue;
+    const point = trunkPoints[i + 1], angle = (i - 1) * 2.399963 + variant * .33;
+    const branchRadius = radius * .6;
+    const continuingRadius = Math.sqrt(radius * radius - branchRadius * branchRadius);
+    const end = [point[0] + Math.cos(angle) * 1.08, 2.43 + (i - 1) * .13, point[2] + Math.sin(angle) * 1.08];
+    const path = [point,
+      [point[0] + Math.cos(angle - .12) * .39, point[1] + (end[1] - point[1]) * .3, point[2] + Math.sin(angle - .12) * .39],
+      [point[0] + Math.cos(angle + .05) * .79, point[1] + (end[1] - point[1]) * .7, point[2] + Math.sin(angle + .05) * .79], end];
+    let limbRadius = branchRadius;
+    const branchName = `tree-branch-${i}`;
+    for (let j = 0; j < 3; j++) {
+      segment(path[j], path[j + 1], limbRadius, `${branchName}-${j}`);
+      limbRadius *= taper; joint(path[j + 1], limbRadius);
+    }
+    tree.userData.forks.push({ incoming: incoming.name, outgoing: [`tree-leader-${i + 1}`, `${branchName}-0`],
+      parentRadius: radius, childRadii: [continuingRadius, branchRadius], point });
+    radius = continuingRadius;
+    tips.push(end);
   }
+  // Low roots intersect the bent trunk; their exposed ends disappear in soil.
   for (let i = 0; i < 4; i++) {
-    const a = i * Math.PI / 2;
-    limbBetween([Math.cos(a) * .18, 1.45 + (i % 2) * .12, Math.sin(a) * .18],
-      [Math.cos(a) * 1.04, 2.48, Math.sin(a) * 1.04], .19, .11);
-  }
-  // Small uneven bark ridges and knots make the broad trunk read as
-  // hand-shaped clay even when its shared bark texture is distant.
-  for (let i = 0; i < 3; i++) {
-    const a = i * Math.PI * 2 / 3 + variant * .31;
-    const ridge = sculptedSphere(tree, m.bark,
-      [Math.cos(a) * .43, .62 + i * .43, Math.sin(a) * .43], [.065, .34, .06], .035);
-    ridge.userData.trunkThickness = true;
-    ridge.rotation.y = a;
+    const angle = i * Math.PI / 2 + variant * .17;
+    const start = [Math.cos(angle) * .23, .23, Math.sin(angle) * .23];
+    const middle = [Math.cos(angle) * .48, .12, Math.sin(angle) * .48];
+    segment(start, middle, .2, `tree-root-${i}-0`); joint(middle, .2 * taper);
+    segment(middle, [Math.cos(angle) * .7, -.015, Math.sin(angle) * .7], .2 * taper, `tree-root-${i}-1`);
   }
   const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant];
-  // Four lower crowns and one high crown leave branch forks exposed beneath
-  // and between them. Their silhouettes stay dense without merging into a dome.
-  const canopySets = [
-    [[-1.04, 2.42, 0], [.36, .39, .36]],
-    [[1.04, 2.42, 0], [.36, .39, .36]],
-    [[0, 2.42, -1.04], [.36, .39, .36]],
-    [[0, 2.42, 1.04], [.36, .39, .36]],
-    [[.02, 3.09, .01], [.47, .5, .47]],
-    [[-.46, 2.92, -.48], [.32, .36, .32]],
-    [[.48, 2.91, .46], [.32, .36, .32]],
-    [[-.5, 2.23, .5], [.31, .34, .31]],
-    [[.5, 2.24, -.5], [.31, .34, .31]],
-  ];
-  const canopy = canopySets.slice(0, 5 + tier * 2).map(([position]) => {
+  // Three overlapping central crowns avoid a single ball on a pole. Peripheral
+  // crowns sit on branch tips, with seeded size variation at the same radius.
+  const positions = [[.14, 3.12, .02], [-.26, 2.85, -.13], [.32, 2.83, .27], ...tips,
+    [-.52, 2.64, .47], [.52, 2.75, -.47], [-.48, 3.19, .27], [.44, 3.21, -.3]];
+  const canopy = positions.slice(0, 7 + tier * 2).map((position, i) => {
     const radial = Math.hypot(position[0], position[2]);
-    const size = .58 - .2 * Math.min(1, radial / 1.1);
-    return [position, [size, size * 1.08, size]];
+    const jitter = 1 + .12 * Math.sin(i * 4.71 + variant * 1.93);
+    const size = (.59 - .21 * Math.min(1, radial / 1.2)) * jitter;
+    return [position, [size, size * (1.02 + .1 * Math.sin(i + variant)), size * (.94 + .08 * Math.cos(i * 2))]];
   });
-  for (const [position, scale] of canopy) sculptedSphere(tree, leaf, position, scale, .075, 8);
-  // Pressed oval leaf marks sit on exposed sides of the separate crowns.
-  // Three low-poly marks per crown retain the pressed clay detail.
-  const leafCount = 15 + tier * 6;
-  for (let i = 0; i < leafCount; i++) {
-    const a = i * 2.399963229728653 + variant * .27;
-    const cluster = canopy[i % canopy.length];
-    const center = cluster[0], scale = cluster[1];
-    const ny = ((i % 3) - 1) * .4, ring = Math.sqrt(1 - ny * ny);
+  const foliage = new THREE.Group();
+  for (const [position, scale] of canopy) sculptedSphere(foliage, leaf, position, scale, .075, 8);
+  for (let i = 0; i < canopy.length * 2; i++) {
+    const [center, scale] = canopy[i % canopy.length], a = i * 2.399963 + variant * .27;
+    const ny = i % 2 ? .3 : -.25, ring = Math.sqrt(1 - ny * ny);
     const nx = Math.cos(a) * ring, nz = Math.sin(a) * ring;
-    // Follow the same sculpting field as the crown, inset enough to intersect
-    // its faceted shell. The thin axis follows the ellipsoid surface normal.
     const sculpt = 1 + .075 * Math.sin(nx * 4.1 + nz * 2.8) * Math.cos(ny * 3.7 - nz * 1.3);
     const normal = new THREE.Vector3(nx / scale[0], ny / scale[1], nz / scale[2]).normalize();
-    const leafMark = mesh(tree, 'SphereGeometry', [1, 6, 4], leaf,
-      [center[0] + nx * scale[0] * sculpt * .92,
-        center[1] + ny * scale[1] * sculpt * .92,
-        center[2] + nz * scale[2] * sculpt * .92],
-      [.16 + (i % 2) * .025, .09, .115]);
-    leafMark.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+    const mark = mesh(foliage, 'SphereGeometry', [1, 6, 3], leaf,
+      [center[0] + nx * scale[0] * sculpt * .92, center[1] + ny * scale[1] * sculpt * .92,
+        center[2] + nz * scale[2] * sculpt * .92], [.14, .07, .11]);
+    mark.quaternion.setFromUnitVectors(up, normal);
   }
-  // Bake into three bounded meshes: trunk, forks/roots and foliage. Exact
-  // per-instance trunk taper is applied by the renderer without new geometry.
-  const baked = new THREE.Group();
-  const bakeGroup = (objects, name) => {
-    const group = new THREE.Group(); group.name = name;
-    objects.forEach(o => group.add(o)); group.updateMatrixWorld(true);
-    const pieces = [];
-    group.traverse(o => { if (o.isMesh) pieces.push(o.geometry.clone().applyMatrix4(o.matrixWorld)); });
-    const merged = mergeGeometries(pieces, false); pieces.forEach(g => g.dispose());
-    const mesh = new THREE.Mesh(merged, objects[0].material); mesh.castShadow = mesh.receiveShadow = true;
-    mesh.name = name; if (name === 'tree-trunk') mesh.userData.trunkThickness = true; baked.add(mesh);
-  };
-  const branchParts = [], trunkParts = [trunk];
-  tree.traverse(o => { if (o.isMesh && o.material === m.bark && o !== trunk) (o.userData.trunkThickness ? trunkParts : branchParts).push(o); });
-  bakeGroup(trunkParts, 'tree-trunk');
-  bakeGroup(branchParts, 'tree-branches-roots');
-  const leaves = tree.children.filter(o => o.isMesh && o.material !== m.bark);
-  // Leaf shades are folded into one foliage material to keep the per-tree
-  // mesh count bounded while preserving the palette's handmade clay look.
-  leaves.forEach(o => { o.material = leaf; });
-  bakeGroup(leaves, 'tree-foliage');
-  baked.children.find(o => o.name === 'tree-foliage').userData.crownProfile = canopy.map(([position, scale]) => ({
-    radial: Math.hypot(position[0], position[2]), size: scale[0],
+  const bakedFoliage = bakeModel(foliage).children[0];
+  bakedFoliage.name = 'tree-foliage';
+  bakedFoliage.userData.crownProfile = canopy.map(([position, scale]) => ({
+    position, radial: Math.hypot(position[0], position[2]), size: scale[0],
   }));
-  modelCache.set(key, baked);
-  return baked.clone();
+  tree.add(bakedFoliage);
+  modelCache.set(key, tree);
+  return tree.clone();
 }
 
 export function createBarn() {

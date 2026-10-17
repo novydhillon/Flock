@@ -17,12 +17,12 @@ import {StructureCutaway} from '../src/cutaway.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
-function setup({width=390,height=844}={}){
+function setup({width=390,height=844,treeYaw=true}={}){
   const draw=new Proxy({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(t,k)=>t[k]||(()=>{})});
   const document={createElement:()=>({width:0,height:0,getContext:()=>draw})};
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
-  const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
+  const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
   const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
@@ -63,8 +63,9 @@ test('portrait scene builds articulated instance poses and finite camera matrice
 
 test('changing levels disposes world resources without disposing cached animal geometry',()=>{
   const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
-  let worldDisposed=0,animalDisposed=0,fenceDisposed=0;const worldGeometries=new Set();
+  let worldDisposed=0,animalDisposed=0,fenceDisposed=0,treeDisposed=0;const worldGeometries=new Set();
   renderer.fenceParts.forEach(p=>p.geometry.addEventListener('dispose',()=>fenceDisposed++));
+  new Set(models.createTree(0,0).children.map(p=>p.geometry)).forEach(g=>g.addEventListener('dispose',()=>treeDisposed++));
   renderer.terrain.traverse(o=>{if(o.userData.ownedGeometry)worldGeometries.add(o.geometry);});
   worldGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>worldDisposed++));
   renderer.animalBatches[0].meshes[0].geometry.addEventListener('dispose',()=>animalDisposed++);
@@ -73,64 +74,103 @@ test('changing levels disposes world resources without disposing cached animal g
   let confettiDisposed=0;renderer.particles.forEach(p=>p.mesh.geometry.addEventListener('dispose',()=>confettiDisposed++));
   renderer.setLevel(createLevel(1));
   assert.equal(barkDisposed,1);assert.equal(renderer.barkEffects.length,0);
-  assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.equal(fenceDisposed,0);
+  assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.equal(fenceDisposed,0);assert.equal(treeDisposed,0);
   const a=models.createFlowerPatch(1,3),b=models.createFlowerPatch(7,3);
   assert.equal(a.children[0].geometry,b.children[0].geometry,'flower variants reuse bounded geometry');
 });
 
-test('tree variants use three bounded clay meshes and mature into denser rounded crowns',()=>{
+test('trees share tubular skeleton geometry and grow varied overlapping clay crowns',()=>{
+  setup();
+  const geometries=new Set(),woodGeometries=new Set();
+  for(let palette=0;palette<3;palette++)for(let tier=0;tier<3;tier++){
+    const tree=models.createTree(palette,tier),clone=models.createTree(palette,tier+.1);
+    let triangles=0;
+    tree.children.forEach((part,i)=>{
+      assert.equal(part.geometry,clone.children[i].geometry,'immutable geometry is shared across repeated models');
+      assert.ok([...part.geometry.attributes.position.array].every(Number.isFinite));
+      geometries.add(part.geometry);
+      if(part.material===models.createMaterials().bark)woodGeometries.add(part.geometry);
+      triangles+=(part.geometry.index?.count||part.geometry.attributes.position.count)/3;
+    });
+    assert.ok(triangles<2300,`compact skeleton and foliage: ${triangles}`);
+    const crowns=tree.getObjectByName('tree-foliage').userData.crownProfile;
+    assert.equal(crowns.length,7+tier*2);
+    const central=crowns.filter(c=>c.radial<.5);
+    assert.ok(central.length>=3,'center has multiple overlapping crowns');
+    for(let i=1;i<central.length;i++)assert.ok(new THREE.Vector3(...central[0].position).distanceTo(new THREE.Vector3(...central[i].position))<central[0].size+central[i].size);
+    assert.ok(crowns.filter(c=>c.radial>1).every(c=>c.size<Math.max(...central.map(c=>c.size))));
+    assert.ok(new Set(crowns.filter(c=>c.radial>1).map(c=>c.size.toFixed(3))).size>2,'similarly radial crowns still vary');
+    if(tier)assert.ok(triangles>models.createTree(palette,0).children.reduce((n,o)=>n+(o.geometry.index?.count||o.geometry.attributes.position.count)/3,0));
+  }
+  assert.equal(woodGeometries.size,2,'all limbs and joints use two shared unit geometries');
+  assert.equal(geometries.size,11,'nine foliage meshes plus two shared skeleton geometries');
+});
+
+test('connected bent tree forks obey the area rule after actual instance radial transforms',()=>{
+  const renderer=setup(),base=models.createTree(0,0);
   assert.ok(Math.abs(models.treeTrunkFactor(1.015)-.7)<1e-12);
   assert.ok(Math.abs(models.treeTrunkFactor((1.015+3.1)/2)-.8)<1e-12);
   assert.ok(Math.abs(models.treeTrunkFactor(3.1)-.9)<1e-12);
-  let cache=new Set();
-  for(let variant=0;variant<3;variant++){
-    const first=models.createTree(variant,0),second=models.createTree(variant,0);
-    assert.equal(first.children.length,3,'trunk, branches/roots and foliage are separate baked meshes');
-    for(let i=0;i<first.children.length;i++)assert.equal(first.children[i].material,second.children[i].material);
-    let triangles=0;
-    for(let i=0;i<first.children.length;i++){
-      const a=first.children[i],b=second.children[i];
-      assert.equal(a.geometry,b.geometry,'cached variants share immutable geometry');
-      const positions=a.geometry.attributes.position.array;
-      assert.ok([...positions].every(Number.isFinite));
-      triangles+=(a.geometry.index?.count||positions.length/3)/3;
+  const heights=base.userData.forks.map(f=>f.point[1]);
+  assert.ok(heights.every((h,i)=>!i||h>heights[i-1]+.3),'forks occur at staggered trunk heights');
+  for(const [scale,factor] of [[1.015,.7],[(1.015+3.1)/2,.8],[3.1,.9]]){
+    const instance=renderer.place(models.createTree(0,0),0,0,scale);
+    instance.updateMatrixWorld(true);
+    for(const part of instance.children){
+      if(!part.userData.limb)continue;
+      const original=base.getObjectByName(part.name),limb=part.userData.limb;
+      assert.equal(part.geometry,original.geometry);
+      assert.ok(Math.abs(part.scale.x/limb.bottom-factor)<1e-12);
+      assert.equal(part.scale.y,original.scale.y,'thickness changes preserve segment reach');
+      assert.deepEqual(part.position.toArray(),original.position.toArray());
+      const start=new THREE.Vector3(0,-.5,0).applyMatrix4(part.matrixWorld);
+      const end=new THREE.Vector3(0,.5,0).applyMatrix4(part.matrixWorld);
+      assert.ok(start.distanceTo(new THREE.Vector3(...limb.start).multiplyScalar(scale))<1e-10);
+      assert.ok(end.distanceTo(new THREE.Vector3(...limb.end).multiplyScalar(scale))<1e-10);
     }
-    assert.ok(triangles<1800,`tree variant geometry stays compact: ${triangles} triangles`);
-    cache.add(first.children[0].geometry);cache.add(first.children[1].geometry);cache.add(first.children[2].geometry);
-    const mature=models.createTree(variant,2),matureTriangles=mature.children.reduce((n,o)=>n+(o.geometry.index?.count||o.geometry.attributes.position.count)/3,0);
-    assert.ok(matureTriangles>triangles,'mature tier adds foliage and oval leaf marks');
-    assert.ok(matureTriangles<2600,'mature tiers retain a compact low-poly canopy');
-    const crownGeometry=first.children[2].geometry,positions=crownGeometry.attributes.position;
-    const radialBins=[0,0,0];
-    for(let i=0;i<positions.count;i++){const radial=Math.hypot(positions.getX(i),positions.getZ(i));if(radial<.6)radialBins[0]++;else if(radial<1.3)radialBins[1]++;else radialBins[2]++;}
-    assert.ok(radialBins[0]>0&&radialBins[1]>0,'canopy has inner and outer rounded crowns');
-    const profile=first.children.find(o=>o.name==='tree-foliage').userData.crownProfile;
-    assert.ok(profile.length<10&&profile.length===5,'young tier uses five crowns');
-    assert.ok(profile.filter(c=>c.radial>1).every(c=>c.size<profile.find(inner=>inner.radial<.1).size),'outer crowns taper smaller than center crowns');
-    assert.equal(mature.children.find(o=>o.name==='tree-foliage').userData.crownProfile.length,9,'mature tier grows to nine crowns');
+    for(const fork of instance.userData.forks){
+      const parent=instance.getObjectByName(fork.incoming),children=fork.outgoing.map(name=>instance.getObjectByName(name));
+      const actualRadius=(mesh,top=false)=>{
+        const y=top?.5:-.5,positions=mesh.geometry.attributes.position;
+        let radius=0;
+        for(let i=0;i<positions.count;i++)if(Math.abs(positions.getY(i)-y)<1e-6){
+          const local=new THREE.Vector3(positions.getX(i),0,positions.getZ(i));
+          local.multiply(new THREE.Vector3(mesh.scale.x,0,mesh.scale.z));radius=Math.max(radius,local.length()*scale);
+        }
+        return radius;
+      };
+      const parentRadius=actualRadius(parent,true),childArea=children.reduce((n,child)=>n+actualRadius(child)**2,0);
+      assert.ok(Math.abs(parentRadius**2-childArea)<parentRadius**2*1e-6,'actual mesh cross sections include the continuing trunk in Leonardo area law');
+      children.forEach(child=>assert.deepEqual(child.userData.limb.start,parent.userData.limb.end,'outgoing limbs meet their parent endpoint'));
+    }
+    const limbDirections=instance.children.filter(o=>o.name.startsWith('tree-branch-1')).map(o=>o.quaternion.toArray().join(','));
+    assert.equal(new Set(limbDirections).size,3,'branch changes direction along its connected path');
   }
-  assert.ok(cache.size<=9,'palette and maturity tiers cap tree geometry variants');
+  assert.equal(base.getObjectByName('tree-trunk').scale.x,.62,'cached model is never mutated');
 });
 
-test('rendered tree trunk widths interpolate exactly without scaling branches or creating geometry',()=>{
-  const renderer=setup();
-  const base=models.createTree(0,0),trunk=base.getObjectByName('tree-trunk');
-  trunk.geometry.computeBoundingBox();const width=trunk.geometry.boundingBox.max.x-trunk.geometry.boundingBox.min.x;
-  for(const [scale,factor] of [[1.015,.7],[(1.015+3.1)/2,.8],[3.1,.9]]){
-    const instance=renderer.place(models.createTree(0,0),0,0,scale);instance.updateMatrixWorld(true);
-    const t=instance.getObjectByName('tree-trunk'),b=instance.getObjectByName('tree-branches-roots');
-    const box=new THREE.Box3().setFromObject(t);
-    assert.ok(Math.abs((box.max.x-box.min.x)/(width*scale)-factor)<1e-6,'actual trunk width uses the requested linear reduction');
-    assert.equal(t.geometry,trunk.geometry,'per-size width uses shared geometry');
-    assert.deepEqual(b.scale.toArray(),[1,1,1],'thinner trunk does not shorten branches');
+test('trees have deterministic independent full-yaw rotations in both placement populations',()=>{
+  const renderer=setup(),level=createLevel(19),capture=(renderer)=>{
+    const trees=[],other=[],place=renderer.place;
+    renderer.place=function(group,x,z,scale,...rest){
+      if(group.name==='clay tree')trees.push({x,z,scale,yaw:group.rotation.y});
+      else other.push({x,z,scale});
+      return place.call(this,group,x,z,scale,...rest);
+    };
+    renderer.setLevel(level);renderer.place=place;return {trees,other};
+  };
+  const first=capture(renderer),second=capture(renderer);
+  assert.deepEqual(first,second,'level rebuild repeats orientations and all placements');
+  const obstacleTrees=first.trees.filter(t=>level.obstacles.some(o=>o.x===t.x&&o.z===t.z));
+  const backgroundTrees=first.trees.filter(t=>!obstacleTrees.includes(t));
+  for(const trees of [obstacleTrees,backgroundTrees]){
+    assert.ok(trees.length>2,'both obstacle and background tree populations exist');
+    assert.ok(trees.some(t=>t.yaw>Math.PI)&&trees.some(t=>t.yaw<Math.PI),'orientation covers the full yaw range');
+    assert.equal(new Set(trees.map(t=>t.yaw)).size,trees.length,'orientation varies independently between trees');
   }
-  assert.deepEqual(trunk.scale.toArray(),[1,1,1],'instance widths never mutate cached model clones');
-  const geometries=new Set();
-  for(let palette=0;palette<3;palette++)for(let tier=0;tier<3;tier++){
-    const a=models.createTree(palette,tier),b=models.createTree(palette,tier+.1);
-    for(let i=0;i<3;i++){assert.equal(a.children[i].geometry,b.children[i].geometry);geometries.add(a.children[i].geometry);}
-  }
-  assert.equal(geometries.size,27,'nine bounded palette/maturity models each own three shared meshes');
+  const withoutYaw=capture(setup({treeYaw:false}));
+  assert.deepEqual(first.other,withoutYaw.other,'tree orientation does not consume the meadow layout RNG');
+  assert.deepEqual(first.trees.map(({yaw,...pose})=>pose),withoutYaw.trees.map(({yaw,...pose})=>pose),'tree positions/scales remain identical with yaw disabled');
 });
 
 test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{

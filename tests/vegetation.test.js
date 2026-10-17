@@ -53,7 +53,10 @@ test('trees and bushes use shared bark/foliage textures and fuller handmade form
   assert.ok(treeBounds.max.y > 3.5, `tree has a visibly taller canopy (${treeBounds.max.y})`);
   assert.ok(treeBounds.max.x - treeBounds.min.x > 2.5, 'the expanded crown remains rounded and broad');
   assert.ok(bushBounds.max.y > .8 && bushBounds.max.x - bushBounds.min.x > 1.4);
-  assert.ok(tree.children.filter(child => child.isMesh).length === 3, 'trunk thickness scales independently of the two shared branch and foliage meshes');
+  const wood = tree.children.filter(child => child.userData.treeRadialScale || child.userData.treeJointScale);
+  assert.equal(new Set(wood.map(child => child.geometry)).size, 2, 'limbs and joints share two unit geometries for batching across all tree sizes');
+  assert.ok(wood.every(child => child.material === materials.bark));
+  assert.ok(tree.getObjectByName('tree-foliage'), 'foliage remains one bounded baked mesh per palette/maturity');
   assert.ok(bush.children.filter(child => child.isMesh).length <= 2, 'bush detail remains bounded after material baking');
 });
 
