@@ -1,6 +1,6 @@
 # FLOCK — Remaining issues and change tracker
 
-F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. Replace the previous separate transparent sheet with illumination in the actual grass/path/bridge surface materials. Preserve the requested size and hover rings. This correction remains Review pending source validation, dev2 publication and native appearance acceptance; see QUALITY.md for current evidence.
+F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. The separate transparent sheet is replaced with illumination in the actual grass/path/river-bank/bridge surface materials. Requested size and hover rings are preserved. Runtime source `84ad352`, Pages `b666edf`: 283 tests pass, source review 9/10, source CI/native Pages succeed, all 17 live files verified and 30 unrelated files preserved. This correction remains Review for native appearance acceptance; see QUALITY.md for evidence and the unavailable WebGL2 visual-check limitation.
 
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
