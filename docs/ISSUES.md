@@ -1,5 +1,7 @@
 # FLOCK — Remaining issues and change tracker
 
+F-053 glow tuning: user requests 50% more transparency and a more diffuse footprint. Strength is halved (1.7 to 0.85), radius widened (0.36 to 0.54) and radial falloff smoothed; ground remains opaque. Source review 9/10, no blockers. Status stays Review for visual acceptance; checks/publication are recorded in QUALITY.md.
+
 F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. The separate transparent sheet is replaced with illumination in the actual grass/path/river-bank/bridge surface materials. Requested size and hover rings are preserved. Runtime source `84ad352`, Pages `b666edf`: 283 tests pass, source review 9/10, source CI/native Pages succeed, all 17 live files verified and 30 unrelated files preserved. This correction remains Review for native appearance acceptance; see QUALITY.md for evidence and the unavailable WebGL2 visual-check limitation.
 
 ## User sign-off - 16 October 2026, 00:14 Vancouver

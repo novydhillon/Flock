@@ -315,6 +315,8 @@ On branch `pip_update`, replace player Pip with the reference-inspired angular s
 
 ### F-053 follow-up - Smaller Pip and grounded thruster glow
 
+Latest glow tuning: interpret 50% more transparent as halving the illumination contribution, leaving ground opacity unchanged. Make the footprint more diffuse with a wider radius and smooth feathering; keep illumination bound to receiving surfaces.
+
 Latest size request supersedes the unfinished 33% reduction: reduce Pip's current published 1.35 linear scale by 25%, to 1.0125. Include pods and rings, but preserve the selection halo and goal pointer's world-space size. Retain the pending lighter silver finish. Add four soft blue ground glows, one directly below each pod, following terrain/bridge height and heading without following body bob or trailing rings. The 19:16 clarification requires the glow to color the ground surface itself, without hovering transparent sheets. Preserve collision, herding and Buddy. Use an isolated worktree; visual acceptance remains pending.
 
 ### F-054 - Oak-like handmade tree appearance

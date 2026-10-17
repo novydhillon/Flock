@@ -211,11 +211,16 @@ test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=
   assert.equal(renderer.dogGlow,undefined,'no detached glow plane exists');
   const effect=renderer.thrusterGlow;
   assert.equal(effect.centers.value.length,4);
+  assert.equal(effect.strength.value,1.7*.5,'glow contribution is halved, without changing ground opacity');
+  for(const ground of [renderer.grass,renderer.path]){assert.equal(ground.transparent,false);assert.equal(ground.opacity,1);}
+  assert.ok(Math.abs(effect.radius.value-.54*renderer.dog.scale.x)<1e-9,'diffuse footprint radius is 50% wider than before');
   assert.ok(effect.tint.value.b>effect.tint.value.r*1.5);
   for(const material of [renderer.grass,renderer.path,renderer.pathShoulder]){
     const shader={uniforms:{},vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader};
     material.onBeforeCompile(shader);
     assert.equal(shader.uniforms.pipGlowCenters,effect.centers,'receiving materials use live shared pod positions');
+    assert.equal(shader.uniforms.pipGlowStrength,effect.strength);
+    assert.match(shader.fragmentShader,/1\.0-smoothstep\(0\.0,pipGlowRadius/,'smooth falloff feathers both center and edge');
     assert.match(shader.fragmentShader,/totalEmissiveRadiance\+=pipGlowTint/,'blue illumination belongs to the surface shader');
     assert.match(shader.vertexShader,/pipSurfaceWorld=\(modelMatrix\*pipSurfacePosition\)\.xyz/);
   }
