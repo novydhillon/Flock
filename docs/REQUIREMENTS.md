@@ -310,3 +310,8 @@ The development-only QA launcher uses a gear icon centered at the bottom of the 
 ### F-053 - Pip reference model and hover rings
 
 On branch `pip_update`, replace player Pip with the reference-inspired angular silver robot dog: metal panels, expressive eyes, plate ears, black nose, blue tail light and four leg pods. No blue thruster flames. Each pod has three blue rings descending and fading in a repeating cycle. The top ring stays attached to Pip; the bottom ring trails his movement and the middle ring lies between. Preserve gameplay collision, control, bark and goal pointer behavior; Buddy retains its existing appearance.
+
+
+## Queued performance overlay investigation - F-054 (P1)
+
+Investigate a performance overlay to support validation of actual on-device performance. Evaluate suitable metrics, overhead, device/browser support and tester workflow; recommend an approach supporting F-015. Open investigation only. See [F-054 in the tracker](ISSUES.md#f-054---investigate-an-on-device-performance-overlay-p1).

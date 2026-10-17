@@ -95,6 +95,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 
+| F-054 | P1 | Performance/QA | Investigate an overlay for on-device performance validation | Open | Supports F-015 |
+
 ## Screenshot evidence
 
 Picture numbers refer to the user's attachment order, including the duplicate uploads.
@@ -780,3 +782,17 @@ F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [389654
 
 
 F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the weathered dry-stone wall change deployed at Pages `29f48f3` (runtime source `1941302`). Marked Done; overview cells and detailed heading struck through under the tracker closure rule. This is user acceptance of the change, not an independent device/FPS measurement. F-034 seeded wall distribution remains Open.
+
+
+### F-054 - Investigate an on-device performance overlay (P1)
+
+**Status:** Open, queued investigation; unassigned.
+
+**Requirement:** Investigate a performance overlay to support validation of actual on-device performance.
+
+**Investigation outcome:**
+- Identify practical on-device metrics and overlay options, considering frame rate, frame-time spikes and rendering workload where supported.
+- Assess measurement overhead, device/browser support and how testers enable and read the overlay.
+- Recommend an approach and validation workflow that supports F-015 mobile performance and transition testing. Record limitations and follow-up implementation work.
+
+**Scope:** investigation only. No overlay implementation or measured device-performance results are claimed by adding this task. F-015 remains a separate validation task.
