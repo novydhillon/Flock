@@ -410,6 +410,8 @@ F-033 acceptance: Novy signed off the deployed weathered wall change on 16 Octob
 
 ## F-054 clay tree source validation
 
+Historical first-pass validation for runtime `bf5bb48`; it does not validate the newer trunk/foliage sizing follow-up or establish that follow-up as deployed. The associated publication and live-hash record remains in [F-054-publication.json](validation/F-054-publication.json). New follow-up publication and visual sign-off are pending.
+
 Runtime source `bf5bb48`, based on `pip_update`. Parallel implementation and Markdown ownership used separate worktrees and `gpt-6-luna` at medium effort. Parent integration corrected failures found by the full suite and independent review.
 
 - `npm test`: 280/280 pass, including vegetation dimensions, renderer resource/caching/cleanup and gameplay regressions.
@@ -418,3 +420,14 @@ Runtime source `bf5bb48`, based on `pip_update`. Parallel implementation and Mar
 - Each tree variant remains two cached baked meshes and 1,748 triangles. Nearby scenery triangles at QA 1/6/20/50/100: 39,510 / 31,756 / 18,590 / 14,506 / 7,932, below the unchanged 45,000 limit.
 
 A fresh isolated medium-effort `gpt-6-luna` source critic scored the initial candidate 6.5/10 and found a width regression, incorrect radial root orientation and detached leaf marks. Runtime `bf5bb48` broadens the crowns, orients roots/forks between endpoints and seats normal-oriented leaf ovals against the sculpted surfaces. The same critic’s follow-up at `bf5bb48` scored **9/10**, with no remaining source defect and 21/21 independently passed vegetation/render tests. This is follow-up validation after a blind first pass. A separate fresh documentation critic scored 9/10; its overview-index omission was corrected. GPU/Canvas substitutes establish source geometry, caching and budgets, not rendered likeness, native phone FPS or appearance acceptance. F-054 remains Review.
+
+
+## F-054 tree proportions follow-up validation
+
+Local runtime `8f5d44c` (requirements snapshot `1ef1030`) implements the size refinement. Trunk thickness is `.7 + .2 * clamp((worldScale - 1.015) / 2.085, 0, 1)`; its axis-aligned scale leaves height unchanged. All obstacle and background trees use this rule. Trunk, leader and bark ridges share the width transform; branch/root reach is independent. Lower branch endpoints move from radial .82 to 1.04. Cached palette/maturity models have 5/7/9 crowns; crown radius decreases from .58 near the axis toward .38 at the outer edge. Numeric canopy dimensions and tier breakpoints are implementation choices.
+
+Parallel model/test and Markdown ownership used separate worktrees with `gpt-6-luna` medium effort. The parent integrated the change, kept the leader/ridges attached and added an actual transformed-bounds check at the three width endpoints plus all-nine-model cache checks. `npm test`: **281/281** pass. Release/dev builds with `--emptyOutDir` pass mode checks (15 release files, 17 development files). Generated docs and four DOM checks pass. Nearby scenery triangles at QA 1/6/20/50/100: **40,674 / 31,756 / 18,590 / 14,670 / 7,932**, below the unchanged 45,000 limit. QA1 has 101 draw submissions (limit170), with 157 scene objects (limit310).
+
+Native pixels, phone FPS and new user appearance acceptance remain unverified. Prior F-054 first-pass publication/review are historical. This refinement remains Review until new visual sign-off; publication evidence is separate.
+
+Fresh isolated `gpt-6-luna` medium-effort blind critic: **8/10**, no concrete source blocker; independently passed **22/22** renderer/vegetation tests. The score reflects remaining native appearance/performance uncertainty. It is a source review, not a rendered game rating.

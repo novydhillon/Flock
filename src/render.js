@@ -8,7 +8,7 @@ import { StructureCutaway } from './cutaway.js';
 import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
-import { createPip, updatePipHover, createDog, createAnimal, createDrone, createTree, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
+import { createPip, updatePipHover, createDog, createAnimal, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 // Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
@@ -63,7 +63,7 @@ export class MeadowRenderer{
     this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.waterEffects=new WaterEffects(this.scene);
   }
   resize(){this.width=innerWidth;this.height=innerHeight;this.renderer.setSize(this.width,this.height,false);this.aspect=this.width/this.height;}
-  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
+  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.trunkThickness){const factor=treeTrunkFactor(scale);o.scale.set(factor,1,factor);}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
     this.level=level;this.barkEffects=[];
@@ -132,7 +132,7 @@ export class MeadowRenderer{
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
-      this.place(createTree(Math.floor(r()*3)),obstacle.x,obstacle.z,obstacle.radius*1.45);
+      const treeScale=obstacle.radius*1.45;this.place(createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2),obstacle.x,obstacle.z,treeScale);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.place(createBush(i),obstacle.x+Math.cos(angle)*obstacle.radius*.48,obstacle.z+Math.sin(angle)*obstacle.radius*.48,obstacle.radius*.7);}
     }
@@ -168,7 +168,7 @@ export class MeadowRenderer{
     const sceneryCount=Math.min(62,28+Math.floor(level.index/3));for(let i=0;i<sceneryCount;i++){
       let x,z;const side=i%4;
       if(side<2){x=b.minX-12+r()*(w+24);z=side===0?b.minZ-4-r()*17:b.maxZ+4+r()*17;}else{x=side===2?b.minX-5-r()*18:b.maxX+5+r()*18;z=b.minZ+r()*d;}
-      if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;this.place(createTree(i%3),x,z,1.3+r()*1.8);
+      if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;const treeScale=1.3+r()*1.8;this.place(createTree(i%3,treeScale<1.7?0:treeScale<2.4?1:2),x,z,treeScale);
     }
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
     this.nature.setLevel(level);

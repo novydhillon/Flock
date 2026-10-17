@@ -95,7 +95,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | F-053 | P2 | Presentation | Pip reference model and hover rings | Review | Phone appearance pending |
-| F-054 | P2 | Presentation | Branched clay trees with separate foliage crowns and pressed leaf detail | Review | Visual sign-off pending |
+| F-054 | P2 | Presentation | Longer-branching oak-like trees with size-scaled foliage and trunks | Review | Follow-up deployment and visual sign-off pending on `pip_update` / `dev2` |
 
 ## Screenshot evidence
 
@@ -786,16 +786,18 @@ F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the we
 
 ### F-054 - Oak-like handmade tree appearance (P2)
 
-**Status:** Review on `pip_update`; user visual sign-off pending. Development publication to `dev2/` is intended. Runtime source `bf5bb48` implements the candidate; 280/280 source tests and both artifact-mode checks pass. Independent source review: initial 6.5/10; corrected follow-up 9/10 with no remaining source defect. Documentation review 9/10. Publication evidence follows after live verification.
+**Status:** Review on `pip_update`; deployment and new visual sign-off are pending on `dev2/`. The earlier publication and its verification record are historical first-pass evidence; they do not establish that this sizing follow-up is deployed. Follow-up local runtime `8f5d44c` passes 281 source tests, both artifact-mode checks and generated documentation checks. Independent blind source review **8/10**, no concrete source blocker, 22 focused checks independently passed. Live publication evidence is recorded separately after deployment; visual sign-off remains pending.
 
-**Requirement:** Give trees an oak-like, branched silhouette with warm-brown clay trunks and multiple separated rounded green foliage clusters. Add a small pressed oval leaf texture and handmade details such as exposed roots, grooves and knots.
+**Requirement:** Give trees an oak-like, branched silhouette with warm-brown clay trunks and multiple separated rounded green foliage clusters. Make branches longer and make larger trees carry more foliage. Reduce trunk thickness by 30% at the smallest supported rendered tree size and by 10% at the largest supported rendered tree size, interpolating linearly between those sizes. Vary crown mesh size by radial distance from the trunk centerline: larger near the axis and smaller farther away. Retain the small pressed oval leaf texture and handmade details such as exposed roots, grooves and knots.
 
 **Accept when:**
 - Trunks read clearly as branched oaks and use a warm-brown clay appearance.
 - Foliage reads as several distinct, rounded green clusters rather than one continuous blob.
+- Branches are longer, larger trees have more foliage, and crown meshes visibly taper in size with distance from the trunk centerline.
+- Trunk thickness follows the requested size rule: 30% reduction at the smallest supported rendered tree size, 10% at the largest supported rendered tree size, with a continuous linear transition between them.
 - Small pressed oval leaf texture and handmade roots, grooves and knots are visible at ordinary play scale.
 - Tree placement, gameplay collision, route clearance and actor visibility remain sound.
 - Texture/shadow cost and mobile performance are assessed within available evidence.
 - Novy reviews the intended development build and signs off the appearance.
 
-**Scope:** tree visual update only. No numeric dimensions, collision changes or performance thresholds were specified. Preserve prior F-020/F-021 acceptance; this request is a new appearance refinement.
+**Scope:** tree visual update only. The numeric trunk-thickness endpoints and interpolation are specified above; other numeric geometry, collision changes and performance thresholds remain unspecified. Preserve prior F-020/F-021 acceptance; this request is a new appearance refinement.

@@ -13,6 +13,12 @@ const geometryConstructors = {
 const modelCache = new Map();
 let materialCache;
 
+// Tree trunk width follows the rendered instance scale continuously; canopy
+// maturity remains in three shared tiers so cache size never grows per tree.
+export function treeTrunkFactor(scale) {
+  return 0.7 + 0.2 * Math.max(0, Math.min(1, (scale - 1.015) / (3.1 - 1.015)));
+}
+
 // A flock may contain dozens of animals. Collapse decorative pieces by material
 // and share the resulting geometry across clones; limb meshes retain hip pivots.
 function bakeModel(root) {
@@ -181,10 +187,10 @@ function mesh(parent, type, args, material, pos = [0, 0, 0], scale = [1, 1, 1]) 
 function sphere(parent, material, pos, scale, detail = 10) {
   return mesh(parent, 'SphereGeometry', [1, detail, 6], material, pos, scale);
 }
-function sculptedSphere(parent, material, pos, scale, amount = 0.025) {
-  const key = `sculpted-sphere:${amount}`;
+function sculptedSphere(parent, material, pos, scale, amount = 0.025, detail = 10) {
+  const key = `sculpted-sphere:${amount}:${detail}`;
   if (!geometryCache.has(key)) {
-    const sculpted = geometry('SphereGeometry', [1, 10, 6]).clone();
+    const sculpted = geometry('SphereGeometry', [1, detail, Math.max(3, Math.round(detail * .6))]).clone();
     const vertices = sculpted.attributes.position;
     for (let i = 0; i < vertices.count; i++) {
       const x = vertices.getX(i), y = vertices.getY(i), z = vertices.getZ(i);
@@ -433,9 +439,10 @@ export function createDrone() {
   return drone;
 }
 
-export function createTree(variant = 0) {
+export function createTree(variant = 0, maturity = 0) {
   variant = Math.abs(Math.floor(variant)) % 3;
-  const key = `tree:${variant}`;
+  const tier = Math.max(0, Math.min(2, Math.round(maturity)));
+  const key = `tree:${variant}:${tier}`;
   if (modelCache.has(key)) return modelCache.get(key).clone();
   const m = createMaterials();
   const tree = new THREE.Group();
@@ -443,9 +450,11 @@ export function createTree(variant = 0) {
   // read at the normal orthographic camera distance. The renderer scales its
   // base against the existing circular trunk collider.
   const trunk = mesh(tree, 'CylinderGeometry', [0.46, 0.62, 2.25, 12], m.bark, [0, 1.125, 0]);
+  trunk.userData.trunkThickness = true;
   // A narrowing leader reaches into the top crown and keeps it grounded in
   // the trunk instead of leaving the highest foliage cluster floating.
-  mesh(tree, 'CylinderGeometry', [.09, .25, .98, 10], m.bark, [0, 2.62, 0]);
+  const leader = mesh(tree, 'CylinderGeometry', [.09, .25, .98, 10], m.bark, [0, 2.62, 0]);
+  leader.userData.trunkThickness = true;
   // Orient every root/fork between explicit endpoints so each radial limb
   // connects the trunk to its crown or the ground in every quadrant.
   const limbBetween = (start, end, bottom, top) => {
@@ -462,7 +471,7 @@ export function createTree(variant = 0) {
   for (let i = 0; i < 4; i++) {
     const a = i * Math.PI / 2;
     limbBetween([Math.cos(a) * .18, 1.45 + (i % 2) * .12, Math.sin(a) * .18],
-      [Math.cos(a) * .82, 2.44, Math.sin(a) * .82], .19, .11);
+      [Math.cos(a) * 1.04, 2.48, Math.sin(a) * 1.04], .19, .11);
   }
   // Small uneven bark ridges and knots make the broad trunk read as
   // hand-shaped clay even when its shared bark texture is distant.
@@ -470,22 +479,33 @@ export function createTree(variant = 0) {
     const a = i * Math.PI * 2 / 3 + variant * .31;
     const ridge = sculptedSphere(tree, m.bark,
       [Math.cos(a) * .43, .62 + i * .43, Math.sin(a) * .43], [.065, .34, .06], .035);
+    ridge.userData.trunkThickness = true;
     ridge.rotation.y = a;
   }
   const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant];
   // Four lower crowns and one high crown leave branch forks exposed beneath
   // and between them. Their silhouettes stay dense without merging into a dome.
-  const canopy = [
-    [[-.82, 2.42, 0], [.46, .5, .46]],
-    [[.82, 2.42, 0], [.46, .5, .46]],
-    [[0, 2.42, -.82], [.46, .5, .46]],
-    [[0, 2.42, .82], [.46, .5, .46]],
+  const canopySets = [
+    [[-1.04, 2.42, 0], [.36, .39, .36]],
+    [[1.04, 2.42, 0], [.36, .39, .36]],
+    [[0, 2.42, -1.04], [.36, .39, .36]],
+    [[0, 2.42, 1.04], [.36, .39, .36]],
     [[.02, 3.09, .01], [.47, .5, .47]],
+    [[-.46, 2.92, -.48], [.32, .36, .32]],
+    [[.48, 2.91, .46], [.32, .36, .32]],
+    [[-.5, 2.23, .5], [.31, .34, .31]],
+    [[.5, 2.24, -.5], [.31, .34, .31]],
   ];
-  for (const [position, scale] of canopy) sculptedSphere(tree, leaf, position, scale, .075);
+  const canopy = canopySets.slice(0, 5 + tier * 2).map(([position]) => {
+    const radial = Math.hypot(position[0], position[2]);
+    const size = .58 - .2 * Math.min(1, radial / 1.1);
+    return [position, [size, size * 1.08, size]];
+  });
+  for (const [position, scale] of canopy) sculptedSphere(tree, leaf, position, scale, .075, 8);
   // Pressed oval leaf marks sit on exposed sides of the separate crowns.
-  // Fifteen low-poly forms add detail without adding materials or submissions.
-  for (let i = 0; i < 15; i++) {
+  // Three low-poly marks per crown retain the pressed clay detail.
+  const leafCount = 15 + tier * 6;
+  for (let i = 0; i < leafCount; i++) {
     const a = i * 2.399963229728653 + variant * .27;
     const cluster = canopy[i % canopy.length];
     const center = cluster[0], scale = cluster[1];
@@ -502,7 +522,32 @@ export function createTree(variant = 0) {
       [.16 + (i % 2) * .025, .09, .115]);
     leafMark.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
   }
-  return cachedModel(key, tree);
+  // Bake into three bounded meshes: trunk, forks/roots and foliage. Exact
+  // per-instance trunk taper is applied by the renderer without new geometry.
+  const baked = new THREE.Group();
+  const bakeGroup = (objects, name) => {
+    const group = new THREE.Group(); group.name = name;
+    objects.forEach(o => group.add(o)); group.updateMatrixWorld(true);
+    const pieces = [];
+    group.traverse(o => { if (o.isMesh) pieces.push(o.geometry.clone().applyMatrix4(o.matrixWorld)); });
+    const merged = mergeGeometries(pieces, false); pieces.forEach(g => g.dispose());
+    const mesh = new THREE.Mesh(merged, objects[0].material); mesh.castShadow = mesh.receiveShadow = true;
+    mesh.name = name; if (name === 'tree-trunk') mesh.userData.trunkThickness = true; baked.add(mesh);
+  };
+  const branchParts = [], trunkParts = [trunk];
+  tree.traverse(o => { if (o.isMesh && o.material === m.bark && o !== trunk) (o.userData.trunkThickness ? trunkParts : branchParts).push(o); });
+  bakeGroup(trunkParts, 'tree-trunk');
+  bakeGroup(branchParts, 'tree-branches-roots');
+  const leaves = tree.children.filter(o => o.isMesh && o.material !== m.bark);
+  // Leaf shades are folded into one foliage material to keep the per-tree
+  // mesh count bounded while preserving the palette's handmade clay look.
+  leaves.forEach(o => { o.material = leaf; });
+  bakeGroup(leaves, 'tree-foliage');
+  baked.children.find(o => o.name === 'tree-foliage').userData.crownProfile = canopy.map(([position, scale]) => ({
+    radial: Math.hypot(position[0], position[2]), size: scale[0],
+  }));
+  modelCache.set(key, baked);
+  return baked.clone();
 }
 
 export function createBarn() {

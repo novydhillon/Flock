@@ -78,10 +78,14 @@ test('changing levels disposes world resources without disposing cached animal g
   assert.equal(a.children[0].geometry,b.children[0].geometry,'flower variants reuse bounded geometry');
 });
 
-test('tree variants cache deterministic two-material clay meshes within a bounded geometry budget',()=>{
+test('tree variants use three bounded clay meshes and mature into denser rounded crowns',()=>{
+  assert.ok(Math.abs(models.treeTrunkFactor(1.015)-.7)<1e-12);
+  assert.ok(Math.abs(models.treeTrunkFactor((1.015+3.1)/2)-.8)<1e-12);
+  assert.ok(Math.abs(models.treeTrunkFactor(3.1)-.9)<1e-12);
+  let cache=new Set();
   for(let variant=0;variant<3;variant++){
-    const first=models.createTree(variant),second=models.createTree(variant);
-    assert.equal(first.children.length,2,'bark and foliage remain two baked material meshes');
+    const first=models.createTree(variant,0),second=models.createTree(variant,0);
+    assert.equal(first.children.length,3,'trunk, branches/roots and foliage are separate baked meshes');
     for(let i=0;i<first.children.length;i++)assert.equal(first.children[i].material,second.children[i].material);
     let triangles=0;
     for(let i=0;i<first.children.length;i++){
@@ -92,7 +96,41 @@ test('tree variants cache deterministic two-material clay meshes within a bounde
       triangles+=(a.geometry.index?.count||positions.length/3)/3;
     }
     assert.ok(triangles<1800,`tree variant geometry stays compact: ${triangles} triangles`);
+    cache.add(first.children[0].geometry);cache.add(first.children[1].geometry);cache.add(first.children[2].geometry);
+    const mature=models.createTree(variant,2),matureTriangles=mature.children.reduce((n,o)=>n+(o.geometry.index?.count||o.geometry.attributes.position.count)/3,0);
+    assert.ok(matureTriangles>triangles,'mature tier adds foliage and oval leaf marks');
+    assert.ok(matureTriangles<2600,'mature tiers retain a compact low-poly canopy');
+    const crownGeometry=first.children[2].geometry,positions=crownGeometry.attributes.position;
+    const radialBins=[0,0,0];
+    for(let i=0;i<positions.count;i++){const radial=Math.hypot(positions.getX(i),positions.getZ(i));if(radial<.6)radialBins[0]++;else if(radial<1.3)radialBins[1]++;else radialBins[2]++;}
+    assert.ok(radialBins[0]>0&&radialBins[1]>0,'canopy has inner and outer rounded crowns');
+    const profile=first.children.find(o=>o.name==='tree-foliage').userData.crownProfile;
+    assert.ok(profile.length<10&&profile.length===5,'young tier uses five crowns');
+    assert.ok(profile.filter(c=>c.radial>1).every(c=>c.size<profile.find(inner=>inner.radial<.1).size),'outer crowns taper smaller than center crowns');
+    assert.equal(mature.children.find(o=>o.name==='tree-foliage').userData.crownProfile.length,9,'mature tier grows to nine crowns');
   }
+  assert.ok(cache.size<=9,'palette and maturity tiers cap tree geometry variants');
+});
+
+test('rendered tree trunk widths interpolate exactly without scaling branches or creating geometry',()=>{
+  const renderer=setup();
+  const base=models.createTree(0,0),trunk=base.getObjectByName('tree-trunk');
+  trunk.geometry.computeBoundingBox();const width=trunk.geometry.boundingBox.max.x-trunk.geometry.boundingBox.min.x;
+  for(const [scale,factor] of [[1.015,.7],[(1.015+3.1)/2,.8],[3.1,.9]]){
+    const instance=renderer.place(models.createTree(0,0),0,0,scale);instance.updateMatrixWorld(true);
+    const t=instance.getObjectByName('tree-trunk'),b=instance.getObjectByName('tree-branches-roots');
+    const box=new THREE.Box3().setFromObject(t);
+    assert.ok(Math.abs((box.max.x-box.min.x)/(width*scale)-factor)<1e-6,'actual trunk width uses the requested linear reduction');
+    assert.equal(t.geometry,trunk.geometry,'per-size width uses shared geometry');
+    assert.deepEqual(b.scale.toArray(),[1,1,1],'thinner trunk does not shorten branches');
+  }
+  assert.deepEqual(trunk.scale.toArray(),[1,1,1],'instance widths never mutate cached model clones');
+  const geometries=new Set();
+  for(let palette=0;palette<3;palette++)for(let tier=0;tier<3;tier++){
+    const a=models.createTree(palette,tier),b=models.createTree(palette,tier+.1);
+    for(let i=0;i<3;i++){assert.equal(a.children[i].geometry,b.children[i].geometry);geometries.add(a.children[i].geometry);}
+  }
+  assert.equal(geometries.size,27,'nine bounded palette/maturity models each own three shared meshes');
 });
 
 test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{

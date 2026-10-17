@@ -81,4 +81,11 @@ Fresh medium-effort `gpt-6-luna` critic reviewed the merged production candidate
 
 ## F-054 clay tree review
 
+Historical review of the earlier tree candidate; it does not cover the trunk-thickness, longer-branch and foliage-scale follow-up now pending on `pip_update` / `dev2`.
+
 A fresh isolated `gpt-6-luna` medium-effort critic reviewed candidate `b071369` against the tree request, source and tests without implementation history or earlier scores. Initial 6.5/10: crown width failed its existing test, roots did not flare radially and leaf marks sat outside crown shells. Runtime `bf5bb48` corrects those findings. Same-critic follow-up: **9/10**, no remaining source defect; 21/21 vegetation/render tests passed independently. A separate fresh documentation critic scored 9/10; the missing tracker overview entries were added. Parent final checks: 280 source tests, both artifact-mode checks and generated documentation checks pass. This is source/DOM geometry evidence; native appearance, phone FPS and F-054 user sign-off remain pending.
+
+
+## F-054 proportions follow-up review
+
+A new isolated `gpt-6-luna` medium-effort critic reviewed `1ef1030`, without prior implementation reasoning/history or scores. Result: **8/10**, no concrete source blocker; independently passed 22/22 renderer/vegetation tests. It confirmed actual transformed width interpolation at smallest/middle/largest supported scales, unchanged branch scaling, nine cached palette/maturity models, increasing 5/7/9 crown counts and radial crown-size taper. Native likeness, separation, occlusion and phone performance remain pending; the score is source evidence only. Parent full suite passes 281 tests, both artifact-mode checks and documentation checks.
