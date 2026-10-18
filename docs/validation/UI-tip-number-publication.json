@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-18",
+  "issue": "F-057",
+  "state": "Review",
+  "branch": "UI_refinement",
+  "source": "aa225f37ffda4e9f1c14ce9b6486f3614f6a8bb3",
+  "sourceCI": {
+    "run": 39155200478,
+    "conclusion": "success"
+  },
+  "pages": "b4a6314f347d960258e4ba5b0730ad93b374ddc1",
+  "pagesCI": {
+    "run": 39155299960,
+    "conclusion": "success"
+  },
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "checks": {
+    "focusedUI": 35,
+    "regression": 307,
+    "releaseFiles": 15,
+    "developmentFiles": 17,
+    "liveFilesMatchingSHA256": 17,
+    "preservedOutsideDevBlobs": 49,
+    "docs": "passed"
+  },
+  "limits": "Source/DOM/build and live-byte verification only; physical phone visual sign-off pending. Production and dev2 unchanged."
+}
