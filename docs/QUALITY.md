@@ -2,6 +2,8 @@
 
 ## F-053 additional 30% brightness reduction
 
+Verified publication: glow runtime source `78ed293e96f9b985cfa6c5657f0d6b885e8149b3`; source CI [39092794606](https://github.com/novydhillon/Flock/actions/runs/39092794606) passed. Pages `12621784e6aa7ea4ab6ca021c639da8af5f1c30b` and native deployment [39092856029](https://github.com/novydhillon/Flock/actions/runs/39092856029) succeeded. All 17 live dev2 files match the checked build by SHA-256; all 30 unrelated Pages files, including production, are preserved. Native glow appearance remains Review. Newer tree acceptance at `de2c035` is preserved by this documentation-only update.
+
 In the existing isolated worktree, change glow strength from 0.85 to `0.85 * 0.7 = 0.595`, applying the repeated user request once. Radius 0.54, color, smooth falloff, receivers and ground opacity remain unchanged. Blind review was explicitly waived; none is performed for this change. Existing tests assert the new strength. All **288/288 tests pass**, along with generated documentation/four behavior checks and both artifact-mode checks. The final development artifact is built with `--emptyOutDir`. Publication evidence follows; native GPU appearance remains unverified.
 
 ## F-053 softer and subtler ground glow

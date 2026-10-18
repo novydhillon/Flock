@@ -1,5 +1,7 @@
 # FLOCK — Remaining issues and change tracker
 
+F-053 30% dimmer glow publication: source `78ed293`, Pages `1262178`; source CI/native deployment succeeded, 288 tests passed, all 17 live files verified and 30 unrelated files preserved. Blind review was waived and not run. Glow appearance remains Review; newer F-054 tree acceptance is unchanged. See QUALITY.md for publication evidence.
+
 F-053 brightness tuning, 17 October: reduce the current glow brightness by 30%, from 0.85 to 0.595. Diffuse radius/falloff, color, Pip size and ground opacity are unchanged. Blind review explicitly waived. Visual acceptance remains Review; validation/publication evidence is in QUALITY.md.
 
 F-053 glow tuning: user requests 50% more transparency and a more diffuse footprint. Strength is halved (1.7 to 0.85), radius widened (0.36 to 0.54) and radial falloff smoothed; ground remains opaque. The user waived further blind review for this tweak. Glow runtime source `ff5e2cd`, Pages `93ea5fe`: CI/native deployment pass, 283 tests pass, all 17 live files verified and 30 unrelated files preserved. Newer tree source is preserved; this evidence covers the glow publication only. Status stays Review for visual acceptance; see QUALITY.md.
