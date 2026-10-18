@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Current minimap placement — F-057
+
+The minimap is anchored at `left:50%` with a negative half-width translation and `top:var(--hud-top)`, including short landscape. Existing 166px desktop/132px mobile and short-landscape sizes are retained. Below 384px, the map uses `top:calc(var(--hud-top) + 76px)` to clear the top-left weather/count/timer and top-right pause/help. This supersedes historical right-aligned placement below.
+
 ## Current minimal HUD and level introduction — 18 October 2026
 
 This supersedes the full-title presentation below. The transparent top-left `#mission` has one weather/count row and a separate active-only countdown below; reward score/objective/progress/title nodes are removed. Results and reward simulation are unchanged. The center overlay contains only `#level-number`, a 36px “Level #” heading. Active elapsed time drives fade-in (0–0.65s), expansion (0.72–1.2 scale over 3s) and fade-out (1.8–3s). It stays centered, accepts no pointer input, freezes/hides in menus and resets per level/restart. `prefers-reduced-motion` disables the scale transform while retaining centering and fade. No white background/panel is used.

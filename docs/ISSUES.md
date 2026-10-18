@@ -1,5 +1,9 @@
 # FLOCK — Remaining issues and change tracker
 
+## F-057 top-center minimap — 18 October 2026
+
+**Review**, owner Codex on `UI_refinement`: minimap is centered horizontally at the safe top edge, preserving its current size and contrast. At widths below 384px, it sits below the weather/livestock/countdown row to avoid overlap with that row or pause/help. Combined UI/Buddy runtime is preserved. All 318 regression tests, both isolated artifact modes (15 release/no QA, 17 development/two QA) and generated docs pass. Bounded CSS placement edit; no new substantial-change review. Publication evidence follows; retain Review for visual sign-off.
+
 ## Minimal gameplay HUD and Level-number animation — 18 October 2026
 
 Published and verified at `/Flock/dev/`: source `94d0b89`, source CI `39175874260`, Pages `6df73af`, native deployment `39175960644`. All 17 live files match the checked build; all 49 files outside dev retain their blobs. [Current publication evidence](validation/F-056-F-063-minimal-hud-publication.json). This supersedes pending-publication wording below; user appearance sign-off remains pending.

@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## F-057 top-center minimap — 18 October 2026
+
+Validation: 318/318 regression tests, generated docs and both isolated build-mode checks pass (release15/no QA; development17/two QA). No controller/rendering logic changed. Publication evidence follows separately; no native appearance acceptance is implied.
+
+Bounded CSS placement change by the root session (platform-selected model/effort not exposed); no new substantial-change gauntlet is required. Horizontal centering applies to all breakpoints. The below-384px second lane preserves current map size and clears the 65.4px maximum status height with 10.6px spacing. At 384px with standard 12px portrait side clearance, the map begins at126px while maximum weather/count ends near118px; pause/help begins at280px and the map ends258px. These are CSS/font source coordinates, not native browser/device evidence. Validation/publication results follow; visual sign-off remains Review.
+
 ## Minimal HUD and Level-number animation — 18 October 2026
 
 Verified dev publication: source `94d0b891315883492bdf74d15c3e6dfcfd47b069` passed CI `39175874260`; Pages `6df73afcd118b777a5b6ba7071b3e0a6bcd37519` passed native deployment `39175960644`. All 17 live files match the isolated checked development output by SHA-256; all 49 unrelated Pages blobs are unchanged. [Publication manifest](validation/F-056-F-063-minimal-hud-publication.json). Source review is complete; user appearance acceptance remains Review.
