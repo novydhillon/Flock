@@ -15,6 +15,10 @@ Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/inde
 
 Play the standalone development build at [novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/). The existing `flock/dev/` game is preserved separately.
 
+## Current UI refinement candidate
+
+F-055–F-060 are implemented and independently reviewed on `UI_refinement`, based on production main `8cc4275`. This batch simplifies gameplay chrome, status/countdown, guidance and thumb controls; it does not change flock/economy progression. The development publication and user sign-off remain separate. Read [AGENTS.md](AGENTS.md) for the standing project development rules and [the tracker](docs/ISSUES.md) for current progress. Dated release paragraphs below are historical checkpoints.
+
 ## Engine choice
 
 This build uses **Three.js**, with Vite for packaging. The requested ThreeRust engine at [threerust.com](https://threerust.com/) was investigated first. Its public offering is an early-access Rust/WebAssembly/WebGPU browser editor with RHAI scripting; a reusable runtime SDK suitable for this repository was not available through its public documentation. The user approved the Three.js fallback. This project does not claim to use ThreeRust or the separate `three-rs`/`threers` Rust projects.

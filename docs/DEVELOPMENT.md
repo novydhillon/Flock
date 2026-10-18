@@ -2,6 +2,10 @@
 
 [Documentation home](README.md) · [Architecture](ARCHITECTURE.md) · [Issue tracker](ISSUES.md)
 
+## Project-wide agent rules
+
+Read [AGENTS.md](../AGENTS.md) before work. It is the current repository-wide policy for model/effort selection, parallel ownership, independent blind review gauntlets, tracking, validation, publication and explicit user sign-off. The default gauntlet threshold is 9/10 with no material blockers; dated thresholds below describe historical batches. Runtime changes use feature branches and reach dev2 review before any authorized production merge.
+
 ## Local setup
 
 Use Node.js 22 or newer and the locked dependencies. Run commands from the repository root.

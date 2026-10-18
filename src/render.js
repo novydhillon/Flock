@@ -143,7 +143,7 @@ export class MeadowRenderer{
       roof.position.set(t.x,0,t.z);roof.rotation.y=heading;this.terrain.add(roof);
       this.cutaway=new StructureCutaway(t,structure,{halfExtent:s+.3});
     }
-    const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
+    const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.scale.set(4.5,1.125,1);sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.name='Destination introduction';sign.userData.ownedLabel=true;this.destinationSign=sign;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
       const treeScale=obstacle.radius*1.45;const tree=createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,obstacle.x,obstacle.z,treeScale);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
@@ -286,6 +286,9 @@ export class MeadowRenderer{
   }
   update(level,dog,dt,preview=false){
     this.time+=dt;this.preview=preview;const active=level.animals.filter(a=>!a.saved);
+    // Simulation time advances only during play, so menus freeze this introduction.
+    this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-4)/1.2));
+    this.destinationSign.visible=this.destinationSign.material.opacity>0;
     const avg=active.reduce((p,a)=>({x:p.x+a.x/active.length,z:p.z+a.z/active.length}),{x:0,z:0});
     const viewHeight=preview?(this.aspect<.8?50:44):(this.aspect<.8?39:36);const half=viewHeight/2,halfWidth=half*this.aspect;
     // Follow Pip; enough leading space keeps the flock and crossing visible.

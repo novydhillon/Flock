@@ -8,6 +8,12 @@ F-053 glow tuning: user requests 50% more transparency and a more diffuse footpr
 
 F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. The separate transparent sheet is replaced with illumination in the actual grass/path/river-bank/bridge surface materials. Requested size and hover rings are preserved. Runtime source `84ad352`, Pages `b666edf`: 283 tests pass, source review 9/10, source CI/native Pages succeed, all 17 live files verified and 30 unrelated files preserved. This correction remains Review for native appearance acceptance; see QUALITY.md for evidence and the unavailable WebGL2 visual-check limitation.
 
+## UI refinement — 17 October 2026 (America/Creston)
+
+Current work: `UI_refinement`, based on main `8cc4275`. Owner: Codex with parallel controller/layout agents; root integration owns renderer and documentation. Reference screenshots: IMG_8398.jpeg (before delivery) and IMG_8399.jpeg (active countdown). QA gear is excluded from this design review and stays development-only. User approved the UI proposals and requested tracked progress/sign-offs and permanent development rules. F-055–F-060 below are the current batch; historical sign-offs do not accept these new changes.
+
+Status: **Review**. Source implementation, checks and independent blind gauntlet are complete; development publication is being prepared. User appearance/touch sign-off is pending. Production remains unchanged. Project-wide workflow is recorded in [AGENTS.md](../AGENTS.md).
+
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
 Novy signed off all seven items in Review: **F-035, F-037, F-039, F-041, F-046, F-051 and F-052 are Done**. This covers wandering/bolting tuning and local settling, Buddy behavior and the forward-flow/bridge follow-ups, the compact HUD and revised tips/bark/goal pointer, and the bottom-centre development QA gear. No items remain in Review at this checkpoint. Open items (including F-048 low-speed Buddy stutter) and Deferred clouds remain unchanged. This is user acceptance, not a new independent device/performance measurement. Earlier Review/pending wording below is historical and superseded by this sign-off. Documentation only; game bytes are unchanged.
@@ -104,6 +110,13 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | F-053 | P2 | Presentation | ~~Pip reference model, hover rings and floating movement~~ | Done | User signed off 17 October 2026 |
 | ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
+
+| F-055 | P2 | UI/navigation | Remove gameplay branding/wallet/sound; move sound and currency access into Pause | Review | F-051 |
+| F-056 | P2 | UI/status | Compact level/delivery/score; prominent active-only countdown; compact weather | Review | F-055 |
+| F-057 | P2 | UI/guidance | Compact adjacent minimap and concise finite/manual tips | Review | F-056 |
+| F-058 | P2 | UI/controls | Simplify thumb controls and expose bark cooldown progress | Review | F-055 |
+| F-059 | P2 | Presentation/UI | Smaller destination introduction that fades during play | Review | F-056 |
+| F-060 | P2 | Development process | Persistent project agent/model/parallel/blind-gauntlet/sign-off rules | Review | — |
 
 ## Screenshot evidence
 
@@ -820,3 +833,39 @@ F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the we
 **Follow-up request:** The earlier segmented wood mesh fails the phone visual check in IMG8395 and IMG8396. Implementation and final mesh/visual review are to use `gpt-6-astra` at high effort, as selected by the user. Previous F-054 scores and tests reviewed source/geometry only; they did not establish rendered phone pixels. The new implementation uses one closed welded wood surface per tree, with smooth width-dependent normals and seam-free vertex grain. Source tests and offscreen mesh-shader diagnostics are recorded in QUALITY.md; deployment and native visual acceptance are recorded separately.
 
 F-053 follow-up (16 October 2026): latest request is a 25% reduction from published Pip scale 1.35, replacing the unfinished earlier 33% size change. Worktree branch `pip_thruster_glow` uses scale 1.0125, retains the pending lighter silver finish and adds four soft ground-following blue thruster glows. Halo/pointer world size, Buddy and gameplay are unchanged. Source `ddae15b`, Pages `934fd37`: CI/native deployment passed, 282 tests, source review 9.2/10, all 17 live files verified and 30 unrelated Pages files preserved. Status remains Review for native visual acceptance; see QUALITY.md.
+
+## UI refinement acceptance — F-055–F-060
+
+Owner: Codex; branch `UI_refinement`; started 17 October 2026 America/Creston. Changes preserve saved progress, economy, flock behavior, movement, destination outline/pointer and development QA exclusion. Each item has independent acceptance; no item becomes Done without user sign-off.
+
+### F-055 — Gameplay chrome and pause settings
+
+Hide the title, wallet and music control after starting. Reclaim the header's vertical space. Pause retains workshop/currency access and gains a clearly labelled sound toggle with persisted state, correct mute/async-activation behavior and usable focus. Landing and results retain their appropriate progression actions. Review portrait/landscape, pause/workshop/back, background/resume and restart. Do not merge/publish production until authorized.
+
+### F-056 — Compact status and useful countdown
+
+Show a short level/destination heading, a weather icon with accessible full description, readable Delivered and Score values, and a secondary delivery progress strip. Show the objective briefly at level start. Remove the first-arrival explanation; the timer is absent before delivery and becomes large once running. At ten seconds or less, use a clear static urgency treatment. Pause freezes time; restart/next level resets objective/timer/urgency. Phone sign-off requires legible values without clipping or collisions.
+
+### F-057 — Minimap and tips
+
+Keep the minimap beside status, align edges and simplify its frame/caption without losing map information. Shorten tips to one action, hide decorative numbering, and retain finite automatic tips plus restart-from-first manual looping through ?. Help and dismiss retain clear accessible identities and adequate hit areas. Verify short/narrow screens, live timer, gate action, toasts and manually reopened tips.
+
+### F-058 — Movement and bark controls
+
+Simplify joystick artwork, remove persistent instruction captions and preserve generous thumb targets and drag-anywhere behavior. Keep a circular Woof control with a legible visual cooldown ring; preserve double-tap and keyboard barking, cooldown timing, pointer cancellation and menu-safe input. QA launcher behavior is outside this UI refinement.
+
+### F-059 — Destination introduction
+
+Reduce destination billboard scale by 25%; introduce it for four active gameplay seconds and fade it over 1.2 seconds. Level reset restores it, pauses freeze it, and goal floor/outline and Pip's directional pointer remain available afterward. Headless scene checks do not establish rendered likeness.
+
+### F-060 — Permanent development rules
+
+Root AGENTS.md is the automatic project-wide entry point for branch hygiene, model/effort selection, parallel ownership, independent blind gauntlet (default >=9/10, no material blockers), documentation/tests, review vs user acceptance, development publication/live verification and production authorization. Link it from development and the documentation home; maintain it when explicit user decisions supersede defaults. This records the established workflow; it does not retroactively claim missing validation.
+
+### UI refinement execution record
+
+- Planning: compare smaller text/panels with removing secondary gameplay chrome. Choose removal and a compact information hierarchy so important values can grow while total occupied space falls.
+- Parallel implementation: `gpt-6.1-sol`, medium effort for independent controller/tests and markup/layout ownership. Root integration uses the session model. Routine documentation review may use `gpt-6-luna`, medium effort; a fresh workhorse critic checks integrated source without writer reasoning/history/scores.
+- Final source checks: 306/306 tests; both artifact modes pass (15 release files, zero QA assets; 17 development files, two QA assets). Generated documentation and four DOM behavior checks pass.
+- Blind source review: gpt-6.1-sol medium, initial 8/10 for a 568×320 landscape collision; corrected compact lanes cover widths from 480px. Same-critic follow-up 9/10 with no source blocker and 63 focused tests independently passed. Blind documentation review: gpt-6-luna medium, 8/10 initially; stale current summary corrected; follow-up 9.5/10. See QUALITY.md.
+- Development publication: preparing; user visual/touch sign-off pending. No production UI publication. Native WebGL2 screenshots and phone touch checks remain unavailable to the agent; source/DOM/scene checks do not establish those.

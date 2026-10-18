@@ -31,6 +31,22 @@ function setup({width=390,height=844,treeYaw=true}={}){
 
 // P2 adds fixed wildlife anatomy batches and 20 dormant puddle/splash objects.
 // Object count includes hidden pool slots; submitted draw budget remains 170.
+test('destination introduction shrinks, fades on gameplay time and resets with each level',()=>{
+  const renderer=setup(),level=createLevel(0),dog={...level.dog};renderer.setLevel(level);
+  assert.equal(renderer.destinationSign.scale.x,4.5);
+  level.time=4.6;renderer.update(level,dog,.05,false);
+  assert.ok(Math.abs(renderer.destinationSign.material.opacity-.5)<1e-9);
+  renderer.update(level,dog,0,false);
+  assert.ok(Math.abs(renderer.destinationSign.material.opacity-.5)<1e-9,'pause keeps the fade frozen');
+  level.time=6;renderer.update(level,dog,.05,false);
+  assert.equal(renderer.destinationSign.visible,false);
+  assert.equal(renderer.goal.visible,true,'the enclosure highlight remains');
+  assert.equal(renderer.goalPointer.visible,true,'Pip still points toward the goal');
+  renderer.setLevel(createLevel(1));
+  assert.equal(renderer.destinationSign.visible,true);
+  assert.equal(renderer.destinationSign.material.opacity,1);
+});
+
 test('portrait scene builds articulated instance poses and finite camera matrices',()=>{
   const renderer=setup();
   for(const index of [0,1,3,8,20,23,99]){
