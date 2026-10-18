@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-18",
+  "issue": "F-063",
+  "status": "Review",
+  "branch": "UI_refinement",
+  "source": "bf4478885f5ea9acfd3d141797a246ec2e86f138",
+  "sourceCI": {
+    "id": 39173868806,
+    "conclusion": "success"
+  },
+  "pages": "34d0160194385230cea648ef36cfe36411a81718",
+  "pagesCI": {
+    "id": 39173966107,
+    "conclusion": "success"
+  },
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "behavior": {
+    "titleFontPx": 28,
+    "sideMarginMinPx": 20,
+    "holdActiveSeconds": 2.5,
+    "fadeActiveSeconds": 1.25,
+    "wrapping": "centered, normal word wrap with overflow-wrap:anywhere"
+  },
+  "validation": {
+    "regressionTests": 317,
+    "focusedUIQA": 42,
+    "independentUI": 36,
+    "review": {
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "score": 9,
+      "materialBlockers": 0
+    },
+    "releaseFiles": 15,
+    "releaseQA": 0,
+    "developmentFiles": 17,
+    "developmentQA": 2,
+    "preservedOutsideDevBlobs": 49
+  },
+  "live": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "e83a28721dc55316ba0e67d0f89900d559c1a962540685adf3303b93d0630222",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "status": 200,
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "status": 200,
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "status": 200,
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "status": 200,
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "status": 200,
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "status": 200,
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "match": true
+    },
+    {
+      "path": "assets/index-BGXVwuN-.js",
+      "status": 200,
+      "sha256": "132d1e0e61adf3106bbc30714b2b4af108cec39f5b34a0246923e9b6a13f35f3",
+      "match": true
+    },
+    {
+      "path": "assets/index-CcBQYPUK.css",
+      "status": 200,
+      "sha256": "579362dc574229520f298f59286f6eef9144788041e71b38e248763029d4df77",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "status": 200,
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "status": 200,
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "status": 200,
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "status": 200,
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "status": 200,
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "status": 200,
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "match": true
+    },
+    {
+      "path": "assets/qa-BRO7Tstr.js",
+      "status": 200,
+      "sha256": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f",
+      "match": true
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "status": 200,
+      "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "match": true
+    }
+  ],
+  "limits": "Source/DOM/build and live hashes only. Native phone wrapping, appearance, touch and screen-reader verification pending. User sign-off required; combined Buddy/UI retained."
+}

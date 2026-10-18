@@ -9,7 +9,7 @@ import '@fontsource/dm-sans/latin-600.css';
 import '@fontsource/dm-sans/latin-700.css';
 import { MeadowRenderer } from './render.js';
 import { FarmAudio } from './audio.js';
-import { createLevel, stepSimulation, stepSavedRoaming, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG, deliveryCountdownSeconds } from './simulation.js';
+import { createLevel, stepSimulation, stepSavedRoaming, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG } from './simulation.js';
 import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades } from './progression.js';
 import { canOccupy } from './world.js';
 
@@ -22,37 +22,60 @@ let qaSession=false;
 const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(message){$('toast').textContent=message;visible('toast',true);clearTimeout(toastTimer);toastTimer=setTimeout(()=>visible('toast',false),2800);}
-function updateWallet(){$('points').textContent=profile.points;$('sound').textContent=profile.music?'♫':'♪';$('sound').setAttribute('aria-label',profile.music?'Mute sound':'Enable sound');$('sound').style.opacity=profile.music?'1':'.55';}
+function updateWallet(){
+  $('points').textContent=profile.points;$('sound').textContent=profile.music?'♫':'♪';$('sound').setAttribute('aria-label',profile.music?'Mute sound':'Enable sound');$('sound').style.opacity=profile.music?'1':'.55';
+  if($('menu-sound')){$('menu-sound').textContent=`Sound: ${profile.music?'On':'Off'}`;$('menu-sound').setAttribute('aria-pressed',String(profile.music));}
+}
+async function toggleSound(){
+  profile.music=!profile.music;audio.setMuted(!profile.music);persist();updateWallet();
+  if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}
+}
+function updateBark(now){
+  const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
+  $('bark').style.setProperty('--bark-progress',String(Math.max(0,Math.min(1,1-(barkCooldown-now)/2100))));
+}
+function updateCountdown(started=false,remaining=0){
+  visible('countdown',started);$('countdown').textContent=started?`${Math.ceil(remaining)}s`:'';
+  $('countdown').setAttribute('aria-label',started?`${Math.ceil(remaining)} seconds remaining to deliver the flock`:'Delivery countdown has not started');
+  $('countdown').classList.toggle('running',started);$('countdown').classList.toggle('urgent',started&&remaining<=10);
+}
 function resetInput(){input.x=input.z=0;pointer=null;keys.clear();$('stick').style.transform='translate(0,0)';}
+function updateLevelIntroduction(){
+  const progress=Math.max(0,Math.min(1,elapsed/3));
+  const opacity=Math.max(0,Math.min(1,elapsed/.65,(3-elapsed)/1.2));
+  $('level-introduction').style.opacity=String(opacity);
+  $('level-introduction').style.setProperty('--level-scale',String(.72+.48*(1-(1-progress)**2)));
+  visible('level-introduction',mode==='playing'&&elapsed<3);
+}
 async function begin(index=profile.highestLevel){
   index=Math.max(0,Math.min(99,Math.floor(Number(index)||0)));
-  closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';
+  closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';document.body.classList.toggle('in-game',true);updateBark(performance.now());
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box'])visible(id,true);
-  $('level-name').textContent=`LEVEL ${index+1} · ${level.title}`;$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=`/ ${level.animals.length}`;$('saved').textContent=0;$('progress').style.width='0%';
-  $('countdown').textContent=`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',false);$('mission-score').textContent=`Score 0 / ${level.reward}`;
+  $('level-number').textContent=`Level ${index+1}`;updateLevelIntroduction();$('mission').setAttribute('aria-label',`Level ${index+1} · Livestock delivery status`);$('total').textContent=level.animals.length;$('saved').textContent=0;
+  updateCountdown();
   tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(tipsFor(index)[0]);
-  audio.setMuted(!profile.music);await audio.start();if(mode!=='playing')audio.pause();updateWallet();
+  audio.setMuted(!profile.music);await audio.start();if(mode!=='playing'||!profile.music)audio.pause();updateWallet();
 }
 const TIP_CYCLE=14;
 function tipsFor(index){return index===0?[
-  'Drag with your thumb to move Pip. Try circling behind the sheep.',
-  'Sheep move away from Pip. Stay behind them to guide them to the golden pen.',
-  'Lovely! Circle behind the stragglers. Double-tap anywhere to woof.',
-]:[level.routes.length>1?'Choose a winding trail on the map. Each trail reaches home.':'Follow the winding trail. Gather stragglers before crossing.'];}
+  'Drag to move Pip.',
+  'Move behind the flock to guide it.',
+  'Double-tap to woof.',
+]:[level.routes.length>1?'Choose a trail on the map.':'Gather stragglers before crossing.'];}
 function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visible('toggle-tip',true);$('toggle-tip').setAttribute('aria-expanded','false');$('toggle-tip').setAttribute('aria-label','Show tips');}
 function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
-function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
+function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;updateBark(performance.now());audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
 function openModal(html,newMode='paused'){
-  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
+  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
 }
-function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');if(mode==='playing')audio.resume();modalFocus?.focus();}resetInput();}
+function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');if(mode==='playing')audio.resume();modalFocus?.focus();}updateLevelIntroduction();resetInput();}
 function menu(){
   if(mode==='reset-confirm'){$('cancel-reset').onclick();return;}
   if(mode==='shop'){$('shop-back').onclick();return;}
   if(mode==='paused'){closeModal();return;}
   if(mode==='complete')return;
-  openModal(`<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode==='intro'?'Hello, shepherd.':'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode==='intro'?'Back to the meadow':'Keep herding'} <span>➜</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button>${mode==='playing'?'<button class="secondary" id="restart">Restart this meadow</button>':''}<button class="secondary danger" id="restart-game-menu">Restart Game</button><div class="eyebrow" style="margin-top:23px">YOUR MEADOWS</div><div class="level-picker">${Array.from({length:Math.min(100,profile.highestLevel+1)},(_,i)=>`<button class="${i===level.index?'current':''}" data-level="${i}" aria-label="Play level ${i+1}">${i+1}</button>`).join('')}</div>`);
-  $('close').onclick=()=>closeModal();$('resume').onclick=()=>closeModal();$('upgrades-menu').onclick=shop;$('restart-game-menu').onclick=confirmRestart;if($('restart'))$('restart').onclick=()=>begin(level.index);$('modal-card').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>begin(Number(b.dataset.level)));
+  openModal(`<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode==='intro'?'Hello, shepherd.':'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode==='intro'?'Back to the meadow':'Keep herding'} <span>➜</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button>${mode==='playing'?'<button class="secondary" id="restart">Restart this meadow</button>':''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music?'On':'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart Game</button><div class="eyebrow" style="margin-top:23px">YOUR MEADOWS</div><div class="level-picker">${Array.from({length:Math.min(100,profile.highestLevel+1)},(_,i)=>`<button class="${i===level.index?'current':''}" data-level="${i}" aria-label="Play level ${i+1}">${i+1}</button>`).join('')}</div>`);
+  $('close').onclick=()=>closeModal();$('resume').onclick=()=>closeModal();$('menu-sound').onclick=toggleSound;$('upgrades-menu').onclick=shop;$('restart-game-menu').onclick=confirmRestart;if($('restart'))$('restart').onclick=()=>begin(level.index);$('modal-card').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>begin(Number(b.dataset.level)));
 }
 function confirmRestart(){
   const returnMode=mode,returnPrevious=previousMode;
@@ -106,7 +129,7 @@ window.addEventListener('blur',()=>{resetInput();pointer=null;if(mode==='playing
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')menu();});
 window.addEventListener('resize',()=>renderer?.resize());
 $('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
-$('sound').onclick=async()=>{profile.music=!profile.music;audio.setMuted(!profile.music);if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}persist();updateWallet();};
+$('sound').onclick=toggleSound;
 $('dismiss-tip').onclick=hideTip;
 $('toggle-tip').onclick=()=>{if(mode!=='playing')return;if(!$('tip').classList.contains('hidden')){hideTip();return;}tipDismissed=false;tipManual=true;tipStep=0;tipChangedAt=elapsed;setTip(tipsFor(level.index)[0]);visible('tip',true);$('toggle-tip').setAttribute('aria-expanded','true');$('toggle-tip').setAttribute('aria-label','Hide tips');};
 
@@ -118,10 +141,10 @@ function frame(now){
     const ix=keys.has('arrowright')||keys.has('d')?1:keys.has('arrowleft')||keys.has('a')?-1:input.x;
     const iz=keys.has('arrowdown')||keys.has('s')?1:keys.has('arrowup')||keys.has('w')?-1:input.z;
     const result=stepSimulation(level,dog,{x:ix,z:iz,bark:now<barkUntil},dt,profile.upgrades);
-    $('saved').textContent=result.saved;$('progress').style.width=`${result.total?result.saved/result.total*100:0}%`;
-    $('countdown').textContent=result.countdownStarted?`${Math.ceil(result.remaining)}s to gather the rest`:`First arrival starts ${deliveryCountdownSeconds(level)}s`;$('countdown').classList.toggle('running',result.countdownStarted);$('mission-score').textContent=`Score ${result.score} / ${result.possibleScore}`;
+    $('saved').textContent=result.saved;
+    updateCountdown(result.countdownStarted,result.remaining);
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
-    const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
+    updateBark(now);
     if(!tipDismissed){
       const dwell=tipManual||level.index!==0||tipStep>0?TIP_CYCLE:5;
       if(elapsed-tipChangedAt>=dwell){
@@ -133,10 +156,10 @@ function frame(now){
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
-  gateControl.update();
+  updateLevelIntroduction();gateControl.update();
   renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'||mode==='complete')?dt:0,mode==='intro');
   if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();
-  const weather=renderer.nature?.weather;if(weather)$('weather-status').textContent=({sun:'☀ Clear skies',wind:'↝ Breezy',rain:'☂ Light rain','heavy-rain':'☂ Heavy rain',storm:'ϟ Thunderstorm'})[weather.kind||weather.type]||'Clear skies';
+  const weather=renderer.nature?.weather||level.weather;if(weather){const [icon,label]=({sun:['☀','Clear skies'],wind:['↝','Breezy'],rain:['☂','Light rain'],'heavy-rain':['☂','Heavy rain'],storm:['ϟ','Thunderstorm']})[weather.kind||weather.type||weather]||['☀','Clear skies'];$('weather-status').textContent=icon;$('weather-status').setAttribute('title',label);$('weather-status').setAttribute('aria-label',label);}
   if(mode==='playing')audio.updateAmbience?.(dt,{weather:renderer.nature?.weather||level.weather||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
   mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);}
 }

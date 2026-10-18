@@ -32,7 +32,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
 
   class Element {
     constructor(id = '', attrs = {}) {
-      this.id = id; this.attrs = attrs; this.dataset = {}; this.style = {};
+      this.id = id; this.attrs = attrs; this.dataset = {}; this.style = { setProperty(key,value) { this[key]=value; } };
       this.children = []; this.textContent = ''; this.disabled = false;
       this.classes = new Set();
       this.classList = {
@@ -56,6 +56,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
       this.html = value;
       this.children = [...value.matchAll(/<button\b([^>]*)>/g)].map(([, attrs]) => {
         const child = new Element(attrs.match(/\bid="([^"]*)"/)?.[1] || '', { tag: 'button' });
+        for (const [, key, value] of attrs.matchAll(/([\w-]+)="([^"]*)"/g)) child.attrs[key]=value;
         child.disabled = /\bdisabled\b/.test(attrs);
         for (const [, key, data] of attrs.matchAll(/data-([a-z]+)="([^"]*)"/g)) child.dataset[key] = data;
         return child;
@@ -73,6 +74,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
       return this.querySelectorAll(selector)[0] || null;
     }
   }
+  document.body=new Element('body');
   for (const [, tag, , id] of html.matchAll(/<(\w+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)) elements.set(id, new Element(id, { tag }));
   for (const id of ['modal', 'controls', 'error', 'toast']) elements.get(id)?.classes.add('hidden');
   class MeadowRenderer {
@@ -118,26 +120,26 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
 
 test('manually reopening tips restarts at 01 and cycles through 02, 03, then 01', async () => {
   const ui = launch(); await ui.click('play');
-  ui.advance(5.1); assert.equal(ui.el('tip-text').textContent, 'Sheep move away from Pip. Stay behind them to guide them to the golden pen.');
-  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');
+  ui.advance(5.1); assert.equal(ui.el('tip-text').textContent, 'Move behind the flock to guide it.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Double-tap to woof.');
   ui.advance(14.1); assert.ok(ui.el('tip').classList.contains('hidden'));
   await ui.click('toggle-tip');
-  assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
   assert.equal(ui.el('tip').querySelector('.tip-number').textContent, '01');
-  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Sheep move away from Pip. Stay behind them to guide them to the golden pen.');
-  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Lovely! Circle behind the stragglers. Double-tap anywhere to woof.');
-  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Move behind the flock to guide it.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Double-tap to woof.');
+  ui.advance(14.1); assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
 });
 
 test('manual tip dwell time freezes while paused and closing then reopening resets to 01', async () => {
   const ui = launch(); await ui.click('play'); await ui.click('dismiss-tip'); await ui.click('toggle-tip');
   ui.advance(8); await ui.click('pause'); ui.advance(20);
-  assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
   await ui.click('resume'); ui.advance(6.1);
-  assert.equal(ui.el('tip-text').textContent, 'Sheep move away from Pip. Stay behind them to guide them to the golden pen.');
+  assert.equal(ui.el('tip-text').textContent, 'Move behind the flock to guide it.');
   await ui.click('toggle-tip'); assert.ok(ui.el('tip').classList.contains('hidden'));
   await ui.click('toggle-tip');
-  assert.equal(ui.el('tip-text').textContent, 'Drag with your thumb to move Pip. Try circling behind the sheep.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
   assert.equal(ui.el('tip').querySelector('.tip-number').textContent, '01');
 });
 
@@ -190,7 +192,7 @@ test('intro starts the tutorial, enables thumb controls and respects audio setti
 
 test('workshop purchase refresh preserves the playing origin and applies one purchase', async () => {
   const ui = launch({ points: 400,highestLevel:14 });
-  await ui.click('play'); await ui.click('wallet');
+  await ui.click('play'); await ui.click('pause'); await ui.click('upgrades-menu');
   ui.buy('speed'); ui.buy('flock');
   assert.equal(ui.app.state().profile.points, 200);
   assert.equal(ui.app.state().profile.upgrades.speed, 1);
@@ -287,7 +289,7 @@ test('keyboard movement works while Play or Resume retains browser focus', async
 });
 
 test('the workshop hides the drone and labels other level locks',async()=>{
-  const ui=launch({points:1000,highestLevel:7});await ui.click('play');await ui.click('wallet');
+  const ui=launch({points:1000,highestLevel:7});await ui.click('play');await ui.click('pause');await ui.click('upgrades-menu');
   const buttons=ui.el('modal-card').querySelectorAll('[data-buy]');
   assert.equal(buttons.some(b=>b.dataset.buy==='drone'),false);
   assert.doesNotMatch(ui.el('modal-card').innerHTML,/Scout drone/);
@@ -402,13 +404,14 @@ test('delayed Restart Game audio does not move focus out of a newly opened pause
 test('first delivery starts the visible timer and pause, workshop and hidden tabs freeze it', async () => {
   const ui=launch();await ui.click('play');
   const {level,dog}=ui.app.state();
-  assert.match(ui.el('countdown').textContent,/First arrival starts 30s/);
+  assert.equal(ui.el('countdown').textContent,'');assert.ok(ui.el('countdown').classList.contains('hidden'));
   Object.assign(dog,{x:level.target.x,z:level.target.z});
   Object.assign(level.animals[0],{x:level.target.x,z:level.target.z,vx:0,vz:0});ui.tick();
   assert.equal(ui.app.state().mode,'playing');
   assert.equal(level.delivery.remaining,30);
-  assert.match(ui.el('countdown').textContent,/30s to gather/);
-  assert.equal(ui.el('mission-score').textContent,'Score 16 / 80');
+  assert.equal(ui.el('countdown').textContent,'30s');assert.equal(ui.el('countdown').classList.contains('hidden'),false);
+  assert.equal(ui.el('saved').textContent,1);
+  assert.equal(ui.el('total').textContent,5);
   const savedAnimal=level.animals[0],parked={x:savedAnimal.x,z:savedAnimal.z};
   await ui.click('pause');const paused=level.delivery.remaining;ui.tick();ui.tick();
   assert.equal(level.delivery.remaining,paused);
@@ -454,7 +457,7 @@ test('Restart Game erases both score and earned-bolt ledgers from an in-progress
   assert.equal(Object.keys(ui.app.state().profile.bestScores).length,0);
   assert.equal(Object.keys(ui.app.state().profile.bestEarnedBolts).length,0);
   assert.equal(ui.app.state().level.delivery,undefined);
-  assert.match(ui.el('countdown').textContent,/First arrival starts 30s/);
+  assert.equal(ui.el('countdown').textContent,'');assert.ok(ui.el('countdown').classList.contains('hidden'));
 });
 
 test('production controller exposes a nearby gate action without barking and restarts with fresh closed panels',async()=>{
@@ -480,9 +483,9 @@ test('hidden intro and results freeze presentation weather and wetness time',asy
 });
 
 test('mission identifies fixed weather without requiring a wait or affecting the delivery HUD',()=>{
- const ui=launch(),renderer=ui.app.state().renderer;renderer.nature={weather:{kind:'heavy-rain',type:'rain'}};ui.tick();assert.match(ui.el('weather-status').textContent,/Heavy rain/);
- renderer.nature.weather={kind:'storm',type:'rain'};ui.tick();assert.match(ui.el('weather-status').textContent,/Thunderstorm/);
- assert.ok(ui.el('mission-score'));assert.ok(ui.el('countdown'));
+ const ui=launch(),renderer=ui.app.state().renderer;renderer.nature={weather:{kind:'heavy-rain',type:'rain'}};ui.tick();assert.equal(ui.el('weather-status').textContent,'☂');assert.equal(ui.el('weather-status').attrs['aria-label'],'Heavy rain');assert.equal(ui.el('weather-status').attrs.title,'Heavy rain');
+ renderer.nature.weather={kind:'storm',type:'rain'};ui.tick();assert.equal(ui.el('weather-status').textContent,'ϟ');assert.equal(ui.el('weather-status').attrs['aria-label'],'Thunderstorm');
+ assert.ok(ui.el('saved'));assert.ok(ui.el('total'));assert.ok(ui.el('countdown'));
 });
 
 
@@ -506,7 +509,7 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
   const step=()=>ui.el('tip').querySelector('.tip-number').textContent;
   const text=()=>ui.el('tip-text').textContent;
   assert.equal(step(),'01');
-  assert.match(text(),/Drag with your thumb/);
+  assert.match(text(),/Drag to move/);
 
   // An early delivery used to cascade through both tutorial conditions in a
   // single frame and skip tip 2. Keep the delivery present through every tick.
@@ -515,7 +518,7 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
   assert.equal(step(),'01','tip 1 remains for the initial five seconds');
   for(let i=0;i<13;i++)ui.tick();
   assert.equal(step(),'02');
-  assert.match(text(),/Sheep move away/);
+  assert.match(text(),/Move behind/);
   await ui.click('pause');
   for(let i=0;i<100;i++)ui.tick();
   assert.equal(step(),'02','pause holds the current tip');
@@ -524,7 +527,7 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
   assert.equal(step(),'02','tip 2 remains visible for its full 14-second cycle');
   for(let i=0;i<10;i++)ui.tick();
   assert.equal(step(),'03');
-  assert.match(text(),/Lovely!/);
+  assert.match(text(),/Double-tap/);
   for(let i=0;i<870;i++)ui.tick();
   assert.equal(ui.el('tip').classList.contains('hidden'),false,'tip 3 also gets its full cycle');
   for(let i=0;i<10;i++)ui.tick();
@@ -539,4 +542,113 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
   assert.equal(ui.el('toggle-tip').classList.contains('hidden'),true);
   for(let i=0;i<900;i++)ui.tick();
   assert.equal(ui.el('tip').classList.contains('hidden'),true);
+});
+
+test('minimal HUD keeps only livestock count and resets it per meadow without changing rewards',async()=>{
+  const ui=launch();await ui.click('play');
+  assert.ok(ui.document.body.classList.contains('in-game'));
+  assert.equal(ui.el('level-number').textContent,'Level 1');
+  assert.equal(ui.el('mission').attrs['aria-label'],'Level 1 · Livestock delivery status');
+  assert.equal(ui.el('saved').textContent,0);assert.equal(ui.el('total').textContent,5);
+  for(const id of ['level-name','mission-score','objective','progress'])assert.equal(ui.el(id),null);
+  ui.completeFlock();
+  assert.equal(ui.el('saved').textContent,5);
+  assert.equal(ui.app.state().profile.bestScores[0],80,'reward scoring remains active internally');
+  assert.match(ui.el('modal-card').innerHTML,/Score 80 \/ 80/,'results retain reward score');
+  await ui.app.begin(1);
+  const {level}=ui.app.state();
+  assert.equal(ui.el('level-number').textContent,'Level 2');
+  assert.equal(ui.el('saved').textContent,0);assert.equal(ui.el('total').textContent,level.animals.length);
+  assert.equal(ui.el('mission').attrs['aria-label'],'Level 2 · Livestock delivery status');
+});
+
+test('Level number fades in while expanding, freezes on pause and fades out before replaying',async()=>{
+  const ui=launch();await ui.click('play');
+  const title=ui.el('level-introduction');
+  assert.equal(title.classList.contains('hidden'),false);
+  assert.equal(title.style.opacity,'0');
+  const initialScale=Number(title.style['--level-scale']);
+  ui.advance(.3);
+  assert.ok(Number(title.style.opacity)>0&&Number(title.style.opacity)<1);
+  const incomingScale=Number(title.style['--level-scale']);
+  assert.ok(incomingScale>initialScale);
+  ui.advance(.4);assert.equal(title.style.opacity,'1');
+  ui.advance(1.5);
+  const fading=Number(title.style.opacity);
+  const pausedScale=Number(title.style['--level-scale']);
+  assert.ok(fading>0&&fading<1);
+  assert.ok(pausedScale>incomingScale);
+  await ui.click('pause');
+  assert.ok(title.classList.contains('hidden'));
+  ui.advance(10);assert.equal(Number(title.style.opacity),fading);
+  assert.equal(Number(title.style['--level-scale']),pausedScale);
+  await ui.click('resume');
+  assert.equal(title.classList.contains('hidden'),false);
+  assert.equal(Number(title.style.opacity),fading);
+  ui.advance(.9);assert.ok(title.classList.contains('hidden'));
+  assert.equal(title.style.opacity,'0');
+  await ui.app.begin(1);
+  assert.equal(ui.el('level-number').textContent,'Level 2');
+  assert.equal(title.classList.contains('hidden'),false);
+  assert.equal(title.style.opacity,'0');
+  assert.equal(Number(title.style['--level-scale']),initialScale);
+  ui.completeFlock();assert.ok(title.classList.contains('hidden'),'completion hides the overlay immediately');
+  await ui.app.begin(99);assert.equal(title.style.opacity,'0');
+  assert.equal(ui.el('level-number').textContent,'Level 100');
+  assert.equal(title.classList.contains('hidden'),false);
+});
+
+test('delivery countdown becomes urgent at ten seconds and restart clears all timer state',async()=>{
+  const ui=launch();await ui.click('play');ui.advance(1);
+  assert.ok(ui.el('countdown').classList.contains('hidden'));
+  const {level,dog}=ui.app.state();Object.assign(dog,{x:level.target.x,z:level.target.z});
+  Object.assign(level.animals[0],{x:level.target.x,z:level.target.z,vx:0,vz:0});ui.tick();
+  assert.equal(ui.el('countdown').attrs['aria-label'],'30 seconds remaining to deliver the flock');
+  level.delivery.remaining=10.1;ui.tick();
+  assert.equal(ui.el('countdown').classList.contains('urgent'),false);
+  level.delivery.remaining=10;ui.tick();
+  assert.equal(ui.el('countdown').textContent,'10s');assert.ok(ui.el('countdown').classList.contains('urgent'));
+  await ui.click('pause');await ui.click('restart');
+  assert.ok(ui.el('countdown').classList.contains('hidden'));
+  assert.equal(ui.el('countdown').classList.contains('urgent'),false);
+  assert.equal(ui.el('countdown').classList.contains('running'),false);
+  assert.equal(ui.el('countdown').textContent,'');
+});
+
+test('pause sound reflects and persists changes while delayed activation cannot override a later mute',async()=>{
+  const ui=launch({music:false});await ui.click('play');await ui.click('pause');
+  assert.equal(ui.el('menu-sound').attrs['aria-pressed'],'false');
+  await ui.click('menu-sound');
+  assert.equal(ui.el('menu-sound').textContent,'Sound: On');
+  assert.equal(ui.el('menu-sound').attrs['aria-pressed'],'true');
+  assert.equal(ui.app.state().mode,'paused');assert.equal(ui.audioEvents.at(-1),'pause');
+  assert.equal(simulationAPI.loadProfile({getItem:key=>ui.storage.get(key)}).music,true);
+  await ui.click('resume');await ui.click('pause');
+  assert.match(ui.el('modal-card').innerHTML,/Sound: On/);
+  await ui.click('menu-sound');assert.equal(ui.app.state().profile.music,false);
+  assert.equal(simulationAPI.loadProfile({getItem:key=>ui.storage.get(key)}).music,false);
+
+  const delayed=launch({deferAudioStart:true,music:false});
+  const starting=delayed.click('play');await delayed.click('pause');
+  const enabling=delayed.click('menu-sound');
+  assert.equal(delayed.el('menu-sound').textContent,'Sound: On','label updates before activation resolves');
+  await delayed.click('resume');await delayed.click('pause');await delayed.click('menu-sound');
+  delayed.settleAudioStart();await Promise.all([starting,enabling]);
+  assert.equal(delayed.app.state().profile.music,false);
+  assert.equal(delayed.el('menu-sound').textContent,'Sound: Off');
+  assert.equal(delayed.app.state().mode,'paused');assert.equal(delayed.audioEvents.at(-1),'pause');
+});
+
+test('Woof cooldown fills progressively, blocks repeated barks and resets on restart',async()=>{
+  const ui=launch();await ui.click('play');
+  assert.equal(ui.el('bark').style['--bark-progress'],'1');
+  await ui.click('bark');assert.equal(ui.el('bark').disabled,true);
+  assert.equal(ui.el('bark').style['--bark-progress'],'0');
+  ui.emit('touchend',{target:ui.el('bark')});
+  assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
+  ui.advance(1);const progress=Number(ui.el('bark').style['--bark-progress']);
+  assert.ok(progress>.4&&progress<.6);
+  ui.advance(1.2);assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').style['--bark-progress'],'1');
+  await ui.click('bark');await ui.click('pause');await ui.click('restart');
+  assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').style['--bark-progress'],'1');
 });

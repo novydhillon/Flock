@@ -1,8 +1,42 @@
+# Current UI release status — 18 October 2026
+
+Novy approved all UI changes and authorized merge to main and production deployment in the UI refinement conversation, then requested continuation here. F-055–F-060, F-062 and F-063 are **Done** by user acceptance. This current status supersedes historical Review/pending-sign-off wording below. Accepted behavior includes the animated Level # introduction, weather and livestock-only HUD, top-centered minimap, numbered tips and the combined Buddy fixes. Main Buddy sign-off `396121d` is preserved. Production validation and publication are being completed; no new runtime changes were introduced for this release.
+
 # FLOCK — Remaining issues and change tracker
 
-## Buddy user sign-off - 18 October 2026, 12:45 America/Creston
+## F-057 top-center minimap — 18 October 2026
 
-Novy confirmed “Looks great. Merge to main” for the Buddy candidate at `/Flock/dev/`, runtime source `6b5e650`, Pages `2e1ec4c`. **F-048 low-speed movement and F-056 reference puppy/hover presentation are Done** by user acceptance. This supersedes earlier Review/pending/queued wording for these two items only. Other Open/Deferred items and prior accepted behaviors remain unchanged. This authorizes merging `buddy_update` into main, not a production deployment; existing live builds remain unchanged. Historical source-review and device/FPS evidence limits are retained.
+Published and verified: source `3999228`, CI `39177156337`, Pages `771c93f`, native deployment `39177264534`. All 17 live dev files match the checked artifact; all 49 blobs outside dev are preserved. [Publication evidence](validation/F-057-top-center-map-publication.json). Visual sign-off remains Review.
+
+**Review**, owner Codex on `UI_refinement`: minimap is centered horizontally at the safe top edge, preserving its current size and contrast. At widths below 384px, it sits below the weather/livestock/countdown row to avoid overlap with that row or pause/help. Combined UI/Buddy runtime is preserved. All 318 regression tests, both isolated artifact modes (15 release/no QA, 17 development/two QA) and generated docs pass. Bounded CSS placement edit; no new substantial-change review. Publication evidence follows; retain Review for visual sign-off.
+
+## Minimal gameplay HUD and Level-number animation — 18 October 2026
+
+Published and verified at `/Flock/dev/`: source `94d0b89`, source CI `39175874260`, Pages `6df73af`, native deployment `39175960644`. All 17 live files match the checked build; all 49 files outside dev retain their blobs. [Current publication evidence](validation/F-056-F-063-minimal-hud-publication.json). This supersedes pending-publication wording below; user appearance sign-off remains pending.
+
+F-056/F-063 follow-up, **Review**, owner Codex on `UI_refinement`: center only “Level #”, fading in while scaling toward the camera and then fading out. Level name, objective, reward score, progress bar and white status panel are removed. Weather sits at the top left with delivered/total livestock immediately beside it; the active delivery countdown remains below. Scoring/economy internally and in results, saved progress, minimap and Buddy are preserved. All 318 regressions, 45 focused UI/layout/QA tests, both artifact modes and generated docs pass. Fresh independent `gpt-6.1-sol` medium blind review scored 9.2/10 with 97 focused tests and no material blocker. Source/font geometry supports narrow-screen fit; native phone appearance remains pending. Publication evidence follows; retain Review for user sign-off.
+
+## F-063 — ~~Centered level-title introduction~~
+
+18 October refinement: remove the white/cream background panel and its shadow. Keep the centered fixed-size wrapping text, spacing and existing fade timing. Bounded CSS-only adjustment on `UI_refinement`; remains Review for appearance sign-off. New publication evidence follows.
+
+Verified publication: source `bf44788` passed CI `39173868806`; Pages `34d0160` passed native deployment `39173966107`. All 17 live dev files match the checked final build by SHA-256, and all 49 blobs outside dev are preserved. [F-063 publication evidence](validation/F-063-title-publication.json). This supersedes the pending-publication wording below; appearance sign-off remains Review.
+
+**Status:** Review on `UI_refinement`, owner Codex. Level identity is moved out of the top-left status panel into a temporary overlay centered on screen. It uses nearly the full viewport width with safe side margins, centered text, a fixed 28px title and multiline wrapping for long names. It shows at each level start/restart, holds 2.5 active seconds and fades for 1.25; menus freeze/hide it and input passes through. Combined UI/Buddy behavior is preserved. All 317 regression tests, both artifact modes and generated docs pass; fresh independent `gpt-6.1-sol` medium source review scored 9/10 without material blockers. Native phone appearance and user sign-off remain pending. Target `/Flock/dev/`; publication evidence follows.
+
+## Combined development publication verified — 18 October 2026
+
+UI refinements and accepted Buddy updates are together at [Flock dev](https://novydhillon.github.io/Flock/dev/). Runtime source `1ad8645` passed CI `39160805430`; Pages `079ed98` passed native deployment `39160919364`. All 17 live files match the checked final development build by SHA-256; all 49 files outside dev, including production/dev2/legacy content, retain their blobs. F-062 and UI F-055–F-060 remain Review for user acceptance; Buddy F-048/F-061 remain Done. This supersedes pending-build/publication wording in the integration preparation records below. [Combined publication manifest](validation/UI-Buddy-combined-publication.json).
+
+## Buddy user sign-off — 18 October 2026, 12:45 America/Creston
+
+Novy confirmed “Looks great. Merge to main” for Buddy at `/Flock/dev/`, runtime source `6b5e650`, Pages `2e1ec4c`. **F-048 and F-061 are Done** by user acceptance. This does not authorize production publication; prior live builds remain unchanged. Historical review findings and device/performance evidence limits remain in force.
+
+Buddy's prior publication manifest is retained at [F-048/F-056 publication evidence](validation/F-048-F-056-buddy-publication.json). Its historical F-056 label refers to Buddy; that ID is mapped to current Buddy issue F-061. The manifest is unchanged and its pre-acceptance Review fields are superseded by this sign-off.
+
+## Combined integration — 18 October 2026
+
+The Buddy candidate and `UI_refinement` are combined on `UI_refinement`. **F-062 is Review**; source integration and validation are complete, with development-only deployment at `/Flock/dev/` pending. Post-fix validation passed: 316/316 full regression; release artifact 15 files with no QA and development artifact 17 files with two QA assets. The final dev artifact is being rebuilt for publication. The initial independent runtime review found Buddy movement state could remain stale after entering standby (8.5/10); the no-main reset and a transition regression were added. Same-critic follow-up scored 9.2/10 with no material blocker and 44/44 relevant checks; Buddy tests pass 26/26. Preserve F-048/F-061 Buddy acceptance and the UI batch’s F-055–F-060 Review statuses; no new UI sign-off is implied. Production remains unchanged. Owner: Codex. Integration documentation model: `gpt-6-luna`, medium effort. Publication evidence remains pending.
 
 F-053 30% dimmer glow publication: source `78ed293`, Pages `1262178`; source CI/native deployment succeeded, 288 tests passed, all 17 live files verified and 30 unrelated files preserved. Blind review was waived and not run. Glow appearance remains Review; newer F-054 tree acceptance is unchanged. See QUALITY.md for publication evidence.
 
@@ -11,6 +45,12 @@ F-053 brightness tuning, 17 October: reduce the current glow brightness by 30%, 
 F-053 glow tuning: user requests 50% more transparency and a more diffuse footprint. Strength is halved (1.7 to 0.85), radius widened (0.36 to 0.54) and radial falloff smoothed; ground remains opaque. The user waived further blind review for this tweak. Glow runtime source `ff5e2cd`, Pages `93ea5fe`: CI/native deployment pass, 283 tests pass, all 17 live files verified and 30 unrelated files preserved. Newer tree source is preserved; this evidence covers the glow publication only. Status stays Review for visual acceptance; see QUALITY.md.
 
 F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. The separate transparent sheet is replaced with illumination in the actual grass/path/river-bank/bridge surface materials. Requested size and hover rings are preserved. Runtime source `84ad352`, Pages `b666edf`: 283 tests pass, source review 9/10, source CI/native Pages succeed, all 17 live files verified and 30 unrelated files preserved. This correction remains Review for native appearance acceptance; see QUALITY.md for evidence and the unavailable WebGL2 visual-check limitation.
+
+## UI refinement — 17 October 2026 (America/Creston)
+
+Current work: `UI_refinement`, based on main `8cc4275`. Owner: Codex with parallel controller/layout agents; root integration owns renderer and documentation. Reference screenshots: IMG_8398.jpeg (before delivery) and IMG_8399.jpeg (active countdown). QA gear is excluded from this design review and stays development-only. User approved the UI proposals and requested tracked progress/sign-offs and permanent development rules. F-055–F-060 below are the current batch; historical sign-offs do not accept these new changes.
+
+Status: **Review**. Source implementation, checks and independent blind gauntlet are complete; development publication is verified at source `d47ae6c` / Pages `ce24bf3`. User appearance/touch sign-off is pending. Production remains unchanged. Project-wide workflow is recorded in [AGENTS.md](../AGENTS.md).
 
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
@@ -54,7 +94,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-057 | P2 | Art | Reference clay Holstein cows at 1.5× sheep size | Review | art_update_cow |
+| F-064 | P2 | Art | Reference clay Holstein cows at 1.5× sheep size | Review | art_update_cow |
 | ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
 | ~~F-001~~ | ~~P1~~ | ~~Reported defect~~ | ~~Path-corner polygon flicker~~ | ~~Done~~ | ~~—~~ |
 | ~~F-002~~ | ~~P1~~ | ~~Reported defect~~ | ~~Bark effect above ground and bridge deck~~ | ~~Done~~ | ~~—~~ |
@@ -102,14 +142,23 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | ~~F-046~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark~~ | ~~Done~~ | ~~-~~ |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
-| ~~F-048~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Fix Buddy stuttering movement at low speed~~ | ~~Done~~ | ~~F-046; buddy_update~~ |
-| ~~F-056~~ | ~~P2~~ | ~~Presentation/companions~~ | ~~Reference puppy Buddy with Pip-like hovering movement~~ | ~~Done~~ | ~~F-048; buddy_update~~ |
+| ~~F-048~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Fix Buddy stuttering movement at low speed~~ | ~~Done~~ | ~~F-046; buddy_update; user accepted 18 Oct 2026~~ |
+| ~~F-061~~ | ~~P2~~ | ~~Presentation/companions~~ | ~~Reference puppy Buddy with Pip-like hovering movement~~ | ~~Done~~ | ~~F-048; buddy_update; user accepted 18 Oct 2026~~ |
+| ~~F-062~~ | ~~P2~~ | ~~Integration~~ | ~~Combine Buddy and UI_refinement candidates; validate and deploy development only~~ | ~~Done~~ | ~~F-048, F-055–F-061~~ |
+| ~~F-063~~ | ~~P2~~ | ~~UI~~ | ~~Centered level-title overlay with fixed-size wrapping and fade~~ | ~~Done~~ | ~~UI_refinement~~ |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | F-053 | P2 | Presentation | ~~Pip reference model, hover rings and floating movement~~ | Done | User signed off 17 October 2026 |
 | ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
+
+| ~~F-055~~ | ~~P2~~ | ~~UI/navigation~~ | ~~Remove gameplay branding/wallet/sound; move sound and currency access into Pause~~ | ~~Done~~ | ~~F-051~~ |
+| ~~F-056~~ | ~~P2~~ | ~~UI/status~~ | ~~Tighter level/delivery/score panel; prominent active-only countdown; compact weather~~ | ~~Done~~ | ~~F-055~~ |
+| ~~F-057~~ | ~~P2~~ | ~~UI/guidance~~ | ~~Larger high-contrast adjacent minimap and concise finite/manual tips~~ | ~~Done~~ | ~~F-056~~ |
+| ~~F-058~~ | ~~P2~~ | ~~UI/controls~~ | ~~Simplify thumb controls and expose bark cooldown progress~~ | ~~Done~~ | ~~F-055~~ |
+| ~~F-059~~ | ~~P2~~ | ~~Presentation/UI~~ | ~~Smaller destination introduction that fades during play~~ | ~~Done~~ | ~~F-056~~ |
+| ~~F-060~~ | ~~P2~~ | ~~Development process~~ | ~~Persistent project agent/model/parallel/blind-gauntlet/sign-off rules~~ | ~~Done~~ | ~~—~~ |
 
 ## Screenshot evidence
 
@@ -694,17 +743,25 @@ Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gra
 Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages `e175cc0`. Source CI and native Pages succeeded; all 17 live files and canonical entry HTML match the checked build, and all 18 unrelated Pages files are preserved. The 263-test suite, release/development checks and generated documentation checks pass. F-046 stays **Review**. Test tree navigation/turning at QA 20, tier-2 passage help at QA 24, and retrieval at QA 28. See [verified publication](QUALITY.md#verified-buddy-navigation-follow-up-publication).
 
 
-### F-056 - ~~Reference puppy Buddy and floating pose (P2)~~
+### ~~F-061~~ - ~~Reference puppy Buddy and floating pose (P2)~~
 
-**Status:** Done by Novy’s user sign-off on 18 October 2026 at 12:45 America/Creston for source `6b5e650` / Pages `2e1ec4c` at `/Flock/dev/`. Merge to main authorized; no production deployment requested. Historical review/build/publication evidence is retained in QUALITY.md and REVIEW.md.
+**Status:** Done by user acceptance on 18 October 2026, 12:45 America/Creston. Initial blind source/geometry review 8.5/10; independent integration follow-up 9.1/10 and documentation follow-up 9/10, with review-integrity caveat recorded in REVIEW.md. Development publication was verified before sign-off; source review and device/FPS evidence limits remain as recorded.
 
 **Accept when:** Buddy reads as the silver rounded robot puppy in picture 1, with expressive eyes, short black muzzle, folded ears, panelled torso, four hover pods and blue tail. Buddy remains smaller than Pip but slightly enlarged from picture 2's relative scale for screen legibility. It floats and looks/banks/leans like Pip; pod rings and ground/deck illumination follow the animated nozzles, pause and reset correctly. Gameplay tier rules, body clearance, save data and Pip's appearance stay intact. Development review and user visual sign-off are separate.
 
-**Scope:** Buddy only plus F-048 movement repair. No second Buddy, Pip redesign, unrelated UI or production-root publication.
+**Scope:** Buddy only plus F-048 movement repair. No second Buddy, Pip redesign, unrelated UI or production-root publication. This former Buddy F-056 identifier is now F-061; the UI batch retains F-056.
 
-### F-048 - ~~Buddy stutters when moving slowly (P2)~~
+### F-062 — ~~Combined Buddy and UI integration (P2)~~
 
-**Status:** Done by Novy’s user sign-off on 18 October 2026 at 12:45 America/Creston for source `6b5e650` / Pages `2e1ec4c` at `/Flock/dev/`. Merge to main authorized; no production deployment requested. Historical review/build/publication evidence is retained in QUALITY.md and REVIEW.md.
+**Status:** Review on `UI_refinement`; source integration, independent review follow-up and validation are complete. Buddy source `6b5e650` and its verified development publication/user acceptance are preserved; UI items F-055–F-060 remain Review. The integrated candidate passed 316/316 full regression. Release artifact: 15 files, no QA assets; development artifact: 17 files, two QA assets. The final dev artifact is being rebuilt for the authorized `/Flock/dev/` deployment, which remains pending.
+
+**Accept when:** integrated source regressions, release/development artifact checks and generated documentation checks pass; an independent integrated review has no material blocker; the intended development build is published and verified without changing production; tracker records evidence and retains UI Review status pending user sign-off.
+
+**Execution:** Integration docs recorded with `gpt-6-luna`, medium effort. Initial review found standby movement-state cleanup incomplete; the fix and transition regression are in. Post-fix full regression passes 316/316; release/development artifact-mode checks pass (15 files with zero QA / 17 files with two QA assets). The same critic's 9.2/10 follow-up found no material blocker and passed 44/44 relevant checks; Buddy tests pass 26/26. The final dev build and publication verification remain pending; source Review is not user sign-off.
+
+### ~~F-048~~ - ~~Buddy stutters when moving slowly (P2)~~
+
+**Status:** Done by user acceptance on 18 October 2026, 12:45 America/Creston, for `/Flock/dev/` source `6b5e650` / Pages `2e1ec4c`.
 
 **Reported behavior:** Buddy dog has stuttering movement when moving slowly. Investigate and fix the low-speed movement so Buddy moves smoothly.
 
@@ -712,9 +769,9 @@ Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages
 - Buddy moves smoothly at low speed without repeated stop-start jitter.
 - Slow movement, stopping, and resuming remain smooth while preserving intended herding behavior and collision handling.
 
-**Scope:** fix slow-speed stop/start and check turning, obstacle navigation, pause/reset and tiered herding regressions. F-046's previously accepted behavior remains accepted; F-047 second Buddy is out of scope. Source fixes are not user sign-off.
+**Scope:** fix slow-speed stop/start and check turning, obstacle navigation, pause/reset and tiered herding regressions. F-046's previously accepted behavior remains accepted; F-047 second Buddy is out of scope. User acceptance is recorded above.
 
-**Execution:** The old fixed-speed pursuit/dead-zone controller reproducibly waited through 17 frames while following a .25m/s waypoint, then caught up in bursts. Proportional arrival speed plus bounded acceleration removes that repeated stop/start, retaining existing turn limits and body-constrained movement. Tests cover slow pursuit, fixed/fine/variable timestep consistency, zero-time no-op, fresh-level state and the existing tree/reversal/bridge/split/tier-3 retrieval scenarios. No other outstanding Buddy movement ticket was found; F-047 is a separate queued feature. All 306 integrated source tests pass. See the F-048/F-056 validation record in QUALITY.md for review/build/evidence limits.
+**Execution:** The old fixed-speed pursuit/dead-zone controller reproducibly waited through 17 frames while following a .25m/s waypoint, then caught up in bursts. Proportional arrival speed plus bounded acceleration removes that repeated stop/start, retaining existing turn limits and body-constrained movement. Tests cover slow pursuit, fixed/fine/variable timestep consistency, zero-time no-op, fresh-level state and the existing tree/reversal/bridge/split/tier-3 retrieval scenarios. No other outstanding Buddy movement ticket was found; F-047 is a separate queued feature. All 306 integrated source tests pass. See the F-048/F-061 validation record in QUALITY.md for review/build/evidence limits.
 
 ### Forward flock movement, lower cohesion, tier-2 bark and bridge completion
 
@@ -838,7 +895,7 @@ F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the we
 F-053 follow-up (16 October 2026): latest request is a 25% reduction from published Pip scale 1.35, replacing the unfinished earlier 33% size change. Worktree branch `pip_thruster_glow` uses scale 1.0125, retains the pending lighter silver finish and adds four soft ground-following blue thruster glows. Halo/pointer world size, Buddy and gameplay are unchanged. Source `ddae15b`, Pages `934fd37`: CI/native deployment passed, 282 tests, source review 9.2/10, all 17 live files verified and 30 unrelated Pages files preserved. Status remains Review for native visual acceptance; see QUALITY.md.
 
 
-### F-057 - Reference clay Holstein cows at 1.5× sheep size (P2)
+### F-064 - Reference clay Holstein cows at 1.5× sheep size (P2)
 
 **Status: Review.** Owner: Codex. Branch: `art_update_cow`, based on main `396121d`. Requested 18 October 2026 (America/Creston).
 
@@ -848,8 +905,53 @@ Approach: extend the existing procedural, material-baked model rather than add a
 
 Deployment hold: Novy explicitly requested no dev publication while another review is in progress. Commit/push source only; await a new deployment instruction. No Pages changes have been made.
 
-F-057 source validation: 310/310 tests, both build/artifact-mode checks and generated documentation checks pass. Independent blind source review: 9/10, no confirmed functional blocker. Minor unverified art concern: existing blue-gray enamel head/ears/hooves contrast with matte coat; decide in rendered review. Deployment held by user; visual acceptance pending.
+F-064 source validation: 310/310 tests, both build/artifact-mode checks and generated documentation checks pass. Independent blind source review: 9/10, no confirmed functional blocker. Minor unverified art concern: existing blue-gray enamel head/ears/hooves contrast with matte coat; decide in rendered review. Deployment held by user; visual acceptance pending.
 
-F-057 handoff: source implementation is committed locally as `7cc7035`. Automatic approval review rejected the push to the configured `novydhillon/Flock` remote, stating explicit authorization to publish the branch is required. No workaround attempted. Remote branch publication/CI are blocked pending user authorization; local checks passed. Deployment remains explicitly held and Pages unchanged.
+F-064 handoff: source implementation is committed locally as `7cc7035`. Automatic approval review rejected the push to the configured `novydhillon/Flock` remote, stating explicit authorization to publish the branch is required. No workaround attempted. Remote branch publication/CI are blocked pending user authorization; local checks passed. Deployment remains explicitly held and Pages unchanged.
 
-F-057 push authorization: Novy explicitly approved pushing `art_update_cow` on 18 October 2026 at 15:54 America/Creston. Deployment remains held. The earlier approval block above is historical. Source publication uses the connected GitHub service because shell git has no HTTPS credentials.
+F-064 push authorization: Novy explicitly approved pushing `art_update_cow` on 18 October 2026 at 15:54 America/Creston. Deployment remains held. The earlier approval block above is historical. Source publication uses the connected GitHub service because shell git has no HTTPS credentials.
+
+## UI refinement acceptance — F-055–F-060
+
+18 October 2026 follow-up: F-056/F-057 remain **Review** on `UI_refinement` at Novy's request. The minimap is larger and higher contrast; level information is narrower with compact numeric rows and a reserved heading countdown. Owner: Codex with parallel minimap-renderer and HUD ownership. Acceptance: larger high-contrast map, discernible actors/routes/goal, compact status, no narrow-phone/landscape collisions, and new user sign-off. Source checks: 307 tests and both clean artifact modes pass; measured map-feature/actor contrast is at least 3:1. Independent blind reviews initially scored 8.5/10; CSS consolidation and metric verification resolve the concrete maintenance/fit concerns, with workhorse follow-up 9/10. Native phone appearance remains unverified. Follow-up publication is verified: source `e2f55d2`, source CI `39113239224`, Pages `dbdf3c1`, native deployment `39113364683`; 17 live files match and 32 unrelated Pages blobs are unchanged. [Follow-up publication evidence](validation/UI-minimap-followup-publication.json). Earlier publication evidence is historical for this request.
+
+Owner: Codex; branch `UI_refinement`; started 17 October 2026 America/Creston. Changes preserve saved progress, economy, flock behavior, movement, destination outline/pointer and development QA exclusion. Each item has independent acceptance; no item becomes Done without user sign-off.
+
+### F-055 — ~~Gameplay chrome and pause settings~~
+
+Hide the title, wallet and music control after starting. Reclaim the header's vertical space. Pause retains workshop/currency access and gains a clearly labelled sound toggle with persisted state, correct mute/async-activation behavior and usable focus. Landing and results retain their appropriate progression actions. Review portrait/landscape, pause/workshop/back, background/resume and restart. Do not merge/publish production until authorized.
+
+### F-056 — ~~Compact status and useful countdown~~
+
+Show a short level heading, a weather icon with accessible full description, readable Delivered and Score values, and a secondary delivery progress strip. The destination remains in the accessible mission label and brief objective. Show the objective briefly at level start. Remove the first-arrival explanation; the timer is absent before delivery and becomes large once running. At ten seconds or less, use a clear static urgency treatment. Pause freezes time; restart/next level resets objective/timer/urgency. Phone sign-off requires legible values without clipping or collisions.
+
+### F-057 — ~~Minimap and tips~~
+
+Keep the minimap beside status, align edges and simplify its frame/caption without losing map information. Shorten tips to one action, retain the numbered badge, and retain finite automatic tips plus restart-from-first manual looping through ?. Help and dismiss retain clear accessible identities and adequate hit areas. Verify short/narrow screens, live timer, gate action, toasts and manually reopened tips.
+
+18 October tip-number follow-up — Review, owner Codex, branch `UI_refinement`: restored the visible 01/02/03 badge requested in the reference photo. Tip timing, cycling and dismissal are unchanged. All 307 regression tests, both build-mode checks and generated docs pass. Publication target is `/Flock/dev/`; publication verification and visual sign-off remain separate.
+
+### F-058 — ~~Movement and bark controls~~
+
+Simplify joystick artwork, remove persistent instruction captions and preserve generous thumb targets and drag-anywhere behavior. Keep a circular Woof control with a legible visual cooldown ring; preserve double-tap and keyboard barking, cooldown timing, pointer cancellation and menu-safe input. QA launcher behavior is outside this UI refinement.
+
+### F-059 — ~~Destination introduction~~
+
+Reduce destination billboard scale by 25%; introduce it for four active gameplay seconds and fade it over 1.2 seconds. Level reset restores it, pauses freeze it, and goal floor/outline and Pip's directional pointer remain available afterward. Headless scene checks do not establish rendered likeness.
+
+### F-060 — ~~Permanent development rules~~
+
+Root AGENTS.md is the automatic project-wide entry point for branch hygiene, model/effort selection, parallel ownership, independent blind gauntlet (default >=9/10, no material blockers), documentation/tests, review vs user acceptance, development publication/live verification and production authorization. Link it from development and the documentation home; maintain it when explicit user decisions supersede defaults. This records the established workflow; it does not retroactively claim missing validation.
+
+### UI refinement execution record
+
+- Planning: compare smaller text/panels with removing secondary gameplay chrome. Choose removal and a compact information hierarchy so important values can grow while total occupied space falls.
+- Parallel implementation: `gpt-6.1-sol`, medium effort for independent controller/tests and markup/layout ownership. Root integration uses the session model. Routine documentation review may use `gpt-6-luna`, medium effort; a fresh workhorse critic checks integrated source without writer reasoning/history/scores.
+- Final source checks: 306/306 tests; both artifact modes pass (15 release files, zero QA assets; 17 development files, two QA assets). Generated documentation and four DOM behavior checks pass.
+- Blind source review: gpt-6.1-sol medium, initial 8/10 for a 568×320 landscape collision; corrected compact lanes cover widths from 480px. Same-critic follow-up 9/10 with no source blocker and 63 focused tests independently passed. Blind documentation review: gpt-6-luna medium, 8/10 initially; stale current summary corrected; follow-up 9.5/10. See QUALITY.md.
+- Development publication verified: source `d47ae6c`, CI [39096990195](https://github.com/novydhillon/Flock/actions/runs/39096990195); Pages `ce24bf3`, native workflow [39097086089](https://github.com/novydhillon/Flock/actions/runs/39097086089). All 17 live files match; 32 unrelated Pages blobs, including production root, are unchanged. [Machine-readable evidence](validation/UI-refinement-publication.json). User visual/touch sign-off pending; no production UI publication. Native WebGL2 screenshots and phone touch checks remain unavailable to the agent; source/DOM/scene checks do not establish those.
+
+
+## Cow integration and deployment authorization — 18 October 2026
+
+Novy requested merging current main into `art_update_cow` and publishing to dev at 16:54 America/Creston; this supersedes the prior deployment hold. Merge main `0e62198` with cow source `e8c3c34`, preserving the accepted minimal HUD/top-center minimap and Buddy updates. Cow tracking is renumbered **F-064** because main already owns F-057 for minimap improvements. F-064 stays Review pending appearance sign-off. Source checks/publication evidence will be recorded separately.

@@ -19,6 +19,16 @@ Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/inde
 
 Play the standalone development build at [novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/). The existing `flock/dev/` game is preserved separately.
 
+## Current UI refinement candidate
+
+F-055–F-060 are implemented and independently reviewed on `UI_refinement`, based on production main `8cc4275`. This batch simplifies gameplay chrome, status/countdown, guidance and thumb controls; it does not change flock/economy progression. The dev2 review build is published and hash-verified at source `d47ae6c` / Pages `ce24bf3`; user sign-off is pending and production UI is unchanged. Read [AGENTS.md](AGENTS.md) for the standing project development rules and [the tracker](docs/ISSUES.md) for current progress. Dated release paragraphs below are historical checkpoints.
+
+Latest UI review update, 18 October: larger high-contrast minimap and tighter level panel (F-056/F-057), source `e2f55d2` / Pages `dbdf3c1`, were historically verified live on dev2. Both items remain Review for user sign-off; production is unchanged. [Publication evidence](docs/validation/UI-minimap-followup-publication.json).
+
+## Buddy update integrated for development review
+
+Buddy movement/model work from `buddy_update` is now combined with the `UI_refinement` candidate. Buddy’s former F-056 identifier is reassigned to **F-061** to avoid the UI batch’s existing F-056; earlier Buddy history is retained under the new ID. F-048/F-061 are Done by Novy’s 18 October sign-off on Buddy’s `/Flock/dev/` candidate. Combined integration validation and development-only publication are in progress; UI F-055–F-060 remain Review for user sign-off. Production is unchanged. See [the tracker](docs/ISSUES.md#combined-integration--18-october-2026).
+
 ## Engine choice
 
 This build uses **Three.js**, with Vite for packaging. The requested ThreeRust engine at [threerust.com](https://threerust.com/) was investigated first. Its public offering is an early-access Rust/WebAssembly/WebGPU browser editor with RHAI scripting; a reusable runtime SDK suitable for this repository was not available through its public documentation. The user approved the Three.js fallback. This project does not claim to use ThreeRust or the separate `three-rs`/`threers` Rust projects.

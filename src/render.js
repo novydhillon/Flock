@@ -143,7 +143,7 @@ export class MeadowRenderer{
       roof.position.set(t.x,0,t.z);roof.rotation.y=heading;this.terrain.add(roof);
       this.cutaway=new StructureCutaway(t,structure,{halfExtent:s+.3});
     }
-    const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
+    const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.scale.set(4.5,1.125,1);sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.name='Destination introduction';sign.userData.ownedLabel=true;this.destinationSign=sign;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
       const treeScale=obstacle.radius*1.45;const tree=createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,obstacle.x,obstacle.z,treeScale);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
@@ -285,6 +285,9 @@ export class MeadowRenderer{
   }
   update(level,dog,dt,preview=false){
     this.time+=dt;this.preview=preview;const active=level.animals.filter(a=>!a.saved);
+    // Simulation time advances only during play, so menus freeze this introduction.
+    this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-4)/1.2));
+    this.destinationSign.visible=this.destinationSign.material.opacity>0;
     const avg=active.reduce((p,a)=>({x:p.x+a.x/active.length,z:p.z+a.z/active.length}),{x:0,z:0});
     const viewHeight=preview?(this.aspect<.8?50:44):(this.aspect<.8?39:36);const half=viewHeight/2,halfWidth=half*this.aspect;
     // Follow Pip; enough leading space keeps the flock and crossing visible.
@@ -358,16 +361,18 @@ export class MeadowRenderer{
   }
   drawMap(canvas,level,dog){
     const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,b=level.bounds,px=x=>8+(x-b.minX)/(b.maxX-b.minX)*(w-16),pz=z=>8+(z-b.minZ)/(b.maxZ-b.minZ)*(h-16);
-    ctx.fillStyle='#c9d8b7';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#29483a';ctx.fillRect(0,0,w,h);
     const line=(points,width,color)=>{ctx.lineWidth=width;ctx.strokeStyle=color;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(px(p.x),pz(p.z)):ctx.moveTo(px(p.x),pz(p.z)));ctx.stroke();};
     const scale=Math.min((w-16)/(b.maxX-b.minX),(h-16)/(b.maxZ-b.minZ));
-    for(const river of level.rivers){line(river.points,river.width*scale,'#5dabb7');for(const bridge of river.bridges){const vx=Math.sin(bridge.heading)*bridge.length/2,vz=Math.cos(bridge.heading)*bridge.length/2;line([{x:bridge.x-vx,z:bridge.z-vz},{x:bridge.x+vx,z:bridge.z+vz}],Math.max(3,bridge.width*scale),'#dfbd8c');}}
-    for(const road of level.roads)line(road.points,Math.max(1.5,road.width*scale),'#d4b784');
+    for(const river of level.rivers){line(river.points,river.width*scale,'#35b9ed');for(const bridge of river.bridges){const vx=Math.sin(bridge.heading)*bridge.length/2,vz=Math.cos(bridge.heading)*bridge.length/2;line([{x:bridge.x-vx,z:bridge.z-vz},{x:bridge.x+vx,z:bridge.z+vz}],Math.max(3,bridge.width*scale),'#dfbd8c');}}
+    for(const road of level.roads)line(road.points,Math.max(1.5,road.width*scale),'#f0c777');
     drawGoalMap(ctx,level.target,p=>({x:px(p.x),y:pz(p.z)}));
-    for(const fence of level.fenceSegments||[])line([fence.a,fence.b],fence.material==='stone'?2:fence.kind==='boundary'?1:1.5,fence.material==='stone'?'#777d70':'#8f7758');
-    for(const gate of level.gates||[])if(gate.operable&&!gate.open){const segment=gateSegment(gate);line([segment.a,segment.b],2.5,'#b46c35');}
-    const dot=(x,z,r,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(px(x),pz(z),r,0,Math.PI*2);ctx.fill();};
-    for(const a of level.animals)dot(a.x,a.z,a.type==='cow'?3:2.3,a.saved?'#80a777':'#fff8e7');dot(dog.x,dog.z,4.8,'#c9843b');ctx.strokeStyle='#fff2d0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),6,0,Math.PI*2);ctx.stroke();
-    for(const h of level.helpers||[])dot(h.x,h.z,3,'#4a9c9b');
+    for(const fence of level.fenceSegments||[])line([fence.a,fence.b],fence.material==='stone'?2:fence.kind==='boundary'?1:1.5,fence.material==='stone'?'#d5d9c9':'#c0a67b');
+    for(const gate of level.gates||[])if(gate.operable&&!gate.open){const segment=gateSegment(gate);line([segment.a,segment.b],2.5,'#ffad45');}
+    const dot=(x,z,r,c,outline='#183027')=>{ctx.fillStyle=c;ctx.strokeStyle=outline;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(px(x),pz(z),r,0,Math.PI*2);ctx.fill();ctx.stroke();};
+    for(const a of level.animals)dot(a.x,a.z,a.type==='cow'?3:2.3,a.saved?'#8be0b4':'#fff8e7');
+    // Pip's larger gold marker and separate outer ring distinguish the player from helpers.
+    dot(dog.x,dog.z,4.8,'#ffd166');ctx.strokeStyle='#ffe6a3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),7,0,Math.PI*2);ctx.stroke();
+    for(const helper of level.helpers||[])dot(helper.x,helper.z,3,'#45d9ef','#102c39');
   }
 }
