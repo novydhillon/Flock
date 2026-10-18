@@ -134,7 +134,7 @@ Forward-flow follow-up: the simulation caches direct Pip signals once per animal
 
 ### Pip hover model
 
-F-053 separates player `createPip` from the legacy walking `createDog` factory. F-056 uses dedicated `createBuddy` for the hovering puppy. `updatePipHover` owns a bounded four-pod/twelve-ring presentation pool per hovering character and per-pod world-space trailing positions. Simulation state and collision remain on their existing ground coordinates. Ring materials are owned by the level actor; baked shell geometries follow the existing disposal lifecycle.
+F-053 separates player `createPip` from the legacy walking `createDog` factory. F-061 uses dedicated `createBuddy` for the hovering puppy. `updatePipHover` owns a bounded four-pod/twelve-ring presentation pool per hovering character and per-pod world-space trailing positions. Simulation state and collision remain on their existing ground coordinates. Ring materials are owned by the level actor; baked shell geometries follow the existing disposal lifecycle.
 
 
 ## Clay dry-stone wall view (F-033)

@@ -1,10 +1,28 @@
 # Flock product requirements
 
-## Buddy acceptance - 18 October 2026
+## F-057 minimap placement — 18 October 2026
 
-F-048 and F-056 are **Done** by Novy's “Looks great. Merge to main” sign-off at 12:45 America/Creston for `/Flock/dev/` source `6b5e650` / Pages `2e1ec4c`. The accepted scope is Buddy's reference puppy appearance, size, floating pose and smooth movement. Earlier pending/Review text below is historical for these items. Merge to main is authorized; production publication is not requested. Other queued requirements remain unchanged. User acceptance does not add independent native-shader or phone-FPS measurements.
+Center the minimap horizontally at the safe top edge. Preserve its size, contrast, information and interaction. Below 384px width, keep it centered in the next top lane under the weather/livestock/timer and pause/help controls to prevent collisions. This supersedes earlier top-right minimap placement.
 
-## F-056 - Buddy reference and movement refinement - 17 October 2026
+## Minimal gameplay HUD and Level-number animation — 18 October 2026
+
+This supersedes the earlier F-056 status card and F-063 full-title introduction. Display only “Level #” at the screen center with no panel: fade in over 0.65 active seconds while expanding from 0.72 to 1.2 scale over three active seconds, then fade out from 1.8 to 3 seconds. Menus hide/freeze it; restart/new level replay it; completion hides it. Reduced-motion users retain the fade without scaling. Remove level-name text, objective, reward score, progress bar and white status panel. Top-left HUD contains weather immediately followed by delivered/total livestock x/y, with the existing active delivery timer below. Keep internal reward scoring, results, economy and saved progress. Preserve minimap, tips, controls and Buddy. Follow-up remains Review for user appearance acceptance and publishes to `/Flock/dev/`.
+
+## F-063 — Centered level-title introduction
+
+18 October clarification: display text directly over the game without a white/cream panel or box shadow; preserve wrapping, fixed font size, margins and fade behavior.
+
+Move the level name and number from the top-left status panel to a temporary overlay centered vertically and horizontally. Fill the screen width except safe side margins of at least 20px. Center the title text and wrap long names onto further lines without shrinking the fixed 28px title font. Show the actual generated level title on each start/restart, hold for 2.5 active seconds, then fade for 1.25 active seconds. Pause freezes the clock and hides the overlay behind menus; resuming restores its remaining introduction. Completion hides it. Overlay input passes through to gameplay. Keep delivery, score, weather and countdown in the compact status panel. This modifies the combined UI/Buddy candidate on `UI_refinement`; publish to `/Flock/dev/` and retain Review for appearance acceptance.
+
+## F-062 — Combined Buddy/UI integration
+
+Keep the accepted Buddy source and the still-unaccepted UI refinement candidate integrated on `UI_refinement`. Run the combined source regression and both release/development artifact-mode checks, obtain an independent integrated review, then publish only to `/Flock/dev/` when authorized. Preserve production and existing Pages paths. F-048/F-061 remain Done by Buddy acceptance; F-055–F-060 remain Review until the user signs off. Runtime and publication evidence belong in the tracker and quality record.
+
+## Buddy user acceptance — 18 October 2026
+
+F-048 and F-061 are **Done** by Novy’s “Looks great. Merge to main” sign-off at 12:45 America/Creston for `/Flock/dev/`, runtime source `6b5e650` / Pages `2e1ec4c`. The accepted scope is Buddy’s reference puppy appearance, size, floating pose and smooth movement. Historical Review/pending statements below refer to earlier checkpoints. Main merge was authorized; production publication was not requested. Acceptance adds no independent native shader or phone-FPS measurement.
+
+## F-061 - Buddy reference and movement refinement - 17 October 2026
 
 On a new `buddy_update` branch from main, replace Buddy's orange walking model with a silver/cream robotic puppy matching IMG_8400 (picture 1): rounded head, large expressive eyes, short black-nosed muzzle, folded mechanical ears, small panelled body, four hover pods and a spring-like blue tail light. IMG_8401 (picture 2) establishes Buddy as smaller than Pip; enlarge the relative size slightly for normal-zoom legibility. Exact rendered proportions remain an implementation choice for visual review. Use Pip-like sinusoidal floating, head looking into turns, bounded inward bank and acceleration/braking pitch, without changing simulation colliders or tier unlocks/costs. Blue pod illumination belongs on terrain/bridge surfaces, not floating planes.
 
@@ -338,3 +356,14 @@ Latest size request supersedes the unfinished 33% reduction: reduce Pip's curren
 ### F-054 - Oak-like handmade tree appearance
 
 Update tree visuals to use continuously tapered, slightly bent warm-brown clay trunks and longer branches that curve at staggered heights. Replace the flat stump-cap / thin central-stem silhouette: the trunk continues and tapers through each fork. Use Leonardo branching exponent 2 at forks, so parent radius² equals the sum of child radii², counting the continuing trunk as a child ([PLOS ONE reference](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093535)). Give every tree seeded rotation variation. Use varied overlapping foliage and several clusters around the center rather than one large ball; larger trees carry more foliage. Reduce trunk thickness by 30% at the smallest supported rendered tree size and 10% at the largest supported rendered tree size, with linear interpolation between those endpoints. Vary crown mesh sizes by radial distance from the trunk centerline, larger near the axis and smaller farther away. Retain the small pressed oval leaf texture and handmade trunk details such as exposed roots, grooves and knots. Preserve tree placement, collision footprints, route clearance and actor visibility. Assess texture/shadow cost and mobile performance as applicable. The reduction percentages and linear interpolation are user requirements. Implementation uses the full renderer scale range 1.015–3.1, including background trees, as the endpoints; gameplay tree colliders remain 0.7–1.4. Other numeric dimensions are implementation choices. The earlier `bf5bb48` publication is historical first-pass evidence; the follow-up remains Review until its `dev2/` visual sign-off.
+
+
+## UI refinement — 17 October 2026
+
+User approval covers F-055–F-060 on `UI_refinement`, using IMG_8398/IMG_8399 as visual references. Hide branding/music/wallet during gameplay, put sound and wallet/workshop access in Pause, compact the mission panel while enlarging delivery/score values, omit the first-arrival explanation and show a prominent timer only after it starts. Simplify weather into an accessible icon; keep a compact adjacent minimap without its caption; shorten finite/manual tips; simplify joystick/bark decoration while showing cooldown progress; briefly introduce and fade a smaller destination sign. Preserve economy/saved progress, input, active-time/pause/reset behavior, goal markings and development-only QA. The QA gear is excluded from this redesign. Follow root AGENTS.md for parallel implementation, model selection and blind review; retain Review statuses until explicit user acceptance. See the tracker for per-item criteria and validation/publication evidence.
+
+Traceability: F-055 gameplay chrome/settings; F-056 status/countdown; F-057 minimap/tips; F-058 controls/cooldown; F-059 destination introduction; F-060 standing development rules.
+
+18 October tip clarification: retain a visible numbered badge (01, 02, 03) beside each concise tip, matching the supplied reference. Keep existing automatic/manual sequencing and dismissal unchanged. Publish this branch to `/Flock/dev/`, not dev2.
+
+18 October 2026 F-056/F-057 follow-up: increase minimap contrast and displayed size, and make level information more compact. Keep score/countdown readable, preserve map content and inputs, and retain separate source review, dev2 publication and user sign-off.

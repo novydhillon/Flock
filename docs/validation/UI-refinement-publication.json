@@ -1,0 +1,63 @@
+{
+  "source_sha": "d47ae6c0363fd2e26cbec06c851724bb0942825a",
+  "pages_parent": "c2e03932862bb8733683464209e745cc34918831",
+  "artifacts": {
+    "index.html": "459bac558fbc90dcfdf4cd66714fa50e8483475c6d2795b97a97c5302220f574",
+    "assets/outfit-latin-700-normal-D4itBLBr.woff": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+    "assets/outfit-latin-700-normal-Cu9v6i1X.woff2": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+    "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+    "assets/outfit-latin-900-normal-D7VxKg29.woff2": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+    "assets/outfit-latin-900-normal-DBTzQ72N.woff": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+    "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+    "assets/index-CmWxuWUi.css": "5d030320dd6ca3a3a59f778a1aa68173b0e55f80b77bb403c26abf9b0ab9941e",
+    "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+    "assets/outfit-latin-600-normal-B7SfZ07L.woff2": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+    "assets/qa-DWlVkWAo.css": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+    "assets/qa-BRO7Tstr.js": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f",
+    "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+    "assets/dm-sans-latin-400-normal-BwCSEQnW.woff": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+    "assets/index-C8YQR0cZ.js": "550cd40daffe8c4aeb6ab383cc45273728a2c3fd87819c7008dc5fd420f0a226",
+    "assets/outfit-latin-600-normal-BEfTtDA7.woff": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+    "assets/dm-sans-latin-700-normal-CUSSCpQX.woff": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+  },
+  "pages_sha": "ce24bf3397397143c092d50681cdb0e672e1507a",
+  "canonical_url": "https://novydhillon.github.io/Flock/dev2/",
+  "verified_live_artifacts": {
+    "index.html": "459bac558fbc90dcfdf4cd66714fa50e8483475c6d2795b97a97c5302220f574",
+    "assets/outfit-latin-700-normal-D4itBLBr.woff": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+    "assets/outfit-latin-700-normal-Cu9v6i1X.woff2": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+    "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+    "assets/outfit-latin-900-normal-D7VxKg29.woff2": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+    "assets/outfit-latin-900-normal-DBTzQ72N.woff": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+    "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+    "assets/index-CmWxuWUi.css": "5d030320dd6ca3a3a59f778a1aa68173b0e55f80b77bb403c26abf9b0ab9941e",
+    "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+    "assets/outfit-latin-600-normal-B7SfZ07L.woff2": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+    "assets/qa-DWlVkWAo.css": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+    "assets/qa-BRO7Tstr.js": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f",
+    "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+    "assets/dm-sans-latin-400-normal-BwCSEQnW.woff": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+    "assets/index-C8YQR0cZ.js": "550cd40daffe8c4aeb6ab383cc45273728a2c3fd87819c7008dc5fd420f0a226",
+    "assets/outfit-latin-600-normal-BEfTtDA7.woff": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+    "assets/dm-sans-latin-700-normal-CUSSCpQX.woff": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+  },
+  "preserved_unrelated_blob_count": 32,
+  "source_ci_run": 39096990195,
+  "source_ci_conclusion": "success",
+  "pages_run": 39097086089,
+  "checks": {
+    "source_tests": 306,
+    "release_files": 15,
+    "release_qa_assets": 0,
+    "development_files": 17,
+    "development_qa_assets": 2,
+    "blind_source_score": 9,
+    "blind_docs_score": 9.5
+  },
+  "acceptance": "Review \u2014 awaiting user visual/touch sign-off",
+  "limits": [
+    "No agent-rendered WebGL2 screenshots",
+    "No physical-phone touch/FPS measurement"
+  ],
+  "pages_conclusion": "success"
+}

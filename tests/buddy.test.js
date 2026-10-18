@@ -4,6 +4,7 @@ import { stepSimulation, canOccupy } from '../src/simulation.js';
 import { prepareWanderCohort } from '../src/wandering.js';
 import { createLevel, targetFootprint, targetWorldPoint } from '../src/world.js';
 import { moveBuddy } from '../src/buddy-navigation.js';
+import { updateBuddy } from '../src/buddy.js';
 
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep', saved: false, nextWanderCheck: 1e9 });
 const center = group => group.reduce((p,a) => ({x:p.x+a.x/group.length,z:p.z+a.z/group.length}),{x:0,z:0});
@@ -36,6 +37,25 @@ test('Buddy herds from the rear of measured flock travel in every compass direct
     const gain=level.animals.reduce((sum,a,i)=>sum+(a.vx-baseline.animals[i].vx)*vx+(a.vz-baseline.animals[i].vz)*vz,0);
     assert.ok(gain>.1,'rear dog contributes forward herding');
   }
+});
+
+test('Buddy standby clears motion and resumes with bounded acceleration from rest',()=>{
+  const level=meadow([],{helpers:[{type:'helper',x:0,z:0,heading:0}]});
+  const h=buddy(level),effects={helper:1,helperTier:1};
+  for(let i=0;i<20;i++)moveBuddy(level,h,{x:0,z:30},.05,7);
+  assert.ok(h.moveSpeed>6,'establish motion before entering standby');
+  const stopped={x:h.x,z:h.z};
+  for(let i=0;i<40;i++){
+    level.time+=.05;updateBuddy(level,[],effects,.05,[]);
+    assert.equal(h.mode,'standby');
+    assert.deepEqual([h.moveSpeed,h.vx,h.vz],[0,0,0]);
+    assert.deepEqual({x:h.x,z:h.z},stopped);
+  }
+  const active=[animal(0,0,30,0,2),animal(1,0,32,0,2)];
+  level.time+=.05;updateBuddy(level,active,effects,.05,[]);
+  assert.equal(h.mode,'herd');
+  assert.ok(h.moveSpeed>0&&h.moveSpeed<=.5);
+  assert.ok(distance(h,stopped)>0&&distance(h,stopped)<=.025+1e-9);
 });
 
 test('a stationary flock gets no invented travel direction and remote Buddy cannot herd',()=>{

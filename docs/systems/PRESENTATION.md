@@ -1,5 +1,17 @@
 # Presentation: renderer, nature and audio
 
+## Current minimap placement — F-057
+
+The minimap is anchored at `left:50%` with a negative half-width translation and `top:var(--hud-top)`, including short landscape. Existing 166px desktop/132px mobile and short-landscape sizes are retained. Below 384px, the map uses `top:calc(var(--hud-top) + 76px)` to clear the top-left weather/count/timer and top-right pause/help. This supersedes historical right-aligned placement below.
+
+## Current minimal HUD and level introduction — 18 October 2026
+
+This supersedes the full-title presentation below. The transparent top-left `#mission` has one weather/count row and a separate active-only countdown below; reward score/objective/progress/title nodes are removed. Results and reward simulation are unchanged. The center overlay contains only `#level-number`, a 36px “Level #” heading. Active elapsed time drives fade-in (0–0.65s), expansion (0.72–1.2 scale over 3s) and fade-out (1.8–3s). It stays centered, accepts no pointer input, freezes/hides in menus and resets per level/restart. `prefers-reduced-motion` disables the scale transform while retaining centering and fade. No white background/panel is used.
+
+## Centered level-title introduction — F-063
+
+`#level-introduction` sits at the viewport center with at least 20px safe side margins. The text appears directly over the game with no background panel or box shadow, as clarified on 18 October. Its small level number and 28px Outfit title are centered; long names wrap naturally, including an unbroken word, without changing the title font size. Pointer events pass through and modal dialogs sit above it. The controller uses active elapsed gameplay time: 2.5 seconds fully visible, 1.25 seconds fading, then hidden. Menus hide it and freeze the timer; restart/new level replay it and completion hides it. The top-left panel retains mission stats, weather and delivery countdown, with the full level identity also retained in its accessible name.
+
 ## Pip floating-motion follow-up
 
 **Accepted:** Novy signed off the current Pip presentation and movement on 17 October 2026 at 20:56 America/Creston, runtime `f0cb0c2` / Pages `c4e275b` on dev2. F-053 is Done; earlier native-acceptance wording below is historical. No independent FPS measurement is implied.
@@ -252,3 +264,14 @@ Historical organic-branching source candidate (`5399dcc`): nine bounded palette/
 
 
 Current contiguous implementation: `src/tree-geometry.js` builds three cached wood variants, each a single indexed, closed surface (274 vertices / 544 triangles). Side patches of the trunk are replaced by branch surfaces that reuse their boundary vertices. Smooth normals follow the continuous width deformation; a dedicated tree material uses subtle vertex-color grain instead of the former cylindrical bark texture. The first fork is at 1.56m of a 3.15m trunk, with three further forks staggered upward. A continuous bent centerline, tapered radii and curved limbs preserve the handmade silhouette. Instanced width attributes compact with instance matrices during culling; batch-owned geometry is disposed on level recreation. Ordinary bush bark remains independent. Nine bounded palette/maturity prototypes retain 7/9/11 overlapping foliage meshes, including multiple central clusters.
+
+
+## UI refinement candidate — F-055–F-059
+
+The candidate on `UI_refinement` uses a compact top status panel and adjacent minimap, with Pause/help at upper right. Branding, wallet and sound stay out of active gameplay; Pause owns sound and workshop access. Delivered count and score are separate readable values; the running timer has a large active-only display and static final-ten-second emphasis. A small labelled weather icon replaces the full weather row. Objective and destination billboard introductions last four active seconds; the billboard then fades over 1.2 seconds. Tips retain automatic finite sequencing and manually reopened looping, using shorter instructions and a visible numbered badge, restored at the user's request on 18 October. Joystick decoration/instruction captions are simplified; Woof remains circular with a cooldown progress ring. UI layout and hit targets require phone acceptance; source/DOM/scene tests only establish behavior. Production publication is separate from this development candidate.
+
+F-060 governs this candidate’s implementation/review/publication workflow through [AGENTS.md](../../AGENTS.md); product criteria remain F-055–F-059. The billboard width changes from 6 to 4.5 world units (25% reduction), and height from 1.5 to 1.125.
+
+F-055–F-059 development publication is verified at source `d47ae6c` / Pages `ce24bf3`; 17 live files match and production is unchanged. Native visual/touch sign-off is pending. See [publication manifest](../validation/UI-refinement-publication.json).
+
+18 October F-056/F-057 follow-up: the map frame grows from 92 to 132 CSS pixels on phones, 126 to 166 on desktop, and 108 to 132 in short landscape. Its canvas retains a 3:2 aspect ratio. A deep forest background separates the map from the meadow; routes, rivers, boundaries and outlined actor markers have stronger contrast. Mission headings show only Level N, with destination retained in the accessible mission label and brief objective. Inline Delivered/Score rows reduce panel width; the active countdown occupies reserved heading space rather than squeezing the numeric rows. Font-metric diagnostics support maximum numeric fit; native appearance requires new user acceptance. This follow-up is live on dev2 at source `e2f55d2` / Pages `dbdf3c1`, with all 17 files verified and production unchanged. [Evidence](../validation/UI-minimap-followup-publication.json).
