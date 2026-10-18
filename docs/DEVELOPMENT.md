@@ -163,6 +163,8 @@ For F-051 on a phone, check mission and minimap beside each other in portrait an
 
 ## Pip candidate workflow (F-053)
 
+Floating-motion smoke check: idle on grass and confirm a slow continuous hover, then accelerate, cruise for two seconds and release input to stop. Look for a brief backward lean on acceleration, forward lean on braking and a return to level. Turn both ways through wide/tight circles and sudden direction changes: the head looks into the turn and body banks inward, no more than 20 degrees; pitch stays within 10 degrees. Cross a bridge, pause/resume, restart and jump levels. Pod rings must follow the animated body; blue illumination must remain on ground/deck, while halo/goal pointer stay stable. Buddy retains its walking pose. Record native appearance separately from headless source checks.
+
 Use `pip_update`, based on the current development branch. Its push runs the same source CI, including both build modes. Publish its checked development artifact to `dev2/` only, preserving production and unrelated Pages content. Smoke-check silver angular Pip, four hover pods, three blue rings descending/fading per pod, attached top rings and lagging lower rings during turns; pause/resume and restart/jump must not leave old trails. Check Buddy walking, bark tail light, selection halo and goal pointer. Record source-level checks separately from native phone appearance.
 
 

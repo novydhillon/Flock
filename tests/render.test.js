@@ -603,3 +603,74 @@ test('Pip has twelve hollow hover rings with movement trails, frozen pause and f
   let disposed=0;parts.rings.flat().forEach(r=>r.material.addEventListener('dispose',()=>disposed++));
   renderer.setLevel(createLevel(1));assert.equal(disposed,12);assert.notEqual(renderer.dog,pip);
 });
+
+test('Pip float and turn articulation preserve simulation root, ground guidance, and Buddy pose',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;renderer.setLevel(level);
+  const pip=renderer.dog,{rig,head,rings}=pip.userData.parts;
+  assert.ok(rig&&head,'Pip has independent body and head pivots');
+  assert.equal(rig.parent,pip);assert.equal(head.parent,rig);
+  const halo=pip.children.find(o=>o.isMesh&&o.geometry.type==='RingGeometry');
+  assert.equal(halo.parent,pip);assert.equal(renderer.goalPointer.parent,pip);
+  assert.ok(rings.flat().every(r=>r.parent===pip),'world-space trails stay outside the body bank');
+  const h={type:'helper',x:dog.x+2,z:dog.z,heading:.4};level.helpers=[h];
+  Object.assign(dog,{heading:0,vx:0,vz:0});renderer.update(level,dog,0);
+  const haloY=halo.position.y,pointerY=renderer.goalPointer.position.y,heights=[];
+  for(let i=1;i<=45;i++){
+    const t=i/60,speed=t*4,heading=t;
+    Object.assign(dog,{heading,vx:Math.sin(heading)*speed,vz:Math.cos(heading)*speed});
+    renderer.update(level,dog,1/60);heights.push(rig.position.y);
+    assert.equal(pip.position.x,dog.x);assert.equal(pip.position.z,dog.z);
+    assert.equal(pip.position.y,terrainHeight(level,dog.x,dog.z),'only the visual rig floats');
+    assert.equal(pip.rotation.y,dog.heading);assert.equal(pip.rotation.x,0);assert.equal(pip.rotation.z,0);
+    assert.equal(halo.position.y,haloY);assert.equal(renderer.goalPointer.position.y,pointerY);
+  }
+  assert.ok(Math.max(...heights)-Math.min(...heights)>.01,'visual body floats while stationary simulation root stays grounded');
+  assert.ok(rig.rotation.x<0&&rig.rotation.z<0&&head.rotation.y>0,'forward acceleration and positive turn articulate independent pivots');
+  const buddy=renderer.helperMeshes.get('helper');
+  assert.equal(buddy.rotation.y,h.heading);assert.equal(buddy.rotation.x,0);assert.equal(buddy.rotation.z,0);
+  assert.equal(buddy.position.y,terrainHeight(level,h.x,h.z));assert.equal(buddy.userData.parts.legs.length,4);
+  pip.updateMatrixWorld(true);
+  const direction=new THREE.Vector3(0,1,0).applyQuaternion(renderer.goalPointer.getWorldQuaternion(new THREE.Quaternion()));
+  const desired=new THREE.Vector3(level.target.x-dog.x,0,level.target.z-dog.z).normalize();
+  assert.ok(direction.dot(desired)>.9999,'bank and head look do not redirect the ground goal pointer');
+});
+
+test('banked Pip pods, top rings and surface glow share transformed thruster anchors',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;renderer.setLevel(level);
+  Object.assign(dog,{heading:0,vx:0,vz:3});renderer.update(level,dog,0);
+  for(let i=1;i<=30;i++){
+    const heading=i/30;Object.assign(dog,{heading,vx:3*Math.sin(heading),vz:3*Math.cos(heading)});
+    renderer.update(level,dog,1/60);
+  }
+  const pip=renderer.dog,parts=pip.userData.parts;pip.updateMatrixWorld(true);
+  assert.ok(Math.abs(parts.rig.rotation.z)>.01,'test exercises an actual body bank');
+  assert.equal(parts.basePods.length,4);
+  for(let i=0;i<4;i++){
+    const actual=parts.rig.localToWorld(parts.basePods[i].clone());
+    const published=pip.localToWorld(parts.pods[i].clone());
+    assert.ok(actual.distanceTo(published)<1e-8,'published root-local anchor matches visual nozzle');
+    const top=parts.rings[i][0].getWorldPosition(new THREE.Vector3());
+    assert.ok(Math.hypot(top.x-actual.x,top.z-actual.z)<1e-8,'top ring originates beneath transformed nozzle');
+    const glow=renderer.thrusterGlow.centers.value[i];
+    assert.ok(Math.hypot(glow.x-actual.x,glow.z-actual.z)<1e-8,'ground glow follows transformed pod footprint');
+    assert.equal(glow.y,terrainHeight(level,glow.x,glow.z));
+  }
+});
+
+test('Pip pause freezes articulated pose and level replacement clears motion history',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;renderer.setLevel(level);
+  Object.assign(dog,{heading:0,vx:0,vz:0});renderer.update(level,dog,0);
+  for(let i=1;i<=20;i++){
+    const heading=i/20;Object.assign(dog,{heading,vx:i/5*Math.sin(heading),vz:i/5*Math.cos(heading)});
+    renderer.update(level,dog,1/60);
+  }
+  const pip=renderer.dog,parts=pip.userData.parts;
+  const pose=()=>[...parts.rig.position.toArray(),...parts.rig.quaternion.toArray(),...parts.head.quaternion.toArray(),...parts.rings.flat().flatMap(r=>[...r.position.toArray(),r.material.opacity])];
+  const before=pose();renderer.update(level,dog,0);assert.deepEqual(pose(),before);
+  renderer.update(level,dog,-.1);assert.deepEqual(pose(),before,'invalid negative frame cannot rewind the pose');
+  dog.x+=20;dog.heading=-2;dog.vx=0;dog.vz=0;renderer.update(level,dog,1/60);
+  assert.equal(parts.rig.rotation.x,0);assert.equal(parts.rig.rotation.z,0);assert.equal(parts.head.rotation.y,0);
+  renderer.setLevel(createLevel(1));
+  const fresh=renderer.dog.userData.parts;
+  assert.notEqual(renderer.dog,pip);assert.equal(fresh.rig.rotation.x,0);assert.equal(fresh.rig.rotation.z,0);assert.equal(fresh.head.rotation.y,0);
+});

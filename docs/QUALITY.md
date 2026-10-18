@@ -1,5 +1,13 @@
 # Flock dev2 revision quality record
 
+## F-053 floating robot-dog movement candidate
+
+Local validation passed: **299/299 full regressions**, **32/32 focused motion/render checks**, release artifact without QA (15 files), clean development artifact with QA (17 files), generated documentation and four documentation behavior checks. Native motion appearance and phone FPS remain unverified. Development publication evidence follows after CI and live verification.
+
+Requested gentle continuous hover, head looks into turns, turn-tightness bank capped at 20 degrees and acceleration/braking pitch capped at 10 degrees, leveling after roughly two seconds of steady speed. Integration worktree `pip-motion` / `pip_motion` and source worktree `pip-motion-model` / `pip_motion_model` start from remote `c9a25da`. Source implementation and independent test ownership use Sol at medium effort; blind source review uses Sol at high effort for transforms, signed angular rates and frame-rate response. Root simulation position, Buddy, current appearance/glow, guidance and unrelated accepted art remain unchanged.
+
+Independent focused tests: **32/32 passed**. Fresh blind source review scored **9/10**, no blocking defects. Head meshes are rebased around the neck and the rig pivots near the torso; root heading remains immediate while the head reacts into the turn. Reviewer-measured step-start peak pitch is 7.46–7.49 degrees at 15–240 Hz; a sudden 90-degree input produces about 26.75 degrees relative head yaw and 10.6 degrees inward bank before settling. Body roll/pitch stay within requested caps. Tests cover sine hover, proportion/sign/caps, two-second settling, real frame traces, heading wrap, pause, level/teleport reset, pod/ring/glow/guidance alignment and owned resource cleanup. Source checks do not establish native visual feel; final regression/build/publication evidence follows.
+
 ## F-053 additional 30% brightness reduction
 
 Verified publication: glow runtime source `78ed293e96f9b985cfa6c5657f0d6b885e8149b3`; source CI [39092794606](https://github.com/novydhillon/Flock/actions/runs/39092794606) passed. Pages `12621784e6aa7ea4ab6ca021c639da8af5f1c30b` and native deployment [39092856029](https://github.com/novydhillon/Flock/actions/runs/39092856029) succeeded. All 17 live dev2 files match the checked build by SHA-256; all 30 unrelated Pages files, including production, are preserved. Native glow appearance remains Review. Newer tree acceptance at `de2c035` is preserved by this documentation-only update.

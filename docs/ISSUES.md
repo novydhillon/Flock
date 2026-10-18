@@ -102,7 +102,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
-| F-053 | P2 | Presentation | Pip reference model and hover rings | Review | Phone appearance pending |
+| F-053 | P2 | Presentation | Pip reference model, hover rings and floating movement | Review | Phone appearance pending |
 | ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
 
 ## Screenshot evidence
@@ -770,6 +770,8 @@ Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; 
 
 
 ### F-053 - Pip reference model and hover rings
+
+**Movement follow-up, 17 October 2026:** Pip floats gently on a continuous sinusoid, including at rest. His articulated head looks into turns and his body leans into turn tightness, capped at 20 degrees. Forward acceleration produces backward body lean up to 10 degrees; braking produces forward lean up to 10 degrees, proportional to acceleration/deceleration. He settles level after roughly two seconds at steady speed or once stopped. Motion is smooth, pauses freeze presentation, and level changes/teleports reset history. Preserve simulation/collision, Buddy, size, rings, current ground-glow brightness and guidance graphics. Implementation uses separate model and integration/test worktrees with blind review restored for this motion change. Status remains Review for native appearance acceptance.
 
 **Status:** Review on `pip_update`. Reference-inspired metallic player model with four hover pods and three descending blue rings per pod, no flames. Top ring follows Pip, bottom trails motion, middle sits between. Preserve Buddy and gameplay. Independent source review 9/10 and documentation review 9/10; regression/build checks recorded in QUALITY.md. Development deployment evidence follows there; phone appearance requires user review.
 

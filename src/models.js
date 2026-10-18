@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createTreeWood, configureTreeMaterial } from './tree-geometry.js';
+import { createPipMotionState, updatePipMotion } from './pip-motion.js';
 export { deformTreeGeometry } from './tree-geometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -282,7 +283,7 @@ export function createDog() {
 
 // Pip has a separate constructor so Buddy keeps its established walking model.
 export function createPip() {
-  const m = createMaterials(), shell = new THREE.Group();
+  const m = createMaterials(), shell = new THREE.Group(), headShell = new THREE.Group();
   const steel = new THREE.MeshStandardMaterial({color:'#dce4e5',metalness:.45,roughness:.55});
   const trim = new THREE.MeshStandardMaterial({color:'#9caaae',metalness:.55,roughness:.45});
   box(shell,steel,[0,.83,-.06],[.62,.51,.92]);
@@ -294,14 +295,14 @@ export function createPip() {
     for(const z of [-.43,.28])for(const y of [.64,1.03])sphere(shell,m.brass,[side*.327,y,z],[.025,.025,.025]);
   }
   cylinder(shell,m.dark,[0,1.03,.38],.21,.18,[Math.PI/2,0,0]);
-  box(shell,steel,[0,1.32,.47],[.57,.45,.43]);
-  box(shell,m.dark,[0,1.35,.696],[.49,.25,.025]);
-  const muzzle=box(shell,steel,[0,1.15,.79],[.49,.25,.45]);muzzle.rotation.x=-.18;
-  box(shell,trim,[0,.99,.8],[.46,.04,.42]);
-  sphere(shell,m.black,[0,1.2,1.025],[.1,.095,.085]);
-  eye(shell,m,-.135,1.36,.72,.109);eye(shell,m,.135,1.36,.72,.109);
+  box(headShell,steel,[0,1.32,.47],[.57,.45,.43]);
+  box(headShell,m.dark,[0,1.35,.696],[.49,.25,.025]);
+  const muzzle=box(headShell,steel,[0,1.15,.79],[.49,.25,.45]);muzzle.rotation.x=-.18;
+  box(headShell,trim,[0,.99,.8],[.46,.04,.42]);
+  sphere(headShell,m.black,[0,1.2,1.025],[.1,.095,.085]);
+  eye(headShell,m,-.135,1.36,.72,.109);eye(headShell,m,.135,1.36,.72,.109);
   for(const side of [-1,1]) {
-    const ear=box(shell,steel,[side*.28,1.69,.43],[.22,.4,.12]);ear.rotation.z=side*-.42;
+    const ear=box(headShell,steel,[side*.28,1.69,.43],[.22,.4,.12]);ear.rotation.z=side*-.42;
     box(ear,m.dark,[0,0,.52],[.68,.75,.12]);
   }
   const pods=[];
@@ -312,9 +313,15 @@ export function createPip() {
     cylinder(shell,trim,[x,.335,z],.13,.05);
     pods.push(new THREE.Vector3(x,.3,z));
   }
-  const dog=bakeModel(shell);dog.name='Pip the hovering robot sheepdog';
-  dog.traverse(o=>{if(o.isMesh){o.userData.ownedGeometry=true;if(o.material===steel||o.material===trim)o.userData.ownedMaterial=true;}});
-  const tail=new THREE.Group();tail.position.set(0,.94,-.52);dog.add(tail);
+  const dog=new THREE.Group(),rig=new THREE.Group();
+  dog.name='Pip the hovering robot sheepdog';rig.name='Pip floating body rig';dog.add(rig);
+  // Bake body and head independently, retaining a neck pivot for looking into turns.
+  const body=bakeModel(shell),head=bakeModel(headShell);
+  body.position.y=-.83;head.position.set(0,1.03-.83,.38);
+  for(const mesh of head.children)mesh.geometry.translate(0,-1.03,-.38);
+  rig.position.y=.83;rig.add(body,head);
+  rig.traverse(o=>{if(o.isMesh){o.userData.ownedGeometry=true;if(o.material===steel||o.material===trim)o.userData.ownedMaterial=true;}});
+  const tail=new THREE.Group();tail.position.set(0,.94-.83,-.52);rig.add(tail);
   for(let i=0;i<7;i++)cylinder(tail,i%2?m.dark:trim,[0,.04+i*.05,-i*.035],.035,.055,[-.6,0,0]);
   const light=new THREE.MeshStandardMaterial({color:'#9ceeff',emissive:'#39bfe8',emissiveIntensity:1.25,roughness:.28});
   const tailLight=sphere(tail,light,[0,.41,-.27],[.075,.075,.075]);tailLight.userData.ownedMaterial=true;
@@ -324,9 +331,22 @@ export function createPip() {
     const ring=new THREE.Mesh(geometry('TorusGeometry',[.135,.014,6,24]),material);
     ring.name=`Pip thruster ring ${index+1}`;ring.rotation.x=Math.PI/2;ring.userData.ownedMaterial=true;dog.add(ring);return ring;
   }));
-  dog.userData.parts={body:dog.children[0],legs:[],tail,tailLight,pods,rings};
+  dog.userData.parts={body,rig,head,legs:[],tail,tailLight,basePods:pods.map(p=>p.clone().add(new THREE.Vector3(0,-.83,0))),pods,rings};
+  dog.userData.motion=createPipMotionState();
+  updatePipPose(dog,{x:0,z:0,heading:0,vx:0,vz:0},0);
+  dog.userData.motion.previous=null;
   dog.userData.hover={time:0,previous:null,trails:[]};
   return dog;
+}
+
+export function updatePipPose(dog,sample,dt) {
+  const state=updatePipMotion(dog.userData.motion,sample,dt),parts=dog.userData.parts;
+  parts.rig.position.y=.83+state.hover;
+  parts.rig.rotation.set(state.pitch,0,state.roll);
+  parts.head.rotation.y=state.headYaw;
+  parts.rig.updateMatrix();
+  // Rings and the receiving-surface glow consume root-local pod positions.
+  parts.pods.forEach((pod,i)=>pod.copy(parts.basePods[i]).applyMatrix4(parts.rig.matrix));
 }
 
 export function updatePipHover(dog,dt) {

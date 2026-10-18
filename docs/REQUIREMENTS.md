@@ -315,6 +315,8 @@ On branch `pip_update`, replace player Pip with the reference-inspired angular s
 
 ### F-053 follow-up - Smaller Pip and grounded thruster glow
 
+Movement requirements: gentle sinusoidal hover during idle and travel; head anticipates turn direction; body banks into turns according to tightness with a 20-degree cap. Pitch backward under forward acceleration and forward under braking, with each direction capped at 10 degrees and scaled to acceleration/deceleration. At constant speed for roughly two seconds, or after stopping, settle level. Keep simulation, collision and Buddy unchanged; animate the visual rig independently of ground halo/pointer and keep pod rings/glow aligned. Pause must freeze motion, heading wrap must not create spikes, and restart/level jump/teleport must not retain stale inertia. Use the existing worktree, test/documentation, blind-review and dev2 release workflow.
+
 17 October tuning: reduce the current 0.85 glow strength by another 30%, to 0.595. Keep diffuse radius, color, falloff, ground opacity and Pip unchanged. No blind review is required for this adjustment.
 
 Latest glow tuning: interpret 50% more transparent as halving the illumination contribution, leaving ground opacity unchanged. Make the footprint more diffuse with a wider radius and smooth feathering; keep illumination bound to receiving surfaces.

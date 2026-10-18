@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Pip floating-motion follow-up
+
+F-053 motion uses a visual body rig with an independently articulated head. The root retains simulation position and heading so collision and ground guidance remain unchanged. Presentation samples velocity/heading history to derive hover, head yaw, turn roll (maximum 20 degrees), and acceleration/braking pitch (maximum 10 degrees each way). Constant speed should settle pitch to level in about two seconds. Transform pod anchors through the visual rig before updating hover rings and surface-glow footprints; ground illumination stays on receiving surfaces. Pause, reset, heading wrap, teleports and frame-rate independence require source checks. Native feel remains for user acceptance.
+
 ## Pip size and ground glow follow-up
 
 Current glow strength is 0.595 (0.85 multiplied by 0.7), following the additional 30% brightness reduction. Pod-scaled radius remains 0.54 and the diffuse falloff/color are unchanged; only emitted brightness changes.
