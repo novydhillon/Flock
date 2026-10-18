@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Buddy acceptance - 18 October 2026
+
+F-048 and F-056 are **Done** by Novy's “Looks great. Merge to main” sign-off at 12:45 America/Creston for `/Flock/dev/` source `6b5e650` / Pages `2e1ec4c`. The accepted scope is Buddy's reference puppy appearance, size, floating pose and smooth movement. Earlier pending/Review text below is historical for these items. Merge to main is authorized; production publication is not requested. Other queued requirements remain unchanged. User acceptance does not add independent native-shader or phone-FPS measurements.
+
 ## F-056 - Buddy reference and movement refinement - 17 October 2026
 
 On a new `buddy_update` branch from main, replace Buddy's orange walking model with a silver/cream robotic puppy matching IMG_8400 (picture 1): rounded head, large expressive eyes, short black-nosed muzzle, folded mechanical ears, small panelled body, four hover pods and a spring-like blue tail light. IMG_8401 (picture 2) establishes Buddy as smaller than Pip; enlarge the relative size slightly for normal-zoom legibility. Exact rendered proportions remain an implementation choice for visual review. Use Pip-like sinusoidal floating, head looking into turns, bounded inward bank and acceleration/braking pitch, without changing simulation colliders or tier unlocks/costs. Blue pod illumination belongs on terrain/bridge surfaces, not floating planes.

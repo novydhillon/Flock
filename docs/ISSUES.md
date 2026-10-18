@@ -1,5 +1,9 @@
 # FLOCK — Remaining issues and change tracker
 
+## Buddy user sign-off - 18 October 2026, 12:45 America/Creston
+
+Novy confirmed “Looks great. Merge to main” for the Buddy candidate at `/Flock/dev/`, runtime source `6b5e650`, Pages `2e1ec4c`. **F-048 low-speed movement and F-056 reference puppy/hover presentation are Done** by user acceptance. This supersedes earlier Review/pending/queued wording for these two items only. Other Open/Deferred items and prior accepted behaviors remain unchanged. This authorizes merging `buddy_update` into main, not a production deployment; existing live builds remain unchanged. Historical source-review and device/FPS evidence limits are retained.
+
 F-053 30% dimmer glow publication: source `78ed293`, Pages `1262178`; source CI/native deployment succeeded, 288 tests passed, all 17 live files verified and 30 unrelated files preserved. Blind review was waived and not run. Glow appearance remains Review; newer F-054 tree acceptance is unchanged. See QUALITY.md for publication evidence.
 
 F-053 brightness tuning, 17 October: reduce the current glow brightness by 30%, from 0.85 to 0.595. Diffuse radius/falloff, color, Pip size and ground opacity are unchanged. Blind review explicitly waived. Visual acceptance remains Review; validation/publication evidence is in QUALITY.md.
@@ -97,8 +101,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | ~~F-046~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark~~ | ~~Done~~ | ~~-~~ |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
-| F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Review | F-046; buddy_update |
-| F-056 | P2 | Presentation/companions | Reference puppy Buddy with Pip-like hovering movement | Review | F-048; buddy_update |
+| ~~F-048~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Fix Buddy stuttering movement at low speed~~ | ~~Done~~ | ~~F-046; buddy_update~~ |
+| ~~F-056~~ | ~~P2~~ | ~~Presentation/companions~~ | ~~Reference puppy Buddy with Pip-like hovering movement~~ | ~~Done~~ | ~~F-048; buddy_update~~ |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
@@ -689,17 +693,17 @@ Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gra
 Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages `e175cc0`. Source CI and native Pages succeeded; all 17 live files and canonical entry HTML match the checked build, and all 18 unrelated Pages files are preserved. The 263-test suite, release/development checks and generated documentation checks pass. F-046 stays **Review**. Test tree navigation/turning at QA 20, tier-2 passage help at QA 24, and retrieval at QA 28. See [verified publication](QUALITY.md#verified-buddy-navigation-follow-up-publication).
 
 
-### F-056 - Reference puppy Buddy and floating pose (P2)
+### F-056 - ~~Reference puppy Buddy and floating pose (P2)~~
 
-**Status:** Review, Codex, `buddy_update` from main; started 17 October 2026 (America/Creston), resumed 18 October. Initial blind source/geometry review 8.5/10; independent integration follow-up 9.1/10 and documentation follow-up 9/10, with review-integrity caveat recorded in REVIEW.md. Native appearance/legibility and user sign-off remain pending. Published to `/Flock/dev/`: source `6b5e650`, Pages `2e1ec4c`; CI/native Pages succeeded, all 17 live files/canonical HTML verified and all 49 unrelated files preserved. See [publication evidence](validation/F-048-F-056-buddy-publication.json). F-048 shares this candidate and remains Review, not user sign-off.
+**Status:** Done by Novy’s user sign-off on 18 October 2026 at 12:45 America/Creston for source `6b5e650` / Pages `2e1ec4c` at `/Flock/dev/`. Merge to main authorized; no production deployment requested. Historical review/build/publication evidence is retained in QUALITY.md and REVIEW.md.
 
 **Accept when:** Buddy reads as the silver rounded robot puppy in picture 1, with expressive eyes, short black muzzle, folded ears, panelled torso, four hover pods and blue tail. Buddy remains smaller than Pip but slightly enlarged from picture 2's relative scale for screen legibility. It floats and looks/banks/leans like Pip; pod rings and ground/deck illumination follow the animated nozzles, pause and reset correctly. Gameplay tier rules, body clearance, save data and Pip's appearance stay intact. Development review and user visual sign-off are separate.
 
 **Scope:** Buddy only plus F-048 movement repair. No second Buddy, Pip redesign, unrelated UI or production-root publication.
 
-### F-048 - Buddy stutters when moving slowly (P2)
+### F-048 - ~~Buddy stutters when moving slowly (P2)~~
 
-**Status:** Review, owned by Codex on `buddy_update`, branched from main on 17 October 2026 (America/Creston). Separate model and movement worktrees, regression coverage and blind source review completed; user gameplay feel acceptance remains pending.
+**Status:** Done by Novy’s user sign-off on 18 October 2026 at 12:45 America/Creston for source `6b5e650` / Pages `2e1ec4c` at `/Flock/dev/`. Merge to main authorized; no production deployment requested. Historical review/build/publication evidence is retained in QUALITY.md and REVIEW.md.
 
 **Reported behavior:** Buddy dog has stuttering movement when moving slowly. Investigate and fix the low-speed movement so Buddy moves smoothly.
 

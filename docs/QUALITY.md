@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## Buddy user acceptance and main integration - 18 October 2026
+
+At 12:45 America/Creston, Novy said “Looks great. Merge to main.” F-048 and F-056 are Done for the verified `/Flock/dev/` candidate, runtime source `6b5e6504535037f5db2ec3ee57c6ccdcac41e81a`, Pages `2e1ec4c052ece61c3ffb0eaf11c956901753ca84`. This supersedes pending-user-acceptance descriptions below without altering historical review scores, their disclosed integrity caveat, or device/performance evidence limits. The approved source is merged into main after documentation checks. This is a source merge only: no Pages ref, live runtime asset or production deployment changes as part of this request. The existing 307-test/runtime build verification remains applicable; acceptance edits are documentation-only.
+
 ## F-048/F-056 Buddy puppy and movement validation - 17 October 2026
 
 `buddy_update` starts from main `8cc4275`. Disjoint model and locomotion implementation worktrees used `gpt-6-luna` at medium effort. Model commit `c2f29eb` (integrated `c4a9ff0`) creates a silver rounded puppy with large eyes, short muzzle, asymmetrical ears, blue pod tips and spring tail; movement commit `b9a7663` (integrated `0c793e7`) replaces fixed-speed/dead-zone pursuit with proportional arrival and acceleration limiting. Integrated renderer candidate `c3c325a` gives Buddy independent Pip-compatible hover/head/bank/pitch state, twelve bounded pulse rings, four actual-surface glow anchors, .82 relative scale, missing-helper hiding and owned-resource cleanup. Simulation body radius, tier costs/gates, herding and scoring remain unchanged. No other outstanding Buddy movement issue was found beyond F-048; F-047 remains queued.
