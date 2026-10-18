@@ -1,5 +1,9 @@
 # FLOCK — Remaining issues and change tracker
 
+## F-063 — Centered level-title introduction
+
+**Status:** Review on `UI_refinement`, owner Codex. Level identity is moved out of the top-left status panel into a temporary overlay centered on screen. It uses nearly the full viewport width with safe side margins, centered text, a fixed 28px title and multiline wrapping for long names. It shows at each level start/restart, holds 2.5 active seconds and fades for 1.25; menus freeze/hide it and input passes through. Combined UI/Buddy behavior is preserved. All 317 regression tests, both artifact modes and generated docs pass; fresh independent `gpt-6.1-sol` medium source review scored 9/10 without material blockers. Native phone appearance and user sign-off remain pending. Target `/Flock/dev/`; publication evidence follows.
+
 ## Combined development publication verified — 18 October 2026
 
 UI refinements and accepted Buddy updates are together at [Flock dev](https://novydhillon.github.io/Flock/dev/). Runtime source `1ad8645` passed CI `39160805430`; Pages `079ed98` passed native deployment `39160919364`. All 17 live files match the checked final development build by SHA-256; all 49 files outside dev, including production/dev2/legacy content, retain their blobs. F-062 and UI F-055–F-060 remain Review for user acceptance; Buddy F-048/F-061 remain Done. This supersedes pending-build/publication wording in the integration preparation records below. [Combined publication manifest](validation/UI-Buddy-combined-publication.json).
@@ -120,6 +124,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-048~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Fix Buddy stuttering movement at low speed~~ | ~~Done~~ | ~~F-046; buddy_update; user accepted 18 Oct 2026~~ |
 | ~~F-061~~ | ~~P2~~ | ~~Presentation/companions~~ | ~~Reference puppy Buddy with Pip-like hovering movement~~ | ~~Done~~ | ~~F-048; buddy_update; user accepted 18 Oct 2026~~ |
 | F-062 | P2 | Integration | Combine Buddy and UI_refinement candidates; validate and deploy development only | In progress | F-048, F-055–F-061 |
+| F-063 | P2 | UI | Centered level-title overlay with fixed-size wrapping and fade | Review | UI_refinement |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |

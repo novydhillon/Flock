@@ -546,8 +546,9 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
 test('compact mission shows a brief objective for four active seconds and resets per meadow',async()=>{
   const ui=launch();await ui.click('play');
   assert.ok(ui.document.body.classList.contains('in-game'));
-  assert.equal(ui.el('level-name').textContent,'Level 1');
-  assert.equal(ui.el('mission').attrs['aria-label'],'Level 1 · Sunny Pen');
+  assert.equal(ui.el('level-number').textContent,'Level 1');
+  assert.equal(ui.el('level-name').textContent,'First day on the farm');
+  assert.equal(ui.el('mission').attrs['aria-label'],'Level 1 · First day on the farm');
   assert.equal(ui.el('saved').textContent,0);assert.equal(ui.el('total').textContent,5);
   assert.equal(ui.el('mission-score').textContent,'0 / 80');
   assert.equal(ui.el('objective').textContent,'Everyone into the pen');
@@ -558,9 +559,34 @@ test('compact mission shows a brief objective for four active seconds and resets
   ui.advance(.3);assert.ok(ui.el('objective').classList.contains('hidden'));
   await ui.app.begin(1);
   const {level}=ui.app.state();
-  assert.equal(ui.el('level-name').textContent,'Level 2');
-  assert.equal(ui.el('mission').attrs['aria-label'],`Level 2 · ${{pen:'Sunny Pen',barn:'Home Barn',field:'Clover Field'}[level.target.type]||'Clover Field'}`);
+  assert.equal(ui.el('level-number').textContent,'Level 2');
+  assert.equal(ui.el('level-name').textContent,level.title);
+  assert.equal(ui.el('mission').attrs['aria-label'],`Level 2 · ${level.title}`);
   assert.equal(ui.el('objective').classList.contains('hidden'),false);
+});
+
+test('centered level introduction fades on active time, freezes in menus and replays on restart',async()=>{
+  const ui=launch();await ui.click('play');
+  const title=ui.el('level-introduction');
+  assert.equal(title.classList.contains('hidden'),false);
+  assert.equal(title.style.opacity,'1');
+  ui.advance(2.6);
+  const fading=Number(title.style.opacity);
+  assert.ok(fading>0&&fading<1);
+  await ui.click('pause');
+  assert.ok(title.classList.contains('hidden'));
+  ui.advance(10);assert.equal(Number(title.style.opacity),fading);
+  await ui.click('resume');
+  assert.equal(title.classList.contains('hidden'),false);
+  assert.equal(Number(title.style.opacity),fading);
+  ui.advance(1.3);assert.ok(title.classList.contains('hidden'));
+  await ui.app.begin(1);
+  assert.equal(ui.el('level-name').textContent,'Over the babbling brook');
+  assert.equal(title.classList.contains('hidden'),false);
+  assert.equal(title.style.opacity,'1');
+  ui.completeFlock();assert.ok(title.classList.contains('hidden'),'completion hides the overlay immediately');
+  await ui.app.begin(1);assert.equal(title.style.opacity,'1');
+  assert.equal(title.classList.contains('hidden'),false);
 });
 
 test('delivery countdown becomes urgent at ten seconds and restart clears all timer state',async()=>{

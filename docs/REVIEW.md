@@ -1,5 +1,9 @@
 # Documentation review record
 
+## F-063 level-title overlay review — 18 October 2026
+
+Fresh isolated `gpt-6.1-sol` medium source critic received the task, candidate and acceptance criteria without writer reasoning or previous review scores. Result: 9/10, no material source blocker; 36 UI tests and production build independently pass. Reviewed centered fixed-size wrapping, active-time hold/fade, pause/restart/completion lifecycle, input pass-through and retained combined UI/Buddy paths. No native/browser rendering, phone/touch or screen-reader verification. Exact timing-boundary, CSS geometry and QA-overlay transition assertions were identified as nonblocking coverage limits, supported by source inspection.
+
 ## Combined Buddy/UI integration runtime review — 18 October 2026
 
 The initial independent `gpt-6.1-sol` medium runtime review of the combined candidate scored 8.5/10 and found Buddy movement state (`moveSpeed`, `vx`, `vz`) could remain stale after entering standby. The integration added a no-main standby reset and a transition regression. The same critic's follow-up scored **9.2/10**, found no material blocker and passed **44/44** relevant checks; **26/26** Buddy tests pass after the fix. The full post-fix regression and artifact-mode checks are still being confirmed. This finding concerns the combined integration correction; it does not revoke Novy’s earlier F-048/F-061 Buddy acceptance. UI F-055–F-060 remain Review pending sign-off.

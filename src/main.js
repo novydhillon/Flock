@@ -40,11 +40,16 @@ function updateCountdown(started=false,remaining=0){
   $('countdown').classList.toggle('running',started);$('countdown').classList.toggle('urgent',started&&remaining<=10);
 }
 function resetInput(){input.x=input.z=0;pointer=null;keys.clear();$('stick').style.transform='translate(0,0)';}
+function updateLevelIntroduction(){
+  const opacity=Math.max(0,Math.min(1,1-(elapsed-2.5)/1.25));
+  $('level-introduction').style.opacity=String(opacity);
+  visible('level-introduction',mode==='playing'&&opacity>0);
+}
 async function begin(index=profile.highestLevel){
   index=Math.max(0,Math.min(99,Math.floor(Number(index)||0)));
   closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';document.body.classList.toggle('in-game',true);updateBark(performance.now());
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box'])visible(id,true);
-  $('level-name').textContent=`Level ${index+1}`;$('mission').setAttribute('aria-label',`Level ${index+1} · ${{pen:'Sunny Pen',barn:'Home Barn',field:'Clover Field'}[level.target.type]||'Clover Field'}`);visible('objective',true);$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=level.animals.length;$('saved').textContent=0;$('progress').style.width='0%';
+  $('level-number').textContent=`Level ${index+1}`;$('level-name').textContent=level.title;updateLevelIntroduction();$('mission').setAttribute('aria-label',`Level ${index+1} · ${level.title}`);visible('objective',true);$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=level.animals.length;$('saved').textContent=0;$('progress').style.width='0%';
   updateCountdown();$('mission-score').textContent=`0 / ${level.reward}`;
   tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(tipsFor(index)[0]);
   audio.setMuted(!profile.music);await audio.start();if(mode!=='playing'||!profile.music)audio.pause();updateWallet();
@@ -59,9 +64,9 @@ function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visibl
 function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
 function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;updateBark(performance.now());audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
 function openModal(html,newMode='paused'){
-  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
+  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
 }
-function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');if(mode==='playing')audio.resume();modalFocus?.focus();}resetInput();}
+function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');if(mode==='playing')audio.resume();modalFocus?.focus();}updateLevelIntroduction();resetInput();}
 function menu(){
   if(mode==='reset-confirm'){$('cancel-reset').onclick();return;}
   if(mode==='shop'){$('shop-back').onclick();return;}
@@ -150,7 +155,7 @@ function frame(now){
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
-  gateControl.update();
+  updateLevelIntroduction();gateControl.update();
   renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'||mode==='complete')?dt:0,mode==='intro');
   if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();
   const weather=renderer.nature?.weather||level.weather;if(weather){const [icon,label]=({sun:['☀','Clear skies'],wind:['↝','Breezy'],rain:['☂','Light rain'],'heavy-rain':['☂','Heavy rain'],storm:['ϟ','Thunderstorm']})[weather.kind||weather.type||weather]||['☀','Clear skies'];$('weather-status').textContent=icon;$('weather-status').setAttribute('title',label);$('weather-status').setAttribute('aria-label',label);}

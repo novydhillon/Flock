@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## F-063 — Centered level-title introduction
+
+Move the level name and number from the top-left status panel to a temporary overlay centered vertically and horizontally. Fill the screen width except safe side margins of at least 20px. Center the title text and wrap long names onto further lines without shrinking the fixed 28px title font. Show the actual generated level title on each start/restart, hold for 2.5 active seconds, then fade for 1.25 active seconds. Pause freezes the clock and hides the overlay behind menus; resuming restores its remaining introduction. Completion hides it. Overlay input passes through to gameplay. Keep delivery, score, weather and countdown in the compact status panel. This modifies the combined UI/Buddy candidate on `UI_refinement`; publish to `/Flock/dev/` and retain Review for appearance acceptance.
+
 ## F-062 — Combined Buddy/UI integration
 
 Keep the accepted Buddy source and the still-unaccepted UI refinement candidate integrated on `UI_refinement`. Run the combined source regression and both release/development artifact-mode checks, obtain an independent integrated review, then publish only to `/Flock/dev/` when authorized. Preserve production and existing Pages paths. F-048/F-061 remain Done by Buddy acceptance; F-055–F-060 remain Review until the user signs off. Runtime and publication evidence belong in the tracker and quality record.

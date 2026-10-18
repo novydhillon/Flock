@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Centered level-title introduction — F-063
+
+`#level-introduction` sits at the viewport center with at least 20px safe side margins and a translucent cream background. Its small level number and 28px Outfit title are centered; long names wrap naturally, including an unbroken word, without changing the title font size. Pointer events pass through and modal dialogs sit above it. The controller uses active elapsed gameplay time: 2.5 seconds fully visible, 1.25 seconds fading, then hidden. Menus hide it and freeze the timer; restart/new level replay it and completion hides it. The top-left panel retains mission stats, weather and delivery countdown, with the full level identity also retained in its accessible name.
+
 ## Pip floating-motion follow-up
 
 **Accepted:** Novy signed off the current Pip presentation and movement on 17 October 2026 at 20:56 America/Creston, runtime `f0cb0c2` / Pages `c4e275b` on dev2. F-053 is Done; earlier native-acceptance wording below is historical. No independent FPS measurement is implied.
