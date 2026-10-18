@@ -63,13 +63,15 @@ test('portrait scene builds articulated instance poses and finite camera matrice
 });
 
 test('changing levels disposes world resources without disposing cached animal geometry',()=>{
-  const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
+  const renderer=setup(),level=createLevel(3);renderer.setLevel(level);
+  assert.deepEqual([...new Set(level.animals.map(animal=>animal.type))].sort(),['cow','sheep'],'mixed-species lifecycle fixture');
   let worldDisposed=0,animalDisposed=0,fenceDisposed=0,treeDisposed=0;const worldGeometries=new Set();
   renderer.fenceParts.forEach(p=>p.geometry.addEventListener('dispose',()=>fenceDisposed++));
   new Set(models.createTree(0,0).children.map(p=>p.geometry)).forEach(g=>g.addEventListener('dispose',()=>treeDisposed++));
   renderer.terrain.traverse(o=>{if(o.userData.ownedGeometry)worldGeometries.add(o.geometry);});
   worldGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>worldDisposed++));
-  renderer.animalBatches[0].meshes[0].geometry.addEventListener('dispose',()=>animalDisposed++);
+  const animalGeometries=new Set(renderer.animalBatches.flatMap(batch=>batch.meshes.map(mesh=>mesh.geometry)));
+  animalGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>animalDisposed++));
   renderer.bark();let barkDisposed=0;renderer.barkEffects[0].mesh.material.addEventListener('dispose',()=>barkDisposed++);
   renderer.celebrate(level.target.x,level.target.z);
   let confettiDisposed=0;renderer.particles.forEach(p=>p.mesh.geometry.addEventListener('dispose',()=>confettiDisposed++));

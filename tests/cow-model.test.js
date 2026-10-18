@@ -1,0 +1,84 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import * as THREE from 'three';
+import {createAnimal} from '../src/models.js';
+
+// Model/matrix checks exercise real geometry; Canvas is a texture-data stand-in.
+// They do not establish rendered likeness or device performance.
+globalThis.document={createElement:()=>({width:0,height:0,getContext:()=>({
+  createImageData:(width,height)=>({data:new Uint8ClampedArray(width*height*4)}),putImageData(){},
+})})};
+const meshes=model=>{const result=[];model.traverse(p=>{if(p.isMesh)result.push(p);});return result;};
+const bounds=model=>{model.updateMatrixWorld(true);return new THREE.Box3().setFromObject(model);};
+
+function silhouetteHash(model){
+  const hash=createHash('sha256');
+  for(const part of meshes(model)){
+    hash.update(Buffer.from(part.geometry.attributes.position.array.buffer));
+    hash.update(JSON.stringify(part.position.toArray()));
+  }
+  return hash.digest('hex');
+}
+
+test('cow redesign preserves the accepted sheep geometry and has a larger grounded silhouette',()=>{
+  const sheep=createAnimal('sheep'),cow=createAnimal('cow');
+  assert.equal(silhouetteHash(sheep),'fa76ffcb7dab581709044d0a1820173560c64d2e10ece659cb9dd4c466f9972d',
+    'cow work must not alter sheep vertices or hip transforms');
+  const sheepSize=bounds(sheep).getSize(new THREE.Vector3()),cowBox=bounds(cow),cowSize=cowBox.getSize(new THREE.Vector3());
+  for(const axis of ['x','y','z'])assert.ok(cowSize[axis]/sheepSize[axis]>1.35&&cowSize[axis]/sheepSize[axis]<1.8,
+    `cow ${axis} silhouette is visibly larger without a second length multiplier`);
+  assert.ok(cowBox.min.y>=0&&cowBox.min.y<.06,`neutral hooves sit near ground: ${cowBox.min.y}`);
+  const torso=meshes(cow).find(part=>part.material.map?.image?.width===256);
+  const torsoSize=bounds(torso).getSize(new THREE.Vector3());
+  // Accepted sheep core envelope: ellipsoid radii .32/.34/.39. Surface
+  // sculpting may perturb vertices by 2.5%, but never rescale an axis twice.
+  for(const [axis,diameter] of [['x',.64],['y',.68],['z',.78]])
+    assert.ok(Math.abs(torsoSize[axis]/diameter-1.5)<.05,`${axis} torso uses 1.5x linear sheep-core dimensions`);
+  assert.deepEqual(cow.scale.toArray(),[1,1,1],'model scale is baked once, ready for the shared instance renderer');
+});
+
+test('cow cache shares immutable resources while clones retain independent articulated poses',()=>{
+  const first=createAnimal('cow'),second=createAnimal('cow'),parts=meshes(first),other=meshes(second);
+  assert.equal(parts.length,other.length);
+  const before=other.map(p=>p.matrix.clone());
+  for(let i=0;i<parts.length;i++){
+    assert.notEqual(parts[i],other[i]);
+    assert.equal(parts[i].geometry,other[i].geometry);
+    assert.equal(parts[i].material,other[i].material);
+    assert.ok(!parts[i].userData.ownedGeometry&&!parts[i].userData.ownedMaterial,
+      'per-instance cleanup must not dispose the persistent flock cache');
+  }
+  assert.equal(first.userData.articulated,true);
+  for(let index=0;index<4;index++){
+    const limb=parts.filter(p=>p.userData.limbIndex===index);
+    assert.equal(limb.length,2,'each hip has exactly coat and cloven-hoof batches');
+    assert.deepEqual(limb[0].userData.pivot,limb[1].userData.pivot);
+    for(const part of limb){
+      assert.deepEqual(part.position.toArray(),part.userData.pivot);
+      assert.ok(part.geometry.boundingBox?.min.y<0||bounds(part).min.y<part.position.y,'limb extends below its hip');
+      part.rotation.x=.35;part.updateMatrix();
+    }
+  }
+  other.forEach((part,i)=>assert.ok(part.matrix.equals(before[i]),'posing one cow leaves another pose unchanged'));
+});
+
+test('cow batches remain finite, textured once and bounded for flock instancing',()=>{
+  const cow=createAnimal('cow'),parts=meshes(cow);let triangles=0;
+  for(const part of parts){
+    const geometry=part.geometry;
+    for(const key of ['position','normal','uv']){
+      assert.ok(geometry.attributes[key],`${key} exists`);
+      assert.ok([...geometry.attributes[key].array].every(Number.isFinite),`${key} has finite values`);
+    }
+    if(geometry.index)assert.ok([...geometry.index.array].every(i=>i<geometry.attributes.position.count));
+    triangles+=(geometry.index?.count||geometry.attributes.position.count)/3;
+  }
+  assert.ok(parts.length<=18,`bounded material/hip batches: ${parts.length}`);
+  assert.ok(triangles<=6500,`bounded per-cow geometry: ${triangles}`);
+  const coats=parts.filter(p=>p.material.map?.image?.width===256);
+  assert.equal(coats.length,1,'organic coat remains one surface batch');
+  const texture=coats[0].material.map;
+  for(let i=0;i<20;i++)assert.equal(meshes(createAnimal('cow')).find(p=>p.material.map===texture)?.material.map,texture,
+    'repeated flock construction reuses the coat texture');
+});

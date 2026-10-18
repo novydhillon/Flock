@@ -252,3 +252,8 @@ Historical organic-branching source candidate (`5399dcc`): nine bounded palette/
 
 
 Current contiguous implementation: `src/tree-geometry.js` builds three cached wood variants, each a single indexed, closed surface (274 vertices / 544 triangles). Side patches of the trunk are replaced by branch surfaces that reuse their boundary vertices. Smooth normals follow the continuous width deformation; a dedicated tree material uses subtle vertex-color grain instead of the former cylindrical bark texture. The first fork is at 1.56m of a 3.15m trunk, with three further forks staggered upward. A continuous bent centerline, tapered radii and curved limbs preserve the handmade silhouette. Instanced width attributes compact with instance matrices during culling; batch-owned geometry is disposed on level recreation. Ordinary bush bark remains independent. Nine bounded palette/maturity prototypes retain 7/9/11 overlapping foliage meshes, including multiple central clusters.
+
+
+## F-057 cow art — 18 October 2026
+
+On `art_update_cow` from main, replace the cow appearance with a rounded clay Holstein following IMG_8387: irregular black/cream coat, expressive eyes, broad pink muzzle with nostrils, dark ears, small curved ivory horns, cloven hooves and tail. Use 1.5× sheep linear body size; preserve sheep and existing instanced gait/rendering contracts. Publish only to `/Flock/dev/`; user visual acceptance is a separate Review milestone.

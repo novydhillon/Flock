@@ -54,6 +54,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-057 | P2 | Art | Reference clay Holstein cows at 1.5× sheep size | Review | art_update_cow |
 | ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
 | ~~F-001~~ | ~~P1~~ | ~~Reported defect~~ | ~~Path-corner polygon flicker~~ | ~~Done~~ | ~~—~~ |
 | ~~F-002~~ | ~~P1~~ | ~~Reported defect~~ | ~~Bark effect above ground and bridge deck~~ | ~~Done~~ | ~~—~~ |
@@ -835,3 +836,20 @@ F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the we
 **Follow-up request:** The earlier segmented wood mesh fails the phone visual check in IMG8395 and IMG8396. Implementation and final mesh/visual review are to use `gpt-6-astra` at high effort, as selected by the user. Previous F-054 scores and tests reviewed source/geometry only; they did not establish rendered phone pixels. The new implementation uses one closed welded wood surface per tree, with smooth width-dependent normals and seam-free vertex grain. Source tests and offscreen mesh-shader diagnostics are recorded in QUALITY.md; deployment and native visual acceptance are recorded separately.
 
 F-053 follow-up (16 October 2026): latest request is a 25% reduction from published Pip scale 1.35, replacing the unfinished earlier 33% size change. Worktree branch `pip_thruster_glow` uses scale 1.0125, retains the pending lighter silver finish and adds four soft ground-following blue thruster glows. Halo/pointer world size, Buddy and gameplay are unchanged. Source `ddae15b`, Pages `934fd37`: CI/native deployment passed, 282 tests, source review 9.2/10, all 17 live files verified and 30 unrelated Pages files preserved. Status remains Review for native visual acceptance; see QUALITY.md.
+
+
+### F-057 - Reference clay Holstein cows at 1.5× sheep size (P2)
+
+**Status: Review.** Owner: Codex. Branch: `art_update_cow`, based on main `396121d`. Requested 18 October 2026 (America/Creston).
+
+Acceptance: follow IMG_8387 reference with rounded cream/black patchwork, broad pink muzzle/nostrils, expressive eyes, dark ears, small ivory horns, cloven feet and tail in the established clay style. Cow linear body size is 1.5× sheep; sheep appearance stays unchanged. Retain instanced rendering, animated legs, collision/bridge/delivery behavior, bounded resource use and pause/restart safety. Run independent blind review and full checks, hold deployment at user request (18 October: dev is being used for another review), leave Review pending user appearance acceptance.
+
+Approach: extend the existing procedural, material-baked model rather than add an imported asset; this retains shared geometry, clay materials and existing gait pivots. Cow model implementation and integration/documentation proceed independently with disjoint file ownership.
+
+Deployment hold: Novy explicitly requested no dev publication while another review is in progress. Commit/push source only; await a new deployment instruction. No Pages changes have been made.
+
+F-057 source validation: 310/310 tests, both build/artifact-mode checks and generated documentation checks pass. Independent blind source review: 9/10, no confirmed functional blocker. Minor unverified art concern: existing blue-gray enamel head/ears/hooves contrast with matte coat; decide in rendered review. Deployment held by user; visual acceptance pending.
+
+F-057 handoff: source implementation is committed locally as `7cc7035`. Automatic approval review rejected the push to the configured `novydhillon/Flock` remote, stating explicit authorization to publish the branch is required. No workaround attempted. Remote branch publication/CI are blocked pending user authorization; local checks passed. Deployment remains explicitly held and Pages unchanged.
+
+F-057 push authorization: Novy explicitly approved pushing `art_update_cow` on 18 October 2026 at 15:54 America/Creston. Deployment remains held. The earlier approval block above is historical. Source publication uses the connected GitHub service because shell git has no HTTPS credentials.
