@@ -9,7 +9,7 @@ import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
-import { createPip, updatePipPose, updatePipHover, createDog, createAnimal, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
+import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 // Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
@@ -192,7 +192,6 @@ export class MeadowRenderer{
     const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
     this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
     this.goalPointer.scale.setScalar(1/.75);this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
-    this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
     for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
@@ -309,7 +308,26 @@ export class MeadowRenderer{
     this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
     this.updateBarks(dt);
-    for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Number.isFinite(h.heading))m.rotation.y=h.heading;else if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,(this.barkEffects||[]).some(e=>e.buddy));}}
+    for(const m of this.helperMeshes.values())m.visible=false;
+    for(const h of level.helpers||[]){
+      let m=this.helperMeshes.get(h.type);
+      if(!m){
+        m=h.type==='drone'?createDrone():createBuddy();
+        if(h.type==='helper')m.scale.setScalar(this.dog.scale.x*(m.userData.suggestedScale??.82));
+        this.helperMeshes.set(h.type,m);this.actors.add(m);
+      }
+      m.visible=true;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);
+      if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);
+      else{
+        if(Number.isFinite(h.heading))m.rotation.y=h.heading;
+        updatePipPose(m,{...h,heading:m.rotation.y},dt);updatePipHover(m,dt);
+        m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
+        setTailLightBarking(m,(this.barkEffects||[]).some(e=>e.buddy));
+      }
+    }
+    // A missing helper must clear its previous illuminated footprints.
+    const buddy=(level.helpers||[]).some(h=>h.type==='helper')?this.helperMeshes.get('helper'):null;
+    this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z),buddy);
     setTailLightBarking(this.dog,(this.barkEffects||[]).some(e=>!e.buddy));this.gateView?.update();
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
     this.cutaway?.update(this.camera,[dog,...level.animals,...(level.helpers||[]).filter(h=>h.type!=='drone')],dt);

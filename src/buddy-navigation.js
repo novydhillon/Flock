@@ -72,14 +72,29 @@ export function turnToward(current, target, rate, dt) {
 
 /** Turn before reversing. Slow near the waypoint rather than shuttling through it. */
 export function moveBuddy(level, buddy, waypoint, dt, speed) {
+  if (!(dt > 0) || !Number.isFinite(dt)) return;
   const dx=waypoint.x-buddy.x,dz=waypoint.z-buddy.z,d=Math.hypot(dx,dz);
   const old={x:buddy.x,z:buddy.z};
-  if(d>.22){
+  if(d>1e-4){
     const target=Math.atan2(dx,dz);
     buddy.heading=turnToward(buddy.heading??target,target,2.8,dt);
     const alignment=Math.max(0,Math.cos(angleDifference(target,buddy.heading)));
-    const travel=Math.min(Math.max(0,d-.15),dt*speed*alignment);
-    moveBody(level,buddy,Math.sin(buddy.heading)*travel,Math.cos(buddy.heading)*travel,.6);
+    // A fixed-speed step plus a .22m dead zone made a moving low-speed
+    // waypoint get chased in bursts: stop, let the target drift away, then
+    // accelerate toward it again. Use a proportional arrival speed and a
+    // bounded acceleration instead, so both pursuit and stopping are smooth.
+    const response=5, acceleration=10;
+    const desiredSpeed=Math.min(Math.max(0,speed),d*response)*alignment;
+    const currentSpeed=Math.max(0,buddy.moveSpeed??Math.hypot(buddy.vx||0,buddy.vz||0));
+    const nextSpeed=currentSpeed+Math.max(-acceleration*dt,Math.min(acceleration*dt,desiredSpeed-currentSpeed));
+    const travel=Math.min(d,dt*nextSpeed);
+    const collision=moveBody(level,buddy,Math.sin(buddy.heading)*travel,Math.cos(buddy.heading)*travel,.6);
+    const moved=Math.hypot(buddy.x-old.x,buddy.z-old.z);
+    // Do not accumulate acceleration against a wall/tree/rail. Resume from
+    // the actual body speed once a clear route opens.
+    buddy.moveSpeed=(collision.blockedX||collision.blockedZ)?moved/dt:nextSpeed;
+  } else {
+    buddy.moveSpeed=Math.max(0,(buddy.moveSpeed||0)-10*dt);
   }
   buddy.vx=(buddy.x-old.x)/dt;buddy.vz=(buddy.z-old.z)/dt;
 }
