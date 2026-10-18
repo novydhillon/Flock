@@ -1,5 +1,13 @@
 # FLOCK — Remaining issues and change tracker
 
+F-053 30% dimmer glow publication: source `78ed293`, Pages `1262178`; source CI/native deployment succeeded, 288 tests passed, all 17 live files verified and 30 unrelated files preserved. Blind review was waived and not run. Glow appearance remains Review; newer F-054 tree acceptance is unchanged. See QUALITY.md for publication evidence.
+
+F-053 brightness tuning, 17 October: reduce the current glow brightness by 30%, from 0.85 to 0.595. Diffuse radius/falloff, color, Pip size and ground opacity are unchanged. Blind review explicitly waived. Visual acceptance remains Review; validation/publication evidence is in QUALITY.md.
+
+F-053 glow tuning: user requests 50% more transparency and a more diffuse footprint. Strength is halved (1.7 to 0.85), radius widened (0.36 to 0.54) and radial falloff smoothed; ground remains opaque. The user waived further blind review for this tweak. Glow runtime source `ff5e2cd`, Pages `93ea5fe`: CI/native deployment pass, 283 tests pass, all 17 live files verified and 30 unrelated files preserved. Newer tree source is preserved; this evidence covers the glow publication only. Status stays Review for visual acceptance; see QUALITY.md.
+
+F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. The separate transparent sheet is replaced with illumination in the actual grass/path/river-bank/bridge surface materials. Requested size and hover rings are preserved. Runtime source `84ad352`, Pages `b666edf`: 283 tests pass, source review 9/10, source CI/native Pages succeed, all 17 live files verified and 30 unrelated files preserved. This correction remains Review for native appearance acceptance; see QUALITY.md for evidence and the unavailable WebGL2 visual-check limitation.
+
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
 Novy signed off all seven items in Review: **F-035, F-037, F-039, F-041, F-046, F-051 and F-052 are Done**. This covers wandering/bolting tuning and local settling, Buddy behavior and the forward-flow/bridge follow-ups, the compact HUD and revised tips/bark/goal pointer, and the bottom-centre development QA gear. No items remain in Review at this checkpoint. Open items (including F-048 low-speed Buddy stutter) and Deferred clouds remain unchanged. This is user acceptance, not a new independent device/performance measurement. Earlier Review/pending wording below is historical and superseded by this sign-off. Documentation only; game bytes are unchanged.
@@ -73,8 +81,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-029~~ | ~~P2~~ | ~~Gameplay/economy~~ | ~~Pay only lifetime-best score improvements on replay~~ | ~~Done~~ | ~~F-009~~ |
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Open | F-006 |
-| F-032 | P3 | Gameplay/UI | Closed red and open green world-fence button; dog touch activates | Open | F-031 |
-| F-033 | P2 | Environment/art | English farm dry-stone wall appearance | Open | F-007 |
+| F-032 | P3 | Gameplay/UI | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates | Open | F-031 |
+| ~~F-033~~ | ~~P2~~ | ~~Environment/art~~ | ~~English farm dry-stone wall appearance~~ | ~~Done~~ | ~~F-007~~ |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
 | ~~F-035~~ | ~~P2~~ | ~~Gameplay~~ | ~~Baseline bolt duration 3–5 seconds~~ | ~~Done~~ | ~~F-012~~ |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
@@ -94,6 +102,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
+| F-053 | P2 | Presentation | ~~Pip reference model, hover rings and floating movement~~ | Done | User signed off 17 October 2026 |
+| ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
 
 ## Screenshot evidence
 
@@ -352,19 +362,19 @@ Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-0
 
 ### F-032 — World-fence gate indicator and dog activation (P3)
 
-**Requirement:** show a world-fence button red when closed and green when open; touching the button with the dog activates it.
+**Requirement:** place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.
 
-**Accept when:** the button is visibly red only for closed gates and green only for open gates; dog contact activates the associated gate reliably, updates collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
+**Accept when:** each gate has a reachable button on both sides, including when the gate is closed. Dog contact with either button opens a closed gate or closes an open gate. Both buttons stay synchronized: red when closed and green when open. Each activation reliably updates the same gate and its collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
 
 **Status:** Open. Clarify the interaction mapping during implementation if the visual button/control relationship is ambiguous; do not silently change F-006's accepted action.
 
-### F-033 — English dry-stone wall appearance (P2)
+### F-033 — ~~English dry-stone wall appearance (P2)~~
 
 **Requirement:** stone walls should look like drystone walls built by an English farmhand.
 
 **Accept when:** rendered walls read as hand-laid, irregular dry-stone masonry with plausible varied stones and no visible mortar, while maintaining consistent collision, gates/openings, route clearance and mobile performance. Review at normal game zoom and across wall orientations.
 
-**Status:** Open; appearance request only, with no runtime change in this documentation task.
+**Status:** Done; Novy signed off the deployed weathered claymation walls on 16 October 2026 at 14:00 America/Vancouver (source `1941302`, Pages `29f48f3`). Reference photos supplied 16 October 2026 guide irregular dry-laid stones, muted warm greys, broad foundations and uneven upright coping. Three instanced sculpted shapes replace rectangular bricks; staggered variable widths and per-stone colors avoid uniform masonry. The .6-unit collision strip, segment endpoints, gates and level selection are preserved. F-034 remains Open. Source bounds/determinism/resource checks do not establish phone appearance or FPS.
 
 ### F-034 — Seeded per-level stone-wall chance (P3)
 
@@ -757,3 +767,56 @@ F-052 execution: reviewed 9.5/10; source `e8b8e16`, Pages `715b06c`. All 277 tes
 
 
 Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; source CI/native Pages succeeded, 277 tests and release/doc checks pass, 15/15 live root files/canonical HTML verified. All 34 unrelated Pages files preserved. QA excluded from production; dev2 unchanged. User sign-off statuses above are preserved.
+
+
+### ~~F-053 - Pip reference model and hover rings~~
+
+**Status: Done.** Novy signed off the current Pip presentation and floating movement on 17 October 2026 at 20:56 America/Creston, accepting runtime source `f0cb0c2` / Pages `c4e275b` on dev2. This supersedes the historical Review wording below for F-053. Existing test and blind-review evidence retains its scope; this user acceptance adds no independent FPS measurement. Other issue statuses are unchanged.
+
+Movement publication: runtime source `f0cb0c2`, Pages `c4e275b`; source CI/native Pages succeeded, 299 tests pass and blind source review scored 9/10. All 17 live files match the checked build; 30 unrelated Pages files, including production, are preserved. Motion remains Review for user feel/appearance acceptance. See QUALITY.md for full evidence.
+
+**Movement follow-up, 17 October 2026:** Pip floats gently on a continuous sinusoid, including at rest. His articulated head looks into turns and his body leans into turn tightness, capped at 20 degrees. Forward acceleration produces backward body lean up to 10 degrees; braking produces forward lean up to 10 degrees, proportional to acceleration/deceleration. He settles level after roughly two seconds at steady speed or once stopped. Motion is smooth, pauses freeze presentation, and level changes/teleports reset history. Preserve simulation/collision, Buddy, size, rings, current ground-glow brightness and guidance graphics. Implementation uses separate model and integration/test worktrees with blind review restored for this motion change. Status remains Review for native appearance acceptance.
+
+**Status:** Review on `pip_update`. Reference-inspired metallic player model with four hover pods and three descending blue rings per pod, no flames. Top ring follows Pip, bottom trails motion, middle sits between. Preserve Buddy and gameplay. Independent source review 9/10 and documentation review 9/10; regression/build checks recorded in QUALITY.md. Development deployment evidence follows there; phone appearance requires user review.
+
+
+F-053 publication: runtime source `bcbff8f`, Pages `7e52478`; source CI/native Pages succeeded, all 17 live files match the checked build and 30 unrelated Pages files are preserved. 278 tests pass; source/documentation reviews each 9/10. Live at [dev2](https://novydhillon.github.io/Flock/dev2/). Status remains Review for phone appearance.
+
+
+F-033 execution (16 October 2026): candidate runtime `b48c2d6` on local `stone_wall`; blind source review 8.5/10, full suite 279/279 and final affected gate tests 7/7, documentation and release/development checks pass. Checked development output is prepared for dev2; automatic approval review blocked the external repository push pending explicit authorization. The candidate has not been published. F-033 remains Review for rendered/mobile acceptance.
+
+
+F-033 publication approved at 13:36 Vancouver: source `673979e` pushed on `stone_wall` and integrated into development; source CI [38963658849](https://github.com/novydhillon/Flock/actions/runs/38963658849) passed. Pages `3a3a97d` deployed successfully via native workflow [38963856575](https://github.com/novydhillon/Flock/actions/runs/38963856575). Live dev2 entry references the expected new runtime. All 32 unrelated Pages files are preserved. All 17/17 live artifacts match the prepared build by SHA-256. Cloud WebGL 2 is unavailable; rendered/mobile acceptance remains pending, F-033 Review.
+
+
+F-033 follow-up (16 October 2026, 13:49 Vancouver): Novy approved the initial appearance and requested more varied, weathered walls. The refinement adds asymmetric worn-corner/wedge shapes, stronger width/height variation, gently tilted stones, a lightly undulating coping line and clay-colored surface mottling with subdued lower moss/damp staining. Rolled stones are fitted to their original slots to preserve endpoints and the .6-unit strip. Retain three instanced batches and at most 44 triangles per stone; no textures, extra scenery meshes or collision changes. Latest appearance remains Review pending user acceptance.
+
+
+F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [38965423609](https://github.com/novydhillon/Flock/actions/runs/38965423609) and native Pages [38965598338](https://github.com/novydhillon/Flock/actions/runs/38965598338) succeeded. All 17 live artifacts match the checked build; all 32 unrelated Pages files preserved. Blind review 8/10, 279 tests and both build modes pass. Review remains pending acceptance of this added weathering.
+
+
+F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the weathered dry-stone wall change deployed at Pages `29f48f3` (runtime source `1941302`). Marked Done; overview cells and detailed heading struck through under the tracker closure rule. This is user acceptance of the change, not an independent device/FPS measurement. F-034 seeded wall distribution remains Open.
+
+
+### F-054 - ~~Oak-like handmade tree appearance (P2)~~
+
+**Status:** Done. Novy accepted the dev2 tree appearance on 17 October 2026 (America/Creston): “The trees look good in the dev2 build.” The accepted welded-mesh build is Pages `6dddee1`, from source `b6ef52f` and reviewed runtime `29f7fcc`. Source CI and native Pages deployment succeeded; all 17 live artifact hashes matched. This closes F-054 appearance acceptance; it does not establish measured mobile FPS. Earlier source/review/publication evidence remains historical in [QUALITY.md](QUALITY.md#f-054-organic-tree-validation).
+
+**Requirement:** Replace the segmented-looking tree mesh shown in phone references IMG8395 and IMG8396 with one genuinely contiguous, smooth trunk-and-branch surface. The trunk must remain continuously tapered and slightly bent through welded forks, with no detached rings, chunk steps, seams, caps or visibly separate branch pieces. Keep the oak-like silhouette, warm-brown clay bark and multiple rounded green foliage clusters. Branches bend or curve and emerge at staggered heights; the first fork is around mid-height of the trunk, with further forks staggered upward. At a fork, use Leonardo's branching rule with exponent 2: parent radius squared equals the sum of the squared radii of the child branches, including the continuing trunk as a child. This is the geometric branching rule described in [PLOS ONE](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093535). Apply seeded yaw variation across all trees so their silhouettes do not repeat. Vary overlapping foliage shapes and distribute several clusters around the tree center instead of one large crown ball; larger trees should carry more foliage. Reduce trunk thickness by 30% at the smallest supported rendered tree size and by 10% at the largest supported rendered tree size, interpolating linearly between those sizes. Vary crown mesh size by radial distance from the trunk centerline: larger near the axis and smaller farther away. Retain the small pressed oval leaf texture and handmade details such as exposed roots, grooves and knots.
+
+**Accept when:**
+- Trunks read as continuously tapered, slightly bent oaks, with no flat stump-cap or thin central-stem silhouette.
+- Trunk and branches form a single contiguous smooth surface through welded forks, with no detached rings, chunk steps, seams, caps or separate-looking branch segments; the trunk continues through staggered curved forks, the first around mid-height, and branch radii satisfy parent² = sum(child²), counting the continuing trunk among the children.
+- Seeded rotations vary the silhouette across all tree instances. Foliage uses varied, overlapping shapes in several central clusters rather than one large crown ball; larger trees carry more foliage.
+- Crown mesh size decreases with distance from the trunk centerline, and branches are longer.
+- Trunk thickness follows the requested size rule: 30% reduction at the smallest supported rendered tree size, 10% at the largest supported rendered tree size, with a continuous linear transition between them.
+- Small pressed oval leaf texture and handmade roots, grooves and knots are visible at ordinary play scale.
+- Tree placement, gameplay collision, route clearance and actor visibility remain sound.
+- Texture/shadow cost and mobile performance are assessed within available evidence.
+- Novy reviews the intended development build and signs off the appearance.
+
+**Scope:** tree visual update only. The numeric trunk-thickness endpoints, interpolation and fork exponent are specified above; other numeric geometry, collision changes and performance thresholds remain unspecified. Preserve prior F-020/F-021 acceptance. Novy's dev2 visual sign-off closes this refinement; prior publication and validation remain historical.
+
+**Follow-up request:** The earlier segmented wood mesh fails the phone visual check in IMG8395 and IMG8396. Implementation and final mesh/visual review are to use `gpt-6-astra` at high effort, as selected by the user. Previous F-054 scores and tests reviewed source/geometry only; they did not establish rendered phone pixels. The new implementation uses one closed welded wood surface per tree, with smooth width-dependent normals and seam-free vertex grain. Source tests and offscreen mesh-shader diagnostics are recorded in QUALITY.md; deployment and native visual acceptance are recorded separately.
+
+F-053 follow-up (16 October 2026): latest request is a 25% reduction from published Pip scale 1.35, replacing the unfinished earlier 33% size change. Worktree branch `pip_thruster_glow` uses scale 1.0125, retains the pending lighter silver finish and adds four soft ground-following blue thruster glows. Halo/pointer world size, Buddy and gameplay are unchanged. Source `ddae15b`, Pages `934fd37`: CI/native deployment passed, 282 tests, source review 9.2/10, all 17 live files verified and 30 unrelated Pages files preserved. Status remains Review for native visual acceptance; see QUALITY.md.

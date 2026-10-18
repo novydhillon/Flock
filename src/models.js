@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import { createTreeWood, configureTreeMaterial } from './tree-geometry.js';
+import { createPipMotionState, updatePipMotion } from './pip-motion.js';
+export { deformTreeGeometry } from './tree-geometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Rounded sculpted forms and tiny enamel/brass details give the machines a
@@ -7,11 +10,17 @@ const geometryCache = new Map();
 // Static constructor references let the production bundler omit unused Three
 // exports instead of retaining the entire namespace for dynamic lookup.
 const geometryConstructors = {
-  SphereGeometry: THREE.SphereGeometry, BoxGeometry: THREE.BoxGeometry,
+  TorusGeometry: THREE.TorusGeometry, SphereGeometry: THREE.SphereGeometry, BoxGeometry: THREE.BoxGeometry,
   CylinderGeometry: THREE.CylinderGeometry, ConeGeometry: THREE.ConeGeometry,
 };
 const modelCache = new Map();
 let materialCache;
+
+// Tree trunk width follows the rendered instance scale continuously; canopy
+// maturity remains in three shared tiers so cache size never grows per tree.
+export function treeTrunkFactor(scale) {
+  return 0.7 + 0.2 * Math.max(0, Math.min(1, (scale - 1.015) / (3.1 - 1.015)));
+}
 
 // A flock may contain dozens of animals. Collapse decorative pieces by material
 // and share the resulting geometry across clones; limb meshes retain hip pivots.
@@ -159,10 +168,14 @@ export function createMaterials() {
   const grain = woodTexture();
   for (const name of ['wood', 'paleWood']) materialCache[name].map = grain;
   const bark = barkTexture();
-  materialCache.bark.map = bark;
-  materialCache.bark.bumpMap = bark;
+  materialCache.bark.map = materialCache.bark.bumpMap = bark;
   materialCache.bark.bumpScale = .055;
-  materialCache.bark.needsUpdate = true;
+  // Forks have no global cylindrical UV chart. Their dedicated material uses
+  // subtle, seam-free vertex grain; ordinary bush stems retain their bark UVs.
+  materialCache.treeWood = materialCache.bark.clone();
+  materialCache.treeWood.map = materialCache.treeWood.bumpMap = null;
+  materialCache.treeWood.vertexColors = true;
+  configureTreeMaterial(materialCache.treeWood);
   const foliage = foliageTexture();
   for (const name of ['leaves', 'leavesLight', 'leavesDark']) materialCache[name].map = foliage;
   materialCache.leaves.needsUpdate = materialCache.leavesLight.needsUpdate = materialCache.leavesDark.needsUpdate = true;
@@ -181,10 +194,10 @@ function mesh(parent, type, args, material, pos = [0, 0, 0], scale = [1, 1, 1]) 
 function sphere(parent, material, pos, scale, detail = 10) {
   return mesh(parent, 'SphereGeometry', [1, detail, 6], material, pos, scale);
 }
-function sculptedSphere(parent, material, pos, scale, amount = 0.025) {
-  const key = `sculpted-sphere:${amount}`;
+function sculptedSphere(parent, material, pos, scale, amount = 0.025, detail = 10) {
+  const key = `sculpted-sphere:${amount}:${detail}`;
   if (!geometryCache.has(key)) {
-    const sculpted = geometry('SphereGeometry', [1, 10, 6]).clone();
+    const sculpted = geometry('SphereGeometry', [1, detail, Math.max(3, Math.round(detail * .6))]).clone();
     const vertices = sculpted.attributes.position;
     for (let i = 0; i < vertices.count; i++) {
       const x = vertices.getX(i), y = vertices.getY(i), z = vertices.getZ(i);
@@ -266,6 +279,98 @@ export function createDog() {
   tailLight.name = 'Pip tail light';tailLight.userData.ownedMaterial = true;
   dog.userData.parts = { body, head, legs, tail, tailLight };
   return dog;
+}
+
+// Pip has a separate constructor so Buddy keeps its established walking model.
+export function createPip() {
+  const m = createMaterials(), shell = new THREE.Group(), headShell = new THREE.Group();
+  const steel = new THREE.MeshStandardMaterial({color:'#dce4e5',metalness:.45,roughness:.55});
+  const trim = new THREE.MeshStandardMaterial({color:'#9caaae',metalness:.55,roughness:.45});
+  box(shell,steel,[0,.83,-.06],[.62,.51,.92]);
+  box(shell,trim,[0,1.095,-.08],[.64,.035,.8]);
+  // Recessed seams and small rivets read as sheet-metal panels at game scale.
+  for(const side of [-1,1]) {
+    box(shell,trim,[side*.315,.84,-.08],[.016,.018,.84]);
+    box(shell,trim,[side*.316,.84,-.13],[.018,.48,.018]);
+    for(const z of [-.43,.28])for(const y of [.64,1.03])sphere(shell,m.brass,[side*.327,y,z],[.025,.025,.025]);
+  }
+  cylinder(shell,m.dark,[0,1.03,.38],.21,.18,[Math.PI/2,0,0]);
+  box(headShell,steel,[0,1.32,.47],[.57,.45,.43]);
+  box(headShell,m.dark,[0,1.35,.696],[.49,.25,.025]);
+  const muzzle=box(headShell,steel,[0,1.15,.79],[.49,.25,.45]);muzzle.rotation.x=-.18;
+  box(headShell,trim,[0,.99,.8],[.46,.04,.42]);
+  sphere(headShell,m.black,[0,1.2,1.025],[.1,.095,.085]);
+  eye(headShell,m,-.135,1.36,.72,.109);eye(headShell,m,.135,1.36,.72,.109);
+  for(const side of [-1,1]) {
+    const ear=box(headShell,steel,[side*.28,1.69,.43],[.22,.4,.12]);ear.rotation.z=side*-.42;
+    box(ear,m.dark,[0,0,.52],[.68,.75,.12]);
+  }
+  const pods=[];
+  for(const x of [-.3,.3])for(const z of [-.35,.29]) {
+    box(shell,steel,[x,.64,z],[.23,.43,.27]);
+    cylinder(shell,trim,[x*1.35,.78,z],.105,.06,[0,0,Math.PI/2]);
+    cylinder(shell,m.dark,[x,.39,z],.12,.09);
+    cylinder(shell,trim,[x,.335,z],.13,.05);
+    pods.push(new THREE.Vector3(x,.3,z));
+  }
+  const dog=new THREE.Group(),rig=new THREE.Group();
+  dog.name='Pip the hovering robot sheepdog';rig.name='Pip floating body rig';dog.add(rig);
+  // Bake body and head independently, retaining a neck pivot for looking into turns.
+  const body=bakeModel(shell),head=bakeModel(headShell);
+  body.position.y=-.83;head.position.set(0,1.03-.83,.38);
+  for(const mesh of head.children)mesh.geometry.translate(0,-1.03,-.38);
+  rig.position.y=.83;rig.add(body,head);
+  rig.traverse(o=>{if(o.isMesh){o.userData.ownedGeometry=true;if(o.material===steel||o.material===trim)o.userData.ownedMaterial=true;}});
+  const tail=new THREE.Group();tail.position.set(0,.94-.83,-.52);rig.add(tail);
+  for(let i=0;i<7;i++)cylinder(tail,i%2?m.dark:trim,[0,.04+i*.05,-i*.035],.035,.055,[-.6,0,0]);
+  const light=new THREE.MeshStandardMaterial({color:'#9ceeff',emissive:'#39bfe8',emissiveIntensity:1.25,roughness:.28});
+  const tailLight=sphere(tail,light,[0,.41,-.27],[.075,.075,.075]);tailLight.userData.ownedMaterial=true;
+  // Bounded pool: exactly three hollow rings per pod, with no flame geometry.
+  const rings=pods.map((pod)=>Array.from({length:3},(_,index)=>{
+    const material=new THREE.MeshBasicMaterial({color:'#55dfff',transparent:true,opacity:1,depthWrite:false,toneMapped:false});
+    const ring=new THREE.Mesh(geometry('TorusGeometry',[.135,.014,6,24]),material);
+    ring.name=`Pip thruster ring ${index+1}`;ring.rotation.x=Math.PI/2;ring.userData.ownedMaterial=true;dog.add(ring);return ring;
+  }));
+  dog.userData.parts={body,rig,head,legs:[],tail,tailLight,basePods:pods.map(p=>p.clone().add(new THREE.Vector3(0,-.83,0))),pods,rings};
+  dog.userData.motion=createPipMotionState();
+  updatePipPose(dog,{x:0,z:0,heading:0,vx:0,vz:0},0);
+  dog.userData.motion.previous=null;
+  dog.userData.hover={time:0,previous:null,trails:[]};
+  return dog;
+}
+
+export function updatePipPose(dog,sample,dt) {
+  const state=updatePipMotion(dog.userData.motion,sample,dt),parts=dog.userData.parts;
+  parts.rig.position.y=.83+state.hover;
+  parts.rig.rotation.set(state.pitch,0,state.roll);
+  parts.head.rotation.y=state.headYaw;
+  parts.rig.updateMatrix();
+  // Rings and the receiving-surface glow consume root-local pod positions.
+  parts.pods.forEach((pod,i)=>pod.copy(parts.basePods[i]).applyMatrix4(parts.rig.matrix));
+}
+
+export function updatePipHover(dog,dt) {
+  const state=dog.userData.hover;if(!state)return;
+  dog.updateMatrixWorld(true);
+  const current=dog.userData.parts.pods.map(p=>dog.localToWorld(p.clone()));
+  const reset=!state.previous||dog.position.distanceTo(state.previous)>3;
+  if(reset)state.trails=current.map(p=>p.clone());
+  // Pausing freezes both the descent and world-space motion trail.
+  if(dt>0)state.time+=dt;
+  for(let pod=0;pod<current.length;pod++) {
+    if(dt>0)state.trails[pod].lerp(current[pod],1-Math.exp(-dt/.13));
+    const phase=(state.time/.55)%1;
+    for(let index=0;index<3;index++) {
+      const ring=dog.userData.parts.rings[pod][index];
+      const world=current[pod].clone().lerp(state.trails[pod],index===0?0:(index-1+phase)/2);
+      const local=dog.worldToLocal(world);local.y=dog.userData.parts.pods[pod].y-.055-(index===0?0:(index-1+phase)*.1+.055);
+      // At recycle, the old middle becomes the new third at identical
+      // height, brightness and radius; a new middle fades out of the pod.
+      ring.position.copy(local);ring.material.opacity=index===0?.95:index===1?.85*Math.min(1,phase/.15):.85*(1-phase);
+      ring.scale.setScalar(1+(index===0?0:(index-1+phase)*.15));
+    }
+  }
+  state.previous=dog.position.clone();
 }
 
 export function createAnimal(type = 'sheep') {
@@ -360,41 +465,64 @@ export function createDrone() {
   return drone;
 }
 
-export function createTree(variant = 0) {
+export function createTree(variant = 0, maturity = 0) {
   variant = Math.abs(Math.floor(variant)) % 3;
-  const key = `tree:${variant}`;
-  if (modelCache.has(key)) return modelCache.get(key).clone();
-  const m = createMaterials();
-  const tree = new THREE.Group();
-  // Broad roots, a tapered trunk and stout branches make the tree silhouette
-  // read at the normal orthographic camera distance. The renderer scales its
-  // base against the existing circular trunk collider.
-  const trunk = mesh(tree, 'CylinderGeometry', [0.46, 0.62, 2.25, 12], m.bark, [0, 1.125, 0]);
-  for (let i = 0; i < 4; i++) {
-    const a = i * Math.PI / 2 + variant * .17;
-    const root = cylinder(tree, m.bark, [Math.cos(a) * .31, .13, Math.sin(a) * .31], .16, .92, [0, 0, -Math.cos(a) * .8]);
-    root.rotation.z = Math.sin(a) * .8;
-  }
-  const branch = cylinder(tree, m.bark, [0.36, 1.67, 0], 0.22, 1.1, [0, 0, -0.72]);
-  branch.rotation.x = 0.2;
+  const tier = Math.max(0, Math.min(2, Math.round(maturity)));
+  const key = `tree:${variant}:${tier}`;
+  if (modelCache.has(key)) return cloneTree(modelCache.get(key));
+  const m = createMaterials(), tree = new THREE.Group();
+  tree.name = 'clay tree';
+  const wood = new THREE.Mesh(createTreeWood(variant), m.treeWood);
+  wood.name = 'tree-wood';
+  wood.userData.treeWidth = 1;
+
+  wood.castShadow = false; wood.receiveShadow = true;
+  tree.add(wood);
+  tree.userData.forks = wood.geometry.userData.forks;
+  const tips = wood.geometry.userData.tips, up = new THREE.Vector3(0, 1, 0);
   const leaf = [m.leaves, m.leavesDark, m.leavesLight][variant];
-  const canopy = [
-    [[0, 2.37, 0], [1.08, .92, .94]],
-    [[-.63, 2.05, .22], [.78, .69, .76]],
-    [[.68, 2.22, -.12], [.79, .73, .77]],
-    [[.08, 2.91, .08], [.68, .67, .7]],
-    [[-.2, 2.63, -.58], [.72, .61, .69]],
-    [[.62, 2.62, .54], [.7, .62, .66]],
-  ];
-  for (const [position, scale] of canopy) sculptedSphere(tree, leaf, position, scale, .075);
-  // A handful of larger leaf-shaped lobes break the broad cloud silhouette;
-  // baking folds them into the same three foliage draws as the canopy.
-  for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI * 2 / 6 + variant * .21;
-    const form = sculptedSphere(tree, leaf, [Math.cos(a) * .85, 2.45 + (i % 2) * .22, Math.sin(a) * .75], [.34, .2, .4], .045);
-    form.rotation.y = a; form.rotation.z = (i % 2 ? 1 : -1) * .22;
+  // Three overlapping central crowns avoid a single ball on a pole. Peripheral
+  // crowns sit on branch tips, with seeded size variation at the same radius.
+  const positions = [[.14, 3.12, .02], [-.26, 2.85, -.13], [.32, 2.83, .27], ...tips,
+    [-.52, 2.64, .47], [.52, 2.75, -.47], [-.48, 3.19, .27], [.44, 3.21, -.3]];
+  const canopy = positions.slice(0, 7 + tier * 2).map((position, i) => {
+    const radial = Math.hypot(position[0], position[2]);
+    const jitter = 1 + .12 * Math.sin(i * 4.71 + variant * 1.93);
+    const size = (.59 - .21 * Math.min(1, radial / 1.2)) * jitter;
+    return [position, [size, size * (1.02 + .1 * Math.sin(i + variant)), size * (.94 + .08 * Math.cos(i * 2))]];
+  });
+  const foliage = new THREE.Group();
+  for (const [position, scale] of canopy) sculptedSphere(foliage, leaf, position, scale, .075, 8);
+  for (let i = 0; i < canopy.length * 2; i++) {
+    const [center, scale] = canopy[i % canopy.length], a = i * 2.399963 + variant * .27;
+    const ny = i % 2 ? .3 : -.25, ring = Math.sqrt(1 - ny * ny);
+    const nx = Math.cos(a) * ring, nz = Math.sin(a) * ring;
+    const sculpt = 1 + .075 * Math.sin(nx * 4.1 + nz * 2.8) * Math.cos(ny * 3.7 - nz * 1.3);
+    const normal = new THREE.Vector3(nx / scale[0], ny / scale[1], nz / scale[2]).normalize();
+    const mark = mesh(foliage, 'SphereGeometry', [1, 6, 3], leaf,
+      [center[0] + nx * scale[0] * sculpt * .92, center[1] + ny * scale[1] * sculpt * .92,
+        center[2] + nz * scale[2] * sculpt * .92], [.14, .07, .11]);
+    mark.quaternion.setFromUnitVectors(up, normal);
   }
-  return cachedModel(key, tree);
+  const bakedFoliage = bakeModel(foliage).children[0];
+  bakedFoliage.name = 'tree-foliage';
+  bakedFoliage.userData.crownProfile = canopy.map(([position, scale]) => ({
+    position, radial: Math.hypot(position[0], position[2]), size: scale[0],
+  }));
+  tree.add(bakedFoliage);
+  modelCache.set(key, tree);
+  return cloneTree(tree);
+}
+
+function cloneTree(template) {
+  const tree = template.clone(), wood = tree.getObjectByName('tree-wood');
+  // A standalone tree owns its width uniform. Shared-material onBeforeRender
+  // updates can be skipped by Three's uniform cache between consecutive draws.
+  // Scenery batching disposes these private materials and uses treeWood again.
+  wood.material = wood.material.clone();
+  configureTreeMaterial(wood.material);
+  wood.userData.ownedMaterial = true;
+  return tree;
 }
 
 export function createBarn() {

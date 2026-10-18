@@ -52,6 +52,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/world-geometry.test.js` | Perpendicular crossings, deck/path ratio and shared full-body target footprint |
 | `tests/gates.test.js` | Operable gate reachability/state, stone wall geometry and shared collision/map behavior |
 | `tests/surfaces.test.js` | Ribbon union topology and bark surfaces on land/deck transitions |
+| `tests/tree-geometry.test.js` | Welded wood topology, taper, fork areas, intersections and width-dependent normals |
 | `tests/cutaway.test.js` | Camera-ray section fading, pause, hysteresis and material restoration |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
 | `tests/deploy-pages.test.js` | Validated relative assets, canonical staging, redirects and preserved Pages bytes |
@@ -158,3 +159,23 @@ Main CI uploads `flock-production-standalone` immediately after the verified pro
 Use the least expensive suitable model at medium effort for routine implementation and independent reviews, escalating only with evidence. Keep fresh critics unaware of implementation reasoning and prior scores. Flock changes require at least 8/10 blind review, current requirements/context/tracker/validation records, generated HTML checks, full regressions and both artifact-mode checks before development publication. Publish the checked QA build to `dev2/` from `flock_3D_chatgpt-work`; preserve production root and unrelated Pages files, wait for CI/native Pages success, then verify live hashes. Production main changes require the separate release instruction.
 
 For F-051 on a phone, check mission and minimap beside each other in portrait and landscape; check the narrower mission text does not overlap or clip. Let the first meadow's tips run without delivering an animal: the final tip should disappear after 14 active gameplay seconds and expose ? immediately after pause. Reopen/hide with ?, dismiss with ×, pause midway and restart/jump to reset. Reopened help stays until hidden. Check the round Woof title/symbol/double-tap label and cooldown; rotate Pip in place while confirming the triangle outside its ring keeps facing the goal. Native phone acceptance remains pending.
+
+
+## Pip candidate workflow (F-053)
+
+Floating-motion smoke check: idle on grass and confirm a slow continuous hover, then accelerate, cruise for two seconds and release input to stop. Look for a brief backward lean on acceleration, forward lean on braking and a return to level. Turn both ways through wide/tight circles and sudden direction changes: the head looks into the turn and body banks inward, no more than 20 degrees; pitch stays within 10 degrees. Cross a bridge, pause/resume, restart and jump levels. Pod rings must follow the animated body; blue illumination must remain on ground/deck, while halo/goal pointer stay stable. Buddy retains its walking pose. Record native appearance separately from headless source checks.
+
+Use `pip_update`, based on the current development branch. Its push runs the same source CI, including both build modes. Publish its checked development artifact to `dev2/` only, preserving production and unrelated Pages content. Smoke-check silver angular Pip, four hover pods, three blue rings descending/fading per pod, attached top rings and lagging lower rings during turns; pause/resume and restart/jump must not leave old trails. Check Buddy walking, bark tail light, selection halo and goal pointer. Record source-level checks separately from native phone appearance.
+
+
+## F-033 stone wall acceptance
+
+Use QA public 8 and 24 for stone walls, including perimeter/interior runs, corners and gate endpoints. At normal play zoom check softly sculpted clay shapes, varied warm-grey stones, staggered joints and uneven upright coping; compare horizontal, vertical and oblique walls. Walk Pip and the largest animals beside walls and through opened gates; no visible stone should project into the passage. Restart/jump repeatedly to check stable placement and cleanup. Check phone shadow cost/FPS separately; source triangle and draw-call budgets are not device performance evidence. F-034's 15% distribution remains queued.
+
+
+F-033 weathering smoke check: compare nearby stones for different worn-corner profiles, warm/cool tones, faint pale mottling and darker green-grey lower staining. The wall should still read as softly sculpted clay rather than rough photographic rock. Check upright/sideways-looking coping variation and mild irregular tilt at normal zoom, with no floating foundations or visually blocked gate ends. Repeat a restart to confirm deterministic weathering.
+
+
+## F-054 contiguous tree mesh smoke checks
+
+The previous segmented-looking wood mesh failed the phone visual check (IMG8395 and IMG8396). On `pip_update`, inspect trees at public QA 1, 8 and 24 in portrait and landscape, including close and ordinary play zoom. Verify a single continuous, smooth trunk-and-branch surface through welded forks: no detached rings, chunk steps, seams, caps or visibly separate branch pieces. Check a gradually tapered, slightly bent trunk, with the first fork around mid-height and further curved forks staggered upward. Confirm Leonardo exponent 2 at each fork (parent radius² equals the sum of child radii², including the continuing trunk), seeded yaw variation across all trees, varied overlapping foliage in several clusters, and more foliage on larger trees. Check crown mesh size tapering with radial distance, warm-brown bark, exposed roots and handmade detail. Trunk thickness must transition linearly from 30% thinner at the smallest supported rendered tree size to 10% thinner at the largest. Walk Pip/Buddy and cows around trunks and nearby gates; restart and jump repeatedly to check stable placement. Verify shadow cost and FPS on a phone separately from source geometry budgets. Publish only to `dev2/`; previous publication and source-only reviews are historical and do not establish phone pixels for this request. The user selected `gpt-6-astra` at high effort for implementation and final mesh/visual review. Record implementation, smoke-check, deployment and user sign-off evidence separately; until then F-054 remains Review. The current cloud Chrome session cannot create a WebGL2 context, so it provides no rendered likeness or FPS evidence.

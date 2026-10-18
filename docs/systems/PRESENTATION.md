@@ -1,5 +1,19 @@
 # Presentation: renderer, nature and audio
 
+## Pip floating-motion follow-up
+
+**Accepted:** Novy signed off the current Pip presentation and movement on 17 October 2026 at 20:56 America/Creston, runtime `f0cb0c2` / Pages `c4e275b` on dev2. F-053 is Done; earlier native-acceptance wording below is historical. No independent FPS measurement is implied.
+
+F-053 motion uses a visual body rig with an independently articulated head. The root retains simulation position and heading so collision and ground guidance remain unchanged. Presentation samples velocity/heading history to derive hover, head yaw, turn roll (maximum 20 degrees), and acceleration/braking pitch (maximum 10 degrees each way). Constant speed should settle pitch to level in about two seconds. Transform pod anchors through the visual rig before updating hover rings and surface-glow footprints; ground illumination stays on receiving surfaces. Pause, reset, heading wrap, teleports and frame-rate independence require source checks. Native feel remains for user acceptance.
+
+## Pip size and ground glow follow-up
+
+Current glow strength is 0.595 (0.85 multiplied by 0.7), following the additional 30% brightness reduction. Pod-scaled radius remains 0.54 and the diffuse falloff/color are unchanged; only emitted brightness changes.
+
+Glow tuning halves peak emissive strength from 1.7 to 0.85, widens the pod-scaled radius from 0.36 to 0.54, and uses squared smoothstep radial falloff. This makes the light subtler and softer without making the ground transparent. Program cache suffix is `pip-ground-glow-v2`; receiving surfaces and world-space tracking are unchanged.
+
+The latest F-053 size target is 1.0125 (75% of the published 1.35), superseding the unfinished 33% edit. Pale silver steel/trim retain a lighter finish. Pods and rings scale with Pip; inverse-scaled halo/pointer retain world dimensions. `ThrusterGroundGlow` colors the actual grass, path and bridge receiving surfaces in their material shaders. Four world-space pod centers drive soft blue emissive footprints; the upward-normal and height masks restrict illumination to the ground/deck. Body bob and ring trails do not affect the surface height. There are no separate glow planes, scene lights or shadow passes. Bridge materials are cloned and owned by the level to preserve shared fence materials; ground materials retain the same uniform owner across levels. Native appearance/performance require device review.
+
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
 Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
@@ -220,3 +234,21 @@ F-051 reopened-help refinement: pressing ? to unhide help resets the applicable 
 
 
 F-052: `src/qa.js` owns the gear launcher and accessible QA/test-session identity; `src/qa.css` anchors it at bottom center with safe-area spacing. Existing QA lifecycle and release exclusion remain unchanged.
+
+
+## Pip hover presentation (F-053)
+
+Player Pip uses a reference-inspired angular metallic shell, plate ears, expressive eyes and four fixed hover pods. Buddy keeps its walking model. Blue rings provide the thruster effect without flame meshes. Rendering owns the motion trail and does not change simulation position, collision or herding. Pause must freeze the effect; level recreation clears trail history.
+
+
+## Tree appearance request (F-054)
+
+Current acceptance: Novy approved the welded-tree appearance in dev2 on 17 October 2026 (America/Creston). F-054 is Done; Pages `6dddee1` is the accepted build. Earlier pending-review statements below describe the implementation history and are superseded by this visual sign-off. Mobile FPS remains unmeasured.
+
+The latest F-054 request follows the phone visual failures in IMG8395 and IMG8396: the earlier segmented-looking wood mesh must become one genuinely contiguous, smooth trunk-and-branch surface. Forks must be welded into the same continuous surface, with no detached rings, chunk steps, seams, caps or separate-looking branch pieces. Retain the slightly bent, gradually tapered trunk and curved limbs; the first fork sits around mid-height, with additional forks staggered upward. Fork radii follow Leonardo branching exponent 2: parent radius² equals the sum of child radii², including the continuing trunk. Apply seeded yaw variation across trees. Use varied overlapping foliage in several clusters around the center, with more foliage on larger trees. Reduce trunk thickness by 30% at the smallest and 10% at the largest supported rendered size, interpolating linearly. Crown mesh sizes grow near the trunk axis and shrink farther away. The fork rule is described in [PLOS ONE](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093535). These visual requirements do not change tree placement or gameplay collision contracts in [WORLD.md](WORLD.md). Prior publications and source-only reviews, including the earlier `bf5bb48` and organic branching candidate, are historical; they did not establish phone pixels for this new contiguous-surface request. Status remains Review pending fresh visual sign-off on `pip_update` / `dev2`. The user selected `gpt-6-astra` at high effort for implementation and final mesh/visual review.
+
+
+Historical organic-branching source candidate (`5399dcc`): nine bounded palette/maturity models have 7/9/11 overlapping crowns, including three central clusters. Skeleton limbs share an open tapered frustum geometry and joint-cover geometry; curved centerlines use short connected segments. Four staggered forks solve continuing radius as `sqrt(parentRadius² - sideRadius²)`. This source description and its review do not demonstrate that the rendered tree is a truly contiguous smooth surface; the phone references IMG8395 and IMG8396 expose a segmented appearance that the new implementation must fix. Prior source reviews did not establish phone pixels. Do not treat these historical implementation details or validation as completion of the latest request. Native appearance remains pending.
+
+
+Current contiguous implementation: `src/tree-geometry.js` builds three cached wood variants, each a single indexed, closed surface (274 vertices / 544 triangles). Side patches of the trunk are replaced by branch surfaces that reuse their boundary vertices. Smooth normals follow the continuous width deformation; a dedicated tree material uses subtle vertex-color grain instead of the former cylindrical bark texture. The first fork is at 1.56m of a 3.15m trunk, with three further forks staggered upward. A continuous bent centerline, tapered radii and curved limbs preserve the handmade silhouette. Instanced width attributes compact with instance matrices during culling; batch-owned geometry is disposed on level recreation. Ordinary bush bark remains independent. Nine bounded palette/maturity prototypes retain 7/9/11 overlapping foliage meshes, including multiple central clusters.

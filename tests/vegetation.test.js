@@ -41,7 +41,7 @@ test('dog bark light is isolated from shared cyan and restores from simulation s
   assert.equal(setTailLightBarking({}, true), false);
 });
 
-test('trees and bushes use shared bark/foliage textures and fuller handmade forms', () => {
+test('trees use seamless wood while bushes retain bark and both keep fuller handmade forms', () => {
   installCanvasStub();
   const materials = createMaterials();
   assert.ok(materials.bark.map && materials.bark.bumpMap, 'bark has color and relief detail');
@@ -53,7 +53,14 @@ test('trees and bushes use shared bark/foliage textures and fuller handmade form
   assert.ok(treeBounds.max.y > 3.5, `tree has a visibly taller canopy (${treeBounds.max.y})`);
   assert.ok(treeBounds.max.x - treeBounds.min.x > 2.5, 'the expanded crown remains rounded and broad');
   assert.ok(bushBounds.max.y > .8 && bushBounds.max.x - bushBounds.min.x > 1.4);
-  assert.ok(tree.children.filter(child => child.isMesh).length <= 2, 'all trunk and crown detail is baked into two shared material meshes');
+  const wood = tree.children.filter(child => child.name === 'tree-wood');
+  assert.equal(wood.length, 1, 'trunk and branches form one wood mesh');
+  assert.ok(wood[0].geometry.index && wood[0].geometry.attributes.treeCenter);
+  assert.notEqual(wood[0].material, materials.bark, 'tree shader does not modify ordinary bush bark');
+  assert.equal(wood[0].material.map, null, 'tree wood has no cylindrical texture seam');
+  assert.equal(wood[0].material.bumpMap, null);
+  assert.ok(wood[0].material.vertexColors && wood[0].geometry.attributes.color);
+  assert.ok(tree.getObjectByName('tree-foliage'), 'foliage remains one bounded baked mesh per palette/maturity');
   assert.ok(bush.children.filter(child => child.isMesh).length <= 2, 'bush detail remains bounded after material baking');
 });
 

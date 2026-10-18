@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+### Pip presentation rig contract
+
+Pip's motion presentation must not feed back into simulation position, collision or herding. Root coordinates and heading remain authoritative; a child rig owns float/roll/pitch and a head pivot owns anticipatory yaw. `parts.pods` describes animated anchors in root-local coordinates so ring and ground-glow consumers continue using the same world projection contract. Guidance graphics stay on the root. Motion history is scoped to a model/level and freezes with pause; discontinuous moves clear inertial pose history.
+
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
 Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
@@ -124,3 +128,16 @@ Buddy navigation follow-up: `buddy-navigation.js` composes route/bridge/goal way
 
 
 Forward-flow follow-up: the simulation caches direct Pip signals once per animal, derives each connected component's travel direction/pressure, and keeps transient `level.flockTravel` member/direction records across stops/splits. Leading animals reject backward cohesion and receive only missing forward flow when outside direct dog pressure. `bridge-crossing.js` owns `animal.bridgeCrossing`, selecting a safe far-bank point with the animal's actual radius. The simulation applies committed local walking before movement and refreshes a held animal's drone anchor upon arrival; saved animals clear traversal state. Profiles, rewards and attended admission are unchanged. Buddy bark availability now uses active tier >=2; retrieval still uses >=3.
+
+
+### Pip hover model
+
+F-053 separates player `createPip` from Buddy `createDog`. `updatePipHover` owns a bounded four-pod/twelve-ring presentation pool and per-pod world-space trailing positions. Simulation state and collision remain on their existing ground coordinates. Ring materials are owned by the level actor; baked shell geometries follow the existing disposal lifecycle.
+
+
+## Clay dry-stone wall view (F-033)
+
+`gate-view.js` derives deterministic stone placement from segment coordinates without consuming simulation randomness. Three softly beveled, deformed shared geometries are instanced with a single matte material and muted per-instance colors. Larger foundation stones taper through three variable-width body courses to an uneven upright coping row. All vertices remain inside segment endpoints and the existing ±.30-unit physical strip at every orientation. No mortar, backing slab or scattered obstruction is added. Owned geometry, instance buffers and material are disposed on level replacement. Generation probability, map/collision descriptors and gate interactions are unchanged.
+
+
+F-033 weathering refinement: asymmetric hull corners/wedge profiles and deterministic vertex colors supply worn clay faces, pale warm mottling and subdued lower moss/damp tones. Per-instance 180-degree flips and bounded local roll vary the silhouettes. Width is reduced by the projected rotated height contribution before composing each transform; this keeps the rotated geometry in its original longitudinal slot and ±.30 strip, including tiny segments. Foundation centers follow their rotated lower bounds; upper courses/coping receive restrained vertical contour variation. Materials enable vertex colors; instancing, 44-triangle geometry ceiling, resource ownership and simulation state are unchanged.

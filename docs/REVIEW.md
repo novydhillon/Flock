@@ -77,3 +77,27 @@ Fresh isolated medium-effort `gpt-6-luna` critic: **9.5/10**, no source-level de
 ### Production HUD integration review
 
 Fresh medium-effort `gpt-6-luna` critic reviewed the merged production candidate independently: **9.5/10**, no release blocker. Documentation checks passed (12 pages, 1,028 links/anchors, nine diagrams, four DOM behavior checks). An isolated release build independently passed artifact-mode checks with 15 files and zero QA assets. Main workflow skips QA packaging; development workflow remains intact. No fresh phone rendering claim.
+
+
+## F-054 clay tree review
+
+Historical review of the earlier tree candidate; it does not cover the trunk-thickness, longer-branch and foliage-scale follow-up now pending on `pip_update` / `dev2`.
+
+A fresh isolated `gpt-6-luna` medium-effort critic reviewed candidate `b071369` against the tree request, source and tests without implementation history or earlier scores. Initial 6.5/10: crown width failed its existing test, roots did not flare radially and leaf marks sat outside crown shells. Runtime `bf5bb48` corrects those findings. Same-critic follow-up: **9/10**, no remaining source defect; 21/21 vegetation/render tests passed independently. A separate fresh documentation critic scored 9/10; the missing tracker overview entries were added. Parent final checks: 280 source tests, both artifact-mode checks and generated documentation checks pass. This is source/DOM geometry evidence; native appearance, phone FPS and F-054 user sign-off remain pending.
+
+
+## F-054 proportions follow-up review
+
+A new isolated `gpt-6-luna` medium-effort critic reviewed `1ef1030`, without prior implementation reasoning/history or scores. Result: **8/10**, no concrete source blocker; independently passed 22/22 renderer/vegetation tests. It confirmed actual transformed width interpolation at smallest/middle/largest supported scales, unchanged branch scaling, nine cached palette/maturity models, increasing 5/7/9 crown counts and radial crown-size taper. Native likeness, separation, occlusion and phone performance remain pending; the score is source evidence only. Parent full suite passes 281 tests, both artifact-mode checks and documentation checks.
+
+
+## F-054 organic branching blind review
+
+A fresh isolated `gpt-6-luna` medium-effort critic reviewed runtime `5399dcc` against the organic-tree requirements without earlier implementation reasoning/history or scores. **8/10**, no source geometry defect. It independently passed renderer/vegetation24/24 and nature18/18, checking actual transformed fork radii (including continuing leaders), staggered connected bent limbs, 7/9/11 overlapping crowns, independent repeatable yaw, bounded caching and non-disposal of shared geometry. The stale 5/7/9 / three-baked-mesh presentation description was corrected during documentation integration. Joint/frustum appearance remains a native visual check; cloud Chrome could not create WebGL2. Parent full suite:283/283; both artifact modes and generated docs pass. This is source validation, not phone appearance/FPS acceptance.
+
+
+## F-054 welded mesh blind review
+
+Fresh isolated `gpt-6-astra`, high effort, reviewed integrated runtime `8946992` and independently evaluated the subsequent branch-junction correction without prior implementation reasoning or scores. Initial review found exposed upper-fork corner normals crossing behind adjacent face normals. Moving the first branch ring outward and slightly lowering its lift removes that inversion; the implementation owner applied the correction and added an above-ground corner-normal regression. Final verdict: **9/10**, no remaining source blockers.
+
+The critic independently checked 303 variant/width combinations for upper-wood normal alignment (minimum face-corner dot +0.10087), plus 21 geometry cases for manifold vertex links, triangle crossings including shared-vertex neighborhoods, bounds, areas and shader-normal agreement. It confirmed 274 vertices / 544 triangles in a single closed welded surface, smooth taper, curved staggered forks, area-preserving branching, width/yaw/foliage integration, culling, ownership/disposal and preservation of Pip lighting. Baseline focused tests and production build passed. Offscreen EGL diagnostics support mesh/shader behavior; no browser WebGL2 game render, mobile FPS or user appearance acceptance is claimed.

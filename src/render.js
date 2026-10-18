@@ -5,10 +5,11 @@ import { WaterEffects } from './water-effects.js';
 import { MeadowNature } from './nature.js';
 import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
+import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
-import { createDog, createAnimal, createDrone, createTree, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
+import { createPip, updatePipPose, updatePipHover, createDog, createAnimal, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 // Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
@@ -51,6 +52,8 @@ export class MeadowRenderer{
     this.terrain=new THREE.Group();this.actors=new THREE.Group();this.scene.add(this.terrain,this.actors);this.materials=createMaterials();
     this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
     this.path=new THREE.MeshStandardMaterial({color:'#fff1d3',roughness:.95,map:texture('path'),bumpMap:texture('path',true),bumpScale:.08,side:THREE.DoubleSide});this.pathShoulder=new THREE.MeshStandardMaterial({color:'#a99261',roughness:1,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});
+    this.thrusterGlow=new ThrusterGroundGlow();
+    for(const material of [this.grass,this.path,this.pathShoulder])this.thrusterGlow.install(material);
     this.water=new THREE.MeshStandardMaterial({color:'#4b9fae',roughness:.29,metalness:.08,side:THREE.DoubleSide});
     this.targetMat=new THREE.MeshBasicMaterial({color:'#ffe8a0',transparent:true,opacity:.56,depthWrite:false,side:THREE.DoubleSide});
     // Fence parts stay shared across worlds, just like cached animal geometry.
@@ -63,7 +66,7 @@ export class MeadowRenderer{
     this.animalMeshes=[];this.animalBatches=[];this.helperMeshes=new Map();this.resize();this.preview=true;this.particles=[];this.nature=new MeadowNature(this.scene);this.waterEffects=new WaterEffects(this.scene);
   }
   resize(){this.width=innerWidth;this.height=innerHeight;this.renderer.setSize(this.width,this.height,false);this.aspect=this.width/this.height;}
-  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
+  place(group,x,z,scale=1,owned=false){group.position.set(x,0,z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.treeWidth!==undefined){o.userData.treeWidth=treeTrunkFactor(scale);o.material.userData.treeWidth.value=o.userData.treeWidth;}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
     this.level=level;this.barkEffects=[];
@@ -74,7 +77,8 @@ export class MeadowRenderer{
     for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)materials.add(o.material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
     geometries.forEach(g=>g?.dispose());materials.forEach(m=>m?.dispose());
     this.terrain.clear();this.actors.clear();this.sceneryBatches=[];this.helperMeshes.clear();this.animalMeshes=[];this.animalBatches=[];this.particles=[];
-    const b=level.bounds,w=b.maxX-b.minX,d=b.maxZ-b.minZ,r=rng(level.seed),cx=(b.maxX+b.minX)/2,cz=(b.maxZ+b.minZ)/2;
+    // Orientation has its own stream so scenery positions and palette draws stay stable.
+    const b=level.bounds,w=b.maxX-b.minX,d=b.maxZ-b.minZ,r=rng(level.seed),treeRotation=rng(level.seed^0x746565),cx=(b.maxX+b.minX)/2,cz=(b.maxZ+b.minZ)/2;
     const ground=this.flat(new THREE.PlaneGeometry(w+90,d+90,1,1),this.grass,cx,cz,-.035);ground.userData.ownedGeometry=true;
     this.grass.map.repeat.set((w+90)/15,(d+90)/15);this.grass.bumpMap.repeat.copy(this.grass.map.repeat);
     for(const spec of level.sceneryHills||[]){
@@ -89,10 +93,19 @@ export class MeadowRenderer{
     const riverViews=[];
     for(const river of level.rivers){
       const bankMat=new THREE.MeshStandardMaterial({color:'#6c8960',roughness:1,side:THREE.DoubleSide});
+      this.thrusterGlow.install(bankMat);
       const bank=surface(ribbon(river.points,river.width+.8,{y:.002}),bankMat);bank.userData.ownedMaterial=true;
       const mesh=surface(ribbon(river.points,river.width,{y:.018}),this.water);
       const a=river.points[0],b=river.points.at(-1);riverViews.push({mesh,points:river.points,width:river.width,heading:Math.atan2(b.x-a.x,b.z-a.z)});
-      for(const bridge of river.bridges){const g=createBridge(bridge.width,bridge.length);g.rotation.y=bridge.heading;this.place(g,bridge.x,bridge.z,1,true);}
+      for(const bridge of river.bridges){
+        const g=createBridge(bridge.width,bridge.length),glowMaterials=new Map();
+        // Bridge wood is shared with fences: keep this surface effect local.
+        g.traverse(mesh=>{if(!mesh.isMesh)return;const source=mesh.material;
+          if(!glowMaterials.has(source))glowMaterials.set(source,this.thrusterGlow.install(source.clone()));
+          mesh.material=glowMaterials.get(source);mesh.userData.ownedMaterial=true;
+        });
+        g.rotation.y=bridge.heading;this.place(g,bridge.x,bridge.z,1,true);
+      }
     }
     const t=level.target,shape=targetFootprint(t),s=shape.halfLength,structure=[];
     this.goal=surface(goalSurface(t),this.targetMat);
@@ -132,7 +145,7 @@ export class MeadowRenderer{
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.userData.ownedLabel=true;this.terrain.add(sign);
     for(const obstacle of level.obstacles){
-      this.place(createTree(Math.floor(r()*3)),obstacle.x,obstacle.z,obstacle.radius*1.45);
+      const treeScale=obstacle.radius*1.45;const tree=createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,obstacle.x,obstacle.z,treeScale);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.place(createBush(i),obstacle.x+Math.cos(angle)*obstacle.radius*.48,obstacle.z+Math.sin(angle)*obstacle.radius*.48,obstacle.radius*.7);}
     }
@@ -168,17 +181,18 @@ export class MeadowRenderer{
     const sceneryCount=Math.min(62,28+Math.floor(level.index/3));for(let i=0;i<sceneryCount;i++){
       let x,z;const side=i%4;
       if(side<2){x=b.minX-12+r()*(w+24);z=side===0?b.minZ-4-r()*17:b.maxZ+4+r()*17;}else{x=side===2?b.minX-5-r()*18:b.maxX+5+r()*18;z=b.minZ+r()*d;}
-      if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;this.place(createTree(i%3),x,z,1.3+r()*1.8);
+      if(level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+3))continue;const treeScale=1.3+r()*1.8;const tree=createTree(i%3,treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,x,z,treeScale);
     }
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
     this.nature.setLevel(level);
     this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
     this.batchScenery();
-    this.dog=createDog();this.dog.scale.setScalar(1.35);this.actors.add(this.dog);
-    const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
+    this.dog=createPip();this.dog.scale.setScalar(1.35*.75);this.actors.add(this.dog);
+    const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.scale.setScalar(1/.75);halo.rotation.x=-Math.PI/2;halo.position.y=.03/.75;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
     const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
     this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
-    this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
+    this.goalPointer.scale.setScalar(1/.75);this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
+    this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
     for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
@@ -214,14 +228,19 @@ export class MeadowRenderer{
       bounds.set([sphere.center.x,sphere.center.y,sphere.center.z,sphere.radius],i*4);
     }
     batch.instanceMatrix.setUsage(THREE.DynamicDrawUsage);batch.frustumCulled=false;
-    this.sceneryBatches.push({batch,matrices,bounds});
+    const widths=batch.geometry.attributes.treeInstanceWidth?.array.slice();
+    this.sceneryBatches.push({batch,matrices,bounds,widths});
   }
   batchScenery(){
     this.terrain.updateMatrixWorld(true);const groups=new Map();
-    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
+    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.userData.treeWidth!==undefined?'treeWood':o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
     for(const pieces of groups.values()){
-      if(pieces.length<2)continue;const first=pieces[0],batch=new THREE.InstancedMesh(first.geometry,first.material,pieces.length);
-      pieces.forEach((piece,i)=>{batch.setMatrixAt(i,piece.matrixWorld);piece.parent.remove(piece);});
+      if(pieces.length<2&&pieces[0].userData.treeWidth===undefined)continue;const first=pieces[0],wood=first.userData.treeWidth!==undefined;
+      const geometry=wood?first.geometry.clone():first.geometry;
+      if(wood)geometry.setAttribute('treeInstanceWidth',new THREE.InstancedBufferAttribute(new Float32Array(pieces.map(piece=>piece.userData.treeWidth)),1).setUsage(THREE.DynamicDrawUsage));
+      const batch=new THREE.InstancedMesh(geometry,wood?createMaterials().treeWood:first.material,pieces.length);
+      if(wood){batch.userData.ownedGeometry=true;batch.userData.treeWood=true;}
+      pieces.forEach((piece,i)=>{batch.setMatrixAt(i,piece.matrixWorld);if(wood&&piece.userData.ownedMaterial)piece.material.dispose();piece.parent.remove(piece);});
       batch.castShadow=!!first.userData.fencePart;batch.receiveShadow=true;this.terrain.add(batch);this.trackScenery(batch);
     }
     // Empty model wrappers no longer need a matrix traversal every frame.
@@ -230,16 +249,19 @@ export class MeadowRenderer{
   cullScenery(){
     this.camera.updateMatrixWorld(true);this.viewMatrix.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse);this.sceneryFrustum.setFromProjectionMatrix(this.viewMatrix);
     const planes=this.sceneryFrustum.planes;
-    for(const {batch,matrices,bounds} of this.sceneryBatches){
+    for(const {batch,matrices,bounds,widths} of this.sceneryBatches){
       let count=0;
       for(let i=0;i<bounds.length;i+=4){
         // Two world units retain edge silhouettes and short fence shadows.
         const radius=bounds[i+3]+2;
         if(planes.some(p=>p.normal.x*bounds[i]+p.normal.y*bounds[i+1]+p.normal.z*bounds[i+2]+p.constant < -radius))continue;
-        batch.instanceMatrix.array.set(matrices.subarray(i*4,i*4+16),count++*16);
+        batch.instanceMatrix.array.set(matrices.subarray(i*4,i*4+16),count*16);
+        if(widths)batch.geometry.attributes.treeInstanceWidth.array[count]=widths[i/4];
+        count++;
       }
       batch.count=count;batch.visible=count>0;batch.instanceMatrix.needsUpdate=true;
       batch.instanceMatrix.clearUpdateRanges();if(count)batch.instanceMatrix.addUpdateRange(0,count*16);
+      if(widths){const attribute=batch.geometry.attributes.treeInstanceWidth;attribute.needsUpdate=true;attribute.clearUpdateRanges();if(count)attribute.addUpdateRange(0,count);}
     }
   }
   updateAnimalBatches(level,poseTime){
@@ -275,15 +297,16 @@ export class MeadowRenderer{
     this.camera.left=-halfWidth;this.camera.right=halfWidth;this.camera.top=half;this.camera.bottom=-half;this.camera.updateProjectionMatrix();
     this.camera.position.set(this.center.x,36,this.center.z+29);this.camera.lookAt(this.center.x,0,this.center.z-2);
     this.sun.position.set(this.center.x-18,35,this.center.z+20);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();
-    this.dog.position.set(dog.x,terrainHeight(level,dog.x,dog.z)+Math.sin(this.time*16)*Math.min(.06,Math.hypot(dog.vx||0,dog.vz||0)*.008),dog.z);this.dog.rotation.y=dog.heading??Math.PI/2;
+    this.dog.position.set(dog.x,terrainHeight(level,dog.x,dog.z),dog.z);this.dog.rotation.y=dog.heading??Math.PI/2;
     // Cancel the dog's heading so the triangle always faces the goal in world space.
     this.goalPointer.rotation.set(Math.PI/2,0,0);
     this.goalPointer.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),Math.atan2(level.target.x-dog.x,level.target.z-dog.z)-this.dog.rotation.y));
-    this.goalPointer.position.y=.04;
+    this.goalPointer.position.y=.04/.75;
     this.goalPointer.visible=!preview;
-    const speed=Math.hypot(dog.vx||0,dog.vz||0);const parts=this.dog.userData.parts;
+    const parts=this.dog.userData.parts;
     const poseTime=Math.floor(this.time*12)/12;
-    parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i%3===0?0:Math.PI))*Math.min(.5,speed*.07));parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
+    updatePipPose(this.dog,dog,dt);updatePipHover(this.dog,dt);parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
+    this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
     level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
     this.updateBarks(dt);
     for(const h of level.helpers||[]){let m=this.helperMeshes.get(h.type);if(!m){m=h.type==='drone'?createDrone():createDog();if(h.type==='helper')m.scale.setScalar(1.1);this.helperMeshes.set(h.type,m);this.actors.add(m);}const dx=h.x-m.position.x,dz=h.z-m.position.z;m.position.set(h.x,h.type==='drone'?2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);else{if(Number.isFinite(h.heading))m.rotation.y=h.heading;else if(Math.hypot(dx,dz)>.001)m.rotation.y=Math.atan2(dx,dz);m.userData.parts.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(poseTime*14+(i===0||i===3?0:Math.PI))*Math.min(.5,Math.hypot(dx,dz)*15));m.userData.parts.tail.rotation.z=Math.sin(poseTime*7)*.3;setTailLightBarking(m,(this.barkEffects||[]).some(e=>e.buddy));}}

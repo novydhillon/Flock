@@ -14,16 +14,17 @@ import {MeadowNature} from '../src/nature.js';
 import {ribbon,barkSurface} from '../src/surfaces.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
+import {ThrusterGroundGlow} from '../src/thruster-glow.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
-function setup({width=390,height=844}={}){
+function setup({width=390,height=844,treeYaw=true}={}){
   const draw=new Proxy({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(t,k)=>t[k]||(()=>{})});
   const document={createElement:()=>({width:0,height:0,getContext:()=>draw})};
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
-  const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
+  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -63,8 +64,9 @@ test('portrait scene builds articulated instance poses and finite camera matrice
 
 test('changing levels disposes world resources without disposing cached animal geometry',()=>{
   const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
-  let worldDisposed=0,animalDisposed=0,fenceDisposed=0;const worldGeometries=new Set();
+  let worldDisposed=0,animalDisposed=0,fenceDisposed=0,treeDisposed=0;const worldGeometries=new Set();
   renderer.fenceParts.forEach(p=>p.geometry.addEventListener('dispose',()=>fenceDisposed++));
+  new Set(models.createTree(0,0).children.map(p=>p.geometry)).forEach(g=>g.addEventListener('dispose',()=>treeDisposed++));
   renderer.terrain.traverse(o=>{if(o.userData.ownedGeometry)worldGeometries.add(o.geometry);});
   worldGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>worldDisposed++));
   renderer.animalBatches[0].meshes[0].geometry.addEventListener('dispose',()=>animalDisposed++);
@@ -73,9 +75,123 @@ test('changing levels disposes world resources without disposing cached animal g
   let confettiDisposed=0;renderer.particles.forEach(p=>p.mesh.geometry.addEventListener('dispose',()=>confettiDisposed++));
   renderer.setLevel(createLevel(1));
   assert.equal(barkDisposed,1);assert.equal(renderer.barkEffects.length,0);
-  assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.equal(fenceDisposed,0);
+  assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.equal(fenceDisposed,0);assert.equal(treeDisposed,0);
   const a=models.createFlowerPatch(1,3),b=models.createFlowerPatch(7,3);
   assert.equal(a.children[0].geometry,b.children[0].geometry,'flower variants reuse bounded geometry');
+});
+
+test('trees share tubular skeleton geometry and grow varied overlapping clay crowns',()=>{
+  setup();
+  const geometries=new Set(),woodGeometries=new Set();
+  for(let palette=0;palette<3;palette++)for(let tier=0;tier<3;tier++){
+    const tree=models.createTree(palette,tier),clone=models.createTree(palette,tier+.1);
+    let triangles=0;
+    tree.children.forEach((part,i)=>{
+      assert.equal(part.geometry,clone.children[i].geometry,'immutable geometry is shared across repeated models');
+      assert.ok([...part.geometry.attributes.position.array].every(Number.isFinite));
+      geometries.add(part.geometry);
+      if(part.name==='tree-wood')woodGeometries.add(part.geometry);
+      triangles+=(part.geometry.index?.count||part.geometry.attributes.position.count)/3;
+    });
+    assert.ok(triangles<2300,`compact skeleton and foliage: ${triangles}`);
+    const crowns=tree.getObjectByName('tree-foliage').userData.crownProfile;
+    assert.equal(crowns.length,7+tier*2);
+    const central=crowns.filter(c=>c.radial<.5);
+    assert.ok(central.length>=3,'center has multiple overlapping crowns');
+    for(let i=1;i<central.length;i++)assert.ok(new THREE.Vector3(...central[0].position).distanceTo(new THREE.Vector3(...central[i].position))<central[0].size+central[i].size);
+    assert.ok(crowns.filter(c=>c.radial>1).every(c=>c.size<Math.max(...central.map(c=>c.size))));
+    assert.ok(new Set(crowns.filter(c=>c.radial>1).map(c=>c.size.toFixed(3))).size>2,'similarly radial crowns still vary');
+    if(tier)assert.ok(triangles>models.createTree(palette,0).children.reduce((n,o)=>n+(o.geometry.index?.count||o.geometry.attributes.position.count)/3,0));
+  }
+  assert.equal(woodGeometries.size,3,'each orientation has one welded shared wood surface');
+  assert.equal(geometries.size,12,'nine foliage meshes plus three shared wood geometries');
+});
+
+test('tree widths affect actual connected wood without changing branch reach or bush materials',()=>{
+  const renderer=setup(),base=models.createTree(0,0),baseWood=base.getObjectByName('tree-wood');
+  const material=models.createMaterials();
+  assert.notEqual(material.treeWood,material.bark);
+  assert.equal(material.bark.userData.treeWidth,undefined,'bush bark does not require tree shader attributes');
+  assert.ok(material.bark.map&&material.bark.bumpMap);
+  assert.equal(material.treeWood.map,null,'welded forks have no stretched UV bark seams');
+  assert.equal(material.treeWood.bumpMap,null);
+  for(const scale of [1.015,1.1,1.67,(1.015+3.1)/2,2.73,3.1]){
+    const factor=.7+.2*(scale-1.015)/(3.1-1.015);
+    assert.ok(Math.abs(models.treeTrunkFactor(scale)-factor)<1e-12,'width factor is continuous and linear');
+    const instance=renderer.place(models.createTree(0,0),0,0,scale),wood=instance.getObjectByName('tree-wood');
+    assert.equal(wood.geometry,baseWood.geometry);
+    assert.notEqual(wood.material,baseWood.material,'standalone trees have independent uniforms');
+    assert.ok(Math.abs(wood.material.userData.treeWidth.value-factor)<1e-12);
+    assert.ok(Math.abs(wood.userData.treeWidth-factor)<1e-12);
+    const deformed=models.deformTreeGeometry(wood.geometry,factor),p=deformed.attributes.position,c=wood.geometry.attributes.treeCenter;
+    for(const fork of wood.geometry.userData.forks){
+      const radius=(ids,center)=>ids.reduce((n,id)=>n+new THREE.Vector3().fromBufferAttribute(p,id).distanceTo(new THREE.Vector3(...center)),0)/ids.length*scale;
+      const parent=radius(fork.parentRing,[c.getX(fork.parentRing[0]),c.getY(fork.parentRing[0]),c.getZ(fork.parentRing[0])]);
+      const continuing=radius(fork.continuingRing,[c.getX(fork.continuingRing[0]),c.getY(fork.continuingRing[0]),c.getZ(fork.continuingRing[0])]);
+      const branch=radius(fork.branchRings[0].indices,fork.branchRings[0].center);
+      assert.ok(Math.abs(parent**2-continuing**2-branch**2)<parent**2*2e-6,'actual deformed cross sections obey Leonardo including the continuing trunk');
+      for(const ring of fork.branchRings){
+        const centroid=ring.indices.reduce((v,id)=>v.add(new THREE.Vector3().fromBufferAttribute(p,id)),new THREE.Vector3()).multiplyScalar(1/ring.indices.length);
+        assert.ok(centroid.distanceTo(new THREE.Vector3(...ring.center))<1e-6,'width never changes branch reach');
+      }
+    }
+    deformed.dispose();
+  }
+  assert.equal(baseWood.material.userData.treeWidth.value,1,'standalone uniforms do not leak between trees');
+});
+
+test('tree instance widths compact with visible poses, restore after culling and dispose with their batch',()=>{
+  const renderer=setup();renderer.sceneryBatches=[];
+  const source=models.createTree(0,0).getObjectByName('tree-wood').geometry;
+  let privateDisposals=0,batchDisposals=0,sharedDisposals=0;
+  source.addEventListener('dispose',()=>sharedDisposals++);
+  for(const [x,scale]of [[0,1.015],[10000,1.75],[2,3.1]]){
+    const tree=renderer.place(models.createTree(0,0),x,0,scale);
+    tree.getObjectByName('tree-wood').material.addEventListener('dispose',()=>privateDisposals++);
+  }
+  renderer.batchScenery();
+  assert.equal(privateDisposals,3,'temporary standalone materials are released when replaced by the shared batch material');
+  const record=renderer.sceneryBatches.find(v=>v.widths),{batch,widths,matrices}=record;
+  assert.equal(batch.material,models.createMaterials().treeWood);
+  assert.notEqual(batch.geometry,source,'instance width buffer belongs to this level');
+  assert.equal(source.attributes.treeInstanceWidth,undefined,'cached source has no mutable instance attributes');
+  assert.deepEqual([...widths],[Math.fround(.7),Math.fround(models.treeTrunkFactor(1.75)),Math.fround(.9)]);
+  renderer.camera.position.set(0,6,15);renderer.camera.lookAt(0,2,0);renderer.cullScenery();
+  assert.equal(batch.count,2);
+  assert.deepEqual([...batch.geometry.attributes.treeInstanceWidth.array.slice(0,2)],[widths[0],widths[2]]);
+  assert.deepEqual([...batch.instanceMatrix.array.slice(16,32)],[...matrices.slice(32,48)]);
+  renderer.camera.position.set(10000,6,15);renderer.camera.lookAt(10000,2,0);renderer.cullScenery();
+  assert.equal(batch.count,1);assert.equal(batch.geometry.attributes.treeInstanceWidth.array[0],widths[1]);
+  assert.deepEqual([...batch.instanceMatrix.array.slice(0,16)],[...matrices.slice(16,32)]);
+  renderer.camera.position.set(0,6,15);renderer.camera.lookAt(0,2,0);renderer.cullScenery();
+  assert.equal(batch.count,2);assert.equal(batch.geometry.attributes.treeInstanceWidth.array[1],widths[2]);
+  batch.geometry.addEventListener('dispose',()=>batchDisposals++);
+  renderer.setLevel(createLevel(0));
+  assert.equal(batchDisposals,1);assert.equal(sharedDisposals,0);
+});
+
+test('trees have deterministic independent full-yaw rotations in both placement populations',()=>{
+  const renderer=setup(),level=createLevel(19),capture=(renderer)=>{
+    const trees=[],other=[],place=renderer.place;
+    renderer.place=function(group,x,z,scale,...rest){
+      if(group.name==='clay tree')trees.push({x,z,scale,yaw:group.rotation.y});
+      else other.push({x,z,scale});
+      return place.call(this,group,x,z,scale,...rest);
+    };
+    renderer.setLevel(level);renderer.place=place;return {trees,other};
+  };
+  const first=capture(renderer),second=capture(renderer);
+  assert.deepEqual(first,second,'level rebuild repeats orientations and all placements');
+  const obstacleTrees=first.trees.filter(t=>level.obstacles.some(o=>o.x===t.x&&o.z===t.z));
+  const backgroundTrees=first.trees.filter(t=>!obstacleTrees.includes(t));
+  for(const trees of [obstacleTrees,backgroundTrees]){
+    assert.ok(trees.length>2,'both obstacle and background tree populations exist');
+    assert.ok(trees.some(t=>t.yaw>Math.PI)&&trees.some(t=>t.yaw<Math.PI),'orientation covers the full yaw range');
+    assert.equal(new Set(trees.map(t=>t.yaw)).size,trees.length,'orientation varies independently between trees');
+  }
+  const withoutYaw=capture(setup({treeYaw:false}));
+  assert.deepEqual(first.other,withoutYaw.other,'tree orientation does not consume the meadow layout RNG');
+  assert.deepEqual(first.trees.map(({yaw,...pose})=>pose),withoutYaw.trees.map(({yaw,...pose})=>pose),'tree positions/scales remain identical with yaw disabled');
 });
 
 test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{
@@ -103,6 +219,64 @@ test('portrait camera keeps Pip visible when helpers move the flock far away',()
   const position=new THREE.Vector3(dog.x,.5,dog.z).project(renderer.camera);
   assert.ok(Math.abs(position.x)<.8,`Pip stays within screen margins: ${position.x}`);
   assert.ok(Math.abs(position.y)<.8);
+});
+
+test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;
+  renderer.setLevel(level);
+  assert.ok(Math.abs(renderer.dog.scale.x-1.0125)<1e-9);
+  for(const graphic of [renderer.dog.children.find(o=>o.isMesh&&o.geometry.type==='RingGeometry'),renderer.goalPointer]){
+    assert.ok(Math.abs(graphic.scale.x-4/3)<1e-9,'guidance world size stays unchanged');
+  }
+  assert.equal(renderer.dogGlow,undefined,'no detached glow plane exists');
+  const effect=renderer.thrusterGlow;
+  assert.equal(effect.centers.value.length,4);
+  assert.equal(effect.strength.value,.85*.7,'glow contribution is 30% dimmer than the previous 0.85 strength');
+  for(const ground of [renderer.grass,renderer.path]){assert.equal(ground.transparent,false);assert.equal(ground.opacity,1);}
+  assert.ok(Math.abs(effect.radius.value-.54*renderer.dog.scale.x)<1e-9,'diffuse footprint radius is 50% wider than before');
+  assert.ok(effect.tint.value.b>effect.tint.value.r*1.5);
+  for(const material of [renderer.grass,renderer.path,renderer.pathShoulder]){
+    const shader={uniforms:{},vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader};
+    material.onBeforeCompile(shader);
+    assert.equal(shader.uniforms.pipGlowCenters,effect.centers,'receiving materials use live shared pod positions');
+    assert.equal(shader.uniforms.pipGlowStrength,effect.strength);
+    assert.match(shader.fragmentShader,/1\.0-smoothstep\(0\.0,pipGlowRadius/,'smooth falloff feathers both center and edge');
+    assert.match(shader.fragmentShader,/totalEmissiveRadiance\+=pipGlowTint/,'blue illumination belongs to the surface shader');
+    assert.match(shader.vertexShader,/pipSurfaceWorld=\(modelMatrix\*pipSurfacePosition\)\.xyz/);
+  }
+  const pods=renderer.dog.userData.parts.pods;
+  for(const [x,z] of [[3,-4],[-8,6]]){
+    Object.assign(dog,{x,z,heading:.73,vx:0,vz:0});renderer.update(level,dog,.1,false);
+    const expected=pods.map(p=>renderer.dog.localToWorld(p.clone()));
+    effect.centers.value.forEach((p,i)=>{
+      assert.ok(Math.abs(p.x-expected[i].x)<1e-5&&Math.abs(p.z-expected[i].z)<1e-5);
+      assert.equal(p.y,terrainHeight(level,p.x,p.z),'centers lie ON the surface with no hovering offset');
+    });
+  }
+  const before=effect.centers.value.map(p=>p.clone());renderer.update(level,dog,0,false);
+  effect.centers.value.forEach((p,i)=>assert.ok(p.distanceTo(before[i])<1e-6));
+  const bridgeLevel=createLevel(5),bridge=bridgeLevel.rivers.flatMap(r=>r.bridges)[0];
+  renderer.setLevel(bridgeLevel);
+  Object.assign(bridgeLevel.dog,{x:bridge.x,z:bridge.z,heading:bridge.heading});
+  renderer.update(bridgeLevel,bridgeLevel.dog,0,false);
+  effect.centers.value.forEach(p=>{
+    assert.ok(p.y>0,'glow targets raised bridge surface');
+    assert.equal(p.y,terrainHeight(bridgeLevel,p.x,p.z));
+  });
+  const privateMaterials=new Set();
+  renderer.terrain.traverse(o=>{
+    if(o.isMesh&&o.userData.ownedMaterial&&o.material.customProgramCacheKey().includes('pip-ground-glow'))privateMaterials.add(o.material);
+  });
+  assert.ok(privateMaterials.size>0,'bridge deck has private receiving materials');
+  assert.ok([...privateMaterials].some(m=>m.color.equals(renderer.materials.wood.color)||m.color.equals(renderer.materials.paleWood.color)),
+    'bridge wood independently receives illumination, not just the river-bank material');
+  assert.ok([...privateMaterials].some(m=>m.color.getHexString()==='6c8960'),'opaque river banks also receive the ground light');
+  assert.ok(!renderer.materials.wood.customProgramCacheKey().includes('pip-ground-glow'),'fence wood remains untouched');
+  let disposed=0;privateMaterials.forEach(m=>m.addEventListener('dispose',()=>disposed++));
+  renderer.setLevel(createLevel(0));
+  assert.equal(disposed,privateMaterials.size);
+  assert.equal(renderer.thrusterGlow,effect,'new level retains the uniform owner');
+  effect.centers.value.forEach(p=>assert.equal(p.y,0,'new meadow clears old bridge height'));
 });
 
 
@@ -381,4 +555,122 @@ test('Buddy rendering preserves simulation heading instead of snapping to tiny r
  assert.equal(mesh.rotation.y,.4);
  h.x-=.01;h.heading=.45;renderer.update(level,level.dog,.05);assert.equal(mesh.rotation.y,.45);
  h.x+=.01;renderer.update(level,level.dog,0);assert.equal(mesh.rotation.y,.45);
+});
+
+test('Pip has twelve hollow hover rings with movement trails, frozen pause and fresh level state',()=>{
+  const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
+  const pip=renderer.dog,parts=pip.userData.parts;
+  assert.equal(parts.rings.length,4);
+  assert.equal(parts.rings.flat().length,12);
+  assert.ok(parts.rings.flat().every(r=>r.geometry.type==='TorusGeometry'));
+  assert.equal(parts.legs.length,0,'hover pods do not perform a walking gait');
+  const buddy=models.createDog();assert.equal(buddy.userData.parts.legs.length,4,'Buddy retains its walking model');
+  renderer.update(level,level.dog,1/60);
+  const before=parts.rings[0].map(r=>r.position.y);
+  level.dog.x+=.8;renderer.update(level,level.dog,1/60);
+  pip.updateMatrixWorld(true);
+  const anchors=parts.rings[0].map(r=>r.getWorldPosition(new THREE.Vector3()));
+  const pod=pip.localToWorld(parts.pods[0].clone());
+  assert.ok(Math.abs(anchors[0].x-pod.x)<1e-8,'top ring follows the pod exactly');
+  assert.ok(anchors[2].x<anchors[1].x&&anchors[1].x<anchors[0].x,'third ring trails actual motion and middle lies between');
+  assert.ok(parts.rings[0][1].position.y<before[1]&&parts.rings[0][2].position.y<before[2],'lower rings descend');
+  assert.ok(parts.rings[0][0].position.y>parts.rings[0][1].position.y&&parts.rings[0][1].position.y>parts.rings[0][2].position.y);
+  const paused=parts.rings.flat().map(r=>[...r.position.toArray(),r.material.opacity]);
+  renderer.update(level,level.dog,0);
+  assert.deepEqual(parts.rings.flat().map(r=>[...r.position.toArray(),r.material.opacity]),paused,'pause freezes ring animation');
+  let sawFade=false,sawRecycle=false,lastOpacity=parts.rings[0][2].material.opacity;
+  for(let i=0;i<60;i++){
+    renderer.update(level,level.dog,1/60);
+    const opacity=parts.rings[0][2].material.opacity;sawFade||=opacity<.05;sawRecycle||=opacity>lastOpacity+.3;lastOpacity=opacity;
+    assert.equal(parts.rings.flat().length,12,'animation never allocates more rings');
+  }
+  assert.ok(sawFade&&sawRecycle,'third ring fades away and the bounded sequence renews');
+  // Observe the visible pulse handoff, rather than a ring slot's identity.
+  level.dog.x+=.8;renderer.update(level,level.dog,1/60);
+  pip.userData.hover.time=.55-1e-6;models.updatePipHover(pip,0);
+  const departing=parts.rings[0][1],oldPosition=departing.position.clone(),oldY=departing.position.y,oldAlpha=departing.material.opacity,oldScale=departing.scale.x;
+  models.updatePipHover(pip,2e-6);
+  const arriving=parts.rings[0][2];
+  assert.ok(Math.abs(arriving.position.y-oldY)<1e-5,'middle hands off continuously to third height');
+  assert.ok(arriving.position.distanceTo(oldPosition)<1e-5,'moving pulse handoff preserves its full position');
+  assert.ok(Math.abs(arriving.material.opacity-oldAlpha)<1e-5,'handoff preserves brightness');
+  assert.ok(Math.abs(arriving.scale.x-oldScale)<1e-5,'handoff preserves pulse radius');
+  assert.ok(parts.rings[0][1].material.opacity<.001,'new pulse emerges invisibly instead of snapping upward');
+
+  level.dog.x+=20;renderer.update(level,level.dog,1/60);
+  pip.updateMatrixWorld(true);
+  assert.ok(Math.abs(parts.rings[0][2].getWorldPosition(new THREE.Vector3()).x-pip.localToWorld(parts.pods[0].clone()).x)<1e-8,'teleports clear the old trail');
+  let disposed=0;parts.rings.flat().forEach(r=>r.material.addEventListener('dispose',()=>disposed++));
+  renderer.setLevel(createLevel(1));assert.equal(disposed,12);assert.notEqual(renderer.dog,pip);
+});
+
+test('Pip float and turn articulation preserve simulation root, ground guidance, and Buddy pose',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;renderer.setLevel(level);
+  const pip=renderer.dog,{rig,head,rings}=pip.userData.parts;
+  assert.ok(rig&&head,'Pip has independent body and head pivots');
+  assert.equal(rig.parent,pip);assert.equal(head.parent,rig);
+  const halo=pip.children.find(o=>o.isMesh&&o.geometry.type==='RingGeometry');
+  assert.equal(halo.parent,pip);assert.equal(renderer.goalPointer.parent,pip);
+  assert.ok(rings.flat().every(r=>r.parent===pip),'world-space trails stay outside the body bank');
+  const h={type:'helper',x:dog.x+2,z:dog.z,heading:.4};level.helpers=[h];
+  Object.assign(dog,{heading:0,vx:0,vz:0});renderer.update(level,dog,0);
+  const haloY=halo.position.y,pointerY=renderer.goalPointer.position.y,heights=[];
+  for(let i=1;i<=45;i++){
+    const t=i/60,speed=t*4,heading=t;
+    Object.assign(dog,{heading,vx:Math.sin(heading)*speed,vz:Math.cos(heading)*speed});
+    renderer.update(level,dog,1/60);heights.push(rig.position.y);
+    assert.equal(pip.position.x,dog.x);assert.equal(pip.position.z,dog.z);
+    assert.equal(pip.position.y,terrainHeight(level,dog.x,dog.z),'only the visual rig floats');
+    assert.equal(pip.rotation.y,dog.heading);assert.equal(pip.rotation.x,0);assert.equal(pip.rotation.z,0);
+    assert.equal(halo.position.y,haloY);assert.equal(renderer.goalPointer.position.y,pointerY);
+  }
+  assert.ok(Math.max(...heights)-Math.min(...heights)>.01,'visual body floats while stationary simulation root stays grounded');
+  assert.ok(rig.rotation.x<0&&rig.rotation.z<0&&head.rotation.y>0,'forward acceleration and positive turn articulate independent pivots');
+  const buddy=renderer.helperMeshes.get('helper');
+  assert.equal(buddy.rotation.y,h.heading);assert.equal(buddy.rotation.x,0);assert.equal(buddy.rotation.z,0);
+  assert.equal(buddy.position.y,terrainHeight(level,h.x,h.z));assert.equal(buddy.userData.parts.legs.length,4);
+  pip.updateMatrixWorld(true);
+  const direction=new THREE.Vector3(0,1,0).applyQuaternion(renderer.goalPointer.getWorldQuaternion(new THREE.Quaternion()));
+  const desired=new THREE.Vector3(level.target.x-dog.x,0,level.target.z-dog.z).normalize();
+  assert.ok(direction.dot(desired)>.9999,'bank and head look do not redirect the ground goal pointer');
+});
+
+test('banked Pip pods, top rings and surface glow share transformed thruster anchors',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;renderer.setLevel(level);
+  Object.assign(dog,{heading:0,vx:0,vz:3});renderer.update(level,dog,0);
+  for(let i=1;i<=30;i++){
+    const heading=i/30;Object.assign(dog,{heading,vx:3*Math.sin(heading),vz:3*Math.cos(heading)});
+    renderer.update(level,dog,1/60);
+  }
+  const pip=renderer.dog,parts=pip.userData.parts;pip.updateMatrixWorld(true);
+  assert.ok(Math.abs(parts.rig.rotation.z)>.01,'test exercises an actual body bank');
+  assert.equal(parts.basePods.length,4);
+  for(let i=0;i<4;i++){
+    const actual=parts.rig.localToWorld(parts.basePods[i].clone());
+    const published=pip.localToWorld(parts.pods[i].clone());
+    assert.ok(actual.distanceTo(published)<1e-8,'published root-local anchor matches visual nozzle');
+    const top=parts.rings[i][0].getWorldPosition(new THREE.Vector3());
+    assert.ok(Math.hypot(top.x-actual.x,top.z-actual.z)<1e-8,'top ring originates beneath transformed nozzle');
+    const glow=renderer.thrusterGlow.centers.value[i];
+    assert.ok(Math.hypot(glow.x-actual.x,glow.z-actual.z)<1e-8,'ground glow follows transformed pod footprint');
+    assert.equal(glow.y,terrainHeight(level,glow.x,glow.z));
+  }
+});
+
+test('Pip pause freezes articulated pose and level replacement clears motion history',()=>{
+  const renderer=setup(),level=createLevel(0),dog=level.dog;renderer.setLevel(level);
+  Object.assign(dog,{heading:0,vx:0,vz:0});renderer.update(level,dog,0);
+  for(let i=1;i<=20;i++){
+    const heading=i/20;Object.assign(dog,{heading,vx:i/5*Math.sin(heading),vz:i/5*Math.cos(heading)});
+    renderer.update(level,dog,1/60);
+  }
+  const pip=renderer.dog,parts=pip.userData.parts;
+  const pose=()=>[...parts.rig.position.toArray(),...parts.rig.quaternion.toArray(),...parts.head.quaternion.toArray(),...parts.rings.flat().flatMap(r=>[...r.position.toArray(),r.material.opacity])];
+  const before=pose();renderer.update(level,dog,0);assert.deepEqual(pose(),before);
+  renderer.update(level,dog,-.1);assert.deepEqual(pose(),before,'invalid negative frame cannot rewind the pose');
+  dog.x+=20;dog.heading=-2;dog.vx=0;dog.vz=0;renderer.update(level,dog,1/60);
+  assert.equal(parts.rig.rotation.x,0);assert.equal(parts.rig.rotation.z,0);assert.equal(parts.head.rotation.y,0);
+  renderer.setLevel(createLevel(1));
+  const fresh=renderer.dog.userData.parts;
+  assert.notEqual(renderer.dog,pip);assert.equal(fresh.rig.rotation.x,0);assert.equal(fresh.rig.rotation.z,0);assert.equal(fresh.head.rotation.y,0);
 });
