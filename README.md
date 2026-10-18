@@ -17,7 +17,7 @@ Play the standalone development build at [novydhillon.github.io/Flock/dev2/](htt
 
 ## Current UI refinement candidate
 
-F-055–F-060 are implemented and independently reviewed on `UI_refinement`, based on production main `8cc4275`. This batch simplifies gameplay chrome, status/countdown, guidance and thumb controls; it does not change flock/economy progression. The development publication and user sign-off remain separate. Read [AGENTS.md](AGENTS.md) for the standing project development rules and [the tracker](docs/ISSUES.md) for current progress. Dated release paragraphs below are historical checkpoints.
+F-055–F-060 are implemented and independently reviewed on `UI_refinement`, based on production main `8cc4275`. This batch simplifies gameplay chrome, status/countdown, guidance and thumb controls; it does not change flock/economy progression. The dev2 review build is published and hash-verified at source `d47ae6c` / Pages `ce24bf3`; user sign-off is pending and production UI is unchanged. Read [AGENTS.md](AGENTS.md) for the standing project development rules and [the tracker](docs/ISSUES.md) for current progress. Dated release paragraphs below are historical checkpoints.
 
 ## Engine choice
 
