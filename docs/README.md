@@ -25,6 +25,8 @@ Current production source is `main` (`8cc4275` at the start of this batch); acce
 
 The production game is [Flock](https://novydhillon.github.io/Flock/); review builds use [Flock/dev2](https://novydhillon.github.io/Flock/dev2/). The old nested development address redirects to the canonical dev2 location. The original 2D `flock/dev/` build is preserved separately. Historical release details remain in the [validation runbook](validation/P0-P1.md) and [quality record](QUALITY.md); older checkpoint statuses there do not override the current tracker.
 
+Latest UI follow-up, 18 October: F-056/F-057 now include a larger high-contrast minimap and tighter status panel. Source `e2f55d2` / Pages `dbdf3c1` is verified live on dev2; user sign-off remains pending. [Publication evidence](validation/UI-minimap-followup-publication.json). This supersedes the preceding UI publication for these two items.
+
 ## Examples and diagrams
 
 Node examples are intended to run from the repository root with dependencies installed. Snippets labeled illustrative describe a contract rather than a supported public API. Diagram arrows show ownership, calls or transitions, not network services. This application has no backend.
