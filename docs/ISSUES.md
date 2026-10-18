@@ -112,8 +112,8 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
 
 | F-055 | P2 | UI/navigation | Remove gameplay branding/wallet/sound; move sound and currency access into Pause | Review | F-051 |
-| F-056 | P2 | UI/status | Compact level/delivery/score; prominent active-only countdown; compact weather | Review | F-055 |
-| F-057 | P2 | UI/guidance | Compact adjacent minimap and concise finite/manual tips | Review | F-056 |
+| F-056 | P2 | UI/status | Tighter level/delivery/score panel; prominent active-only countdown; compact weather | Review | F-055 |
+| F-057 | P2 | UI/guidance | Larger high-contrast adjacent minimap and concise finite/manual tips | Review | F-056 |
 | F-058 | P2 | UI/controls | Simplify thumb controls and expose bark cooldown progress | Review | F-055 |
 | F-059 | P2 | Presentation/UI | Smaller destination introduction that fades during play | Review | F-056 |
 | F-060 | P2 | Development process | Persistent project agent/model/parallel/blind-gauntlet/sign-off rules | Review | — |
@@ -836,6 +836,8 @@ F-053 follow-up (16 October 2026): latest request is a 25% reduction from publis
 
 ## UI refinement acceptance — F-055–F-060
 
+18 October 2026 follow-up: F-056/F-057 remain **Review** on `UI_refinement` at Novy's request. The minimap is larger and higher contrast; level information is narrower with compact numeric rows and a reserved heading countdown. Owner: Codex with parallel minimap-renderer and HUD ownership. Acceptance: larger high-contrast map, discernible actors/routes/goal, compact status, no narrow-phone/landscape collisions, and new user sign-off. Source checks: 307 tests and both clean artifact modes pass; measured map-feature/actor contrast is at least 3:1. Independent blind reviews initially scored 8.5/10; CSS consolidation and metric verification resolve the concrete maintenance/fit concerns, with workhorse follow-up 9/10. Native phone appearance remains unverified. Follow-up publication is pending; preceding publication evidence is historical for this request.
+
 Owner: Codex; branch `UI_refinement`; started 17 October 2026 America/Creston. Changes preserve saved progress, economy, flock behavior, movement, destination outline/pointer and development QA exclusion. Each item has independent acceptance; no item becomes Done without user sign-off.
 
 ### F-055 — Gameplay chrome and pause settings
@@ -844,7 +846,7 @@ Hide the title, wallet and music control after starting. Reclaim the header's ve
 
 ### F-056 — Compact status and useful countdown
 
-Show a short level/destination heading, a weather icon with accessible full description, readable Delivered and Score values, and a secondary delivery progress strip. Show the objective briefly at level start. Remove the first-arrival explanation; the timer is absent before delivery and becomes large once running. At ten seconds or less, use a clear static urgency treatment. Pause freezes time; restart/next level resets objective/timer/urgency. Phone sign-off requires legible values without clipping or collisions.
+Show a short level heading, a weather icon with accessible full description, readable Delivered and Score values, and a secondary delivery progress strip. The destination remains in the accessible mission label and brief objective. Show the objective briefly at level start. Remove the first-arrival explanation; the timer is absent before delivery and becomes large once running. At ten seconds or less, use a clear static urgency treatment. Pause freezes time; restart/next level resets objective/timer/urgency. Phone sign-off requires legible values without clipping or collisions.
 
 ### F-057 — Minimap and tips
 

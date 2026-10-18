@@ -546,7 +546,8 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
 test('compact mission shows a brief objective for four active seconds and resets per meadow',async()=>{
   const ui=launch();await ui.click('play');
   assert.ok(ui.document.body.classList.contains('in-game'));
-  assert.equal(ui.el('level-name').textContent,'Level 1 · Sunny Pen');
+  assert.equal(ui.el('level-name').textContent,'Level 1');
+  assert.equal(ui.el('mission').attrs['aria-label'],'Level 1 · Sunny Pen');
   assert.equal(ui.el('saved').textContent,0);assert.equal(ui.el('total').textContent,5);
   assert.equal(ui.el('mission-score').textContent,'0 / 80');
   assert.equal(ui.el('objective').textContent,'Everyone into the pen');
@@ -557,7 +558,8 @@ test('compact mission shows a brief objective for four active seconds and resets
   ui.advance(.3);assert.ok(ui.el('objective').classList.contains('hidden'));
   await ui.app.begin(1);
   const {level}=ui.app.state();
-  assert.equal(ui.el('level-name').textContent,`Level 2 · ${{pen:'Sunny Pen',barn:'Home Barn',field:'Clover Field'}[level.target.type]||'Clover Field'}`);
+  assert.equal(ui.el('level-name').textContent,'Level 2');
+  assert.equal(ui.el('mission').attrs['aria-label'],`Level 2 · ${{pen:'Sunny Pen',barn:'Home Barn',field:'Clover Field'}[level.target.type]||'Clover Field'}`);
   assert.equal(ui.el('objective').classList.contains('hidden'),false);
 });
 

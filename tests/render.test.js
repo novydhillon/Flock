@@ -501,6 +501,44 @@ test('actual target meshes and map show the shared rectangle across every enclos
   }
 });
 
+test('minimap palette separates terrain features and outlines every animal marker',()=>{
+  const renderer=setup(),level=createLevel(6,817);
+  level.animals=[{x:0,z:0,type:'sheep',saved:false},{x:1,z:1,type:'cow',saved:true}];
+  level.helpers=[{x:-1,z:-1}];
+  level.fenceSegments=[...(level.fenceSegments||[]),{a:{x:-2,z:-2},b:{x:-2,z:2},material:'stone'},{a:{x:2,z:-2},b:{x:2,z:2},material:'wood',kind:'fence'}];
+  level.gates=[{x:3,z:0,heading:0,width:4,operable:true,open:false}];
+  const operations=[];let path=[];
+  const ctx={
+    fillRect(...args){operations.push({type:'background',color:this.fillStyle,args});},
+    beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},
+    arc(x,y,r){path.push({arc:true,x,y,r});},
+    stroke(){operations.push({type:'stroke',color:this.strokeStyle,width:this.lineWidth,path:[...path]});},
+    fill(){operations.push({type:'fill',color:this.fillStyle,path:[...path]});}
+  };
+  const canvas={width:240,height:160,getContext:()=>ctx};
+  renderer.drawMap(canvas,level,{x:2,z:2});
+  const background=operations.find(op=>op.type==='background')?.color;
+  const luminance=color=>{
+    const rgb=color.match(/[\da-f]{2}/gi).map(channel=>parseInt(channel,16)/255).map(channel=>channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4);
+    return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];
+  };
+  const contrast=(first,second)=>{const values=[luminance(first),luminance(second)].sort((a,b)=>b-a);return (values[0]+.05)/(values[1]+.05);};
+  assert.ok(background,'minimap paints a base field');
+  const lineFeatures=operations.filter(op=>op.type==='stroke'&&!op.path.some(point=>point?.arc));
+  assert.ok(lineFeatures.length>0,'map includes rivers, routes, barriers and the closed gate');
+  for(const feature of lineFeatures)assert.ok(contrast(feature.color,background)>=3,`line feature ${feature.color} reaches 3:1 against the map field`);
+  const actorOutlines=operations.filter(op=>op.type==='stroke'&&op.width===1.5&&op.path.some(point=>point?.arc));
+  assert.ok(actorOutlines.length>=4,'each animal, Pip and helper gets a dark outline');
+  const actorFills=operations.filter(op=>op.type==='fill'&&op.path.some(point=>point?.arc));
+  assert.equal(actorFills.length,4,'two livestock, Pip and the helper have individual map markers');
+  assert.ok(new Set(actorFills.map(op=>op.color)).size>=3,'livestock status and actor roles use distinguishable marker colors');
+  for(const fill of actorFills){
+    const fillArc=fill.path.find(point=>point?.arc),outline=actorOutlines.find(op=>op.path.some(point=>point?.arc&&point.x===fillArc.x&&point.y===fillArc.y&&point.r===fillArc.r));
+    assert.ok(outline,`marker at ${fillArc.x}, ${fillArc.y} has a recorded outline`);
+    assert.ok(contrast(fill.color,outline.color)>=3,'each bright actor marker contrasts at least 3:1 with its dark outline');
+  }
+});
+
 test('ground bark draws over real decorative blades while opaque fence rails retain depth',()=>{
   const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
   const grass=renderer.terrain.children.find(mesh=>mesh.userData.decorativeGrass);
