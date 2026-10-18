@@ -2,6 +2,8 @@
 
 ## Minimal HUD and Level-number animation — 18 October 2026
 
+Verified dev publication: source `94d0b891315883492bdf74d15c3e6dfcfd47b069` passed CI `39175874260`; Pages `6df73afcd118b777a5b6ba7071b3e0a6bcd37519` passed native deployment `39175960644`. All 17 live files match the isolated checked development output by SHA-256; all 49 unrelated Pages blobs are unchanged. [Publication manifest](validation/F-056-F-063-minimal-hud-publication.json). Source review is complete; user appearance acceptance remains Review.
+
 Parallel markup/layout ownership uses `gpt-6.1-sol` medium; root owns controller/tests/docs with platform-selected model/effort not exposed. This replaces the prior level-title/card design with weather/livestock count and a Level-number fade/scale introduction. Meaningful controller checks cover fade-in, expansion, pause freeze/resume, fade-out, restart, Level 100, completion, count reset and retained reward/results scoring. All 318 regression tests and 45 focused UI/layout/QA checks pass. Isolated release/development artifacts pass mode checks (15/no QA and 17/two QA files); generated docs pass. A fresh isolated `gpt-6.1-sol` medium blind critic scored 9.2/10, independently passed 97 focused checks and found no material blocker. Actual Outfit metrics support source fit at 320px/short landscape: 65/65 at 28px occupies 73.78px, and Level 100 at 36px occupies 156.78px before scaling. These are source/font checks, not native pixels, touch/safe-area or phone-FPS evidence. Publication follows; F-056/F-063 remain Review for user sign-off.
 
 ## F-063 level-title overlay — 18 October 2026

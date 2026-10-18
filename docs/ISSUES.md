@@ -2,6 +2,8 @@
 
 ## Minimal gameplay HUD and Level-number animation — 18 October 2026
 
+Published and verified at `/Flock/dev/`: source `94d0b89`, source CI `39175874260`, Pages `6df73af`, native deployment `39175960644`. All 17 live files match the checked build; all 49 files outside dev retain their blobs. [Current publication evidence](validation/F-056-F-063-minimal-hud-publication.json). This supersedes pending-publication wording below; user appearance sign-off remains pending.
+
 F-056/F-063 follow-up, **Review**, owner Codex on `UI_refinement`: center only “Level #”, fading in while scaling toward the camera and then fading out. Level name, objective, reward score, progress bar and white status panel are removed. Weather sits at the top left with delivered/total livestock immediately beside it; the active delivery countdown remains below. Scoring/economy internally and in results, saved progress, minimap and Buddy are preserved. All 318 regressions, 45 focused UI/layout/QA tests, both artifact modes and generated docs pass. Fresh independent `gpt-6.1-sol` medium blind review scored 9.2/10 with 97 focused tests and no material blocker. Source/font geometry supports narrow-screen fit; native phone appearance remains pending. Publication evidence follows; retain Review for user sign-off.
 
 ## F-063 — Centered level-title introduction
