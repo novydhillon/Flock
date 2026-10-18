@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## Minimal HUD and Level-number animation — 18 October 2026
+
+Parallel markup/layout ownership uses `gpt-6.1-sol` medium; root owns controller/tests/docs with platform-selected model/effort not exposed. This replaces the prior level-title/card design with weather/livestock count and a Level-number fade/scale introduction. Meaningful controller checks cover fade-in, expansion, pause freeze/resume, fade-out, restart, Level 100, completion, count reset and retained reward/results scoring. All 318 regression tests and 45 focused UI/layout/QA checks pass. Isolated release/development artifacts pass mode checks (15/no QA and 17/two QA files); generated docs pass. A fresh isolated `gpt-6.1-sol` medium blind critic scored 9.2/10, independently passed 97 focused checks and found no material blocker. Actual Outfit metrics support source fit at 320px/short landscape: 65/65 at 28px occupies 73.78px, and Level 100 at 36px occupies 156.78px before scaling. These are source/font checks, not native pixels, touch/safe-area or phone-FPS evidence. Publication follows; F-056/F-063 remain Review for user sign-off.
+
 ## F-063 level-title overlay — 18 October 2026
 
 Panel-removal follow-up: bounded CSS-only adjustment removes the introduction background, corner treatment and box shadow, retaining spacing, text, fixed font and controller behavior. Root implementation model/effort is platform-selected; no separate substantial-change gauntlet is needed for this decorative adjustment. Prior title-overlay review covers the retained behavior, not this new rendered appearance. Validation/publication evidence follows; F-063 remains Review.

@@ -1,5 +1,9 @@
 # FLOCK — Remaining issues and change tracker
 
+## Minimal gameplay HUD and Level-number animation — 18 October 2026
+
+F-056/F-063 follow-up, **Review**, owner Codex on `UI_refinement`: center only “Level #”, fading in while scaling toward the camera and then fading out. Level name, objective, reward score, progress bar and white status panel are removed. Weather sits at the top left with delivered/total livestock immediately beside it; the active delivery countdown remains below. Scoring/economy internally and in results, saved progress, minimap and Buddy are preserved. All 318 regressions, 45 focused UI/layout/QA tests, both artifact modes and generated docs pass. Fresh independent `gpt-6.1-sol` medium blind review scored 9.2/10 with 97 focused tests and no material blocker. Source/font geometry supports narrow-screen fit; native phone appearance remains pending. Publication evidence follows; retain Review for user sign-off.
+
 ## F-063 — Centered level-title introduction
 
 18 October refinement: remove the white/cream background panel and its shadow. Keep the centered fixed-size wrapping text, spacing and existing fade timing. Bounded CSS-only adjustment on `UI_refinement`; remains Review for appearance sign-off. New publication evidence follows.

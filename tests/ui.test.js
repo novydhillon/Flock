@@ -410,7 +410,8 @@ test('first delivery starts the visible timer and pause, workshop and hidden tab
   assert.equal(ui.app.state().mode,'playing');
   assert.equal(level.delivery.remaining,30);
   assert.equal(ui.el('countdown').textContent,'30s');assert.equal(ui.el('countdown').classList.contains('hidden'),false);
-  assert.equal(ui.el('mission-score').textContent,'16 / 80');
+  assert.equal(ui.el('saved').textContent,1);
+  assert.equal(ui.el('total').textContent,5);
   const savedAnimal=level.animals[0],parked={x:savedAnimal.x,z:savedAnimal.z};
   await ui.click('pause');const paused=level.delivery.remaining;ui.tick();ui.tick();
   assert.equal(level.delivery.remaining,paused);
@@ -484,7 +485,7 @@ test('hidden intro and results freeze presentation weather and wetness time',asy
 test('mission identifies fixed weather without requiring a wait or affecting the delivery HUD',()=>{
  const ui=launch(),renderer=ui.app.state().renderer;renderer.nature={weather:{kind:'heavy-rain',type:'rain'}};ui.tick();assert.equal(ui.el('weather-status').textContent,'☂');assert.equal(ui.el('weather-status').attrs['aria-label'],'Heavy rain');assert.equal(ui.el('weather-status').attrs.title,'Heavy rain');
  renderer.nature.weather={kind:'storm',type:'rain'};ui.tick();assert.equal(ui.el('weather-status').textContent,'ϟ');assert.equal(ui.el('weather-status').attrs['aria-label'],'Thunderstorm');
- assert.ok(ui.el('mission-score'));assert.ok(ui.el('countdown'));
+ assert.ok(ui.el('saved'));assert.ok(ui.el('total'));assert.ok(ui.el('countdown'));
 });
 
 
@@ -543,49 +544,57 @@ test('tips finish their cycle and can be reopened and hidden beside pause', asyn
   assert.equal(ui.el('tip').classList.contains('hidden'),true);
 });
 
-test('compact mission shows a brief objective for four active seconds and resets per meadow',async()=>{
+test('minimal HUD keeps only livestock count and resets it per meadow without changing rewards',async()=>{
   const ui=launch();await ui.click('play');
   assert.ok(ui.document.body.classList.contains('in-game'));
   assert.equal(ui.el('level-number').textContent,'Level 1');
-  assert.equal(ui.el('level-name').textContent,'First day on the farm');
-  assert.equal(ui.el('mission').attrs['aria-label'],'Level 1 · First day on the farm');
+  assert.equal(ui.el('mission').attrs['aria-label'],'Level 1 · Livestock delivery status');
   assert.equal(ui.el('saved').textContent,0);assert.equal(ui.el('total').textContent,5);
-  assert.equal(ui.el('mission-score').textContent,'0 / 80');
-  assert.equal(ui.el('objective').textContent,'Everyone into the pen');
-  ui.advance(2);await ui.click('pause');ui.advance(8);
-  assert.equal(ui.el('objective').classList.contains('hidden'),false,'pause holds the introduction');
-  await ui.click('resume');ui.advance(1.8);
-  assert.equal(ui.el('objective').classList.contains('hidden'),false);
-  ui.advance(.3);assert.ok(ui.el('objective').classList.contains('hidden'));
+  for(const id of ['level-name','mission-score','objective','progress'])assert.equal(ui.el(id),null);
+  ui.completeFlock();
+  assert.equal(ui.el('saved').textContent,5);
+  assert.equal(ui.app.state().profile.bestScores[0],80,'reward scoring remains active internally');
+  assert.match(ui.el('modal-card').innerHTML,/Score 80 \/ 80/,'results retain reward score');
   await ui.app.begin(1);
   const {level}=ui.app.state();
   assert.equal(ui.el('level-number').textContent,'Level 2');
-  assert.equal(ui.el('level-name').textContent,level.title);
-  assert.equal(ui.el('mission').attrs['aria-label'],`Level 2 · ${level.title}`);
-  assert.equal(ui.el('objective').classList.contains('hidden'),false);
+  assert.equal(ui.el('saved').textContent,0);assert.equal(ui.el('total').textContent,level.animals.length);
+  assert.equal(ui.el('mission').attrs['aria-label'],'Level 2 · Livestock delivery status');
 });
 
-test('centered level introduction fades on active time, freezes in menus and replays on restart',async()=>{
+test('Level number fades in while expanding, freezes on pause and fades out before replaying',async()=>{
   const ui=launch();await ui.click('play');
   const title=ui.el('level-introduction');
   assert.equal(title.classList.contains('hidden'),false);
-  assert.equal(title.style.opacity,'1');
-  ui.advance(2.6);
+  assert.equal(title.style.opacity,'0');
+  const initialScale=Number(title.style['--level-scale']);
+  ui.advance(.3);
+  assert.ok(Number(title.style.opacity)>0&&Number(title.style.opacity)<1);
+  const incomingScale=Number(title.style['--level-scale']);
+  assert.ok(incomingScale>initialScale);
+  ui.advance(.4);assert.equal(title.style.opacity,'1');
+  ui.advance(1.5);
   const fading=Number(title.style.opacity);
+  const pausedScale=Number(title.style['--level-scale']);
   assert.ok(fading>0&&fading<1);
+  assert.ok(pausedScale>incomingScale);
   await ui.click('pause');
   assert.ok(title.classList.contains('hidden'));
   ui.advance(10);assert.equal(Number(title.style.opacity),fading);
+  assert.equal(Number(title.style['--level-scale']),pausedScale);
   await ui.click('resume');
   assert.equal(title.classList.contains('hidden'),false);
   assert.equal(Number(title.style.opacity),fading);
-  ui.advance(1.3);assert.ok(title.classList.contains('hidden'));
+  ui.advance(.9);assert.ok(title.classList.contains('hidden'));
+  assert.equal(title.style.opacity,'0');
   await ui.app.begin(1);
-  assert.equal(ui.el('level-name').textContent,'Over the babbling brook');
+  assert.equal(ui.el('level-number').textContent,'Level 2');
   assert.equal(title.classList.contains('hidden'),false);
-  assert.equal(title.style.opacity,'1');
+  assert.equal(title.style.opacity,'0');
+  assert.equal(Number(title.style['--level-scale']),initialScale);
   ui.completeFlock();assert.ok(title.classList.contains('hidden'),'completion hides the overlay immediately');
-  await ui.app.begin(1);assert.equal(title.style.opacity,'1');
+  await ui.app.begin(99);assert.equal(title.style.opacity,'0');
+  assert.equal(ui.el('level-number').textContent,'Level 100');
   assert.equal(title.classList.contains('hidden'),false);
 });
 

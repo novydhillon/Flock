@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Minimal gameplay HUD and Level-number animation — 18 October 2026
+
+This supersedes the earlier F-056 status card and F-063 full-title introduction. Display only “Level #” at the screen center with no panel: fade in over 0.65 active seconds while expanding from 0.72 to 1.2 scale over three active seconds, then fade out from 1.8 to 3 seconds. Menus hide/freeze it; restart/new level replay it; completion hides it. Reduced-motion users retain the fade without scaling. Remove level-name text, objective, reward score, progress bar and white status panel. Top-left HUD contains weather immediately followed by delivered/total livestock x/y, with the existing active delivery timer below. Keep internal reward scoring, results, economy and saved progress. Preserve minimap, tips, controls and Buddy. Follow-up remains Review for user appearance acceptance and publishes to `/Flock/dev/`.
+
 ## F-063 — Centered level-title introduction
 
 18 October clarification: display text directly over the game without a white/cream panel or box shadow; preserve wrapping, fixed font size, margins and fade behavior.

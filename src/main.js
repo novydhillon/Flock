@@ -41,16 +41,18 @@ function updateCountdown(started=false,remaining=0){
 }
 function resetInput(){input.x=input.z=0;pointer=null;keys.clear();$('stick').style.transform='translate(0,0)';}
 function updateLevelIntroduction(){
-  const opacity=Math.max(0,Math.min(1,1-(elapsed-2.5)/1.25));
+  const progress=Math.max(0,Math.min(1,elapsed/3));
+  const opacity=Math.max(0,Math.min(1,elapsed/.65,(3-elapsed)/1.2));
   $('level-introduction').style.opacity=String(opacity);
-  visible('level-introduction',mode==='playing'&&opacity>0);
+  $('level-introduction').style.setProperty('--level-scale',String(.72+.48*(1-(1-progress)**2)));
+  visible('level-introduction',mode==='playing'&&elapsed<3);
 }
 async function begin(index=profile.highestLevel){
   index=Math.max(0,Math.min(99,Math.floor(Number(index)||0)));
   closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';document.body.classList.toggle('in-game',true);updateBark(performance.now());
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box'])visible(id,true);
-  $('level-number').textContent=`Level ${index+1}`;$('level-name').textContent=level.title;updateLevelIntroduction();$('mission').setAttribute('aria-label',`Level ${index+1} · ${level.title}`);visible('objective',true);$('objective').textContent=level.target.type==='pen'?'Everyone into the pen':level.target.type==='barn'?'Bring the flock home':'Over to Clover Field';$('total').textContent=level.animals.length;$('saved').textContent=0;$('progress').style.width='0%';
-  updateCountdown();$('mission-score').textContent=`0 / ${level.reward}`;
+  $('level-number').textContent=`Level ${index+1}`;updateLevelIntroduction();$('mission').setAttribute('aria-label',`Level ${index+1} · Livestock delivery status`);$('total').textContent=level.animals.length;$('saved').textContent=0;
+  updateCountdown();
   tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(tipsFor(index)[0]);
   audio.setMuted(!profile.music);await audio.start();if(mode!=='playing'||!profile.music)audio.pause();updateWallet();
 }
@@ -139,9 +141,8 @@ function frame(now){
     const ix=keys.has('arrowright')||keys.has('d')?1:keys.has('arrowleft')||keys.has('a')?-1:input.x;
     const iz=keys.has('arrowdown')||keys.has('s')?1:keys.has('arrowup')||keys.has('w')?-1:input.z;
     const result=stepSimulation(level,dog,{x:ix,z:iz,bark:now<barkUntil},dt,profile.upgrades);
-    $('saved').textContent=result.saved;$('progress').style.width=`${result.total?result.saved/result.total*100:0}%`;
-    updateCountdown(result.countdownStarted,result.remaining);$('mission-score').textContent=`${result.score} / ${result.possibleScore}`;
-    if(elapsed>=4)visible('objective',false);
+    $('saved').textContent=result.saved;
+    updateCountdown(result.countdownStarted,result.remaining);
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
     updateBark(now);
     if(!tipDismissed){

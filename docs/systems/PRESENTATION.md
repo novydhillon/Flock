@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Current minimal HUD and level introduction — 18 October 2026
+
+This supersedes the full-title presentation below. The transparent top-left `#mission` has one weather/count row and a separate active-only countdown below; reward score/objective/progress/title nodes are removed. Results and reward simulation are unchanged. The center overlay contains only `#level-number`, a 36px “Level #” heading. Active elapsed time drives fade-in (0–0.65s), expansion (0.72–1.2 scale over 3s) and fade-out (1.8–3s). It stays centered, accepts no pointer input, freezes/hides in menus and resets per level/restart. `prefers-reduced-motion` disables the scale transform while retaining centering and fade. No white background/panel is used.
+
 ## Centered level-title introduction — F-063
 
 `#level-introduction` sits at the viewport center with at least 20px safe side margins. The text appears directly over the game with no background panel or box shadow, as clarified on 18 October. Its small level number and 28px Outfit title are centered; long names wrap naturally, including an unbroken word, without changing the title font size. Pointer events pass through and modal dialogs sit above it. The controller uses active elapsed gameplay time: 2.5 seconds fully visible, 1.25 seconds fading, then hidden. Menus hide it and freeze the timer; restart/new level replay it and completion hides it. The top-left panel retains mission stats, weather and delivery countdown, with the full level identity also retained in its accessible name.

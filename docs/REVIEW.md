@@ -1,5 +1,9 @@
 # Documentation review record
 
+## Minimal HUD and Level-number animation — 18 October 2026
+
+Fresh isolated `gpt-6.1-sol` medium critic received task/candidate/acceptance criteria without writer reasoning or earlier scores. Result: 9.2/10, no material defect, 97 focused UI/layout/progression/Buddy/delivery/QA checks passed. It checked active-time fade/scale and pause/restart lifecycle, retained rewards and transparent weather/count HUD. Actual Outfit font metrics and CSS geometry support narrow/short-landscape fit. No browser pixels, physical phone/touch/safe-area or FPS validation is claimed.
+
 ## F-063 level-title overlay review — 18 October 2026
 
 Fresh isolated `gpt-6.1-sol` medium source critic received the task, candidate and acceptance criteria without writer reasoning or previous review scores. Result: 9/10, no material source blocker; 36 UI tests and production build independently pass. Reviewed centered fixed-size wrapping, active-time hold/fade, pause/restart/completion lifecycle, input pass-through and retained combined UI/Buddy paths. No native/browser rendering, phone/touch or screen-reader verification. Exact timing-boundary, CSS geometry and QA-overlay transition assertions were identified as nonblocking coverage limits, supported by source inspection.
