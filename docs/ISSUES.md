@@ -1,5 +1,9 @@
 # FLOCK — Remaining issues and change tracker
 
+## Combined development publication verified — 18 October 2026
+
+UI refinements and accepted Buddy updates are together at [Flock dev](https://novydhillon.github.io/Flock/dev/). Runtime source `1ad8645` passed CI `39160805430`; Pages `079ed98` passed native deployment `39160919364`. All 17 live files match the checked final development build by SHA-256; all 49 files outside dev, including production/dev2/legacy content, retain their blobs. F-062 and UI F-055–F-060 remain Review for user acceptance; Buddy F-048/F-061 remain Done. This supersedes pending-build/publication wording in the integration preparation records below. [Combined publication manifest](validation/UI-Buddy-combined-publication.json).
+
 ## Buddy user sign-off — 18 October 2026, 12:45 America/Creston
 
 Novy confirmed “Looks great. Merge to main” for Buddy at `/Flock/dev/`, runtime source `6b5e650`, Pages `2e1ec4c`. **F-048 and F-061 are Done** by user acceptance. This does not authorize production publication; prior live builds remain unchanged. Historical review findings and device/performance evidence limits remain in force.

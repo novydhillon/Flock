@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## Combined development publication verified — 18 October 2026
+
+Combined runtime source `1ad864563f7d714006e3d150f1e518ddd7c51212` passed [source CI](https://github.com/novydhillon/Flock/actions/runs/39160805430); Pages `079ed982ff2ad000a2a3c12337206b483de0943f` passed [native deployment](https://github.com/novydhillon/Flock/actions/runs/39160919364). All 17 files at `/Flock/dev/`, including canonical HTML, match the checked final development build by SHA-256. All 49 unrelated Pages blobs, including production, dev2 and legacy content, are unchanged. The final development distribution was rebuilt separately and mode-checked before staging. [Combined publication evidence](validation/UI-Buddy-combined-publication.json). This supersedes pending-build/publication wording below. UI and combined integration remain Review; prior Buddy acceptance is preserved. No new rendered phone, touch, audio or FPS validation is claimed.
+
 ## Buddy user acceptance — 18 October 2026
 
 At 12:45 America/Creston, Novy said “Looks great. Merge to main.” F-048 and F-061 are Done for the verified `/Flock/dev/` candidate, runtime source `6b5e6504535037f5db2ec3ee57c6ccdcac41e81a`, Pages `2e1ec4c052ece61c3ffb0eaf11c956901753ca84`. This supersedes pending-acceptance descriptions below without altering historical review scores, the disclosed review-integrity caveat, or device/performance limits. No production deployment is authorized by this sign-off.
