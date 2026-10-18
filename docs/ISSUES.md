@@ -1,5 +1,15 @@
 # FLOCK — Remaining issues and change tracker
 
+## Buddy user sign-off — 18 October 2026, 12:45 America/Creston
+
+Novy confirmed “Looks great. Merge to main” for Buddy at `/Flock/dev/`, runtime source `6b5e650`, Pages `2e1ec4c`. **F-048 and F-061 are Done** by user acceptance. This does not authorize production publication; prior live builds remain unchanged. Historical review findings and device/performance evidence limits remain in force.
+
+Buddy's prior publication manifest is retained at [F-048/F-056 publication evidence](validation/F-048-F-056-buddy-publication.json). Its historical F-056 label refers to Buddy; that ID is mapped to current Buddy issue F-061. The manifest is unchanged and its pre-acceptance Review fields are superseded by this sign-off.
+
+## Combined integration — 18 October 2026
+
+The Buddy candidate and `UI_refinement` are combined on `UI_refinement`. **F-062 is Review**; source integration and validation are complete, with development-only deployment at `/Flock/dev/` pending. Post-fix validation passed: 316/316 full regression; release artifact 15 files with no QA and development artifact 17 files with two QA assets. The final dev artifact is being rebuilt for publication. The initial independent runtime review found Buddy movement state could remain stale after entering standby (8.5/10); the no-main reset and a transition regression were added. Same-critic follow-up scored 9.2/10 with no material blocker and 44/44 relevant checks; Buddy tests pass 26/26. Preserve F-048/F-061 Buddy acceptance and the UI batch’s F-055–F-060 Review statuses; no new UI sign-off is implied. Production remains unchanged. Owner: Codex. Integration documentation model: `gpt-6-luna`, medium effort. Publication evidence remains pending.
+
 F-053 30% dimmer glow publication: source `78ed293`, Pages `1262178`; source CI/native deployment succeeded, 288 tests passed, all 17 live files verified and 30 unrelated files preserved. Blind review was waived and not run. Glow appearance remains Review; newer F-054 tree acceptance is unchanged. See QUALITY.md for publication evidence.
 
 F-053 brightness tuning, 17 October: reduce the current glow brightness by 30%, from 0.85 to 0.595. Diffuse radius/falloff, color, Pip size and ground opacity are unchanged. Blind review explicitly waived. Visual acceptance remains Review; validation/publication evidence is in QUALITY.md.
@@ -46,7 +56,7 @@ Accepted F-028 development release: F-028 is deployed at Pages `639a9b45608fa0ad
 3. Confirm design decisions listed under each issue before coding dependent behavior. Explicit user requirements take precedence over proposed defaults. Preserve portrait, single-thumb play and the cheerful art direction.
 4. Record reproduction level/seed, expected versus observed behavior, implementation commit, meaningful checks, reviewer findings and remaining limits. Use statuses: **Open → In progress → Review → Done**, or **Blocked** with the reason; **Deferred** records work explicitly postponed by the user.
 5. Run relevant regression checks and the production build. Use fresh blind reviewers for a substantial gameplay/rendering batch; give them requirements and the candidate, without earlier scores or implementation rationale. Fix confirmed defects and recheck. Do not claim visual or phone validation from headless tests.
-6. A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Resolve F-025 before the next game release: publish to `dev2/` on the latest `gh-pages` tree, giving the public URL `/Flock/dev2/`. The old `flock/dev2/` destination is superseded. Preserve unrelated content and handle the old URL explicitly as part of migration. Changes to this tracker alone do not require a game deployment.
+6. A completed source change and a live release are separate milestones. Record deployment commit and verification separately. Follow AGENTS.md: every non-main branch publishes only to `/Flock/dev/`; main alone uses the production root with user authorization. Preserve existing dev2, legacy paths and unrelated Pages content. F-025's older dev2 migration is historical evidence, not the destination for new work. Changes to this tracker alone do not require a game deployment.
 
 7. When an issue is closed (Done or Closed), apply Markdown strikethrough (`~~text~~`) to every cell in its Work overview row and to its detailed heading title after the issue ID. Keep the ID, acceptance criteria and evidence for traceability. Use the current overview status, not historical status notes. Remove strikethrough if reopened; Open, In progress, Review, Blocked and Deferred items are not closed.
 
@@ -103,7 +113,9 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | ~~F-046~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark~~ | ~~Done~~ | ~~-~~ |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
-| F-048 | P2 | Gameplay/companions | Fix Buddy stuttering movement at low speed | Open | F-046 |
+| ~~F-048~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Fix Buddy stuttering movement at low speed~~ | ~~Done~~ | ~~F-046; buddy_update; user accepted 18 Oct 2026~~ |
+| ~~F-061~~ | ~~P2~~ | ~~Presentation/companions~~ | ~~Reference puppy Buddy with Pip-like hovering movement~~ | ~~Done~~ | ~~F-048; buddy_update; user accepted 18 Oct 2026~~ |
+| F-062 | P2 | Integration | Combine Buddy and UI_refinement candidates; validate and deploy development only | In progress | F-048, F-055–F-061 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
@@ -701,9 +713,25 @@ Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gra
 Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages `e175cc0`. Source CI and native Pages succeeded; all 17 live files and canonical entry HTML match the checked build, and all 18 unrelated Pages files are preserved. The 263-test suite, release/development checks and generated documentation checks pass. F-046 stays **Review**. Test tree navigation/turning at QA 20, tier-2 passage help at QA 24, and retrieval at QA 28. See [verified publication](QUALITY.md#verified-buddy-navigation-follow-up-publication).
 
 
-### F-048 - Buddy stutters when moving slowly (P2)
+### ~~F-061~~ - ~~Reference puppy Buddy and floating pose (P2)~~
 
-**Status:** Open, queued only; unassigned.
+**Status:** Done by user acceptance on 18 October 2026, 12:45 America/Creston. Initial blind source/geometry review 8.5/10; independent integration follow-up 9.1/10 and documentation follow-up 9/10, with review-integrity caveat recorded in REVIEW.md. Development publication was verified before sign-off; source review and device/FPS evidence limits remain as recorded.
+
+**Accept when:** Buddy reads as the silver rounded robot puppy in picture 1, with expressive eyes, short black muzzle, folded ears, panelled torso, four hover pods and blue tail. Buddy remains smaller than Pip but slightly enlarged from picture 2's relative scale for screen legibility. It floats and looks/banks/leans like Pip; pod rings and ground/deck illumination follow the animated nozzles, pause and reset correctly. Gameplay tier rules, body clearance, save data and Pip's appearance stay intact. Development review and user visual sign-off are separate.
+
+**Scope:** Buddy only plus F-048 movement repair. No second Buddy, Pip redesign, unrelated UI or production-root publication. This former Buddy F-056 identifier is now F-061; the UI batch retains F-056.
+
+### F-062 — Combined Buddy and UI integration (P2)
+
+**Status:** Review on `UI_refinement`; source integration, independent review follow-up and validation are complete. Buddy source `6b5e650` and its verified development publication/user acceptance are preserved; UI items F-055–F-060 remain Review. The integrated candidate passed 316/316 full regression. Release artifact: 15 files, no QA assets; development artifact: 17 files, two QA assets. The final dev artifact is being rebuilt for the authorized `/Flock/dev/` deployment, which remains pending.
+
+**Accept when:** integrated source regressions, release/development artifact checks and generated documentation checks pass; an independent integrated review has no material blocker; the intended development build is published and verified without changing production; tracker records evidence and retains UI Review status pending user sign-off.
+
+**Execution:** Integration docs recorded with `gpt-6-luna`, medium effort. Initial review found standby movement-state cleanup incomplete; the fix and transition regression are in. Post-fix full regression passes 316/316; release/development artifact-mode checks pass (15 files with zero QA / 17 files with two QA assets). The same critic's 9.2/10 follow-up found no material blocker and passed 44/44 relevant checks; Buddy tests pass 26/26. The final dev build and publication verification remain pending; source Review is not user sign-off.
+
+### ~~F-048~~ - ~~Buddy stutters when moving slowly (P2)~~
+
+**Status:** Done by user acceptance on 18 October 2026, 12:45 America/Creston, for `/Flock/dev/` source `6b5e650` / Pages `2e1ec4c`.
 
 **Reported behavior:** Buddy dog has stuttering movement when moving slowly. Investigate and fix the low-speed movement so Buddy moves smoothly.
 
@@ -711,7 +739,9 @@ Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages
 - Buddy moves smoothly at low speed without repeated stop-start jitter.
 - Slow movement, stopping, and resuming remain smooth while preserving intended herding behavior and collision handling.
 
-**Scope:** bug report only; no fix or user acceptance is claimed by this tracker update.
+**Scope:** fix slow-speed stop/start and check turning, obstacle navigation, pause/reset and tiered herding regressions. F-046's previously accepted behavior remains accepted; F-047 second Buddy is out of scope. User acceptance is recorded above.
+
+**Execution:** The old fixed-speed pursuit/dead-zone controller reproducibly waited through 17 frames while following a .25m/s waypoint, then caught up in bursts. Proportional arrival speed plus bounded acceleration removes that repeated stop/start, retaining existing turn limits and body-constrained movement. Tests cover slow pursuit, fixed/fine/variable timestep consistency, zero-time no-op, fresh-level state and the existing tree/reversal/bridge/split/tier-3 retrieval scenarios. No other outstanding Buddy movement ticket was found; F-047 is a separate queued feature. All 306 integrated source tests pass. See the F-048/F-061 validation record in QUALITY.md for review/build/evidence limits.
 
 ### Forward flock movement, lower cohesion, tier-2 bark and bridge completion
 

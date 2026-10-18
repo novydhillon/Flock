@@ -1,5 +1,15 @@
 # Documentation review record
 
+## Combined Buddy/UI integration runtime review — 18 October 2026
+
+The initial independent `gpt-6.1-sol` medium runtime review of the combined candidate scored 8.5/10 and found Buddy movement state (`moveSpeed`, `vx`, `vz`) could remain stale after entering standby. The integration added a no-main standby reset and a transition regression. The same critic's follow-up scored **9.2/10**, found no material blocker and passed **44/44** relevant checks; **26/26** Buddy tests pass after the fix. The full post-fix regression and artifact-mode checks are still being confirmed. This finding concerns the combined integration correction; it does not revoke Novy’s earlier F-048/F-061 Buddy acceptance. UI F-055–F-060 remain Review pending sign-off.
+
+## Buddy puppy and movement blind review - 17 October 2026
+
+Candidate `c3c325a` received fresh isolated `gpt-6-luna` medium source/geometry and documentation critics without implementation discussion or prior scores. Source critic: **8.5/10**, no confirmed defect, 52/52 focused tests independently passed. Documentation critic: **8/10**, generated docs/four DOM tests pass; found requirements still calling F-048 queued while tracker correctly claimed implementation. The stale status is corrected, as are old current-system descriptions of a walking Buddy. Source review is not rendered likeness, phone legibility or mobile-FPS evidence; F-048/F-061 are Done by the later user acceptance in ISSUES.md; these limits remain.
+
+18 October follow-up: current policy requires 9/10 and `/Flock/dev/`. The original source critic held 8.5/10 with native evidence limits; documentation found old operational policy conflicts, now corrected. Independent `gpt-6.1-sol` medium integration review of `19ec61a` scored source implementation/coverage 9.1/10 with no material defect and 52 passing tests. A prior score was accidentally exposed in the adjacent tracker status; this is disclosed independent follow-up, not claimed as another fully blind first pass. Added the suggested moving/stopped/moving low-speed test beside an obstacle. Documentation follow-up: 9/10, no material blocker, docs plus four DOM tests pass. Native/device acceptance remains pending and is not inferred from the source scores.
+
 Scope: requirements, system context and the generated HTML documentation. These scores rate documentation, **not the game**. Updated 14 October 2026.
 
 ## Blind review method

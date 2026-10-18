@@ -339,6 +339,97 @@ export function createPip() {
   return dog;
 }
 
+// Buddy is Pip's smaller companion: a friendly, panel-built robot puppy with
+// expressive eyes, intentionally mismatched ears, four blue hover pods and a
+// spring tail. Keep the neutral rig/pod baseline aligned with Pip so the same
+// pose and ground-lighting systems can animate either character independently.
+export function createBuddy() {
+  const m = createMaterials(), shell = new THREE.Group(), headShell = new THREE.Group();
+  const podTipMaterials = [];
+  const steel = new THREE.MeshStandardMaterial({color:'#d4dfe0',metalness:.28,roughness:.68});
+  const cream = new THREE.MeshStandardMaterial({color:'#eee5d5',metalness:.12,roughness:.82});
+  const panel = new THREE.MeshStandardMaterial({color:'#b8b1a7',metalness:.24,roughness:.72});
+  const eyeRim = new THREE.MeshStandardMaterial({color:'#4a4a43',metalness:.08,roughness:.6});
+
+  // Compact, softly rounded torso with a few larger plate details that remain
+  // legible at the intended 0.82 scale on a phone screen.
+  sculptedSphere(shell,steel,[0,.83,-.08],[.30,.27,.42],.012,12);
+  box(shell,cream,[0,.78,.27],[.39,.27,.28]);
+  box(shell,panel,[0,.61,.31],[.30,.045,.19]);
+  for(const side of [-1,1]) {
+    const shoulder=sphere(shell,panel,[side*.275,.84,-.02],[.055,.16,.19]);
+    shoulder.rotation.z=side*-.12;
+    for(const z of [-.31,.25]) sphere(shell,eyeRim,[side*.25,.81,z],[.025,.025,.025],8);
+  }
+  cylinder(shell,m.dark,[0,1.00,.31],.15,.15,[Math.PI/2,0,0]);
+
+  // Round puppy head, dark eye sockets and broad pupils produce a readable,
+  // welcoming face; the short cream muzzle and black nose follow the reference.
+  sculptedSphere(headShell,steel,[0,1.31,.43],[.30,.31,.28],.01,14);
+  for(const side of [-1,1]) {
+    cylinder(headShell,eyeRim,[side*.135,1.36,.676],.117,.032,[Math.PI/2,0,0]);
+    sphere(headShell,m.white,[side*.135,1.36,.704],[.088,.098,.043],12);
+    sphere(headShell,m.black,[side*.135,1.35,.744],[.047,.058,.024],10);
+    sphere(headShell,m.white,[side*.115,1.381,.764],[.018,.019,.012],8);
+  }
+  sculptedSphere(headShell,cream,[0,1.145,.68],[.235,.135,.18],.006,12);
+  sphere(headShell,m.black,[0,1.188,.835],[.078,.067,.055],10);
+  // One upright pointed ear and one lower, folded triangular ear break the
+  // silhouette's symmetry, as in the supplied Buddy reference.
+  const upright=mesh(headShell,'ConeGeometry',[1,1,3],steel,[-.255,1.68,.40],[.14,.25,.065]);
+  upright.rotation.z=-.16;
+  const folded=mesh(headShell,'ConeGeometry',[1,1,3],panel,[.27,1.57,.40],[.21,.14,.07]);
+  folded.rotation.set(0,0,Math.PI/2+.22);
+  box(headShell,m.dark,[.28,1.53,.459],[.13,.075,.018]);
+
+  const pods=[];
+  for(const x of [-.29,.29]) for(const z of [-.30,.25]) {
+    sculptedSphere(shell,steel,[x,.59,z],[.14,.24,.16],.006,10);
+    cylinder(shell,panel,[x,.72,z],.084,.055,[0,0,Math.PI/2]);
+    cylinder(shell,m.dark,[x,.37,z],.105,.075);
+    const tip=new THREE.MeshStandardMaterial({color:'#7cecff',emissive:'#27c8ff',emissiveIntensity:1.1,roughness:.35});
+    podTipMaterials.push(tip);
+    const podTip=sphere(shell,tip,[x,.325,z],[.112,.052,.112],10);
+    podTip.userData.ownedMaterial=true;
+    pods.push(new THREE.Vector3(x,.3,z));
+  }
+
+  const dog=new THREE.Group(),rig=new THREE.Group();
+  dog.name='Buddy the hovering robot puppy';rig.name='Buddy floating body rig';dog.add(rig);
+  const body=bakeModel(shell),head=bakeModel(headShell);
+  body.position.y=-.83;
+  head.position.set(0,1.03-.83,.38);
+  for(const child of head.children) child.geometry.translate(0,-1.03,-.38);
+  rig.position.y=.83;rig.add(body,head);
+  rig.traverse(object=>{
+    if(!object.isMesh)return;
+    object.userData.ownedGeometry=true;
+    if([steel,cream,panel,eyeRim,...podTipMaterials].includes(object.material))object.userData.ownedMaterial=true;
+  });
+  const tail=new THREE.Group();tail.name='Buddy spring tail';tail.position.set(0,.89-.83,-.47);rig.add(tail);
+  for(let i=0;i<6;i++) {
+    const coil=cylinder(tail,i%2?m.dark:panel,[0,.035+i*.047,-i*.032],.034,.052,[-.62,0,0]);
+    coil.name=`Buddy tail spring segment ${i+1}`;
+  }
+  const lightMaterial=new THREE.MeshStandardMaterial({color:'#9ceeff',emissive:'#39bfe8',emissiveIntensity:1.45,roughness:.28});
+  const tailLight=sphere(tail,lightMaterial,[0,.32,-.205],[.071,.071,.071]);
+  tailLight.name='Buddy blue tail light';tailLight.userData.ownedMaterial=true;
+
+  const rings=pods.map((pod)=>Array.from({length:3},(_,index)=>{
+    const material=new THREE.MeshBasicMaterial({color:'#55dfff',transparent:true,opacity:1,depthWrite:false,toneMapped:false});
+    const ring=new THREE.Mesh(geometry('TorusGeometry',[.125,.013,6,24]),material);
+    ring.name=`Buddy hover ring ${index+1}`;ring.rotation.x=Math.PI/2;ring.userData.ownedMaterial=true;dog.add(ring);return ring;
+  }));
+  dog.userData.parts={body,rig,head,legs:[],tail,tailLight,basePods:pods.map(p=>p.clone().add(new THREE.Vector3(0,-.83,0))),pods,rings};
+  dog.userData.motion=createPipMotionState();
+  updatePipPose(dog,{x:0,z:0,heading:0,vx:0,vz:0},0);
+  dog.userData.motion.previous=null;
+  dog.userData.hover={time:0,previous:null,trails:[]};
+  dog.userData.suggestedScale=.82;
+  dog.userData.modelContract='pip-pose-hover-v1';
+  return dog;
+}
+
 export function updatePipPose(dog,sample,dt) {
   const state=updatePipMotion(dog.userData.motion,sample,dt),parts=dog.userData.parts;
   parts.rig.position.y=.83+state.hover;

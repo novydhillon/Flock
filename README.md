@@ -1,6 +1,6 @@
 # Flock: Little Robot, Big Pastures
 
-+## Deployment destinations — standing instruction
+## Deployment destinations — standing instruction
 
 Effective 18 October 2026: deploy every non-`main` branch to **https://novydhillon.github.io/Flock/dev/**. `main` continues to use **https://novydhillon.github.io/Flock/**. Do not use `dev2/` for new branch deployments. Older URLs below are historical; this instruction does not move existing builds. See [AGENTS.md](AGENTS.md) and [development instructions](docs/DEVELOPMENT.md#deployment-policy--effective-18-october-2026).
 
@@ -23,7 +23,11 @@ Play the standalone development build at [novydhillon.github.io/Flock/dev2/](htt
 
 F-055–F-060 are implemented and independently reviewed on `UI_refinement`, based on production main `8cc4275`. This batch simplifies gameplay chrome, status/countdown, guidance and thumb controls; it does not change flock/economy progression. The dev2 review build is published and hash-verified at source `d47ae6c` / Pages `ce24bf3`; user sign-off is pending and production UI is unchanged. Read [AGENTS.md](AGENTS.md) for the standing project development rules and [the tracker](docs/ISSUES.md) for current progress. Dated release paragraphs below are historical checkpoints.
 
-Latest UI review update, 18 October: larger high-contrast minimap and tighter level panel (F-056/F-057), source `e2f55d2` / Pages `dbdf3c1`, are verified live on dev2. Both items remain Review for user sign-off; production is unchanged. [Publication evidence](docs/validation/UI-minimap-followup-publication.json).
+Latest UI review update, 18 October: larger high-contrast minimap and tighter level panel (F-056/F-057), source `e2f55d2` / Pages `dbdf3c1`, were historically verified live on dev2. Both items remain Review for user sign-off; production is unchanged. [Publication evidence](docs/validation/UI-minimap-followup-publication.json).
+
+## Buddy update integrated for development review
+
+Buddy movement/model work from `buddy_update` is now combined with the `UI_refinement` candidate. Buddy’s former F-056 identifier is reassigned to **F-061** to avoid the UI batch’s existing F-056; earlier Buddy history is retained under the new ID. F-048/F-061 are Done by Novy’s 18 October sign-off on Buddy’s `/Flock/dev/` candidate. Combined integration validation and development-only publication are in progress; UI F-055–F-060 remain Review for user sign-off. Production is unchanged. See [the tracker](docs/ISSUES.md#combined-integration--18-october-2026).
 
 ## Engine choice
 

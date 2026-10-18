@@ -97,6 +97,7 @@ export function updateBuddy(level, active, effects, dt, events) {
   const main = groups[0];
   if (!main) {
     buddy.mode = 'standby'; buddy.clusterIds = []; buddy.targetId = null; buddy.barking = false;
+    buddy.moveSpeed = 0; buddy.vx = 0; buddy.vz = 0;
     delete state.retrieveId; return { forces: new Map(), memberIds: new Set() };
   }
   state.travelIds = main.map(a => a.id);

@@ -238,7 +238,7 @@ F-052: `src/qa.js` owns the gear launcher and accessible QA/test-session identit
 
 ## Pip hover presentation (F-053)
 
-Player Pip uses a reference-inspired angular metallic shell, plate ears, expressive eyes and four fixed hover pods. Buddy keeps its walking model. Blue rings provide the thruster effect without flame meshes. Rendering owns the motion trail and does not change simulation position, collision or herding. Pause must freeze the effect; level recreation clears trail history.
+Player Pip uses a reference-inspired angular metallic shell, plate ears, expressive eyes and four fixed hover pods. Buddy now uses a separate rounded silver puppy shell with a proportionally larger face, short muzzle and mismatched folded ears. Its .82 relative renderer scale is a legibility choice, not a collider change. Both use independent floating/body/head pose histories and blue ring pools without flame meshes. Each has four receiving-surface blue glows at terrain/bridge height. Rendering owns the motion trail and does not change simulation position, collision or herding. Pause freezes both poses and trails; level recreation clears their histories and owned materials.
 
 
 ## Tree appearance request (F-054)
