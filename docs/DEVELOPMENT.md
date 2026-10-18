@@ -6,6 +6,12 @@
 
 Read [AGENTS.md](../AGENTS.md) before work. It is the current repository-wide policy for model/effort selection, parallel ownership, independent blind review gauntlets, tracking, validation, publication and explicit user sign-off. The default gauntlet threshold is 9/10 with no material blockers; dated thresholds below describe historical batches. Runtime changes use feature branches and reach dev2 review before any authorized production merge.
 
+## Deployment policy — effective 18 October 2026
+
+All branches other than `main` publish to **https://novydhillon.github.io/Flock/dev/** (`dev/` on `gh-pages`). Only `main` publishes to the production root **https://novydhillon.github.io/Flock/**. New non-main publications must not target `dev2/` or the separate legacy `flock/dev/` game. This instruction supersedes older deployment directions and dated release records; existing published builds are not moved by this documentation change.
+
+Read [AGENTS.md](../AGENTS.md) for the standing project rules, including when starting work on older branches. The current staging helper is still hardcoded to `dev2/`: update it to `dev/` before future use or explicitly stage only the intended `dev/` output. Preserve production, existing dev2, legacy paths and unrelated Pages content. Source/build checks and native Pages/live-hash verification remain required for actual publications.
+
 ## Local setup
 
 Use Node.js 22 or newer and the locked dependencies. Run commands from the repository root.
