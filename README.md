@@ -1,5 +1,9 @@
 # Flock: Little Robot, Big Pastures
 
++## Deployment destinations — standing instruction
+
+Effective 18 October 2026: deploy every non-`main` branch to **https://novydhillon.github.io/Flock/dev/**. `main` continues to use **https://novydhillon.github.io/Flock/**. Do not use `dev2/` for new branch deployments. Older URLs below are historical; this instruction does not move existing builds. See [AGENTS.md](AGENTS.md) and [development instructions](docs/DEVELOPMENT.md#deployment-policy--effective-18-october-2026).
+
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
 Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
