@@ -2,6 +2,8 @@
 
 ## F-057 top-center minimap — 18 October 2026
 
+Verified publication: source `3999228197d2d1baece786e5c05f41b8cf4748ef`, source CI `39177156337`; Pages `771c93fe7ca709ec121703e0d0633e29ba604208`, native deployment `39177264534`. All 17 live dev files match the isolated checked artifact by SHA-256. All 49 unrelated Pages blobs remain unchanged. [Publication manifest](validation/F-057-top-center-map-publication.json). User appearance acceptance remains pending.
+
 Validation: 318/318 regression tests, generated docs and both isolated build-mode checks pass (release15/no QA; development17/two QA). No controller/rendering logic changed. Publication evidence follows separately; no native appearance acceptance is implied.
 
 Bounded CSS placement change by the root session (platform-selected model/effort not exposed); no new substantial-change gauntlet is required. Horizontal centering applies to all breakpoints. The below-384px second lane preserves current map size and clears the 65.4px maximum status height with 10.6px spacing. At 384px with standard 12px portrait side clearance, the map begins at126px while maximum weather/count ends near118px; pause/help begins at280px and the map ends258px. These are CSS/font source coordinates, not native browser/device evidence. Validation/publication results follow; visual sign-off remains Review.

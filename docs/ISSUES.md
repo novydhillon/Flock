@@ -2,6 +2,8 @@
 
 ## F-057 top-center minimap — 18 October 2026
 
+Published and verified: source `3999228`, CI `39177156337`, Pages `771c93f`, native deployment `39177264534`. All 17 live dev files match the checked artifact; all 49 blobs outside dev are preserved. [Publication evidence](validation/F-057-top-center-map-publication.json). Visual sign-off remains Review.
+
 **Review**, owner Codex on `UI_refinement`: minimap is centered horizontally at the safe top edge, preserving its current size and contrast. At widths below 384px, it sits below the weather/livestock/countdown row to avoid overlap with that row or pause/help. Combined UI/Buddy runtime is preserved. All 318 regression tests, both isolated artifact modes (15 release/no QA, 17 development/two QA) and generated docs pass. Bounded CSS placement edit; no new substantial-change review. Publication evidence follows; retain Review for visual sign-off.
 
 ## Minimal gameplay HUD and Level-number animation — 18 October 2026
