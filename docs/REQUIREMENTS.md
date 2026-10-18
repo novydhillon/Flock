@@ -1,5 +1,15 @@
 # Flock product requirements
 
+## Buddy acceptance - 18 October 2026
+
+F-048 and F-056 are **Done** by Novy's “Looks great. Merge to main” sign-off at 12:45 America/Creston for `/Flock/dev/` source `6b5e650` / Pages `2e1ec4c`. The accepted scope is Buddy's reference puppy appearance, size, floating pose and smooth movement. Earlier pending/Review text below is historical for these items. Merge to main is authorized; production publication is not requested. Other queued requirements remain unchanged. User acceptance does not add independent native-shader or phone-FPS measurements.
+
+## F-056 - Buddy reference and movement refinement - 17 October 2026
+
+On a new `buddy_update` branch from main, replace Buddy's orange walking model with a silver/cream robotic puppy matching IMG_8400 (picture 1): rounded head, large expressive eyes, short black-nosed muzzle, folded mechanical ears, small panelled body, four hover pods and a spring-like blue tail light. IMG_8401 (picture 2) establishes Buddy as smaller than Pip; enlarge the relative size slightly for normal-zoom legibility. Exact rendered proportions remain an implementation choice for visual review. Use Pip-like sinusoidal floating, head looking into turns, bounded inward bank and acceleration/braking pitch, without changing simulation colliders or tier unlocks/costs. Blue pod illumination belongs on terrain/bridge surfaces, not floating planes.
+
+Fix F-048 low-speed stutter and inspect outstanding Buddy movement issues. Preserve previously accepted tier-1 rear herding, tier-2 smaller-flock/passages/barking, tier-3 retrieval, independent split flocks, body-clear obstacle navigation, smooth heading reversal and player-attended scoring. Bolters may escape ahead while Buddy catches up. F-047 second Buddy remains queued. Source regression, blind review, documentation and development publication precede user visual/gameplay sign-off; do not deploy main/root for this request. Effective 18 October, this non-main branch publishes to `/Flock/dev/`, preserving existing dev2 and legacy paths.
+
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
 F-035/F-037/F-039/F-041/F-046/F-051/F-052 are **Done** by Novy's explicit sign-off on all items in Review. This accepts the flock/Buddy and bridge follow-ups, compact HUD/tip/bark/goal-pointer refinements and development QA gear. Older pending/Review descriptions are historical and superseded by this record. Open and Deferred requirements are unchanged; no runtime change or new independent device measurement is implied. See the [current tracker](ISSUES.md#user-sign-off---16-october-2026-0014-vancouver).
@@ -275,9 +285,9 @@ Leading animals should keep moving with their flock instead of returning to its 
 
 Animals that start walking on a bridge should proceed to its opposite bank; this applies to sheep and cows at every meadow level and requires no Buddy purchase. Keep body-clear travel and pause/reset semantics. Buddy's own autonomous bark moves from tier 3 to **tier 2**, with unchanged price/unlock progression, effects and cooldown. Individual stray retrieval remains tier 3. These changes remain Review for user gameplay acceptance.
 
-## Queued Buddy low-speed movement fix - F-048 (P2)
+## Buddy low-speed movement fix - F-048 (P2)
 
-Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Open, queued only. See [F-048 in the tracker](ISSUES.md#f-048---buddy-stutters-when-moving-slowly-p2).
+Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Implemented on `buddy_update` with regression coverage; source review and development publication are recorded separately, and user gameplay acceptance remains pending. See [F-048 in the tracker](ISSUES.md#f-048---buddy-stutters-when-moving-slowly-p2).
 
 
 ## Queued QA menu focus fix - F-049 (P4)

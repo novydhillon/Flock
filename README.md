@@ -1,6 +1,6 @@
 # Flock: Little Robot, Big Pastures
 
-+## Deployment destinations — standing instruction
+## Deployment destinations — standing instruction
 
 Effective 18 October 2026: deploy every non-`main` branch to **https://novydhillon.github.io/Flock/dev/**. `main` continues to use **https://novydhillon.github.io/Flock/**. Do not use `dev2/` for new branch deployments. Older URLs below are historical; this instruction does not move existing builds. See [AGENTS.md](AGENTS.md) and [development instructions](docs/DEVELOPMENT.md#deployment-policy--effective-18-october-2026).
 

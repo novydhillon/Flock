@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { stepSimulation, canOccupy } from '../src/simulation.js';
 import { prepareWanderCohort } from '../src/wandering.js';
 import { createLevel, targetFootprint, targetWorldPoint } from '../src/world.js';
+import { moveBuddy } from '../src/buddy-navigation.js';
 
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep', saved: false, nextWanderCheck: 1e9 });
 const center = group => group.reduce((p,a) => ({x:p.x+a.x/group.length,z:p.z+a.z/group.length}),{x:0,z:0});
@@ -208,6 +209,73 @@ test('Buddy movement and facing turn gradually even with contradictory flock dir
   previous=h.heading;drive=angle;
  }
  const paused=structuredClone(level);stepSimulation(level,level.dog,{},0,{helper:2});assert.deepEqual(level,paused);
+});
+
+test('Buddy smoothly follows a slowly moving rear waypoint without stop-start stutter',()=>{
+ const level={time:0,bounds:{minX:-10,maxX:10,minZ:-10,maxZ:10},fenceSegments:[],gates:[],rivers:[],obstacles:[]};
+ const h={x:0,z:0,heading:0},speeds=[];
+ for(let i=0;i<120;i++){
+  level.time+=.05;
+  // A rear position following a slowly walking flock (0.25 m/s).
+  moveBuddy(level,h,{x:0,z:.25*level.time},.05,7);
+  if(level.time>=2)speeds.push(Math.hypot(h.vx,h.vz));
+ }
+ assert.ok(Math.min(...speeds)>.18,'does not repeatedly pause while its target keeps walking');
+ assert.ok(Math.max(...speeds)<.35,'settles near the target speed instead of lunging ahead');
+ assert.ok(Math.abs((.25*level.time-h.z)-.05)<.025,'keeps a small, steady following gap');
+});
+
+test('Buddy smoothly stops beside an obstacle and resumes slow pursuit without bursts',()=>{
+ const level=meadow([],{helpers:[{type:'helper',x:0,z:0,heading:0}],obstacles:[{x:1.35,z:1,radius:.6}]});
+ const h=buddy(level),dt=.05;
+ let target=0,previousSpeed=0;
+ const advance=(moving,frames)=>{
+  for(let i=0;i<frames;i++){
+   if(moving)target+=.25*dt;
+   level.time+=dt;moveBuddy(level,h,{x:0,z:target},dt,7);
+   const speed=Math.hypot(h.vx,h.vz);
+   assert.ok(canOccupy(level,h.x,h.z,.6),'physical clearance beside trunk is retained');
+   assert.ok(speed<=.251,'creeping target never triggers a fixed-speed catch-up burst');
+   assert.ok(Math.abs(speed-previousSpeed)<=10*dt+1e-8,'acceleration and braking remain bounded');
+   if(moving&&i>15)assert.ok(speed>.2,'sustained pursuit does not repeatedly stop');
+   previousSpeed=speed;
+  }
+ };
+ advance(true,80);advance(false,80);
+ assert.ok(Math.abs(h.z-target)<.001&&previousSpeed<.001,'settles at a stopped work point');
+ const stopped=h.z;advance(true,80);
+ assert.ok(h.z>stopped+.9,'resumes low-speed following immediately without a dead-zone wait');
+});
+
+test('Buddy low-speed pursuit is stable across fixed, fine and variable timesteps',()=>{
+ const follow=dts=>{
+  const level={time:0,bounds:{minX:-10,maxX:10,minZ:-10,maxZ:10},fenceSegments:[],gates:[],rivers:[],obstacles:[]};
+  const h={x:0,z:0,heading:0};let frame=0;
+  while(level.time<6-1e-9){
+   const dt=Math.min(dts[frame++%dts.length],6-level.time);
+   level.time+=dt;moveBuddy(level,h,{x:0,z:.25*level.time},dt,7);
+  }
+  return {gap:.25*level.time-h.z,speed:h.moveSpeed};
+ };
+ const fixed=follow([.05]),fine=follow([1/60]),variable=follow([.033,.067,.1]);
+ for(const result of [fixed,fine,variable]){
+  assert.ok(Math.abs(result.gap-.05)<.035);
+  assert.ok(Math.abs(result.speed-.25)<.08);
+ }
+});
+
+test('Buddy movement pause and a fresh level do not preserve stale velocity or turn state',()=>{
+ const level={time:0,bounds:{minX:-10,maxX:10,minZ:-10,maxZ:10},fenceSegments:[],gates:[],rivers:[],obstacles:[]};
+ const h={x:0,z:0,heading:.2,moveSpeed:1.2,vx:.3,vz:.4};
+ moveBuddy(level,h,{x:2,z:3},0,7);
+ assert.deepEqual(h,{x:0,z:0,heading:.2,moveSpeed:1.2,vx:.3,vz:.4},'zero-dt pause is a strict no-op');
+ const reset=createLevel(23,4242);
+ const fresh={type:'helper',x:reset.dog.x,z:reset.dog.z};
+ assert.equal(fresh.moveSpeed,undefined);
+ assert.equal(fresh.heading,undefined);
+ moveBuddy(reset,fresh,{x:fresh.x,z:fresh.z+2},.05,7);
+ assert.ok(Number.isFinite(fresh.vx)&&Number.isFinite(fresh.vz));
+ assert.ok(fresh.moveSpeed<=.5,'new level starts from rest rather than inheriting prior momentum');
 });
 
 test('tier two actively guides its flock onto and across an off-axis bridge',()=>{

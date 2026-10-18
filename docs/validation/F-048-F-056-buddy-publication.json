@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-18",
+  "timezone": "America/Creston",
+  "branch": "buddy_update",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "source": "6b5e6504535037f5db2ec3ee57c6ccdcac41e81a",
+  "pages": "2e1ec4c052ece61c3ffb0eaf11c956901753ca84",
+  "pages_parent": "b4a6314f347d960258e4ba5b0730ad93b374ddc1",
+  "source_ci": 39155841743,
+  "native_pages": 39155946463,
+  "source_ci_conclusion": "success",
+  "native_pages_conclusion": "success",
+  "tests": {
+    "pass": 307,
+    "fail": 0
+  },
+  "live_verification": {
+    "files": 17,
+    "matched": 17,
+    "canonical_html_matches": true
+  },
+  "preservation": {
+    "outside_dev_files": 49,
+    "unchanged": true,
+    "paths": [
+      "production root",
+      "dev2/",
+      "flock/"
+    ]
+  },
+  "review": {
+    "first_blind_source": 8.5,
+    "integration_followup": 9.1,
+    "documentation_followup": 9,
+    "integrity_caveat": "Integration follow-up accidentally saw adjacent historical score; not claimed as another fully blind first pass."
+  },
+  "acceptance": {
+    "F_048": "Review",
+    "F_056": "Review",
+    "native_appearance_or_fps_claimed": false
+  },
+  "artifacts": [
+    {
+      "path": "index.html",
+      "sha256": "4cb203dce3193a7b29a48a8c1fcfe7159845006e8f436d281cba846c72b7b38c"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "assets/qa-BRO7Tstr.js",
+      "sha256": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f"
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "assets/index-BpvKY9aw.css",
+      "sha256": "9fc9f72a1843a488900f8d2e5e4f5ab854e9dbc5cbf63d6b076cb09c8d90ea7d"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "assets/index-DD2bGzU4.js",
+      "sha256": "52507352a84c9dfb1f612abd7ff1570e12d6e67678be700ee0039a83b3a43880"
+    }
+  ]
+}

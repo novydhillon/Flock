@@ -280,6 +280,40 @@ test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=
 });
 
 
+test('Buddy has independent floating pose, ground glow, pause and owned resource lifecycle',()=>{
+  const renderer=setup(),level=createLevel(5),bridge=level.rivers.flatMap(r=>r.bridges)[0];
+  renderer.setLevel(level);
+  const h={type:'helper',x:bridge.x,z:bridge.z,heading:bridge.heading,vx:0,vz:0};level.helpers=[h];
+  renderer.update(level,level.dog,1/60);
+  const buddy=renderer.helperMeshes.get('helper'),parts=buddy.userData.parts;
+  assert.notEqual(buddy.userData.motion,renderer.dog.userData.motion);
+  assert.equal(parts.legs.length,0);assert.equal(parts.rings.flat().length,12);
+  const neutral=parts.rig.position.y;
+  for(let i=1;i<=30;i++){
+    h.heading+=.02;h.vx=Math.sin(h.heading)*i/10;h.vz=Math.cos(h.heading)*i/10;
+    renderer.update(level,level.dog,1/60);
+  }
+  assert.notEqual(parts.rig.position.y,neutral);
+  assert.ok(parts.rig.rotation.x<0&&Math.abs(parts.rig.rotation.z)>0&&parts.head.rotation.y>0);
+  assert.ok(Math.abs(parts.rig.rotation.x)<=Math.PI/18&&Math.abs(parts.rig.rotation.z)<=Math.PI/9);
+  assert.equal(buddy.position.y,terrainHeight(level,h.x,h.z));
+  const effect=renderer.thrusterGlow;
+  parts.pods.forEach((pod,i)=>{
+    const world=buddy.localToWorld(pod.clone()),glow=effect.buddyCenters.value[i];
+    assert.ok(Math.hypot(world.x-glow.x,world.z-glow.z)<1e-8);
+    assert.equal(glow.y,terrainHeight(level,glow.x,glow.z));
+  });
+  const shader={uniforms:{},vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader};
+  renderer.grass.onBeforeCompile(shader);assert.equal(shader.uniforms.buddyGlowCenters,effect.buddyCenters);
+  assert.match(shader.fragmentShader,/buddyGlowCenters\[4\]/);
+  const pose=()=>[...parts.rig.position.toArray(),...parts.rig.quaternion.toArray(),parts.head.rotation.y,...parts.rings.flat().flatMap(r=>[...r.position.toArray(),r.material.opacity])];
+  const paused=pose();renderer.update(level,level.dog,0);assert.deepEqual(pose(),paused);
+  let disposed=0;parts.rings.flat().forEach(r=>r.material.addEventListener('dispose',()=>disposed++));
+  level.helpers=[];renderer.update(level,level.dog,1/60);
+  assert.equal(buddy.visible,false);assert.ok(effect.buddyCenters.value.every(p=>p.y===-1000));
+  renderer.setLevel(createLevel(0));assert.equal(disposed,12);assert.equal(renderer.helperMeshes.size,0);
+});
+
 function sceneBudget(renderer){
   renderer.scene.updateMatrixWorld(true);renderer.camera.updateMatrixWorld(true);
   const frustum=new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(renderer.camera.projectionMatrix,renderer.camera.matrixWorldInverse));
@@ -298,6 +332,8 @@ test('mobile scenery submissions remain bounded as the world grows',t=>{
   const renderer=setup();
   for(const index of [0,5,19,49,99]){
     const level=createLevel(index),start=performance.now();renderer.setLevel(level);
+    level.helpers=[{type:'helper',x:level.dog.x+2,z:level.dog.z,heading:0,vx:0,vz:0}];
+    renderer.update(level,level.dog,1/60);
     const budget=sceneBudget(renderer),elapsed=performance.now()-start;
     t.diagnostic(`level ${index+1}: ${JSON.stringify(budget)}; scene setup ${Math.round(elapsed)} ms`);
     assert.ok(budget.objects<310);assert.ok(budget.draws<170);
@@ -564,7 +600,7 @@ test('Pip has twelve hollow hover rings with movement trails, frozen pause and f
   assert.equal(parts.rings.flat().length,12);
   assert.ok(parts.rings.flat().every(r=>r.geometry.type==='TorusGeometry'));
   assert.equal(parts.legs.length,0,'hover pods do not perform a walking gait');
-  const buddy=models.createDog();assert.equal(buddy.userData.parts.legs.length,4,'Buddy retains its walking model');
+  const buddy=models.createDog();assert.equal(buddy.userData.parts.legs.length,4,'legacy dog factory is retained independently of hover models');
   renderer.update(level,level.dog,1/60);
   const before=parts.rings[0].map(r=>r.position.y);
   level.dog.x+=.8;renderer.update(level,level.dog,1/60);
@@ -628,7 +664,7 @@ test('Pip float and turn articulation preserve simulation root, ground guidance,
   assert.ok(rig.rotation.x<0&&rig.rotation.z<0&&head.rotation.y>0,'forward acceleration and positive turn articulate independent pivots');
   const buddy=renderer.helperMeshes.get('helper');
   assert.equal(buddy.rotation.y,h.heading);assert.equal(buddy.rotation.x,0);assert.equal(buddy.rotation.z,0);
-  assert.equal(buddy.position.y,terrainHeight(level,h.x,h.z));assert.equal(buddy.userData.parts.legs.length,4);
+  assert.equal(buddy.position.y,terrainHeight(level,h.x,h.z));assert.equal(buddy.userData.parts.legs.length,0);
   pip.updateMatrixWorld(true);
   const direction=new THREE.Vector3(0,1,0).applyQuaternion(renderer.goalPointer.getWorldQuaternion(new THREE.Quaternion()));
   const desired=new THREE.Vector3(level.target.x-dog.x,0,level.target.z-dog.z).normalize();
