@@ -850,7 +850,9 @@ Show a short level heading, a weather icon with accessible full description, rea
 
 ### F-057 — Minimap and tips
 
-Keep the minimap beside status, align edges and simplify its frame/caption without losing map information. Shorten tips to one action, hide decorative numbering, and retain finite automatic tips plus restart-from-first manual looping through ?. Help and dismiss retain clear accessible identities and adequate hit areas. Verify short/narrow screens, live timer, gate action, toasts and manually reopened tips.
+Keep the minimap beside status, align edges and simplify its frame/caption without losing map information. Shorten tips to one action, retain the numbered badge, and retain finite automatic tips plus restart-from-first manual looping through ?. Help and dismiss retain clear accessible identities and adequate hit areas. Verify short/narrow screens, live timer, gate action, toasts and manually reopened tips.
+
+18 October tip-number follow-up — Review, owner Codex, branch `UI_refinement`: restored the visible 01/02/03 badge requested in the reference photo. Tip timing, cycling and dismissal are unchanged. All 307 regression tests, both build-mode checks and generated docs pass. Publication target is `/Flock/dev/`; publication verification and visual sign-off remain separate.
 
 ### F-058 — Movement and bark controls
 

@@ -1,5 +1,9 @@
 # Flock dev2 revision quality record
 
+## Numbered tip badge — 18 October 2026
+
+Bounded CSS restoration on `UI_refinement`: visible 32px cream-gold numbered badge, non-shrinking, with the existing 44px dismiss target. Controller numbering, timing and manual looping are unchanged. Root session implementation/model effort is platform-selected and not exposed; no separate substantial-change gauntlet is required for this single-rule restoration. Focused UI checks pass 35/35; full regression passes 307/307, release/development mode checks pass (15/17 files, zero/two QA assets), and generated documentation checks pass. Physical-phone appearance remains pending user sign-off under F-057. Publication target is `/Flock/dev/`, preserving dev2 and production; publication evidence follows separately.
+
 ## Accepted presentation production publication — 17 October 2026
 
 Post-deployment verification: all 15/15 live production files, including the canonical root HTML, match the checked release build by SHA-256.

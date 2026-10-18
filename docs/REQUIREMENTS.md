@@ -336,4 +336,6 @@ User approval covers F-055–F-060 on `UI_refinement`, using IMG_8398/IMG_8399 a
 
 Traceability: F-055 gameplay chrome/settings; F-056 status/countdown; F-057 minimap/tips; F-058 controls/cooldown; F-059 destination introduction; F-060 standing development rules.
 
+18 October tip clarification: retain a visible numbered badge (01, 02, 03) beside each concise tip, matching the supplied reference. Keep existing automatic/manual sequencing and dismissal unchanged. Publish this branch to `/Flock/dev/`, not dev2.
+
 18 October 2026 F-056/F-057 follow-up: increase minimap contrast and displayed size, and make level information more compact. Keep score/countdown readable, preserve map content and inputs, and retain separate source review, dev2 publication and user sign-off.
