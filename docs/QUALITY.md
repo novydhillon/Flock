@@ -1,5 +1,9 @@
 # Flock dev2 revision quality record
 
+## F-053 additional 30% brightness reduction
+
+In the existing isolated worktree, change glow strength from 0.85 to `0.85 * 0.7 = 0.595`, applying the repeated user request once. Radius 0.54, color, smooth falloff, receivers and ground opacity remain unchanged. Blind review was explicitly waived; none is performed for this change. Existing tests assert the new strength. All **288/288 tests pass**, along with generated documentation/four behavior checks and both artifact-mode checks. The final development artifact is built with `--emptyOutDir`. Publication evidence follows; native GPU appearance remains unverified.
+
 ## F-053 softer and subtler ground glow
 
 In the existing isolated worktree, halve emissive strength from 1.7 to 0.85 to interpret “50% more transparent” without making ground materials transparent. Widen pod-scaled radius from 0.36 to 0.54 and replace linear radial falloff with squared smoothstep falloff for softer center/edges. Shader uniforms/cache version are updated; surface receivers, Pip/rings and movement remain unchanged. Source review had completed before the user waived blind review for this adjustment; no further review was requested. Native GPU appearance remains unverified. Full regression: 283/283 passed; the final focused glow test, documentation checks and both artifact modes pass.

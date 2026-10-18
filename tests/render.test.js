@@ -231,7 +231,7 @@ test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=
   assert.equal(renderer.dogGlow,undefined,'no detached glow plane exists');
   const effect=renderer.thrusterGlow;
   assert.equal(effect.centers.value.length,4);
-  assert.equal(effect.strength.value,1.7*.5,'glow contribution is halved, without changing ground opacity');
+  assert.equal(effect.strength.value,.85*.7,'glow contribution is 30% dimmer than the previous 0.85 strength');
   for(const ground of [renderer.grass,renderer.path]){assert.equal(ground.transparent,false);assert.equal(ground.opacity,1);}
   assert.ok(Math.abs(effect.radius.value-.54*renderer.dog.scale.x)<1e-9,'diffuse footprint radius is 50% wider than before');
   assert.ok(effect.tint.value.b>effect.tint.value.r*1.5);

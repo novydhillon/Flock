@@ -2,6 +2,8 @@
 
 ## Pip size and ground glow follow-up
 
+Current glow strength is 0.595 (0.85 multiplied by 0.7), following the additional 30% brightness reduction. Pod-scaled radius remains 0.54 and the diffuse falloff/color are unchanged; only emitted brightness changes.
+
 Glow tuning halves peak emissive strength from 1.7 to 0.85, widens the pod-scaled radius from 0.36 to 0.54, and uses squared smoothstep radial falloff. This makes the light subtler and softer without making the ground transparent. Program cache suffix is `pip-ground-glow-v2`; receiving surfaces and world-space tracking are unchanged.
 
 The latest F-053 size target is 1.0125 (75% of the published 1.35), superseding the unfinished 33% edit. Pale silver steel/trim retain a lighter finish. Pods and rings scale with Pip; inverse-scaled halo/pointer retain world dimensions. `ThrusterGroundGlow` colors the actual grass, path and bridge receiving surfaces in their material shaders. Four world-space pod centers drive soft blue emissive footprints; the upward-normal and height masks restrict illumination to the ground/deck. Body bob and ring trails do not affect the surface height. There are no separate glow planes, scene lights or shadow passes. Bridge materials are cloned and owned by the level to preserve shared fence materials; ground materials retain the same uniform owner across levels. Native appearance/performance require device review.

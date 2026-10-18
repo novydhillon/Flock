@@ -5,7 +5,7 @@ export class ThrusterGroundGlow {
   constructor(){
     this.centers={value:Array.from({length:4},()=>new THREE.Vector3(0,-1000,0))};
     this.radius={value:.54};
-    this.strength={value:1.7*.5};
+    this.strength={value:.85*.7};
     this.tint={value:new THREE.Color('#39bfff')};
   }
   install(material){
