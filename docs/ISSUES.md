@@ -2,6 +2,8 @@
 
 ## F-063 — Centered level-title introduction
 
+18 October refinement: remove the white/cream background panel and its shadow. Keep the centered fixed-size wrapping text, spacing and existing fade timing. Bounded CSS-only adjustment on `UI_refinement`; remains Review for appearance sign-off. New publication evidence follows.
+
 Verified publication: source `bf44788` passed CI `39173868806`; Pages `34d0160` passed native deployment `39173966107`. All 17 live dev files match the checked final build by SHA-256, and all 49 blobs outside dev are preserved. [F-063 publication evidence](validation/F-063-title-publication.json). This supersedes the pending-publication wording below; appearance sign-off remains Review.
 
 **Status:** Review on `UI_refinement`, owner Codex. Level identity is moved out of the top-left status panel into a temporary overlay centered on screen. It uses nearly the full viewport width with safe side margins, centered text, a fixed 28px title and multiline wrapping for long names. It shows at each level start/restart, holds 2.5 active seconds and fades for 1.25; menus freeze/hide it and input passes through. Combined UI/Buddy behavior is preserved. All 317 regression tests, both artifact modes and generated docs pass; fresh independent `gpt-6.1-sol` medium source review scored 9/10 without material blockers. Native phone appearance and user sign-off remain pending. Target `/Flock/dev/`; publication evidence follows.

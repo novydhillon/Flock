@@ -2,6 +2,8 @@
 
 ## F-063 — Centered level-title introduction
 
+18 October clarification: display text directly over the game without a white/cream panel or box shadow; preserve wrapping, fixed font size, margins and fade behavior.
+
 Move the level name and number from the top-left status panel to a temporary overlay centered vertically and horizontally. Fill the screen width except safe side margins of at least 20px. Center the title text and wrap long names onto further lines without shrinking the fixed 28px title font. Show the actual generated level title on each start/restart, hold for 2.5 active seconds, then fade for 1.25 active seconds. Pause freezes the clock and hides the overlay behind menus; resuming restores its remaining introduction. Completion hides it. Overlay input passes through to gameplay. Keep delivery, score, weather and countdown in the compact status panel. This modifies the combined UI/Buddy candidate on `UI_refinement`; publish to `/Flock/dev/` and retain Review for appearance acceptance.
 
 ## F-062 — Combined Buddy/UI integration

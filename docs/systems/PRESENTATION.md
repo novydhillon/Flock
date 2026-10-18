@@ -2,7 +2,7 @@
 
 ## Centered level-title introduction — F-063
 
-`#level-introduction` sits at the viewport center with at least 20px safe side margins and a translucent cream background. Its small level number and 28px Outfit title are centered; long names wrap naturally, including an unbroken word, without changing the title font size. Pointer events pass through and modal dialogs sit above it. The controller uses active elapsed gameplay time: 2.5 seconds fully visible, 1.25 seconds fading, then hidden. Menus hide it and freeze the timer; restart/new level replay it and completion hides it. The top-left panel retains mission stats, weather and delivery countdown, with the full level identity also retained in its accessible name.
+`#level-introduction` sits at the viewport center with at least 20px safe side margins. The text appears directly over the game with no background panel or box shadow, as clarified on 18 October. Its small level number and 28px Outfit title are centered; long names wrap naturally, including an unbroken word, without changing the title font size. Pointer events pass through and modal dialogs sit above it. The controller uses active elapsed gameplay time: 2.5 seconds fully visible, 1.25 seconds fading, then hidden. Menus hide it and freeze the timer; restart/new level replay it and completion hides it. The top-left panel retains mission stats, weather and delivery countdown, with the full level identity also retained in its accessible name.
 
 ## Pip floating-motion follow-up
 
