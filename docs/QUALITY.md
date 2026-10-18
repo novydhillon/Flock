@@ -1,5 +1,11 @@
 # Flock dev2 revision quality record
 
+## Accepted presentation production publication — 17 October 2026
+
+Post-deployment verification: all 15/15 live production files, including the canonical root HTML, match the checked release build by SHA-256.
+
+User-authorized production deployment follows the accepted presentation merge to main at `8ae3bae835a95ef23e957b47db6251964614234a` (PR #6). Main CI [39095630964](https://github.com/novydhillon/Flock/actions/runs/39095630964) passed. Local merge validation passed 299/299 tests, documentation checks and both artifact-mode checks. A fresh release build contains 15 files and zero QA assets. Pages `c2e03932862bb8733683464209e745cc34918831` replaces only production entry/assets; all 34 unrelated Pages files, including dev2, are preserved. Native Pages deployment [39095701525](https://github.com/novydhillon/Flock/actions/runs/39095701525) succeeded. Live game: https://novydhillon.github.io/Flock/. F-033, F-053 and F-054 user acceptance remains recorded; no new device/FPS measurement is implied.
+
 ## F-053 user acceptance — 17 October 2026
 
 Novy signed off the current Pip presentation and floating movement at 20:56 America/Creston. F-053 is Done for runtime source `f0cb0c2cb99bfa874fd72783421e5592d584290f`, deployed at Pages `c4e275b33d1aa372e88db7b704450d7e63735c3d` on dev2. This supersedes earlier F-053 Review/pending acceptance wording. The 299 passing tests and 9/10 blind source review remain recorded below; user acceptance does not constitute an independent device/FPS measurement. Documentation only; no runtime redeployment.
