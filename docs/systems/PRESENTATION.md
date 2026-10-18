@@ -2,6 +2,8 @@
 
 ## Pip floating-motion follow-up
 
+**Accepted:** Novy signed off the current Pip presentation and movement on 17 October 2026 at 20:56 America/Creston, runtime `f0cb0c2` / Pages `c4e275b` on dev2. F-053 is Done; earlier native-acceptance wording below is historical. No independent FPS measurement is implied.
+
 F-053 motion uses a visual body rig with an independently articulated head. The root retains simulation position and heading so collision and ground guidance remain unchanged. Presentation samples velocity/heading history to derive hover, head yaw, turn roll (maximum 20 degrees), and acceleration/braking pitch (maximum 10 degrees each way). Constant speed should settle pitch to level in about two seconds. Transform pod anchors through the visual rig before updating hover rings and surface-glow footprints; ground illumination stays on receiving surfaces. Pause, reset, heading wrap, teleports and frame-rate independence require source checks. Native feel remains for user acceptance.
 
 ## Pip size and ground glow follow-up

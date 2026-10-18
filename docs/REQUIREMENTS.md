@@ -310,6 +310,8 @@ The development-only QA launcher uses a gear icon centered at the bottom of the 
 
 ### F-053 - Pip reference model and hover rings
 
+**Accepted:** Novy signed off the current Pip presentation, including the floating-motion follow-up, on 17 October 2026 at 20:56 America/Creston. F-053 is Done for dev2 runtime `f0cb0c2` / Pages `c4e275b`; earlier pending acceptance wording is historical.
+
 On branch `pip_update`, replace player Pip with the reference-inspired angular silver robot dog: metal panels, expressive eyes, plate ears, black nose, blue tail light and four leg pods. No blue thruster flames. Each pod has three blue rings descending and fading in a repeating cycle. The top ring stays attached to Pip; the bottom ring trails his movement and the middle ring lies between. Preserve gameplay collision, control, bark and goal pointer behavior; Buddy retains its existing appearance.
 
 

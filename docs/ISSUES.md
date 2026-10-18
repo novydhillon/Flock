@@ -102,7 +102,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
-| F-053 | P2 | Presentation | Pip reference model, hover rings and floating movement | Review | Phone appearance pending |
+| F-053 | P2 | Presentation | ~~Pip reference model, hover rings and floating movement~~ | Done | User signed off 17 October 2026 |
 | ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
 
 ## Screenshot evidence
@@ -769,7 +769,9 @@ F-052 execution: reviewed 9.5/10; source `e8b8e16`, Pages `715b06c`. All 277 tes
 Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; source CI/native Pages succeeded, 277 tests and release/doc checks pass, 15/15 live root files/canonical HTML verified. All 34 unrelated Pages files preserved. QA excluded from production; dev2 unchanged. User sign-off statuses above are preserved.
 
 
-### F-053 - Pip reference model and hover rings
+### ~~F-053 - Pip reference model and hover rings~~
+
+**Status: Done.** Novy signed off the current Pip presentation and floating movement on 17 October 2026 at 20:56 America/Creston, accepting runtime source `f0cb0c2` / Pages `c4e275b` on dev2. This supersedes the historical Review wording below for F-053. Existing test and blind-review evidence retains its scope; this user acceptance adds no independent FPS measurement. Other issue statuses are unchanged.
 
 Movement publication: runtime source `f0cb0c2`, Pages `c4e275b`; source CI/native Pages succeeded, 299 tests pass and blind source review scored 9/10. All 17 live files match the checked build; 30 unrelated Pages files, including production, are preserved. Motion remains Review for user feel/appearance acceptance. See QUALITY.md for full evidence.
 

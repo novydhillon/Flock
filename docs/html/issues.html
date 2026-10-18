@@ -467,9 +467,9 @@
 <td>F-053</td>
 <td>P2</td>
 <td>Presentation</td>
-<td>Pip reference model, hover rings and floating movement</td>
-<td>Review</td>
-<td>Phone appearance pending</td>
+<td><del>Pip reference model, hover rings and floating movement</del></td>
+<td>Done</td>
+<td>User signed off 17 October 2026</td>
 </tr>
 <tr>
 <td><del>F-054</del></td>
@@ -1040,7 +1040,8 @@
 <p><strong>Status:</strong> Review. Replace the QA text launcher with a gear icon, centered at the bottom of the viewport with safe-area clearance. Retain an accessible QA name and test-session state. Keep existing QA opening/closing, save isolation and production exclusion. Phone appearance remains pending.</p>
 <p>F-052 execution: reviewed 9.5/10; source <code>e8b8e16</code>, Pages <code>715b06c</code>. All 277 tests, both builds/artifact-mode checks, documentation checks and source/native Pages CI pass. All 17 live files and canonical entry verified, 32 unrelated Pages files preserved. Development-only; production unchanged. Phone acceptance pending, status Review.</p>
 <p>Production publication evidence: main runtime merge <code>11d6642</code>, Pages <code>ee53e9c</code>; source CI/native Pages succeeded, 277 tests and release/doc checks pass, 15/15 live root files/canonical HTML verified. All 34 unrelated Pages files preserved. QA excluded from production; dev2 unchanged. User sign-off statuses above are preserved.</p>
-<h3 id="f-053---pip-reference-model-and-hover-rings">F-053 - Pip reference model and hover rings<a class="heading-link" href="#f-053---pip-reference-model-and-hover-rings" aria-label="Link to F-053 - Pip reference model and hover rings">#</a></h3>
+<h3 id="f-053---pip-reference-model-and-hover-rings"><del>F-053 - Pip reference model and hover rings</del><a class="heading-link" href="#f-053---pip-reference-model-and-hover-rings" aria-label="Link to F-053 - Pip reference model and hover rings">#</a></h3>
+<p><strong>Status: Done.</strong> Novy signed off the current Pip presentation and floating movement on 17 October 2026 at 20:56 America/Creston, accepting runtime source <code>f0cb0c2</code> / Pages <code>c4e275b</code> on dev2. This supersedes the historical Review wording below for F-053. Existing test and blind-review evidence retains its scope; this user acceptance adds no independent FPS measurement. Other issue statuses are unchanged.</p>
 <p>Movement publication: runtime source <code>f0cb0c2</code>, Pages <code>c4e275b</code>; source CI/native Pages succeeded, 299 tests pass and blind source review scored 9/10. All 17 live files match the checked build; 30 unrelated Pages files, including production, are preserved. Motion remains Review for user feel/appearance acceptance. See QUALITY.md for full evidence.</p>
 <p><strong>Movement follow-up, 17 October 2026:</strong> Pip floats gently on a continuous sinusoid, including at rest. His articulated head looks into turns and his body leans into turn tightness, capped at 20 degrees. Forward acceleration produces backward body lean up to 10 degrees; braking produces forward lean up to 10 degrees, proportional to acceleration/deceleration. He settles level after roughly two seconds at steady speed or once stopped. Motion is smooth, pauses freeze presentation, and level changes/teleports reset history. Preserve simulation/collision, Buddy, size, rings, current ground-glow brightness and guidance graphics. Implementation uses separate model and integration/test worktrees with blind review restored for this motion change. Status remains Review for native appearance acceptance.</p>
 <p><strong>Status:</strong> Review on <code>pip_update</code>. Reference-inspired metallic player model with four hover pods and three descending blue rings per pod, no flames. Top ring follows Pip, bottom trails motion, middle sits between. Preserve Buddy and gameplay. Independent source review 9/10 and documentation review 9/10; regression/build checks recorded in QUALITY.md. Development deployment evidence follows there; phone appearance requires user review.</p>

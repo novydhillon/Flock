@@ -1,5 +1,9 @@
 # Flock dev2 revision quality record
 
+## F-053 user acceptance — 17 October 2026
+
+Novy signed off the current Pip presentation and floating movement at 20:56 America/Creston. F-053 is Done for runtime source `f0cb0c2cb99bfa874fd72783421e5592d584290f`, deployed at Pages `c4e275b33d1aa372e88db7b704450d7e63735c3d` on dev2. This supersedes earlier F-053 Review/pending acceptance wording. The 299 passing tests and 9/10 blind source review remain recorded below; user acceptance does not constitute an independent device/FPS measurement. Documentation only; no runtime redeployment.
+
 ## F-053 floating robot-dog movement candidate
 
 Local validation passed: **299/299 full regressions**, **32/32 focused motion/render checks**, release artifact without QA (15 files), clean development artifact with QA (17 files), generated documentation and four documentation behavior checks. Native motion appearance and phone FPS remain unverified.
