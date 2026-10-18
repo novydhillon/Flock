@@ -2,7 +2,9 @@
 
 ## F-053 floating robot-dog movement candidate
 
-Local validation passed: **299/299 full regressions**, **32/32 focused motion/render checks**, release artifact without QA (15 files), clean development artifact with QA (17 files), generated documentation and four documentation behavior checks. Native motion appearance and phone FPS remain unverified. Development publication evidence follows after CI and live verification.
+Local validation passed: **299/299 full regressions**, **32/32 focused motion/render checks**, release artifact without QA (15 files), clean development artifact with QA (17 files), generated documentation and four documentation behavior checks. Native motion appearance and phone FPS remain unverified.
+
+Published runtime source `f0cb0c2cb99bfa874fd72783421e5592d584290f` on `pip_update` exactly matches the tested integration worktree tree. Source CI [39093988697](https://github.com/novydhillon/Flock/actions/runs/39093988697) passed. Pages `c4e275b33d1aa372e88db7b704450d7e63735c3d` and native deployment [39094083857](https://github.com/novydhillon/Flock/actions/runs/39094083857) succeeded. All **17/17 live files** match the clean checked build by SHA-256; the canonical entry was rechecked after deployment completed. All **30 unrelated Pages files**, including production, remain unchanged. Live: https://novydhillon.github.io/Flock/dev2/. F-053 remains Review for native feel/appearance acceptance.
 
 Requested gentle continuous hover, head looks into turns, turn-tightness bank capped at 20 degrees and acceleration/braking pitch capped at 10 degrees, leveling after roughly two seconds of steady speed. Integration worktree `pip-motion` / `pip_motion` and source worktree `pip-motion-model` / `pip_motion_model` start from remote `c9a25da`. Source implementation and independent test ownership use Sol at medium effort; blind source review uses Sol at high effort for transforms, signed angular rates and frame-rate response. Root simulation position, Buddy, current appearance/glow, guidance and unrelated accepted art remain unchanged.
 
