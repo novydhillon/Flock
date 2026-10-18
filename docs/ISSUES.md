@@ -101,7 +101,7 @@ Priority: **P0** = highest priority; complete before other queued work. **P1** =
 | ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
 | F-053 | P2 | Presentation | Pip reference model and hover rings | Review | Phone appearance pending |
-| F-054 | P2 | Presentation | Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks | Review | Welded mesh implemented; deployment and phone visual sign-off pending on `pip_update` / `dev2`; user selected `gpt-6-astra` high effort for implementation and final mesh/visual review |
+| ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
 
 ## Screenshot evidence
 
@@ -790,9 +790,9 @@ F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [389654
 F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the weathered dry-stone wall change deployed at Pages `29f48f3` (runtime source `1941302`). Marked Done; overview cells and detailed heading struck through under the tracker closure rule. This is user acceptance of the change, not an independent device/FPS measurement. F-034 seeded wall distribution remains Open.
 
 
-### F-054 - Oak-like handmade tree appearance (P2)
+### F-054 - ~~Oak-like handmade tree appearance (P2)~~
 
-**Status:** Review on `pip_update`; new visual sign-off is pending. Previous publications and their review counts are historical and do not establish the organic-branching follow-up as deployed. Local runtime `5399dcc` is a historical source candidate for the earlier branching request; it does not implement or validate the latest contiguous-surface request. Earlier source/review/publication evidence is recorded in [QUALITY.md](QUALITY.md#f-054-organic-tree-validation).
+**Status:** Done. Novy accepted the dev2 tree appearance on 17 October 2026 (America/Creston): “The trees look good in the dev2 build.” The accepted welded-mesh build is Pages `6dddee1`, from source `b6ef52f` and reviewed runtime `29f7fcc`. Source CI and native Pages deployment succeeded; all 17 live artifact hashes matched. This closes F-054 appearance acceptance; it does not establish measured mobile FPS. Earlier source/review/publication evidence remains historical in [QUALITY.md](QUALITY.md#f-054-organic-tree-validation).
 
 **Requirement:** Replace the segmented-looking tree mesh shown in phone references IMG8395 and IMG8396 with one genuinely contiguous, smooth trunk-and-branch surface. The trunk must remain continuously tapered and slightly bent through welded forks, with no detached rings, chunk steps, seams, caps or visibly separate branch pieces. Keep the oak-like silhouette, warm-brown clay bark and multiple rounded green foliage clusters. Branches bend or curve and emerge at staggered heights; the first fork is around mid-height of the trunk, with further forks staggered upward. At a fork, use Leonardo's branching rule with exponent 2: parent radius squared equals the sum of the squared radii of the child branches, including the continuing trunk as a child. This is the geometric branching rule described in [PLOS ONE](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093535). Apply seeded yaw variation across all trees so their silhouettes do not repeat. Vary overlapping foliage shapes and distribute several clusters around the tree center instead of one large crown ball; larger trees should carry more foliage. Reduce trunk thickness by 30% at the smallest supported rendered tree size and by 10% at the largest supported rendered tree size, interpolating linearly between those sizes. Vary crown mesh size by radial distance from the trunk centerline: larger near the axis and smaller farther away. Retain the small pressed oval leaf texture and handmade details such as exposed roots, grooves and knots.
 
@@ -807,7 +807,7 @@ F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the we
 - Texture/shadow cost and mobile performance are assessed within available evidence.
 - Novy reviews the intended development build and signs off the appearance.
 
-**Scope:** tree visual update only. The numeric trunk-thickness endpoints, interpolation and fork exponent are specified above; other numeric geometry, collision changes and performance thresholds remain unspecified. Preserve prior F-020/F-021 acceptance; this request is a new appearance refinement. Prior publication and validation remain historical; the updated request is still Review pending new visual sign-off on `pip_update` / `dev2`.
+**Scope:** tree visual update only. The numeric trunk-thickness endpoints, interpolation and fork exponent are specified above; other numeric geometry, collision changes and performance thresholds remain unspecified. Preserve prior F-020/F-021 acceptance. Novy's dev2 visual sign-off closes this refinement; prior publication and validation remain historical.
 
 **Follow-up request:** The earlier segmented wood mesh fails the phone visual check in IMG8395 and IMG8396. Implementation and final mesh/visual review are to use `gpt-6-astra` at high effort, as selected by the user. Previous F-054 scores and tests reviewed source/geometry only; they did not establish rendered phone pixels. The new implementation uses one closed welded wood surface per tree, with smooth width-dependent normals and seam-free vertex grain. Source tests and offscreen mesh-shader diagnostics are recorded in QUALITY.md; deployment and native visual acceptance are recorded separately.
 
