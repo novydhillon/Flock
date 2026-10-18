@@ -2,6 +2,8 @@
 
 ## F-063 level-title overlay — 18 October 2026
 
+Publication verified at `/Flock/dev/`: source `bf4478885f5ea9acfd3d141797a246ec2e86f138`, CI `39173868806`; Pages `34d0160194385230cea648ef36cfe36411a81718`, native deployment `39173966107`. All 17 live files match the final separately rebuilt development artifact by SHA-256; all 49 unrelated Pages blobs are unchanged. [Publication manifest](validation/F-063-title-publication.json). User appearance acceptance remains pending.
+
 Parallel ownership: `gpt-6-luna` medium for markup/layout, root session for controller/tests/docs (platform-selected model/effort not exposed). The overlay uses a fixed 28px title with centered wrapping and at least 20px safe side margins. Active gameplay elapsed time drives its hold/fade; pause hides and freezes it, restart resets it, completion hides it, and pointer input passes through. Focused controller/QA tests pass 42/42, including fade progression, menu suspension, resumption, restart/new title and completion. All 317 regression tests pass, both artifact modes pass (release 15 files/no QA; development 17 files/two QA assets), and generated documentation checks pass. A fresh isolated `gpt-6.1-sol` medium blind source critic scored 9/10 with no material blocker; it independently passed 36 UI tests and a production build. Exact wrapping geometry, native phone appearance/touch and screen-reader behavior are not verified by these source/DOM checks. Publication evidence follows separately; F-063 remains Review for user acceptance.
 
 ## Combined development publication verified — 18 October 2026
