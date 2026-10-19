@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 18 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 19 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. The 42 new bird/herd/companion/UI planning items remain Open.
 
@@ -21,6 +21,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
 | F-OPS-001 | P2 | Delivery | Reusable checked builds and deployments | Review | Current deployment policy |
+| F-OPS-003 | P2 | Delivery | Live dev validation of the delivery workflow | Review | F-OPS-001 |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -654,3 +655,19 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 **Accept when:** Use shared scripts for checked development/production builds and scoped Pages publication, enforce non-main dev and main-only production, preserve unrelated Pages content, exclude production QA, reject concurrent publication, verify all live hashes and document future use. No production publication or merge is authorized by this tooling request.
 
 **Execution — 19 October 2026:** Implemented shared checked-build commands, all-source-branch CI, manual guarded deployment workflow, API publisher with non-force concurrent-parent guard, pure dependency-validating plan module and full live-file hash verifier. Updated AGENTS, README, requirements and development runbook; retired the shell Git/dev2 helper. Full checked dev run: 340 regression tests and 4 documentation behavior tests pass; release 27 files/0 QA assets, development 29 files/2 QA assets. Expanded deployment suite subsequently passes 10/10, including publisher preservation/concurrent-head rejection. Independent blind review followed by fixes/recheck: 9/10, no material blockers. Docs regenerated/checked. Source implementation complete; no game publication, workflow dispatch or production merge. Requires PAGES_PUBLISH_TOKEN setup, workflow present on main, real Actions/native Pages/live-hash execution and user sign-off. Connector has no workflow dispatch capability; use the documented Actions UI. Binary icon reads are unsupported by the connector in this session; local build inputs were regenerated using the existing icon generator, and no regenerated art is included in this source change.
+
+**Execution — 19 October 2026 (F-OPS-003):** The first real Deploy Flock run passed on a fresh branch from main: `PAGES_PUBLISH_TOKEN` is configured, the workflow is dispatchable from main, and native Pages plus live-hash verification succeeded for `/Flock/dev/`. The connector does expose workflow dispatch (`actions_run_trigger`). See F-OPS-003 for the evidence and the follow-up fixes. User sign-off is still pending.
+
+### F-OPS-003 — Live dev validation of the delivery workflow
+
+**Status:** Review. Owner: Claude Code.
+
+**Branch:** `claude/build-deployment-scripts-6p1dnt`
+
+**Accept when:** A fresh branch from main runs the standard checked build and **Deploy Flock** to `/Flock/dev/` through the connector. All published files match the checked build, every non-`dev/` Pages path is preserved, and any defect or warning the run exposes is fixed and redeployed on the fixed revision with recorded evidence. No production publication or merge.
+
+**Execution — 19 October 2026:** Requested by Novy: test-build and deploy a new branch from main to dev, test the output and fix any issues. Branch created from main `6edfa57` with the connector. Local `npm run build:checked:dev` passed: docs check, 341/341 tests, release 27 files/0 QA assets, development 29 files/2 QA assets. A mocked dev publication of the real `dist/` planned 29 `dev/` files plus the manifest. Deploy Flock run [39327138760](https://github.com/novydhillon/Flock/actions/runs/39327138760) (connector dispatch, `environment: dev`, source `6edfa57`) passed every step. Pages commit `d9e93aa` (parent `83125c0`) changed only `dev/`. Native Pages run 39327359949 succeeded, and the workflow verified 29 live files by SHA-256. Connector tree comparison: every `dev/` blob equals the local build's git blob SHA; root `index.html`, `assets/`, `icons/`, `dev2/`, `flock/` and `tracker/` SHAs are unchanged. Headless Chromium (SwiftShader WebGL2) rendered the dev build under `/Flock/dev/` and started level 1 in portrait and landscape with no page errors or failed requests. Cosmetic observation, not fixed here: in landscape the dev-only QA gear overlaps the first tip card. Found and fixed: Node.js 20 action deprecation in both workflows (actions bumped to Node 24 majors), a silent wait loop (now logs each attempt) and stale runbook text claiming no connector dispatch. The live site is not reachable from this cloud container, so live checks rely on the workflow's hash verification. Phone appearance, touch, FPS and audio are not verified.
+
+**Execution — 19 October 2026, fixed revision:** Workflow fixes committed through the connector as `eed872a`, then `032f03e`. Run 39328324058 on `eed872a` (Pages `db53e53`) passed and verified 29 live files, but `upload-artifact@v5` still targeted Node.js 20, so it moved to `@v6`. Run [39328751422](https://github.com/novydhillon/Flock/actions/runs/39328751422) on `032f03e` (Pages `6f9b3b9`) passed with no deprecation warning. Its log shows the new attempt lines: not listed, building, then built, then 29 live files verified. Source CI 39328751141 is green on `032f03e`. Every non-`dev/` Pages tree SHA is unchanged; in `dev/` only the deployment manifest changed, because the runtime is identical. Evidence: [validation/F-OPS-003-dev-publication.json](validation/F-OPS-003-dev-publication.json). Awaiting Novy's sign-off. No production publication or merge.
+
+**Shell git waiver — 19 October 2026:** Novy authorized shell git for larger files during this session ("Use the git shell for larger files if necessary during this session"), scoped to branch `claude/build-deployment-scripts-6p1dnt` and this task. It was used only for the documentation commit, because the regenerated `docs/html/assets/search-index.js` (about 613 KB) exceeds what one connector call can carry. Workflow commits and all Pages publication went through the connector and Deploy Flock.
