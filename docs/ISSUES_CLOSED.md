@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-067~~ | ~~P2~~ | ~~App identity~~ | ~~Pip closeup favicon and iOS Home Screen icons~~ | ~~Done~~ | ~~Current Pip model~~ |
 | ~~F-TRACK-001~~ | ~~P2~~ | ~~Tooling/UI~~ | ~~Read-only public work tracker~~ | ~~Done~~ | ~~Active and closed Markdown trackers on main~~ |
 | ~~F-066~~ | ~~P2~~ | ~~Presentation~~ | ~~Grazing head pose~~ | ~~Done~~ | ~~Novy accepted 18 October 2026, 22:10 America/Creston; livestock_grazing~~ |
 | ~~F-064~~ | ~~P2~~ | ~~Art~~ | ~~Reference clay Holstein cows at 1.5× sheep size~~ | ~~Done~~ | ~~art_update_cow~~ |
@@ -838,3 +839,22 @@ Production publication evidence imported with main `d2484b9`: [F-066 production 
 F-TRACK-001 implementation: four-column board, search/priority filters, safe text details, recorded branches, consistent SHA-pinned public main reads, five-minute visible-tab refresh, atomic error/retry handling and keyboard dialog/focus. Twelve focused tests pass; independent blind first pass found bold branch metadata and malformed-archive handling defects, both fixed and rechecked at 9/10 with no material source blockers. Rendered browser/device appearance and native dialog interaction remain unverified. Source and scoped Pages publication evidence follows separately; keep Review pending Novy’s sign-off.
 
 **Closed 18 October 2026, 22:45 America/Creston:** Novy signed off the deployed tracker and explicitly authorized pushing and merging to main. This acceptance supersedes the historical Review/pending-sign-off wording above. Branch: `feature/work-tracker`; [publication and validation evidence](validation/F-TRACK-001-publication.json). Existing independent verification limits remain accurate.
+
+
+### F-067 — ~~Pip favicon and Home Screen icons~~
+
+**Owner:** Codex
+**Branch:** `feature/pip-icons`
+**Status:** Review. Source implemented and deployed to `/Flock/dev/`; device acceptance pending.
+
+Use the current silver Pip model in a readable closeup, grass-green PNG icons in browser and Apple touch sizes, and relative links that work at production and dev paths. Verify dimensions, alpha, build output and docs. Device Home Screen appearance awaits user review.
+
+F-067 validation: all 350 regression tests pass; release/development builds and artifact checks pass; PNG dimensions/alpha and output link existence checked. Exact game head mesh projected with SVGRenderer, simplified material shading. Independent review recorded in QUALITY.md; no iOS device claim.
+
+F-067 development publication authorized 18 October 2026 at 23:03 America/Creston. Runtime source `805025de1f8d354b36783605a1d960adb7821ff5`; source CI [39207762707](https://github.com/novydhillon/Flock/actions/runs/39207762707) passed. Pages `46ce3a75220b372a4cdc67f9bb5f9f9c80924936`, native deployment [39207932067](https://github.com/novydhillon/Flock/actions/runs/39207932067) succeeded; 53 unrelated blobs preserved. See [publication evidence](validation/F-067-publication.json). Still Review pending user/device acceptance.
+
+F-067 revision, 18 October 2026: user requested grass-green rather than transparent background. SVG now includes a full-square #779c4d backdrop and every PNG is regenerated opaque; icon URLs use v=2 to refresh browser caches. Device acceptance pending.
+
+F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7af6203; CI 39208378316 passed, Pages c598f2064d407a8c31f0331c3fe70d56366047bd / workflow 39208561127 passed. All 53 unrelated blobs preserved. Current green icon appearance still awaits user acceptance.
+
+**Closed:** 18 October 2026, 23:15 America/Creston. Novy approved the green icon candidate and authorized merge to main and production deployment. This acceptance supersedes pending wording in retained historical records above. Production publication evidence is recorded separately.

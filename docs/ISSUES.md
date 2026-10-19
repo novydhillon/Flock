@@ -20,7 +20,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-067 | P2 | App identity | Pip closeup favicon and iOS Home Screen icons | Review | Current Pip model |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -644,18 +643,3 @@ Requested integration of main `d2484b9` into planning branch `plan/bird-behaviou
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
 
 
-### F-067 — Pip favicon and Home Screen icons
-
-**Owner:** Codex
-**Branch:** `feature/pip-icons`
-**Status:** Review. Source implemented and deployed to `/Flock/dev/`; device acceptance pending.
-
-Use the current silver Pip model in a readable closeup, grass-green PNG icons in browser and Apple touch sizes, and relative links that work at production and dev paths. Verify dimensions, alpha, build output and docs. Device Home Screen appearance awaits user review.
-
-F-067 validation: all 350 regression tests pass; release/development builds and artifact checks pass; PNG dimensions/alpha and output link existence checked. Exact game head mesh projected with SVGRenderer, simplified material shading. Independent review recorded in QUALITY.md; no iOS device claim.
-
-F-067 development publication authorized 18 October 2026 at 23:03 America/Creston. Runtime source `805025de1f8d354b36783605a1d960adb7821ff5`; source CI [39207762707](https://github.com/novydhillon/Flock/actions/runs/39207762707) passed. Pages `46ce3a75220b372a4cdc67f9bb5f9f9c80924936`, native deployment [39207932067](https://github.com/novydhillon/Flock/actions/runs/39207932067) succeeded; 53 unrelated blobs preserved. See [publication evidence](validation/F-067-publication.json). Still Review pending user/device acceptance.
-
-F-067 revision, 18 October 2026: user requested grass-green rather than transparent background. SVG now includes a full-square #779c4d backdrop and every PNG is regenerated opaque; icon URLs use v=2 to refresh browser caches. Device acceptance pending.
-
-F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7af6203; CI 39208378316 passed, Pages c598f2064d407a8c31f0331c3fe70d56366047bd / workflow 39208561127 passed. All 53 unrelated blobs preserved. Current green icon appearance still awaits user acceptance.

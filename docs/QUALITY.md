@@ -716,3 +716,5 @@ F-067 green revision: bounded asset-only change, same head geometry/framing. A f
 Green revision release/development clean builds and artifact checks passed; source CI 39208378316 including docs and regression tests passed. Pages workflow 39208561127 succeeded. 53 unrelated blobs preserved. Background pixel/alpha checks passed for all ten PNGs, and 512px output visually inspected.
 
 All 29 live development files match the checked green build by SHA-256. Evidence: validation/F-067-green-publication.json.
+
+F-067 accepted by Novy 18 October 2026 at 23:15 America/Creston; authorized main merge and production deployment. Moved complete issue/evidence into ISSUES_CLOSED.md.
