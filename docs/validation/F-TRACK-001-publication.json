@@ -1,6 +1,6 @@
 {
   "issue": "F-TRACK-001",
-  "status": "Review",
+  "status": "Done",
   "owner": "Codex",
   "branch": "feature/work-tracker",
   "reviewed_source_sha": "d91fec7bf0e6606d098a995abb42c68c8d43c6f4",
@@ -65,8 +65,15 @@
   "limitations": [
     "No rendered browser/mobile or native dialog/touch checks; jsdom substitutes only.",
     "Published gh-pages bytes match checked files and native Pages reports success; live HTTP endpoint asset hashes unavailable through the repository connector.",
-    "Some historical tickets do not record working branches; UI says not recorded.",
-    "Source remains on feature branch with PR #11 open; main tracker data does not include this candidate until merged."
+    "Some historical tickets do not record working branches; UI says not recorded."
   ],
-  "user_acceptance": "pending"
+  "user_acceptance": {
+    "date": "2026-10-18T22:45:18-07:00",
+    "by": "Novy",
+    "instruction": "Signed off. Push changes to remote and merge to main."
+  },
+  "main_merge": {
+    "authorized": true,
+    "pr": 11
+  }
 }

@@ -694,3 +694,8 @@ Fresh blind reviewer received only task/acceptance criteria, isolated candidate 
 No browser-control capability is available for managed preview, so rendered CSS/mobile, actual native dialog/focus/touch and live browser networking are not verified. DOM tests stub dialog methods and establish no screenshot/phone claim. Explicit user `/tracker` request authorizes only this dedicated Pages path. Game and other Pages content are preserved. Keep F-TRACK-001 Review until user acceptance.
 
 Full repository regression suite: **350/350 pass** (including 12 new tracker checks), plus four documentation behavior checks. Both game artifact modes passed; no game source is changed or published by the tracker deployment.
+
+
+## F-TRACK-001 user acceptance — 18 October 2026, 22:45 America/Creston
+
+Novy signed off the deployed `/Flock/tracker/` site and authorized pushing and merging PR #11 to main. F-TRACK-001 is Done and its complete tracker record is archived in ISSUES_CLOSED.md. This acceptance supersedes historical Review/pending-user-acceptance notes; independent native/browser verification limits remain as recorded. No application files change in this sign-off batch. Source and native Pages CI previously passed; publication details and user acceptance are in [the evidence record](validation/F-TRACK-001-publication.json).

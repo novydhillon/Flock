@@ -2,6 +2,8 @@
 
 ## F-TRACK-001 — Public read-only work tracker
 
+Accepted by Novy on 18 October 2026 at 22:45 America/Creston for the deployed `/Flock/tracker/` site; push and main merge authorized. The closed tracker owns the acceptance record.
+
 Provide a standalone modern minimalist board at `/Flock/tracker/`, explicitly requested for this tool rather than the game development destination. Read public GitHub main active/closed tracker files at one resolved main revision per refresh. Four columns: Open, In progress, In review, Closed. Preserve Deferred/Blocked labels under Open. Sort ascending numeric priority; vertical color bars P0 red, P1 orange, P2 yellow, P3 purple, P4 blue, unknown white. Clicking reveals full recorded details and working/completed branches, or an explicit missing-record message. No ticket movement or write controls. Support mobile, keyboard, loading, partial failure visibility and retry. Existing game publication and progress remain unchanged.
 
 ## F-066 grazing

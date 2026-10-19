@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-TRACK-001~~ | ~~P2~~ | ~~Tooling/UI~~ | ~~Read-only public work tracker~~ | ~~Done~~ | ~~Active and closed Markdown trackers on main~~ |
 | ~~F-066~~ | ~~P2~~ | ~~Presentation~~ | ~~Grazing head pose~~ | ~~Done~~ | ~~Novy accepted 18 October 2026, 22:10 America/Creston; livestock_grazing~~ |
 | ~~F-064~~ | ~~P2~~ | ~~Art~~ | ~~Reference clay Holstein cows at 1.5× sheep size~~ | ~~Done~~ | ~~art_update_cow~~ |
 | ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
@@ -824,3 +825,16 @@ Acceptance: calm livestock lower their complete heads to eat on grass/bushes; ne
 
 
 Production publication evidence imported with main `d2484b9`: [F-066 production manifest](validation/F-066-grazing-production-publication.json). The dated Done/user-acceptance record above supersedes older Review/pending wording.
+
+
+### F-TRACK-001 — ~~Read-only public work tracker~~
+
+**Status:** Done. **Owner:** Codex. **Branch:** `feature/work-tracker`, based on main `61bea8720ef1acb7519f5de9de679077b5753624`. Requested 18 October 2026 (America/Creston).
+
+**Requirement:** Deploy a modern minimalist viewing-only website at `/Flock/tracker/`. Load authoritative overview items and ticket details from public main `docs/ISSUES.md` and `docs/ISSUES_CLOSED.md`. Show Open, In progress, In review and Closed columns; sort each by ascending numeric priority. Add vertical priority markers: P0 red, P1 orange, P2 yellow, P3 purple, P4 blue, all others white. Clicking a card opens its details and recorded working/completed branch; missing historical branch metadata must be stated honestly. No dragging or editing. Preserve original Blocked/Deferred status in Open.
+
+**Acceptance:** Accessible keyboard cards and detail dialog, mobile layout, safe rendering of repository text, loading/error/retry behavior and consistent main snapshot. Parser tests cover real documents, statuses, priority order, historical closed details and missing branches. Independent blind review, generated docs checks and scoped publication preserve all existing game/Pages content. User explicitly requested this standalone `/tracker` deployment; game builds remain untouched. Keep Review pending user acceptance.
+
+F-TRACK-001 implementation: four-column board, search/priority filters, safe text details, recorded branches, consistent SHA-pinned public main reads, five-minute visible-tab refresh, atomic error/retry handling and keyboard dialog/focus. Twelve focused tests pass; independent blind first pass found bold branch metadata and malformed-archive handling defects, both fixed and rechecked at 9/10 with no material source blockers. Rendered browser/device appearance and native dialog interaction remain unverified. Source and scoped Pages publication evidence follows separately; keep Review pending Novy’s sign-off.
+
+**Closed 18 October 2026, 22:45 America/Creston:** Novy signed off the deployed tracker and explicitly authorized pushing and merging to main. This acceptance supersedes the historical Review/pending-sign-off wording above. Branch: `feature/work-tracker`; [publication and validation evidence](validation/F-TRACK-001-publication.json). Existing independent verification limits remain accurate.
