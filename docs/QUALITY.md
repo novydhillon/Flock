@@ -712,3 +712,7 @@ Follow-up critic: **9/10**, no blocking defects; both findings resolved and dime
 F-067 dev publication: source CI 39207762707 and Pages 39207932067 succeeded. All 29 live files SHA-256 match the checked dev build, including HTML, manifest, all icons, fonts and QA assets. Pages 46ce3a7 preserves all 53 unrelated blobs. Device appearance remains pending; see validation/F-067-publication.json.
 
 F-067 green revision: bounded asset-only change, same head geometry/framing. A full-square SVG rectangle uses the field texture base colour #779c4d. All PNGs regenerated; verify dimensions, opaque alpha and corners. Previous transparency evidence is historical. Prior independent review still describes the head/markup; no new blind review for this bounded colour change.
+
+Green revision release/development clean builds and artifact checks passed; source CI 39208378316 including docs and regression tests passed. Pages workflow 39208561127 succeeded. 53 unrelated blobs preserved. Background pixel/alpha checks passed for all ten PNGs, and 512px output visually inspected.
+
+All 29 live development files match the checked green build by SHA-256. Evidence: validation/F-067-green-publication.json.

@@ -657,3 +657,5 @@ F-067 validation: all 350 regression tests pass; release/development builds and 
 F-067 development publication authorized 18 October 2026 at 23:03 America/Creston. Runtime source `805025de1f8d354b36783605a1d960adb7821ff5`; source CI [39207762707](https://github.com/novydhillon/Flock/actions/runs/39207762707) passed. Pages `46ce3a75220b372a4cdc67f9bb5f9f9c80924936`, native deployment [39207932067](https://github.com/novydhillon/Flock/actions/runs/39207932067) succeeded; 53 unrelated blobs preserved. See [publication evidence](validation/F-067-publication.json). Still Review pending user/device acceptance.
 
 F-067 revision, 18 October 2026: user requested grass-green rather than transparent background. SVG now includes a full-square #779c4d backdrop and every PNG is regenerated opaque; icon URLs use v=2 to refresh browser caches. Device acceptance pending.
+
+F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7af6203; CI 39208378316 passed, Pages c598f2064d407a8c31f0331c3fe70d56366047bd / workflow 39208561127 passed. All 53 unrelated blobs preserved. Current green icon appearance still awaits user acceptance.
