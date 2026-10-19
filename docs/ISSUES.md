@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-TRACK-001 | P2 | Tooling/UI | Read-only public work tracker | Review | Active and closed Markdown trackers on main |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -641,3 +642,15 @@ Root AGENTS.md and DEVELOPMENT.md now require connector-only repository operatio
 Requested integration of main `d2484b9` into planning branch `plan/bird-behaviour` (`6ca2b35`). Main contributes five commits since shared base `5fd8cf5`: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch's planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy's 22:10 approval and is added directly to [Closed issues](ISSUES_CLOSED.md); 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.
 
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
+
+
+
+### F-TRACK-001 — Read-only public work tracker
+
+**Status:** Review. **Owner:** Codex. **Branch:** `feature/work-tracker`, based on main `61bea8720ef1acb7519f5de9de679077b5753624`. Requested 18 October 2026 (America/Creston).
+
+**Requirement:** Deploy a modern minimalist viewing-only website at `/Flock/tracker/`. Load authoritative overview items and ticket details from public main `docs/ISSUES.md` and `docs/ISSUES_CLOSED.md`. Show Open, In progress, In review and Closed columns; sort each by ascending numeric priority. Add vertical priority markers: P0 red, P1 orange, P2 yellow, P3 purple, P4 blue, all others white. Clicking a card opens its details and recorded working/completed branch; missing historical branch metadata must be stated honestly. No dragging or editing. Preserve original Blocked/Deferred status in Open.
+
+**Acceptance:** Accessible keyboard cards and detail dialog, mobile layout, safe rendering of repository text, loading/error/retry behavior and consistent main snapshot. Parser tests cover real documents, statuses, priority order, historical closed details and missing branches. Independent blind review, generated docs checks and scoped publication preserve all existing game/Pages content. User explicitly requested this standalone `/tracker` deployment; game builds remain untouched. Keep Review pending user acceptance.
+
+F-TRACK-001 implementation: four-column board, search/priority filters, safe text details, recorded branches, consistent SHA-pinned public main reads, five-minute visible-tab refresh, atomic error/retry handling and keyboard dialog/focus. Twelve focused tests pass; independent blind first pass found bold branch metadata and malformed-archive handling defects, both fixed and rechecked at 9/10 with no material source blockers. Rendered browser/device appearance and native dialog interaction remain unverified. Source and scoped Pages publication evidence follows separately; keep Review pending Novy’s sign-off.
