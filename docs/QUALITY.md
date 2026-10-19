@@ -718,3 +718,11 @@ Green revision release/development clean builds and artifact checks passed; sour
 All 29 live development files match the checked green build by SHA-256. Evidence: validation/F-067-green-publication.json.
 
 F-067 accepted by Novy 18 October 2026 at 23:15 America/Creston; authorized main merge and production deployment. Moved complete issue/evidence into ISSUES_CLOSED.md.
+
+## F-OPS-001 — Standard delivery tooling, 19 October 2026
+
+Branch: `feature/build-deploy-runbook`. Implementation: parent session model (no model/effort override); fresh blind critic: gpt-6-luna, medium, separate context. Initial 7.5/10 identified contradictory current README/development instructions; corrected the current sections and retained dated evidence as history. Follow-up 9/10, no material blocker. Clarified that the manual workflow's own checked-build job satisfies source CI validation; native Pages and live hashes remain separate gates.
+
+Validation: full shared checked-dev invocation passes 340 regression tests, 4 documentation behavior tests, release build/QA exclusion and development build/QA inclusion. Expanded deployment tests pass 10/10 after adding a mocked publisher run exercising exact base-tree preservation, protected content, non-force update and changed-head rejection. Current docs checks pass 13 pages/1,543 local links and anchors/9 diagrams. YAML parses and publisher syntax check pass. Real development artifact produces a scoped plan. Existing icon generator supplied local binary inputs because connector binary reads fail; regenerated public files are excluded from the commit.
+
+No Actions execution, secret inspection/configuration, native Pages deployment or live-hash verification is claimed for the new workflow. It needs the documented repository publish secret and default-branch availability; the connector lacks workflow dispatch. No game deployment or main merge requested/performed. Implemented item remains Review pending workflow execution and user acceptance.

@@ -13,13 +13,13 @@ Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F
 
 A cheerful 3D herding game for portrait phones. Guide a robotic sheepdog through handmade-looking countryside and bring your robotic flock home. Start with a small sheep flock, then tackle longer routes, larger groups, bridges, gates, and other destinations. Earn points for upgrades and autonomous helpers.
 
-Production branch: `main`. Development branch: `flock_3D_chatgpt-work`.
+Production branch: `main`. Develop on feature branches from current main.
 
-Play the production game at [novydhillon.github.io/Flock/](https://novydhillon.github.io/Flock/). The QA-enabled development game remains at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/), and the original 2D game remains at [Flock/flock/dev](https://novydhillon.github.io/Flock/flock/dev/).
+Play the production game at [novydhillon.github.io/Flock/](https://novydhillon.github.io/Flock/). The QA-enabled development destination is [Flock/dev](https://novydhillon.github.io/Flock/dev/), and the original 2D game remains at [Flock/flock/dev](https://novydhillon.github.io/Flock/flock/dev/).
 
 Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/index.html) · [Requirements](docs/REQUIREMENTS.md) · [Issue tracker](docs/ISSUES.md).
 
-Play the standalone development build at [novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/). The existing `flock/dev/` game is preserved separately.
+Play the standalone development build at [novydhillon.github.io/Flock/dev/](https://novydhillon.github.io/Flock/dev/). The existing `flock/dev/` game is preserved separately.
 
 ## Current UI refinement candidate
 
@@ -54,7 +54,7 @@ npm run build
 npm run preview -- --host 0.0.0.0
 ```
 
-The production build is written to `dist/`. Relative asset paths allow it to run beneath `/Flock/dev2/` without a backend or CDN dependency.
+The production build is written to `dist/`. Relative asset paths allow it to run beneath `/Flock/` or `/Flock/dev/` without a backend or CDN dependency.
 
 ## Playing
 
@@ -74,24 +74,11 @@ The opening pasture teaches herding with a small sheep flock and a nearby pen. L
 
 ## Deployment
 
-Latest development release: delivered animals roam gently within the goal with full-body confinement, including the open entrance. Pages `639a9b4`, source `e03ba16`; CI and 165 tests pass, blind review 9.5/10, all 18 expected live files match. User acceptance recorded 15 October 2026 at 00:28 America/Vancouver. [Validation details](docs/validation/P0-P1.md).
+Use the shared checked builds: `npm run build:checked:dev` or `npm run build:checked:production`. Each runs documentation checks, full tests and the appropriate QA artifact checks.
 
-Previous verified follow-up: shorter bridge landings with actual-body clearance steering, and the entire occupied barn roof/facing sides at 30% transparency (opacity 0.70). Pages `8a76de3`; source `4d3cadc`. All 18 expected live files match; source CI passes 162 tests. See the [validation record](docs/validation/P0-P1.md).
+For publication, run **Deploy Flock** in GitHub Actions. Select a non-main feature branch and environment `dev` for `/Flock/dev/`. For an explicitly approved production release, select `main`, environment `production`, and confirmation `deploy-production`. The workflow checks the build, preserves unrelated Pages content, rejects concurrent publication, waits for native Pages and verifies every live file hash. It requires the `PAGES_PUBLISH_TOKEN` repository secret and the workflow on default main before manual runs are available.
 
-The canonical development game is [https://novydhillon.github.io/Flock/dev2/](https://novydhillon.github.io/Flock/dev2/), served from `dev2/` on `gh-pages`. F-025 migration was published at Pages commit `baca95c7ba618d736730194b433254bf5058dd66`: all 15 game files and the legacy redirect were hash-verified; 17 unrelated blobs were unchanged. The previous `/Flock/flock/dev2/` address redirects to the canonical game while retaining query and fragment. The reviewed P1 development build is now published at Pages `9346f26c5a145698b34e2c4504236c494023817d` from source `7a8519d37a8f447652f0449e16a050fc76a6d3e0`. All 17 game files plus the legacy redirect match the prepared build hashes; all 18 blobs outside `dev2/` are unchanged.
-
-The source workflow tests the game, builds/checks release without QA, then builds/checks the QA-enabled development distribution for its artifact; upload does not publish Pages. `npm run build` makes a production bundle without QA. `npm run build:dev` makes the explicit development distribution with the QA menu. Use the intended build before preparing a release:
-
-```sh
-npm run build:dev
-node scripts/check-build-mode.mjs development
-node scripts/deploy-pages.mjs /tmp/flock-pages-review
-git -C /tmp/flock-pages-review diff --cached --stat
-```
-
-The helper validates local HTML/CSS/JavaScript asset references before creating a detached worktree from the locally fetched `origin/gh-pages`. It stages `dev2/`, the legacy redirect and `.nojekyll` only if missing; it never fetches, commits or pushes. Review the full diff, preserve unrelated content, and verify live hashes after native Pages publication. See [release instructions](docs/DEVELOPMENT.md) and the [P0/P1 validation runbook](docs/validation/P0-P1.md).
-
-Local development and explicit development builds expose **QA · dev**. Opening it starts an isolated test profile: QA 0 is a tutorial shortcut, public levels remain 1–100, and test edits never save to the normal profile. Jump levels, adjust test bolts, reset the session, or export scenario JSON. Animal selection and coordinate positioning are temporarily hidden. Close QA with the × button or Resume; reload also exits QA. Physical touch usability remains awaiting device validation.
+See [the deployment runbook](docs/DEVELOPMENT.md#standard-build-and-deployment-commands--19-october-2026) for setup, evidence and connector-dispatch limitations. Do not use custom shell Git staging helpers: `scripts/deploy-pages.mjs` is now a pure deployment-plan module. Existing `dev2/` and legacy games are preserved; they are not new deployment targets. Dated release records elsewhere are historical evidence.
 
 ## Scope
 
