@@ -1,7 +1,7 @@
 {
   "environment": "dev",
   "branch": "claude/build-deployment-scripts-6p1dnt",
-  "sourceSha": "6edfa5784839b186a59893c8579297534b7edfb6",
+  "sourceSha": "eed872a7b3622a419283fd094db35dcea0527014",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
