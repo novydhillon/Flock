@@ -1,0 +1,369 @@
+{
+  "source": "cf6e182a8c78e2f6068364542cdad3b0ff7a35eb",
+  "sourceBranch": "buddy_behaviour",
+  "sourceCI": "https://github.com/novydhillon/Flock/actions/runs/39299937130",
+  "sourceCIResult": "success",
+  "pages": "83125c07f652d524cf753295b9aea07a6d8f8600",
+  "parent": "af7333ae5288310d64eff913ea3ab45d7faa7aff",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "files": [
+    {
+      "path": "index.html",
+      "size": 4721,
+      "sha": "c064501dbcbec16c17491c0b3d3ae3b293ae33b3",
+      "sha256": "50fb92999010c4880531d3bab0ebdee147b10cc7dc064c6a98a220158895dd8e"
+    },
+    {
+      "path": "site.webmanifest",
+      "size": 417,
+      "sha": "1936211d9b245c97b89f54f8f5c61cb728288d41",
+      "sha256": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "size": 13500,
+      "sha": "768bdf9e42de69adb8d99aa0e784bc26e363c22d",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "size": 14348,
+      "sha": "26edc56c122261f14290330af50bbff92e0a17b4",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "size": 18504,
+      "sha": "5c43e6490f991913c0752e98be1b8e1ef7d48e59",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "size": 18412,
+      "sha": "87b8e187f0431a4c523be6191b66e31c50e0359b",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "assets/index-BL6CDKMp.css",
+      "size": 13867,
+      "sha": "669c44647b111267fbb989be46b608151f84d89c",
+      "sha256": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8"
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "size": 1910,
+      "sha": "263c88480858a675c693bc413b9bfb4cfbbfcc7c",
+      "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525"
+    },
+    {
+      "path": "assets/index-GzVsf8MU.js",
+      "size": 700853,
+      "sha": "cce493929aca562b3763255d89b67ee449feed73",
+      "sha256": "f228aa4e046998fedddbc6cb550b4ff4711d4107eca2239d7e495f484ab5dc60"
+    },
+    {
+      "path": "assets/qa-zRf25Ndm.js",
+      "size": 8826,
+      "sha": "9e49aeed8b8e8589ae9ce98073cecefa61ff41e5",
+      "sha256": "77d16f9f6273ec216a157bc489b986677385f1c84a197fbff1fbf5266183b0c0"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "size": 14140,
+      "sha": "aa32da2408ba303cef78ff1c3dc36cbf88983ef1",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "size": 17752,
+      "sha": "14b81de6eb97b8a53156e0beb15747a595e56349",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "size": 18356,
+      "sha": "e9a3b306ccda71d80293dcad2c4b070420601244",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "size": 14200,
+      "sha": "0b8bc556cf4b4cbd5c82418947a159f9aaa3c6cc",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "size": 14060,
+      "sha": "8674e73594a26b7670d3ba93e42063f39e11c3ee",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "size": 18320,
+      "sha": "4a8bb66121cec0835bc077cb683f1d97b67c1a98",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "size": 14144,
+      "sha": "5e39dbc959ff4cb85134d5666d5251aa54b430ad",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "size": 18344,
+      "sha": "3e31399123c1a3b6df33f166d2def8d03bd797b1",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "icons/pip-96.png",
+      "size": 7295,
+      "sha": "c4ca366d1605a053e68fc7af3e3aa97de8bd6793",
+      "sha256": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758"
+    },
+    {
+      "path": "icons/pip-192.png",
+      "size": 17674,
+      "sha": "c32fa76d4fe18909a6cf6e9290a010687e033e51",
+      "sha256": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e"
+    },
+    {
+      "path": "icons/pip-152.png",
+      "size": 13117,
+      "sha": "bd6105982dbe82dc82ea45f503111367747c3717",
+      "sha256": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec"
+    },
+    {
+      "path": "icons/pip-32.png",
+      "size": 1748,
+      "sha": "ff2eb106147d347f47e46ab82bb2bbf58b457b20",
+      "sha256": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76"
+    },
+    {
+      "path": "icons/pip-512.png",
+      "size": 40511,
+      "sha": "bf90524ec7a76b46156cbbd183016fbdc631cef5",
+      "sha256": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841"
+    },
+    {
+      "path": "icons/pip-167.png",
+      "size": 14808,
+      "sha": "eceffc9b8900af7c3868cb81354e52bdf3e5661a",
+      "sha256": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662"
+    },
+    {
+      "path": "icons/pip-48.png",
+      "size": 3002,
+      "sha": "fcc7d429de0c97fc5d40fdbb0c3bc0c9457c59c5",
+      "sha256": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e"
+    },
+    {
+      "path": "icons/pip.svg",
+      "size": 35484,
+      "sha": "2506310a3b9365b7d1f37660d77136497dc924ae",
+      "sha256": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6"
+    },
+    {
+      "path": "icons/pip-120.png",
+      "size": 9769,
+      "sha": "3a9f30ac12278ccbec76eabc74bb1ebc42789b99",
+      "sha256": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7"
+    },
+    {
+      "path": "icons/pip-16.png",
+      "size": 712,
+      "sha": "796db7962e3244ded171b4270cd7bff51ca3d3b2",
+      "sha256": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182"
+    },
+    {
+      "path": "icons/pip-180.png",
+      "size": 16430,
+      "sha": "cbc7924f1010e847d29092f0ad6ee291e242c4d3",
+      "sha256": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107"
+    }
+  ],
+  "preservedBlobs": 65,
+  "date": "2026-10-19",
+  "pagesWorkflow": "https://github.com/novydhillon/Flock/actions/runs/39300214359",
+  "pagesWorkflowResult": "success",
+  "liveVerification": [
+    {
+      "path": "index.html",
+      "expected": "50fb92999010c4880531d3bab0ebdee147b10cc7dc064c6a98a220158895dd8e",
+      "actual": "50fb92999010c4880531d3bab0ebdee147b10cc7dc064c6a98a220158895dd8e",
+      "match": true
+    },
+    {
+      "path": "site.webmanifest",
+      "expected": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4",
+      "actual": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "expected": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "actual": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "expected": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "actual": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "expected": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "actual": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "expected": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "actual": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "match": true
+    },
+    {
+      "path": "assets/index-BL6CDKMp.css",
+      "expected": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+      "actual": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+      "match": true
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "expected": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "actual": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "match": true
+    },
+    {
+      "path": "assets/index-GzVsf8MU.js",
+      "expected": "f228aa4e046998fedddbc6cb550b4ff4711d4107eca2239d7e495f484ab5dc60",
+      "actual": "f228aa4e046998fedddbc6cb550b4ff4711d4107eca2239d7e495f484ab5dc60",
+      "match": true
+    },
+    {
+      "path": "assets/qa-zRf25Ndm.js",
+      "expected": "77d16f9f6273ec216a157bc489b986677385f1c84a197fbff1fbf5266183b0c0",
+      "actual": "77d16f9f6273ec216a157bc489b986677385f1c84a197fbff1fbf5266183b0c0",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "expected": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "actual": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "expected": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "actual": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "expected": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "actual": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "expected": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "actual": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "expected": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "actual": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "expected": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "actual": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "expected": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "actual": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "expected": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "actual": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "match": true
+    },
+    {
+      "path": "icons/pip-96.png",
+      "expected": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758",
+      "actual": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758",
+      "match": true
+    },
+    {
+      "path": "icons/pip-192.png",
+      "expected": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e",
+      "actual": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e",
+      "match": true
+    },
+    {
+      "path": "icons/pip-152.png",
+      "expected": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec",
+      "actual": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec",
+      "match": true
+    },
+    {
+      "path": "icons/pip-32.png",
+      "expected": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76",
+      "actual": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76",
+      "match": true
+    },
+    {
+      "path": "icons/pip-512.png",
+      "expected": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841",
+      "actual": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841",
+      "match": true
+    },
+    {
+      "path": "icons/pip-167.png",
+      "expected": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662",
+      "actual": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662",
+      "match": true
+    },
+    {
+      "path": "icons/pip-48.png",
+      "expected": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e",
+      "actual": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e",
+      "match": true
+    },
+    {
+      "path": "icons/pip.svg",
+      "expected": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6",
+      "actual": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6",
+      "match": true
+    },
+    {
+      "path": "icons/pip-120.png",
+      "expected": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7",
+      "actual": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7",
+      "match": true
+    },
+    {
+      "path": "icons/pip-16.png",
+      "expected": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182",
+      "actual": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182",
+      "match": true
+    },
+    {
+      "path": "icons/pip-180.png",
+      "expected": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107",
+      "actual": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107",
+      "match": true
+    }
+  ],
+  "limits": [
+    "Native browser/phone motion, touch and FPS not inspected",
+    "User playtest/sign-off pending; F-COMP-009 remains Review"
+  ]
+}
