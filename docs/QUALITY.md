@@ -699,3 +699,22 @@ Full repository regression suite: **350/350 pass** (including 12 new tracker che
 ## F-TRACK-001 user acceptance — 18 October 2026, 22:45 America/Creston
 
 Novy signed off the deployed `/Flock/tracker/` site and authorized pushing and merging PR #11 to main. F-TRACK-001 is Done and its complete tracker record is archived in ISSUES_CLOSED.md. This acceptance supersedes historical Review/pending-user-acceptance notes; independent native/browser verification limits remain as recorded. No application files change in this sign-off batch. Source and native Pages CI previously passed; publication details and user acceptance are in [the evidence record](validation/F-TRACK-001-publication.json).
+
+
+## F-067 Pip app icons — 19 October 2026 UTC
+
+Implementation: parent gpt-6.1-sol session (effort setting not exposed). Independent fresh critic: gpt-6-luna, medium. First review 8/10 identified manual rasterization drift; generator now regenerates SVG and all PNGs in one command, and 48/96 icons are declared. Follow-up review recorded below.
+
+All 350 regressions pass; both build modes and artifact guards pass; documentation build/check passes. PNGs checked for expected dimensions, RGBA range 0–255 and transparent corners. Emitted HTML icon/manifest URLs resolve. SVG portrait visually inspected at 512 pixels: actual silver Pip head, ears, eye band and muzzle centered. SVGRenderer uses simplified lighting without model texture sampling. Browser installation and iOS compositing untested. Browser download failed (truncated download); no native appearance or installability claim.
+
+Follow-up critic: **9/10**, no blocking defects; both findings resolved and dimensions/transparency rechecked. User acceptance remains pending.
+
+F-067 dev publication: source CI 39207762707 and Pages 39207932067 succeeded. All 29 live files SHA-256 match the checked dev build, including HTML, manifest, all icons, fonts and QA assets. Pages 46ce3a7 preserves all 53 unrelated blobs. Device appearance remains pending; see validation/F-067-publication.json.
+
+F-067 green revision: bounded asset-only change, same head geometry/framing. A full-square SVG rectangle uses the field texture base colour #779c4d. All PNGs regenerated; verify dimensions, opaque alpha and corners. Previous transparency evidence is historical. Prior independent review still describes the head/markup; no new blind review for this bounded colour change.
+
+Green revision release/development clean builds and artifact checks passed; source CI 39208378316 including docs and regression tests passed. Pages workflow 39208561127 succeeded. 53 unrelated blobs preserved. Background pixel/alpha checks passed for all ten PNGs, and 512px output visually inspected.
+
+All 29 live development files match the checked green build by SHA-256. Evidence: validation/F-067-green-publication.json.
+
+F-067 accepted by Novy 18 October 2026 at 23:15 America/Creston; authorized main merge and production deployment. Moved complete issue/evidence into ISSUES_CLOSED.md.
