@@ -754,3 +754,5 @@ The Claude and Gemini model names in the tier table are family aliases, not veri
 
 Validation: `npm run docs:check` passes, `npm test` passes 341/341, and `npm run build:checked:dev` passes. Nobody has confirmed in live Codex, Claude Code or Gemini CLI sessions that each tool loads the nested symlinks. Models are recorded as described above. Remains Review pending user sign-off.
 
+Source CI: run 39323862997 passed on `d3a1058`. Novy signed off on 19 October 2026, 14:03 America/Creston, and F-OPS-002 is Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the instruction files. Live loading of the symlinks by each agent tool is still unverified.
+
