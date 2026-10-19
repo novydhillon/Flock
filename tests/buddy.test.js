@@ -44,6 +44,8 @@ test('Buddy standby clears motion and resumes with bounded acceleration from res
   const h=buddy(level),effects={helper:1,helperTier:1};
   for(let i=0;i<20;i++)moveBuddy(level,h,{x:0,z:30},.05,7);
   assert.ok(h.moveSpeed>6,'establish motion before entering standby');
+  // A nearby no-task Buddy parks; a remote one now returns near Pip.
+  level.dog={x:h.x+4,z:h.z};
   const stopped={x:h.x,z:h.z};
   for(let i=0;i<40;i++){
     level.time+=.05;updateBuddy(level,[],effects,.05,[]);

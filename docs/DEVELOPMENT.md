@@ -1,5 +1,12 @@
 # Development, QA and release context
 
+## Buddy behaviour review — 19 October 2026
+
+Branch `buddy_behaviour` starts from main `1ad55f0`. Review F-COMP-001/002/003/007 at public QA levels 20/24/28. Guide a moving flock, stop/reverse it, split it with groups traveling opposite ways, and compare sheep/all cow sizes. Move Pip through Buddy's rear/flank route: Buddy should keep a stable side where space permits, without steering Pip or waiting forever in narrow gates/rotated bridges. Confirm tier-2 final-animal goal help still requires Pip attending and tier-3 stray retrieval stays physical.
+
+With no valid work, watch Buddy return near Pip, route around a large tree and settle without circling. An impassable barrier should produce a safe wait. Block a work route, then reopen it: recovery should back out only through clear ground, retry calmly and clear stale state on task changes/restarts. An obstructed ideal work point with nearby valid standing ground should settle without repeated escapes. Check pause/background/resume, restart, level jumps, absent Buddy, independent barks and low-speed motion. Source regression/build evidence is separate from phone motion and FPS. This batch has not been deployed or user-accepted; non-main deployment uses `/Flock/dev/` when requested.
+
+
 ## Standalone tracker publication
 
 The explicit 18 October request authorizes the standalone `tracker/` site at `https://novydhillon.github.io/Flock/tracker/`. This is a scoped tool publication, not a game build destination change. Novy accepted the deployed tracker on 18 October 2026 at 22:45 America/Creston and authorized merging `feature/work-tracker` through PR #11 to main. Copy only the four `tracker/` files to the same paths on the latest `gh-pages` tree through the GitHub connector and update its ref with the expected parent. Preserve all other Pages paths. Run `node --test tests/tracker-*.test.js`, generated-doc checks and independent review; inspect native Pages workflow success. The board always reads public main tracker files, including future updates without redeployment. Use `**Branch:** ` followed by a backtick-quoted branch name in each ticket detail to make ownership explicit; missing historical branches remain unrecorded. Verify source CI and record native/rendered verification limits.

@@ -1,8 +1,8 @@
 # FLOCK — Active issue tracker
 
-Updated 18 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 19 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
-This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. The 42 new bird/herd/companion/UI planning items remain Open.
+This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007 are in the current behaviour batch; the other 38 bird/herd/companion/UI planning items remain Open.
 
 ## Tracker lifecycle and ownership
 
@@ -32,13 +32,13 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
-| F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | In progress | F-046 accepted tier behavior; F-048 movement |
-| F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | In progress | F-COMP-001; F-046 accepted roles |
-| F-COMP-003 | P2 | Navigation | Progress-aware Buddy obstacle recovery | In progress | F-048 accepted smooth movement; existing Buddy detours |
+| F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | Review | F-046 accepted tier behavior; F-048 movement |
+| F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | Review | F-COMP-001; F-046 accepted roles |
+| F-COMP-003 | P2 | Navigation | Progress-aware Buddy obstacle recovery | Review | F-048 accepted smooth movement; existing Buddy detours |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
-| F-COMP-007 | P2 | Behavior | Calm useful Buddy standby | In progress | F-COMP-001; F-COMP-003; accepted standby resets |
+| F-COMP-007 | P2 | Behavior | Calm useful Buddy standby | Review | F-COMP-001; F-COMP-003; accepted standby resets |
 | F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
 | F-HERD-001 | P2 | Behavior | Bounded individual temperaments | Open | Existing wander/bolt and pressure behavior |
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
@@ -454,9 +454,11 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-001 — Buddy gives Pip room to work (P2)
 
-**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
 
 **Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-046 accepted tier behavior; F-048 movement.
 
@@ -464,9 +466,11 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-002 — More useful Buddy herding positions (P2)
 
-**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
 
 **Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-COMP-001; F-046 accepted roles.
 
@@ -474,9 +478,11 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-003 — Progress-aware Buddy obstacle recovery (P2)
 
-**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
 
 **Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-048 accepted smooth movement; existing Buddy detours.
 
@@ -508,9 +514,11 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-007 — Calm useful Buddy standby (P2)
 
-**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
 
 **Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-COMP-001; F-COMP-003; accepted standby resets.
 
@@ -649,6 +657,5 @@ Root AGENTS.md and DEVELOPMENT.md now require connector-only repository operatio
 Requested integration of main `d2484b9` into planning branch `plan/bird-behaviour` (`6ca2b35`). Main contributes five commits since shared base `5fd8cf5`: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch's planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy's 22:10 approval and is added directly to [Closed issues](ISSUES_CLOSED.md); 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.
 
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
-
 
 

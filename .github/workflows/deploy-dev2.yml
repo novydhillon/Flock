@@ -2,7 +2,7 @@ name: Flock 3D — checks and standalone build
 
 on:
   push:
-    branches: [feature/pip-icons, feature/work-tracker, flock_3D_chatgpt-work, main, pip_update, buddy_update, UI_refinement, art_update_cow, herd_turning_visual, livestock_grazing]
+    branches: [buddy_behaviour, feature/pip-icons, feature/work-tracker, flock_3D_chatgpt-work, main, pip_update, buddy_update, UI_refinement, art_update_cow, herd_turning_visual, livestock_grazing]
   workflow_dispatch:
 
 permissions:

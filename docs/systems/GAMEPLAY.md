@@ -202,3 +202,15 @@ An animal more than .6m ahead of its component centroid along that travel direct
 `bridge-crossing.js` gives each animal local traversal intent after it walks onto a valid deck with at least .12m/s of along-bridge motion. It records the movement sign and a body-clear lane, suppresses spontaneous excursions, and navigates toward usable ground beyond the far end. Sheep/cow walking caps are 3.2/2.7m/s for this local phase. Cohesion and dogs cannot reverse the animal mid-deck; physical obstructions still stop it. Completion requires the full body beyond the deck on usable ground. A holding drone updates its positional anchor to that reached bank rather than pulling the animal back. Idle animals and walkers beside a river do not auto-launch. Pause freezes intent/movement, fresh levels clear it, and saved animals clear traversal state before confined goal roaming. This is not unattended admission or goal selection.
 
 Autonomous Buddy bark now starts at **tier 2 (public level 24)**. The same 3.2s simulation-time cooldown, .65s burst, local useful rear position, sound/ring/red tail and independent Pip cooldown apply at tiers 2 and 3. Tier 1 stays silent; retrieving wandering/bolting individuals still requires tier 3 at public level 28. Prices and save schema stay unchanged.
+
+
+
+### Buddy working space, positioning and recovery — 19 October 2026
+
+The `buddy_behaviour` candidate covers F-COMP-001/002/003/007. Buddy measures the selected group's own travel rather than borrowing the largest group's heading. Member-overlap history preserves turns and stops; existing tier selection, passage commitment and physical stray retrieval still apply. A tunable 3m comfortable gap shifts work/orbit positions laterally around Pip with retained side choice. Body-clear alternatives take priority; cramped passages keep their task and a constrained gate fallback is bounded to avoid permanently waiting for room. Pip is never steered.
+
+With no valid group, Buddy picks a stable reachable point 3.5–5.5m from Pip, preferring positions clear of bridge throats, gates and the destination approach. A suitable existing spot within 2–7m can remain parked. Candidate endpoints and the full bounded chain of navigation edges use physical clearance, including tree detours and multi-waypoint bridge returns; if none is available, Buddy waits safely. Standby does not pressure delivered animals and valid tier work resumes on the next simulation update.
+
+Recovery observes collision-limited movement or sustained lack of progress toward a stable work point. After 1.5s blocked or 6s futile progress it tries a short clear back/side exit, with at most three attempts before a 2s quiet retry. Every move still goes through the ordinary .6m collision body. Arrival, temporary yielding and inactive work do not accumulate stuck history; task/level changes clear caches and recovery. Existing bounded turn/acceleration behavior remains.
+
+Source tests and blind review are recorded in QUALITY.md. Phone motion, narrow-passage feel and actual device FPS require user/device review; no deployment or acceptance follows from source tests.
