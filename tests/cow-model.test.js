@@ -25,8 +25,10 @@ function silhouetteHash(model){
 
 test('cow redesign preserves the accepted sheep geometry and has a larger grounded silhouette',()=>{
   const sheep=createAnimal('sheep'),cow=createAnimal('cow');
-  assert.equal(silhouetteHash(sheep),'fa76ffcb7dab581709044d0a1820173560c64d2e10ece659cb9dd4c466f9972d',
-    'cow work must not alter sheep vertices or hip transforms');
+  // F-066 splits the existing head into neck-local material batches. This
+  // updates buffer layout, while retaining the standing model and hip pivots.
+  assert.equal(silhouetteHash(sheep),'1ce80fd2c9fe2b36116b5408abf6a8c870c14499103f26bb99b63aa74858f524',
+    'retain the articulated sheep geometry and hip transforms');
   const sheepSize=bounds(sheep).getSize(new THREE.Vector3()),cowBox=bounds(cow),cowSize=cowBox.getSize(new THREE.Vector3());
   for(const axis of ['x','y','z'])assert.ok(cowSize[axis]/sheepSize[axis]>1.35&&cowSize[axis]/sheepSize[axis]<(axis==='z'?2:1.8),
     `cow ${axis} silhouette is visibly larger with the deliberate torso length extension`);
@@ -79,7 +81,7 @@ test('cow batches remain finite, textured once and bounded for flock instancing'
     if(geometry.index)assert.ok([...geometry.index.array].every(i=>i<geometry.attributes.position.count));
     triangles+=(geometry.index?.count||geometry.attributes.position.count)/3;
   }
-  assert.ok(parts.length<=18,`bounded material/hip batches: ${parts.length}`);
+  assert.ok(parts.length<=19,`bounded material/head/hip batches: ${parts.length}`);
   assert.ok(triangles<=6500,`bounded per-cow geometry: ${triangles}`);
   const coats=parts.filter(p=>p.material.map?.image?.width===256);
   assert.equal(coats.length,1,'organic coat remains one surface batch');

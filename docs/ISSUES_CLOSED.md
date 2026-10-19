@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-066~~ | ~~P2~~ | ~~Presentation~~ | ~~Grazing head pose~~ | ~~Done~~ | ~~Novy accepted 18 October 2026, 22:10 America/Creston; livestock_grazing~~ |
 | ~~F-064~~ | ~~P2~~ | ~~Art~~ | ~~Reference clay Holstein cows at 1.5× sheep size~~ | ~~Done~~ | ~~art_update_cow~~ |
 | ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
 | ~~F-001~~ | ~~P1~~ | ~~Reported defect~~ | ~~Path-corner polygon flicker~~ | ~~Done~~ | ~~—~~ |
@@ -810,3 +811,16 @@ F-065 **Done** by Novy’s dev approval on 18 October 2026, 18:03 America/Cresto
 ## Planning branch publication authorization — 18 October 2026, 21:59 America/Creston
 
 Novy confirmed publication of `plan/bird-behaviour` to `https://github.com/novydhillon/Flock`, covering all bird, herd, companion and selected UI planning updates. This supersedes earlier pending-push-authorization notes; all proposed items remain Open. Shell git has no HTTPS credentials, so source publication uses the connected GitHub service. No runtime implementation, main merge or game deployment is included. Generated documentation and its four behavior checks pass.
+
+
+## F-066 — ~~Grazing head pose~~
+
+**Done** by Novy's approval on 18 October 2026, 22:10 America/Creston. Merge to main and production publication are authorized. This acceptance supersedes the historical pending-sign-off wording below; production evidence follows separately.
+
+Published and verified at `/Flock/dev/`: source `54cc8c5`, Pages `d3bc2b8`; source CI/native Pages succeeded, 338 regressions pass, both artifact modes pass, all 17 live files match and 49 unrelated Pages blobs are preserved. Final source review 9/10 without material blockers. [Publication evidence](validation/F-066-grazing-publication.json). User appearance sign-off remains pending.
+
+**Done**, owner Codex, branch `livestock_grazing` from main `5fd8cf5`.
+Acceptance: calm livestock lower their complete heads to eat on grass/bushes; never on paths, bridge decks or barn floors. Smoothly lift when moving, turning or pressured; freeze on pause, reset on restart, preserve cow variants and instancing. Head, hoof-boundary and spatial-query checks pass; independent source review accepted the hoof fix at 9/10. Development publication evidence follows separately; native appearance requires user review.
+
+
+Production publication evidence imported with main `d2484b9`: [F-066 production manifest](validation/F-066-grazing-production-publication.json). The dated Done/user-acceptance record above supersedes older Review/pending wording.

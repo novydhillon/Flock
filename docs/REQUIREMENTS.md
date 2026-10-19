@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## F-066 grazing
+
+Calm sheep and cows lower their complete heads close to grass when settled. Bush ground is eligible; paths and shoulders, bridge decks, water and barn interiors are excluded at both the feet and feeding point. Moving, turning or threatened animals raise their heads. Pause freezes the pose and level replacement clears it. Existing physical steering, collision, cow sizes and coats remain unchanged.
+
 ## F-057 minimap placement — 18 October 2026
 
 Center the minimap horizontally at the safe top edge. Preserve its size, contrast, information and interaction. Below 384px width, keep it centered in the next top lane under the weather/livestock/timer and pause/help controls to prevent collisions. This supersedes earlier top-right minimap placement.
