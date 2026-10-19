@@ -6,6 +6,8 @@ Novy approved all UI changes and authorized merge to main and production deploym
 
 ## F-066 — Grazing head pose
 
+Published and verified at `/Flock/dev/`: source `54cc8c5`, Pages `d3bc2b8`; source CI/native Pages succeeded, 338 regressions pass, both artifact modes pass, all 17 live files match and 49 unrelated Pages blobs are preserved. Final source review 9/10 without material blockers. [Publication evidence](validation/F-066-grazing-publication.json). User appearance sign-off remains pending.
+
 **Review**, owner Codex, branch `livestock_grazing` from main `5fd8cf5`.
 Acceptance: calm livestock lower their complete heads to eat on grass/bushes; never on paths, bridge decks or barn floors. Smoothly lift when moving, turning or pressured; freeze on pause, reset on restart, preserve cow variants and instancing. Head, hoof-boundary and spatial-query checks pass; independent source review accepted the hoof fix at 9/10. Development publication evidence follows separately; native appearance requires user review.
 
