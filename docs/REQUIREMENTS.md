@@ -393,3 +393,30 @@ Novy approved the current cow update at 17:30 America/Creston and authorized mer
 ## Herd pivot presentation (F-065)
 
 Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.
+
+
+## Planned bird behavior expansion — 18 October 2026
+
+Requested; not implemented. See [bird feature plan and acceptance criteria](ISSUES.md#bird-behavior-feature-plan--18-october-2026-americacreston), F-BIRD-001–014 (P2, Open).
+
+- Expand existing birds to fly, land on the ground and peck, perch in trees and chirp, and perch on fences/other supported structures to chirp or sit quietly.
+- Ground birds fly away from nearby Pip/Buddy and quickly approaching livestock. Grazing or slowly moving livestock alone do not startle them; tune proximity, closing-speed thresholds and relanding hysteresis during implementation.
+- Each level has a 10% chance of one nest in one eligible tree, interpreted as a single per-level roll, with zero nests when no eligible tree exists. Use separate seeded randomness and stable restart placement. Nests are decorative for this scope.
+- Preserve current bird population caps initially, existing weather sheltering and storm exclusion, gameplay behavior and progress. Pause/resume, cleanup, animation, audio, safe landing anchors and mobile performance require validation before acceptance.
+
+- Additional requested scope: small foraging groups of two or three with staggered takeoff responses; short ground hops and perched head tilts/preening/feather ruffling; reactions to actual Pip/Buddy bark events; occasional nest visits; two or three recognizable bird varieties with different colors/calls; and gradual return to forage after threats leave. Keep bird counts bounded, use shared animation foundations, preserve weather shelter and make birds ambient wildlife without feeding chores or rewards. See F-BIRD-009–014 for dependencies and acceptance criteria.
+
+
+## Planned herd life and readability enhancements — 18 October 2026
+
+Requested for tracking, not implemented. F-HERD-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: bounded individual temperaments, movement anticipation, resting gestures, gentle preferred-neighbor relationships, gate/bridge yielding, gradual relaxation, sheep/cow character differences and entrance-clearing arrival behavior. Prioritize yielding, anticipation and arrival behavior. Preserve accepted physical navigation, weak cohesion/forward flow, turn caps, local settling and delivered-animal containment; integrate the separate grass/bush-only grazing request without allowing grazing on paths, bridges or inside barns. Threat response remains immediate and progression/scoring unchanged. See each tracker item's dependencies and shared validation/user-acceptance gate before implementation.
+
+
+## Planned Pip and Buddy improvements — 18 October 2026
+
+Requested for tracking, not implemented. F-COMP-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: Buddy gives Pip working space, selects useful herding positions, recovers from blocked progress, shows clear attention, animates actual barks/recovery, has a distinct personality from Pip, waits in a useful standby location and shares a brief nonblocking final-delivery celebration. Prioritize working space, positioning and obstacle recovery. Preserve direct Pip control, accepted Buddy tier roles and low-speed movement, physical navigation, current hover/lean/glow, immediate bark effects/cooldowns, scoring and saved progress. See individual dependencies, pose priorities and shared runtime review/user-acceptance requirements in the tracker.
+
+
+## Planned gameplay, loading and landing UI improvements — 18 October 2026
+
+Requested for tracking, not implemented. F-UI-001–012 in [the tracker](ISSUES.md) are P2 and Open: bark-ready feedback, distinguishable livestock minimap markers, clearer workshop benefits/previews, loading vignette, honest loading stages, smooth ready-scene reveal, loading-error Retry, progress-aware Start/Continue, a living landing meadow, moving full-game reset into settings/menu, a clear meadow selector with remembered browsing position, and refreshed sheep/cow/Pip/Buddy copy. Prioritize Continue, reset placement, loading recovery and workshop clarity. Explicitly excluded from this new batch: contextual gate controls, cleaner results and control preferences. Preserve accepted minimal gameplay chrome, existing gameplay/progression and production QA exclusion. See the tracker for individual acceptance criteria, dependencies and review/device-validation requirements.
