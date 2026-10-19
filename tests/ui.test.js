@@ -494,7 +494,7 @@ test('tier-two autonomous Buddy bark reaches audio and renderer without consumin
  const state=ui.app.state(),l=state.level;
  Object.assign(l,{time:0,bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],fenceSegments:[],obstacles:[],routes:[],
   helpers:[{type:'helper',x:-4,z:0}],animals:[0,1].map(id=>({id,x:0,z:id*2,vx:2,vz:0,type:'sheep',saved:false,nextWanderCheck:1e9}))});
- Object.assign(state.dog,{x:-70,z:-70});
+ Object.assign(state.dog,{x:-12,z:0});
  ui.tick();assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
  assert.equal(state.renderer.barks.length,1);assert.ok(Number.isFinite(state.renderer.barks[0].x));
  assert.equal(ui.el('bark').disabled,false,'Buddy does not consume Pip cooldown');

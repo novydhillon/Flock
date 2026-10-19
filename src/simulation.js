@@ -308,7 +308,14 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       const force = buddy.forces.get(animal.id);
       desiredX += force.x; desiredZ += force.z; pressure = Math.max(pressure, .45);
     }
-    const holding = !crossing && companions.hold && companions.memberIds.has(animal.id) && pressure < 0.03;
+    const buddyPosition=buddy.holds?.get(animal.id);
+    if(bridgeIntent?.finished&&level.buddyHerd?.containment?.positions[animal.id]){
+      Object.assign(level.buddyHerd.containment.positions[animal.id],{x:old.x,z:old.z});
+      // A completed crossing establishes a safe new holding area on this bank.
+      if(level.buddyHerd?.containment)level.buddyHerd.containment.anchor={x:old.x,z:old.z};
+    }
+    const holding = !crossing && !dogActivelyHerding && pressure < 0.03 &&
+      (Boolean(buddyPosition) || (companions.hold && companions.memberIds.has(animal.id)));
     const settle = () => { animal.wanderHome = {x:old.x,z:old.z}; delete animal.wander; };
     if (animal.wander && (level.time >= animal.wander.until || !wanderCohort.has(animal.id))) settle();
     const opportunity = nextWanderOpportunity(level, animal, dt);
@@ -321,7 +328,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     if (holding) {
       // Kill inherited forward velocity and alignment. Merely parking the drone
       // would leave the flock's old momentum/cohesion walking toward the goal.
-      const position = companions.state.positions[animal.id];
+      const position = buddyPosition || companions.state.positions[animal.id];
       desiredX = clamp((position.x - old.x) * 2.6 + sx * 0.35, -1.1, 1.1);
       desiredZ = clamp((position.z - old.z) * 2.6 + sz * 0.35, -1.1, 1.1);
     } else {

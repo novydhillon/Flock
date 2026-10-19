@@ -9,7 +9,7 @@ const tick=(l,tier=2)=>{l.time+=.05;return updateBuddy(l,l.animals,{helper:1,hel
 
 test('smaller flock uses its own opposite travel and stopped groups receive no borrowed pressure',()=>{
  const l=fixture([animal(0,0,0,2),animal(1,0,2,2),animal(2,2,1,2),animal(3,30,0,-2),animal(4,30,2,-2)]);
- tick(l);const h=l.helpers[0];assert.deepEqual(h.clusterIds,[3,4]);assert.ok(h.forward.x<-.99);assert.ok(h.desired.x>33);
+ l.dog={x:42,z:1};tick(l);const h=l.helpers[0];assert.deepEqual(h.clusterIds,[3,4]);assert.ok(h.forward.x<-.99);assert.ok(h.desired.x>33);
  l.animals.slice(3).forEach(a=>a.vx=0);
  const result=tick(l);assert.equal(h.mode,'hold');assert.equal(result.forces.size,0);
 });

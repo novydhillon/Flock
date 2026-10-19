@@ -61,7 +61,7 @@ test('when Pip leaves, drone stops inherited momentum and holds the flock for fi
   assert.ok(separation(center(level.animals), anchor) < 0.4, 'the flock cannot drift along its old heading');
   assert.equal(level.animals.filter(a => a.saved).length, 0);
   assert.notEqual(level.completed, true);
-  assert.ok(level.helpers.every(h => h.mode === 'hold'));
+  assert.ok(level.helpers.every(h => h.mode === (h.type === 'helper' ? 'contain' : 'hold')));
 });
 
 test('Pip returning reactivates lateral assistance; 12/18m hysteresis avoids mode chatter', () => {
@@ -249,8 +249,8 @@ test('the ground buddy stays with an unattended herd rather than following faraw
   });
   simulate(level, 10, { helper: 1 });
   const buddy = level.helpers.find(h => h.type === 'helper');
-  assert.equal(buddy.mode, 'hold');
-  assert.ok(separation(buddy, center(level.animals)) < 5, 'buddy watches the herd on valid ground');
+  assert.equal(buddy.mode, 'contain');
+  assert.ok(separation(buddy, center(level.animals)) < 12, 'buddy patrols near the herd on valid ground');
   assert.ok(canOccupy(level, buddy.x, buddy.z, .6));
   assert.ok(separation(buddy, level.dog) > 60, 'buddy did not abandon its flock to chase Pip');
 });

@@ -42,6 +42,13 @@ export function updateGrazing(pose, animal, level, dt) {
   const quiet = Math.hypot(animal.vx, animal.vz) < .45 &&
     (animal.alert || 0) < .03 && (state.turnSpeed || 0) < .05 &&
     !animal.wander && !animal.bridgeCrossing;
+  // Keep a fixed local anchor: minor shuffling can settle, continuous drift cannot.
+  const anchor = state.grazeAnchor;
+  const local = anchor && Math.hypot(animal.x-anchor.x, animal.z-anchor.z) <= .75;
+  if (!quiet || !local) {
+    state.grazeAnchor = {x:animal.x, z:animal.z};
+    state.grazeWait = 0;
+  }
   if (!quiet && !(state.graze > 0)) {
     state.grazeWait=0;state.graze=0;state.grazeTime=(state.grazeTime||0)+dt;return;
   }
@@ -58,7 +65,7 @@ export function updateGrazing(pose, animal, level, dt) {
   })));
   const edible = [animal, mouth, ...feet].every(point => canGrazeAt(level, point));
   state.grazeWait = edible && quiet ? (state.grazeWait || 0) + dt : 0;
-  const target = state.grazeWait >= 1.25 ? 1 : 0;
+  const target = state.grazeWait + 1e-9 >= 7 && Math.hypot(animal.vx, animal.vz) < .1 ? 1 : 0;
   // Never retain a lowered head after crossing onto an excluded surface.
   state.graze = edible ? (state.graze || 0) +
     Math.max(-dt*4, Math.min(dt*2, target - (state.graze || 0))) : 0;

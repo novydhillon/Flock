@@ -435,3 +435,8 @@ Requested for tracking, not implemented. F-UI-001–012 in [the tracker](ISSUES.
 ## Pip app identity (F-067)
 
 Use a closeup of the current silver Pip head for browser favicons and iOS Home Screen artwork. Use a solid grass-green artwork background (`#779c4d`), superseding the initial transparency request on 18 October 2026. Supply SVG plus 16/32/48/96/120/152/167/180/192/512-pixel PNGs; link Apple touch sizes explicitly and provide a relative-scope manifest. Preserve game progression and runtime behavior. Native iOS may composite transparent artwork; verify final Home Screen appearance on device.
+
+
+## Buddy containment refinement — 19 October 2026
+
+F-COMP-009: Novy requests that Buddy contain the selected flock in its current area when Pip is far away or separated by a river/fence, patrolling around it instead of driving any travel direction. Resume ordinary support when Pip returns nearby with a clear connection, preserving physical crossing safety and existing tiers. Livestock staying relatively in place should settle into the accepted surface-aware grazing pose after about seven seconds. This extends the Buddy behaviour review on `buddy_behaviour`; prior dev publication does not include it.

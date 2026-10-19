@@ -853,7 +853,7 @@ test('both species lower complete instanced heads near grass, freeze, lift on pa
   level.animals=[{...level.animals[0],x:level.spawn.x,z:level.spawn.z,type:'sheep',vx:0,vz:0,heading:0},
     {...level.animals[1],x:level.spawn.x+2,z:level.spawn.z,type:'cow',scale:1.25,vx:0,vz:0,heading:0}];
   renderer.setLevel(level);
-  for(let i=0;i<24;i++)renderer.update(level,level.dog,.1);
+  for(let i=0;i<80;i++)renderer.update(level,level.dog,.1);
   for(let index=0;index<2;index++){
     const batch=renderer.animalBatches.find(b=>b.coatVariant===undefined&&b.indices.includes(index));
     const heads=batch.meshes.filter(m=>m.userData.headPart);assert.ok(heads.length>=3,'eyes, muzzle and head materials articulate together');

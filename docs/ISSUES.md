@@ -32,6 +32,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
+| F-COMP-009 | P2 | Behavior | Buddy contains distant or barrier-separated flock; seven-second grazing | Review | F-COMP-001/002/003/007; surface-aware grazing |
 | F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | Review | F-046 accepted tier behavior; F-048 movement |
 | F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | Review | F-COMP-001; F-046 accepted roles |
 | F-COMP-003 | P2 | Navigation | Progress-aware Buddy obstacle recovery | Review | F-048 accepted smooth movement; existing Buddy detours |
@@ -664,3 +665,17 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 ## Buddy development publication — 19 October 2026
 
 F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are deployed for review at https://novydhillon.github.io/Flock/dev/ from source `f1e31a6`, Pages `af7333a`. Source CI and native Pages succeeded; all 29 live files hash-match the checked build. Full evidence: [Buddy publication](validation/Buddy-behaviour-publication.json). This supersedes earlier not-deployed statements for this batch. Status remains Review; user playtest/sign-off and native phone motion/FPS validation are pending. Production and all unrelated Pages paths were preserved.
+
+
+### F-COMP-009 — Contain an unattended flock and settle into grazing (P2)
+
+**Status:** Review. Owner: Codex. 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
+
+**Requirement:** When Pip is far from the selected flock or separated by a river/fence, Buddy moves around the flock to keep it together and in place rather than drive it in any direction. Livestock staying in relatively the same area settle into grazing after approximately seven seconds.
+
+**Accept when:** Distance/structural separation triggers stable containment, with hysteresis when Pip returns. Buddy patrols physically navigable perimeter positions around a retained local holding area; no net intentional travel drive, remote teleportation, collision bypass or unattended scoring. Prevent residual velocity/alignment and Buddy barks from continually translating the group. Preserve tier selection, physical tier-3 retrieval, saved-animal exclusion, current passage safety (animals already committed to a bridge finish to safe ground), body clearance, Pip input priority and task/reset/pause safety. Nearby clear Pip support resumes normal herding. Structural separation considers actual rivers/closed fences and openings, not a tree mistaken for a fence. Grazing takes ~7 seconds of relative stationarity, resets for meaningful displacement/pressure/travel and remains grass/bush only, excluding paths, bridges and barn floors. Record source tests, independent review and device limits; leave Review pending user sign-off.
+
+
+**Source evidence:** local Buddy acquisition, connected-flock rest and bounded structural attendance prevent directional drift during perimeter patrol. Grazing uses a seven-second fixed-area timer. Focused tests cover nine-sheep and65mixed long patrols, all cow scales, physical remote arrival, Pip/barrier transitions, completed crossings and pose integration. Fresh blind review found wide-flock contact expiry; the corrected connected-flock approach passed follow-up at9/10 with no remaining material defect. Native phone gameplay/sign-off remain pending. Updated development publication evidence follows separately.

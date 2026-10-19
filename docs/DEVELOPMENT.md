@@ -238,3 +238,10 @@ F-064 coat smoke check: compare cows of the same size for different cream/black 
 
 
 F-065: `herd_turning_visual` contains the isolated renderer-only turn-rate/pivot-gait candidate. 333 regression checks (332 full plus added matrix check), both build modes and docs pass; independent review 10/10. Publication and user visual acceptance remain pending.
+
+
+## Buddy containment smoke checks — 19 October 2026
+
+F-COMP-009: with Buddy tiers1/2/3 active on public QA20/24/28, leave his selected group by more than18m, then approach within14m. Try staying nearby on the opposite river bank or behind a closed fence/gate, then return through an opening. Buddy should patrol the group's perimeter and contain its current area while unattended, then resume ordinary support when Pip returns. A tree alone should not trigger barrier separation. Compare mixed sheep/all cow sizes, wider groups, splits/merges, no Buddy, stray retrieval and already committed bridge crossings.
+
+Watch stationary grass/bush livestock lower their heads after roughly seven seconds. Buddy's passing patrol must not repeatedly spook or translate a calm group. Moving/pressured animals raise their heads; continuous drift does not count as staying in place. Paths, bridge decks and barn floors remain excluded. Pause/resume/background, restart and level jumps must preserve frozen or fresh containment/settling state appropriately. Source tests do not establish native phone motion or FPS. Publication and acceptance are recorded separately.
