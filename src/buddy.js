@@ -1,3 +1,4 @@
+import { animalRadius } from './animal-size.js';
 import { canOccupy, hasClearGroundPath, targetFootprint, destinationApproach, containsTarget } from './world.js';
 import { buddyNavigationTarget, turnToward, moveBuddy } from './buddy-navigation.js';
 
@@ -24,7 +25,7 @@ export function flockGroups(level, animals, canLink = (a,b)=>hasClearGroundPath(
 const overlap = (group, ids = []) => group.filter(a => ids.includes(a.id)).length;
 const stableOrder = (a, b, ids) => overlap(b, ids) - overlap(a, ids) || Math.min(...a.map(v => v.id)) - Math.min(...b.map(v => v.id));
 
-const radiusOf = animal => animal.type === 'cow' ? .78 : .55;
+const radiusOf = animal => animalRadius(animal);
 const alongBridge = (p, bridge, sign) => ((p.x-bridge.x)*Math.sin(bridge.heading)+(p.z-bridge.z)*Math.cos(bridge.heading))*sign;
 function passageComplete(level, passage, group) {
   return !group.length || (passage.kind === 'goal'
@@ -139,7 +140,7 @@ export function updateBuddy(level, active, effects, dt, events) {
   let subject = centroid, drive = forward;
   if (stray) {
     subject = stray;
-    const radius = stray.type === 'cow' ? .78 : .55;
+    const radius = animalRadius(stray);
     const waypoint = buddyNavigationTarget(level, stray, centroid, radius);
     drive = normal(waypoint.x - stray.x, waypoint.z - stray.z);
   }
@@ -196,7 +197,7 @@ export function updateBuddy(level, active, effects, dt, events) {
   }
   for (const animal of subjects) {
     if (!inPosition(animal)) continue;
-    const radius = animal.type === 'cow' ? .78 : .55;
+    const radius = animalRadius(animal);
     const strength = (stray ? 3.7 : passage ? 2.4 : 1.15) * effects.helperStrength * (buddy.barking ? 1.45 : 1);
     // Route toward the nearest group when retrieving; flank correction keeps
     // ordinary rear herding compact without choosing a destination.

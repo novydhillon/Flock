@@ -1,3 +1,4 @@
+import { animalRadius, animalScale } from './animal-size.js';
 import * as THREE from 'three';
 
 // Visual only: world collision and delivery continue to use world.js geometry.
@@ -30,7 +31,7 @@ export class StructureCutaway {
     for(const actor of actors){
       const dx=actor.x-this.target.x,dz=actor.z-this.target.z;
       const x=dx*c-dz*s,z=dx*s+dz*c;
-      const radius=actor.type==='cow'?.65:.4;
+      const radius=actor.type==='cow'?.65*animalScale(actor):.4;
       const extent=this.halfExtent+radius+(this.covered.has(actor)?.18:0);
       if(Math.abs(x)<=extent&&Math.abs(z)<=extent){this.covered.add(actor);inside.push({actor,radius});}
       else this.covered.delete(actor);

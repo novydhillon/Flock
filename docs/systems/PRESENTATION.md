@@ -266,6 +266,10 @@ Historical organic-branching source candidate (`5399dcc`): nine bounded palette/
 Current contiguous implementation: `src/tree-geometry.js` builds three cached wood variants, each a single indexed, closed surface (274 vertices / 544 triangles). Side patches of the trunk are replaced by branch surfaces that reuse their boundary vertices. Smooth normals follow the continuous width deformation; a dedicated tree material uses subtle vertex-color grain instead of the former cylindrical bark texture. The first fork is at 1.56m of a 3.15m trunk, with three further forks staggered upward. A continuous bent centerline, tapered radii and curved limbs preserve the handmade silhouette. Instanced width attributes compact with instance matrices during culling; batch-owned geometry is disposed on level recreation. Ordinary bush bark remains independent. Nine bounded palette/maturity prototypes retain 7/9/11 overlapping foliage meshes, including multiple central clusters.
 
 
+## F-064 cow art — 18 October 2026
+
+On `art_update_cow` from main, replace the cow appearance with a rounded clay Holstein following IMG_8387: irregular black/cream coat, expressive eyes, broad pink muzzle with nostrils, dark ears, small curved ivory horns, cloven hooves and tail. Use 1.5× sheep linear body size; preserve sheep and existing instanced gait/rendering contracts. Publish only to `/Flock/dev/`; user visual acceptance is a separate Review milestone.
+
 ## UI refinement candidate — F-055–F-059
 
 The candidate on `UI_refinement` uses a compact top status panel and adjacent minimap, with Pause/help at upper right. Branding, wallet and sound stay out of active gameplay; Pause owns sound and workshop access. Delivered count and score are separate readable values; the running timer has a large active-only display and static final-ten-second emphasis. A small labelled weather icon replaces the full weather row. Objective and destination billboard introductions last four active seconds; the billboard then fades over 1.2 seconds. Tips retain automatic finite sequencing and manually reopened looping, using shorter instructions and a visible numbered badge, restored at the user's request on 18 October. Joystick decoration/instruction captions are simplified; Woof remains circular with a cooldown progress ring. UI layout and hit targets require phone acceptance; source/DOM/scene tests only establish behavior. Production publication is separate from this development candidate.
@@ -275,3 +279,20 @@ F-060 governs this candidate’s implementation/review/publication workflow thro
 F-055–F-059 development publication is verified at source `d47ae6c` / Pages `ce24bf3`; 17 live files match and production is unchanged. Native visual/touch sign-off is pending. See [publication manifest](../validation/UI-refinement-publication.json).
 
 18 October F-056/F-057 follow-up: the map frame grows from 92 to 132 CSS pixels on phones, 126 to 166 on desktop, and 108 to 132 in short landscape. Its canvas retains a 3:2 aspect ratio. A deep forest background separates the map from the meadow; routes, rivers, boundaries and outlined actor markers have stronger contrast. Mission headings show only Level N, with destination retained in the accessible mission label and brief objective. Inline Delivered/Score rows reduce panel width; the active countdown occupies reserved heading space rather than squeezing the numeric rows. Font-metric diagnostics support maximum numeric fit; native appearance requires new user acceptance. This follow-up is live on dev2 at source `e2f55d2` / Pages `dbdf3c1`, with all 17 files verified and production unchanged. [Evidence](../validation/UI-minimap-followup-publication.json).
+
+
+## F-064 cow proportions and herd size variation — 18 October 2026
+
+Requested follow-up on `art_update_cow`: lengthen the cow torso 25% along its forward/back axis, moving attached anatomy to suit. Then assign each cow one of four uniform sizes: 100%, 108⅓%, 116⅔%, 125% of that revised base cow. These are linear scale factors, not volume percentages. Assign using a separate seeded random stream at herd creation; preserve layout, sheep and stable sizes during animation/pause/restart. Each choice has equal probability; small herds need not contain all four. Share the same baked mesh/materials, scaling both body and articulated hip transforms per instance and conservative culling bounds. Physical clearance/separation, bridge traversal, delivery and QA placement must honor the selected cow size. Status: In progress; final appearance sign-off remains Review.
+
+Approach: adjust the procedural cow anatomy and scale existing instanced poses; avoid four duplicate geometry sets. Geometry/rendering and generation/physical sizing use disjoint agent ownership. Follow established independent source review and full build/check process before dev publication.
+
+
+## F-064 varied cow coats and horn placement — 18 October 2026
+
+On `art_update_cow`, vary the black/cream patch layout between herd cows while retaining the organic Holstein clay appearance. Patterns must remain stable for each animal across animation, camera culling, pause and level restart, and vary independently from the four existing body sizes. Move both horns slightly toward the front of the head (+0.05 local forward Z); preserve body proportions, size range, sheep and physical gameplay. Keep geometry/material resource use bounded and avoid duplicating every cow body/limb batch just for coat variation. Source implementation and fresh blind review precede development publication; user rendered acceptance remains Review.
+
+
+## F-064 production acceptance — 18 October 2026
+
+Novy approved the current cow update at 17:30 America/Creston and authorized merging `art_update_cow` into main and production-root deployment. F-064 is Done by user acceptance, superseding prior Review/hold wording for this cow work. Accepted dev runtime `b3fb4f5` / Pages `90ee1f5`; current source docs `e05bf79`. Production source must preserve accepted UI/Buddy behavior and exclude QA. Runtime identity and publication verification follow separately; user acceptance adds no independent device FPS measurement.

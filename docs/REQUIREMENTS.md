@@ -358,6 +358,10 @@ Latest size request supersedes the unfinished 33% reduction: reduce Pip's curren
 Update tree visuals to use continuously tapered, slightly bent warm-brown clay trunks and longer branches that curve at staggered heights. Replace the flat stump-cap / thin central-stem silhouette: the trunk continues and tapers through each fork. Use Leonardo branching exponent 2 at forks, so parent radius² equals the sum of child radii², counting the continuing trunk as a child ([PLOS ONE reference](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093535)). Give every tree seeded rotation variation. Use varied overlapping foliage and several clusters around the center rather than one large ball; larger trees carry more foliage. Reduce trunk thickness by 30% at the smallest supported rendered tree size and 10% at the largest supported rendered tree size, with linear interpolation between those endpoints. Vary crown mesh sizes by radial distance from the trunk centerline, larger near the axis and smaller farther away. Retain the small pressed oval leaf texture and handmade trunk details such as exposed roots, grooves and knots. Preserve tree placement, collision footprints, route clearance and actor visibility. Assess texture/shadow cost and mobile performance as applicable. The reduction percentages and linear interpolation are user requirements. Implementation uses the full renderer scale range 1.015–3.1, including background trees, as the endpoints; gameplay tree colliders remain 0.7–1.4. Other numeric dimensions are implementation choices. The earlier `bf5bb48` publication is historical first-pass evidence; the follow-up remains Review until its `dev2/` visual sign-off.
 
 
+## F-064 cow art — 18 October 2026
+
+On `art_update_cow` from main, replace the cow appearance with a rounded clay Holstein following IMG_8387: irregular black/cream coat, expressive eyes, broad pink muzzle with nostrils, dark ears, small curved ivory horns, cloven hooves and tail. Use 1.5× sheep linear body size; preserve sheep and existing instanced gait/rendering contracts. Publish only to `/Flock/dev/`; user visual acceptance is a separate Review milestone.
+
 ## UI refinement — 17 October 2026
 
 User approval covers F-055–F-060 on `UI_refinement`, using IMG_8398/IMG_8399 as visual references. Hide branding/music/wallet during gameplay, put sound and wallet/workshop access in Pause, compact the mission panel while enlarging delivery/score values, omit the first-arrival explanation and show a prominent timer only after it starts. Simplify weather into an accessible icon; keep a compact adjacent minimap without its caption; shorten finite/manual tips; simplify joystick/bark decoration while showing cooldown progress; briefly introduce and fade a smaller destination sign. Preserve economy/saved progress, input, active-time/pause/reset behavior, goal markings and development-only QA. The QA gear is excluded from this redesign. Follow root AGENTS.md for parallel implementation, model selection and blind review; retain Review statuses until explicit user acceptance. See the tracker for per-item criteria and validation/publication evidence.
@@ -367,3 +371,20 @@ Traceability: F-055 gameplay chrome/settings; F-056 status/countdown; F-057 mini
 18 October tip clarification: retain a visible numbered badge (01, 02, 03) beside each concise tip, matching the supplied reference. Keep existing automatic/manual sequencing and dismissal unchanged. Publish this branch to `/Flock/dev/`, not dev2.
 
 18 October 2026 F-056/F-057 follow-up: increase minimap contrast and displayed size, and make level information more compact. Keep score/countdown readable, preserve map content and inputs, and retain separate source review, dev2 publication and user sign-off.
+
+
+## F-064 cow proportions and herd size variation — 18 October 2026
+
+Requested follow-up on `art_update_cow`: lengthen the cow torso 25% along its forward/back axis, moving attached anatomy to suit. Then assign each cow one of four uniform sizes: 100%, 108⅓%, 116⅔%, 125% of that revised base cow. These are linear scale factors, not volume percentages. Assign using a separate seeded random stream at herd creation; preserve layout, sheep and stable sizes during animation/pause/restart. Each choice has equal probability; small herds need not contain all four. Share the same baked mesh/materials, scaling both body and articulated hip transforms per instance and conservative culling bounds. Physical clearance/separation, bridge traversal, delivery and QA placement must honor the selected cow size. Status: In progress; final appearance sign-off remains Review.
+
+Approach: adjust the procedural cow anatomy and scale existing instanced poses; avoid four duplicate geometry sets. Geometry/rendering and generation/physical sizing use disjoint agent ownership. Follow established independent source review and full build/check process before dev publication.
+
+
+## F-064 varied cow coats and horn placement — 18 October 2026
+
+On `art_update_cow`, vary the black/cream patch layout between herd cows while retaining the organic Holstein clay appearance. Patterns must remain stable for each animal across animation, camera culling, pause and level restart, and vary independently from the four existing body sizes. Move both horns slightly toward the front of the head (+0.05 local forward Z); preserve body proportions, size range, sheep and physical gameplay. Keep geometry/material resource use bounded and avoid duplicating every cow body/limb batch just for coat variation. Source implementation and fresh blind review precede development publication; user rendered acceptance remains Review.
+
+
+## F-064 production acceptance — 18 October 2026
+
+Novy approved the current cow update at 17:30 America/Creston and authorized merging `art_update_cow` into main and production-root deployment. F-064 is Done by user acceptance, superseding prior Review/hold wording for this cow work. Accepted dev runtime `b3fb4f5` / Pages `90ee1f5`; current source docs `e05bf79`. Production source must preserve accepted UI/Buddy behavior and exclude QA. Runtime identity and publication verification follow separately; user acceptance adds no independent device FPS measurement.

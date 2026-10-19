@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { animalScale } from './animal-size.js';
 import { generateBushClusters } from './vegetation.js';
 import { setTailLightBarking } from './tail-light.js';
 import { WaterEffects } from './water-effects.js';
@@ -9,7 +10,7 @@ import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
-import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
+import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 // Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
@@ -192,19 +193,30 @@ export class MeadowRenderer{
     const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
     this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
     this.goalPointer.scale.setScalar(1/.75);this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
-    for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;this.animalMeshes.push(pose);}
+    for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=Math.PI/2;pose.scale.setScalar(animalScale(a));this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
       const prototype=createAnimal(type),meshes=[];let radius=0;
+      const coats=[];
       for(const child of prototype.children){
         if(!child.geometry.boundingSphere)child.geometry.computeBoundingSphere();
         const sphere=child.geometry.boundingSphere,pivot=child.userData.pivot;
         // A sphere about the animal origin includes every baked body piece and
         // the full rotation envelope of each leg around its retained hip pivot.
         radius=Math.max(radius,sphere.center.length()+sphere.radius+(pivot?Math.hypot(...pivot):0));
+        if(child.material.userData.cowCoatVariant!==undefined){
+          for(let variant=0;variant<4;variant++){
+            const coatIndices=indices.filter(index=>cowCoatVariant(level.seed,level.animals[index].id??index)===variant);
+            if(!coatIndices.length)continue;
+            const instanced=new THREE.InstancedMesh(child.geometry,createCowCoatMaterial(variant),coatIndices.length);
+            instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);instanced.castShadow=instanced.receiveShadow=true;instanced.frustumCulled=false;
+            this.actors.add(instanced);coats.push({indices:coatIndices,meshes:[instanced],visibleIndices:[],coatVariant:variant});
+          }
+          continue;
+        }
         const instanced=new THREE.InstancedMesh(child.geometry,child.material,indices.length);instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);instanced.castShadow=instanced.receiveShadow=true;instanced.frustumCulled=false;instanced.userData.limbIndex=child.userData.limbIndex;instanced.userData.pivot=pivot;this.actors.add(instanced);meshes.push(instanced);
       }
-      this.animalBatches.push({indices,meshes,radius,visibleIndices:[]});
+      this.animalBatches.push({indices,meshes,radius,visibleIndices:[]},...coats.map(batch=>({...batch,radius})));
     }
     this.center.set(level.spawn.x+(this.aspect<.8?2:10),0,level.spawn.z+1);this.time=0;this.update(level,level.dog,0,true);
   }
@@ -309,7 +321,7 @@ export class MeadowRenderer{
     const poseTime=Math.floor(this.time*12)/12;
     updatePipPose(this.dog,dog,dt);updatePipHover(this.dog,dt);parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
     this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
-    level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
+    level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.scale.setScalar(animalScale(a));m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);m.rotation.y=a.heading??Math.PI/2;m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
     this.updateBarks(dt);
     for(const m of this.helperMeshes.values())m.visible=false;
     for(const h of level.helpers||[]){

@@ -1,6 +1,7 @@
+import { animalRadius } from './animal-size.js';
 import {canOccupy,navigationTarget,hasClearGroundPath} from './world.js';
 
-const radiusOf=a=>a.type==='cow'?.78:.55;
+const radiusOf=a=>animalRadius(a);
 const axes=b=>({x:Math.sin(b.heading),z:Math.cos(b.heading)});
 const along=(p,b,f)=>(p.x-b.x)*f.x+(p.z-b.z)*f.z;
 

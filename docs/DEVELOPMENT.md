@@ -194,3 +194,23 @@ F-033 weathering smoke check: compare nearby stones for different worn-corner pr
 ## F-054 contiguous tree mesh smoke checks
 
 The previous segmented-looking wood mesh failed the phone visual check (IMG8395 and IMG8396). On `pip_update`, inspect trees at public QA 1, 8 and 24 in portrait and landscape, including close and ordinary play zoom. Verify a single continuous, smooth trunk-and-branch surface through welded forks: no detached rings, chunk steps, seams, caps or visibly separate branch pieces. Check a gradually tapered, slightly bent trunk, with the first fork around mid-height and further curved forks staggered upward. Confirm Leonardo exponent 2 at each fork (parent radius² equals the sum of child radii², including the continuing trunk), seeded yaw variation across all trees, varied overlapping foliage in several clusters, and more foliage on larger trees. Check crown mesh size tapering with radial distance, warm-brown bark, exposed roots and handmade detail. Trunk thickness must transition linearly from 30% thinner at the smallest supported rendered tree size to 10% thinner at the largest. Walk Pip/Buddy and cows around trunks and nearby gates; restart and jump repeatedly to check stable placement. Verify shadow cost and FPS on a phone separately from source geometry budgets. Publish new branch builds only to `dev/`; previous publication and source-only reviews are historical and do not establish phone pixels for this request. The user selected `gpt-6-astra` at high effort for implementation and final mesh/visual review. Record implementation, smoke-check, deployment and user sign-off evidence separately; F-054 is now Done by the recorded user acceptance; this is its retained smoke-check procedure. The current cloud Chrome session cannot create a WebGL2 context, so it provides no rendered likeness or FPS evidence.
+
+
+## F-064 cow candidate and deployment hold
+
+`art_update_cow` starts from main `396121d`. Compare cows with sheep at ordinary play zoom on a mixed-species meadow (public 4 onward): cows should read 1.5× in linear torso size, retain clay shading and show the Holstein coat, pink muzzle, dark ears, small ivory horns and cloven feet. Walk/turn a mixed flock, cross a bridge and opened gate, pause/resume, restart/jump and deliver cows; check leg pose, grounding, culling and cleanup. Source tests are not rendered appearance or FPS evidence.
+
+Novy explicitly held deployment on 18 October while reviewing another change on dev. Commit/push source only. Do not publish the cow branch until a new user deployment instruction; preserve the current dev build.
+
+
+## Cow integration and deployment authorization — 18 October 2026
+
+Novy requested merging current main into `art_update_cow` and publishing to dev at 16:54 America/Creston; this supersedes the prior deployment hold. Merge main `0e62198` with cow source `e8c3c34`, preserving the accepted minimal HUD/top-center minimap and Buddy updates. Cow tracking is renumbered **F-064** because main already owns F-057 for minimap improvements. F-064 stays Review pending appearance sign-off. Source checks/publication evidence will be recorded separately.
+
+
+## F-064 cow size smoke checks
+
+On mixed/larger herds check a visibly 25% longer torso and random stable cow sizes spanning the revised base to125% uniformly in height/width/length. Four discrete choices are possible; small herds need not show every choice. Confirm legs remain attached during walking/turning and largest cows cross bridges/open gates and enter the target with full-body clearance. Pause/restart/jump must preserve coherent poses with no new geometry/material batches for size. Collision, admission and QA positioning use selected size; phone appearance/FPS still need user evidence.
+
+
+F-064 coat smoke check: compare cows of the same size for different cream/black patch placement and coverage. Follow a cow out of view and back, pause/resume, and restart the meadow; its coat should remain stable. Both horns sit slightly farther forward without clipping into the eyes. Check QA tints, all size variants, moving legs and herd performance at ordinary phone zoom; automated source checks do not establish native appearance/FPS.

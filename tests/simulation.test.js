@@ -1,3 +1,4 @@
+import { animalRadius } from '../src/animal-size.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createLevel, stepSimulation, stepSavedRoaming, canOccupy, defaultProfile, purchaseUpgrade, applyLevelReward, validateProfile, loadProfile, saveProfile } from '../src/simulation.js';
@@ -55,7 +56,7 @@ test('visible destination walls stop bodies while their oriented entrance permit
 test('saved animals roam gently inside rotated goal footprints without changing a finished result',()=>{
   for(const [index,seed] of [[0,201],[3,202],[23,203],[70,204]]){
     const level=createLevel(index,seed),shape=targetFootprint(level.target);
-    const saved=level.animals[0],radius=saved.type==='cow'?.78:.55;
+    const saved=level.animals[0],radius=animalRadius(saved);
     const nearEntrance=targetWorldPoint(level.target,-shape.halfLength+radius+.01,0);
     Object.assign(saved,nearEntrance,{saved:true,vx:0,vz:0});
     level.animals[1].x+=2;
@@ -133,7 +134,7 @@ test('crowded delivered sheep and cows never leave rotated goal entrances at any
     level.animals=level.animals.slice(0,9);
     level.animals.forEach((animal,i)=>{
       animal.type=i%2?'cow':'sheep';
-      const radius=animal.type==='cow'?.78:.55;
+      const radius=animalRadius(animal);
       Object.assign(animal,targetWorldPoint(level.target,-shape.halfLength+radius+.005,(i-4)*.35),{saved:true,vx:0,vz:0});
       assert.ok(canOccupy(level,animal.x,animal.z,radius),'entrance fixture is physically valid');
     });
@@ -142,7 +143,7 @@ test('crowded delivered sheep and cows never leave rotated goal entrances at any
     for(let frame=0;frame<300;frame++){
       stepSavedRoaming(level,.1);
       for(const animal of level.animals){
-        const radius=animal.type==='cow'?.78:.55;
+        const radius=animalRadius(animal);
         assert.ok(containsTarget(level.target,animal,radius),`no escape: level ${index+1}, seed ${seed}, frame ${frame}`);
         assert.equal(animal.saved,true);
       }

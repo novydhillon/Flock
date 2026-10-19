@@ -565,6 +565,20 @@ Final junction-corrected runtime `29f7fcc`: **288/288** source tests pass, both 
 Novy accepted the trees in dev2 on 17 October 2026 (America/Creston): “The trees look good in the dev2 build.” F-054 is Done. Source `b6ef52f` passed CI run `39012507770`; Pages `6dddee1` passed native deployment run `39012588519`. All 17 live game files matched the checked development build; all 31 unrelated Pages files were preserved. Implementation and independent blind review used Astra at high effort; review 9/10. The acceptance establishes the user's visual approval, while measured mobile FPS remains outside this evidence. See [publication record](validation/F-054-contiguous-publication.json). No game asset is changed by this sign-off.
 
 
+## F-064 cow art candidate — 18 October 2026
+
+Branch `art_update_cow` starts from main `396121d`. Implementation, validation and review used the inherited session model/effort without overrides. Exact backend variant/effort was not independently exposed; no specific alternate model is claimed. Curved procedural geometry, surface patching and the baked instancing contract justified retaining the current model. Disjoint ownership: model author `src/models.js`; validation author `tests/cow-model.test.js` and the mixed-species lifecycle fixture; integrator documentation/CI. No alternate model is claimed.
+
+The cow uses a single generated 256×128 organic Holstein coat texture, rounded muzzle/nostrils, sleepy eyes, dark floppy ears, ivory curved horns, cloven hooves, udder and tail. Native torso dimensions match the sheep core before uniform 1.5 scaling: resulting coat diameters approximately 0.96×1.02×1.17. This measures linear torso scale, not volume or the horn/ear extremities. Sheep geometry checksum remains unchanged. Cow has 5,456 triangles and 16 material/hip batches including four paired animated hips; cached geometries/materials/texture are shared across cows and survive level teardown. Gameplay colliders and movement are unchanged.
+
+Initial full suite: 307/307 pass. New cow geometry checks: 3/3 pass; render+cow checks: 28/28 pass. Mixed-species disposal fixture then extended and passed focused validation; final integrated suite follows below. Release and QA builds plus artifact-mode checks pass (release excludes QA, development has two QA assets). Generated documentation checks pass. Fresh independent blind source critic completed: 9/10, no confirmed functional blockers; focused render suite 25/25 pass. Low-severity unverified art concern: head/ears/hooves retain the established blue-gray enamel while body coat is matte neutral black; rendered inspection should decide. Final integrated suite: 310/310 pass including the three new geometry checks and expanded mixed-species disposal fixture.
+
+**Publication held by explicit user instruction:** dev is being used for another review. No Pages files were changed or pushed; no live publication/hash verification is claimed. Rendered likeness, grazing/turning appearance, mobile FPS and phone acceptance remain unverified. Before future publication, re-read current main AGENTS and fetch latest Pages; publish only `/Flock/dev/` when instructed.
+
+F-064 handoff: source implementation is committed locally as `7cc7035`. Automatic approval review rejected the push to the configured `novydhillon/Flock` remote, stating explicit authorization to publish the branch is required. No workaround attempted. Remote branch publication/CI are blocked pending user authorization; local checks passed. Deployment remains explicitly held and Pages unchanged.
+
+F-064 push authorization: Novy explicitly approved pushing `art_update_cow` on 18 October 2026 at 15:54 America/Creston. Deployment remains held. The earlier approval block above is historical. Source publication uses the connected GitHub service because shell git has no HTTPS credentials.
+
 ## UI refinement gauntlet — F-055–F-060 (17 October 2026)
 
 The 18 October F-056/F-057 minimap-size/contrast and compact-status follow-up is a new candidate; the 17 October review/publication evidence below does not validate that follow-up. Parallel ownership: `gpt-6-luna` medium for bounded map rendering/tests, root session for CSS/controller/documentation. F-056/F-057 stay Review for user sign-off. Follow-up source `e2f55d2` passed CI [39113239224](https://github.com/novydhillon/Flock/actions/runs/39113239224); Pages `dbdf3c1` passed native deployment [39113364683](https://github.com/novydhillon/Flock/actions/runs/39113364683). All 17 live dev2 files match the checked final build, and 32 unrelated Pages blobs including production are unchanged. [Follow-up publication evidence](validation/UI-minimap-followup-publication.json). The final development distribution was rebuilt separately with explicit empty output and mode-checked before staging.
@@ -585,3 +599,43 @@ Publication verified: runtime source `d47ae6c0363fd2e26cbec06c851724bb0942825a` 
 ## Accepted UI production release — 18 October 2026
 
 User explicitly approved pushing, merging and production deployment. Source `0e62198` preserves main Buddy sign-off and accepted UI refinements. All 318 regressions, generated documentation checks and clean development/release artifact checks pass (17/15 files; 2/0 QA assets). Main CI `39178264323` and native Pages run `39178339857` succeeded. Pages `2adab7b` replaces production HTML/assets only; all 51 unrelated files, including dev/dev2/legacy deployments, retain their hashes. All 15 live production artifacts match the checked build by SHA-256. [Publication evidence](validation/UI-production-publication.json). This release adds no runtime implementation beyond the independently reviewed candidates; no new phone FPS or rendered-device claim is made.
+
+## Cow integration and deployment authorization — 18 October 2026
+
+Novy requested merging current main into `art_update_cow` and publishing to dev at 16:54 America/Creston; this supersedes the prior deployment hold. Merge main `0e62198` with cow source `e8c3c34`, preserving the accepted minimal HUD/top-center minimap and Buddy updates. Cow tracking is renumbered **F-064** because main already owns F-057 for minimap improvements. F-064 stays Review pending appearance sign-off. Source checks/publication evidence will be recorded separately.
+
+
+F-064 integrated cow development publication: runtime source `04ce8eb` merges main `0e62198` into `art_update_cow`. All 321 tests, generated documentation checks and release/development artifact-mode checks pass. Independent blind integration review: 9/10 with 95 focused checks; no blocker. Source CI [39178525673](https://github.com/novydhillon/Flock/actions/runs/39178525673) succeeded. Pages candidate `d9b8ee8` changes only dev entry/main bundle, preserving all 49 outside-dev blobs. Deployment is authorized by the latest request; earlier hold/block paragraphs are historical. Native Pages/live hashes are recorded in `docs/validation/F-064-cow-publication.json`. Appearance acceptance remains Review; source checks do not establish phone likeness or FPS.
+
+
+## F-064 longer body and four herd sizes — 18 October 2026
+
+`art_update_cow` follow-up uses disjoint model/renderer and physical-sizing/generation agents with a fresh independent source critic. All inherit the session model/effort without overrides; exact backend variant is not independently exposed. Torso length increases 25%; head/hips/udder/tail attachment positions follow the torso. Four uniformly scaled variants (1, 13/12, 7/6, 1.25) share the existing baked geometry/materials/coat, with scale applied to body and animated hip matrices. Culling already uses pose scale. Sheep geometry remains unchanged.
+
+A separate seeded size RNG assigns equal-probability choices without consuming layout randomness. The shared animal size/radius helpers propagate scale through active/saved separation, clear paths, bridge commitment, Buddy retrieval, delivery, QA placement and cutaway. Spawn overlap correction moves only cows to bounded deterministic clear samples. Geometry tests check the lengthened torso and unchanged sheep; instance tests check all sizes and moving hip matrices; physical tests cover deterministic assignment, all four choices, 400 seed/level spawn fixtures and largest-size admission. QA data-URL/VM harnesses and fixed-radius delivery fixtures were updated for the actual imported helper and selected size.
+
+Rendered likeness/phone FPS remain unverified; F-064 remains Review pending user sign-off. Full integrated validation, independent review and publication evidence follow below.
+
+
+F-064 size variation validation: 325/325 integrated tests pass before the additional explicit largest-cow bridge/gate fixture; all four cow-size tests pass afterward. Release/development builds and artifact-mode checks pass. Source QA import harnesses and the fixed-radius delivery fixture were corrected rather than weakening selected-size admission. Sheep geometry checksum and all terrain/sheep generation fields across 400 seed/meadow comparisons remain unchanged. Initial reviewer identified a quantized-gait timing mismatch in the new test; same-critic follow-up independently passed all five targeted size/render checks and scored 9/10 with no source blocker. User appearance acceptance remains Review.
+
+
+F-064 longer-body/size-variation runtime source `e46d5cb` passed source CI [39179684108](https://github.com/novydhillon/Flock/actions/runs/39179684108), including the final 326-test suite, docs and both artifact modes. Independent source review reached 9/10 after the test timing correction. Development Pages revision `0681cff` contains the checked 17-file build, preserving 49 blobs outside dev. Native Pages/live verification evidence is in [F-064 size publication](validation/F-064-cow-size-publication.json). This supersedes the prior runtime-only cow publication; user appearance sign-off remains Review.
+
+
+## F-064 coat diversity and forward horns — 18 October 2026
+
+Four cached 256×128 clay torso textures vary the Holstein patch locations, shapes and coverage. Only torso rendering is split by coat; all geometry and remaining anatomy/material batches stay shared. This adds at most three torso draw calls rather than duplicating complete cows, and uses standard materials so QA tints remain compatible. Pattern selection is deterministic per level/animal, independent from body scale and visibility compaction. Both horns move +0.05 local forward Z, with no changes to body length, four size factors, sheep or simulation. Model/render implementation and parent documentation use disjoint ownership with an independent fresh critic. Agents inherit the session model/effort; exact backend identifiers are not independently exposed. Automated/source evidence and publication follow below; native likeness/FPS remain unverified.
+
+
+F-064 coat/horn source validation: full existing regression suite 326/326 and both release/development build artifact-mode checks pass. New coat/horn/compaction/size checks pass 5/5, including four distinct pixel hashes, bounded black/cream coverage, shared materials/geometry, forward horn roots, ID-stable culling/reorder/restart and actual QA tint/reset. Generated documentation checks pass. Independent review and publication evidence are recorded below; rendered acceptance remains Review.
+
+F-064 coat/horn independent source review: 9/10, no material blocker. Initial candidate review found a test-fixture frustum was not restored before restart; final fixture restores it and reviewer independently passed corrected horn/coat checks. Production code had no corresponding defect. Publication remains a separate milestone and user appearance sign-off remains Review.
+
+
+F-064 varied-coat/forward-horn runtime source `b3fb4f5` passed source CI [39180629102](https://github.com/novydhillon/Flock/actions/runs/39180629102), including all 329 tests, docs and both artifact modes. Independent source review: 9/10. Development Pages `90ee1f5` contains the checked 17-file build, preserving 49 blobs outside dev. Native Pages/live hashes are recorded in [coat publication evidence](validation/F-064-cow-coat-publication.json). Source implementation/publication does not establish rendered acceptance; F-064 remains Review.
+
+
+## F-064 production acceptance — 18 October 2026
+
+Novy approved the current cow update at 17:30 America/Creston and authorized merging `art_update_cow` into main and production-root deployment. F-064 is Done by user acceptance, superseding prior Review/hold wording for this cow work. Accepted dev runtime `b3fb4f5` / Pages `90ee1f5`; current source docs `e05bf79`. Production source must preserve accepted UI/Buddy behavior and exclude QA. Runtime identity and publication verification follow separately; user acceptance adds no independent device FPS measurement.

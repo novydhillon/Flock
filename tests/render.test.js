@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import * as THREE from 'three';
 import * as models from '../src/models.js';
+import {animalScale} from '../src/animal-size.js';
 import {createLevel} from '../src/simulation.js';
 import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
@@ -24,7 +25,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -79,13 +80,15 @@ test('portrait scene builds articulated instance poses and finite camera matrice
 });
 
 test('changing levels disposes world resources without disposing cached animal geometry',()=>{
-  const renderer=setup(),level=createLevel(0);renderer.setLevel(level);
+  const renderer=setup(),level=createLevel(3);renderer.setLevel(level);
+  assert.deepEqual([...new Set(level.animals.map(animal=>animal.type))].sort(),['cow','sheep'],'mixed-species lifecycle fixture');
   let worldDisposed=0,animalDisposed=0,fenceDisposed=0,treeDisposed=0;const worldGeometries=new Set();
   renderer.fenceParts.forEach(p=>p.geometry.addEventListener('dispose',()=>fenceDisposed++));
   new Set(models.createTree(0,0).children.map(p=>p.geometry)).forEach(g=>g.addEventListener('dispose',()=>treeDisposed++));
   renderer.terrain.traverse(o=>{if(o.userData.ownedGeometry)worldGeometries.add(o.geometry);});
   worldGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>worldDisposed++));
-  renderer.animalBatches[0].meshes[0].geometry.addEventListener('dispose',()=>animalDisposed++);
+  const animalGeometries=new Set(renderer.animalBatches.flatMap(batch=>batch.meshes.map(mesh=>mesh.geometry)));
+  animalGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>animalDisposed++));
   renderer.bark();let barkDisposed=0;renderer.barkEffects[0].mesh.material.addEventListener('dispose',()=>barkDisposed++);
   renderer.celebrate(level.target.x,level.target.z);
   let confettiDisposed=0;renderer.particles.forEach(p=>p.mesh.geometry.addEventListener('dispose',()=>confettiDisposed++));
@@ -463,7 +466,7 @@ test('animal batches compact split flocks and restore body and limb poses after 
   const triangles=(full=false)=>renderer.animalBatches.reduce((sum,b)=>sum+b.meshes.reduce((n,m)=>n+(m.geometry.index?.count||m.geometry.attributes.position.count)/3*(full?b.indices.length:m.count),0),0),fullTriangles=triangles(true);
   for(const aspect of [390/844,844/390])for(const angle of [0,Math.PI/2]){
     animalView(renderer,level,level.spawn,aspect,angle);
-    assert.deepEqual(Array.from(renderer.animalBatches.flatMap(b=>b.visibleIndices)).sort((a,b)=>a-b),near,'spawn view submits just the nearby noncontiguous flock indices');assertAnimalMatrices(renderer,level);
+    assert.deepEqual(Array.from(new Set(renderer.animalBatches.flatMap(b=>b.visibleIndices))).sort((a,b)=>a-b),near,'spawn view submits just the nearby noncontiguous flock indices');assertAnimalMatrices(renderer,level);
     assert.ok(triangles()<fullTriangles*.45,'split view submits fewer actual animal geometry triangles');
     if(aspect===390/844&&angle===0)t.diagnostic(`level 100 animal triangles: all ${fullTriangles}; split spawn view ${triangles()}; distant view 0`);
     const snapshot=renderer.animalBatches.map(b=>b.meshes.map(m=>[m.count,[...m.instanceMatrix.array.slice(0,m.count*16)]]));
@@ -471,7 +474,7 @@ test('animal batches compact split flocks and restore body and limb poses after 
     assert.ok(renderer.animalBatches.every(b=>b.visibleIndices.length===0&&b.meshes.every(m=>m.count===0&&!m.visible)),'distant views submit no animal triangles');
     assert.equal(triangles(),0);
     animalView(renderer,level,level.target,aspect,angle);
-    assert.deepEqual(Array.from(renderer.animalBatches.flatMap(b=>b.visibleIndices)).sort((a,b)=>a-b),far,'destination view restores the other group');assertAnimalMatrices(renderer,level);
+    assert.deepEqual(Array.from(new Set(renderer.animalBatches.flatMap(b=>b.visibleIndices))).sort((a,b)=>a-b),far,'destination view restores the other group');assertAnimalMatrices(renderer,level);
     animalView(renderer,level,level.spawn,aspect,angle);
     renderer.animalBatches.forEach((b,bi)=>b.meshes.forEach((m,mi)=>{assert.equal(m.count,snapshot[bi][mi][0]);assert.deepEqual([...m.instanceMatrix.array.slice(0,m.count*16)],snapshot[bi][mi][1]);}));
   }
@@ -763,4 +766,65 @@ test('Pip pause freezes articulated pose and level replacement clears motion his
   renderer.setLevel(createLevel(1));
   const fresh=renderer.dog.userData.parts;
   assert.notEqual(renderer.dog,pip);assert.equal(fresh.rig.rotation.x,0);assert.equal(fresh.rig.rotation.z,0);assert.equal(fresh.head.rotation.y,0);
+});
+
+test('four cow sizes share batches and scale body, moving hips and culling bounds uniformly',()=>{
+  const renderer=setup(),level=createLevel(19),sizes=[1,13/12,7/6,1.25];
+  level.animals=sizes.map((scale,i)=>({...level.animals[0],type:'cow',scale,x:level.spawn.x+i,z:level.spawn.z,vx:2,vz:1,heading:0}));
+  renderer.setLevel(level);renderer.update(level,level.dog,.2,false);
+  assert.equal(renderer.animalBatches.filter(batch=>batch.coatVariant===undefined).length,1,'sizes share a single anatomy batch family');
+  assert.ok(renderer.animalBatches.length<=5,'only torso patterns add batches');
+  const batch=renderer.animalBatches[0],matrix=new THREE.Matrix4(),scale=new THREE.Vector3(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion();
+  assertAnimalMatrices(renderer,level);
+  for(const mesh of batch.meshes)batch.visibleIndices.forEach((index,slot)=>{
+    mesh.getMatrixAt(slot,matrix);matrix.decompose(position,quaternion,scale);
+    scale.toArray().forEach(value=>assert.ok(Math.abs(value-sizes[index])<1e-6));
+    if(mesh.userData.pivot){
+      const expected=new THREE.Vector3(...mesh.userData.pivot).applyMatrix4(renderer.animalMeshes[index].matrix);
+      assert.ok(position.distanceTo(expected)<1e-5,'animated hip translation includes the same uniform scale as its body');
+    }
+  });
+  // Isolate an edge plane just beyond the small cow's conservative sphere.
+  // Equal positions must cull the small cow and keep its larger sibling.
+  const x=-(batch.radius*1.125+3);
+  level.animals.forEach((a,i)=>{a.x=x;a.z=0;const pose=renderer.animalMeshes[i];pose.position.set(x,0,0);pose.updateMatrix();});
+  renderer.sceneryFrustum.planes=[new THREE.Plane(new THREE.Vector3(1,0,0),0)];
+  renderer.updateAnimalBatches(level,Math.floor(renderer.time*12)/12);
+  assert.deepEqual(Array.from(batch.visibleIndices),[2,3],'culling expands per cow size without new batches');
+  assertAnimalMatrices(renderer,{...level});
+});
+
+test('coat torso batches retain identity after culling, scale edits, reorder and restart',()=>{
+  const renderer=setup(),level=createLevel(19);
+  level.animals=Array.from({length:32},(_,id)=>({...level.animals[0],id,type:'cow',scale:1+(id%4)/12,x:level.spawn.x+id*.1,z:level.spawn.z}));
+  renderer.setLevel(level);
+  const assignment=()=>new Map(renderer.animalBatches.filter(b=>b.coatVariant!==undefined).flatMap(b=>b.indices.map(index=>[level.animals[index].id,b.coatVariant])));
+  const before=assignment(),coats=renderer.animalBatches.filter(b=>b.coatVariant!==undefined);
+  const originalPlanes=renderer.sceneryFrustum.planes;
+  assert.equal(coats.length,4);
+  assert.equal(new Set(coats.map(b=>b.meshes[0].geometry)).size,1,'all torso patterns share one geometry');
+  assert.equal(coats.flatMap(b=>b.indices).length,32,'one torso per cow');
+  renderer.sceneryFrustum.planes=[new THREE.Plane(new THREE.Vector3(1,0,0),0)];
+  renderer.animalMeshes.forEach((pose,index)=>{pose.position.x=index%3===0?0:-100;pose.updateMatrix();});
+  renderer.updateAnimalBatches(level,0);
+  for(const batch of coats)batch.visibleIndices.forEach((index,slot)=>{
+    assert.equal(batch.coatVariant,before.get(level.animals[index].id));
+    const actual=new THREE.Matrix4();batch.meshes[0].getMatrixAt(slot,actual);
+    assert.ok(actual.elements.every((value,i)=>Math.abs(value-renderer.animalMeshes[index].matrix.elements[i])<1e-5),'compacted slot contains its own animal pose');
+  });
+  const qaSource=readFileSync(new URL('../src/qa.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
+  // Read only the tint helper's definition; QA UI initialization is unrelated.
+  const tintContext={};vm.runInNewContext(qaSource.slice(0,qaSource.indexOf('/** QA 0'))+';globalThis.tint=applyQAWanderTints;',tintContext);
+  level.time=1;level.animals.forEach(animal=>{animal.wander={bolting:animal.id%2===0};animal.nextWanderCheck=10;});
+  tintContext.tint(renderer,level,true);
+  for(const batch of coats)batch.visibleIndices.forEach((index,slot)=>{
+    const color=new THREE.Color();batch.meshes[0].getColorAt(slot,color);
+    assert.ok(Math.abs(color.g-(level.animals[index].id%2===0?.10:.88))<1e-6,'QA tint resolves original animal after torso compaction');
+  });
+  tintContext.tint(renderer,level,false);
+  for(const batch of coats)assert.ok([...batch.meshes[0].instanceColor.array].every(value=>value===1),'disabling QA restores neutral coat colors');
+  renderer.sceneryFrustum.planes=originalPlanes;
+  level.animals.reverse();level.animals.forEach(animal=>animal.scale=1.25);
+  renderer.setLevel(level);assert.deepEqual(assignment(),before,'pattern follows ID rather than size or array slot');
+  renderer.setLevel(level);assert.deepEqual(assignment(),before,'restart preserves assignments');
 });

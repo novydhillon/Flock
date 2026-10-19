@@ -464,11 +464,131 @@ export function updatePipHover(dog,dt) {
   state.previous=dog.position.clone();
 }
 
+// Four shared torso textures add only three draws to a mixed herd. Anatomy and
+// geometry stay shared, and each torso batch keeps ordinary instance QA colors.
+const COW_PATCHES = [
+  [[.11,.47,.105,.25],[.38,.42,.14,.31],[.65,.52,.12,.28],[.87,.43,.13,.3],[.52,.88,.09,.14]],
+  [[.06,.36,.13,.22],[.29,.6,.095,.33],[.56,.36,.17,.27],[.85,.65,.10,.25],[.68,.87,.08,.12]],
+  [[.15,.65,.16,.25],[.43,.34,.11,.24],[.68,.62,.18,.32],[.94,.3,.08,.18],[.35,.86,.07,.12]],
+  [[.02,.58,.10,.31],[.25,.34,.16,.23],[.51,.65,.12,.28],[.78,.38,.15,.32],[.91,.84,.06,.11]],
+];
+const cowCoatMaterials=[];
+export function cowCoatVariant(seed,index) {
+  // Separate from the size RNG and immutable under visible-instance compaction.
+  let identity=0;
+  for(const char of String(index))identity=Math.imul(identity^char.charCodeAt(0),16777619);
+  let value=(seed ^ identity ^ 0x434f4154)>>>0;
+  value=Math.imul(value^(value>>>16),0x85ebca6b);
+  value=Math.imul(value^(value>>>13),0xc2b2ae35);
+  return (value^(value>>>16))>>>30;
+}
+export function createCowCoatMaterial(variant=0) {
+  if(!Number.isInteger(variant)||variant<0||variant>3)throw new RangeError('Unknown cow coat variant');
+  if(cowCoatMaterials[variant])return cowCoatMaterials[variant];
+  const canvas = document.createElement('canvas');
+  canvas.width = 256; canvas.height = 128;
+  const context = canvas.getContext('2d'), image = context.createImageData(256, 128);
+  // Broad organic islands follow the body surface without raised spot discs.
+  const patches = COW_PATCHES[variant];
+  for (let y=0;y<128;y++) for(let x=0;x<256;x++) {
+    const u=x/256,v=y/128;
+    const black=patches.some(([cx,cy,rx,ry])=>{
+      const dx=Math.min(Math.abs(u-cx),1-Math.abs(u-cx))/rx,dy=(v-cy)/ry;
+      const angle=Math.atan2(dy,dx);
+      return dx*dx+dy*dy < 1+.19*Math.sin(angle*3+cx*30)+.1*Math.cos(angle*5+cy*12);
+    });
+    const color=black?[49,48,46]:[238,228,204], grain=((x*13+y*7)%9)-4;
+    const i=(y*256+x)*4;
+    for(let c=0;c<3;c++) image.data[i+c]=color[c]+grain;
+    image.data[i+3]=255;
+  }
+  context.putImageData(image,0,0);
+  const coatTexture=new THREE.CanvasTexture(canvas); coatTexture.colorSpace=THREE.SRGBColorSpace;
+  const coat=new THREE.MeshStandardMaterial({color:'#ffffff',map:coatTexture,roughness:.94});
+  coat.userData.cowCoatVariant=variant;
+  cowCoatMaterials[variant]=coat;
+  return coat;
+}
+
+// The accepted 1.5x cow core has a 25% longer torso. Attachment positions
+// follow that extension while the head, hooves and leg lengths retain their shape.
+function createCow(m) {
+  const cow = new THREE.Group();
+  cow.name = 'Clay Holstein cow';
+  const clay = (color) => new THREE.MeshStandardMaterial({ color, roughness: .94, map: m.cream.map });
+  const pink = clay('#d99f91'), nostril = clay('#704c49'), ivory = clay('#e4d1ae');
+  const coat=createCowCoatMaterial();
+  sculptedSphere(cow,coat,[0,.54,0],[.32,.34,.4875],.025,20);
+  const head=new THREE.Group(); head.position.set(0,.73,.4175);cow.add(head);
+  sculptedSphere(head,m.cream,[0,-.015,.065],[.215,.225,.215],.018,16);
+  sculptedSphere(head,m.dark,[0,.065,.055],[.205,.205,.18],.018,16);
+  // Cream blaze meets the broad low muzzle; raised eyes keep a sleepy expression.
+  sphere(head,m.cream,[0,-.055,.21],[.095,.15,.065],16);
+  sphere(head,pink,[0,-.115,.255],[.224,.115,.125],16);
+  sphere(head,nostril,[0,-.203,.245],[.145,.012,.06],12);
+  sphere(head,pink,[0,-.215,.237],[.157,.026,.065],12);
+  for(const side of [-1,1]) {
+    eye(head,m,side*.087,.075,.207,.068);
+    sphere(head,m.dark,[side*.086,.133,.2],[.078,.026,.043],12);
+    const ear=sphere(head,m.dark,[side*.255,.09,.005],[.139,.065,.08],14);
+    ear.rotation.z=side*.28;
+    const inner=sphere(head,nostril,[side*.265,.096,.055],[.09,.037,.023],12);inner.rotation.z=side*.28;
+    const hole=sphere(head,nostril,[side*.115,-.089,.359],[.037,.045,.014],12);hole.rotation.z=side*-.22;
+    sphere(head,pink,[side*.115,-.074,.36],[.028,.014,.015],10);
+    // Smooth tapered bent horns, using a short welded tube with a shrinking radius.
+    const hornGeometry=new THREE.CylinderGeometry(.008,.045,.16,10,4);
+    const positions=hornGeometry.attributes.position;
+    for(let i=0;i<positions.count;i++) {
+      const t=(positions.getY(i)+.08)/.16;
+      positions.setXYZ(i,positions.getX(i)+side*(.055*t-.04*t*t),positions.getY(i),positions.getZ(i)-.025*t*t);
+    }
+    hornGeometry.computeVertexNormals();
+    hornGeometry.userData.temporaryCowHorn=true;
+    const horn=new THREE.Mesh(hornGeometry,ivory);horn.position.set(side*.145,.25,.015);head.add(horn);
+  }
+  const legs=[];
+  for(const [x,z] of [[-.215,.275],[.215,.275],[-.215,-.29375],[.215,-.29375]]) {
+    const limb=new THREE.Group();limb.position.set(x,.36,z);cow.add(limb);
+    sphere(limb,m.cream,[0,-.105,0],[.073,.19,.075],12);
+    // Two toes share the dark material, retaining two material batches per limb.
+    for(const side of [-1,1]) sphere(limb,m.dark,[side*.035,-.272,.029],[.034,.063,.091],10);
+    legs.push(limb);
+  }
+  sphere(cow,pink,[0,.295,-.23125],[.105,.067,.12],12);
+  for(const x of [-.052,.052]) for(const z of [-.2875,-.1875]) sphere(cow,pink,[x,.24,z],[.019,.038,.02],8);
+  const tail=sphere(cow,m.cream,[.035,.48,-.4835],[.027,.18,.027],10);tail.rotation.x=.2;
+  sphere(cow,m.dark,[.035,.312,-.5175],[.048,.069,.043],10);
+  return { animal:cow, legs };
+}
+
+function bakeArticulatedAnimal(animal,legs,size) {
+  animal.scale.setScalar(size);
+  for(const limb of legs)animal.remove(limb);
+  const articulated=bakeModel(animal);
+  for(let limbIndex=0;limbIndex<legs.length;limbIndex++) {
+    const limb=legs[limbIndex],pivot=limb.position.clone().multiplyScalar(size);
+    limb.position.set(0,0,0);limb.scale.setScalar(size);
+    for(const part of [...bakeModel(limb).children]) {
+      part.name=`leg-${limbIndex}`;part.position.copy(pivot);
+      part.userData={limbIndex,pivot:pivot.toArray()};articulated.add(part);
+    }
+  }
+  articulated.userData.articulated=true;
+  return articulated;
+}
+
 export function createAnimal(type = 'sheep') {
   const key = `animal:${type}`;
   if (modelCache.has(key)) return modelCache.get(key).clone();
   const m = createMaterials();
-  const cow = type === 'cow';
+  if(type === 'cow') {
+    const {animal,legs}=createCow(m);
+    const articulated=bakeArticulatedAnimal(animal,legs,1.5);
+    animal.traverse(part=>{if(part.geometry?.userData.temporaryCowHorn)part.geometry.dispose();});
+    modelCache.set(key,articulated);
+    return articulated.clone();
+  }
+  const cow = false;
   const animal = new THREE.Group();
   animal.name = cow ? 'Robot cow' : 'Robot sheep';
   const body = sculptedSphere(animal, m.cream, [0, 0.54, 0], [0.32, 0.34, cow ? 0.5 : 0.39]);

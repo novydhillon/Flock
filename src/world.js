@@ -1,3 +1,4 @@
+import { animalRadius, COW_SCALES } from './animal-size.js';
 /** Deterministic meadow geometry. Rendering and every ground body share these
  * sampled river edges, fence segments, and circular tree footprints. */
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -158,6 +159,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   index=clamp(Math.floor(Number(index)||0),0,99);seed=Number(seed)>>>0;
   // A broad first crossing accepts the starter flock before later lessons
   // require collecting stragglers. Its road widens with the physical deck.
+  const sizeRandom=rng(seed ^ 0x434f5753);
   const random=rng(seed),early=index<5,count=Math.min(5+index*3,65),roadWidth=index===1?9.4:early?4.1:4.8;
   // Early lessons preserve their intimate footprint; level six opens into a
   // meadow 3.5 times deeper, then later chapters expand further.
@@ -236,19 +238,34 @@ export function createLevel(index=0,seed=index*7919+42) {
     bounds,spawn,dog,target,animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
-    level.animals.push({id:i,type:index>=3&&i%4===0?'cow':'sheep',...p,vx:0,vz:0,saved:false});
+    const type=index>=3&&i%4===0?'cow':'sheep';
+    level.animals.push({id:i,type,...(type==='cow'?{scale:COW_SCALES[Math.floor(sizeRandom()*COW_SCALES.length)]}:{}),...p,vx:0,vz:0,saved:false});
   }
   // A curved bank can occasionally graze the forward row for a custom seed.
   // Slide the complete grid backward together, keeping its compact spacing and
   // the player's position behind it instead of scattering individual robots.
-  if(level.animals.some(a=>!canOccupy(level,a.x,a.z,a.type==='cow'?.78:.55))){
+  if(level.animals.some(a=>!canOccupy(level,a.x,a.z,animalRadius(a)))){
     const f=yawVector(heading),original=level.animals.map(a=>({x:a.x,z:a.z}));
     for(let step=1;step<=7;step++){
       const shift=step*.5;
       const candidate=original.map(p=>({x:p.x-f.x*shift,z:p.z-f.z*shift}));
-      if(candidate.every((p,i)=>canOccupy(level,p.x,p.z,level.animals[i].type==='cow'?.78:.55))){
+      if(candidate.every((p,i)=>canOccupy(level,p.x,p.z,animalRadius(level.animals[i])))){
         candidate.forEach((p,i)=>Object.assign(level.animals[i],p));break;
       }
+    }
+  }
+  // Larger variants may touch a neighbour in the legacy spawn grid. Move
+  // only those cows to the nearest clear deterministic sample; this consumes
+  // no layout RNG and leaves sheep and generated terrain unchanged.
+  for(const animal of level.animals){
+    if(animal.type!=='cow')continue;
+    const radius=animalRadius(animal),origin={x:animal.x,z:animal.z};
+    const clear=p=>canOccupy(level,p.x,p.z,radius)&&level.animals.every(other=>other===animal||distance(p,other)>=radius+animalRadius(other)+.01);
+    if(clear(origin))continue;
+    let placed=false;
+    for(let ring=1;ring<=40&&!placed;ring++)for(let direction=0;direction<24;direction++){
+      const angle=direction*Math.PI/12,p={x:origin.x+Math.cos(angle)*ring*.1,z:origin.z+Math.sin(angle)*ring*.1};
+      if(clear(p)){Object.assign(animal,p);placed=true;break;}
     }
   }
   // Trees never intrude on a viable herd corridor or on spawns/destinations.

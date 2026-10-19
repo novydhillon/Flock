@@ -1,3 +1,4 @@
+import { animalRadius } from './animal-size.js';
 import './qa.css';
 
 /** The displayed number is the next eligible animal's scheduled check. Read only. */
@@ -59,7 +60,7 @@ export function moveQAAnimal(level, id, xValue, zValue, { override = false, canO
   const x = Number(xValue), z = Number(zValue), b = level.bounds;
   if ([xValue, zValue].some(v => String(v).trim() === '') || !Number.isFinite(x) || !Number.isFinite(z)) throw new Error('Coordinates must be finite numbers.');
   if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) throw new Error('Coordinates must stay inside the meadow bounds.');
-  if (!override && !canOccupy?.(level, x, z, animal.type === 'cow' ? .78 : .55)) throw new Error('Placement is blocked. Enable the invalid-placement override to reproduce a stuck animal.');
+  if (!override && !canOccupy?.(level, x, z, animalRadius(animal))) throw new Error('Placement is blocked. Enable the invalid-placement override to reproduce a stuck animal.');
   animal.x = x; animal.z = z; animal.vx = 0; animal.vz = 0;
   return animal;
 }
