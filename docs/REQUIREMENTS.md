@@ -30,7 +30,7 @@ Fix F-048 low-speed stutter and inspect outstanding Buddy movement issues. Prese
 
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
-F-035/F-037/F-039/F-041/F-046/F-051/F-052 are **Done** by Novy's explicit sign-off on all items in Review. This accepts the flock/Buddy and bridge follow-ups, compact HUD/tip/bark/goal-pointer refinements and development QA gear. Older pending/Review descriptions are historical and superseded by this record. Open and Deferred requirements are unchanged; no runtime change or new independent device measurement is implied. See the [current tracker](ISSUES.md#user-sign-off---16-october-2026-0014-vancouver).
+F-035/F-037/F-039/F-041/F-046/F-051/F-052 are **Done** by Novy's explicit sign-off on all items in Review. This accepts the flock/Buddy and bridge follow-ups, compact HUD/tip/bark/goal-pointer refinements and development QA gear. Older pending/Review descriptions are historical and superseded by this record. Open and Deferred requirements are unchanged; no runtime change or new independent device measurement is implied. See the [current tracker](ISSUES_CLOSED.md#user-sign-off---16-october-2026-0014-vancouver).
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
@@ -118,7 +118,7 @@ Maps provide alternate trails, winding roads, real bridge/gate openings, destina
 
 ### Progress, economy and helpers
 
-The initial profile has zero bolts, no upgrades, no completed levels and only level 1 available. Any positive delivery at completion unlocks the next meadow (capped at level 100). Possible score is `80 + 25 * index`; earned score is `floor(possibleScore * saved / total)`. A run pays only `max(0, score - previousLifetimeBestEarnedBolts)`. Equal/worse replays pay zero; later improvement pays only the delta even after spending/reloading. For example, a best score of 32 followed by 64 adds 32 bolts. Zero deliveries neither pay nor unlock. Profile version 2 stores an authoritative `bestEarnedBolts` ledger; legacy completed levels migrate to fully earned entitlements without crediting spendable points again. Purchased tiers remain saved, but only tiers unlocked for the meadow being played apply. Invalid profile fields are sanitized; legacy boolean purchases migrate to tier 1. Browser storage failure retains the session and shows feedback. Key: `flock-foundry-v1`; do not clear or rename it for F-025. F-029 records this existing, tested rule as Done; the latest P0 missing-bolts-on-replay report was withdrawn as invalid. See [F-029 in the issue tracker](ISSUES.md#f-029--lifetime-best-score-improvement-pays-only-its-difference).
+The initial profile has zero bolts, no upgrades, no completed levels and only level 1 available. Any positive delivery at completion unlocks the next meadow (capped at level 100). Possible score is `80 + 25 * index`; earned score is `floor(possibleScore * saved / total)`. A run pays only `max(0, score - previousLifetimeBestEarnedBolts)`. Equal/worse replays pay zero; later improvement pays only the delta even after spending/reloading. For example, a best score of 32 followed by 64 adds 32 bolts. Zero deliveries neither pay nor unlock. Profile version 2 stores an authoritative `bestEarnedBolts` ledger; legacy completed levels migrate to fully earned entitlements without crediting spendable points again. Purchased tiers remain saved, but only tiers unlocked for the meadow being played apply. Invalid profile fields are sanitized; legacy boolean purchases migrate to tier 1. Browser storage failure retains the session and shows feedback. Key: `flock-foundry-v1`; do not clear or rename it for F-025. F-029 records this existing, tested rule as Done; the latest P0 missing-bolts-on-replay report was withdrawn as invalid. See [F-029 in the issue tracker](ISSUES_CLOSED.md#f-029--lifetime-best-score-improvement-pays-only-its-difference).
 
 | Skill | Tier unlock levels | Tier costs (bolts) | Current tier effects |
 |---|---|---|---|
@@ -305,7 +305,7 @@ Animals that start walking on a bridge should proceed to its opposite bank; this
 
 ## Buddy low-speed movement fix - F-048 (P2)
 
-Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Implemented on `buddy_update` with regression coverage; source review and development publication are recorded separately, and user gameplay acceptance remains pending. See [F-048 in the tracker](ISSUES.md#f-048---buddy-stutters-when-moving-slowly-p2).
+Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Implemented on `buddy_update` with regression coverage; source review and development publication are recorded separately, and user gameplay acceptance remains pending. See [F-048 in the tracker](ISSUES_CLOSED.md#f-048---buddy-stutters-when-moving-slowly-p2).
 
 
 ## Queued QA menu focus fix - F-049 (P4)

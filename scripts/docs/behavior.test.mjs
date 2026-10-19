@@ -21,6 +21,8 @@ test('offline search covers issue IDs, no results and keyboard/focus navigation'
     d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'/',bubbles:true,cancelable:true}));
     const input=d.getElementById('search-input');assert.equal(d.activeElement,input);
     input.value='F-025';input.dispatchEvent(new w.Event('input'));
+    assert.ok(d.querySelector('#search-results a[href="issues-closed.html"]'));
+    input.value='F-BIRD-001';input.dispatchEvent(new w.Event('input'));
     assert.ok(d.querySelector('#search-results a[href="issues.html"]'));
     input.value='not-a-real-doc-phrase-zz';input.dispatchEvent(new w.Event('input'));
     assert.equal(d.querySelectorAll('#search-results li').length,0);assert.match(d.getElementById('search-count').textContent,/No matching/);

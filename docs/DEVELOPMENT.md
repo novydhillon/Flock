@@ -17,6 +17,12 @@ All branches other than `main` publish to **https://novydhillon.github.io/Flock/
 
 Read [AGENTS.md](../AGENTS.md) for the standing project rules, including when starting work on older branches. The current staging helper is still hardcoded to `dev2/`: update it to `dev/` before future use or explicitly stage only the intended `dev/` output. Preserve production, existing dev2, legacy paths and unrelated Pages content. Source/build checks and native Pages/live-hash verification remain required for actual publications.
 
+## GitHub connector and issue archive — 18 October 2026
+
+Use the GitHub connector for all repository operations (read/compare, branches, commits, publication, PRs, merges and Pages). Do not use shell `git`, `gh`, or direct GitHub HTTP calls as substitutes; older shell-git directions in this document are historical and superseded. Shell remains available for local files, dependency installation, builds and tests. Report unsupported connector operations and retain prepared work instead of switching to shell git.
+
+[ISSUES.md](ISSUES.md) contains active work only. When an item becomes Done or Closed, move its entire overview row, detail, closure date/reason or user acceptance, and completed execution evidence into [ISSUES_CLOSED.md](ISSUES_CLOSED.md) in the same connector commit. Preserve evidence links and limitations, strike through closed overview cells and the detail title after the ID, and remove the active copy. Reopening reverses the move with a dated reason. Update moved-heading links and generated HTML, then run `npm run docs:check`. Do not close Review items without user sign-off.
+
 ## Local setup
 
 Use Node.js 22 or newer and the locked dependencies. Run commands from the repository root.

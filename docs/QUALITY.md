@@ -654,3 +654,12 @@ Independent review: `gpt-6-luna`, medium effort, fresh context; final 10/10 with
 ## F-065 production acceptance
 
 Novy approved the dev candidate and authorized main merge and live publication on 18 October 2026, 18:03 America/Creston. Preserve the independently reviewed runtime. Release integration uses the current session model without override; no new runtime work or new blind review is needed. Production build must exclude QA. Native phone FPS is not established by source checks. Publication evidence follows separately.
+
+
+## Tracker archive and connector-only workflow — 18 October 2026
+
+Documentation maintenance on `plan/bird-behaviour`, based on connector revision `2358bc1`. No runtime, main merge or Pages changes. Root session model/effort is not exposed and is not attributed. A fresh independent critic used an empty conversation context with the task, acceptance criteria, candidate files and original tracker snapshot; no writer reasoning or target score was provided. An initial full-history reviewer was interrupted before assessment and is not counted as blind review.
+
+Migration retains all 106 original overview entries unchanged apart from strike markup, moves closed work and historical execution records into `docs/ISSUES_CLOSED.md`, leaves 59 active entries including all 42 planning items, and adds the already signed-off F-065 missing from the old overview to make 48 archived rows. Independent review checked paragraph conservation, disjoint IDs and closure/reopening/connector-only rules: 9.2/10, no material blockers. The old search fixture expected F-025 in the active tracker; it now checks the archive and separately checks active F-BIRD-001, with reviewer recheck passing all four behaviors. Optional forward-guard improvements from review were applied: archive details are required and scoped closed titles are checked.
+
+Validation: documentation generation is deterministic across 13 offline pages; all local links/anchors and nine diagram sources pass, along with four DOM behavior tests. Checks enforce active/closed row separation, IDs, details, requirement traceability including ranges and closure strikethrough. Native browser appearance is not claimed. Publication uses the connected GitHub service only, with expected-parent branch update and remote tree verification; it does not authorize production merge or deployment.

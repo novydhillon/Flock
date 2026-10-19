@@ -27,7 +27,7 @@ Latest UI review update, 18 October: larger high-contrast minimap and tighter le
 
 ## Buddy update integrated for development review
 
-Buddy movement/model work from `buddy_update` is now combined with the `UI_refinement` candidate. Buddy’s former F-056 identifier is reassigned to **F-061** to avoid the UI batch’s existing F-056; earlier Buddy history is retained under the new ID. F-048/F-061 are Done by Novy’s 18 October sign-off on Buddy’s `/Flock/dev/` candidate. Combined integration validation and development-only publication are in progress; UI F-055–F-060 remain Review for user sign-off. Production is unchanged. See [the tracker](docs/ISSUES.md#combined-integration--18-october-2026).
+Buddy movement/model work from `buddy_update` is now combined with the `UI_refinement` candidate. Buddy’s former F-056 identifier is reassigned to **F-061** to avoid the UI batch’s existing F-056; earlier Buddy history is retained under the new ID. F-048/F-061 are Done by Novy’s 18 October sign-off on Buddy’s `/Flock/dev/` candidate. Combined integration validation and development-only publication are in progress; UI F-055–F-060 remain Review for user sign-off. Production is unchanged. See [the tracker](docs/ISSUES_CLOSED.md#combined-integration--18-october-2026).
 
 ## Engine choice
 
