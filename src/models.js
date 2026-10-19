@@ -558,13 +558,21 @@ function createCow(m) {
   for(const x of [-.052,.052]) for(const z of [-.2875,-.1875]) sphere(cow,pink,[x,.24,z],[.019,.038,.02],8);
   const tail=sphere(cow,m.cream,[.035,.48,-.4835],[.027,.18,.027],10);tail.rotation.x=.2;
   sphere(cow,m.dark,[.035,.312,-.5175],[.048,.069,.043],10);
-  return { animal:cow, legs };
+  return { animal:cow, legs, head };
 }
 
-function bakeArticulatedAnimal(animal,legs,size) {
+function bakeArticulatedAnimal(animal,legs,head,size) {
   animal.scale.setScalar(size);
   for(const limb of legs)animal.remove(limb);
+  animal.remove(head);
   const articulated=bakeModel(animal);
+  const headPivot=head.position.clone().multiplyScalar(size);
+  head.position.set(0,0,0);head.scale.setScalar(size);
+  for(const part of [...bakeModel(head).children]) {
+    part.name='head';part.position.copy(headPivot);
+    part.userData={headPart:true,pivot:headPivot.toArray(),grazeDrop:.3*size};
+    articulated.add(part);
+  }
   for(let limbIndex=0;limbIndex<legs.length;limbIndex++) {
     const limb=legs[limbIndex],pivot=limb.position.clone().multiplyScalar(size);
     limb.position.set(0,0,0);limb.scale.setScalar(size);
@@ -582,9 +590,9 @@ export function createAnimal(type = 'sheep') {
   if (modelCache.has(key)) return modelCache.get(key).clone();
   const m = createMaterials();
   if(type === 'cow') {
-    const {animal,legs}=createCow(m);
-    const articulated=bakeArticulatedAnimal(animal,legs,1.5);
-    animal.traverse(part=>{if(part.geometry?.userData.temporaryCowHorn)part.geometry.dispose();});
+    const {animal,legs,head}=createCow(m);
+    const articulated=bakeArticulatedAnimal(animal,legs,head,1.5);
+    head.traverse(part=>{if(part.geometry?.userData.temporaryCowHorn)part.geometry.dispose();});
     modelCache.set(key,articulated);
     return articulated.clone();
   }
@@ -627,26 +635,9 @@ export function createAnimal(type = 'sheep') {
   const legs = [leg(animal, m, -0.22, 0.22, 0.25), leg(animal, m, 0.22, 0.22, 0.25), leg(animal, m, -0.22, -0.24, 0.25), leg(animal, m, 0.22, -0.24, 0.25)];
   const tail = sphere(animal, m.dark, [0, 0.6, cow ? -0.53 : -0.39], [0.061, cow ? 0.15 : 0.065, 0.07]);
   const size = cow ? 1.23 : 1;
-  animal.scale.setScalar(size);
-  // Body remains baked, while each leg has two shared material meshes in hip
-  // coordinates. An instanced renderer can rotate each pair without rebuilding
-  // geometry: animalWorld * translate(pivot) * rotateX(gaitAngle).
-  for (const limb of legs) animal.remove(limb);
-  const articulated = bakeModel(animal);
-  for (let limbIndex = 0; limbIndex < legs.length; limbIndex++) {
-    const limb = legs[limbIndex];
-    const pivot = limb.position.clone().multiplyScalar(size);
-    limb.position.set(0, 0, 0);
-    limb.scale.setScalar(size);
-    const bakedLimb = bakeModel(limb);
-    for (const part of [...bakedLimb.children]) {
-      part.name = `leg-${limbIndex}`;
-      part.position.copy(pivot);
-      part.userData = { limbIndex, pivot: pivot.toArray() };
-      articulated.add(part);
-    }
-  }
-  articulated.userData.articulated = true;
+  // Body, head and limbs retain shared material batches. Head vertices use neck
+  // coordinates so every facial detail follows the same grazing transform.
+  const articulated = bakeArticulatedAnimal(animal, legs, head, size);
   modelCache.set(key, articulated);
   return articulated.clone();
 }

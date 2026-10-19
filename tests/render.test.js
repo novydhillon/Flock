@@ -1,4 +1,5 @@
 import {updateAnimalTurn,animalGaitSpeed} from '../src/animal-turn.js';
+import {updateGrazing,grazingAngle} from '../src/grazing.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -26,7 +27,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -448,6 +449,7 @@ function assertAnimalMatrices(renderer,level){
     assert.equal(mesh.visible,mesh.count>0);
     batch.visibleIndices.forEach((index,slot)=>{
       expected.copy(renderer.animalMeshes[index].matrix);
+      if(mesh.userData.headPart){const state=renderer.animalMeshes[index].userData,p=mesh.userData.pivot;rotation.makeTranslation(p[0],p[1]-(state.graze||0)*mesh.userData.grazeDrop,p[2]).multiply(new THREE.Matrix4().makeRotationX(grazingAngle(state,index)));expected.multiply(rotation);}
       if(mesh.userData.limbIndex!==undefined){
         const a=level.animals[index],limb=mesh.userData.limbIndex,phase=limb===0||limb===3?0:Math.PI;
         const gait=Math.sin(poseTime*12+index*.8+phase)*Math.min(.5,Math.hypot(a.vx,a.vz)*.15);
@@ -489,7 +491,7 @@ test('animal bounds enclose real body vertices, moving limbs and visible ground 
       const positions=mesh.geometry.attributes.position;
       for(const gait of [-.5,0,.5])for(let i=0;i<positions.count;i++){
         vertex.fromBufferAttribute(positions,i);
-        if(mesh.userData.limbIndex!==undefined)vertex.applyAxisAngle(new THREE.Vector3(1,0,0),gait).add(new THREE.Vector3(...mesh.userData.pivot));
+        if(mesh.userData.limbIndex!==undefined||mesh.userData.headPart)vertex.applyAxisAngle(new THREE.Vector3(1,0,0),gait).add(new THREE.Vector3(...mesh.userData.pivot));
         assert.ok(vertex.length()<=batch.radius+.000001,'actual articulated geometry remains within its conservative animal-origin sphere');
       }
     }
@@ -501,6 +503,7 @@ test('animal bounds enclose real body vertices, moving limbs and visible ground 
   const poseTime=Math.floor(renderer.time*12)/12,rotation=new THREE.Matrix4();let checked=0;
   for(const batch of renderer.animalBatches)for(const index of batch.indices)for(const mesh of batch.meshes){
     const world=renderer.animalMeshes[index].matrix.clone();
+    if(mesh.userData.headPart)world.multiply(new THREE.Matrix4().makeTranslation(...mesh.userData.pivot));
     if(mesh.userData.limbIndex!==undefined){const limb=mesh.userData.limbIndex,phase=limb===0||limb===3?0:Math.PI,a=level.animals[index],gait=Math.sin(poseTime*12+index*.8+phase)*Math.min(.5,Math.hypot(a.vx,a.vz)*.15);rotation.makeTranslation(...mesh.userData.pivot).multiply(new THREE.Matrix4().makeRotationX(gait));world.multiply(rotation);}
     sphere.copy(mesh.geometry.boundingSphere).applyMatrix4(world);
     const visibleBody=renderer.sceneryFrustum.intersectsSphere(sphere);
@@ -842,4 +845,27 @@ test('stationary herd turns animate instanced legs and freeze when paused',()=>{
   assert.ok(matrix.elements.some((v,i)=>Math.abs(v-idle.elements[i])>1e-5),'pivot has a real leg swing');
   const frozen=matrix.clone(),heading=pose.rotation.y;renderer.update(level,dog,0,false);mesh.getMatrixAt(index,matrix);
   assert.equal(pose.rotation.y,heading);assert.deepEqual(matrix.elements,frozen.elements);
+});
+
+test('both species lower complete instanced heads near grass, freeze, lift on paths and reset',()=>{
+  const renderer=setup(),level=createLevel(0);
+  level.roads=[];level.rivers=[];level.obstacles=[];level.fenceSegments=[];
+  level.animals=[{...level.animals[0],x:level.spawn.x,z:level.spawn.z,type:'sheep',vx:0,vz:0,heading:0},
+    {...level.animals[1],x:level.spawn.x+2,z:level.spawn.z,type:'cow',scale:1.25,vx:0,vz:0,heading:0}];
+  renderer.setLevel(level);
+  for(let i=0;i<24;i++)renderer.update(level,level.dog,.1);
+  for(let index=0;index<2;index++){
+    const batch=renderer.animalBatches.find(b=>b.coatVariant===undefined&&b.indices.includes(index));
+    const heads=batch.meshes.filter(m=>m.userData.headPart);assert.ok(heads.length>=3,'eyes, muzzle and head materials articulate together');
+    assert.equal(renderer.animalMeshes[index].userData.graze,1);
+    let bottom=Infinity;const v=new THREE.Vector3(),matrix=new THREE.Matrix4();
+    for(const m of heads){m.getMatrixAt(batch.visibleIndices.indexOf(index),matrix);const p=m.geometry.attributes.position;for(let j=0;j<p.count;j++){v.fromBufferAttribute(p,j).applyMatrix4(matrix);bottom=Math.min(bottom,v.y);}}
+    assert.ok(bottom>=-.025&&bottom<.22,`species ${index} lowest head point is near grass, not underground: ${bottom}`);
+  }
+  const snapshot=renderer.animalBatches.flatMap(b=>b.meshes.map(m=>[...m.instanceMatrix.array]));
+  renderer.update(level,level.dog,0);
+  assert.deepEqual(renderer.animalBatches.flatMap(b=>b.meshes.map(m=>[...m.instanceMatrix.array])),snapshot);
+  level.roads=[{width:5,points:[{x:level.spawn.x-10,z:level.spawn.z},{x:level.spawn.x+10,z:level.spawn.z}]}];
+  renderer.update(level,level.dog,.1);assert.ok(renderer.animalMeshes.every(m=>m.userData.graze===0));
+  renderer.setLevel(level);assert.ok(renderer.animalMeshes.every(m=>m.userData.graze===undefined));
 });

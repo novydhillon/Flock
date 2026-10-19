@@ -4,6 +4,15 @@ Novy approved all UI changes and authorized merge to main and production deploym
 
 # FLOCK — Remaining issues and change tracker
 
+## F-066 — ~~Grazing head pose~~
+
+**Done** by Novy's approval on 18 October 2026, 22:10 America/Creston. Merge to main and production publication are authorized. This acceptance supersedes the historical pending-sign-off wording below; production evidence follows separately.
+
+Published and verified at `/Flock/dev/`: source `54cc8c5`, Pages `d3bc2b8`; source CI/native Pages succeeded, 338 regressions pass, both artifact modes pass, all 17 live files match and 49 unrelated Pages blobs are preserved. Final source review 9/10 without material blockers. [Publication evidence](validation/F-066-grazing-publication.json). User appearance sign-off remains pending.
+
+**Done**, owner Codex, branch `livestock_grazing` from main `5fd8cf5`.
+Acceptance: calm livestock lower their complete heads to eat on grass/bushes; never on paths, bridge decks or barn floors. Smoothly lift when moving, turning or pressured; freeze on pause, reset on restart, preserve cow variants and instancing. Head, hoof-boundary and spatial-query checks pass; independent source review accepted the hoof fix at 9/10. Development publication evidence follows separately; native appearance requires user review.
+
 ## Cow user acceptance — 18 October 2026, 17:30 America/Creston
 
 Novy approved the current cow art and requested merge to main and live production deployment. **F-064 is Done**, including the reference model, 25% longer torso, four sizes, varied coats and forward horns. Accepted dev runtime `b3fb4f5`, Pages `90ee1f5`; historical Review/pending/hold wording below is superseded for F-064. This user acceptance is separate from source/phone FPS measurement.
