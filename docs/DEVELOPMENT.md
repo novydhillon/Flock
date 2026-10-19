@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## F-066 grazing smoke checks
+
+On `livestock_grazing`, watch calm sheep/cows settle off-road on grass and among bushes. The whole head should lower close to grass with a small nibbling motion, then lift when walking, pivoting or under dog pressure. Compare all cow sizes, bridge/path edges and saved barn animals: no feeding on hard surfaces. Pause, resume, restart, jump levels and follow animals out of view and back. Source checks do not establish phone likeness, neck appearance or FPS. Keep F-066 Review until user acceptance; production needs separate approval.
+
 ## Buddy update workflow - 17 October 2026
 
 `buddy_update` starts from main `8cc4275` and incorporates the current main deployment policy when resumed on 18 October. F-048 movement and F-061 model/pose are developed in isolated worktrees with disjoint owned files, integrated before a fresh blind review. Apply the established least-expensive-suitable model rule: routine work/reviews use `gpt-6-luna` at medium effort; escalate on concrete evidence. Critics receive only requirements and the candidate, not implementation rationale or prior scores; follow the current AGENTS.md gauntlet threshold of 9/10 and report evidence-constrained limits honestly. Run full source regressions, both clean build/artifact modes and generated documentation checks before publication to `/Flock/dev/`. Preserve production root, dev2, other branches' source and unrelated Pages files. Keep source checks, rendered/device evidence, deployment and user sign-off distinct.

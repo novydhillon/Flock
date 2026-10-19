@@ -4,6 +4,11 @@ Novy approved all UI changes and authorized merge to main and production deploym
 
 # FLOCK — Remaining issues and change tracker
 
+## F-066 — Grazing head pose
+
+**Review**, owner Codex, branch `livestock_grazing` from main `5fd8cf5`.
+Acceptance: calm livestock lower their complete heads to eat on grass/bushes; never on paths, bridge decks or barn floors. Smoothly lift when moving, turning or pressured; freeze on pause, reset on restart, preserve cow variants and instancing. Head, hoof-boundary and spatial-query checks pass; independent source review accepted the hoof fix at 9/10. Development publication evidence follows separately; native appearance requires user review.
+
 ## Cow user acceptance — 18 October 2026, 17:30 America/Creston
 
 Novy approved the current cow art and requested merge to main and live production deployment. **F-064 is Done**, including the reference model, 25% longer torso, four sizes, varied coats and forward horns. Accepted dev runtime `b3fb4f5`, Pages `90ee1f5`; historical Review/pending/hold wording below is superseded for F-064. This user acceptance is separate from source/phone FPS measurement.

@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+### Grazing presentation
+
+`grazing.js` uses shared world geometry to veto paths, rotated decks, water and barn floors. Renderer-owned per-animal settling/pose state never changes simulation or saved progress. Heads are baked into neck-local material meshes with shared pivot/drop metadata, alongside the existing hip-local limbs. Instancing applies one head transform to every facial material; culling retains a conservative rotation envelope. Bushes are decorative grass-ground placements. No per-frame geometry/material creation is added.
+
 ### Pip presentation rig contract
 
 Pip's motion presentation must not feed back into simulation position, collision or herding. Root coordinates and heading remain authoritative; a child rig owns float/roll/pitch and a head pivot owns anticipatory yaw. `parts.pods` describes animated anchors in root-local coordinates so ring and ground-glow consumers continue using the same world projection contract. Guidance graphics stay on the root. Motion history is scoped to a model/level and freezes with pause; discontinuous moves clear inertial pose history.

@@ -1,4 +1,5 @@
 import { updateAnimalTurn, animalGaitSpeed } from './animal-turn.js';
+import { updateGrazing, grazingAngle } from './grazing.js';
 import * as THREE from 'three';
 import { animalScale } from './animal-size.js';
 import { generateBushClusters } from './vegetation.js';
@@ -215,7 +216,7 @@ export class MeadowRenderer{
           }
           continue;
         }
-        const instanced=new THREE.InstancedMesh(child.geometry,child.material,indices.length);instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);instanced.castShadow=instanced.receiveShadow=true;instanced.frustumCulled=false;instanced.userData.limbIndex=child.userData.limbIndex;instanced.userData.pivot=pivot;this.actors.add(instanced);meshes.push(instanced);
+        const instanced=new THREE.InstancedMesh(child.geometry,child.material,indices.length);instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);instanced.castShadow=instanced.receiveShadow=true;instanced.frustumCulled=false;instanced.userData={...child.userData};this.actors.add(instanced);meshes.push(instanced);
       }
       this.animalBatches.push({indices,meshes,radius,visibleIndices:[]},...coats.map(batch=>({...batch,radius})));
     }
@@ -289,6 +290,12 @@ export class MeadowRenderer{
       // All body and limb materials share one compacted ordering. Gait phases
       // still use the original animal index, including saved and distant animals.
       visible.forEach((index,i)=>batch.meshes.forEach(m=>{
+        if(m.userData.headPart){
+          const state=this.animalMeshes[index].userData,pivot=m.userData.pivot;
+          limbTransform.makeTranslation(pivot[0],pivot[1]-(state.graze||0)*m.userData.grazeDrop,pivot[2]);
+          limbRotation.makeRotationX(grazingAngle(state,index));limbTransform.multiply(limbRotation);
+          worldTransform.multiplyMatrices(this.animalMeshes[index].matrix,limbTransform);m.setMatrixAt(i,worldTransform);return;
+        }
         if(m.userData.limbIndex===undefined){m.setMatrixAt(i,this.animalMeshes[index].matrix);return;}
         const a=level.animals[index],limb=m.userData.limbIndex,phase=(limb===0||limb===3)?0:Math.PI,gait=Math.sin(poseTime*12+index*.8+phase)*Math.min(.5,animalGaitSpeed(a,this.animalMeshes[index].userData.turnSpeed)*.15);
         limbTransform.makeTranslation(...m.userData.pivot);limbRotation.makeRotationX(gait);limbTransform.multiply(limbRotation);worldTransform.multiplyMatrices(this.animalMeshes[index].matrix,limbTransform);m.setMatrixAt(i,worldTransform);
@@ -322,7 +329,7 @@ export class MeadowRenderer{
     const poseTime=Math.floor(this.time*12)/12;
     updatePipPose(this.dog,dog,dt);updatePipHover(this.dog,dt);parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
     this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
-    level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.scale.setScalar(animalScale(a));m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);updateAnimalTurn(m,a,dt);m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
+    level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.scale.setScalar(animalScale(a));m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);updateAnimalTurn(m,a,dt);updateGrazing(m,a,level,dt);m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.updateMatrix();});
     this.updateBarks(dt);
     for(const m of this.helperMeshes.values())m.visible=false;
     for(const h of level.helpers||[]){
