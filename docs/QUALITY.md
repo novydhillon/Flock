@@ -756,3 +756,19 @@ Validation: `npm run docs:check` passes, `npm test` passes 341/341, and `npm run
 
 Source CI: run 39323862997 passed on `d3a1058`. Novy signed off on 19 October 2026, 14:03 America/Creston, and F-OPS-002 is Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the instruction files. Live loading of the symlinks by each agent tool is still unverified.
 
+
+## F-OPS-003 — Live dev validation of the delivery workflow, 19 October 2026
+
+Branch: `claude/build-deployment-scripts-6p1dnt`, created from main `6edfa57` with the connector. Model: Claude Code session model, identifier not recorded (the harness forbids model identifiers in repository files). No model or effort override.
+
+Approach: exercise the checked-in entry points unchanged first, then fix only what the real run exposed. The alternative, editing the scripts before any run, was rejected: it could not show whether the tooling as merged actually works.
+
+First run, unchanged tooling: local `npm run build:checked:dev` passed (docs check, 4/4 documentation behavior tests, 341/341 regression tests, release 27 files/0 QA assets, development 29 files/2 QA assets). A mocked dev publication of the real `dist/` produced 29 `dev/` paths plus `dev/.flock-deployment.json`. Deploy Flock run 39327138760 passed every step, and its live verification matched 29 files by SHA-256. A connector tree comparison confirmed the `dev/` blobs equal the local build and every other Pages path is unchanged. Headless Chromium with SwiftShader WebGL2 rendered the dev build under a `/Flock/dev/` path and started level 1 in portrait and landscape with no page errors or failed requests.
+
+Fixes: action majors moved off Node.js 20 (`checkout@v5`, `setup-node@v5`, `github-script@v8`, `upload-artifact@v6`) in both workflows; the Pages wait loop logs each attempt; the runbook now documents connector dispatch. Both workflow files parse as YAML, and the extracted wait-step script passes `node --check`.
+
+Review: no blind gauntlet. The change is a version bump, two log lines and documentation, judged not substantial. The stronger check is a real Deploy Flock run on the fixed revision. Run 39328324058 (`eed872a`) passed but showed `upload-artifact@v5` still targets Node.js 20; after the move to `@v6`, run 39328751422 (`032f03e`) passed with no warning and verified 29 live files. Source CI 39328751141 is green on `032f03e`.
+
+Limits: the live site is not reachable from this cloud container, so live checks rely on the workflow's own hash verification. SwiftShader is a software renderer: no phone appearance, GPU, FPS, touch or listening evidence. Review pending user sign-off. The documentation commit used shell git under Novy's session waiver for large files (see the F-OPS-003 tracker entry).
+
+Novy signed off F-OPS-001 and F-OPS-003 on 19 October 2026, 14:47 America/Creston; both are Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the delivery tooling and the dev deployments. Phone appearance, FPS, touch and audio remain unverified by this work, and no production deployment or merge was made.

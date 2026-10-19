@@ -33,10 +33,10 @@ jobs:
           if (production && process.env.CONFIRM !== 'deploy-production') throw Error('Production confirmation missing');
           if (!process.env.PUBLISH_TOKEN) throw Error('Configure PAGES_PUBLISH_TOKEN; GITHUB_TOKEN pushes do not trigger native Pages');
           NODE
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: npm
@@ -47,7 +47,7 @@ jobs:
         run: node scripts/build-checked.mjs "$TARGET"
       - name: Publish scoped files to gh-pages
         id: publish
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
         with:
@@ -55,7 +55,7 @@ jobs:
           script: |
             await require('./scripts/publish-pages.cjs')({ github, context, core });
       - name: Wait for native Pages and verify live hashes
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           PAGES_SHA: ${{ steps.publish.outputs.pages_sha }}
         with:
@@ -65,16 +65,18 @@ jobs:
               const builds = (await github.rest.repos.listPagesBuilds({ ...context.repo, per_page: 100 })).data;
               const build = builds.find(item => item.commit === process.env.PAGES_SHA);
               if (build?.status === 'errored') throw Error('Native Pages build failed');
+              core.info(`Attempt ${attempt + 1}/60: native Pages build ${build?.status ?? 'not listed yet'}`);
               if (build?.status === 'built') {
+                // Pages reports "built" slightly before the CDN serves it; retry hash mismatches.
                 try { execFileSync(process.execPath, ['scripts/verify-deployment.mjs'], { stdio: 'inherit' }); return; }
-                catch (error) { if (attempt === 59) throw error; }
+                catch (error) { if (attempt === 59) throw error; core.info('Live verification not yet matching; retrying'); }
               }
               await new Promise(resolve => setTimeout(resolve, 10000));
             }
             throw Error('Timed out waiting for native Pages and live verification');
       - name: Save publication evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: flock-deployment-evidence
           path: deployment.json
