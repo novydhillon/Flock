@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-067 | P2 | App identity | Pip closeup favicon and iOS Home Screen icons | Review | Current Pip model |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -641,3 +642,14 @@ Root AGENTS.md and DEVELOPMENT.md now require connector-only repository operatio
 Requested integration of main `d2484b9` into planning branch `plan/bird-behaviour` (`6ca2b35`). Main contributes five commits since shared base `5fd8cf5`: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch's planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy's 22:10 approval and is added directly to [Closed issues](ISSUES_CLOSED.md); 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.
 
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
+
+
+### F-067 — Pip favicon and Home Screen icons
+
+**Owner:** Codex
+**Branch:** `feature/pip-icons`
+**Status:** Review. Source implemented; device acceptance and publication pending.
+
+Use the current silver Pip model in a readable closeup, transparent PNG icons in browser and Apple touch sizes, and relative links that work at production and dev paths. Verify dimensions, alpha, build output and docs. Device Home Screen appearance awaits user review.
+
+F-067 validation: all 350 regression tests pass; release/development builds and artifact checks pass; PNG dimensions/alpha and output link existence checked. Exact game head mesh projected with SVGRenderer, simplified material shading. Independent review recorded in QUALITY.md; no iOS device claim.

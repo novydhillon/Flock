@@ -296,3 +296,8 @@ On `art_update_cow`, vary the black/cream patch layout between herd cows while r
 ## F-064 production acceptance — 18 October 2026
 
 Novy approved the current cow update at 17:30 America/Creston and authorized merging `art_update_cow` into main and production-root deployment. F-064 is Done by user acceptance, superseding prior Review/hold wording for this cow work. Accepted dev runtime `b3fb4f5` / Pages `90ee1f5`; current source docs `e05bf79`. Production source must preserve accepted UI/Buddy behavior and exclude QA. Runtime identity and publication verification follow separately; user acceptance adds no independent device FPS measurement.
+
+
+## Pip favicon and Home Screen artwork
+
+`public/icons/` contains a transparent closeup of the actual `createPip()` head mesh. `index.html` links browser SVG/PNG and Apple touch PNG variants. `public/site.webmanifest` keeps start URL, scope and identity relative so production and dev installations stay separate. No service worker or offline cache is introduced. `scripts/generate-pip-icons.mjs` uses Three SVGRenderer and jsdom to project the existing geometry with simplified material lighting (no texture sampling). Run `node scripts/generate-pip-icons.mjs` at repository root with Inkscape and Python/Pillow installed; it regenerates SVG and every PNG in one command. PNG corners remain transparent; iOS final compositing requires device review.
