@@ -152,3 +152,4 @@ F-033 weathering refinement: asymmetric hull corners/wedge profiles and determin
 ## Herd pivot presentation (F-065)
 
 Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.
+

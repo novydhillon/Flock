@@ -12,7 +12,8 @@ This is the starting point for humans and agents working on the robotic-herding 
 | [World](systems/WORLD.md) | Procedural routes, barriers, footprints and navigation |
 | [Presentation](systems/PRESENTATION.md) | Rendering, animation, nature, weather and audio |
 | [Development and release](DEVELOPMENT.md) | Build, tests, documentation generation, QA evidence and publishing |
-| [Issue tracker](ISSUES.md) | Prioritized work, acceptance criteria and agent handoffs |
+| [Issue tracker](ISSUES.md) | Active work, acceptance criteria and agent handoffs |
+| [Closed issues](ISSUES_CLOSED.md) | Completed work, user sign-offs and preserved execution evidence |
 | [P0/P1 validation](validation/P0-P1.md) | Source checks, release evidence, reproducible scenarios and remaining limits |
 | [Quality record](QUALITY.md) | Historical reviews and the boundaries of their evidence |
 | [Documentation reviews](REVIEW.md) | Blind content/HTML findings, corrections and verification limits |
@@ -37,3 +38,5 @@ Clouds are temporarily disabled at Novy’s request on 15 October 2026 (F-008 De
 
 
 Project workflow: [root AGENTS.md](../AGENTS.md) records the standing development rules, including model selection, parallel work, blind review gauntlets and sign-off.
+
+Repository operations use the GitHub connector, not shell git/gh. Move Done/Closed work from the active tracker into [Closed issues](ISSUES_CLOSED.md) in the same commit; see [AGENTS.md](../AGENTS.md) for the complete lifecycle rule.

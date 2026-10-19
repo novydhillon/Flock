@@ -2,6 +2,11 @@
 
 These rules apply to the whole repository. Read this file, `docs/DEVELOPMENT.md`, `docs/ISSUES.md` and the current requirements before changing code. Explicit user instructions take precedence. Record an explicit review waiver when one is given; never infer one.
 
+## GitHub access — effective 18 October 2026
+
+- Use the GitHub connector for every repository operation: refs/files, comparisons, branches, commits, source publication, pull requests, merges and Pages publication. Do not run shell `git` or `gh` commands or direct GitHub HTTP requests as substitutes. Local editing, dependency installation, builds and tests may still use shell tools.
+- If a required connector capability is unavailable or fails, report the specific limitation and preserve prepared work. Do not fall back to shell GitHub operations. This overrides older shell-git instructions and examples; existing user authorization remains valid.
+
 ## Branches and ownership
 
 - Work on the requested feature branch, based on the current intended source branch. Do not implement directly on `main`. `main` is production; `gh-pages` contains published artifacts.
@@ -23,7 +28,7 @@ These rules apply to the whole repository. Read this file, `docs/DEVELOPMENT.md`
 
 - Track work in `docs/ISSUES.md`, not GitHub Issues. Add scoped IDs and acceptance criteria before implementation. Record owner, branch, state, evidence and remaining checks.
 - Use Open → In progress → Review → Done. Source completion, publication and user acceptance are separate milestones. Leave implemented items in Review until the user signs off. Never use a review score as user acceptance.
-- Strike through every cell of closed overview rows and the title after the ID in closed issue headings. Preserve evidence; remove strikethrough if reopened.
+- When an issue becomes Done or Closed, move its complete overview row and detailed section, closure date/reason or user acceptance, and related completion evidence from `docs/ISSUES.md` to `docs/ISSUES_CLOSED.md` in the same connector commit. Preserve requirements, evidence links and validation limits; do not leave duplicate active/closed overview entries. Strike through every closed overview cell and the archived title after its ID. Reopening moves the item back to the active tracker and removes strikethrough, with a dated reason.
 - Update affected requirements, system context, development/quality records and generated HTML. Regenerate and check docs before commits. Keep current status clear when historical records remain.
 
 ## Validation and publishing

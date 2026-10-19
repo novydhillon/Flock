@@ -39,4 +39,38 @@ const issue=readFileSync(resolve(root,'docs/ISSUES.md'),'utf8'),req=readFileSync
 const issueIds=[...issue.matchAll(/^### (F-\d{3})/gm)].map(m=>m[1]);
 if(new Set(issueIds).size!==issueIds.length)errors.push('Duplicate issue IDs in tracker headings.');
 for(const id of issueIds)if(!req.includes(id))errors.push(`Missing requirement traceability: ${id}`);
+// Keep the active/closed lifecycle consistent, including scoped planning IDs.
+const closedIssue=readFileSync(resolve(root,'docs/ISSUES_CLOSED.md'),'utf8');
+const overviewRows=text=>[...text.matchAll(/^\| ((?:~~)?F-(?:[A-Z]+-)?\d{3}(?:~~)?) \|(.+)$/gm)]
+  .map(m=>({id:m[1].replaceAll('~~',''),cells:[m[1],...m[2].split('|').slice(0,-1)].map(c=>c.trim())}));
+const overviewSection=(text,heading)=>text.split(heading+'\n')[1]?.split(/^## /m)[0]||'';
+const activeRows=overviewRows(overviewSection(issue,'## Work overview'));
+const closedRows=overviewRows(overviewSection(closedIssue,'## Closed work overview'));
+for(const [label,rows] of [['active',activeRows],['closed',closedRows]]){
+  const ids=rows.map(r=>r.id);
+  if(new Set(ids).size!==ids.length)errors.push(`Duplicate overview IDs in ${label} tracker.`);
+  for(const row of rows){
+    const status=row.cells[4]?.replaceAll('~~','').toLowerCase();
+    if(label==='active'&&['done','closed'].includes(status))errors.push(`${row.id}: move closed work to ISSUES_CLOSED.md.`);
+    if(label==='closed'&&!['done','closed'].includes(status))errors.push(`${row.id}: active work belongs in ISSUES.md.`);
+    if(label==='closed'&&row.cells.some(c=>!/^~~.+~~$/.test(c)))errors.push(`${row.id}: strike through every closed overview cell.`);
+  }
+}
+const closedIds=new Set(closedRows.map(r=>r.id));
+for(const row of activeRows)if(closedIds.has(row.id))errors.push(`${row.id}: duplicated across active and closed overviews.`);
+const activeDetailIds=[...issue.matchAll(/^### (F-(?:[A-Z]+-)?\d{3})\b/gm)].map(m=>m[1]);
+for(const row of activeRows)if(activeDetailIds.filter(id=>id===row.id).length!==1)errors.push(`${row.id}: expected one active detail section.`);
+for(const id of activeDetailIds)if(!activeRows.some(r=>r.id===id))errors.push(`${id}: active detail missing overview row.`);
+const tracedIds=new Set([...req.matchAll(/F-(?:[A-Z]+-)?\d{3}/g)].map(m=>m[0]));
+for(const range of req.matchAll(/(F-(?:[A-Z]+-)?)(\d{3})[–-](?:(?:F-(?:[A-Z]+-)?))?(\d{3})/g)){
+  const start=Number(range[2]),end=Number(range[3]);
+  if(end>=start&&end-start<1000)for(let n=start;n<=end;n++)tracedIds.add(range[1]+String(n).padStart(3,'0'));
+}
+for(const id of activeDetailIds)if(!tracedIds.has(id))errors.push(`Missing requirement traceability: ${id}`);
+const closedDetailIds=[...closedIssue.matchAll(/^#{2,3} (?:~~)?(F-(?:[A-Z]+-)?\d{3})\b/gm)].map(m=>m[1]);
+for(const row of closedRows)if(!closedDetailIds.includes(row.id))errors.push(`${row.id}: archived overview missing detail section.`);
+for(const id of activeDetailIds)if(closedIds.has(id))errors.push(`${id}: closed detail remains in active tracker.`);
+for(const match of closedIssue.matchAll(/^#{2,3} (?:~~)?(F-(?:[A-Z]+-)?\d{3})(?:~~)? (?:[-—] )?(.+)$/gm)){
+  if(closedIds.has(match[1])&&!/^~~.+~~$/.test(match[2]))errors.push(`${match[1]}: strike through archived issue title.`);
+}
 if(errors.length){console.error(errors.join('\n'));process.exitCode=1;}else console.log(`Documentation checks passed: ${pages.length} pages, ${checkedLinks} local links/anchors, ${diagrams} diagrams; deterministic, current and offline assets.`);

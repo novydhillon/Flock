@@ -34,7 +34,7 @@ Fix F-048 low-speed stutter and inspect outstanding Buddy movement issues. Prese
 
 ## User sign-off - 16 October 2026, 00:14 Vancouver
 
-F-035/F-037/F-039/F-041/F-046/F-051/F-052 are **Done** by Novy's explicit sign-off on all items in Review. This accepts the flock/Buddy and bridge follow-ups, compact HUD/tip/bark/goal-pointer refinements and development QA gear. Older pending/Review descriptions are historical and superseded by this record. Open and Deferred requirements are unchanged; no runtime change or new independent device measurement is implied. See the [current tracker](ISSUES.md#user-sign-off---16-october-2026-0014-vancouver).
+F-035/F-037/F-039/F-041/F-046/F-051/F-052 are **Done** by Novy's explicit sign-off on all items in Review. This accepts the flock/Buddy and bridge follow-ups, compact HUD/tip/bark/goal-pointer refinements and development QA gear. Older pending/Review descriptions are historical and superseded by this record. Open and Deferred requirements are unchanged; no runtime change or new independent device measurement is implied. See the [current tracker](ISSUES_CLOSED.md#user-sign-off---16-october-2026-0014-vancouver).
 
 ## User sign-off - 15 October 2026, 16:34 Vancouver
 
@@ -122,7 +122,7 @@ Maps provide alternate trails, winding roads, real bridge/gate openings, destina
 
 ### Progress, economy and helpers
 
-The initial profile has zero bolts, no upgrades, no completed levels and only level 1 available. Any positive delivery at completion unlocks the next meadow (capped at level 100). Possible score is `80 + 25 * index`; earned score is `floor(possibleScore * saved / total)`. A run pays only `max(0, score - previousLifetimeBestEarnedBolts)`. Equal/worse replays pay zero; later improvement pays only the delta even after spending/reloading. For example, a best score of 32 followed by 64 adds 32 bolts. Zero deliveries neither pay nor unlock. Profile version 2 stores an authoritative `bestEarnedBolts` ledger; legacy completed levels migrate to fully earned entitlements without crediting spendable points again. Purchased tiers remain saved, but only tiers unlocked for the meadow being played apply. Invalid profile fields are sanitized; legacy boolean purchases migrate to tier 1. Browser storage failure retains the session and shows feedback. Key: `flock-foundry-v1`; do not clear or rename it for F-025. F-029 records this existing, tested rule as Done; the latest P0 missing-bolts-on-replay report was withdrawn as invalid. See [F-029 in the issue tracker](ISSUES.md#f-029--lifetime-best-score-improvement-pays-only-its-difference).
+The initial profile has zero bolts, no upgrades, no completed levels and only level 1 available. Any positive delivery at completion unlocks the next meadow (capped at level 100). Possible score is `80 + 25 * index`; earned score is `floor(possibleScore * saved / total)`. A run pays only `max(0, score - previousLifetimeBestEarnedBolts)`. Equal/worse replays pay zero; later improvement pays only the delta even after spending/reloading. For example, a best score of 32 followed by 64 adds 32 bolts. Zero deliveries neither pay nor unlock. Profile version 2 stores an authoritative `bestEarnedBolts` ledger; legacy completed levels migrate to fully earned entitlements without crediting spendable points again. Purchased tiers remain saved, but only tiers unlocked for the meadow being played apply. Invalid profile fields are sanitized; legacy boolean purchases migrate to tier 1. Browser storage failure retains the session and shows feedback. Key: `flock-foundry-v1`; do not clear or rename it for F-025. F-029 records this existing, tested rule as Done; the latest P0 missing-bolts-on-replay report was withdrawn as invalid. See [F-029 in the issue tracker](ISSUES_CLOSED.md#f-029--lifetime-best-score-improvement-pays-only-its-difference).
 
 | Skill | Tier unlock levels | Tier costs (bolts) | Current tier effects |
 |---|---|---|---|
@@ -309,7 +309,7 @@ Animals that start walking on a bridge should proceed to its opposite bank; this
 
 ## Buddy low-speed movement fix - F-048 (P2)
 
-Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Implemented on `buddy_update` with regression coverage; source review and development publication are recorded separately, and user gameplay acceptance remains pending. See [F-048 in the tracker](ISSUES.md#f-048---buddy-stutters-when-moving-slowly-p2).
+Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and resuming should be smooth while preserving herding behavior and collision handling. Implemented on `buddy_update` with regression coverage; source review and development publication are recorded separately, and user gameplay acceptance remains pending. See [F-048 in the tracker](ISSUES_CLOSED.md#f-048---buddy-stutters-when-moving-slowly-p2).
 
 
 ## Queued QA menu focus fix - F-049 (P4)
@@ -397,3 +397,30 @@ Novy approved the current cow update at 17:30 America/Creston and authorized mer
 ## Herd pivot presentation (F-065)
 
 Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.
+
+
+## Planned bird behavior expansion — 18 October 2026
+
+Requested; not implemented. See [bird feature plan and acceptance criteria](ISSUES.md#bird-behavior-feature-plan--18-october-2026-americacreston), F-BIRD-001–014 (P2, Open).
+
+- Expand existing birds to fly, land on the ground and peck, perch in trees and chirp, and perch on fences/other supported structures to chirp or sit quietly.
+- Ground birds fly away from nearby Pip/Buddy and quickly approaching livestock. Grazing or slowly moving livestock alone do not startle them; tune proximity, closing-speed thresholds and relanding hysteresis during implementation.
+- Each level has a 10% chance of one nest in one eligible tree, interpreted as a single per-level roll, with zero nests when no eligible tree exists. Use separate seeded randomness and stable restart placement. Nests are decorative for this scope.
+- Preserve current bird population caps initially, existing weather sheltering and storm exclusion, gameplay behavior and progress. Pause/resume, cleanup, animation, audio, safe landing anchors and mobile performance require validation before acceptance.
+
+- Additional requested scope: small foraging groups of two or three with staggered takeoff responses; short ground hops and perched head tilts/preening/feather ruffling; reactions to actual Pip/Buddy bark events; occasional nest visits; two or three recognizable bird varieties with different colors/calls; and gradual return to forage after threats leave. Keep bird counts bounded, use shared animation foundations, preserve weather shelter and make birds ambient wildlife without feeding chores or rewards. See F-BIRD-009–014 for dependencies and acceptance criteria.
+
+
+## Planned herd life and readability enhancements — 18 October 2026
+
+Requested for tracking, not implemented. F-HERD-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: bounded individual temperaments, movement anticipation, resting gestures, gentle preferred-neighbor relationships, gate/bridge yielding, gradual relaxation, sheep/cow character differences and entrance-clearing arrival behavior. Prioritize yielding, anticipation and arrival behavior. Preserve accepted physical navigation, weak cohesion/forward flow, turn caps, local settling and delivered-animal containment; integrate the separate grass/bush-only grazing request without allowing grazing on paths, bridges or inside barns. Threat response remains immediate and progression/scoring unchanged. See each tracker item's dependencies and shared validation/user-acceptance gate before implementation.
+
+
+## Planned Pip and Buddy improvements — 18 October 2026
+
+Requested for tracking, not implemented. F-COMP-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: Buddy gives Pip working space, selects useful herding positions, recovers from blocked progress, shows clear attention, animates actual barks/recovery, has a distinct personality from Pip, waits in a useful standby location and shares a brief nonblocking final-delivery celebration. Prioritize working space, positioning and obstacle recovery. Preserve direct Pip control, accepted Buddy tier roles and low-speed movement, physical navigation, current hover/lean/glow, immediate bark effects/cooldowns, scoring and saved progress. See individual dependencies, pose priorities and shared runtime review/user-acceptance requirements in the tracker.
+
+
+## Planned gameplay, loading and landing UI improvements — 18 October 2026
+
+Requested for tracking, not implemented. F-UI-001–012 in [the tracker](ISSUES.md) are P2 and Open: bark-ready feedback, distinguishable livestock minimap markers, clearer workshop benefits/previews, loading vignette, honest loading stages, smooth ready-scene reveal, loading-error Retry, progress-aware Start/Continue, a living landing meadow, moving full-game reset into settings/menu, a clear meadow selector with remembered browsing position, and refreshed sheep/cow/Pip/Buddy copy. Prioritize Continue, reset placement, loading recovery and workshop clarity. Explicitly excluded from this new batch: contextual gate controls, cleaner results and control preferences. Preserve accepted minimal gameplay chrome, existing gameplay/progression and production QA exclusion. See the tracker for individual acceptance criteria, dependencies and review/device-validation requirements.
