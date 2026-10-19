@@ -76,7 +76,7 @@ jobs:
             throw Error('Timed out waiting for native Pages and live verification');
       - name: Save publication evidence
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: flock-deployment-evidence
           path: deployment.json
