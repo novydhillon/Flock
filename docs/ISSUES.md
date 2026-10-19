@@ -989,3 +989,6 @@ F-064 coat/horn independent source review: 9/10, no material blocker. Initial ca
 
 
 F-064 varied-coat/forward-horn runtime source `b3fb4f5` passed source CI [39180629102](https://github.com/novydhillon/Flock/actions/runs/39180629102), including all 329 tests, docs and both artifact modes. Independent source review: 9/10. Development Pages `90ee1f5` contains the checked 17-file build, preserving 49 blobs outside dev. Native Pages/live hashes are recorded in [coat publication evidence](validation/F-064-cow-coat-publication.json). Source implementation/publication does not establish rendered acceptance; F-064 remains Review.
+
+
+F-064 approved production release: main runtime `3301a54` merges accepted cow branch `e05bf79` and preserves reviewed runtime bytes. All 329 regressions, generated documentation checks and the release artifact check pass; 15 emitted files include zero QA assets. Main CI [39181194506](https://github.com/novydhillon/Flock/actions/runs/39181194506) succeeded. Production Pages `2e807ae` replaces only root entry/main bundle and preserves all 51 unrelated blobs, including dev/dev2/legacy builds. Native Pages and live SHA-256 evidence is recorded in [F-064 production manifest](validation/F-064-cow-production-publication.json). F-064 remains Done by Novy's approval; prior Review/hold notes are historical.

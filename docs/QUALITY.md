@@ -639,3 +639,6 @@ F-064 varied-coat/forward-horn runtime source `b3fb4f5` passed source CI [391806
 ## F-064 production acceptance — 18 October 2026
 
 Novy approved the current cow update at 17:30 America/Creston and authorized merging `art_update_cow` into main and production-root deployment. F-064 is Done by user acceptance, superseding prior Review/hold wording for this cow work. Accepted dev runtime `b3fb4f5` / Pages `90ee1f5`; current source docs `e05bf79`. Production source must preserve accepted UI/Buddy behavior and exclude QA. Runtime identity and publication verification follow separately; user acceptance adds no independent device FPS measurement.
+
+
+F-064 approved production release: main runtime `3301a54` merges accepted cow branch `e05bf79` and preserves reviewed runtime bytes. All 329 regressions, generated documentation checks and the release artifact check pass; 15 emitted files include zero QA assets. Main CI [39181194506](https://github.com/novydhillon/Flock/actions/runs/39181194506) succeeded. Production Pages `2e807ae` replaces only root entry/main bundle and preserves all 51 unrelated blobs, including dev/dev2/legacy builds. Native Pages and live SHA-256 evidence is recorded in [F-064 production manifest](validation/F-064-cow-production-publication.json). F-064 remains Done by Novy's approval; prior Review/hold notes are historical.
