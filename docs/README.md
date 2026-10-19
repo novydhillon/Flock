@@ -17,6 +17,7 @@ This is the starting point for humans and agents working on the robotic-herding 
 | [P0/P1 validation](validation/P0-P1.md) | Source checks, release evidence, reproducible scenarios and remaining limits |
 | [Quality record](QUALITY.md) | Historical reviews and the boundaries of their evidence |
 | [Documentation reviews](REVIEW.md) | Blind content/HTML findings, corrections and verification limits |
+| [Claude Code guide](../CLAUDE.md) | Claude-specific operating notes that import [AGENTS.md](../AGENTS.md); directory notes in `src/`, `tests/` and `docs/` |
 
 ## Source of truth
 

@@ -21,6 +21,10 @@ Agent repository operations remain connector-only. The committed Actions workflo
 
 The sections below that describe dev2 staging or the previous allowlisted build workflow are historical. This section supersedes them. Existing approvals and destination/sign-off rules remain in force.
 
+## Claude Code sessions — 19 October 2026
+
+Claude Code loads the root [CLAUDE.md](../CLAUDE.md), which imports [AGENTS.md](../AGENTS.md) and maps its rules onto Claude tools: the `mcp__github__*` connector tools for repository operations, Claude subagents for the blind review gauntlet ([flock-blind-critic](../.claude/agents/flock-blind-critic.md)) and Claude model choices for the AGENTS.md cost defaults. Directory notes in `src/CLAUDE.md`, `tests/CLAUDE.md` and `docs/CLAUDE.md` load when Claude works in those folders. AGENTS.md and this runbook remain binding. Update the Claude files in the same change when a rule here changes.
+
 ## Standalone tracker publication
 
 The explicit 18 October request authorizes the standalone `tracker/` site at `https://novydhillon.github.io/Flock/tracker/`. This is a scoped tool publication, not a game build destination change. Novy accepted the deployed tracker on 18 October 2026 at 22:45 America/Creston and authorized merging `feature/work-tracker` through PR #11 to main. Copy only the four `tracker/` files to the same paths on the latest `gh-pages` tree through the GitHub connector and update its ref with the expected parent. Preserve all other Pages paths. Run `node --test tests/tracker-*.test.js`, generated-doc checks and independent review; inspect native Pages workflow success. The board always reads public main tracker files, including future updates without redeployment. Use `**Branch:** ` followed by a backtick-quoted branch name in each ticket detail to make ownership explicit; missing historical branches remain unrecorded. Verify source CI and record native/rendered verification limits.

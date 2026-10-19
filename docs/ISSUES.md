@@ -21,6 +21,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
 | F-OPS-001 | P2 | Delivery | Reusable checked builds and deployments | Review | Current deployment policy |
+| F-OPS-002 | P2 | Agent tooling | Claude Code project guidance files | Review | AGENTS.md; F-OPS-001 delivery entry points |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -654,3 +655,15 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 **Accept when:** Use shared scripts for checked development/production builds and scoped Pages publication, enforce non-main dev and main-only production, preserve unrelated Pages content, exclude production QA, reject concurrent publication, verify all live hashes and document future use. No production publication or merge is authorized by this tooling request.
 
 **Execution — 19 October 2026:** Implemented shared checked-build commands, all-source-branch CI, manual guarded deployment workflow, API publisher with non-force concurrent-parent guard, pure dependency-validating plan module and full live-file hash verifier. Updated AGENTS, README, requirements and development runbook; retired the shell Git/dev2 helper. Full checked dev run: 340 regression tests and 4 documentation behavior tests pass; release 27 files/0 QA assets, development 29 files/2 QA assets. Expanded deployment suite subsequently passes 10/10, including publisher preservation/concurrent-head rejection. Independent blind review followed by fixes/recheck: 9/10, no material blockers. Docs regenerated/checked. Source implementation complete; no game publication, workflow dispatch or production merge. Requires PAGES_PUBLISH_TOKEN setup, workflow present on main, real Actions/native Pages/live-hash execution and user sign-off. Connector has no workflow dispatch capability; use the documented Actions UI. Binary icon reads are unsupported by the connector in this session; local build inputs were regenerated using the existing icon generator, and no regenerated art is included in this source change.
+
+### F-OPS-002 — Claude Code project guidance files
+
+**Status:** Review. Owner: Claude Code.
+
+**Branch:** `claude/project-documentation-md-4kf197`
+
+**Accept when:** Root `CLAUDE.md` imports AGENTS.md as the binding policy and adds only Claude-specific operating guidance: read order, verified commands, GitHub connector tool mapping and its limits, a Claude model/effort mapping for the AGENTS.md defaults, the blind-review procedure with Claude subagents, and easily-missed project invariants. Directory guides for `src/`, `tests/` and `docs/` are accurate against source, scripts and tests. A reusable blind-critic subagent definition follows the gauntlet's packet rules. No file contradicts AGENTS.md, DEVELOPMENT.md or the current deployment policy. Tracker, requirements, development, quality and review records and the generated HTML are updated, and `npm run docs:check` passes. The change passes the AGENTS.md blind review gauntlet. No runtime or game-build change.
+
+**Execution — 19 October 2026:** No earlier Claude guidance existed on any branch. The Claude account's Flock project content was not reachable from this session, so the files were written fresh from the repository. Added `CLAUDE.md`, `src/CLAUDE.md`, `tests/CLAUDE.md`, `docs/CLAUDE.md` and `.claude/agents/flock-blind-critic.md`. Review and validation evidence is recorded in [QUALITY.md](QUALITY.md#f-ops-002--claude-code-guidance-19-october-2026) and [REVIEW.md](REVIEW.md#f-ops-002-claude-code-guidance-review--19-october-2026). Blind review: 8/10 first pass, then 9/10 on follow-up with no material blocker. Docs checks and all 341 regression tests pass. Remains Review pending user sign-off. No game deployment is needed.
+
+**Connector waiver — 19 October 2026:** Regenerating the HTML rewrites `docs/html/assets/search-index.js` (about 600 KB), which is too large to send through the connector's `push_files`. Novy explicitly authorized a one-time shell `git commit`/`git push` for this branch only. The connector-only rule stays in force for all other work.
