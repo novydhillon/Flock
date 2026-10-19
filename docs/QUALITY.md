@@ -726,3 +726,31 @@ Branch: `feature/build-deploy-runbook`. Implementation: parent session model (no
 Validation: full shared checked-dev invocation passes 340 regression tests, 4 documentation behavior tests, release build/QA exclusion and development build/QA inclusion. Expanded deployment tests pass 10/10 after adding a mocked publisher run exercising exact base-tree preservation, protected content, non-force update and changed-head rejection. Current docs checks pass 13 pages/1,543 local links and anchors/9 diagrams. YAML parses and publisher syntax check pass. Real development artifact produces a scoped plan. Existing icon generator supplied local binary inputs because connector binary reads fail; regenerated public files are excluded from the commit.
 
 No Actions execution, secret inspection/configuration, native Pages deployment or live-hash verification is claimed for the new workflow. It needs the documented repository publish secret and default-branch availability; the connector lacks workflow dispatch. No game deployment or main merge requested/performed. Implemented item remains Review pending workflow execution and user acceptance.
+
+## F-OPS-002 — Claude Code guidance, 19 October 2026
+
+Branch: `claude/project-documentation-md-4kf197`, based on main `3ccc8db`. Documentation and agent-configuration change only; no runtime source, tests or build configuration changed.
+
+Approach: the root `CLAUDE.md` imports AGENTS.md instead of restating it, and adds only Claude-specific mappings. The alternative, a standalone copy of the rules, was rejected because it would drift from AGENTS.md. Directory guides keep the root file short and load only where they apply.
+
+Models: the implementation ran on the Claude Code session model, and the critic ran as a fresh lower-cost Claude subagent. Their exact model identifiers are not recorded here, because the Claude Code harness forbids writing model identifiers into repository files. This is a known gap in the AGENTS.md model-record rule.
+
+Review: a fresh critic worked on a history-free isolated copy of the candidate, given only the task, the acceptance criteria and the scope. The first pass scored 8/10 with no material blocker. It found four problems: the review-isolation step could not work because the worktree needs commits the connector does not provide locally; the WebGL2 claim was unsupported; the Node and dev-server wording was imprecise; and the critic's restrictions were not marked as instruction-only. All were fixed. The same critic's follow-up scored 9/10 with no material blocker, and its one nit (a missing `mkdir -p`) was applied.
+
+Validation: `npm run docs:check` passes, and `npm test` passes 341/341, run by the author and independently by the critic. `npm run build:checked:dev` passes. Claude Code mechanics (the `@` import, subagent frontmatter, lazy loading of directory guides) were judged from documentation knowledge, not exercised in a new session.
+
+Delivery: committed with shell git under Novy's one-time waiver (see the F-OPS-002 tracker entry). There was no game deployment. Remains Review pending user sign-off.
+
+### F-OPS-002 shared agent instructions — 19 October 2026
+
+At Novy's request, the separate Claude guide was merged into AGENTS.md, which now serves Codex, Claude Code, Gemini CLI and other agents. `CLAUDE.md` and `GEMINI.md` are symlinks at the root and beside each folder guide. This supersedes the "imports AGENTS.md" approach above. One file avoids two copies of the policy drifting apart. Every existing AGENTS.md rule was kept; per-tool detail moved into tables.
+
+Review: a new fresh critic got a history-free copy of the candidate, the previous AGENTS.md for a rule-by-rule comparison, the task and the acceptance criteria. It scored **9/10** with no material blocker. It confirmed every reference rule is present and not weakened, all eight symlinks resolve, and the commands and source facts match. Three minor findings were fixed:
+- the shell-git waiver sentence is now tied to the user-precedence rule and mirrored in DEVELOPMENT.md;
+- the scratch copy must sit outside the repository;
+- the critic's pinned model can be overridden for escalation.
+
+The Claude and Gemini model names in the tier table are family aliases, not verified model IDs.
+
+Validation: `npm run docs:check` passes, `npm test` passes 341/341, and `npm run build:checked:dev` passes. Nobody has confirmed in live Codex, Claude Code or Gemini CLI sessions that each tool loads the nested symlinks. Models are recorded as described above. Remains Review pending user sign-off.
+

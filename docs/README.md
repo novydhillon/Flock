@@ -17,6 +17,7 @@ This is the starting point for humans and agents working on the robotic-herding 
 | [P0/P1 validation](validation/P0-P1.md) | Source checks, release evidence, reproducible scenarios and remaining limits |
 | [Quality record](QUALITY.md) | Historical reviews and the boundaries of their evidence |
 | [Documentation reviews](REVIEW.md) | Blind content/HTML findings, corrections and verification limits |
+| [Agent rules](../AGENTS.md) | The one instruction file for Codex, Claude Code (`CLAUDE.md` symlink), Gemini CLI (`GEMINI.md` symlink) and people; folder guides in `src/`, `tests/` and `docs/` |
 
 ## Source of truth
 

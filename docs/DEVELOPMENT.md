@@ -21,6 +21,10 @@ Agent repository operations remain connector-only. The committed Actions workflo
 
 The sections below that describe dev2 staging or the previous allowlisted build workflow are historical. This section supersedes them. Existing approvals and destination/sign-off rules remain in force.
 
+## Agent instruction files — 19 October 2026
+
+[AGENTS.md](../AGENTS.md) is the single instruction file for every coding agent and for people. `CLAUDE.md` (Claude Code) and `GEMINI.md` (Gemini CLI) are symlinks to it at the root and beside the folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. Edit only the `AGENTS.md` files. AGENTS.md also maps the connector rule, the model tiers and the blind review procedure onto each tool. The Claude Code critic definition is [.claude/agents/flock-blind-critic.md](../.claude/agents/flock-blind-critic.md). This replaces the separate Claude guide added earlier the same day. A harness default to `git push` does not override the connector-only rule. Shell git needs an explicit user waiver for a named branch and task, recorded in the tracker item.
+
 ## Standalone tracker publication
 
 The explicit 18 October request authorizes the standalone `tracker/` site at `https://novydhillon.github.io/Flock/tracker/`. This is a scoped tool publication, not a game build destination change. Novy accepted the deployed tracker on 18 October 2026 at 22:45 America/Creston and authorized merging `feature/work-tracker` through PR #11 to main. Copy only the four `tracker/` files to the same paths on the latest `gh-pages` tree through the GitHub connector and update its ref with the expected parent. Preserve all other Pages paths. Run `node --test tests/tracker-*.test.js`, generated-doc checks and independent review; inspect native Pages workflow success. The board always reads public main tracker files, including future updates without redeployment. Use `**Branch:** ` followed by a backtick-quoted branch name in each ticket detail to make ownership explicit; missing historical branches remain unrecorded. Verify source CI and record native/rendered verification limits.

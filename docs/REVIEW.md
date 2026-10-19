@@ -124,3 +124,13 @@ The critic independently checked 303 variant/width combinations for upper-wood n
 ## UI refinement documentation review — F-055–F-060
 
 Fresh isolated `gpt-6-luna` medium-effort review initially scored 8/10. The current documentation home was stale and the new batch needed an actual quality/model record. The home now points to UI_refinement and distinguishes production, review publication and user acceptance; QUALITY.md records implementation model/effort, both blind reviews, checks and browser/device limits. Source path remains `docs/systems/PRESENTATION.md`, now explicitly linking F-060 workflow to AGENTS.md. Same-critic documentation follow-up: **9.5/10**, no material remaining defect; documentation checks pass (12 pages, 1,152 links/anchors, nine diagrams, four DOM tests). Final publication evidence is recorded in QUALITY.md and validation/UI-refinement-publication.json; source CI/native Pages pass and all 17 dev2 files match. Runtime critic follow-up separately reached **9/10**; its findings/scores and evidence limits are recorded in QUALITY.md.
+
+
+## F-OPS-002 Claude Code guidance review — 19 October 2026
+
+Scope: `CLAUDE.md`, `src/CLAUDE.md`, `tests/CLAUDE.md`, `docs/CLAUDE.md`, `.claude/agents/flock-blind-critic.md` and the related tracker, requirements and development entries. First blind pass: **8/10**, no material blocker. Follow-up by the same critic: **9/10**, no material blocker. Findings, fixes, checks and limits are recorded in [QUALITY.md](QUALITY.md#f-ops-002--claude-code-guidance-19-october-2026). The same-critic recheck is follow-up validation, not a new blind first pass.
+
+### F-OPS-002 shared agent instructions review — 19 October 2026
+
+Scope: the rewritten root `AGENTS.md`, the folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`, the `CLAUDE.md`/`GEMINI.md` symlinks, `.claude/agents/flock-blind-critic.md`, and the related tracker, requirements and development entries. A new blind first pass was run because the binding policy file changed: **9/10**, no material blocker. Its three minor findings were fixed. Details are in [QUALITY.md](QUALITY.md#f-ops-002-shared-agent-instructions--19-october-2026).
+
