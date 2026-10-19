@@ -1,137 +1,34 @@
 #!/usr/bin/env node
-// Prepare a reviewable Pages change. This script never fetches, commits or pushes.
-import { existsSync, mkdirSync, rmSync, cpSync, writeFileSync, readFileSync, readdirSync, lstatSync } from 'node:fs';
-import { resolve, join, dirname, relative, extname, isAbsolute, sep } from 'node:path';
+// Pure deployment planning: no Git, credentials, network, or filesystem mutation.
+import { readdirSync, readFileSync, lstatSync } from 'node:fs';
+import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
-import { parseAst } from 'rollup/parseAst';
-
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const canonical = 'https://novydhillon.github.io/Flock/dev2/';
-const git = (args, cwd = root) => execFileSync('git', args, { cwd, stdio: 'inherit' });
-
-// Check the entry point and the local dependency graph before changing a Pages tree.
-// Vite emits HTML src/href attributes, CSS url()/@import, and JS module imports.
-function validateBuild(build) {
-  const files = new Set();
-  function walk(directory) {
-    for (const entry of readdirSync(directory)) {
-      const path = join(directory, entry);
-      const stat = lstatSync(path);
-      if (stat.isSymbolicLink()) throw new Error(`Build contains a symlink: ${path}`);
-      if (stat.isDirectory()) walk(path);
-      else if (stat.isFile()) files.add(path);
-      else throw new Error(`Unsupported build entry: ${path}`);
+import { createHash } from 'node:crypto';
+import { validateBuild } from './validate-build.mjs';
+export function deploymentPlan({ environment, branch, sourceSha, directory = 'dist' }) {
+  if (!['dev', 'production'].includes(environment)) throw Error('Unknown environment');
+  if (!branch || (environment === 'production') !== (branch === 'main')) throw Error('Only main may deploy production; all other branches deploy dev');
+  if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw Error('An immutable source SHA is required');
+  const root = resolve(directory);
+  validateBuild(root);
+  const prefix = environment === 'dev' ? 'dev/' : '';
+  const files = [];
+  function walk(path, relative = '') {
+    for (const name of readdirSync(path).sort()) {
+      const file = join(path, name), key = relative + name, stat = lstatSync(file);
+      if (stat.isDirectory()) walk(file, key + '/');
+      else {
+        if (['dev', 'dev2', 'flock', 'tracker', '.nojekyll', '.flock-deployment.json'].includes(key.split('/')[0])) throw Error(`Protected output path: ${key}`);
+        const bytes = readFileSync(file);
+        files.push({ path: prefix + key, content: bytes.toString('base64'), sha256: createHash('sha256').update(bytes).digest('hex') });
+      }
     }
   }
-  if (!existsSync(join(build, 'index.html'))) throw new Error('Build output is missing: run npm run build first.');
-  walk(build);
-  const visited = new Set();
-  let scripts = 0;
-  let styles = 0;
-  function visit(path) {
-    if (visited.has(path)) return;
-    visited.add(path);
-    const extension = extname(path);
-    if (!['.html', '.css', '.js', '.mjs'].includes(extension)) return;
-    const content = readFileSync(path, 'utf8');
-    const references = [];
-    const collect = (regex) => { for (const match of content.matchAll(regex)) references.push(match[1]); };
-    if (extension === '.html') collect(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi);
-    if (extension === '.css') {
-      collect(/url\(\s*["']?([^"')\s]+)["']?\s*\)/gi);
-      collect(/@import\s+["']([^"']+)["']/gi);
-    }
-    if (extension === '.js' || extension === '.mjs') {
-      // Inspect syntax, never prose/HTML strings containing words such as
-      // "Export scenario". The QA bundle contains those labels legitimately.
-      const walkSyntax = node => {
-        if (!node || typeof node !== 'object') return;
-        if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration', 'ImportExpression'].includes(node.type) && typeof node.source?.value === 'string') references.push(node.source.value);
-        if (node.type === 'NewExpression' && node.callee?.type === 'Identifier' && node.callee.name === 'URL' && typeof node.arguments[0]?.value === 'string') {
-          const base = node.arguments[1];
-          if (base?.type === 'MemberExpression' && base.object?.type === 'MetaProperty' && base.object.meta?.name === 'import' && base.object.property?.name === 'meta' && base.property?.name === 'url') references.push(node.arguments[0].value);
-        }
-        for (const value of Object.values(node)) if (Array.isArray(value)) value.forEach(walkSyntax); else if (value && typeof value === 'object') walkSyntax(value);
-      };
-      walkSyntax(parseAst(content));
-    }
-    for (const reference of references) {
-      if (/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(reference)) continue;
-      const pathname = decodeURIComponent(reference.split(/[?#]/, 1)[0]);
-      if (!pathname) continue;
-      if (pathname.startsWith('/')) throw new Error(`Build asset must be relative: ${reference}`);
-      const asset = resolve(dirname(path), pathname);
-      const local = relative(build, asset);
-      if (isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`) || !files.has(asset)) {
-        throw new Error(`Missing or unsafe build asset: ${reference} (from ${relative(build, path)})`);
-      }
-      if (path === join(build, 'index.html')) {
-        if (['.js', '.mjs'].includes(extname(asset))) scripts++;
-        if (extname(asset) === '.css') styles++;
-      }
-      visit(asset);
-    }
-  }
-  visit(join(build, 'index.html'));
-  // Vite may preload a lazy stylesheet through a generated dependency table.
-  for (const file of files) if (extname(file) === '.css') visit(file);
-  if (!scripts || !styles) throw new Error('Build entry must reference local JavaScript and CSS assets.');
+  walk(root);
+  return { environment, branch, sourceSha, prefix, url: 'https://novydhillon.github.io/Flock/' + prefix, files };
 }
 
-try {
-  const argument = process.argv[2];
-  if (!argument || process.argv.length !== 3 || !isAbsolute(argument)) {
-    throw new Error('Usage: node scripts/deploy-pages.mjs /absolute/path/to/new-pages-worktree');
-  }
-  const destination = resolve(argument);
-  const build = join(root, 'dist');
-  const buildDestination = relative(build, destination);
-  if (!isAbsolute(buildDestination) && buildDestination !== '..' && !buildDestination.startsWith(`..${sep}`)) {
-    throw new Error('Destination must be outside the build directory.');
-  }
-  validateBuild(build);
-  if (existsSync(destination)) throw new Error('Destination already exists; choose a new worktree path.');
-  // Use the locally fetched gh-pages reference; fetching is a separate explicit step.
-  git(['rev-parse', '--verify', 'origin/gh-pages']);
-  mkdirSync(dirname(destination), { recursive: true });
-  git(['worktree', 'add', '--detach', destination, 'origin/gh-pages']);
-  // Never follow a legacy Pages symlink into unrelated content.
-  const legacyParent = join(destination, 'flock');
-  if (existsSync(legacyParent) && (lstatSync(legacyParent).isSymbolicLink() || !lstatSync(legacyParent).isDirectory())) {
-    throw new Error('Pages flock path must be a regular directory; review this tree manually.');
-  }
-  const target = join(destination, 'dev2');
-  const legacy = join(legacyParent, 'dev2');
-  rmSync(target, { recursive: true, force: true });
-  cpSync(build, target, { recursive: true });
-  rmSync(legacy, { recursive: true, force: true });
-  mkdirSync(legacy, { recursive: true });
-  writeFileSync(join(legacy, 'index.html'), `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flock has moved</title>
-<link rel="canonical" href="${canonical}">
-<script>location.replace(${JSON.stringify(canonical)} + location.search + location.hash);</script>
-</head>
-<body><p>Flock has moved to <a id="destination" href="${canonical}">its new home</a>.</p>
-<script>document.getElementById('destination').href = ${JSON.stringify(canonical)} + location.search + location.hash;</script>
-</body>
-</html>
-`);
-  // Existing bytes (including a nonempty marker) belong to the Pages root.
-  const nojekyll = join(destination, '.nojekyll');
-  const paths = ['dev2', 'flock/dev2'];
-  if (!existsSync(nojekyll)) {
-    writeFileSync(nojekyll, '');
-    paths.push('.nojekyll');
-  }
-  git(['add', '--', ...paths], destination);
-  git(['diff', '--cached', '--stat'], destination);
-  console.log(`Prepared ${destination} for ${canonical}. Review the staged changes before publishing.`);
-} catch (error) {
-  console.error(error.message);
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  console.error('Use the Deploy Flock Actions workflow; this module only exports deploymentPlan.');
   process.exitCode = 1;
 }

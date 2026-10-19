@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-OPS-001 | P2 | Delivery | Reusable checked builds and deployments | Review | Current deployment policy |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -643,3 +644,13 @@ Requested integration of main `d2484b9` into planning branch `plan/bird-behaviou
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
 
 
+
+### F-OPS-001 — Reusable checked builds and deployments
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feature/build-deploy-runbook`
+
+**Accept when:** Use shared scripts for checked development/production builds and scoped Pages publication, enforce non-main dev and main-only production, preserve unrelated Pages content, exclude production QA, reject concurrent publication, verify all live hashes and document future use. No production publication or merge is authorized by this tooling request.
+
+**Execution — 19 October 2026:** Implemented shared checked-build commands, all-source-branch CI, manual guarded deployment workflow, API publisher with non-force concurrent-parent guard, pure dependency-validating plan module and full live-file hash verifier. Updated AGENTS, README, requirements and development runbook; retired the shell Git/dev2 helper. Full checked dev run: 340 regression tests and 4 documentation behavior tests pass; release 27 files/0 QA assets, development 29 files/2 QA assets. Expanded deployment suite subsequently passes 10/10, including publisher preservation/concurrent-head rejection. Independent blind review followed by fixes/recheck: 9/10, no material blockers. Docs regenerated/checked. Source implementation complete; no game publication, workflow dispatch or production merge. Requires PAGES_PUBLISH_TOKEN setup, workflow present on main, real Actions/native Pages/live-hash execution and user sign-off. Connector has no workflow dispatch capability; use the documented Actions UI. Binary icon reads are unsupported by the connector in this session; local build inputs were regenerated using the existing icon generator, and no regenerated art is included in this source change.

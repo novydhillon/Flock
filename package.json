@@ -10,7 +10,9 @@
     "build:dev": "vite build --mode qa --base=./",
     "test": "node --test tests/*.test.js",
     "docs:build": "node scripts/docs/build.mjs",
-    "docs:check": "node scripts/docs/check.mjs && node --test scripts/docs/behavior.test.mjs"
+    "docs:check": "node scripts/docs/check.mjs && node --test scripts/docs/behavior.test.mjs",
+    "build:checked:dev": "node scripts/build-checked.mjs dev",
+    "build:checked:production": "node scripts/build-checked.mjs production"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

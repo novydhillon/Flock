@@ -1,0 +1,81 @@
+name: Deploy Flock
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'dev for feature branches; production for main only'
+        required: true
+        type: choice
+        options: [dev, production]
+      confirm_production:
+        description: 'For production, enter deploy-production (requires user sign-off)'
+        type: string
+permissions:
+  contents: read
+  pages: read
+concurrency:
+  group: flock-pages-publication
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate destination and authorization
+        env:
+          TARGET: ${{ inputs.environment }}
+          CONFIRM: ${{ inputs.confirm_production }}
+          PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
+        run: |
+          node - <<'NODE'
+          const production = process.env.TARGET === 'production';
+          if (production !== (process.env.GITHUB_REF === 'refs/heads/main')) throw Error('main is production-only; other branches are dev-only');
+          if (production && process.env.CONFIRM !== 'deploy-production') throw Error('Production confirmation missing');
+          if (!process.env.PUBLISH_TOKEN) throw Error('Configure PAGES_PUBLISH_TOKEN; GITHUB_TOKEN pushes do not trigger native Pages');
+          NODE
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Checked build
+        env:
+          TARGET: ${{ inputs.environment }}
+        run: node scripts/build-checked.mjs "$TARGET"
+      - name: Publish scoped files to gh-pages
+        id: publish
+        uses: actions/github-script@v7
+        env:
+          DEPLOY_ENV: ${{ inputs.environment }}
+        with:
+          github-token: ${{ secrets.PAGES_PUBLISH_TOKEN }}
+          script: |
+            await require('./scripts/publish-pages.cjs')({ github, context, core });
+      - name: Wait for native Pages and verify live hashes
+        uses: actions/github-script@v7
+        env:
+          PAGES_SHA: ${{ steps.publish.outputs.pages_sha }}
+        with:
+          script: |
+            const { execFileSync } = require('node:child_process');
+            for (let attempt = 0; attempt < 60; attempt++) {
+              const builds = (await github.rest.repos.listPagesBuilds({ ...context.repo, per_page: 100 })).data;
+              const build = builds.find(item => item.commit === process.env.PAGES_SHA);
+              if (build?.status === 'errored') throw Error('Native Pages build failed');
+              if (build?.status === 'built') {
+                try { execFileSync(process.execPath, ['scripts/verify-deployment.mjs'], { stdio: 'inherit' }); return; }
+                catch (error) { if (attempt === 59) throw error; }
+              }
+              await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+            throw Error('Timed out waiting for native Pages and live verification');
+      - name: Save publication evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flock-deployment-evidence
+          path: deployment.json
+          if-no-files-found: ignore

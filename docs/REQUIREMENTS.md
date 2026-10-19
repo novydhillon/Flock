@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## F-OPS-001 — Standard delivery automation
+
+Provide shared checked builds and a manual GitHub Actions deployment for dev and production. Enforce main-only production and non-main dev, QA mode checks, preserved unrelated Pages content, concurrent publication rejection and live hash verification. Document future entry points and setup/connector limitations. Production approval remains explicit.
+
+
 ## F-TRACK-001 — Public read-only work tracker
 
 Accepted by Novy on 18 October 2026 at 22:45 America/Creston for the deployed `/Flock/tracker/` site; push and main merge authorized. The closed tracker owns the acceptance record.
