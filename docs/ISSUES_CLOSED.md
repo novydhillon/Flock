@@ -10,6 +10,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 |---|---|---|---|---|---|
 | ~~F-067~~ | ~~P2~~ | ~~App identity~~ | ~~Pip closeup favicon and iOS Home Screen icons~~ | ~~Done~~ | ~~Current Pip model~~ |
 | ~~F-TRACK-001~~ | ~~P2~~ | ~~Tooling/UI~~ | ~~Read-only public work tracker~~ | ~~Done~~ | ~~Active and closed Markdown trackers on main~~ |
+| ~~F-OPS-002~~ | ~~P2~~ | ~~Agent tooling~~ | ~~Shared agent instructions for Codex, Claude and Gemini~~ | ~~Done~~ | ~~AGENTS.md; F-OPS-001 delivery entry points~~ |
 | ~~F-066~~ | ~~P2~~ | ~~Presentation~~ | ~~Grazing head pose~~ | ~~Done~~ | ~~Novy accepted 18 October 2026, 22:10 America/Creston; livestock_grazing~~ |
 | ~~F-064~~ | ~~P2~~ | ~~Art~~ | ~~Reference clay Holstein cows at 1.5× sheep size~~ | ~~Done~~ | ~~art_update_cow~~ |
 | ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
@@ -858,3 +859,23 @@ F-067 revision, 18 October 2026: user requested grass-green rather than transpar
 F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7af6203; CI 39208378316 passed, Pages c598f2064d407a8c31f0331c3fe70d56366047bd / workflow 39208561127 passed. All 53 unrelated blobs preserved. Current green icon appearance still awaits user acceptance.
 
 **Closed:** 18 October 2026, 23:15 America/Creston. Novy approved the green icon candidate and authorized merge to main and production deployment. This acceptance supersedes pending wording in retained historical records above. Production publication evidence is recorded separately.
+
+
+### F-OPS-002 — ~~Shared agent instructions for Codex, Claude and Gemini~~
+
+**Status:** Done. Owner: Claude Code.
+
+**Branch:** `claude/project-documentation-md-4kf197`
+
+**Accept when:** AGENTS.md is the one instruction file for Codex, Claude Code, Gemini CLI and other agents, and keeps every existing rule. `CLAUDE.md` and `GEMINI.md` are symlinks to it at the root and beside folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. AGENTS.md adds tool-neutral guidance with per-tool mappings: read order, verified commands, connector operations and their limits, model tiers, the blind review procedure, and easily-missed invariants. Folder guides are accurate against source, scripts and tests. The Claude Code blind-critic subagent definition follows the gauntlet's packet rules. No file contradicts DEVELOPMENT.md or the current deployment policy. Tracker, requirements, development, quality and review records and the generated HTML are updated, and `npm run docs:check` passes. The change passes the AGENTS.md blind review gauntlet. No runtime or game-build change.
+
+**Execution — 19 October 2026:** No earlier Claude guidance existed on any branch. The Claude account's Flock project content was not reachable from this session, so the files were written fresh from the repository. Added `CLAUDE.md`, `src/CLAUDE.md`, `tests/CLAUDE.md`, `docs/CLAUDE.md` and `.claude/agents/flock-blind-critic.md`. Review and validation evidence is recorded in [QUALITY.md](QUALITY.md#f-ops-002--claude-code-guidance-19-october-2026) and [REVIEW.md](REVIEW.md#f-ops-002-claude-code-guidance-review--19-october-2026). Blind review: 8/10 first pass, then 9/10 on follow-up with no material blocker. Docs checks and all 341 regression tests pass. Superseded the same day by the shared layout below.
+
+**Execution — 19 October 2026, shared layout:** At Novy's request, AGENTS.md now serves every agent. The Claude-only guide content moved into AGENTS.md as tool-neutral rules with per-tool tables. The folder notes were renamed to `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. `CLAUDE.md` and `GEMINI.md` symlinks were added at the root and in each of those folders. Review and validation are recorded in QUALITY.md and REVIEW.md. Remains Review pending user sign-off. No game deployment is needed.
+
+**Connector waiver — 19 October 2026:** Regenerating the HTML rewrites `docs/html/assets/search-index.js` (about 600 KB), which is too large to send through the connector's `push_files`. Novy explicitly authorized a one-time shell `git commit`/`git push` for this branch and task only. The first push attempt was refused by GitHub (HTTP 403, no write access for the Claude app). The connector-only rule stays in force for all other work.
+
+**Source CI — 19 October 2026:** "Flock 3D — checks and standalone build" run [39323862997](https://github.com/novydhillon/Flock/actions/runs/39323862997) passed on `d3a1058a514d95307620c96a8b05400effd6ab62`: docs checks, the full regression suite and both build-mode checks. Documentation and agent configuration only; no game build was published.
+
+**Closed 19 October 2026, 14:03 America/Creston:** Novy signed off and approved F-OPS-002. This acceptance supersedes the Review and pending-sign-off wording above. Merging to `main` is a separate step that needs its own pull request and approval.
+
