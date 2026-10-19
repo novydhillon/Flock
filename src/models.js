@@ -464,8 +464,8 @@ export function updatePipHover(dog,dt) {
   state.previous=dog.position.clone();
 }
 
-// Cow forms share the sheep's unscaled body envelope. Only the final model
-// scale differs, so 1.5 means linear size rather than a second length multiplier.
+// The accepted 1.5x cow core has a 25% longer torso. Attachment positions
+// follow that extension while the head, hooves and leg lengths retain their shape.
 function createCow(m) {
   const cow = new THREE.Group();
   cow.name = 'Clay Holstein cow';
@@ -491,8 +491,8 @@ function createCow(m) {
   context.putImageData(image,0,0);
   const coatTexture=new THREE.CanvasTexture(canvas); coatTexture.colorSpace=THREE.SRGBColorSpace;
   const coat=new THREE.MeshStandardMaterial({color:'#ffffff',map:coatTexture,roughness:.94});
-  sculptedSphere(cow,coat,[0,.54,0],[.32,.34,.39],.025,20);
-  const head=new THREE.Group(); head.position.set(0,.73,.32);cow.add(head);
+  sculptedSphere(cow,coat,[0,.54,0],[.32,.34,.4875],.025,20);
+  const head=new THREE.Group(); head.position.set(0,.73,.4175);cow.add(head);
   sculptedSphere(head,m.cream,[0,-.015,.065],[.215,.225,.215],.018,16);
   sculptedSphere(head,m.dark,[0,.065,.055],[.205,.205,.18],.018,16);
   // Cream blaze meets the broad low muzzle; raised eyes keep a sleepy expression.
@@ -520,17 +520,17 @@ function createCow(m) {
     const horn=new THREE.Mesh(hornGeometry,ivory);horn.position.set(side*.145,.25,-.035);head.add(horn);
   }
   const legs=[];
-  for(const [x,z] of [[-.215,.22],[.215,.22],[-.215,-.235],[.215,-.235]]) {
+  for(const [x,z] of [[-.215,.275],[.215,.275],[-.215,-.29375],[.215,-.29375]]) {
     const limb=new THREE.Group();limb.position.set(x,.36,z);cow.add(limb);
     sphere(limb,m.cream,[0,-.105,0],[.073,.19,.075],12);
     // Two toes share the dark material, retaining two material batches per limb.
     for(const side of [-1,1]) sphere(limb,m.dark,[side*.035,-.272,.029],[.034,.063,.091],10);
     legs.push(limb);
   }
-  sphere(cow,pink,[0,.295,-.185],[.105,.067,.12],12);
-  for(const x of [-.052,.052]) for(const z of [-.23,-.15]) sphere(cow,pink,[x,.24,z],[.019,.038,.02],8);
-  const tail=sphere(cow,m.cream,[.035,.48,-.386],[.027,.18,.027],10);tail.rotation.x=.2;
-  sphere(cow,m.dark,[.035,.312,-.42],[.048,.069,.043],10);
+  sphere(cow,pink,[0,.295,-.23125],[.105,.067,.12],12);
+  for(const x of [-.052,.052]) for(const z of [-.2875,-.1875]) sphere(cow,pink,[x,.24,z],[.019,.038,.02],8);
+  const tail=sphere(cow,m.cream,[.035,.48,-.4835],[.027,.18,.027],10);tail.rotation.x=.2;
+  sphere(cow,m.dark,[.035,.312,-.5175],[.048,.069,.043],10);
   return { animal:cow, legs };
 }
 

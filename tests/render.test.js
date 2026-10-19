@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import * as THREE from 'three';
 import * as models from '../src/models.js';
+import {animalScale} from '../src/animal-size.js';
 import {createLevel} from '../src/simulation.js';
 import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
@@ -24,7 +25,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -765,4 +766,29 @@ test('Pip pause freezes articulated pose and level replacement clears motion his
   renderer.setLevel(createLevel(1));
   const fresh=renderer.dog.userData.parts;
   assert.notEqual(renderer.dog,pip);assert.equal(fresh.rig.rotation.x,0);assert.equal(fresh.rig.rotation.z,0);assert.equal(fresh.head.rotation.y,0);
+});
+
+test('four cow sizes share batches and scale body, moving hips and culling bounds uniformly',()=>{
+  const renderer=setup(),level=createLevel(19),sizes=[1,13/12,7/6,1.25];
+  level.animals=sizes.map((scale,i)=>({...level.animals[0],type:'cow',scale,x:level.spawn.x+i,z:level.spawn.z,vx:2,vz:1,heading:0}));
+  renderer.setLevel(level);renderer.update(level,level.dog,.2,false);
+  assert.equal(renderer.animalBatches.length,1,'sizes reuse one cow geometry/material batch family');
+  const batch=renderer.animalBatches[0],matrix=new THREE.Matrix4(),scale=new THREE.Vector3(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion();
+  assertAnimalMatrices(renderer,level);
+  for(const mesh of batch.meshes)batch.visibleIndices.forEach((index,slot)=>{
+    mesh.getMatrixAt(slot,matrix);matrix.decompose(position,quaternion,scale);
+    scale.toArray().forEach(value=>assert.ok(Math.abs(value-sizes[index])<1e-6));
+    if(mesh.userData.pivot){
+      const expected=new THREE.Vector3(...mesh.userData.pivot).applyMatrix4(renderer.animalMeshes[index].matrix);
+      assert.ok(position.distanceTo(expected)<1e-5,'animated hip translation includes the same uniform scale as its body');
+    }
+  });
+  // Isolate an edge plane just beyond the small cow's conservative sphere.
+  // Equal positions must cull the small cow and keep its larger sibling.
+  const x=-(batch.radius*1.125+3);
+  level.animals.forEach((a,i)=>{a.x=x;a.z=0;const pose=renderer.animalMeshes[i];pose.position.set(x,0,0);pose.updateMatrix();});
+  renderer.sceneryFrustum.planes=[new THREE.Plane(new THREE.Vector3(1,0,0),0)];
+  renderer.updateAnimalBatches(level,Math.floor(renderer.time*12)/12);
+  assert.deepEqual(Array.from(batch.visibleIndices),[2,3],'culling expands per cow size without new batches');
+  assertAnimalMatrices(renderer,{...level});
 });

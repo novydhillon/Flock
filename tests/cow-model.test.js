@@ -26,15 +26,18 @@ test('cow redesign preserves the accepted sheep geometry and has a larger ground
   assert.equal(silhouetteHash(sheep),'fa76ffcb7dab581709044d0a1820173560c64d2e10ece659cb9dd4c466f9972d',
     'cow work must not alter sheep vertices or hip transforms');
   const sheepSize=bounds(sheep).getSize(new THREE.Vector3()),cowBox=bounds(cow),cowSize=cowBox.getSize(new THREE.Vector3());
-  for(const axis of ['x','y','z'])assert.ok(cowSize[axis]/sheepSize[axis]>1.35&&cowSize[axis]/sheepSize[axis]<1.8,
-    `cow ${axis} silhouette is visibly larger without a second length multiplier`);
+  for(const axis of ['x','y','z'])assert.ok(cowSize[axis]/sheepSize[axis]>1.35&&cowSize[axis]/sheepSize[axis]<(axis==='z'?2:1.8),
+    `cow ${axis} silhouette is visibly larger with the deliberate torso length extension`);
   assert.ok(cowBox.min.y>=0&&cowBox.min.y<.06,`neutral hooves sit near ground: ${cowBox.min.y}`);
   const torso=meshes(cow).find(part=>part.material.map?.image?.width===256);
   const torsoSize=bounds(torso).getSize(new THREE.Vector3());
   // Accepted sheep core envelope: ellipsoid radii .32/.34/.39. Surface
   // sculpting may perturb vertices by 2.5%, but never rescale an axis twice.
-  for(const [axis,diameter] of [['x',.64],['y',.68],['z',.78]])
-    assert.ok(Math.abs(torsoSize[axis]/diameter-1.5)<.05,`${axis} torso uses 1.5x linear sheep-core dimensions`);
+  for(const [axis,diameter] of [['x',.64],['y',.68],['z',.975]])
+    assert.ok(Math.abs(torsoSize[axis]/diameter-1.5)<.05,`${axis} torso uses 1.5x revised core dimensions`);
+  const frontHip=meshes(cow).find(part=>part.userData.limbIndex===0).userData.pivot;
+  const rearHip=meshes(cow).find(part=>part.userData.limbIndex===2).userData.pivot;
+  assert.ok(Math.abs((frontHip[2]-rearHip[2])/(.22+.235)/1.5-1.25)<1e-12,'hips span the longer torso without lengthening legs');
   assert.deepEqual(cow.scale.toArray(),[1,1,1],'model scale is baked once, ready for the shared instance renderer');
 });
 

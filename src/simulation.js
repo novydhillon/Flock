@@ -1,3 +1,4 @@
+import { animalRadius } from './animal-size.js';
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
 import { createLevel, canOccupy, moveBody, openingSteer, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
 import { flockGroups, updateBuddy } from './buddy.js';
@@ -129,7 +130,7 @@ function companionAssist(level, companions, dog, effects) {
     // Only tidy the flanks. Longitudinal drive belongs to the player alone.
     const force = clamp(Math.sign(offset) * Math.max(0, Math.abs(offset) - comfortable) * strength, -0.75, 0.75);
     const vector = { x: lateral.x * force, z: lateral.z * force };
-    const radius = animal.type === 'cow' ? 0.78 : 0.55;
+    const radius = animalRadius(animal);
     if (force && !clearSignal(level, animal, { x: animal.x + vector.x, z: animal.z + vector.z }, radius)) continue;
     if (!canOccupy(level, animal.x + vector.x * 0.7, animal.z + vector.z * 0.7, radius)) continue;
     forces.set(animal.id, vector);
@@ -151,7 +152,7 @@ function roamSavedAnimals(level, dt, phaseTime) {
   const shape = targetFootprint(level.target);
   for (const animal of level.animals) {
     if (!animal.saved) continue;
-    const radius = animal.type === 'cow' ? 0.78 : 0.55;
+    const radius = animalRadius(animal);
     const local = targetLocalPoint(level.target, animal);
     const phase = animal.roamPhase ?? (animal.id * 2.399963229728653);
     animal.roamPhase = phase;
@@ -166,7 +167,7 @@ function roamSavedAnimals(level, dt, phaseTime) {
     for (const other of level.animals) {
       if (other === animal || !other.saved) continue;
       const dx = animal.x - other.x, dz = animal.z - other.z, d = Math.hypot(dx, dz);
-      const separation = radius + (other.type === 'cow' ? 0.78 : 0.55) + 0.35;
+      const separation = radius + (animalRadius(other)) + 0.35;
       if (d > 1e-4 && d < separation) {
         const force = (separation - d) / d * 0.6;
         vx += (dx * shape.forward.x + dz * shape.forward.z) * force;
@@ -279,7 +280,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   level.flockTravel=nextTravel;
   for (let i = 0; i < active.length; i++) {
     const animal = active[i], old = snapshot[i];
-    const physicalRadius = animal.type === 'cow' ? 0.78 : 0.55;
+    const physicalRadius = animalRadius(animal);
     const bridgeIntent=bridgeCrossing(level,animal,old);
     const crossing=bridgeIntent?.finished?null:bridgeIntent;
     if(bridgeIntent?.finished&&companions.hold&&companions.memberIds.has(animal.id)){
@@ -289,7 +290,8 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     for (const other of snapshot) {
       if (other.id === animal.id) continue;
       const dx = old.x - other.x, dz = old.z - other.z, d = Math.hypot(dx, dz);
-      if (d < 2 && d > 0.01) { const force = (2 - d) / d; sx += dx * force; sz += dz * force; }
+      const separation = Math.max(2, physicalRadius + animalRadius(other) + .35);
+      if (d < separation && d > 0.01) { const force = (separation - d) / d; sx += dx * force; sz += dz * force; }
       if (d < 18 && flockMembership.get(old.id) === flockMembership.get(other.id) && visibleNeighbor(old, other)) { cx += other.x; cz += other.z; avx += other.vx; avz += other.vz; neighbors++; }
     }
     let desiredX = sx * 2.5, desiredZ = sz * 2.5;

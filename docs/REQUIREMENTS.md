@@ -371,3 +371,10 @@ Traceability: F-055 gameplay chrome/settings; F-056 status/countdown; F-057 mini
 18 October tip clarification: retain a visible numbered badge (01, 02, 03) beside each concise tip, matching the supplied reference. Keep existing automatic/manual sequencing and dismissal unchanged. Publish this branch to `/Flock/dev/`, not dev2.
 
 18 October 2026 F-056/F-057 follow-up: increase minimap contrast and displayed size, and make level information more compact. Keep score/countdown readable, preserve map content and inputs, and retain separate source review, dev2 publication and user sign-off.
+
+
+## F-064 cow proportions and herd size variation — 18 October 2026
+
+Requested follow-up on `art_update_cow`: lengthen the cow torso 25% along its forward/back axis, moving attached anatomy to suit. Then assign each cow one of four uniform sizes: 100%, 108⅓%, 116⅔%, 125% of that revised base cow. These are linear scale factors, not volume percentages. Assign using a separate seeded random stream at herd creation; preserve layout, sheep and stable sizes during animation/pause/restart. Each choice has equal probability; small herds need not contain all four. Share the same baked mesh/materials, scaling both body and articulated hip transforms per instance and conservative culling bounds. Physical clearance/separation, bridge traversal, delivery and QA placement must honor the selected cow size. Status: In progress; final appearance sign-off remains Review.
+
+Approach: adjust the procedural cow anatomy and scale existing instanced poses; avoid four duplicate geometry sets. Geometry/rendering and generation/physical sizing use disjoint agent ownership. Follow established independent source review and full build/check process before dev publication.

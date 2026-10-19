@@ -206,3 +206,8 @@ Novy explicitly held deployment on 18 October while reviewing another change on 
 ## Cow integration and deployment authorization — 18 October 2026
 
 Novy requested merging current main into `art_update_cow` and publishing to dev at 16:54 America/Creston; this supersedes the prior deployment hold. Merge main `0e62198` with cow source `e8c3c34`, preserving the accepted minimal HUD/top-center minimap and Buddy updates. Cow tracking is renumbered **F-064** because main already owns F-057 for minimap improvements. F-064 stays Review pending appearance sign-off. Source checks/publication evidence will be recorded separately.
+
+
+## F-064 cow size smoke checks
+
+On mixed/larger herds check a visibly 25% longer torso and random stable cow sizes spanning the revised base to125% uniformly in height/width/length. Four discrete choices are possible; small herds need not show every choice. Confirm legs remain attached during walking/turning and largest cows cross bridges/open gates and enter the target with full-body clearance. Pause/restart/jump must preserve coherent poses with no new geometry/material batches for size. Collision, admission and QA positioning use selected size; phone appearance/FPS still need user evidence.

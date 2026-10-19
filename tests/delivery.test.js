@@ -1,3 +1,4 @@
+import { animalRadius } from '../src/animal-size.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createLevel, stepSimulation, deliveryCountdownSeconds, deliveryScore, defaultProfile, validateProfile, applyLevelReward, saveProfile, loadProfile, canOccupy } from '../src/simulation.js';
@@ -51,7 +52,7 @@ test('there is no travel deadline; only the first attended arrival starts recove
 });
 
 test('an animal admitted at minimum entrance clearance roams inward without a second delivery event',()=>{
-  const level=createLevel(23,203),animal=level.animals[0],radius=animal.type==='cow'?.78:.55,shape=targetFootprint(level.target);
+  const level=createLevel(23,203),animal=level.animals[0],radius=animalRadius(animal),shape=targetFootprint(level.target);
   Object.assign(animal,targetWorldPoint(level.target,-shape.halfLength+radius+.01,0),{vx:0,vz:0});
   Object.assign(level.dog,targetWorldPoint(level.target,0,4));
   assert.ok(canOccupy(level,animal.x,animal.z,radius));

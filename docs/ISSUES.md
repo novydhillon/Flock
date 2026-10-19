@@ -958,3 +958,13 @@ Novy requested merging current main into `art_update_cow` and publishing to dev 
 
 
 F-064 integrated cow development publication: runtime source `04ce8eb` merges main `0e62198` into `art_update_cow`. All 321 tests, generated documentation checks and release/development artifact-mode checks pass. Independent blind integration review: 9/10 with 95 focused checks; no blocker. Source CI [39178525673](https://github.com/novydhillon/Flock/actions/runs/39178525673) succeeded. Pages candidate `d9b8ee8` changes only dev entry/main bundle, preserving all 49 outside-dev blobs. Deployment is authorized by the latest request; earlier hold/block paragraphs are historical. Native Pages/live hashes are recorded in `docs/validation/F-064-cow-publication.json`. Appearance acceptance remains Review; source checks do not establish phone likeness or FPS.
+
+
+## F-064 cow proportions and herd size variation — 18 October 2026
+
+Requested follow-up on `art_update_cow`: lengthen the cow torso 25% along its forward/back axis, moving attached anatomy to suit. Then assign each cow one of four uniform sizes: 100%, 108⅓%, 116⅔%, 125% of that revised base cow. These are linear scale factors, not volume percentages. Assign using a separate seeded random stream at herd creation; preserve layout, sheep and stable sizes during animation/pause/restart. Each choice has equal probability; small herds need not contain all four. Share the same baked mesh/materials, scaling both body and articulated hip transforms per instance and conservative culling bounds. Physical clearance/separation, bridge traversal, delivery and QA placement must honor the selected cow size. Status: Review; final appearance sign-off pending.
+
+Approach: adjust the procedural cow anatomy and scale existing instanced poses; avoid four duplicate geometry sets. Geometry/rendering and generation/physical sizing use disjoint agent ownership. Follow established independent source review and full build/check process before dev publication.
+
+
+F-064 size variation validation: 325/325 integrated tests pass before the additional explicit largest-cow bridge/gate fixture; all four cow-size tests pass afterward. Release/development builds and artifact-mode checks pass. Source QA import harnesses and the fixed-radius delivery fixture were corrected rather than weakening selected-size admission. Sheep geometry checksum and all terrain/sheep generation fields across 400 seed/meadow comparisons remain unchanged. Initial reviewer identified a quantized-gait timing mismatch in the new test; same-critic follow-up independently passed all five targeted size/render checks and scored 9/10 with no source blocker. User appearance acceptance remains Review.

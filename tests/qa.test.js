@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 import { createLevel, canOccupy, defaultProfile } from '../src/simulation.js';
 
-// Browser CSS is the only non-JS import; exercise the actual shipped module.
-const source = (await readFile(new URL('../src/qa.js', import.meta.url), 'utf8')).replace("import './qa.css';", '');
+// Remove browser CSS and resolve JS imports for the data-URL harness.
+const source = (await readFile(new URL('../src/qa.js', import.meta.url), 'utf8')).replace("import './qa.css';", '').replace("'./animal-size.js'", JSON.stringify(new URL('../src/animal-size.js', import.meta.url).href));
 const { qaLevelIndex, adjustQABolts, moveQAAnimal, exportQAScenario, installQA } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 
 test('QA tutorial alias and every public level map to exactly 100 campaign entries', () => {
@@ -40,8 +40,8 @@ test('manual animal placement requires pause; finite bounds apply even with inva
 
 test('safe placement uses sheep/cow physical radii and canOccupy', () => {
   const level=createLevel(4), animal=level.animals[0], calls=[];
-  for(const [type,radius] of [['cow',.78],['sheep',.55]]) {
-    animal.type=type;
+  for(const [type,scale,radius] of [['cow',1,.78],['cow',1.25,.78*1.25],['sheep',1.25,.55]]) {
+    animal.type=type;animal.scale=scale;
     moveQAAnimal(level,animal.id,animal.x,animal.z,{paused:true,canOccupy:(...args)=>{calls.push(args);return true;}});
     assert.equal(calls.at(-1)[3],radius);
   }
