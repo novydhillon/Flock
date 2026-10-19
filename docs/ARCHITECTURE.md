@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Read-only tracker
+
+`tracker/index.html`, `styles.css`, `app.js` and `parser.js` form a standalone buildless site. It has no dependency on game initialization or saved profiles. A refresh resolves public main to a commit SHA, validates and parses both Markdown overview tables from that SHA, then atomically replaces the view. Only authoritative overview rows create tickets; matching detail headings and scoped execution records add details and branch evidence. Deferred/Blocked remain labelled under Open. Repository Markdown is rendered as text, with branch URLs safely encoded. There are no write requests or drag handlers. Refresh failures preserve the prior snapshot with a visible warning.
+
 ### Grazing presentation
 
 `grazing.js` uses shared world geometry to veto paths, rotated decks, water and barn floors. Renderer-owned per-animal settling/pose state never changes simulation or saved progress. Heads are baked into neck-local material meshes with shared pivot/drop metadata, alongside the existing hip-local limbs. Instancing applies one head transform to every facial material; culling retains a conservative rotation envelope. Bushes are decorative grass-ground placements. No per-frame geometry/material creation is added.

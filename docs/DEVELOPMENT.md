@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Standalone tracker publication
+
+The explicit 18 October request authorizes the standalone `tracker/` site at `https://novydhillon.github.io/Flock/tracker/`. This is a scoped tool publication, not a game build destination change. Novy accepted the deployed tracker on 18 October 2026 at 22:45 America/Creston and authorized merging `feature/work-tracker` through PR #11 to main. Copy only the four `tracker/` files to the same paths on the latest `gh-pages` tree through the GitHub connector and update its ref with the expected parent. Preserve all other Pages paths. Run `node --test tests/tracker-*.test.js`, generated-doc checks and independent review; inspect native Pages workflow success. The board always reads public main tracker files, including future updates without redeployment. Use `**Branch:** ` followed by a backtick-quoted branch name in each ticket detail to make ownership explicit; missing historical branches remain unrecorded. Verify source CI and record native/rendered verification limits.
+
 ## F-066 grazing smoke checks
 
 On `livestock_grazing`, watch calm sheep/cows settle off-road on grass and among bushes. The whole head should lower close to grass with a small nibbling motion, then lift when walking, pivoting or under dog pressure. Compare all cow sizes, bridge/path edges and saved barn animals: no feeding on hard surfaces. Pause, resume, restart, jump levels and follow animals out of view and back. Source checks do not establish phone likeness, neck appearance or FPS. Keep F-066 Review until user acceptance; production needs separate approval.

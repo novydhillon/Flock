@@ -682,3 +682,20 @@ Integrate main `d2484b9` (five commits after shared base `5fd8cf5`) into `plan/b
 Validation: 338/338 regressions, deterministic 13-page documentation checks and all four DOM behavior tests pass. Release artifact: 15 files, zero QA assets; development artifact: 17 files, two QA assets. A fresh empty-context independent source integration critic used an isolated candidate snapshot, task/acceptance criteria and main/base files, without writer reasoning or prior review scores. Independent verification passed the same tests/docs/build modes and scored 9.5/10 with no material blockers. Exact backend identity/effort is not exposed; no model override was used. No new native appearance, listening or device FPS claim.
 
 [Integration evidence and upstream blob hashes](validation/main-planning-integration.json). Publication is source-only through the GitHub connector with both parent SHAs and an expected-head branch update; no main merge or Pages changes. The existing workflow push filter does not include this planning branch, so local validation above is not presented as a new GitHub CI run.
+
+
+
+## F-TRACK-001 — Read-only tracker, 18 October 2026
+
+Branch `feature/work-tracker`, based on main `61bea8720ef1acb7519f5de9de679077b5753624`. Chose dependency-free static HTML/CSS/ES modules instead of coupling the viewing tool to the game build. Separate parser owner and UI/integration owner used disjoint files. Implementation and independent reviewer used the session-default inherited model/effort without overrides; the runtime exposes no exact identifier/effort, so no named-model claim is made.
+
+Fresh blind reviewer received only task/acceptance criteria, isolated candidate files and source/test fixtures. First pass 7.8/10 found bold Branch labels omitted and HTTP-200 malformed archives accepted as partial boards. Both defects fixed with regressions; same-critic follow-up 9/10, no material source blockers. Twelve focused parser/UI checks pass, including all real tracker overview IDs, priorities, branches, safe rendering, details, keyboard focus restoration under DOM substitution, snapshot consistency and refresh recovery. The 13-page documentation build/check and four behavior checks pass. Release (15 files/no QA) and development (17 files/2 QA assets) build-mode checks pass; the existing game bundle-size advisory remains. Full-suite outcome and publication evidence are recorded separately.
+
+No browser-control capability is available for managed preview, so rendered CSS/mobile, actual native dialog/focus/touch and live browser networking are not verified. DOM tests stub dialog methods and establish no screenshot/phone claim. Explicit user `/tracker` request authorizes only this dedicated Pages path. Game and other Pages content are preserved. Keep F-TRACK-001 Review until user acceptance.
+
+Full repository regression suite: **350/350 pass** (including 12 new tracker checks), plus four documentation behavior checks. Both game artifact modes passed; no game source is changed or published by the tracker deployment.
+
+
+## F-TRACK-001 user acceptance — 18 October 2026, 22:45 America/Creston
+
+Novy signed off the deployed `/Flock/tracker/` site and authorized pushing and merging PR #11 to main. F-TRACK-001 is Done and its complete tracker record is archived in ISSUES_CLOSED.md. This acceptance supersedes historical Review/pending-user-acceptance notes; independent native/browser verification limits remain as recorded. No application files change in this sign-off batch. Source and native Pages CI previously passed; publication details and user acceptance are in [the evidence record](validation/F-TRACK-001-publication.json).
