@@ -27,6 +27,9 @@ const renderer=new SVGRenderer();renderer.setSize(512,512);renderer.setPrecision
 renderer.render(scene,camera);
 const svg=renderer.domElement;svg.removeAttribute('style');
 svg.setAttribute('role','img');svg.setAttribute('aria-label','Pip the robot sheepdog');
+const backdrop=document.createElementNS('http://www.w3.org/2000/svg','rect');
+for(const [key,value] of Object.entries({x:-256,y:-256,width:512,height:512,fill:'#779c4d'}))backdrop.setAttribute(key,String(value));
+svg.prepend(backdrop);
 mkdirSync('public/icons',{recursive:true});writeFileSync('public/icons/pip.svg',svg.outerHTML+'\n');
 
 execFileSync('inkscape', ['public/icons/pip.svg', '--export-type=png',
