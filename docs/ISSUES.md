@@ -992,3 +992,8 @@ F-064 varied-coat/forward-horn runtime source `b3fb4f5` passed source CI [391806
 
 
 F-064 approved production release: main runtime `3301a54` merges accepted cow branch `e05bf79` and preserves reviewed runtime bytes. All 329 regressions, generated documentation checks and the release artifact check pass; 15 emitted files include zero QA assets. Main CI [39181194506](https://github.com/novydhillon/Flock/actions/runs/39181194506) succeeded. Production Pages `2e807ae` replaces only root entry/main bundle and preserves all 51 unrelated blobs, including dev/dev2/legacy builds. Native Pages and live SHA-256 evidence is recorded in [F-064 production manifest](validation/F-064-cow-production-publication.json). F-064 remains Done by Novy's approval; prior Review/hold notes are historical.
+
+
+## Herd pivot presentation (F-065)
+
+Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.

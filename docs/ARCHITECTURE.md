@@ -143,3 +143,8 @@ F-053 separates player `createPip` from the legacy walking `createDog` factory. 
 
 
 F-033 weathering refinement: asymmetric hull corners/wedge profiles and deterministic vertex colors supply worn clay faces, pale warm mottling and subdued lower moss/damp tones. Per-instance 180-degree flips and bounded local roll vary the silhouettes. Width is reduced by the projected rotated height contribution before composing each transform; this keeps the rotated geometry in its original longitudinal slot and ±.30 strip, including tiny segments. Foundation centers follow their rotated lower bounds; upper courses/coping receive restrained vertical contour variation. Materials enable vertex colors; instancing, 44-triangle geometry ceiling, resource ownership and simulation state are unchanged.
+
+
+## Herd pivot presentation (F-065)
+
+Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.

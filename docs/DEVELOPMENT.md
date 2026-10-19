@@ -214,3 +214,6 @@ On mixed/larger herds check a visibly 25% longer torso and random stable cow siz
 
 
 F-064 coat smoke check: compare cows of the same size for different cream/black patch placement and coverage. Follow a cow out of view and back, pause/resume, and restart the meadow; its coat should remain stable. Both horns sit slightly farther forward without clipping into the eyes. Check QA tints, all size variants, moving legs and herd performance at ordinary phone zoom; automated source checks do not establish native appearance/FPS.
+
+
+F-065: `herd_turning_visual` contains the isolated renderer-only turn-rate/pivot-gait candidate. 333 regression checks (332 full plus added matrix check), both build modes and docs pass; independent review 10/10. Publication and user visual acceptance remain pending.

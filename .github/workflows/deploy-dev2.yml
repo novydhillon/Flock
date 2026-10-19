@@ -2,7 +2,7 @@ name: Flock 3D — checks and standalone build
 
 on:
   push:
-    branches: [flock_3D_chatgpt-work, main, pip_update, buddy_update, UI_refinement, art_update_cow]
+    branches: [flock_3D_chatgpt-work, main, pip_update, buddy_update, UI_refinement, art_update_cow, herd_turning_visual]
   workflow_dispatch:
 
 permissions:

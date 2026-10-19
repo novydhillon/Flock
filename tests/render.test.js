@@ -1,3 +1,4 @@
+import {updateAnimalTurn,animalGaitSpeed} from '../src/animal-turn.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -25,7 +26,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -827,4 +828,18 @@ test('coat torso batches retain identity after culling, scale edits, reorder and
   level.animals.reverse();level.animals.forEach(animal=>animal.scale=1.25);
   renderer.setLevel(level);assert.deepEqual(assignment(),before,'pattern follows ID rather than size or array slot');
   renderer.setLevel(level);assert.deepEqual(assignment(),before,'restart preserves assignments');
+});
+
+test('stationary herd turns animate instanced legs and freeze when paused',()=>{
+  const renderer=setup(),level=createLevel(0),dog={...level.dog};
+  level.animals.forEach(a=>{a.heading=0;a.vx=0;a.vz=0;});renderer.setLevel(level);
+  const a=level.animals[0];a.heading=Math.PI/2;renderer.update(level,dog,.1,false);
+  const pose=renderer.animalMeshes[0];assert.ok(Math.abs(pose.rotation.y-Math.PI*.1)<1e-10);
+  const batch=renderer.animalBatches.find(b=>b.indices.includes(0)),index=batch.visibleIndices.indexOf(0);
+  assert.ok(index>=0);
+  const mesh=batch.meshes.find(m=>m.userData.limbIndex!==undefined),matrix=new THREE.Matrix4();mesh.getMatrixAt(index,matrix);
+  const idle=pose.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(...mesh.userData.pivot));
+  assert.ok(matrix.elements.some((v,i)=>Math.abs(v-idle.elements[i])>1e-5),'pivot has a real leg swing');
+  const frozen=matrix.clone(),heading=pose.rotation.y;renderer.update(level,dog,0,false);mesh.getMatrixAt(index,matrix);
+  assert.equal(pose.rotation.y,heading);assert.deepEqual(matrix.elements,frozen.elements);
 });
