@@ -2,13 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import * as THREE from 'three';
-import {createAnimal} from '../src/models.js';
+import {createAnimal,createCowCoatMaterial,cowCoatVariant} from '../src/models.js';
 
 // Model/matrix checks exercise real geometry; Canvas is a texture-data stand-in.
 // They do not establish rendered likeness or device performance.
-globalThis.document={createElement:()=>({width:0,height:0,getContext:()=>({
-  createImageData:(width,height)=>({data:new Uint8ClampedArray(width*height*4)}),putImageData(){},
-})})};
+globalThis.document={createElement:()=>{
+  const canvas={width:0,height:0};
+  canvas.getContext=()=>({createImageData:(width,height)=>({data:new Uint8ClampedArray(width*height*4)}),putImageData(image){canvas.pixels=image.data;}});
+  return canvas;
+}};
 const meshes=model=>{const result=[];model.traverse(p=>{if(p.isMesh)result.push(p);});return result;};
 const bounds=model=>{model.updateMatrixWorld(true);return new THREE.Box3().setFromObject(model);};
 
@@ -84,4 +86,30 @@ test('cow batches remain finite, textured once and bounded for flock instancing'
   const texture=coats[0].material.map;
   for(let i=0;i<20;i++)assert.equal(meshes(createAnimal('cow')).find(p=>p.material.map===texture)?.material.map,texture,
     'repeated flock construction reuses the coat texture');
+});
+
+test('four cached coat maps have distinct organic coverage independent of animal size',()=>{
+  const textures=Array.from({length:4},(_,variant)=>createCowCoatMaterial(variant).map);
+  const hashes=textures.map(texture=>createHash('sha256').update(texture.image.pixels).digest('hex'));
+  assert.equal(new Set(hashes).size,4,'each coat has a different pixel layout');
+  textures.forEach((texture,variant)=>{
+    assert.equal(texture,createCowCoatMaterial(variant).map,'maps persist across level rebuilds');
+    const pixels=texture.image.pixels;let dark=0;
+    for(let i=0;i<pixels.length;i+=4)if(pixels[i]<100)dark++;
+    assert.ok(dark/(pixels.length/4)>.2&&dark/(pixels.length/4)<.65,'each layout retains broad black and cream areas');
+  });
+  const variants=Array.from({length:100},(_,id)=>cowCoatVariant(123,id));
+  assert.equal(new Set(variants).size,4);
+  assert.deepEqual(variants,Array.from({length:100},(_,id)=>cowCoatVariant(123,id)),'restart keeps identity');
+  assert.notDeepEqual(variants,Array.from({length:100},(_,id)=>cowCoatVariant(456,id)),'level seed varies the herd');
+  assert.throws(()=>createCowCoatMaterial(4),RangeError);
+});
+
+test('horn mesh roots move modestly forward while retaining their curved geometry',()=>{
+  const horn=meshes(createAnimal('cow')).find(part=>part.material.color.getHexString()==='e4d1ae');
+  assert.ok(horn,'shared ivory horn batch exists');
+  const box=bounds(horn);
+  // Root plane is local head Z .4175 + forward horn offset .015. The
+  // cylinder radius .045 reaches forward, then the 1.5x core scale is baked.
+  assert.ok(Math.abs(box.max.z-(.4175+.015+.045)*1.5)<1e-6,'horn roots are .05 forward of their previous -.035 offset');
 });

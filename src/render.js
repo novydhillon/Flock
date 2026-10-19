@@ -10,7 +10,7 @@ import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
-import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
+import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 // Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
@@ -197,15 +197,26 @@ export class MeadowRenderer{
     for(const type of ['sheep','cow']){
       const indices=level.animals.flatMap((a,i)=>a.type===type?[i]:[]);if(!indices.length)continue;
       const prototype=createAnimal(type),meshes=[];let radius=0;
+      const coats=[];
       for(const child of prototype.children){
         if(!child.geometry.boundingSphere)child.geometry.computeBoundingSphere();
         const sphere=child.geometry.boundingSphere,pivot=child.userData.pivot;
         // A sphere about the animal origin includes every baked body piece and
         // the full rotation envelope of each leg around its retained hip pivot.
         radius=Math.max(radius,sphere.center.length()+sphere.radius+(pivot?Math.hypot(...pivot):0));
+        if(child.material.userData.cowCoatVariant!==undefined){
+          for(let variant=0;variant<4;variant++){
+            const coatIndices=indices.filter(index=>cowCoatVariant(level.seed,level.animals[index].id??index)===variant);
+            if(!coatIndices.length)continue;
+            const instanced=new THREE.InstancedMesh(child.geometry,createCowCoatMaterial(variant),coatIndices.length);
+            instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);instanced.castShadow=instanced.receiveShadow=true;instanced.frustumCulled=false;
+            this.actors.add(instanced);coats.push({indices:coatIndices,meshes:[instanced],visibleIndices:[],coatVariant:variant});
+          }
+          continue;
+        }
         const instanced=new THREE.InstancedMesh(child.geometry,child.material,indices.length);instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);instanced.castShadow=instanced.receiveShadow=true;instanced.frustumCulled=false;instanced.userData.limbIndex=child.userData.limbIndex;instanced.userData.pivot=pivot;this.actors.add(instanced);meshes.push(instanced);
       }
-      this.animalBatches.push({indices,meshes,radius,visibleIndices:[]});
+      this.animalBatches.push({indices,meshes,radius,visibleIndices:[]},...coats.map(batch=>({...batch,radius})));
     }
     this.center.set(level.spawn.x+(this.aspect<.8?2:10),0,level.spawn.z+1);this.time=0;this.update(level,level.dog,0,true);
   }

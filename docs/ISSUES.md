@@ -971,3 +971,13 @@ F-064 size variation validation: 325/325 integrated tests pass before the additi
 
 
 F-064 longer-body/size-variation runtime source `e46d5cb` passed source CI [39179684108](https://github.com/novydhillon/Flock/actions/runs/39179684108), including the final 326-test suite, docs and both artifact modes. Independent source review reached 9/10 after the test timing correction. Development Pages revision `0681cff` contains the checked 17-file build, preserving 49 blobs outside dev. Native Pages/live verification evidence is in [F-064 size publication](validation/F-064-cow-size-publication.json). This supersedes the prior runtime-only cow publication; user appearance sign-off remains Review.
+
+
+## F-064 varied cow coats and horn placement — 18 October 2026
+
+On `art_update_cow`, vary the black/cream patch layout between herd cows while retaining the organic Holstein clay appearance. Patterns must remain stable for each animal across animation, camera culling, pause and level restart, and vary independently from the four existing body sizes. Move both horns slightly toward the front of the head (+0.05 local forward Z); preserve body proportions, size range, sheep and physical gameplay. Keep geometry/material resource use bounded and avoid duplicating every cow body/limb batch just for coat variation. Source implementation and fresh blind review precede development publication; user rendered acceptance remains Review.
+
+
+F-064 coat/horn source validation: full existing regression suite 326/326 and both release/development build artifact-mode checks pass. New coat/horn/compaction/size checks pass 5/5, including four distinct pixel hashes, bounded black/cream coverage, shared materials/geometry, forward horn roots, ID-stable culling/reorder/restart and actual QA tint/reset. Generated documentation checks pass. Independent review and publication evidence are recorded below; rendered acceptance remains Review.
+
+F-064 coat/horn independent source review: 9/10, no material blocker. Initial candidate review found a test-fixture frustum was not restored before restart; final fixture restores it and reviewer independently passed corrected horn/coat checks. Production code had no corresponding defect. Publication remains a separate milestone and user appearance sign-off remains Review.

@@ -211,3 +211,6 @@ Novy requested merging current main into `art_update_cow` and publishing to dev 
 ## F-064 cow size smoke checks
 
 On mixed/larger herds check a visibly 25% longer torso and random stable cow sizes spanning the revised base to125% uniformly in height/width/length. Four discrete choices are possible; small herds need not show every choice. Confirm legs remain attached during walking/turning and largest cows cross bridges/open gates and enter the target with full-body clearance. Pause/restart/jump must preserve coherent poses with no new geometry/material batches for size. Collision, admission and QA positioning use selected size; phone appearance/FPS still need user evidence.
+
+
+F-064 coat smoke check: compare cows of the same size for different cream/black patch placement and coverage. Follow a cow out of view and back, pause/resume, and restart the meadow; its coat should remain stable. Both horns sit slightly farther forward without clipping into the eyes. Check QA tints, all size variants, moving legs and herd performance at ordinary phone zoom; automated source checks do not establish native appearance/FPS.
