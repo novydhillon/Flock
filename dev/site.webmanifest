@@ -5,10 +5,10 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f1e4",
+  "background_color": "#779c4d",
   "theme_color": "#f5f1e4",
   "icons": [
-    {"src": "icons/pip-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icons/pip-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+    {"src": "icons/pip-192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/pip-512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "any"}
   ]
 }
