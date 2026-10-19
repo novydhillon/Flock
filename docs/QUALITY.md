@@ -649,3 +649,8 @@ F-064 approved production release: main runtime `3301a54` merges accepted cow br
 Candidate branch `herd_turning_visual`, based on main `c819a89`. Implementation: current session model (no model override), bounded renderer-only change. 332/332 full regressions passed; additional actual instanced-leg pivot/pause test passed separately (333 total checks). Release artifact: 15 files, zero QA; development: 17 files, two QA assets. Generated documentation checks passed. Rate tests cover sheep/cow timing at 30/60/120 Hz, shortest wraparound, idle and pause. Fresh independent source review recorded below. Native WebGL appearance and user acceptance remain pending. No publication in this session: another active process was editing the original checkout; this candidate is isolated to avoid overwriting its work.
 
 Independent review: `gpt-6-luna`, medium effort, fresh context; final 10/10 with no material blocker. Initial undefined-turn-speed concern was disproved by the existing default parameter and direct runtime check; no source fix required. Review covers source behavior, not native rendered appearance.
+
+
+## F-065 production acceptance
+
+Novy approved the dev candidate and authorized main merge and live publication on 18 October 2026, 18:03 America/Creston. Preserve the independently reviewed runtime. Release integration uses the current session model without override; no new runtime work or new blind review is needed. Production build must exclude QA. Native phone FPS is not established by source checks. Publication evidence follows separately.
