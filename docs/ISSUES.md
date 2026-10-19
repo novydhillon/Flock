@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-OPS-001 | P2 | Delivery | Reusable checked builds and deployments | Review | Current deployment policy |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -32,6 +33,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
+| F-COMP-010 | P1 | Behavior | Natural containment, varied resting headings and purposeful Buddy movement | Review | F-COMP-009 |
 | F-COMP-009 | P2 | Behavior | Buddy contains distant or barrier-separated flock; seven-second grazing | Review | F-COMP-001/002/003/007; surface-aware grazing |
 | F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | Review | F-046 accepted tier behavior; F-048 movement |
 | F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | Review | F-COMP-001; F-046 accepted roles |
@@ -684,3 +686,30 @@ F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are deployed for review at htt
 ## Buddy containment development publication — 19 October 2026
 
 F-COMP-009 is deployed at https://novydhillon.github.io/Flock/dev/ from source `cf6e182`, Pages `83125c0`. Source CI and native Pages succeeded; all 29 live files match the checked build. All 379 local regressions passed; blind review follow-up scored 9/10 with no material blocker. [Publication evidence](validation/Buddy-containment-publication.json). Status remains Review pending user playtest/sign-off; native phone appearance/FPS unmeasured. Production and all unrelated Pages paths remain unchanged.
+
+
+### F-COMP-010 — Natural containment and purposeful movement (P1)
+
+**Status:** Review. Owner: Codex. 19 October 2026.
+
+**Branch:** `buddy_behaviour`
+
+**User report:** containment makes the flock face the same direction and stop completely, while a robot dog circles mechanically. Uploaded phone screenshot shows a tightly packed mixed herd. Investigate actual Pip control separately; do not assume which robot the user means.
+
+**Accept when:** contained animals remain locally together without freezing into a synchronized heading/pose. Allow bounded individual shuffling/settling/resting orientation and surface-aware grazing around seven seconds, without continual forced walking or group travel drift. Buddy performs purposeful calm perimeter checks, changes position to attend drifting edges, and pauses/looks toward the herd rather than continuously orbiting. Preserve physical navigation, no initial remote influence, tier roles/retrieval, Pip control priority, bridge completion, collisions and scoring. Check touch release/cancellation and idle Pip so no autonomous Pip circling is introduced or left uninvestigated. Validate wide/large/mixed herds over long runs, visible diversity, grazing, reset/pause and transitions; obtain independent review and leave Review for user acceptance.
+
+
+
+**Source evidence:** individual bounded browse/rest cycles and hard-surface resting turns replace statue-like pinning and shared inherited heading. Buddy now alternates calm checks with 4–7s watching. Lost pointer capture clears Pip input and cannot create a bark; no autonomous Pip orbit was found. Fresh independent movement review scored 9/10 with no material defect; final standard checked build passed 375/375 regressions, both QA build modes and docs checks. Native phone appearance/fun and user sign-off remain pending.
+
+**Publication:** this correction is prepared on `buddy_behaviour`, not yet deployed. The current dev build still predates F-COMP-010. Main's standard delivery tooling is imported. Use Actions → Deploy Flock → branch `buddy_behaviour` → environment `dev`; the connector has no workflow-dispatch operation, and AGENTS.md forbids a custom publisher fallback.
+
+### F-OPS-001 — Reusable checked builds and deployments
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feature/build-deploy-runbook`
+
+**Accept when:** Use shared scripts for checked development/production builds and scoped Pages publication, enforce non-main dev and main-only production, preserve unrelated Pages content, exclude production QA, reject concurrent publication, verify all live hashes and document future use. No production publication or merge is authorized by this tooling request.
+
+**Execution — 19 October 2026:** Implemented shared checked-build commands, all-source-branch CI, manual guarded deployment workflow, API publisher with non-force concurrent-parent guard, pure dependency-validating plan module and full live-file hash verifier. Updated AGENTS, README, requirements and development runbook; retired the shell Git/dev2 helper. Full checked dev run: 340 regression tests and 4 documentation behavior tests pass; release 27 files/0 QA assets, development 29 files/2 QA assets. Expanded deployment suite subsequently passes 10/10, including publisher preservation/concurrent-head rejection. Independent blind review followed by fixes/recheck: 9/10, no material blockers. Docs regenerated/checked. Source implementation complete; no game publication, workflow dispatch or production merge. Requires PAGES_PUBLISH_TOKEN setup, workflow present on main, real Actions/native Pages/live-hash execution and user sign-off. Connector has no workflow dispatch capability; use the documented Actions UI. Binary icon reads are unsupported by the connector in this session; local build inputs were regenerated using the existing icon generator, and no regenerated art is included in this source change.

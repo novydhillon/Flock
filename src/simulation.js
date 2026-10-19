@@ -2,6 +2,7 @@ import { animalRadius } from './animal-size.js';
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
 import { createLevel, canOccupy, moveBody, openingSteer, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
 import { flockGroups, updateBuddy } from './buddy.js';
+import { canGrazeAt } from './grazing.js';
 import { bridgeCrossing } from './bridge-crossing.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
@@ -15,6 +16,31 @@ const normal = (x, z) => {
   return length > 0.0001 ? { x: x / length, z: z / length } : { x: 0, z: 0 };
 };
 const centerOf = group => group.reduce((sum, a) => ({ x: sum.x + a.x / group.length, z: sum.z + a.z / group.length }), { x: 0, z: 0 });
+
+// Each animal owns a bounded resting patch and an independent clock. Brief
+// browsing steps alternate with long quiet periods, so resting never depends on
+// the previous herd travel heading or Buddy's current perimeter direction.
+function restingTarget(level, animal, position) {
+  const state=animal.buddyRest;
+  if(!state || state.home!==position){
+    animal.buddyRest={home:position,cycle:0,next:level.time+20+(animal.id*7%17)};
+  }
+  const rest=animal.buddyRest;
+  if(level.time>=rest.next){rest.cycle++;rest.next=level.time+24+(animal.id*11+rest.cycle*5)%19;delete rest.target;}
+  if(!rest.target){
+    const angle=animal.id*2.399963+rest.cycle*1.618;
+    const reach=rest.cycle===0?.45:.6;
+    const candidate={x:position.x+Math.sin(angle)*reach,z:position.z+Math.cos(angle)*reach};
+    // Do not leave dry safe ground or browse across hard-surface boundaries.
+    const browsable=canGrazeAt(level,candidate)&&canOccupy(level,candidate.x,candidate.z,animalRadius(animal))&&
+      hasClearGroundPath(level,animal,candidate,animalRadius(animal));
+    rest.target=browsable?candidate:{x:animal.x,z:animal.z};
+    // A path or blocked patch permits a quiet individual look/turn, without
+    // inventing a walk onto grass or enabling grazing on the hard surface.
+    rest.facing=browsable?undefined:angle;
+  }
+  return rest.target;
+}
 
 /** Recovery time: 30s + 1s per extra five robots + 4s per extra route
  * + 2s per 40m of spawn-to-goal distance, capped at 60s. No travel timer. */
@@ -329,9 +355,22 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       // Kill inherited forward velocity and alignment. Merely parking the drone
       // would leave the flock's old momentum/cohesion walking toward the goal.
       const position = buddyPosition || companions.state.positions[animal.id];
-      desiredX = clamp((position.x - old.x) * 2.6 + sx * 0.35, -1.1, 1.1);
-      desiredZ = clamp((position.z - old.z) * 2.6 + sz * 0.35, -1.1, 1.1);
+      if(buddyPosition){
+        const target=restingTarget(level,animal,position);
+        const dx=target.x-old.x,dz=target.z-old.z,d=Math.hypot(dx,dz);
+        // Arrive fully and retain the individual facing during the quiet spell.
+        // Separation still lets a crowded animal yield within its home patch.
+        desiredX=(d>.055?dx*.9:0)+sx*.35;
+        desiredZ=(d>.055?dz*.9:0)+sz*.35;
+        const speed=Math.hypot(desiredX,desiredZ);
+        if(speed>.38){desiredX*=.38/speed;desiredZ*=.38/speed;}
+      }else{
+        delete animal.buddyRest;
+        desiredX=clamp((position.x-old.x)*2.6+sx*.35,-1.1,1.1);
+        desiredZ=clamp((position.z-old.z)*2.6+sz*.35,-1.1,1.1);
+      }
     } else {
+      delete animal.buddyRest;
       if (neighbors && !wander && !animal.wanderHome && !(buddyActivelyHerding && level.buddyHerd?.retrieveId === animal.id)) {
         const dx = cx / neighbors - old.x, dz = cz / neighbors - old.z, d = Math.hypot(dx, dz);
         const motion=flockMotion.get(flockMembership.get(animal.id)),forward=motion.forward;
@@ -402,7 +441,13 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
     if (collision.blockedX) animal.vx *= 0.45;
     if (collision.blockedZ) animal.vz *= 0.45;
-    animal.heading = Math.hypot(animal.vx, animal.vz) > 0.1 ? Math.atan2(animal.vx, animal.vz) : (animal.heading || 0);
+    if(Math.hypot(animal.vx,animal.vz)>.1)animal.heading=Math.atan2(animal.vx,animal.vz);
+    else if(holding&&animal.buddyRest?.facing!==undefined){
+      const heading=animal.heading||0,target=animal.buddyRest.facing;
+      const delta=Math.atan2(Math.sin(target-heading),Math.cos(target-heading));
+      const rate=animal.type==='cow'?Math.PI/1.5:Math.PI;
+      animal.heading=heading+clamp(delta,-rate*dt,rate*dt);
+    }else animal.heading ||= 0;
     animal.alert = pressure;
     const playerAtDestination = distance(dog, level.target) < level.target.radius + 12;
     // Admission uses the same attendance decision as companion herding. A

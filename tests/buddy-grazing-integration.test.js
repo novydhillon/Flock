@@ -17,13 +17,14 @@ test('contained sheep and every cow size settle into grazing without patrol pres
     obstacles: [], rivers: [], gates: [], fenceSegments: [], routes: [], roads: [],
   };
   const poses = animals.map(a => ({rotation: {y: a.heading}, userData: {}}));
-  let barks = 0;
+  let barks = 0;const grazed=animals.map(()=>0);
   for (let i = 0; i < 600; i++) {
     const result = stepSimulation(level, level.dog, {}, .05, {helper: 2});
     barks += result.events.filter(e => e.type === 'buddyBark').length;
     animals.forEach((a, j) => {
       updateAnimalTurn(poses[j], a, .05);
       updateGrazing(poses[j], a, level, .05);
+      if(poses[j].userData.graze===1)grazed[j]+=.05;
     });
   }
   assert.equal(level.helpers[0].mode, 'contain');
@@ -32,7 +33,7 @@ test('contained sheep and every cow size settle into grazing without patrol pres
     assert.ok(Math.abs(a.x - (i - 2) * 2.8) < 1, 'keeps its original holding area');
     assert.equal(a.saved, false);
     assert.ok(Math.hypot(a.vx, a.vz) < .1);
-    assert.equal(poses[i].userData.graze, 1, `${a.type}/${a.scale} grazes while Buddy patrols`);
+    assert.ok(grazed[i]>8, `${a.type}/${a.scale} grazes while Buddy patrols`);
   });
 });
 
@@ -49,14 +50,15 @@ test('large connected mixed flock stays local and grazes throughout a complete p
     obstacles:[],rivers:[],gates:[],fenceSegments:[],routes:[],roads:[],
   };
   const poses=animals.map(()=>({rotation:{y:0},userData:{}}));
+  const grazed=animals.map(()=>0);
   for(let i=0;i<1200;i++){
     stepSimulation(level,level.dog,{},.05,{helper:2});
-    animals.forEach((a,j)=>{updateAnimalTurn(poses[j],a,.05);updateGrazing(poses[j],a,level,.05);});
+    animals.forEach((a,j)=>{updateAnimalTurn(poses[j],a,.05);updateGrazing(poses[j],a,level,.05);if(poses[j].userData.graze===1)grazed[j]+=.05;});
   }
   assert.equal(level.helpers[0].mode,'contain');
   animals.forEach((a,j)=>{
     assert.ok(Math.hypot(a.x-starts[j].x,a.z-starts[j].z)<1,`member ${j} stays in place`);
     assert.equal(a.saved,false);
-    assert.equal(poses[j].userData.graze,1,`member ${j} grazes after the full patrol`);
+    assert.ok(grazed[j]>20,`member ${j} grazes after the full patrol`);
   });
 });

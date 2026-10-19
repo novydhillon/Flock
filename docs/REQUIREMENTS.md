@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## F-OPS-001 — Standard delivery automation
+
+Provide shared checked builds and a manual GitHub Actions deployment for dev and production. Enforce main-only production and non-main dev, QA mode checks, preserved unrelated Pages content, concurrent publication rejection and live hash verification. Document future entry points and setup/connector limitations. Production approval remains explicit.
+
+
 ## F-TRACK-001 — Public read-only work tracker
 
 Accepted by Novy on 18 October 2026 at 22:45 America/Creston for the deployed `/Flock/tracker/` site; push and main merge authorized. The closed tracker owns the acceptance record.
@@ -440,3 +445,8 @@ Use a closeup of the current silver Pip head for browser favicons and iOS Home S
 ## Buddy containment refinement — 19 October 2026
 
 F-COMP-009: Novy requests that Buddy contain the selected flock in its current area when Pip is far away or separated by a river/fence, patrolling around it instead of driving any travel direction. Resume ordinary support when Pip returns nearby with a clear connection, preserving physical crossing safety and existing tiers. Livestock staying relatively in place should settle into the accepted surface-aware grazing pose after about seven seconds. This extends the Buddy behaviour review on `buddy_behaviour`; the initial dev publication predates it. See current F-COMP-009 publication evidence in QUALITY.md.
+
+
+## Natural containment correction — 19 October 2026
+
+F-COMP-010 addresses Novy's phone report: contained herd members synchronize facing and freeze while a robot dog circles. Replace rigid individual pinning and endless uniform circling with bounded individual settling/shuffling/orientation and purposeful calm Buddy edge checks/rest. Keep the flock locally contained with no net travel drive and preserve seven-second surface-aware grazing. Investigate Pip/input motion separately, retaining direct player control.

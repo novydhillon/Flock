@@ -170,29 +170,67 @@ function containmentState(level, state, group) {
 }
 function patrolContainment(level,buddy,state,hold,group,dt,task) {
   buddy.mode='contain';buddy.barking=false;delete buddy.forward;
+  if(!hold.acquired){
+    // Attendance starts with reaching the *current* nearest flock edge. A
+    // distant moving flock must not trigger perimeter watches en route or be
+    // pursued via an obsolete check point while it continues travelling.
+    delete hold.check;delete hold.watchUntil;
+    const subject=[...group].sort((a,b)=>distance(buddy,a)-distance(buddy,b))[0];
+    const outward=normal(buddy.x-subject.x,buddy.z-subject.z);
+    const desired={x:subject.x+outward.x*4,z:subject.z+outward.z*4};
+    buddy.desired=desired;buddy.containmentActivity='approach';
+    const waypoint=buddyRecoveryTarget(level,buddy,desired,dt,{taskKey:task,active:true});
+    moveBuddy(level,buddy,waypoint,dt,7);
+    return;
+  }
   const anchor=hold.anchor;
   const extent=Math.max(3,...group.map(a=>distance(a,anchor)+animalRadius(a)));
   const reach=extent+3.5;
   hold.angle??=Math.atan2(buddy.x-anchor.x,buddy.z-anchor.z);
-  let desired;
-  // Short perimeter chords stay outside the flock; do not cut through its
-  // centre when the next arc is obstructed. Ordinary navigation handles trees.
-  for(let i=0;i<24;i++){
-    const angle=hold.angle+i*Math.PI/12;
-    const p={x:anchor.x+Math.sin(angle)*reach,z:anchor.z+Math.cos(angle)*reach};
-    if(!canOccupy(level,p.x,p.z,.68))continue;
-    const route=buddyNavigationTarget(level,buddy,p,.6);
-    const dx=route.x-buddy.x,dz=route.z-buddy.z,d2=dx*dx+dz*dz;
-    const t=d2?Math.max(0,Math.min(1,((anchor.x-buddy.x)*dx+(anchor.z-buddy.z)*dz)/d2)):0;
-    const closest={x:buddy.x+dx*t,z:buddy.z+dz*t};
-    if(distance(buddy,anchor)>extent+1&&distance(closest,anchor)<extent+1)continue;
-    desired=p;hold.angle=angle;break;
+  // Keep a check point while approaching it, then stand and watch. The next
+  // check alternates sides rather than winding endlessly around the flock.
+  if(hold.watchUntil>level.time){
+    buddy.desired={x:buddy.x,z:buddy.z};
+    moveBuddy(level,buddy,buddy.desired,dt,0);
+    buddy.heading=turnToward(buddy.heading??0,Math.atan2(anchor.x-buddy.x,anchor.z-buddy.z),1.4,dt);
+    buddy.containmentActivity='watch';
+    return;
   }
-  desired||={x:buddy.x,z:buddy.z};
-  if(distance(buddy,desired)<.6)hold.angle+=Math.PI/12;
-  buddy.desired=desired;
+  if(hold.check && distance(buddy,hold.check)<.4){
+    hold.watchUntil=level.time+4+(hold.checkIndex||0)%4;
+    delete hold.check;
+    buddy.containmentActivity='watch';
+    moveBuddy(level,buddy,{x:buddy.x,z:buddy.z},dt,0);
+    return;
+  }
+  if(!hold.check){
+    hold.checkIndex=(hold.checkIndex||0)+1;
+    const drifted=group.filter(a=>hold.positions[a.id]&&distance(a,hold.positions[a.id])>1.2)
+      .sort((a,b)=>distance(b,hold.positions[b.id])-distance(a,hold.positions[a.id]));
+    const edge=drifted[0];
+    const preferred=edge?Math.atan2(edge.x-anchor.x,edge.z-anchor.z):
+      hold.angle+(hold.checkIndex%2?1:-1)*Math.PI/3;
+    // Short perimeter chords stay outside the flock. Each waypoint and route
+    // uses the ordinary body-clear navigation, including fence/river edges.
+    for(let i=0;i<24;i++){
+      const angle=preferred+(i%2?1:-1)*Math.ceil(i/2)*Math.PI/12;
+      const p={x:anchor.x+Math.sin(angle)*reach,z:anchor.z+Math.cos(angle)*reach};
+      if(!canOccupy(level,p.x,p.z,.68))continue;
+      const route=buddyNavigationTarget(level,buddy,p,.6);
+      const dx=route.x-buddy.x,dz=route.z-buddy.z,d2=dx*dx+dz*dz;
+      const t=d2?Math.max(0,Math.min(1,((anchor.x-buddy.x)*dx+(anchor.z-buddy.z)*dz)/d2)):0;
+      const closest={x:buddy.x+dx*t,z:buddy.z+dz*t};
+      if(distance(buddy,anchor)>extent+1&&distance(closest,anchor)<extent+1)continue;
+      hold.check=p;hold.angle=angle;hold.checkStarted=level.time;break;
+    }
+  }
+  const desired=hold.check||{x:buddy.x,z:buddy.z};
+  buddy.containmentActivity='check';buddy.desired=desired;
   const waypoint=buddyRecoveryTarget(level,buddy,desired,dt,{taskKey:task,active:distance(buddy,desired)>.5});
-  moveBuddy(level,buddy,waypoint,dt,3.5);
+  moveBuddy(level,buddy,waypoint,dt,2.6);
+  // An inaccessible perimeter sector must not turn into perpetual wall pacing.
+  if(hold.check && level.time-hold.checkStarted>15){delete hold.check;hold.watchUntil=level.time+4;}
+
 }
 
 /** Buddy follows flock travel, with tier-two local crossing/goal assistance.

@@ -23,7 +23,7 @@ test('remote Pip makes Buddy patrol and arrest travel for sheep and every cow si
   });
   assert.equal(l.helpers[0].mode,'contain');assert.ok(distance(center(l.animals),start)<.6);
   assert.ok(Math.max(...l.animals.map(a=>distance(a,start)))<4);
-  assert.ok(excursion>6,'patrols physically rather than parking');
+  assert.ok(excursion>2,'physically checks the perimeter rather than parking');
   assert.ok(events.every(e=>e.type!=='buddyBark'));assert.ok(l.animals.every(a=>a.alert===0&&!a.saved));
  }
 });
@@ -79,7 +79,7 @@ test('already committed bridge animals complete crossing then hold their dry-ban
   run(l,18,()=>assert.ok(l.animals.every(a=>canOccupy(l,a.x,a.z,animalRadius(a)))));
   assert.ok(l.animals.every(a=>a.x>4&&!a.bridgeCrossing),'both animals finish on dry far bank');
   const positions=l.animals.map(a=>({...a}));run(l,10);
-  assert.ok(l.animals.every((a,i)=>distance(a,positions[i])<.3),'holds safely instead of returning onto deck');
+  assert.ok(l.animals.every((a,i)=>distance(a,positions[i])<1.3 && a.x>4),'browses within its dry-bank holding area instead of returning onto deck');
  }
 });
 
@@ -91,16 +91,17 @@ test('wide nine-animal row and large mixed connected herd remain spread and graz
   });
   const l=fixture(animals,{dog:{x:-70,z:-70},helpers:[{type:'helper',x:0,z:-7}],roads:[]});
   const initial=animals.map(a=>({...a}));const poses=animals.map(a=>({rotation:{y:0},userData:{}}));
-  let furthest=0;
+  let furthest=0;const grazed=animals.map(()=>0);
   for(let i=0;i<1800;i++){
    stepSimulation(l,l.dog,{},.05,{helper:2});
    animals.forEach((a,j)=>{
     updateAnimalTurn(poses[j],a,.05);updateGrazing(poses[j],a,l,.05);
     furthest=Math.max(furthest,distance(a,initial[j]));
+    if(poses[j].userData.graze===1)grazed[j]+=.05;
    });
    if(i===599||i===1799){
-    assert.ok(furthest<.6,`${layout}: retains each original position instead of collapsing the group`);
-    assert.ok(poses.every(p=>p.userData.graze===1),`${layout}: every animal grazes while Buddy patrols`);
+    assert.ok(furthest<1.2,`${layout}: keeps individual resting patches instead of collapsing the group`);
+    assert.ok(grazed.every(t=>t>5),`${layout}: each animal has extended grazing time between browsing steps`);
    }
   }
   assert.equal(l.helpers[0].mode,'contain');assert.ok(distance(center(animals),center(initial))<.3);

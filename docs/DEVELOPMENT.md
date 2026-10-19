@@ -1,5 +1,27 @@
 # Development, QA and release context
 
+## Standard build and deployment commands — 19 October 2026
+
+Use these checked-in entry points for future builds and deployments; do not create one-off publishing scripts.
+
+| Task | Entry point | Result |
+|---|---|---|
+| Checked dev build | `npm run build:checked:dev` | Docs, full tests, release QA exclusion, then final dev QA inclusion |
+| Checked production build | `npm run build:checked:production` | Docs, full tests, release build and QA exclusion |
+| Deploy dev | Actions → **Deploy Flock** → Run workflow → select feature branch → environment `dev` | Publishes only build paths under `/Flock/dev/` |
+| Deploy production | After user approval and merge: select `main`, environment `production`, confirmation `deploy-production` | Publishes production root |
+
+One-time maintainer setup: create repository secret `PAGES_PUBLISH_TOKEN`, a fine-grained token restricted to this repository with Contents read/write and Pages read access. Keep the existing Pages configuration serving `gh-pages` root. The default GITHUB_TOKEN cannot trigger the native Pages build when it pushes; the workflow fails early if the publish secret is missing. Never paste a token into chat or source. Protect workflow editing and production execution with repository permissions/environment rules as appropriate. This request creates tooling; it does not authorize a production run or merge.
+
+The existing checks workflow now covers every source branch except `gh-pages` and calls the same checked build script. Artifact upload alone remains distinct from deployment. The deployment workflow is manual only: its checked-build step is source CI for the selected immutable revision and satisfies the source-validation gate; it runs the checks, calls `scripts/publish-pages.cjs` through actions/github-script, writes only built file paths plus the environment manifest and a missing `.nojekyll`, and rejects a changed Pages parent/non-fast-forward update. It keeps old hashed assets for cached clients and preserves all other files, including dev2, legacy flock, tracker and the other environment. Cleanup is separate work.
+
+`scripts/deploy-pages.mjs` now exports a pure deployment planner, using the existing dependency validator extracted to `scripts/validate-build.mjs`. It performs no shell Git, network calls or publication. The old dev2 worktree/redirect helper is retired. `scripts/verify-deployment.mjs deployment.json` compares every emitted file, including icons/fonts, with the live site. The workflow waits for the exact Pages commit's native build success and retries live hash verification for CDN propagation; failure is a failed deployment check, not a verified release. Download the `flock-deployment-evidence` artifact for source/Pages SHA, destination and file hashes, then record the workflow URL and actual device smoke checks in the issue/quality record. A failed verification does not roll back the already-published commit: diagnose and rerun a known approved source.
+
+Agent repository operations remain connector-only. The committed Actions workflow may use its GitHub API client for its own publication; this is the standard automation entry point, not permission for agents to bypass the connector. Connector discovery currently exposes no workflow-dispatch action. Until that capability exists, start **Deploy Flock** in GitHub Actions; agents must report that limitation rather than use shell git/gh/direct API requests. New workflow_dispatch workflows become available in the Actions UI after the workflow exists on default main; this feature branch is not merged or deployed automatically.
+
+The sections below that describe dev2 staging or the previous allowlisted build workflow are historical. This section supersedes them. Existing approvals and destination/sign-off rules remain in force.
+
+
 ## Buddy behaviour review — 19 October 2026
 
 Branch `buddy_behaviour` starts from main `1ad55f0`. Review F-COMP-001/002/003/007 at public QA levels 20/24/28. Guide a moving flock, stop/reverse it, split it with groups traveling opposite ways, and compare sheep/all cow sizes. Move Pip through Buddy's rear/flank route: Buddy should keep a stable side where space permits, without steering Pip or waiting forever in narrow gates/rotated bridges. Confirm tier-2 final-animal goal help still requires Pip attending and tier-3 stray retrieval stays physical.
@@ -30,7 +52,7 @@ Read [AGENTS.md](../AGENTS.md) before work. It is the current repository-wide po
 
 All branches other than `main` publish to **https://novydhillon.github.io/Flock/dev/** (`dev/` on `gh-pages`). Only `main` publishes to the production root **https://novydhillon.github.io/Flock/**. New non-main publications must not target `dev2/` or the separate legacy `flock/dev/` game. This instruction supersedes older deployment directions and dated release records; existing published builds are not moved by this documentation change.
 
-Read [AGENTS.md](../AGENTS.md) for the standing project rules, including when starting work on older branches. The current staging helper is still hardcoded to `dev2/`: update it to `dev/` before future use or explicitly stage only the intended `dev/` output. Preserve production, existing dev2, legacy paths and unrelated Pages content. Source/build checks and native Pages/live-hash verification remain required for actual publications.
+Read [AGENTS.md](../AGENTS.md) for the standing project rules, including when starting work on older branches. The previous dev2 staging helper is retired. Use the standard checked build commands and Deploy Flock workflow above. Preserve production, existing dev2, legacy paths and unrelated Pages content. Source/build checks and native Pages/live-hash verification remain required for actual publications.
 
 ## GitHub connector and issue archive — 18 October 2026
 
@@ -91,7 +113,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/tree-geometry.test.js` | Welded wood topology, taper, fork areas, intersections and width-dependent normals |
 | `tests/cutaway.test.js` | Camera-ray section fading, pause, hysteresis and material restoration |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
-| `tests/deploy-pages.test.js` | Validated relative assets, canonical staging, redirects and preserved Pages bytes |
+| `tests/deploy-pages.test.js` | Validated relative assets, destination guards, byte-preserving plans and concurrent-publication rejection |
 | `tests/render.test.js` | Geometry, camera matrices, culling, batches and disposal |
 | `tests/nature.test.js` | Wildlife, weather, resource budgets and cleanup |
 | `tests/weather.test.js` | Seeded weather episodes, shared severity, lightning and atmosphere resources |
@@ -111,13 +133,11 @@ Current P2 source candidates include operable gates/stone walls, weather-driven 
 
 ## CI and current publishing behavior
 
-The source branch is `flock_3D_chatgpt-work`. [The workflow](../.github/workflows/deploy-dev2.yml) installs dependencies, checks documentation/tests, builds release and verifies QA exclusion, then builds the development game and verifies QA inclusion before uploading `dist/`. Its artifact upload **does not publish Pages**. GitHub Pages uses the separate `gh-pages` branch and its native deployment workflow.
+Every source branch except `gh-pages` runs [source CI](../.github/workflows/deploy-dev2.yml). Despite its historical filename, this workflow now calls the shared checked build script and uploads `flock-dev-standalone` for feature branches or `flock-production-standalone` for main. Uploading an artifact does not publish Pages.
 
-F-025 is complete. The helper stages the game under `dev2/` for **https://novydhillon.github.io/Flock/dev2/** and replaces `flock/dev2/` with a redirect preserving query/fragment. It validates the emitted relative asset dependency graph before changing a Pages worktree, rejects unsafe/missing assets and build symlinks, and preserves existing root `.nojekyll` bytes. It uses a locally fetched `origin/gh-pages` and never fetches, commits or pushes.
+The manual [Deploy Flock workflow](../.github/workflows/deploy-pages.yml) performs checked builds and scoped publication to `gh-pages`, waits for the native Pages build and verifies live file hashes. Use the standard commands/runbook above. `npm run dev` and development builds enable QA; release builds exclude it through `scripts/check-build-mode.mjs`.
 
-The verified migration Pages commit is `baca95c7ba618d736730194b433254bf5058dd66`: all 15 game files and the redirect were hash-verified, and 17 unrelated blobs stayed unchanged. The live migration contains the preceding game revision; do not infer that the new P1 source batch is deployed. See [validation evidence](validation/P0-P1.md).
-
-`npm run dev` and `npm run build:dev` enable QA; normal `npm run build` removes the dynamic QA branch/module and its mutation handlers. CI packages the checked development build after checking both modes. `node scripts/check-build-mode.mjs release` rejects QA chunks/signatures in a release artifact; `node scripts/check-build-mode.mjs development` requires the QA JavaScript/CSS and expected entry/export signatures. For a development publication, use the checked final `build:dev` artifact.
+Historical F-025 migration evidence remains in [P0/P1 validation](validation/P0-P1.md). Its worktree/redirect staging procedure is retired; it is not a current command.
 
 The isolated QA panel supports level jumps, test bolts, session reset and scenario export. Animal selection and coordinate positioning are temporarily hidden; the panel can be closed with its × button or Resume.
 
@@ -132,11 +152,11 @@ flowchart TD
 
 ## Release checklist
 
-1. Read the latest issue/requirements decisions and fetch source and `gh-pages`. Require a clean intended source revision; do not overwrite another publisher's newer Pages head.
-2. Pass relevant tests and both build modes when QA is affected. Rebuild the intended final distribution (`build:dev` for this development game); inspect QA presence/absence in each bundle. Stage only the intended `dev/` output. Preserve the root, existing `dev2/`, `flock/` and unrelated content. Do not alter saved profile keys.
-3. Review the Pages-tree diff against the latest parent. Verify relative asset paths and the `/Flock/` repository URL prefix. Record the source SHA associated with the build.
-4. Commit/push Pages with a checked expected parent/ref. Wait for successful native Pages deployment, not just successful source CI.
-5. Fetch the new live HTML and every generated asset; compare bytes/hashes with the build. Run real-browser smoke checks when available. Record Pages SHA, workflow result, canonical URL and any validation limits.
+1. Read current requirements/tracker and select the approved source branch/revision through the connector. Production requires user authorization and main.
+2. Use `npm run build:checked:dev` or `npm run build:checked:production` for local preparation. Do not alter saved profile keys.
+3. Start **Deploy Flock** with the matching branch/environment and explicit production confirmation where applicable. Report missing connector dispatch/secret setup rather than bypassing the standard process.
+4. Wait for the workflow's native Pages and live-hash verification steps to succeed. A source artifact upload is insufficient.
+5. Download the evidence artifact and record source SHA, Pages SHA, workflow URL/result, destination and verification limits. Perform applicable device smoke checks; preserve sign-off separation.
 
 Documentation HTML is a repository deliverable in `docs/html/`; it is not automatically copied into the game build or published as another Pages site. A future hosted docs URL needs an explicit publishing location and preserved-content review.
 
@@ -187,9 +207,8 @@ With a moving flock, watch animals ahead of the centroid: they should continue i
 
 ## Production root publication
 
-`main` is the production source branch; `flock_3D_chatgpt-work` remains development. Source CI checks both branches independently. For the root [Flock game](https://novydhillon.github.io/Flock/), use a clean `npm run build -- --emptyOutDir` and verify release QA exclusion. Replace root `index.html` and its generated `assets/` only in a fresh Pages worktree. Preserve `dev2/`, legacy `flock/`, workflows and other unrelated files. The normal staging helper still targets development; do not use its `dev2/` output for a root release. Verify every production artifact and canonical root HTML after successful native Pages deployment.
+`main` is the only production source. After explicit user approval and merge, run **Deploy Flock** on main with environment `production` and confirmation `deploy-production`. The shared checked production build excludes QA. Publication preserves development/legacy/tracker paths and old hashed assets, then waits for native Pages and verifies all emitted live bytes. See the standard delivery runbook above; do not use the retired Pages worktree helper. Main source CI uploads `flock-production-standalone`; non-main CI uploads `flock-dev-standalone`.
 
-Main CI uploads `flock-production-standalone` immediately after the verified production build. The QA build step is skipped on `main`; development CI continues to build and upload `flock-dev2-standalone`.
 ## F-051 HUD smoke checks and workflow
 
 Use the least expensive suitable model at medium effort for routine implementation and independent reviews, escalating only with evidence. Keep fresh critics unaware of implementation reasoning and prior scores. Flock changes require at least 9/10 blind review, current requirements/context/tracker/validation records, generated HTML checks, full regressions and both artifact-mode checks before development publication. Publish the checked QA build to `dev/` from the requested non-main feature branch; preserve production root and unrelated Pages files, wait for CI/native Pages success, then verify live hashes. Production main changes require the separate release instruction.
@@ -245,3 +264,10 @@ F-065: `herd_turning_visual` contains the isolated renderer-only turn-rate/pivot
 F-COMP-009: with Buddy tiers1/2/3 active on public QA20/24/28, leave his selected group by more than18m, then approach within14m. Try staying nearby on the opposite river bank or behind a closed fence/gate, then return through an opening. Buddy should patrol the group's perimeter and contain its current area while unattended, then resume ordinary support when Pip returns. A tree alone should not trigger barrier separation. Compare mixed sheep/all cow sizes, wider groups, splits/merges, no Buddy, stray retrieval and already committed bridge crossings.
 
 Watch stationary grass/bush livestock lower their heads after roughly seven seconds. Buddy's passing patrol must not repeatedly spook or translate a calm group. Moving/pressured animals raise their heads; continuous drift does not count as staying in place. Paths, bridge decks and barn floors remain excluded. Pause/resume/background, restart and level jumps must preserve frozen or fresh containment/settling state appropriately. Source tests do not establish native phone motion or FPS. Publication and acceptance are recorded separately.
+
+
+## Natural containment correction smoke checks — 19 October 2026
+
+F-COMP-010: on a large mixed meadow, leave Pip stationary far from Buddy's selected flock. Compare grass and path cases: livestock should settle with varied headings, occasional staggered short steps and extended calm grazing on edible ground. They must remain together locally without becoming a frozen aligned formation or translating continuously. Buddy should alternate deliberate checks and watching pauses rather than circle endlessly; induce a small edge drift and verify useful repositioning. Watch all cow sizes and crowded groups, river/fence edges, already committed crossings, tier-3 retrieval and Pip's return.
+
+Drag/release, cancel and lose touch/pointer capture; Pip must stop promptly without an accidental bark. Unrelated pointer events must not steal the active gesture. Idle Pip must stay put while Buddy moves. Pause, background/resume, restart and QA jumps must freeze or replace transient movement/resting state correctly. Native phone feel/visual diversity remains for Novy's playtest; module metrics are source evidence only. Use the standard checked builds and Deploy Flock workflow above; no custom deployment fallback.

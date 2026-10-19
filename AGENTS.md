@@ -31,14 +31,20 @@ These rules apply to the whole repository. Read this file, `docs/DEVELOPMENT.md`
 - When an issue becomes Done or Closed, move its complete overview row and detailed section, closure date/reason or user acceptance, and related completion evidence from `docs/ISSUES.md` to `docs/ISSUES_CLOSED.md` in the same connector commit. Preserve requirements, evidence links and validation limits; do not leave duplicate active/closed overview entries. Strike through every closed overview cell and the archived title after its ID. Reopening moves the item back to the active tracker and removes strikethrough, with a dated reason.
 - Update affected requirements, system context, development/quality records and generated HTML. Regenerate and check docs before commits. Keep current status clear when historical records remain.
 
+## Standard delivery entry points — 19 October 2026
+
+- Use `npm run build:checked:dev` or `npm run build:checked:production` for release preparation, and `.github/workflows/deploy-pages.yml` (**Deploy Flock**) for authorized publication. Do not write a custom deployment script per task. Follow the current setup, run instructions and evidence requirements in `docs/DEVELOPMENT.md`.
+- The checked-in Actions workflow uses its GitHub API client for publication; agent repository access remains connector-only. If connector workflow dispatch is unavailable, report that the workflow must be started in the Actions UI; do not substitute shell/API calls. Manual production execution still requires user authorization.
+- The old shell Git/dev2 staging helper is retired. `scripts/deploy-pages.mjs` is now a pure plan generator and `scripts/validate-build.mjs` contains dependency validation. Preserve existing Pages content; old hashed assets are intentionally retained.
+
 ## Validation and publishing
 
 - Run meaningful focused checks, then the full regression suite and both release/development builds with their artifact-mode checks for runtime batches. Avoid redundant tests that only restate implementation.
 - Check phone portrait/landscape layouts, smallest supported screens, safe areas, keyboard focus, pause/resume/restart, input cancellation and existing progress when relevant. Record unavailable checks accurately.
 - Effective 18 October 2026 (America/Creston), **every branch other than `main` deploys to `https://novydhillon.github.io/Flock/dev/`**, using `dev/` on `gh-pages`. `main` alone deploys to the production root `https://novydhillon.github.io/Flock/`. Do not publish new non-main builds to `dev2/` or the legacy nested `flock/dev/` path. This overrides older instructions and historical release records.
 - This is a forward-looking destination policy, not authorization to move/delete existing deployments or publish production. Preserve existing `dev2/`, legacy `flock/`, production and unrelated Pages content unless separately authorized. Verify the latest Pages parent before pushing; do not overwrite concurrent publication.
-- Read this instruction from the default branch when starting work on older feature branches. The legacy staging helper currently targets `dev2/`; update its target to `dev/` before using it for a future publication, or prepare the scoped `dev/` tree explicitly. Never follow its obsolete destination unmodified.
-- Source CI upload is not deployment. Wait for source CI and native Pages success, then compare live HTML and all emitted asset hashes against the checked build. Record source SHA, Pages SHA, workflow evidence and verification limits.
+- Read this instruction from the default branch when starting work on older feature branches. Use the standard delivery entry points above; never restore the retired dev2 helper.
+- Source CI upload is not deployment. Wait for source CI (the manual deployment workflow's checked-build step also satisfies source validation) and native Pages success, then compare live HTML and all emitted asset hashes against the checked build. Record source SHA, Pages SHA, workflow evidence and verification limits.
 - Production merge and root publication require user authorization. Production artifacts must exclude all QA UI/code; the QA gear is development-only.
 
 ## Handoff
