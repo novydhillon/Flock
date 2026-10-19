@@ -458,7 +458,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 **Branch:** `buddy_behaviour`
 
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-046 accepted tier behavior; F-048 movement.
 
@@ -470,7 +470,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 **Branch:** `buddy_behaviour`
 
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-COMP-001; F-046 accepted roles.
 
@@ -482,7 +482,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 **Branch:** `buddy_behaviour`
 
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-048 accepted smooth movement; existing Buddy detours.
 
@@ -518,7 +518,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 **Branch:** `buddy_behaviour`
 
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Source completion is separate from publication and user acceptance. Not deployed; phone motion and user sign-off remain pending.
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
 
 **Depends on / preserve:** F-COMP-001; F-COMP-003; accepted standby resets.
 
@@ -659,3 +659,8 @@ Requested integration of main `d2484b9` into planning branch `plan/bird-behaviou
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
 
 
+
+
+## Buddy development publication — 19 October 2026
+
+F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are deployed for review at https://novydhillon.github.io/Flock/dev/ from source `f1e31a6`, Pages `af7333a`. Source CI and native Pages succeeded; all 29 live files hash-match the checked build. Full evidence: [Buddy publication](validation/Buddy-behaviour-publication.json). This supersedes earlier not-deployed statements for this batch. Status remains Review; user playtest/sign-off and native phone motion/FPS validation are pending. Production and all unrelated Pages paths were preserved.

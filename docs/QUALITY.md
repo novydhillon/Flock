@@ -733,3 +733,12 @@ F-067 accepted by Novy 18 October 2026 at 23:15 America/Creston; authorized main
 **Validation limits:** headless source/module and DOM/WebGL substitutes do not establish rendered motion, phone touch feel, arbitrary-layout route completeness or FPS. Vite retains its advisory >500kB chunk warning. Public icon PNGs were recreated locally from the unchanged repository SVG with the existing Inkscape/Pillow process because connector text fetch cannot decode binary blobs; icon files are excluded from source changes and no artifact publication is attempted. Phone smoke scenarios are in DEVELOPMENT.md.
 
 **Final local checks:** all **368 full regression tests passed**. Release and development builds and their QA artifact-mode checks passed after the suite finished (the suite also invokes Vite, so the final builds run sequentially). Generated documentation/link/lifecycle/behavior checks passed after regenerating HTML. Native device/browser inspection and deployment remain pending.
+
+
+## Buddy development publication — 19 October 2026
+
+Novy authorized dev deployment. Runtime source `f1e31a6965859d3af15ff59b5396176b2f2a8a2b` on `buddy_behaviour` passed [source CI](https://github.com/novydhillon/Flock/actions/runs/39295154656). A fresh development build passed QA artifact-mode and emitted-dependency-graph checks. Local runtime/config/package hashes matched the published source; all icon/font files also matched existing repository blobs.
+
+Published only `dev/` through connector Pages commit `af7333ae5288310d64eff913ea3ab45d7faa7aff`, parent `f0a044ff4678d0ec8aff0edd38c2a4f084c90f2e`. Verified 29 build blobs and 65 unchanged blobs outside dev before updating the expected Pages parent. [Native Pages workflow](https://github.com/novydhillon/Flock/actions/runs/39296577670) succeeded. All **29 live HTML/assets matched SHA-256 hashes** at https://novydhillon.github.io/Flock/dev/. Earlier probes during deployment saw missing new assets; final post-publication verification passed for every file.
+
+See [publication manifest](validation/Buddy-behaviour-publication.json) for source/Pages identities and per-file evidence. This supersedes the preceding not-deployed handoff for F-COMP-001/002/003/007. They remain Review, awaiting Novy's phone gameplay/motion sign-off. No main merge or production publication; no native-browser/device motion, touch or FPS claim.
