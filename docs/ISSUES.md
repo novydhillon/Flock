@@ -32,13 +32,13 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
-| F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | Open | F-046 accepted tier behavior; F-048 movement |
-| F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | Open | F-COMP-001; F-046 accepted roles |
-| F-COMP-003 | P2 | Navigation | Progress-aware Buddy obstacle recovery | Open | F-048 accepted smooth movement; existing Buddy detours |
+| F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | In progress | F-046 accepted tier behavior; F-048 movement |
+| F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | In progress | F-COMP-001; F-046 accepted roles |
+| F-COMP-003 | P2 | Navigation | Progress-aware Buddy obstacle recovery | In progress | F-048 accepted smooth movement; existing Buddy detours |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
-| F-COMP-007 | P2 | Behavior | Calm useful Buddy standby | Open | F-COMP-001; F-COMP-003; accepted standby resets |
+| F-COMP-007 | P2 | Behavior | Calm useful Buddy standby | In progress | F-COMP-001; F-COMP-003; accepted standby resets |
 | F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
 | F-HERD-001 | P2 | Behavior | Bounded individual temperaments | Open | Existing wander/bolt and pressure behavior |
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
@@ -454,7 +454,9 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-001 — Buddy gives Pip room to work (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
 
 **Depends on / preserve:** F-046 accepted tier behavior; F-048 movement.
 
@@ -462,7 +464,9 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-002 — More useful Buddy herding positions (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
 
 **Depends on / preserve:** F-COMP-001; F-046 accepted roles.
 
@@ -470,7 +474,9 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-003 — Progress-aware Buddy obstacle recovery (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
 
 **Depends on / preserve:** F-048 accepted smooth movement; existing Buddy detours.
 
@@ -502,7 +508,9 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-007 — Calm useful Buddy standby (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
 
 **Depends on / preserve:** F-COMP-001; F-COMP-003; accepted standby resets.
 
@@ -641,5 +649,6 @@ Root AGENTS.md and DEVELOPMENT.md now require connector-only repository operatio
 Requested integration of main `d2484b9` into planning branch `plan/bird-behaviour` (`6ca2b35`). Main contributes five commits since shared base `5fd8cf5`: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch's planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy's 22:10 approval and is added directly to [Closed issues](ISSUES_CLOSED.md); 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.
 
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
+
 
 
