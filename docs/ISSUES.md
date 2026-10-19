@@ -648,8 +648,10 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 
 **Owner:** Codex
 **Branch:** `feature/pip-icons`
-**Status:** Review. Source implemented; device acceptance and publication pending.
+**Status:** Review. Source implemented and deployed to `/Flock/dev/`; device acceptance pending.
 
 Use the current silver Pip model in a readable closeup, transparent PNG icons in browser and Apple touch sizes, and relative links that work at production and dev paths. Verify dimensions, alpha, build output and docs. Device Home Screen appearance awaits user review.
 
 F-067 validation: all 350 regression tests pass; release/development builds and artifact checks pass; PNG dimensions/alpha and output link existence checked. Exact game head mesh projected with SVGRenderer, simplified material shading. Independent review recorded in QUALITY.md; no iOS device claim.
+
+F-067 development publication authorized 18 October 2026 at 23:03 America/Creston. Runtime source `805025de1f8d354b36783605a1d960adb7821ff5`; source CI [39207762707](https://github.com/novydhillon/Flock/actions/runs/39207762707) passed. Pages `46ce3a75220b372a4cdc67f9bb5f9f9c80924936`, native deployment [39207932067](https://github.com/novydhillon/Flock/actions/runs/39207932067) succeeded; 53 unrelated blobs preserved. See [publication evidence](validation/F-067-publication.json). Still Review pending user/device acceptance.

@@ -708,3 +708,5 @@ Implementation: parent gpt-6.1-sol session (effort setting not exposed). Indepen
 All 350 regressions pass; both build modes and artifact guards pass; documentation build/check passes. PNGs checked for expected dimensions, RGBA range 0–255 and transparent corners. Emitted HTML icon/manifest URLs resolve. SVG portrait visually inspected at 512 pixels: actual silver Pip head, ears, eye band and muzzle centered. SVGRenderer uses simplified lighting without model texture sampling. Browser installation and iOS compositing untested. Browser download failed (truncated download); no native appearance or installability claim.
 
 Follow-up critic: **9/10**, no blocking defects; both findings resolved and dimensions/transparency rechecked. User acceptance remains pending.
+
+F-067 dev publication: source CI 39207762707 and Pages 39207932067 succeeded. All 29 live files SHA-256 match the checked dev build, including HTML, manifest, all icons, fonts and QA assets. Pages 46ce3a7 preserves all 53 unrelated blobs. Device appearance remains pending; see validation/F-067-publication.json.
