@@ -21,9 +21,9 @@ Agent repository operations remain connector-only. The committed Actions workflo
 
 The sections below that describe dev2 staging or the previous allowlisted build workflow are historical. This section supersedes them. Existing approvals and destination/sign-off rules remain in force.
 
-## Claude Code sessions — 19 October 2026
+## Agent instruction files — 19 October 2026
 
-Claude Code loads the root [CLAUDE.md](../CLAUDE.md), which imports [AGENTS.md](../AGENTS.md) and maps its rules onto Claude tools: the `mcp__github__*` connector tools for repository operations, Claude subagents for the blind review gauntlet ([flock-blind-critic](../.claude/agents/flock-blind-critic.md)) and Claude model choices for the AGENTS.md cost defaults. Directory notes in `src/CLAUDE.md`, `tests/CLAUDE.md` and `docs/CLAUDE.md` load when Claude works in those folders. AGENTS.md and this runbook remain binding. Update the Claude files in the same change when a rule here changes.
+[AGENTS.md](../AGENTS.md) is the single instruction file for every coding agent and for people. `CLAUDE.md` (Claude Code) and `GEMINI.md` (Gemini CLI) are symlinks to it at the root and beside the folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. Edit only the `AGENTS.md` files. AGENTS.md also maps the connector rule, the model tiers and the blind review procedure onto each tool. The Claude Code critic definition is [.claude/agents/flock-blind-critic.md](../.claude/agents/flock-blind-critic.md). This replaces the separate Claude guide added earlier the same day. A harness default to `git push` does not override the connector-only rule. Shell git needs an explicit user waiver for a named branch and task, recorded in the tracker item.
 
 ## Standalone tracker publication
 

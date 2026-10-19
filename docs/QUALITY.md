@@ -740,3 +740,17 @@ Review: a fresh critic worked on a history-free isolated copy of the candidate, 
 Validation: `npm run docs:check` passes, and `npm test` passes 341/341, run by the author and independently by the critic. `npm run build:checked:dev` passes. Claude Code mechanics (the `@` import, subagent frontmatter, lazy loading of directory guides) were judged from documentation knowledge, not exercised in a new session.
 
 Delivery: committed with shell git under Novy's one-time waiver (see the F-OPS-002 tracker entry). There was no game deployment. Remains Review pending user sign-off.
+
+### F-OPS-002 shared agent instructions — 19 October 2026
+
+At Novy's request, the separate Claude guide was merged into AGENTS.md, which now serves Codex, Claude Code, Gemini CLI and other agents. `CLAUDE.md` and `GEMINI.md` are symlinks at the root and beside each folder guide. This supersedes the "imports AGENTS.md" approach above. One file avoids two copies of the policy drifting apart. Every existing AGENTS.md rule was kept; per-tool detail moved into tables.
+
+Review: a new fresh critic got a history-free copy of the candidate, the previous AGENTS.md for a rule-by-rule comparison, the task and the acceptance criteria. It scored **9/10** with no material blocker. It confirmed every reference rule is present and not weakened, all eight symlinks resolve, and the commands and source facts match. Three minor findings were fixed:
+- the shell-git waiver sentence is now tied to the user-precedence rule and mirrored in DEVELOPMENT.md;
+- the scratch copy must sit outside the repository;
+- the critic's pinned model can be overridden for escalation.
+
+The Claude and Gemini model names in the tier table are family aliases, not verified model IDs.
+
+Validation: `npm run docs:check` passes, `npm test` passes 341/341, and `npm run build:checked:dev` passes. Nobody has confirmed in live Codex, Claude Code or Gemini CLI sessions that each tool loads the nested symlinks. Models are recorded as described above. Remains Review pending user sign-off.
+
