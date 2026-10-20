@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-OPS-004 | P1 | Delivery | Connector-only Pages fallback when dispatch is unavailable | Review | Existing checked builds and deployment planner |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -703,10 +704,23 @@ F-COMP-009 is deployed at https://novydhillon.github.io/Flock/dev/ from source `
 
 **Source evidence:** individual bounded browse/rest cycles and hard-surface resting turns replace statue-like pinning and shared inherited heading. Buddy now alternates calm checks with 4–7s watching. Lost pointer capture clears Pip input and cannot create a bark; no autonomous Pip orbit was found. Fresh independent movement review scored 9/10 with no material defect; final standard checked build passed 375/375 regressions, both QA build modes and docs checks. Native phone appearance/fun and user sign-off remain pending.
 
-**Publication:** this correction is prepared on `buddy_behaviour`, not yet deployed. The current dev build still predates F-COMP-010. Main's standard delivery tooling is imported. Use Actions → Deploy Flock → branch `buddy_behaviour` → environment `dev`; the connector has no workflow-dispatch operation, and AGENTS.md forbids a custom publisher fallback.
+**Publication:** this correction is prepared on `buddy_behaviour`, not yet deployed. The current dev build still predates F-COMP-010. Main's standard delivery tooling is imported. Historical dispatch limitation: the connector then had no workflow-dispatch operation. Superseded by F-OPS-004: prefer Deploy Flock where available; otherwise use the connector-only gh-pages fallback in DEVELOPMENT.md.
 
 
 
 ## Main integration — 19 October 2026, 17:43 America/Creston
 
 Requested main `7d848bc` into `buddy_behaviour` at `753159a`. The previously incorporated main revision is `3ccc8db`; this update brings ten later main commits with shared agent guides/symlinks, current Actions versions, improved native Pages logging, live delivery evidence and accepted delivery archival. Preserve F-COMP-001/002/003/007/009/010 in Review and their source/publication history. F-OPS-001/002/003 are accepted and remain only in the closed tracker. No runtime source or behavior tests change. Generated HTML, combined validation and independent integration review follow before the connector creates the two-parent merge. This request integrates source only; it does not deploy or merge to production.
+
+
+### F-OPS-004 — Connector-only Pages fallback
+
+**Status:** Review. Owner: Codex. **Branch:** `feature/connector-pages-fallback`.
+
+**Accept when:** Prefer Deploy Flock when connector dispatch exists; otherwise publish the approved checked build using connector Git Data blobs/tree/commit/ref to gh-pages. Preserve destination/production authorization, binary bytes, unrelated files and old assets; reject concurrent updates; wait for exact native Pages success and live hashes. Do not bypass a started/failed workflow.
+
+19 October 2026: Updated root and documentation guides plus current development runbook. Uses existing deploymentPlan and verifier; no runtime/workflow behavior changed. Connector schemas expose base64 blobs, base trees, commits and expected-head non-force ref updates in this session. Documentation checks and independent review are recorded in REVIEW.md. No fallback deployment or production publication is claimed by this policy change; user acceptance remains pending.
+
+## Delivery fallback integration — 19 October 2026
+
+User requested merging fallback changes to main and integrating main into buddy_behaviour. Main PR #18 merged at c35c466; this integration preserves Buddy runtime/tests and all branch-specific tracker/evidence records, resolves append conflicts and regenerates HTML. No Pages publication is included.

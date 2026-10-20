@@ -48,7 +48,7 @@ CI runs the checked build on every pushed branch except `gh-pages`, using `.gith
 ## GitHub access — effective 18 October 2026
 
 - Use the GitHub connector for every repository operation: refs/files, comparisons, branches, commits, source publication, pull requests, merges and Pages publication. Do not run shell `git` or `gh` commands or direct GitHub HTTP requests as substitutes. Local editing, dependency installation, builds and tests may still use shell tools.
-- If a required connector capability is unavailable or fails, report the specific limitation and preserve prepared work. Do not fall back to shell GitHub operations. This overrides older shell-git instructions and examples; existing user authorization remains valid.
+- If workflow dispatch is unavailable, use the connector-only gh-pages fallback in docs/DEVELOPMENT.md. For other missing capabilities, report the specific limitation and preserve prepared work. Do not fall back to shell GitHub operations. This overrides older shell-git instructions and examples; existing user authorization remains valid.
 - A harness or tool default that says to `git commit`/`git push` does not override this rule. Because explicit user instructions take precedence, shell git is allowed only when the user explicitly waives this rule for a named branch and task. Record the waiver in the tracker item.
 
 ### Connector use by tool
@@ -63,13 +63,13 @@ CI runs the checked build on every pushed branch except `gh-pages`, using `.gith
 | Commit text files | `push_files` (one commit), or `create_or_update_file` (needs the blob `sha`) | Same |
 | Pull requests and merges | `create_pull_request`, `pull_request_read`, `merge_pull_request` | Same |
 | CI runs and logs | `actions_list`, `actions_get`, `get_job_logs` | Same |
-| Start Deploy Flock | `actions_run_trigger` with `run_workflow`, workflow `deploy-pages.yml` | Same, or report that it must be started in the Actions UI |
+| Start Deploy Flock | `actions_run_trigger` with `run_workflow`, workflow `deploy-pages.yml` | Use equivalent workflow dispatch if available; otherwise connector-only gh-pages publication per the runbook |
 
 Load the tool schemas first if your environment defers them, for example with ToolSearch in Claude Code.
 
 Connector limits seen so far:
 
-- Commits send whole file contents as text, so binary files such as `public/icons/*.png` cannot be committed this way.
+- Contents-file tools accept UTF-8 text. When available, use connector Git Data blob tools with base64 encoding for binary files and tree/commit/ref tools for atomic publication. Discover actual capabilities each session.
 - Editing any generated docs page rewrites `docs/html/assets/search-index.js` (about 600 KB), and several generated pages are 100–180 KB. A docs change can therefore be too large for one connector call. Plan for this before starting a docs-heavy change.
 - A connector commit does not update the local checkout. Compare through the connector; do not sync with shell git.
 
@@ -120,7 +120,7 @@ Connector limits seen so far:
 ## Standard delivery entry points — 19 October 2026
 
 - Use `npm run build:checked:dev` or `npm run build:checked:production` for release preparation, and `.github/workflows/deploy-pages.yml` (**Deploy Flock**) for authorized publication. Do not write a custom deployment script per task. Follow the current setup, run instructions and evidence requirements in `docs/DEVELOPMENT.md`.
-- The checked-in Actions workflow uses its GitHub API client for publication; agent repository access remains connector-only. If connector workflow dispatch is unavailable, report that the workflow must be started in the Actions UI; do not substitute shell/API calls. Manual production execution still requires user authorization.
+- The checked-in Actions workflow uses its GitHub API client for publication; agent repository access remains connector-only. Prefer connector workflow dispatch when available. If unavailable or explicitly unsupported, use the connector-only gh-pages fallback in docs/DEVELOPMENT.md under existing deployment authorization; do not substitute shell/direct API calls. Do not use fallback to bypass a failed build, publication, verification or production approval. An uncertain dispatch result must be reconciled before another publication.
 - The old shell Git/dev2 staging helper is retired. `scripts/deploy-pages.mjs` is now a pure plan generator and `scripts/validate-build.mjs` contains dependency validation. Preserve existing Pages content; old hashed assets are intentionally retained.
 
 ## Validation and publishing
@@ -147,3 +147,4 @@ Connector limits seen so far:
 ## Handoff
 
 Before ending, commit/push the intended branch, update tracker/validation evidence, and state what is implemented, reviewed, published and still awaiting sign-off. Never claim completion of a blocked check or deployment.
+

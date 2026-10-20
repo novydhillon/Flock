@@ -466,3 +466,8 @@ F-COMP-009: Novy requests that Buddy contain the selected flock in its current a
 ## Natural containment correction — 19 October 2026
 
 F-COMP-010 addresses Novy's phone report: contained herd members synchronize facing and freeze while a robot dog circles. Replace rigid individual pinning and endless uniform circling with bounded individual settling/shuffling/orientation and purposeful calm Buddy edge checks/rest. Keep the flock locally contained with no net travel drive and preserve seven-second surface-aware grazing. Investigate Pip/input motion separately, retaining direct player control.
+
+
+## F-OPS-004 — Connector deployment fallback
+
+Prefer the standard Deploy Flock workflow where connector dispatch is available. Missing/unsupported dispatch permits connector-only atomic gh-pages publication of the approved checked build through the existing planner, with byte-preserving blobs, existing-tree preservation, expected-head non-force update, exact native Pages success and live SHA-256 checks. Keep production approval/main-only and non-main dev-only rules. Failed workflow checks cannot trigger this fallback.
