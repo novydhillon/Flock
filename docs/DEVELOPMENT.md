@@ -17,9 +17,37 @@ The existing checks workflow now covers every source branch except `gh-pages` an
 
 `scripts/deploy-pages.mjs` now exports a pure deployment planner, using the existing dependency validator extracted to `scripts/validate-build.mjs`. It performs no shell Git, network calls or publication. The old dev2 worktree/redirect helper is retired. `scripts/verify-deployment.mjs deployment.json` compares every emitted file, including icons/fonts, with the live site. The workflow waits for the exact Pages commit's native build success and retries live hash verification for CDN propagation; failure is a failed deployment check, not a verified release. Download the `flock-deployment-evidence` artifact for source/Pages SHA, destination and file hashes, then record the workflow URL and actual device smoke checks in the issue/quality record. A failed verification does not roll back the already-published commit: diagnose and rerun a known approved source.
 
-Agent repository operations remain connector-only. The committed Actions workflow may use its GitHub API client for its own publication; this is the standard automation entry point, not permission for agents to bypass the connector. Agents start **Deploy Flock** with the connector's workflow dispatch (`actions_run_trigger`, method `run_workflow`), as mapped in AGENTS.md. If that capability is missing or fails, report that the workflow must be started in the Actions UI; never use shell git/gh/direct API requests instead. The workflow is on main and dispatchable for any branch.
+Agent repository operations remain connector-only. The committed Actions workflow may use its GitHub API client for its own publication; this is the standard automation entry point, not permission for agents to bypass the connector. Agents start **Deploy Flock** with the connector's workflow dispatch (`actions_run_trigger`, method `run_workflow`), as mapped in AGENTS.md. If that capability is missing or explicitly unsupported, use the connector-only gh-pages fallback below. For an ambiguous dispatch response, first inspect runs to avoid duplicate publication. Never use shell git/gh/direct API requests instead. The workflow is on main and dispatchable for any branch through integrations that expose dispatch.
 
 The sections below that describe dev2 staging or the previous allowlisted build workflow are historical. This section supersedes them. Existing approvals and destination/sign-off rules remain in force.
+
+## Connector-only gh-pages fallback — 19 October 2026
+
+This section supersedes earlier instructions requiring an Actions UI handoff when dispatch is unavailable. Prefer **Deploy Flock** whenever the session exposes workflow dispatch. User deployment authorization carries over to this fallback; it does not authorize another source, destination, production merge or release. Use it only when dispatch is absent or explicitly unsupported. A workflow that starts and fails must be diagnosed, not bypassed. If a dispatch request times out or its result is uncertain, inspect recent runs for the selected source before proceeding. Do not race an active deployment.
+
+1. Discover connector capabilities. The fallback requires reading refs/trees, creating blobs (including base64 binary content), creating trees and commits, and updating a ref with an expected head plus non-force/fast-forward protection. If any required capability is absent, preserve prepared work and report the precise limitation. Shell git/gh and direct GitHub HTTP requests remain prohibited.
+2. Read the approved source branch head through the connector and pin its full SHA. Materialize that exact revision locally through connector reads, including binary assets; do not mix revisions. Run `npm ci` and the shared checked build (`npm run build:checked:dev` for non-main; `npm run build:checked:production` for approved main). Require all checks to pass and successful source CI for that pinned SHA before publication. The checked build verifies QA inclusion/exclusion; artifact upload alone is not publication.
+3. Use the existing `deploymentPlan` export from `scripts/deploy-pages.mjs` to prepare the file list from that checked `dist/`. No replacement publisher is needed. Set `FLOCK_SOURCE_BRANCH` and `FLOCK_SOURCE_SHA` to the connector-read values and `FLOCK_DEPLOY_ENV` to `dev` or `production`, then run locally:
+
+```sh
+node --input-type=module <<'NODE'
+import { writeFileSync } from 'node:fs';
+import { deploymentPlan } from './scripts/deploy-pages.mjs';
+const plan = deploymentPlan({
+  environment: process.env.FLOCK_DEPLOY_ENV,
+  branch: process.env.FLOCK_SOURCE_BRANCH,
+  sourceSha: process.env.FLOCK_SOURCE_SHA,
+});
+writeFileSync('deployment.json', JSON.stringify(plan, null, 2) + '\n');
+NODE
+```
+
+4. Read current `gh-pages` head and its tree through the connector. Upload plan file contents as blobs using `encoding: base64`, preserving bytes, then create a tree based on that exact existing tree. Include only the plan’s file paths, an environment manifest (`dev/.flock-deployment.json` or root `.flock-deployment.json`), and an empty `.nojekyll` only if missing. The manifest records environment, branch, source SHA, URL and file paths/hashes; omit base64 payloads. Keep every unrelated entry and old hashed asset. Never replace the whole tree or delete old files. Non-main plans must write only under `dev/`; main production plans must preserve dev, dev2, flock, tracker and unrelated root files.
+5. Inspect the candidate diff/scope. Create a commit with the captured Pages head as its sole parent. Re-read `gh-pages`; if it changed, rebuild the candidate on the new head and recheck scope. Update the ref with `expected_sha` equal to the captured head and `force: false`. A lease/non-fast-forward rejection requires a fresh read and candidate review, never a forced retry. The single ref update publishes the complete tree atomically. Uploaded unreferenced blobs/commits do not publish anything.
+6. Record the returned Pages commit SHA in local `deployment.json` as `pagesSha`. Wait for the native Pages run for that exact SHA to succeed. Run `node scripts/verify-deployment.mjs deployment.json`; retry CDN propagation mismatches for up to ten minutes. A failed native build or hash check is an unverified deployment, not success, and does not roll back the published commit. Diagnose before retrying an approved revision.
+7. Record fallback reason, source SHA, Pages parent/SHA, destination, native Pages run URL/result, file hashes and live verification results in the issue/publication record. There is no Deploy Flock run/evidence artifact for this path; preserve the local plan/evidence in the source branch record without claiming one. Report device checks separately. Leave source completion, deployment and user acceptance distinct.
+
+Both routes use the same checked builds, deployment planner, destination guards and live verifier. Production still requires explicit approval and main. This fallback changes the transport through the existing connector, not the release gates.
 
 ## Deploy Flock first live run — 19 October 2026
 
@@ -29,7 +57,7 @@ Findings and fixes from that run:
 
 - Both workflows used actions that target Node.js 20, and the runner warned that it was forcing them onto Node.js 24. They now use `actions/checkout@v5`, `actions/setup-node@v5`, `actions/github-script@v8` and `actions/upload-artifact@v6`.
 - The native Pages status turns `built` a few seconds before its deploy job finishes. The live-hash retry already covers that gap, but the wait loop printed nothing, so a timeout could not be diagnosed. Each attempt now logs the native build status and any failed live verification.
-- The connector does expose workflow dispatch. The runbook above now says so.
+- That session’s connector exposed workflow dispatch. Capabilities vary by integration/session; discover them rather than assuming the same action exists everywhere.
 
 The fixed revision `032f03e` redeployed cleanly in run [39328751422](https://github.com/novydhillon/Flock/actions/runs/39328751422) with no deprecation warning. Evidence: [validation/F-OPS-003-dev-publication.json](validation/F-OPS-003-dev-publication.json).
 
@@ -165,9 +193,9 @@ flowchart TD
 
 1. Read current requirements/tracker and select the approved source branch/revision through the connector. Production requires user authorization and main.
 2. Use `npm run build:checked:dev` or `npm run build:checked:production` for local preparation. Do not alter saved profile keys.
-3. Start **Deploy Flock** with the matching branch/environment and explicit production confirmation where applicable. Report missing connector dispatch/secret setup rather than bypassing the standard process.
-4. Wait for the workflow's native Pages and live-hash verification steps to succeed. A source artifact upload is insufficient.
-5. Download the evidence artifact and record source SHA, Pages SHA, workflow URL/result, destination and verification limits. Perform applicable device smoke checks; preserve sign-off separation.
+3. Start **Deploy Flock** with the matching branch/environment and explicit production confirmation where applicable. If connector dispatch is unavailable, use the connector-only fallback above. A missing workflow secret is a setup failure, not a reason to bypass the workflow.
+4. For the workflow route, require its native Pages and live-hash steps to succeed. For fallback, require the native Pages run for the exact Pages SHA plus the local live-hash verifier to succeed. A source artifact upload is insufficient.
+5. For the workflow route, download its evidence artifact and record the workflow URL/result. For fallback, retain the local deployment plan/file hashes and native Pages run URL/result instead; do not claim a workflow evidence artifact. Both routes record source SHA, Pages SHA, destination and verification limits. Perform applicable device smoke checks; preserve sign-off separation.
 
 Documentation HTML is a repository deliverable in `docs/html/`; it is not automatically copied into the game build or published as another Pages site. A future hosted docs URL needs an explicit publishing location and preserved-content review.
 

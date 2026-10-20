@@ -28,3 +28,8 @@ These notes add to the root [AGENTS.md](../AGENTS.md). They cover editing `docs/
 - Append dated sections (`— 19 October 2026`, America/Creston) and state clearly which statement is current. Do not rewrite historical evidence. Mark it superseded instead.
 - `docs/QUALITY.md` records runtime batches: branch, base, models and effort, approach, checks with counts, review scores and findings, and validation limits. `docs/REVIEW.md` records documentation reviews. `docs/validation/*.json` holds publication evidence: source SHA, Pages SHA, workflow runs and file hashes.
 - Keep source completion, review, publication and user acceptance as separate milestones. Never describe headless or DOM checks as rendered, device or listening evidence.
+
+
+## Deployment runbook consistency — 19 October 2026
+
+Keep the preferred Deploy Flock workflow and connector-only gh-pages fallback aligned in the root guide and DEVELOPMENT.md. Missing dispatch permits the fallback under existing authorization; failed checks do not. Preserve destination guards, binary bytes, unrelated Pages paths, expected-head atomic updates and native/live-hash verification. Record actual connector capabilities and route used.

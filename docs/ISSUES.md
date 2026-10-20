@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-OPS-004 | P1 | Delivery | Connector-only Pages fallback when dispatch is unavailable | Review | Existing checked builds and deployment planner |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -44,8 +45,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
 | F-HERD-003 | P2 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
 | F-HERD-004 | P2 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | Review | Existing gate/bridge traversal; F-065 |
-| F-WORLD-001 | P2 | World generation | Room to breathe between the last bridge and the gate for large herds | Review | F-HERD-005 findings; F-038 |
 | F-HERD-006 | P2 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
 | F-HERD-007 | P2 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
 | F-HERD-008 | P2 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
@@ -410,35 +409,6 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.
 
-### F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)
-
-**Status:** Review. Owner: Claude Code. Source complete; blind review 9/10 after fixes (see [QUALITY.md](QUALITY.md#f-herd-005-and-f-world-001--crossing-bottlenecks-20-october-2026)); awaiting device smoke checks and user sign-off.
-
-**Branch:** `feature/herd-bottlenecks`
-
-**Depends on / preserve:** Existing gate/bridge traversal; F-065.
-
-**Accept when:** Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.
-
-**Investigation — 20 October 2026:** A scripted player herded seeded levels 6–81 (20–65 animals, all cow sizes) while every bridge, gate and pen entrance recorded reversals (forward-to-backward turns in the approach) and stalls under pressure. 144 runs compared the current game with wider openings, more spacing and a smaller personal-space radius. Findings: herds rarely stall (under 0.2 s per animal) but reverse repeatedly in the last metres before a bridge deck: about 1.9 reversals per animal on levels 6–13 and 5.4 at the second bridge on levels 16+, worst 23. Bridges, not gates, are the bottleneck. No animal reversed once on a deck, so committed crossing works. The strongest backward forces at a reversal were the fixed 2 m separation radius, convergence of every pressured animal on the bridge centre (`openingSteer`), cohesion and player pressure. Wider decks and a smaller separation radius each cut the worst bridge by about 25%; extra spacing mainly helped the gate. The approved fix is behavioural (lanes, yielding, an approach commit zone, a deadlock escape), with spacing tracked separately as F-WORLD-001. Scripted-player counts are directional; they are not human playtesting or device evidence.
-
-**Connector waiver — 20 October 2026:** Regenerated docs HTML (about 600 KB) is too large for the connector. Novy explicitly authorized shell `git commit`/`git push` for F-HERD-005 and F-WORLD-001 on the new branch `feature/herd-bottlenecks`. The connector-only rule stays in force for other work.
-
-**Execution — 20 October 2026:** Implemented in `src/chokepoints.js`, `src/bridge-crossing.js`, `src/simulation.js` and `openingSteer` in `src/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
-
-| Measure (mean per animal, finished runs) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
-|---|---|---|---|---|
-| Layouts finished | 12/12 | 11/12 | 17/24 | 21/24 |
-| Median time to finish | 95 s | 83 s | 264 s | 242 s |
-| First bridge reversals | 1.70 | 0.77 | 2.03 | 1.34 |
-| Last bridge reversals | 1.70 | 0.77 | 4.85 | 2.44 |
-| Worst bridge reversals in any layout | 2.66 | 1.66 | 14.42 | 9.35 |
-| Last bridge stalled seconds | 0.12 | 0.03 | 0.21 | 0.14 |
-| Gate reversals | 1.13 | 1.36 | 0.66 | 0.23 |
-| Gate stalled seconds | 0.02 | 0.02 | 0.04 | 0.01 |
-| Entrance reversals | 0.38 | 0.80 | 1.01 | 1.23 |
-
-These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Queuing applies only to openings narrower than 9 m: bridge decks, the 7 m destination entrance and the 8 m gates of levels 3–5. The 10 m gates from level 6 measured better with normal flocking (an all-openings version scored 2.13 gate reversals on levels 6–13). Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 (1.13 → 1.36) and entrance reversals rose slightly, with stalls under 0.1 s per animal; a version without entrance queuing failed two existing journey tests. Unfinished runs in both columns are scripted-player failures, not herd stalls: in the checked cases the flock rests past every bridge and the gate while Pip dithers or paths back and forth behind it (level 10 default: Pip oscillates 14 m behind the gate from 80 s).
 ### F-HERD-006 — Readable relaxation and settling (P2)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
@@ -665,14 +635,10 @@ Requested integration of main `d2484b9` into planning branch `plan/bird-behaviou
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
 
 
-### F-WORLD-001 — Room to breathe between crossings (P2)
+### F-OPS-004 — Connector-only Pages fallback
 
-**Status:** Review. Owner: Claude Code. Source complete with F-HERD-005; awaiting device smoke checks and user sign-off.
+**Status:** Review. Owner: Codex. **Branch:** `feature/connector-pages-fallback`.
 
-**Branch:** `feature/herd-bottlenecks`
+**Accept when:** Prefer Deploy Flock when connector dispatch exists; otherwise publish the approved checked build using connector Git Data blobs/tree/commit/ref to gh-pages. Preserve destination/production authorization, binary bytes, unrelated files and old assets; reject concurrent updates; wait for exact native Pages success and live hashes. Do not bypass a started/failed workflow.
 
-**Depends on / preserve:** F-HERD-005 findings; F-038 (larger fields) remains the broader layout item.
-
-**Execution — 20 October 2026:** `createLevel` adds 0.4 m of trail per animal above 30 (capped at 14 m) before the gate on non-early levels, keeping rivers at the same distance from the spawn. The last bridge exit to gate distance on 50–65 animal levels grows from about 22 m to 28–37 m; single-river levels 6–15 already have 41–49 m; levels 1–5 are unchanged. Measured gate reversals on levels 16–81 fell from 0.65 to 0.29 per animal with stalls 0.06 → 0.02 s (see F-HERD-005).
-
-**Accept when:** On levels with large herds, the trail distance between the last bridge exit and the gate grows with herd size so a flock can leave the deck before reaching the gate. Spawn-to-first-river distance and early levels (1–5) stay unchanged. Generated routes keep full-body clearance for the largest cow and stay connected with gates open or closed. Seeded route sweeps, existing journeys and bridge regressions pass, and the chokepoint measurement shows lower gate reversals without new stalls. No teleporting or collision bypass.
+19 October 2026: Updated root and documentation guides plus current development runbook. Uses existing deploymentPlan and verifier; no runtime/workflow behavior changed. Connector schemas expose base64 blobs, base trees, commits and expected-head non-force ref updates in this session. Documentation checks and independent review are recorded in REVIEW.md. No fallback deployment or production publication is claimed by this policy change; user acceptance remains pending.

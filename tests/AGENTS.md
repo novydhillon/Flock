@@ -1,5 +1,7 @@
 # Test notes
 
+Deployment follows the root guide: prefer Deploy Flock dispatch; if unavailable, use the connector-only gh-pages fallback in docs/DEVELOPMENT.md with unchanged build, authorization and verification gates.
+
 These notes add to the root [AGENTS.md](../AGENTS.md) for work in `tests/`.
 
 - Tests use the built-in Node runner (`node:test` and `node:assert`) with no framework. `npm test` runs `tests/*.test.js`. Run one file with `node --test tests/<name>.test.js`.

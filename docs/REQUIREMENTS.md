@@ -16,6 +16,8 @@ Run the standard checked build and **Deploy Flock** for real on a fresh branch f
 
 ## F-HERD-005 and F-WORLD-001 — Herd bottlenecks at crossings
 
+Accepted by Novy on 19 October 2026, 21:03 America/Creston, after testing on dev. The closed tracker holds the acceptance record.
+
 Animals approaching a bridge deck or gate take lanes and yield rather than surging and reversing. Separation must not push an animal backward against its flock's travel near an opening. A short commit zone before the deck carries pressured animals onto it, and bounded yielding ends in a deadlock escape. The player can still deliberately turn a flock back before the commit zone. F-WORLD-001 lengthens the stretch between the last bridge and the gate as herds grow, without changing early levels.
 
 
@@ -461,3 +463,8 @@ Requested for tracking, not implemented. F-UI-001–012 in [the tracker](ISSUES.
 ## Pip app identity (F-067)
 
 Use a closeup of the current silver Pip head for browser favicons and iOS Home Screen artwork. Use a solid grass-green artwork background (`#779c4d`), superseding the initial transparency request on 18 October 2026. Supply SVG plus 16/32/48/96/120/152/167/180/192/512-pixel PNGs; link Apple touch sizes explicitly and provide a relative-scope manifest. Preserve game progression and runtime behavior. Native iOS may composite transparent artwork; verify final Home Screen appearance on device.
+
+
+## F-OPS-004 — Connector deployment fallback
+
+Prefer the standard Deploy Flock workflow where connector dispatch is available. Missing/unsupported dispatch permits connector-only atomic gh-pages publication of the approved checked build through the existing planner, with byte-preserving blobs, existing-tree preservation, expected-head non-force update, exact native Pages success and live SHA-256 checks. Keep production approval/main-only and non-main dev-only rules. Failed workflow checks cannot trigger this fallback.

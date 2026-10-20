@@ -1,5 +1,7 @@
 # Runtime source notes
 
+Deployment follows the root guide: prefer Deploy Flock dispatch; if unavailable, use the connector-only gh-pages fallback in docs/DEVELOPMENT.md with unchanged build, authorization and verification gates.
+
 These notes add to the root [AGENTS.md](../AGENTS.md) for work in `src/`. [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) holds the full module map and contracts. The system pages in `docs/systems/` hold API detail.
 
 ## Reading these files

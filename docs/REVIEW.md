@@ -1,5 +1,9 @@
 # Documentation review record
 
+## F-OPS-004 — Connector-only deployment fallback — 19 October 2026
+
+Implementation: gpt-6.1-sol, medium effort. Fresh isolated reviewer (inherited session model/effort) received only task, acceptance criteria and candidate path, without writer reasoning or prior scores. Initial review: 9/10, no material blocker. Minor findings: release checklist still assumed workflow evidence after selecting fallback; source CI success for the pinned SHA should be explicit. Both corrected; same critic follow-up: 10/10 for documentation, no remaining findings. Documentation checks pass (13 pages, 1,587 local links/anchors, nine diagrams, four DOM tests); all ten existing deployment planner/publisher tests pass. No new runtime code or workflow behavior changed. Connector schemas inspected for base64 blobs, base trees, commit parent and expected-head/non-force ref update; no actual fallback publication, live verification, concurrency race or device test was performed. User acceptance remains pending.
+
 ## Minimal HUD and Level-number animation — 18 October 2026
 
 Fresh isolated `gpt-6.1-sol` medium critic received task/candidate/acceptance criteria without writer reasoning or earlier scores. Result: 9.2/10, no material defect, 97 focused UI/layout/progression/Buddy/delivery/QA checks passed. It checked active-time fade/scale and pause/restart lifecycle, retained rewards and transparent weather/count HUD. Actual Outfit font metrics and CSS geometry support narrow/short-landscape fit. No browser pixels, physical phone/touch/safe-area or FPS validation is claimed.
