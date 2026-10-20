@@ -18,7 +18,7 @@ function openings(level) {
   return list;
 }
 function buildOpenings(level) {
-  const bridges = (level.rivers || []).flatMap(r => r.bridges).map(b => ({ x: b.x, z: b.z, heading: b.heading, width: b.width, half: b.length / 2 }));
+  const bridges = (level.rivers || []).flatMap(r => r.bridges).map(b => ({ bridge: b, x: b.x, z: b.z, heading: b.heading, width: b.width, half: b.length / 2 }));
   const gates = (level.gates || []).filter(g => !g.operable || g.open).map(g => ({ x: g.x, z: g.z, heading: g.heading, width: g.width, half: 0 }));
   // The destination entrance is approached from outside only.
   const shape = level.target && targetFootprint(level.target);
@@ -39,7 +39,7 @@ export function chokeApproach(level, body, radius = animalRadius(body)) {
     if (best && outside >= best.outside) continue;
     const side = Math.sign(u) || 1, limit = Math.max(0, o.width / 2 - radius - .35), lane = Math.max(-limit, Math.min(limit, v));
     const inward = { x: -f.x * side, z: -f.z * side };
-    best = { opening: o, outside, inward, lateral: v, lane,
+    best = { opening: o, outside, inward, side, lateral: v, lane,
       mouth: { x: o.x + f.x * side * o.half + f.z * lane, z: o.z + f.z * side * o.half - f.x * lane } };
   }
   return best;
@@ -51,6 +51,10 @@ export function chokeApproach(level, body, radius = animalRadius(body)) {
 export function yieldAtOpening(level, animal, old, snapshot, desired, intent, separation) {
   const radius = animalRadius(animal), approach = chokeApproach(level, old, radius);
   if (!approach || intent.x * approach.inward.x + intent.z * approach.inward.z <= .05) { delete animal.chokeYield; return desired; }
+  // Being pushed back toward a deck it already crossed gets no queuing help,
+  // so shoving a flock to and fro across a river cannot set up an oscillation.
+  const last = animal.lastBridge;
+  if (last && last.bridge === approach.opening.bridge && -approach.side !== last.sign) { delete animal.chokeYield; return desired; }
   const dir = approach.inward;
   let { x, z } = desired;
   // Crowd separation may spread animals sideways but not push them back out.
