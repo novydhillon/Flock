@@ -3,6 +3,7 @@ import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } fr
 import { createLevel, canOccupy, moveBody, openingSteer, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
 import { flockGroups, updateBuddy } from './buddy.js';
 import { bridgeCrossing } from './bridge-crossing.js';
+import { yieldAtOpening } from './chokepoints.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
@@ -367,6 +368,14 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
         desiredZ = (home.z + Math.cos(level.time * .19 + phase) * 1.4 - old.z) * .35 + sz * .2;
       }
     }
+    if (pressure > 0.03 && !crossing && !holding && !animal.wanderHome && !wander?.bolting) {
+      // Queue at bridge mouths and open gates instead of surging and reversing.
+      // Only direct Pip/Buddy pressure counts: a flock's travel direction can
+      // point back across a river it straddles.
+      const help = buddyActivelyHerding ? buddy.forces.get(animal.id) : null;
+      const intent = { x: (dogActivelyHerding ? playerSignal.x : 0) + (help?.x || 0), z: (dogActivelyHerding ? playerSignal.z : 0) + (help?.z || 0) };
+      ({ x: desiredX, z: desiredZ } = yieldAtOpening(level, animal, old, snapshot, { x: desiredX, z: desiredZ }, intent, { x: sx * 2.5, z: sz * 2.5 }));
+    } else delete animal.chokeYield;
     if(crossing){
       const lateral=clamp(sx*crossing.forward.z-sz*crossing.forward.x,-.7,.7);
       const speed=animal.type==='cow'?2.7:3.2;
@@ -396,12 +405,12 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     if (collision.blockedX) animal.vx *= 0.45;
     if (collision.blockedZ) animal.vz *= 0.45;
     animal.heading = Math.hypot(animal.vx, animal.vz) > 0.1 ? Math.atan2(animal.vx, animal.vz) : (animal.heading || 0);
-    animal.alert = pressure;
+    animal.alert = pressure; animal.pushed = dogActivelyHerding || buddyActivelyHerding;
     const playerAtDestination = distance(dog, level.target) < level.target.radius + 12;
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
-      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation; delete animal.bridgeCrossing;
+      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation; delete animal.bridgeCrossing; delete animal.chokeYield; delete animal.lastBridge; delete animal.pushed;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
   }

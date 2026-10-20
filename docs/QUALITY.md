@@ -772,3 +772,46 @@ Review: no blind gauntlet. The change is a version bump, two log lines and docum
 Limits: the live site is not reachable from this cloud container, so live checks rely on the workflow's own hash verification. SwiftShader is a software renderer: no phone appearance, GPU, FPS, touch or listening evidence. Review pending user sign-off. The documentation commit used shell git under Novy's session waiver for large files (see the F-OPS-003 tracker entry).
 
 Novy signed off F-OPS-001 and F-OPS-003 on 19 October 2026, 14:47 America/Creston; both are Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the delivery tooling and the dev deployments. Phone appearance, FPS, touch and audio remain unverified by this work, and no production deployment or merge was made.
+
+## F-HERD-005 and F-WORLD-001 — crossing bottlenecks, 20 October 2026
+
+Branch `feature/herd-bottlenecks` from main `7d848bc`. Implementation: session model, identifier not recorded because the Claude Code harness forbids model identifiers in repository files. Reviews: fresh `flock-blind-critic` Claude Code subagent (the economy tier configured in `.claude/agents/flock-blind-critic.md`) on a history-free copy with the baseline source beside it.
+
+Approach: behaviour first (the investigation showed approach reversals, not geometry alone), as a separate simulation-layer module that only shapes a pressured animal's desired velocity, plus a level-generation spacing change for large herds. Rejected: wider decks only (helped the worst bridge by about 25% but left the behaviour) and bending rivers or fences (gates were not the bottleneck).
+
+First blind review: **5/10**. Confirmed blockers:
+- The measurement showed new pathological first-bridge cases (27–55 reversals per animal). Two causes: flock-travel direction counted as intent, and early commitment could send crossed animals back. A third cause was a measurement-player flaw: an animal far off the trail ahead of the flock ranked as "rearmost", so Pip ran back across the river.
+
+Fixes:
+- Intent is now direct Pip/Buddy pressure only.
+- Early commitment needs that pressure and never recrosses a deck.
+- Animals pinned beside a deck count as approaching it.
+- The measurement player is corrected; baseline and candidate are measured with it alike.
+
+The reviewer's spacing finding (gaps of 4–8 m on levels 10–15) did not reproduce. It measured a bridge on a different route; along the measured route those levels have 41–49 m, and the test now samples levels 6–100 using only the route's own bridges. Minor findings fixed:
+- Tests added for the commit zone, turn-back inside it, gates, the entrance, opposing groups and state cleanup.
+- The trivial pause test is replaced.
+- Openings are cached; step cost is now within noise of the baseline (about 3.8–4.2 ms against 3.75–4.0 ms for 65 animals in Node).
+- The docs give runtime estimates.
+
+Measured results are in the F-HERD-005 tracker entry. Follow-up review results follow. Validation limits: scripted-player counts, Node timings and headless tests do not establish human feel, rendered appearance, touch usability or phone FPS.
+
+Follow-up review by the same critic: **8/10**, no material blocker. B1 resolved on its own reruns (level 16 and 21 default layouts now better than baseline); B2 withdrawn after it re-measured with route-0 bridges only (minimum gap 26.6 m candidate vs 16.6 m baseline). Remaining minor findings and responses:
+- Gate/entrance trade-off: confirmed by ablation (gate lanes and following both add small-level gate reversals); kept for completion reasons, recorded in the tracker.
+- Oscillation when a player shoves a flock back and forth across a river: fixed; animals pushed back toward a deck they already crossed get no queuing help (old-player level 21 first-bridge reversals 35.7 → 6.7 per animal, baseline 3.6).
+- Gate/entrance test did not discriminate: added an entrance test that fails with entrance queuing removed.
+- Step-cost drift: about 5–10% at identical state in the reviewer's measurement; watch on phones.
+- No early commit back over a crossed deck: intended, documented in GAMEPLAY.md.
+
+The final measurement uses a steadier scripted player (keeps its target unless another animal is at least 3 m further back) after a re-run showed dithering between two strays; both baseline and candidate were re-measured with it.
+
+Second follow-up by the same critic: **8/10**, no material blocker; m2 and m3 confirmed fixed, B1 still resolved. Remaining items:
+- No test for the no-recross queuing rule: added (fails if the rule is removed).
+- Small-level gate reversals rose with queuing at 10 m gates: queuing now applies only to openings narrower than 9 m; the final 36-layout table is in the tracker.
+- Completion flips both ways in the critic's 12-layout sample: the inspected cases are scripted-player failures after the flock passed every opening; recorded as a measurement limit.
+
+Third follow-up by the same critic: **9/10, no material blocker**. The no-recross rule and the 9 m width cut-off are each guarded by a test, and removing either fails it. Small-level gate reversals returned near the baseline, and the default-seed layouts on levels 16 and 21 finish with low bridge counts. Two layouts in the critic's 12-layout sweep that did not finish were probed. In both, the flock rested past every opening while the scripted Pip idled out of admission range: these are scripted-player failures, not herd stalls. The scripted measurement therefore cannot confirm "no new unfinished layouts", and this is recorded as a limit. Remaining minor items:
+- The wide-opening exemption is now stated in GAMEPLAY.md.
+- Buddy and drone herding at gates and the entrance remain untested by focused tests; Buddy pressure counts as intent in the code.
+
+Final validation: `npm run build:checked:dev` and `npm run build:checked:production` pass (docs, full suite and both artifact modes). Implementation and source review are complete; F-HERD-005 and F-WORLD-001 are in Review pending device checks and user sign-off.

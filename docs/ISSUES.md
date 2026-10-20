@@ -45,7 +45,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
 | F-HERD-003 | P2 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
 | F-HERD-004 | P2 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | Open | Existing gate/bridge traversal; F-065 |
 | F-HERD-006 | P2 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
 | F-HERD-007 | P2 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
 | F-HERD-008 | P2 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
@@ -409,14 +408,6 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 **Depends on / preserve:** F-HERD-001; accepted forward-flow and local-flock behavior.
 
 **Accept when:** Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.
-
-### F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing gate/bridge traversal; F-065.
-
-**Accept when:** Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.
 
 ### F-HERD-006 — Readable relaxation and settling (P2)
 

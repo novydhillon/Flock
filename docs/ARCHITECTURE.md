@@ -33,7 +33,8 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 |---|---|---|
 | `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
 | `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
-| `src/bridge-crossing.js` | Per-animal committed deck-to-bank traversal | Body-clear local waypoints; no goal choice, score or profile writes |
+| `src/bridge-crossing.js` | Per-animal committed deck-to-bank traversal, including a short pressured approach zone | Body-clear local waypoints; no goal choice, score or profile writes |
+| `src/chokepoints.js` | Lanes, yielding and bounded deadlock escape at bridge mouths, open gates and the destination entrance | Shapes a pressured animal's desired velocity only; transient per-animal state; never chooses goals or moves bodies |
 | `src/buddy-navigation.js` | Cached tree detours and bounded Buddy turning/movement | Uses physical ground clearance and existing route/crossing navigation |
 | `src/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; local passage guidance; no DOM or profile writes |
 | `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
@@ -157,3 +158,9 @@ F-033 weathering refinement: asymmetric hull corners/wedge profiles and determin
 
 Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.
 
+
+## Crossing bottlenecks (F-HERD-005, F-WORLD-001) — 20 October 2026
+
+`chokepoints.js` finds the opening an animal is approaching (bridge deck ends, including the bank beside a deck, open gates, and the destination entrance from outside only, within 8 m). Only openings narrower than 9 m queue: wider ones, such as the 10 m gates from level 6, measured better with normal flocking. The list is cached per level geometry and gate state and shapes the desired velocity of a pressured animal whose forward intent points into it. Intent is only the direct Pip and Buddy push, never the flock's travel direction, which can point back across a river the flock straddles, so deliberate backward pressure from Pip is never altered. An animal pushed back toward a deck it already crossed gets no queuing help. Otherwise, in order: separation cannot push it back out; an animal lined up with its lane cannot back out; an animal beside the opening slides along the bank into its lane, easing back when wedged against an end post; and it follows, rather than shoves, the animal just ahead. Yielding lasts at most 3 s, then a 2 s escape lets it push. `openingSteer` aims each body at its own lane at the near deck end instead of the deck centre. `bridgeCrossing` also commits a pressured animal that is lined up with the deck and walking onto it within 3 m of the deck end, but never back over a deck it already crossed in the other direction. State (`chokeYield`, `lastBridge`, `pushed`) lives on the animal, is cleared on delivery and freezes with pause.
+
+`createLevel` adds `breathing` trail before the gate on non-early levels, from 0 m at 30 animals up to 14 m at 65. Rivers keep their distance from the spawn, so the extra length sits between the last bridge and the gate.

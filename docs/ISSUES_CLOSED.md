@@ -62,6 +62,8 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 | ~~F-059~~ | ~~P2~~ | ~~Presentation/UI~~ | ~~Smaller destination introduction that fades during play~~ | ~~Done~~ | ~~F-056~~ |
 | ~~F-060~~ | ~~P2~~ | ~~Development process~~ | ~~Persistent project agent/model/parallel/blind-gauntlet/sign-off rules~~ | ~~Done~~ | ~~—~~ |
 | ~~F-065~~ | ~~P2~~ | ~~Presentation~~ | ~~Herd pivot presentation~~ | ~~Done~~ | ~~User accepted 18 October 2026; herd_turning_visual~~ |
+| ~~F-HERD-005~~ | ~~P2~~ | ~~Navigation~~ | ~~Yielding at gates and bridge bottlenecks~~ | ~~Done~~ | ~~Existing gate/bridge traversal; F-065~~ |
+| ~~F-WORLD-001~~ | ~~P2~~ | ~~World generation~~ | ~~Room to breathe between the last bridge and the gate for large herds~~ | ~~Done~~ | ~~F-HERD-005 findings; F-038~~ |
 
 ## Preserved acceptance and execution records
 
@@ -910,3 +912,51 @@ F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7a
 **Shell git waiver — 19 October 2026:** Novy authorized shell git for larger files during this session ("Use the git shell for larger files if necessary during this session"), scoped to branch `claude/build-deployment-scripts-6p1dnt` and this task. It was used only for the documentation commit, because the regenerated `docs/html/assets/search-index.js` (about 613 KB) exceeds what one connector call can carry. Workflow commits and all Pages publication went through the connector and Deploy Flock.
 
 **Closed 19 October 2026, 14:47 America/Creston:** Novy signed off F-OPS-001 and F-OPS-003 after the live dev deployments. This acceptance supersedes the Review and pending-sign-off wording above. The workflow fixes are on `claude/build-deployment-scripts-6p1dnt`; merging to `main` and any production deployment are separate steps that need their own approval.
+
+
+### F-HERD-005 — ~~Yielding at gates and bridge bottlenecks (P2)~~
+
+**Status:** Done. Owner: Claude Code. Source complete; blind review 9/10 after fixes (see [QUALITY.md](QUALITY.md#f-herd-005-and-f-world-001--crossing-bottlenecks-20-october-2026)); awaiting device smoke checks and user sign-off.
+
+**Branch:** `feature/herd-bottlenecks`
+
+**Depends on / preserve:** Existing gate/bridge traversal; F-065.
+
+**Accept when:** Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.
+
+**Investigation — 20 October 2026:** A scripted player herded seeded levels 6–81 (20–65 animals, all cow sizes) while every bridge, gate and pen entrance recorded reversals (forward-to-backward turns in the approach) and stalls under pressure. 144 runs compared the current game with wider openings, more spacing and a smaller personal-space radius. Findings: herds rarely stall (under 0.2 s per animal) but reverse repeatedly in the last metres before a bridge deck: about 1.9 reversals per animal on levels 6–13 and 5.4 at the second bridge on levels 16+, worst 23. Bridges, not gates, are the bottleneck. No animal reversed once on a deck, so committed crossing works. The strongest backward forces at a reversal were the fixed 2 m separation radius, convergence of every pressured animal on the bridge centre (`openingSteer`), cohesion and player pressure. Wider decks and a smaller separation radius each cut the worst bridge by about 25%; extra spacing mainly helped the gate. The approved fix is behavioural (lanes, yielding, an approach commit zone, a deadlock escape), with spacing tracked separately as F-WORLD-001. Scripted-player counts are directional; they are not human playtesting or device evidence.
+
+**Connector waiver — 20 October 2026:** Regenerated docs HTML (about 600 KB) is too large for the connector. Novy explicitly authorized shell `git commit`/`git push` for F-HERD-005 and F-WORLD-001 on the new branch `feature/herd-bottlenecks`. The connector-only rule stays in force for other work.
+
+**Execution — 20 October 2026:** Implemented in `src/chokepoints.js`, `src/bridge-crossing.js`, `src/simulation.js` and `openingSteer` in `src/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
+
+| Measure (mean per animal, finished runs) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
+|---|---|---|---|---|
+| Layouts finished | 12/12 | 11/12 | 17/24 | 21/24 |
+| Median time to finish | 95 s | 83 s | 264 s | 242 s |
+| First bridge reversals | 1.70 | 0.77 | 2.03 | 1.34 |
+| Last bridge reversals | 1.70 | 0.77 | 4.85 | 2.44 |
+| Worst bridge reversals in any layout | 2.66 | 1.66 | 14.42 | 9.35 |
+| Last bridge stalled seconds | 0.12 | 0.03 | 0.21 | 0.14 |
+| Gate reversals | 1.13 | 1.36 | 0.66 | 0.23 |
+| Gate stalled seconds | 0.02 | 0.02 | 0.04 | 0.01 |
+| Entrance reversals | 0.38 | 0.80 | 1.01 | 1.23 |
+
+These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Queuing applies only to openings narrower than 9 m: bridge decks, the 7 m destination entrance and the 8 m gates of levels 3–5. The 10 m gates from level 6 measured better with normal flocking (an all-openings version scored 2.13 gate reversals on levels 6–13). Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 (1.13 → 1.36) and entrance reversals rose slightly, with stalls under 0.1 s per animal; a version without entrance queuing failed two existing journey tests. Unfinished runs in both columns are scripted-player failures, not herd stalls: in the checked cases the flock rests past every bridge and the gate while Pip dithers or paths back and forth behind it (level 10 default: Pip oscillates 14 m behind the gate from 80 s).
+
+**Closed 19 October 2026, 21:03 America/Creston:** Novy deployed the branch to dev, tested it and signed off F-HERD-005 and F-WORLD-001, and authorized the merge to main scheduled for 23:30 PT that day. This acceptance supersedes the Review and pending-sign-off wording above. Production publication is a separate step.
+
+
+### F-WORLD-001 — ~~Room to breathe between crossings (P2)~~
+
+**Status:** Done. Owner: Claude Code. Source complete with F-HERD-005; awaiting device smoke checks and user sign-off.
+
+**Branch:** `feature/herd-bottlenecks`
+
+**Depends on / preserve:** F-HERD-005 findings; F-038 (larger fields) remains the broader layout item.
+
+**Execution — 20 October 2026:** `createLevel` adds 0.4 m of trail per animal above 30 (capped at 14 m) before the gate on non-early levels, keeping rivers at the same distance from the spawn. The last bridge exit to gate distance on 50–65 animal levels grows from about 22 m to 28–37 m; single-river levels 6–15 already have 41–49 m; levels 1–5 are unchanged. Measured gate reversals on levels 16–81 fell from 0.65 to 0.29 per animal with stalls 0.06 → 0.02 s (see F-HERD-005).
+
+**Accept when:** On levels with large herds, the trail distance between the last bridge exit and the gate grows with herd size so a flock can leave the deck before reaching the gate. Spawn-to-first-river distance and early levels (1–5) stay unchanged. Generated routes keep full-body clearance for the largest cow and stay connected with gates open or closed. Seeded route sweeps, existing journeys and bridge regressions pass, and the chokepoint measurement shows lower gate reversals without new stalls. No teleporting or collision bypass.
+
+**Closed 19 October 2026, 21:03 America/Creston:** Novy deployed the branch to dev, tested it and signed off F-HERD-005 and F-WORLD-001, and authorized the merge to main scheduled for 23:30 PT that day. This acceptance supersedes the Review and pending-sign-off wording above. Production publication is a separate step.

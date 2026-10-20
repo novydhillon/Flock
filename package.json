@@ -12,7 +12,8 @@
     "docs:build": "node scripts/docs/build.mjs",
     "docs:check": "node scripts/docs/check.mjs && node --test scripts/docs/behavior.test.mjs",
     "build:checked:dev": "node scripts/build-checked.mjs dev",
-    "build:checked:production": "node scripts/build-checked.mjs production"
+    "build:checked:production": "node scripts/build-checked.mjs production",
+    "measure:chokepoints": "node scripts/measure-chokepoints.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
