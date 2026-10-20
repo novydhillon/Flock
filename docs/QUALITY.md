@@ -772,3 +772,26 @@ Review: no blind gauntlet. The change is a version bump, two log lines and docum
 Limits: the live site is not reachable from this cloud container, so live checks rely on the workflow's own hash verification. SwiftShader is a software renderer: no phone appearance, GPU, FPS, touch or listening evidence. Review pending user sign-off. The documentation commit used shell git under Novy's session waiver for large files (see the F-OPS-003 tracker entry).
 
 Novy signed off F-OPS-001 and F-OPS-003 on 19 October 2026, 14:47 America/Creston; both are Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the delivery tooling and the dev deployments. Phone appearance, FPS, touch and audio remain unverified by this work, and no production deployment or merge was made.
+
+## F-HERD-005 and F-WORLD-001 — crossing bottlenecks, 20 October 2026
+
+Branch `feature/herd-bottlenecks` from main `7d848bc`. Implementation: session model, identifier not recorded because the Claude Code harness forbids model identifiers in repository files. Reviews: fresh `flock-blind-critic` Claude Code subagent (the economy tier configured in `.claude/agents/flock-blind-critic.md`) on a history-free copy with the baseline source beside it.
+
+Approach: behaviour first (the investigation showed approach reversals, not geometry alone), as a separate simulation-layer module that only shapes a pressured animal's desired velocity, plus a level-generation spacing change for large herds. Rejected: wider decks only (helped the worst bridge by about 25% but left the behaviour) and bending rivers or fences (gates were not the bottleneck).
+
+First blind review: **5/10**. Confirmed blockers:
+- The measurement showed new pathological first-bridge cases (27–55 reversals per animal). Two causes: flock-travel direction counted as intent, and early commitment could send crossed animals back. A third cause was a measurement-player flaw: an animal far off the trail ahead of the flock ranked as "rearmost", so Pip ran back across the river.
+
+Fixes:
+- Intent is now direct Pip/Buddy pressure only.
+- Early commitment needs that pressure and never recrosses a deck.
+- Animals pinned beside a deck count as approaching it.
+- The measurement player is corrected; baseline and candidate are measured with it alike.
+
+The reviewer's spacing finding (gaps of 4–8 m on levels 10–15) did not reproduce. It measured a bridge on a different route; along the measured route those levels have 41–49 m, and the test now samples levels 6–100 using only the route's own bridges. Minor findings fixed:
+- Tests added for the commit zone, turn-back inside it, gates, the entrance, opposing groups and state cleanup.
+- The trivial pause test is replaced.
+- Openings are cached; step cost is now within noise of the baseline (about 3.8–4.2 ms against 3.75–4.0 ms for 65 animals in Node).
+- The docs give runtime estimates.
+
+Measured results are in the F-HERD-005 tracker entry. Follow-up review results follow. Validation limits: scripted-player counts, Node timings and headless tests do not establish human feel, rendered appearance, touch usability or phone FPS.

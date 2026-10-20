@@ -423,6 +423,22 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 **Investigation — 20 October 2026:** A scripted player herded seeded levels 6–81 (20–65 animals, all cow sizes) while every bridge, gate and pen entrance recorded reversals (forward-to-backward turns in the approach) and stalls under pressure. 144 runs compared the current game with wider openings, more spacing and a smaller personal-space radius. Findings: herds rarely stall (under 0.2 s per animal) but reverse repeatedly in the last metres before a bridge deck: about 1.9 reversals per animal on levels 6–13 and 5.4 at the second bridge on levels 16+, worst 23. Bridges, not gates, are the bottleneck. No animal reversed once on a deck, so committed crossing works. The strongest backward forces at a reversal were the fixed 2 m separation radius, convergence of every pressured animal on the bridge centre (`openingSteer`), cohesion and player pressure. Wider decks and a smaller separation radius each cut the worst bridge by about 25%; extra spacing mainly helped the gate. The approved fix is behavioural (lanes, yielding, an approach commit zone, a deadlock escape), with spacing tracked separately as F-WORLD-001. Scripted-player counts are directional; they are not human playtesting or device evidence.
 
 **Connector waiver — 20 October 2026:** Regenerated docs HTML (about 600 KB) is too large for the connector. Novy explicitly authorized shell `git commit`/`git push` for F-HERD-005 and F-WORLD-001 on the new branch `feature/herd-bottlenecks`. The connector-only rule stays in force for other work.
+
+**Execution — 20 October 2026:** Implemented in `src/chokepoints.js`, `src/bridge-crossing.js`, `src/simulation.js` and `openingSteer` in `src/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
+
+| Measure (mean per animal) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
+|---|---|---|---|---|
+| Layouts finished | 12/12 | 12/12 | 17/24 | 24/24 |
+| Median time to finish | 96 s | 85 s | 254 s | 211 s |
+| First bridge reversals | 1.78 | 0.85 | 2.38 | 1.50 |
+| Last bridge reversals | 1.78 | 0.85 | 4.03 | 1.88 |
+| Worst bridge reversals in any layout | 2.98 | 1.71 | 12.95 | 3.95 |
+| Last bridge stalled seconds | 0.12 | 0.03 | 0.22 | 0.11 |
+| Gate reversals | 1.51 | 2.21 | 0.65 | 0.29 |
+| Gate stalled seconds | 0.01 | 0.05 | 0.06 | 0.02 |
+| Entrance reversals | 0.35 | 0.60 | 1.19 | 1.50 |
+
+Bridges improved on every band and every large-herd layout finished. Trade-offs: gate reversals on levels 6–13 and entrance reversals rose slightly with negligible stalls. Variants that dropped queuing at gates or the entrance improved those counts but left three large-herd layouts unfinished and failed existing journey tests, so all openings keep the behaviour. Scripted-player evidence only; human feel, rendered appearance and phone FPS need device checks.
 ### F-HERD-006 — Readable relaxation and settling (P2)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
@@ -656,5 +672,7 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 **Branch:** `feature/herd-bottlenecks`
 
 **Depends on / preserve:** F-HERD-005 findings; F-038 (larger fields) remains the broader layout item.
+
+**Execution — 20 October 2026:** `createLevel` adds 0.4 m of trail per animal above 30 (capped at 14 m) before the gate on non-early levels, keeping rivers at the same distance from the spawn. The last bridge exit to gate distance on 50–65 animal levels grows from about 22 m to 28–37 m; single-river levels 6–15 already have 41–49 m; levels 1–5 are unchanged. Measured gate reversals on levels 16–81 fell from 0.65 to 0.29 per animal with stalls 0.06 → 0.02 s (see F-HERD-005).
 
 **Accept when:** On levels with large herds, the trail distance between the last bridge exit and the gate grows with herd size so a flock can leave the deck before reaching the gate. Spawn-to-first-river distance and early levels (1–5) stay unchanged. Generated routes keep full-body clearance for the largest cow and stay connected with gates open or closed. Seeded route sweeps, existing journeys and bridge regressions pass, and the chokepoint measurement shows lower gate reversals without new stalls. No teleporting or collision bypass.
