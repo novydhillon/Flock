@@ -9,7 +9,15 @@ export const APPROACH_DEPTH = 8;
 export const YIELD_LIMIT = 3, ESCAPE_TIME = 2;
 const axes = heading => ({ x: Math.sin(heading), z: Math.cos(heading) });
 
+const openingCache = new WeakMap();
 function openings(level) {
+  const key = `${level.geometryRevision || 0}:${(level.gates || []).map(g => g.open ? 1 : 0).join('')}`, cached = openingCache.get(level);
+  if (cached?.key === key) return cached.list;
+  const list = buildOpenings(level);
+  openingCache.set(level, { key, list });
+  return list;
+}
+function buildOpenings(level) {
   const bridges = (level.rivers || []).flatMap(r => r.bridges).map(b => ({ x: b.x, z: b.z, heading: b.heading, width: b.width, half: b.length / 2 }));
   const gates = (level.gates || []).filter(g => !g.operable || g.open).map(g => ({ x: g.x, z: g.z, heading: g.heading, width: g.width, half: 0 }));
   // The destination entrance is approached from outside only.
@@ -25,7 +33,9 @@ export function chokeApproach(level, body, radius = animalRadius(body)) {
   for (const o of openings(level)) {
     const f = axes(o.heading), u = (body.x - o.x) * f.x + (body.z - o.z) * f.z, v = (body.x - o.x) * f.z - (body.z - o.z) * f.x;
     const outside = Math.abs(u) - o.half;
-    if (outside < -.01 || outside > APPROACH_DEPTH || Math.abs(v) > o.width / 2 + 3 || (o.inwardOnly && u > 0)) continue;
+    // Beside a deck (pinned on the bank next to its rails) still counts as
+    // approaching it; on the deck itself bridge crossing owns the motion.
+    if ((outside < -.01 && Math.abs(v) <= o.width / 2) || outside < -1.5 || outside > APPROACH_DEPTH || Math.abs(v) > o.width / 2 + 3 || (o.inwardOnly && u > 0)) continue;
     if (best && outside >= best.outside) continue;
     const side = Math.sign(u) || 1, limit = Math.max(0, o.width / 2 - radius - .35), lane = Math.max(-limit, Math.min(limit, v));
     const inward = { x: -f.x * side, z: -f.z * side };

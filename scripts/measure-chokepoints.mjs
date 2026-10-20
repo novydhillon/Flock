@@ -2,7 +2,8 @@
 // Measure herd behaviour at bridges, gates and the destination entrance.
 // Usage: node scripts/measure-chokepoints.mjs [publicLevel[,publicLevel...]] [seed[,seed...]] [srcDir]
 // Prints one JSON line per run. A scripted player herds the rearmost animal
-// (the herding-journey policy) with route gates pre-opened. Counts are
+// (the herding-journey policy, but an animal far off the trail ahead of the
+// flock does not count as rearmost) with route gates pre-opened. Counts are
 // directional evidence for tuning, not human playtesting or device results.
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -53,7 +54,7 @@ function measure(index, seed) {
   for (let frame = 0; frame < SECONDS / DT && !level.completed; frame++) {
     if (frame % 6 === 0) {
       const { animal, info } = level.animals.filter(a => !a.saved).map(animal => ({ animal, info: routeProgress(level, animal, routeId) }))
-        .sort((a, b) => (a.info.progress - a.info.distance) - (b.info.progress - b.info.distance))[0];
+        .sort((a, b) => (a.info.progress - Math.min(a.info.distance, 6)) - (b.info.progress - Math.min(b.info.distance, 6)))[0];
       const nearDestination = info.progress > info.length - 20, radius = animalRadius(animal);
       const aim = nearDestination ? destinationApproach(level, animal) : navigationTarget(level, animal, nextNavigationPoint(level, animal, routeId), radius);
       const forward = unit(aim.x - animal.x, aim.z - animal.z);

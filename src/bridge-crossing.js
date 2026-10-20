@@ -4,8 +4,6 @@ import {canOccupy,navigationTarget,hasClearGroundPath} from './world.js';
 const radiusOf=a=>animalRadius(a);
 /** Approach distance before a deck end where pressured walkers commit. */
 export const COMMIT_DEPTH=3;
-/** An animal that just left a deck does not approach-commit straight back. */
-export const RECROSS_DELAY=10;
 const axes=b=>({x:Math.sin(b.heading),z:Math.cos(b.heading)});
 const along=(p,b,f)=>(p.x-b.x)*f.x+(p.z-b.z)*f.z;
 
@@ -17,7 +15,7 @@ export function bridgeCrossing(level, animal, old) {
  if(crossing){
   const f=axes(crossing.bridge),progress=along(old,crossing.bridge,f)*crossing.sign;
   if(progress>crossing.bridge.length/2+radius+.7&&canOccupy(level,old.x,old.z,radius)){
-   animal.lastBridge={bridge:crossing.bridge,time:level.time||0};
+   animal.lastBridge={bridge:crossing.bridge,sign:crossing.sign};
    delete animal.bridgeCrossing;return {finished:true};
   }
  }else{
@@ -27,8 +25,10 @@ export function bridgeCrossing(level, animal, old) {
    // On the deck any walk commits. In the short approach zone only a pressured
    // animal already lined up with the deck and walking onto it commits, so the
    // player can still turn a flock back before it reaches the bridge.
-   const recent=animal.lastBridge?.bridge===b&&(level.time||0)-animal.lastBridge.time<RECROSS_DELAY;
-   const onDeck=Math.abs(u)<=b.length/2+.15,approaching=!onDeck&&!recent&&Math.abs(u)<=b.length/2+COMMIT_DEPTH&&(old.alert||0)>.03&&motion*u<0;
+   // Approach commitment needs direct Pip/Buddy pressure, and never sends an
+   // animal back over a deck it already crossed; walking on still commits.
+   const back=animal.lastBridge?.bridge===b&&Math.sign(motion)!==animal.lastBridge.sign;
+   const onDeck=Math.abs(u)<=b.length/2+.15,approaching=!onDeck&&!back&&old.pushed&&Math.abs(u)<=b.length/2+COMMIT_DEPTH&&motion*u<0;
    if((!onDeck&&!approaching)||Math.abs(v)>b.width/2-radius-(approaching?.1:0)||!canOccupy(level,old.x,old.z,radius))continue;
    if(Math.abs(motion)<.12)continue;
    crossing=animal.bridgeCrossing={bridge:b,sign:Math.sign(motion),lane:Math.max(-b.width/2+radius+.35,Math.min(b.width/2-radius-.35,v))};

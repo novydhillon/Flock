@@ -370,9 +370,10 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
     if (pressure > 0.03 && !crossing && !holding && !animal.wanderHome && !wander?.bolting) {
       // Queue at bridge mouths and open gates instead of surging and reversing.
-      const travel = flockMotion.get(flockMembership.get(animal.id)), help = buddyActivelyHerding ? buddy.forces.get(animal.id) : null;
-      const intent = { x: (dogActivelyHerding ? playerSignal.x : 0) + (help?.x || 0) + (travel?.forward ? travel.forward.x * travel.drive : 0),
-        z: (dogActivelyHerding ? playerSignal.z : 0) + (help?.z || 0) + (travel?.forward ? travel.forward.z * travel.drive : 0) };
+      // Only direct Pip/Buddy pressure counts: a flock's travel direction can
+      // point back across a river it straddles.
+      const help = buddyActivelyHerding ? buddy.forces.get(animal.id) : null;
+      const intent = { x: (dogActivelyHerding ? playerSignal.x : 0) + (help?.x || 0), z: (dogActivelyHerding ? playerSignal.z : 0) + (help?.z || 0) };
       ({ x: desiredX, z: desiredZ } = yieldAtOpening(level, animal, old, snapshot, { x: desiredX, z: desiredZ }, intent, { x: sx * 2.5, z: sz * 2.5 }));
     } else delete animal.chokeYield;
     if(crossing){
@@ -404,12 +405,12 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     if (collision.blockedX) animal.vx *= 0.45;
     if (collision.blockedZ) animal.vz *= 0.45;
     animal.heading = Math.hypot(animal.vx, animal.vz) > 0.1 ? Math.atan2(animal.vx, animal.vz) : (animal.heading || 0);
-    animal.alert = pressure;
+    animal.alert = pressure; animal.pushed = dogActivelyHerding || buddyActivelyHerding;
     const playerAtDestination = distance(dog, level.target) < level.target.radius + 12;
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
-      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation; delete animal.bridgeCrossing; delete animal.chokeYield; delete animal.lastBridge;
+      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation; delete animal.bridgeCrossing; delete animal.chokeYield; delete animal.lastBridge; delete animal.pushed;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
   }

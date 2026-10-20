@@ -4,6 +4,7 @@ import { stepSimulation, canOccupy } from '../src/simulation.js';
 import { createLevel, routeProgress, distance } from '../src/world.js';
 import { animalRadius, COW_SCALES } from '../src/animal-size.js';
 import { yieldAtOpening, chokeApproach, YIELD_LIMIT, ESCAPE_TIME } from '../src/chokepoints.js';
+import { bridgeCrossing } from '../src/bridge-crossing.js';
 
 // A 6m deck like the later campaign's, across a river on x=0. Travel is +x.
 function crowdLevel(count = 14) {
@@ -53,7 +54,7 @@ test('a pressed mixed crowd crosses a narrow deck without surging back and forth
 
 test('the player can still turn a flock back before it reaches the deck', () => {
   const level = crowdLevel(5);
-  for (const a of level.animals) { a.x -= 3; a.vx = 1.2; } // Front row 3.25m outside the commit zone.
+  for (const a of level.animals) { a.x -= 3; a.vx = 1.2; } // Front row 9.5m from the deck end, outside its 3m commit zone.
   level.dog = { x: -5.5, z: 0 }; // Pip steps between the flock and the bridge.
   for (let i = 0; i < 60; i++) stepSimulation(level, level.dog, {}, .05);
   assert.ok(level.animals.every(a => !a.bridgeCrossing), 'nobody outside the commit zone is committed');
@@ -82,18 +83,60 @@ test('crowd separation cannot push a forward-driven animal back out of the appro
   assert.deepEqual(reverse, { x: -2, z: 0 }, 'deliberate backward pressure is untouched');
 });
 
-test('pausing freezes a queue at the bridge mouth', () => {
-  const level = crowdLevel(8);
-  pushAcross(level, 2);
-  const paused = structuredClone(level);
-  stepSimulation(level, level.dog, { x: 1, z: 0 }, 0);
-  assert.deepEqual(level, paused);
+test('a pushed animal lined up with the deck commits just before it, but not back over a deck it crossed', () => {
+  const level = crowdLevel(1), a = level.animals[0];
+  Object.assign(a, { x: -4.5, z: .5, vx: 1, vz: 0, alert: .5, pushed: true });
+  assert.ok(bridgeCrossing(level, a, { ...a }), 'commits 1.25m before the deck end');
+  delete a.bridgeCrossing;
+  assert.equal(bridgeCrossing(level, a, { ...a, pushed: false }), null, 'drifting without Pip or Buddy pressure does not commit early');
+  assert.equal(bridgeCrossing(level, a, { ...a, z: 3.4 }), null, 'an animal beside the deck end does not commit');
+  // Having crossed toward -x, being pushed back toward the deck needs a deliberate walk onto it.
+  Object.assign(a, { lastBridge: { bridge: level.rivers[0].bridges[0], sign: -1 } });
+  assert.equal(bridgeCrossing(level, a, { ...a }), null, 'no early commitment back over a deck it already crossed');
+  Object.assign(a, { x: -2 });
+  assert.ok(bridgeCrossing(level, a, { ...a }), 'walking onto the deck itself still commits');
+});
+
+test('Pip can still turn back animals inside the commit zone before they commit', () => {
+  const level = crowdLevel(3);
+  level.animals.forEach((a, i) => Object.assign(a, { x: -5, z: (i - 1) * 1.6, vx: 0, vz: 0 }));
+  level.dog = { x: -2, z: 0 }; // Pip on the bank between the animals and the deck end.
+  for (let i = 0; i < 40; i++) stepSimulation(level, level.dog, {}, .05);
+  assert.ok(level.animals.every(a => !a.bridgeCrossing && a.x < -5), 'they move away from the bridge');
+});
+
+test('a pressed crowd queues through an open gate and the destination entrance', () => {
+  const heading = Math.PI / 2, gate = { id: 'gate-0', x: 0, z: 0, width: 8, heading, operable: false, open: true };
+  const level = crowdLevel(10);
+  level.rivers = [];
+  level.gates = [gate];
+  level.fenceSegments = [{ a: { x: 0, z: -40 }, b: { x: 0, z: -4 }, kind: 'interior' }, { a: { x: 0, z: 4 }, b: { x: 0, z: 40 }, kind: 'interior' }];
+  pushAcross(level, 60);
+  assert.ok(level.animals.every(a => a.x > 4), 'all pass the gate');
+  // The entrance is approached from outside only: animals inside a pen are never steered back toward it.
+  const pen = createLevel(2), inside = { ...pen.animals[0], x: pen.target.x, z: pen.target.z };
+  assert.equal(chokeApproach(pen, inside), null);
+});
+
+test('opposing groups at a deck do not deadlock', () => {
+  const level = crowdLevel(4);
+  // Two animals wait on the far bank right at the deck end, facing the crowd.
+  for (const [i, z] of [[0, -.8], [1, .8]]) Object.assign(level.animals[i], { x: 4.2, z, vx: -.4 });
+  pushAcross(level, 60);
+  assert.ok(level.animals.every(a => a.x > 4), 'the pushed group gets across with the waiting animals in the way');
+});
+
+test('delivered animals and fresh levels carry no crossing state', () => {
+  const level = crowdLevel(6);
+  pushAcross(level, 3);
+  assert.ok(level.animals.some(a => a.chokeYield || a.bridgeCrossing || a.pushed), 'state exists mid-crossing');
+  assert.ok(createLevel(20).animals.every(a => !a.chokeYield && !a.lastBridge && !a.bridgeCrossing && !a.pushed));
 });
 
 test('large-herd levels leave room between the last bridge and the gate', () => {
-  for (const index of [15, 20, 45, 99]) for (const seed of [undefined, 1001, 1002]) {
+  for (const index of [5, 9, 12, 14, 15, 17, 20, 30, 45, 70, 99]) for (const seed of [undefined, 1001, 1002]) {
     const level = createLevel(index, seed), route = level.routes[0], gate = level.gates[0];
-    const bridges = level.rivers.flatMap(r => r.bridges);
+    const bridges = level.rivers.flatMap(r => r.bridges).filter(b => route.points.some(p => distance(p, b) < 1));
     const at = p => routeProgress(level, p, route.id).progress;
     const last = bridges.map(b => ({ b, u: at(b) })).filter(x => x.u < at(gate)).sort((x, y) => y.u - x.u)[0];
     const gap = at(gate) - last.u - last.b.length / 2;

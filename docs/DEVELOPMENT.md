@@ -122,7 +122,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/surfaces.test.js` | Ribbon union topology and bark surfaces on land/deck transitions |
 | `tests/tree-geometry.test.js` | Welded wood topology, taper, fork areas, intersections and width-dependent normals |
 | `tests/cutaway.test.js` | Camera-ray section fading, pause, hysteresis and material restoration |
-| `tests/chokepoints.test.js` | Mixed-crowd deck crossing without surging, lanes, player turn-back, bounded yielding, pause and large-herd spacing |
+| `tests/chokepoints.test.js` | Mixed-crowd deck crossing without surging, lanes, open gate and entrance queues, opposing groups, early commit rules, player turn-back inside and outside the commit zone, bounded yielding, state cleanup and large-herd spacing |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
 | `tests/deploy-pages.test.js` | Validated relative assets, destination guards, byte-preserving plans and concurrent-publication rejection |
 | `tests/render.test.js` | Geometry, camera matrices, culling, batches and disposal |
@@ -272,6 +272,6 @@ F-065: `herd_turning_visual` contains the isolated renderer-only turn-rate/pivot
 
 ## Crossing bottleneck checks (F-HERD-005, F-WORLD-001) — 20 October 2026
 
-`npm run measure:chokepoints` runs `scripts/measure-chokepoints.mjs`: a scripted player herds seeded levels and prints, per bridge, gate and destination entrance, the reversals and stalled seconds per animal. Pass levels and seeds as comma lists, for example `npm run measure:chokepoints -- 16,21 default,1001`. A run takes seconds to a minute. Use it to compare tuning before and after a change; it is not part of `npm test` and is not human or device evidence.
+`npm run measure:chokepoints` runs `scripts/measure-chokepoints.mjs`: a scripted player herds seeded levels and prints, per bridge, gate and destination entrance, the reversals and stalled seconds per animal. Pass levels and seeds as comma lists, for example `npm run measure:chokepoints -- 16,21 default,1001`. A finished run takes a few seconds to about 30 s; a run that never finishes simulates the full 600 s and takes about a minute, so several levels and seeds can take many minutes. The scripted player herds the rearmost animal, except that an animal far off the trail ahead of the flock does not count as rearmost. Use it to compare tuning before and after a change; it is not part of `npm test` and is not human or device evidence.
 
 Phone smoke checks on the dev build: on public QA 16, 21 and 31 push the whole flock across both rivers. At each bridge mouth the flock should funnel into two or three lanes and walk on without the front animals bouncing back. Push from an angle so animals land beside the deck end: they should slide along the bank into a lane rather than press into the post. Step Pip between the flock and a bridge before the flock reaches it: the flock should turn back. Repeat at the gate and the pen entrance, with cows of every size, and pause/resume and restart during a crossing. Check that the longer stretch before the gate on large-herd levels reads naturally.
