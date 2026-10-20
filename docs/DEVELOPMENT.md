@@ -8,7 +8,7 @@ Use these checked-in entry points for future builds and deployments; do not crea
 |---|---|---|
 | Checked dev build | `npm run build:checked:dev` | Docs, full tests, release QA exclusion, then final dev QA inclusion |
 | Checked production build | `npm run build:checked:production` | Docs, full tests, release build and QA exclusion |
-| Deploy dev | Actions → **Deploy Flock** → Run workflow → select feature branch → environment `dev` | Publishes only build paths under `/Flock/dev/` |
+| Deploy dev | Connector `actions_run_trigger` (`run_workflow`, workflow `deploy-pages.yml`, ref = feature branch, input `environment: dev`), or Actions → **Deploy Flock** → Run workflow | Publishes only build paths under `/Flock/dev/` |
 | Deploy production | After user approval and merge: select `main`, environment `production`, confirmation `deploy-production` | Publishes production root |
 
 One-time maintainer setup: create repository secret `PAGES_PUBLISH_TOKEN`, a fine-grained token restricted to this repository with Contents read/write and Pages read access. Keep the existing Pages configuration serving `gh-pages` root. The default GITHUB_TOKEN cannot trigger the native Pages build when it pushes; the workflow fails early if the publish secret is missing. Never paste a token into chat or source. Protect workflow editing and production execution with repository permissions/environment rules as appropriate. This request creates tooling; it does not authorize a production run or merge.
@@ -17,9 +17,27 @@ The existing checks workflow now covers every source branch except `gh-pages` an
 
 `scripts/deploy-pages.mjs` now exports a pure deployment planner, using the existing dependency validator extracted to `scripts/validate-build.mjs`. It performs no shell Git, network calls or publication. The old dev2 worktree/redirect helper is retired. `scripts/verify-deployment.mjs deployment.json` compares every emitted file, including icons/fonts, with the live site. The workflow waits for the exact Pages commit's native build success and retries live hash verification for CDN propagation; failure is a failed deployment check, not a verified release. Download the `flock-deployment-evidence` artifact for source/Pages SHA, destination and file hashes, then record the workflow URL and actual device smoke checks in the issue/quality record. A failed verification does not roll back the already-published commit: diagnose and rerun a known approved source.
 
-Agent repository operations remain connector-only. The committed Actions workflow may use its GitHub API client for its own publication; this is the standard automation entry point, not permission for agents to bypass the connector. Connector discovery currently exposes no workflow-dispatch action. Until that capability exists, start **Deploy Flock** in GitHub Actions; agents must report that limitation rather than use shell git/gh/direct API requests. New workflow_dispatch workflows become available in the Actions UI after the workflow exists on default main; this feature branch is not merged or deployed automatically.
+Agent repository operations remain connector-only. The committed Actions workflow may use its GitHub API client for its own publication; this is the standard automation entry point, not permission for agents to bypass the connector. Agents start **Deploy Flock** with the connector's workflow dispatch (`actions_run_trigger`, method `run_workflow`), as mapped in AGENTS.md. If that capability is missing or fails, report that the workflow must be started in the Actions UI; never use shell git/gh/direct API requests instead. The workflow is on main and dispatchable for any branch.
 
 The sections below that describe dev2 staging or the previous allowlisted build workflow are historical. This section supersedes them. Existing approvals and destination/sign-off rules remain in force.
+
+## Deploy Flock first live run — 19 October 2026
+
+The standard delivery tooling has now run for real (F-OPS-003). Branch `claude/build-deployment-scripts-6p1dnt` was created from main `6edfa57` through the connector, and **Deploy Flock** was dispatched with `environment: dev` through the connector. Run [39327138760](https://github.com/novydhillon/Flock/actions/runs/39327138760) passed every step: the `PAGES_PUBLISH_TOKEN` check, checked build, scoped publication (Pages commit `d9e93aa`, parent `83125c0`), native Pages build and live SHA-256 verification of all 29 files. Only `dev/` changed; root, `dev2/`, `flock/`, `tracker/` and root `assets/` tree SHAs were unchanged.
+
+Findings and fixes from that run:
+
+- Both workflows used actions that target Node.js 20, and the runner warned that it was forcing them onto Node.js 24. They now use `actions/checkout@v5`, `actions/setup-node@v5`, `actions/github-script@v8` and `actions/upload-artifact@v6`.
+- The native Pages status turns `built` a few seconds before its deploy job finishes. The live-hash retry already covers that gap, but the wait loop printed nothing, so a timeout could not be diagnosed. Each attempt now logs the native build status and any failed live verification.
+- The connector does expose workflow dispatch. The runbook above now says so.
+
+The fixed revision `032f03e` redeployed cleanly in run [39328751422](https://github.com/novydhillon/Flock/actions/runs/39328751422) with no deprecation warning. Evidence: [validation/F-OPS-003-dev-publication.json](validation/F-OPS-003-dev-publication.json).
+
+Headless smoke checks are possible in this cloud container: Playwright Chromium with `--use-gl=swiftshader --enable-unsafe-swiftshader` created a WebGL2 context, rendered the dev build served under `/Flock/dev/`, and started level 1 in portrait (390×844) and landscape (844×390) with no page errors or failed requests. SwiftShader is a software renderer. This is not phone, GPU, FPS, touch or listening evidence.
+
+## Agent instruction files — 19 October 2026
+
+[AGENTS.md](../AGENTS.md) is the single instruction file for every coding agent and for people. `CLAUDE.md` (Claude Code) and `GEMINI.md` (Gemini CLI) are symlinks to it at the root and beside the folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. Edit only the `AGENTS.md` files. AGENTS.md also maps the connector rule, the model tiers and the blind review procedure onto each tool. The Claude Code critic definition is [.claude/agents/flock-blind-critic.md](../.claude/agents/flock-blind-critic.md). This replaces the separate Claude guide added earlier the same day. A harness default to `git push` does not override the connector-only rule. Shell git needs an explicit user waiver for a named branch and task, recorded in the tracker item.
 
 
 ## Buddy behaviour review — 19 October 2026
@@ -271,3 +289,8 @@ Watch stationary grass/bush livestock lower their heads after roughly seven seco
 F-COMP-010: on a large mixed meadow, leave Pip stationary far from Buddy's selected flock. Compare grass and path cases: livestock should settle with varied headings, occasional staggered short steps and extended calm grazing on edible ground. They must remain together locally without becoming a frozen aligned formation or translating continuously. Buddy should alternate deliberate checks and watching pauses rather than circle endlessly; induce a small edge drift and verify useful repositioning. Watch all cow sizes and crowded groups, river/fence edges, already committed crossings, tier-3 retrieval and Pip's return.
 
 Drag/release, cancel and lose touch/pointer capture; Pip must stop promptly without an accidental bark. Unrelated pointer events must not steal the active gesture. Idle Pip must stay put while Buddy moves. Pause, background/resume, restart and QA jumps must freeze or replace transient movement/resting state correctly. Native phone feel/visual diversity remains for Novy's playtest; module metrics are source evidence only. Use the standard checked builds and Deploy Flock workflow above; no custom deployment fallback.
+
+
+## Buddy branch main integration — 19 October 2026, 17:43 America/Creston
+
+`buddy_behaviour` incorporates main `7d848bc`, retaining the natural containment and input fixes from `753159a`. The standard workflow versions, shared root/folder instructions and accepted delivery evidence above are now available on this feature branch. Runtime files are unchanged by this integration. The successful connector dispatch recorded in F-OPS-003 establishes the workflow on GitHub; this Codex session still lacks an exposed dispatch action and must use the documented Actions UI handoff if deployment is requested. Source integration alone does not publish a new dev game.

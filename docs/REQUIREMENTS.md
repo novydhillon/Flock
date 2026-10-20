@@ -2,7 +2,23 @@
 
 ## F-OPS-001 — Standard delivery automation
 
+Accepted by Novy on 19 October 2026, 14:47 America/Creston. The closed tracker holds the acceptance record.
+
 Provide shared checked builds and a manual GitHub Actions deployment for dev and production. Enforce main-only production and non-main dev, QA mode checks, preserved unrelated Pages content, concurrent publication rejection and live hash verification. Document future entry points and setup/connector limitations. Production approval remains explicit.
+
+
+## F-OPS-003 — Live validation of the delivery workflow
+
+Accepted by Novy on 19 October 2026, 14:47 America/Creston. The closed tracker holds the acceptance record.
+
+Run the standard checked build and **Deploy Flock** for real on a fresh branch from main, publishing to `/Flock/dev/` only. Confirm the published files match the checked build and that every other Pages path is preserved. Fix any defect or warning the run exposes, rerun the deployment on the fixed revision, and record the evidence. No production publication or merge is included.
+
+
+## F-OPS-002 — Shared agent instructions
+
+Accepted by Novy on 19 October 2026, 14:03 America/Creston. The closed tracker holds the acceptance record.
+
+Keep one instruction file, AGENTS.md, for every coding agent (Codex, Claude Code, Gemini CLI and others) and for people. `CLAUDE.md` and `GEMINI.md` are symlinks to it at the root and beside folder guides for runtime source, tests and documentation. AGENTS.md keeps every existing rule. It adds per-tool mappings for the connector-only rule and the model tiers, a tool-neutral blind review procedure, verified commands and easily-missed invariants. Claude Code also gets a blind-critic subagent definition. Validation limits are stated honestly.
 
 
 ## F-TRACK-001 — Public read-only work tracker

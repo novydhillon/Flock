@@ -124,3 +124,25 @@ The critic independently checked 303 variant/width combinations for upper-wood n
 ## UI refinement documentation review — F-055–F-060
 
 Fresh isolated `gpt-6-luna` medium-effort review initially scored 8/10. The current documentation home was stale and the new batch needed an actual quality/model record. The home now points to UI_refinement and distinguishes production, review publication and user acceptance; QUALITY.md records implementation model/effort, both blind reviews, checks and browser/device limits. Source path remains `docs/systems/PRESENTATION.md`, now explicitly linking F-060 workflow to AGENTS.md. Same-critic documentation follow-up: **9.5/10**, no material remaining defect; documentation checks pass (12 pages, 1,152 links/anchors, nine diagrams, four DOM tests). Final publication evidence is recorded in QUALITY.md and validation/UI-refinement-publication.json; source CI/native Pages pass and all 17 dev2 files match. Runtime critic follow-up separately reached **9/10**; its findings/scores and evidence limits are recorded in QUALITY.md.
+
+
+## F-OPS-002 Claude Code guidance review — 19 October 2026
+
+Scope: `CLAUDE.md`, `src/CLAUDE.md`, `tests/CLAUDE.md`, `docs/CLAUDE.md`, `.claude/agents/flock-blind-critic.md` and the related tracker, requirements and development entries. First blind pass: **8/10**, no material blocker. Follow-up by the same critic: **9/10**, no material blocker. Findings, fixes, checks and limits are recorded in [QUALITY.md](QUALITY.md#f-ops-002--claude-code-guidance-19-october-2026). The same-critic recheck is follow-up validation, not a new blind first pass.
+
+### F-OPS-002 shared agent instructions review — 19 October 2026
+
+Scope: the rewritten root `AGENTS.md`, the folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`, the `CLAUDE.md`/`GEMINI.md` symlinks, `.claude/agents/flock-blind-critic.md`, and the related tracker, requirements and development entries. A new blind first pass was run because the binding policy file changed: **9/10**, no material blocker. Its three minor findings were fixed. Details are in [QUALITY.md](QUALITY.md#f-ops-002-shared-agent-instructions--19-october-2026).
+
+## Buddy branch main integration review — 19 October 2026
+
+Requested integration of main `7d848bca9e9daba13fd30250057764230fca8bda` into `buddy_behaviour` at `753159acfa115a2bd932a1af429fb847a3d05344`. The previously imported main source was `3ccc8db`. Three-way reconciliation preserves Buddy implementation/history and main's current guides, workflow versions, live delivery evidence and accepted delivery archival. Four documentation conflict blocks across DEVELOPMENT, ISSUES and QUALITY were resolved. All eight CLAUDE/GEMINI entries remain actual relative symbolic links to AGENTS.md. The intended connector merge has feature first and main second as its parents; no production/main or Pages publication is included.
+
+Implementation and review used the **session model, identifier not recorded**, because backend model metadata is not exposed. A fresh-context critic reviewed an isolated candidate with immutable expected file hashes/modes and main source snapshots, excluding writer reasoning, earlier candidate reviews and target score. First pass: **9.5/10**, no material blocker. One minor historical-status ambiguity was confirmed: the old companion planning introduction still said all items were Open. The history is retained with an explicit superseded-status note pointing to current execution records and details.
+
+The critic verified 78/78 existing runtime/test hashes unchanged, 18 exact unconflicted main imports, all eight link modes/targets, the main closed archive and delivery manifest, accepted F-OPS-001/002/003 closed-only, and all six implemented Buddy items still in Review. Main document lines were checked for retention without using old review scores as guidance. Independent checks passed: documentation (13 pages, 1,620 links/anchors before the final note, nine diagrams, four DOM tests), focused deployment/tracker tests 22/22 and full regressions 375/375. Root separately passed `npm run build:checked:dev`, including the full suite, release artifact QA exclusion and development QA inclusion. Final documentation regeneration/checks cover this evidence and the historical-status label.
+
+Limits: source/manifest and headless checks only; no new browser/phone appearance, touch, listening or FPS claim. Runtime files are unchanged. The candidate is source integration only and does not establish deployment or user acceptance. Parent ordering, source tree and branch ancestry are verified through the connector after commit creation.
+
+**Same-critic follow-up:** 10/10, with no remaining material blocker or minor finding. The historical-status note is clear and accurate; final documentation checks pass with 13 deterministic pages, 1,622 local links/anchors, nine diagrams and four DOM tests. This is a focused recheck, not a new blind first pass; the unchanged runtime suite was not repeated.
+

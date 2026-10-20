@@ -1,0 +1,81 @@
+{
+  "item": "F-OPS-003",
+  "branch": "claude/build-deployment-scripts-6p1dnt",
+  "base": "6edfa5784839b186a59893c8579297534b7edfb6",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "runs": [
+    {
+      "deployFlockRun": 39327138760,
+      "source": "6edfa5784839b186a59893c8579297534b7edfb6",
+      "pagesParent": "83125c07f652d524cf753295b9aea07a6d8f8600",
+      "pages": "d9e93aa4337b5b9a691793995e686e6a5f39631e",
+      "nativePagesRun": 39327359949,
+      "sourceCI": 39327135259,
+      "liveFilesVerified": 29,
+      "result": "success",
+      "warnings": "Node.js 20 deprecation: checkout@v4, setup-node@v4, github-script@v7, upload-artifact@v4"
+    },
+    {
+      "deployFlockRun": 39328324058,
+      "source": "eed872a7b3622a419283fd094db35dcea0527014",
+      "pages": "db53e5358700ca2baefcda17a00e8e9ab68e0954",
+      "sourceCI": 39328310849,
+      "liveFilesVerified": 29,
+      "result": "success",
+      "warnings": "Node.js 20 deprecation: upload-artifact@v5"
+    },
+    {
+      "deployFlockRun": 39328751422,
+      "source": "032f03ea0d97524f4f67e298afd0bc841108eb1f",
+      "pages": "6f9b3b90220b6f0a91cc9668bf5d9387a285852a",
+      "sourceCI": 39328751141,
+      "liveFilesVerified": 29,
+      "result": "success",
+      "warnings": "none"
+    }
+  ],
+  "outsideDevTreesUnchanged": {
+    "index.html": "5bdb3bc48011202aaf740525b2bd122f705d8aa9",
+    "assets": "02308a2a3948fc3b4134e067b9f10362f9d0219e",
+    "icons": "f0ff173fb2791e124b7c66d3b90ff55e76f96478",
+    "dev2": "11f9d3b774538bc570078a3b9f8ab910825ead6d",
+    "flock": "a920c38a2c640274841c51fddf41c53b7773fc7e",
+    "tracker": "7103d6cbbb85985e4f30572c1aac8f033b7c4bf9"
+  },
+  "localRegressionTests": 341,
+  "headlessSmoke": "Playwright Chromium, SwiftShader WebGL2; menu and level 1 in 390x844 and 844x390; no page errors or failed requests",
+  "liveSiteReachableFromAgent": false,
+  "userAcceptance": "Pending",
+  "nativeAppearanceAndFPS": "Not verified",
+  "files": {
+    "assets/dm-sans-latin-400-normal-BwCSEQnW.woff": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+    "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+    "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+    "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+    "assets/dm-sans-latin-700-normal-CUSSCpQX.woff": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+    "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+    "assets/index-B7u79i-O.js": "d613c8cf9dd6d945944aef69bbbf620d24d18dd25d45bca2a1783569fc3783ea",
+    "assets/index-BL6CDKMp.css": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+    "assets/outfit-latin-600-normal-B7SfZ07L.woff2": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+    "assets/outfit-latin-600-normal-BEfTtDA7.woff": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+    "assets/outfit-latin-700-normal-Cu9v6i1X.woff2": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+    "assets/outfit-latin-700-normal-D4itBLBr.woff": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+    "assets/outfit-latin-900-normal-D7VxKg29.woff2": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+    "assets/outfit-latin-900-normal-DBTzQ72N.woff": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+    "assets/qa-DGL2yE98.js": "d565197f143be0c79d847edede3c6e0985fe4e2a3c042dc5ea5c0c9d54e45c03",
+    "assets/qa-DWlVkWAo.css": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+    "icons/pip-120.png": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7",
+    "icons/pip-152.png": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec",
+    "icons/pip-16.png": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182",
+    "icons/pip-167.png": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662",
+    "icons/pip-180.png": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107",
+    "icons/pip-192.png": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e",
+    "icons/pip-32.png": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76",
+    "icons/pip-48.png": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e",
+    "icons/pip-512.png": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841",
+    "icons/pip-96.png": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758",
+    "icons/pip.svg": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6",
+    "index.html": "6396ca19bf3c97845dd26332efde0f81ed0423d59020b61bdaf72baa585b3e40",
+    "site.webmanifest": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4"
+  }
+}

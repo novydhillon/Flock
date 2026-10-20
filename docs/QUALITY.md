@@ -790,3 +790,49 @@ No Actions execution, secret inspection/configuration, native Pages deployment o
 **Final checks:** `npm run build:checked:dev` passed documentation/link/lifecycle and4 docs behavior checks, all 375 full regressions, release artifact QA exclusion and development QA inclusion. Three-minute65mixed integration checks bound centroid drift and individual home excursion, require diverse headings, asynchronous steps, long uninterrupted quiet/grazing and both physical Buddy checks and watching. Prior exact-pinning assertions became bounded/cumulative natural-rest assertions; independent travel, collision, tier, scoring and surface exclusions remain checked. No code changes follow the checked build; generated documentation is regenerated/checked after this evidence update.
 
 **Limits/handoff:** metrics establish source behavior, not phone animation quality, subjective fun, touch usability or FPS. The Vite advisory large-chunk warning remains. F-COMP-010 and earlier Buddy items stay Review pending Novy's playtest/sign-off. Source will be pushed; publication remains the standard Actions UI step, not an unrecorded custom deployment.
+
+## F-OPS-002 — Claude Code guidance, 19 October 2026
+
+Branch: `claude/project-documentation-md-4kf197`, based on main `3ccc8db`. Documentation and agent-configuration change only; no runtime source, tests or build configuration changed.
+
+Approach: the root `CLAUDE.md` imports AGENTS.md instead of restating it, and adds only Claude-specific mappings. The alternative, a standalone copy of the rules, was rejected because it would drift from AGENTS.md. Directory guides keep the root file short and load only where they apply.
+
+Models: the implementation ran on the Claude Code session model, and the critic ran as a fresh lower-cost Claude subagent. Their exact model identifiers are not recorded here, because the Claude Code harness forbids writing model identifiers into repository files. This is a known gap in the AGENTS.md model-record rule.
+
+Review: a fresh critic worked on a history-free isolated copy of the candidate, given only the task, the acceptance criteria and the scope. The first pass scored 8/10 with no material blocker. It found four problems: the review-isolation step could not work because the worktree needs commits the connector does not provide locally; the WebGL2 claim was unsupported; the Node and dev-server wording was imprecise; and the critic's restrictions were not marked as instruction-only. All were fixed. The same critic's follow-up scored 9/10 with no material blocker, and its one nit (a missing `mkdir -p`) was applied.
+
+Validation: `npm run docs:check` passes, and `npm test` passes 341/341, run by the author and independently by the critic. `npm run build:checked:dev` passes. Claude Code mechanics (the `@` import, subagent frontmatter, lazy loading of directory guides) were judged from documentation knowledge, not exercised in a new session.
+
+Delivery: committed with shell git under Novy's one-time waiver (see the F-OPS-002 tracker entry). There was no game deployment. Remains Review pending user sign-off.
+
+### F-OPS-002 shared agent instructions — 19 October 2026
+
+At Novy's request, the separate Claude guide was merged into AGENTS.md, which now serves Codex, Claude Code, Gemini CLI and other agents. `CLAUDE.md` and `GEMINI.md` are symlinks at the root and beside each folder guide. This supersedes the "imports AGENTS.md" approach above. One file avoids two copies of the policy drifting apart. Every existing AGENTS.md rule was kept; per-tool detail moved into tables.
+
+Review: a new fresh critic got a history-free copy of the candidate, the previous AGENTS.md for a rule-by-rule comparison, the task and the acceptance criteria. It scored **9/10** with no material blocker. It confirmed every reference rule is present and not weakened, all eight symlinks resolve, and the commands and source facts match. Three minor findings were fixed:
+- the shell-git waiver sentence is now tied to the user-precedence rule and mirrored in DEVELOPMENT.md;
+- the scratch copy must sit outside the repository;
+- the critic's pinned model can be overridden for escalation.
+
+The Claude and Gemini model names in the tier table are family aliases, not verified model IDs.
+
+Validation: `npm run docs:check` passes, `npm test` passes 341/341, and `npm run build:checked:dev` passes. Nobody has confirmed in live Codex, Claude Code or Gemini CLI sessions that each tool loads the nested symlinks. Models are recorded as described above. Remains Review pending user sign-off.
+
+Source CI: run 39323862997 passed on `d3a1058`. Novy signed off on 19 October 2026, 14:03 America/Creston, and F-OPS-002 is Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the instruction files. Live loading of the symlinks by each agent tool is still unverified.
+
+
+## F-OPS-003 — Live dev validation of the delivery workflow, 19 October 2026
+
+Branch: `claude/build-deployment-scripts-6p1dnt`, created from main `6edfa57` with the connector. Model: Claude Code session model, identifier not recorded (the harness forbids model identifiers in repository files). No model or effort override.
+
+Approach: exercise the checked-in entry points unchanged first, then fix only what the real run exposed. The alternative, editing the scripts before any run, was rejected: it could not show whether the tooling as merged actually works.
+
+First run, unchanged tooling: local `npm run build:checked:dev` passed (docs check, 4/4 documentation behavior tests, 341/341 regression tests, release 27 files/0 QA assets, development 29 files/2 QA assets). A mocked dev publication of the real `dist/` produced 29 `dev/` paths plus `dev/.flock-deployment.json`. Deploy Flock run 39327138760 passed every step, and its live verification matched 29 files by SHA-256. A connector tree comparison confirmed the `dev/` blobs equal the local build and every other Pages path is unchanged. Headless Chromium with SwiftShader WebGL2 rendered the dev build under a `/Flock/dev/` path and started level 1 in portrait and landscape with no page errors or failed requests.
+
+Fixes: action majors moved off Node.js 20 (`checkout@v5`, `setup-node@v5`, `github-script@v8`, `upload-artifact@v6`) in both workflows; the Pages wait loop logs each attempt; the runbook now documents connector dispatch. Both workflow files parse as YAML, and the extracted wait-step script passes `node --check`.
+
+Review: no blind gauntlet. The change is a version bump, two log lines and documentation, judged not substantial. The stronger check is a real Deploy Flock run on the fixed revision. Run 39328324058 (`eed872a`) passed but showed `upload-artifact@v5` still targets Node.js 20; after the move to `@v6`, run 39328751422 (`032f03e`) passed with no warning and verified 29 live files. Source CI 39328751141 is green on `032f03e`.
+
+Limits: the live site is not reachable from this cloud container, so live checks rely on the workflow's own hash verification. SwiftShader is a software renderer: no phone appearance, GPU, FPS, touch or listening evidence. Review pending user sign-off. The documentation commit used shell git under Novy's session waiver for large files (see the F-OPS-003 tracker entry).
+
+Novy signed off F-OPS-001 and F-OPS-003 on 19 October 2026, 14:47 America/Creston; both are Done ([closed record](ISSUES_CLOSED.md)). User acceptance covers the delivery tooling and the dev deployments. Phone appearance, FPS, touch and audio remain unverified by this work, and no production deployment or merge was made.
