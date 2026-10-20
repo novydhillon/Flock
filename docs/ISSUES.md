@@ -428,17 +428,17 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 | Measure (mean per animal, finished runs) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
 |---|---|---|---|---|
-| Layouts finished | 12/12 | 12/12 | 17/24 | 21/24 |
-| Median time to finish | 95 s | 86 s | 264 s | 238 s |
-| First bridge reversals | 1.70 | 0.76 | 2.03 | 1.32 |
-| Last bridge reversals | 1.70 | 0.76 | 4.85 | 2.81 |
+| Layouts finished | 12/12 | 11/12 | 17/24 | 21/24 |
+| Median time to finish | 95 s | 83 s | 264 s | 242 s |
+| First bridge reversals | 1.70 | 0.77 | 2.03 | 1.34 |
+| Last bridge reversals | 1.70 | 0.77 | 4.85 | 2.44 |
 | Worst bridge reversals in any layout | 2.66 | 1.66 | 14.42 | 9.35 |
-| Last bridge stalled seconds | 0.12 | 0.03 | 0.21 | 0.16 |
-| Gate reversals | 1.13 | 2.13 | 0.66 | 0.32 |
-| Gate stalled seconds | 0.02 | 0.06 | 0.04 | 0.03 |
-| Entrance reversals | 0.38 | 0.63 | 1.01 | 1.41 |
+| Last bridge stalled seconds | 0.12 | 0.03 | 0.21 | 0.14 |
+| Gate reversals | 1.13 | 1.36 | 0.66 | 0.23 |
+| Gate stalled seconds | 0.02 | 0.02 | 0.04 | 0.01 |
+| Entrance reversals | 0.38 | 0.80 | 1.01 | 1.23 |
 
-These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 and entrance reversals on levels 16–81 rose, with stalls still under 0.1 s per animal. A variant without gate queuing scored closer to the baseline at gates (1.36 and 0.23) but finished one layout fewer; a variant without entrance queuing failed two existing journey tests. All openings therefore keep the behaviour; gate tuning on small levels is a follow-up candidate. Unfinished runs in both columns stop in the destination phase, where the scripted player's straggler collection is the known limit. Scripted-player evidence only; human feel, rendered appearance and phone FPS need device checks.
+These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Queuing applies only to openings narrower than 9 m: bridge decks, the 7 m destination entrance and the 8 m gates of levels 3–5. The 10 m gates from level 6 measured better with normal flocking (an all-openings version scored 2.13 gate reversals on levels 6–13). Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 (1.13 → 1.36) and entrance reversals rose slightly, with stalls under 0.1 s per animal; a version without entrance queuing failed two existing journey tests. Unfinished runs in both columns are scripted-player failures, not herd stalls: in the checked cases the flock rests past every bridge and the gate while Pip dithers or paths back and forth behind it (level 10 default: Pip oscillates 14 m behind the gate from 80 s).
 ### F-HERD-006 — Readable relaxation and settling (P2)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.

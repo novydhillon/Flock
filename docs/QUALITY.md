@@ -804,3 +804,8 @@ Follow-up review by the same critic: **8/10**, no material blocker. B1 resolved 
 - No early commit back over a crossed deck: intended, documented in GAMEPLAY.md.
 
 The final measurement uses a steadier scripted player (keeps its target unless another animal is at least 3 m further back) after a re-run showed dithering between two strays; both baseline and candidate were re-measured with it.
+
+Second follow-up by the same critic: **8/10**, no material blocker; m2 and m3 confirmed fixed, B1 still resolved. Remaining items:
+- No test for the no-recross queuing rule: added (fails if the rule is removed).
+- Small-level gate reversals rose with queuing at 10 m gates: queuing now applies only to openings narrower than 9 m; the final 36-layout table is in the tracker.
+- Completion flips both ways in the critic's 12-layout sample: the inspected cases are scripted-player failures after the flock passed every opening; recorded as a measurement limit.
