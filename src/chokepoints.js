@@ -7,6 +7,9 @@ import { targetFootprint } from './world.js';
  * State is transient per animal; it never chooses goals or moves bodies. */
 export const APPROACH_DEPTH = 8;
 export const YIELD_LIMIT = 3, ESCAPE_TIME = 2;
+/** Openings at least this wide pass a crowd freely; queuing them only adds
+ * friction (measured on 8–10m gates), so they are left to normal flocking. */
+export const QUEUE_WIDTH = 9;
 const axes = heading => ({ x: Math.sin(heading), z: Math.cos(heading) });
 
 const openingCache = new WeakMap();
@@ -23,7 +26,7 @@ function buildOpenings(level) {
   // The destination entrance is approached from outside only.
   const shape = level.target && targetFootprint(level.target);
   const entrance = shape ? [{ x: shape.entrance.x, z: shape.entrance.z, heading: level.target.heading, width: shape.openingWidth, half: 0, inwardOnly: true }] : [];
-  return [...bridges, ...gates, ...entrance];
+  return [...bridges, ...gates, ...entrance].filter(o => o.width < QUEUE_WIDTH);
 }
 
 /** The opening this body is approaching from either side, with the inward

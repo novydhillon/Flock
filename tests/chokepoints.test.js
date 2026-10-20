@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { stepSimulation, canOccupy } from '../src/simulation.js';
 import { createLevel, routeProgress, distance, targetFootprint } from '../src/world.js';
 import { animalRadius, COW_SCALES } from '../src/animal-size.js';
-import { yieldAtOpening, chokeApproach, YIELD_LIMIT, ESCAPE_TIME } from '../src/chokepoints.js';
+import { yieldAtOpening, chokeApproach, YIELD_LIMIT, ESCAPE_TIME, QUEUE_WIDTH } from '../src/chokepoints.js';
 import { bridgeCrossing } from '../src/bridge-crossing.js';
 
 // A 6m deck like the later campaign's, across a river on x=0. Travel is +x.
@@ -106,11 +106,11 @@ test('Pip can still turn back animals inside the commit zone before they commit'
 });
 
 test('a pressed crowd queues through an open gate and the destination entrance', () => {
-  const heading = Math.PI / 2, gate = { id: 'gate-0', x: 0, z: 0, width: 8, heading, operable: false, open: true };
+  const heading = Math.PI / 2, gate = { id: 'gate-0', x: 0, z: 0, width: 6, heading, operable: false, open: true };
   const level = crowdLevel(10);
   level.rivers = [];
   level.gates = [gate];
-  level.fenceSegments = [{ a: { x: 0, z: -40 }, b: { x: 0, z: -4 }, kind: 'interior' }, { a: { x: 0, z: 4 }, b: { x: 0, z: 40 }, kind: 'interior' }];
+  level.fenceSegments = [{ a: { x: 0, z: -40 }, b: { x: 0, z: -3 }, kind: 'interior' }, { a: { x: 0, z: 3 }, b: { x: 0, z: 40 }, kind: 'interior' }];
   pushAcross(level, 60);
   assert.ok(level.animals.every(a => a.x > 4), 'all pass the gate');
   // The entrance is approached from outside only: animals inside a pen are never steered back toward it.
@@ -132,6 +132,20 @@ test('at the destination entrance an animal outside queues and steers into the o
   const steered = yieldAtOpening(level, a, { ...a }, [{ ...a }], inward, inward, none);
   const lateral = steered.x * f.z - steered.z * f.x;
   assert.ok(lateral < -.5, `moves toward the opening (lateral ${lateral.toFixed(2)})`);
+});
+
+test('no queuing help back toward a deck the animal already crossed, and none at wide openings', () => {
+  const level = crowdLevel(1), a = level.animals[0], bridge = level.rivers[0].bridges[0];
+  Object.assign(a, { x: -5, z: 0, vx: 0, vz: 0 });
+  const forward = { x: 3, z: .4 }, none = { x: 0, z: 0 };
+  const shaped = yieldAtOpening(level, a, { ...a }, [{ ...a }], { x: -2, z: .4 }, forward, { x: -3, z: 0 });
+  assert.notDeepEqual(shaped, { x: -2, z: .4 }, 'a fresh forward approach is shaped');
+  a.lastBridge = { bridge, sign: -1 }; // It crossed toward -x and is now pushed back toward +x.
+  assert.deepEqual(yieldAtOpening(level, a, { ...a }, [{ ...a }], { x: -2, z: .4 }, forward, { x: -3, z: 0 }), { x: -2, z: .4 });
+  a.lastBridge = { bridge, sign: 1 }; // Same direction as its last crossing: shaped again.
+  assert.notDeepEqual(yieldAtOpening(level, a, { ...a }, [{ ...a }], { x: -2, z: .4 }, forward, { x: -3, z: 0 }), { x: -2, z: .4 });
+  const wide = crowdLevel(1); wide.rivers[0].bridges[0].width = QUEUE_WIDTH + 1; Object.assign(wide.animals[0], { x: -5, z: 0 });
+  assert.equal(chokeApproach(wide, wide.animals[0]), null, 'openings wider than the queue width are left to normal flocking');
 });
 
 test('opposing groups at a deck do not deadlock', () => {
