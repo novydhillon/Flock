@@ -426,19 +426,19 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Execution — 20 October 2026:** Implemented in `src/chokepoints.js`, `src/bridge-crossing.js`, `src/simulation.js` and `openingSteer` in `src/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
 
-| Measure (mean per animal) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
+| Measure (mean per animal, finished runs) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
 |---|---|---|---|---|
-| Layouts finished | 12/12 | 12/12 | 17/24 | 24/24 |
-| Median time to finish | 96 s | 85 s | 254 s | 211 s |
-| First bridge reversals | 1.78 | 0.85 | 2.38 | 1.50 |
-| Last bridge reversals | 1.78 | 0.85 | 4.03 | 1.88 |
-| Worst bridge reversals in any layout | 2.98 | 1.71 | 12.95 | 3.95 |
-| Last bridge stalled seconds | 0.12 | 0.03 | 0.22 | 0.11 |
-| Gate reversals | 1.51 | 2.21 | 0.65 | 0.29 |
-| Gate stalled seconds | 0.01 | 0.05 | 0.06 | 0.02 |
-| Entrance reversals | 0.35 | 0.60 | 1.19 | 1.50 |
+| Layouts finished | 12/12 | 12/12 | 17/24 | 21/24 |
+| Median time to finish | 95 s | 86 s | 264 s | 238 s |
+| First bridge reversals | 1.70 | 0.76 | 2.03 | 1.32 |
+| Last bridge reversals | 1.70 | 0.76 | 4.85 | 2.81 |
+| Worst bridge reversals in any layout | 2.66 | 1.66 | 14.42 | 9.35 |
+| Last bridge stalled seconds | 0.12 | 0.03 | 0.21 | 0.16 |
+| Gate reversals | 1.13 | 2.13 | 0.66 | 0.32 |
+| Gate stalled seconds | 0.02 | 0.06 | 0.04 | 0.03 |
+| Entrance reversals | 0.38 | 0.63 | 1.01 | 1.41 |
 
-Bridges improved on every band and every large-herd layout finished. Trade-offs: gate reversals on levels 6–13 and entrance reversals rose slightly with negligible stalls. Variants that dropped queuing at gates or the entrance improved those counts but left three large-herd layouts unfinished and failed existing journey tests, so all openings keep the behaviour. Scripted-player evidence only; human feel, rendered appearance and phone FPS need device checks.
+These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 and entrance reversals on levels 16–81 rose, with stalls still under 0.1 s per animal. A variant without gate queuing scored closer to the baseline at gates (1.36 and 0.23) but finished one layout fewer; a variant without entrance queuing failed two existing journey tests. All openings therefore keep the behaviour; gate tuning on small levels is a follow-up candidate. Unfinished runs in both columns stop in the destination phase, where the scripted player's straggler collection is the known limit. Scripted-player evidence only; human feel, rendered appearance and phone FPS need device checks.
 ### F-HERD-006 — Readable relaxation and settling (P2)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.

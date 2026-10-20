@@ -709,7 +709,7 @@
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable reference table"><table>
 <thead>
 <tr>
-<th>Measure (mean per animal)</th>
+<th>Measure (mean per animal, finished runs)</th>
 <th>Levels 6–13, before</th>
 <th>Levels 6–13, after</th>
 <th>Levels 16–81, before</th>
@@ -721,66 +721,66 @@
 <td>12/12</td>
 <td>12/12</td>
 <td>17/24</td>
-<td>24/24</td>
+<td>21/24</td>
 </tr>
 <tr>
 <td>Median time to finish</td>
-<td>96 s</td>
-<td>85 s</td>
-<td>254 s</td>
-<td>211 s</td>
+<td>95 s</td>
+<td>86 s</td>
+<td>264 s</td>
+<td>238 s</td>
 </tr>
 <tr>
 <td>First bridge reversals</td>
-<td>1.78</td>
-<td>0.85</td>
-<td>2.38</td>
-<td>1.50</td>
+<td>1.70</td>
+<td>0.76</td>
+<td>2.03</td>
+<td>1.32</td>
 </tr>
 <tr>
 <td>Last bridge reversals</td>
-<td>1.78</td>
-<td>0.85</td>
-<td>4.03</td>
-<td>1.88</td>
+<td>1.70</td>
+<td>0.76</td>
+<td>4.85</td>
+<td>2.81</td>
 </tr>
 <tr>
 <td>Worst bridge reversals in any layout</td>
-<td>2.98</td>
-<td>1.71</td>
-<td>12.95</td>
-<td>3.95</td>
+<td>2.66</td>
+<td>1.66</td>
+<td>14.42</td>
+<td>9.35</td>
 </tr>
 <tr>
 <td>Last bridge stalled seconds</td>
 <td>0.12</td>
 <td>0.03</td>
-<td>0.22</td>
-<td>0.11</td>
+<td>0.21</td>
+<td>0.16</td>
 </tr>
 <tr>
 <td>Gate reversals</td>
-<td>1.51</td>
-<td>2.21</td>
-<td>0.65</td>
-<td>0.29</td>
+<td>1.13</td>
+<td>2.13</td>
+<td>0.66</td>
+<td>0.32</td>
 </tr>
 <tr>
 <td>Gate stalled seconds</td>
-<td>0.01</td>
-<td>0.05</td>
-<td>0.06</td>
 <td>0.02</td>
+<td>0.06</td>
+<td>0.04</td>
+<td>0.03</td>
 </tr>
 <tr>
 <td>Entrance reversals</td>
-<td>0.35</td>
-<td>0.60</td>
-<td>1.19</td>
-<td>1.50</td>
+<td>0.38</td>
+<td>0.63</td>
+<td>1.01</td>
+<td>1.41</td>
 </tr>
 </tbody></table></div>
-<p>Bridges improved on every band and every large-herd layout finished. Trade-offs: gate reversals on levels 6–13 and entrance reversals rose slightly with negligible stalls. Variants that dropped queuing at gates or the entrance improved those counts but left three large-herd layouts unfinished and failed existing journey tests, so all openings keep the behaviour. Scripted-player evidence only; human feel, rendered appearance and phone FPS need device checks.</p>
+<p>These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 and entrance reversals on levels 16–81 rose, with stalls still under 0.1 s per animal. A variant without gate queuing scored closer to the baseline at gates (1.36 and 0.23) but finished one layout fewer; a variant without entrance queuing failed two existing journey tests. All openings therefore keep the behaviour; gate tuning on small levels is a follow-up candidate. Unfinished runs in both columns stop in the destination phase, where the scripted player&#39;s straggler collection is the known limit. Scripted-player evidence only; human feel, rendered appearance and phone FPS need device checks.</p>
 <h3 id="f-herd-006--readable-relaxation-and-settling-p2">F-HERD-006 — Readable relaxation and settling (P2)<a class="heading-link" href="#f-herd-006--readable-relaxation-and-settling-p2" aria-label="Link to F-HERD-006 — Readable relaxation and settling (P2)">#</a></h3>
 <p><strong>Status:</strong> Open. Owner: unassigned. Branch: not yet claimed.</p>
 <p><strong>Depends on / preserve:</strong> F-HERD-002; existing F-041 local settling; grass/bush grazing work.</p>

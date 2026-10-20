@@ -795,3 +795,12 @@ The reviewer's spacing finding (gaps of 4–8 m on levels 10–15) did not repro
 - The docs give runtime estimates.
 
 Measured results are in the F-HERD-005 tracker entry. Follow-up review results follow. Validation limits: scripted-player counts, Node timings and headless tests do not establish human feel, rendered appearance, touch usability or phone FPS.
+
+Follow-up review by the same critic: **8/10**, no material blocker. B1 resolved on its own reruns (level 16 and 21 default layouts now better than baseline); B2 withdrawn after it re-measured with route-0 bridges only (minimum gap 26.6 m candidate vs 16.6 m baseline). Remaining minor findings and responses:
+- Gate/entrance trade-off: confirmed by ablation (gate lanes and following both add small-level gate reversals); kept for completion reasons, recorded in the tracker.
+- Oscillation when a player shoves a flock back and forth across a river: fixed; animals pushed back toward a deck they already crossed get no queuing help (old-player level 21 first-bridge reversals 35.7 → 6.7 per animal, baseline 3.6).
+- Gate/entrance test did not discriminate: added an entrance test that fails with entrance queuing removed.
+- Step-cost drift: about 5–10% at identical state in the reviewer's measurement; watch on phones.
+- No early commit back over a crossed deck: intended, documented in GAMEPLAY.md.
+
+The final measurement uses a steadier scripted player (keeps its target unless another animal is at least 3 m further back) after a re-run showed dithering between two strays; both baseline and candidate were re-measured with it.
