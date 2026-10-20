@@ -809,3 +809,9 @@ Second follow-up by the same critic: **8/10**, no material blocker; m2 and m3 co
 - No test for the no-recross queuing rule: added (fails if the rule is removed).
 - Small-level gate reversals rose with queuing at 10 m gates: queuing now applies only to openings narrower than 9 m; the final 36-layout table is in the tracker.
 - Completion flips both ways in the critic's 12-layout sample: the inspected cases are scripted-player failures after the flock passed every opening; recorded as a measurement limit.
+
+Third follow-up by the same critic: **9/10, no material blocker**. The no-recross rule and the 9 m width cut-off are each guarded by a test, and removing either fails it. Small-level gate reversals returned near the baseline, and the default-seed layouts on levels 16 and 21 finish with low bridge counts. Two layouts in the critic's 12-layout sweep that did not finish were probed. In both, the flock rested past every opening while the scripted Pip idled out of admission range: these are scripted-player failures, not herd stalls. The scripted measurement therefore cannot confirm "no new unfinished layouts", and this is recorded as a limit. Remaining minor items:
+- The wide-opening exemption is now stated in GAMEPLAY.md.
+- Buddy and drone herding at gates and the entrance remain untested by focused tests; Buddy pressure counts as intent in the code.
+
+Final validation: `npm run build:checked:dev` and `npm run build:checked:production` pass (docs, full suite and both artifact modes). Implementation and source review are complete; F-HERD-005 and F-WORLD-001 are in Review pending device checks and user sign-off.

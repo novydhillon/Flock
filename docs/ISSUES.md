@@ -44,8 +44,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
 | F-HERD-003 | P2 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
 | F-HERD-004 | P2 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | In progress | Existing gate/bridge traversal; F-065 |
-| F-WORLD-001 | P2 | World generation | Room to breathe between the last bridge and the gate for large herds | In progress | F-HERD-005 findings; F-038 |
+| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | Review | Existing gate/bridge traversal; F-065 |
+| F-WORLD-001 | P2 | World generation | Room to breathe between the last bridge and the gate for large herds | Review | F-HERD-005 findings; F-038 |
 | F-HERD-006 | P2 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
 | F-HERD-007 | P2 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
 | F-HERD-008 | P2 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
@@ -412,7 +412,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 ### F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)
 
-**Status:** In progress. Owner: Claude Code.
+**Status:** Review. Owner: Claude Code. Source complete; blind review 9/10 after fixes (see [QUALITY.md](QUALITY.md#f-herd-005-and-f-world-001--crossing-bottlenecks-20-october-2026)); awaiting device smoke checks and user sign-off.
 
 **Branch:** `feature/herd-bottlenecks`
 
@@ -667,7 +667,7 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 
 ### F-WORLD-001 — Room to breathe between crossings (P2)
 
-**Status:** In progress. Owner: Claude Code.
+**Status:** Review. Owner: Claude Code. Source complete with F-HERD-005; awaiting device smoke checks and user sign-off.
 
 **Branch:** `feature/herd-bottlenecks`
 

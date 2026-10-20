@@ -224,7 +224,7 @@
 <td>P2</td>
 <td>Navigation</td>
 <td>Yielding at gates and bridge bottlenecks</td>
-<td>In progress</td>
+<td>Review</td>
 <td>Existing gate/bridge traversal; F-065</td>
 </tr>
 <tr>
@@ -232,7 +232,7 @@
 <td>P2</td>
 <td>World generation</td>
 <td>Room to breathe between the last bridge and the gate for large herds</td>
-<td>In progress</td>
+<td>Review</td>
 <td>F-HERD-005 findings; F-038</td>
 </tr>
 <tr>
@@ -699,7 +699,7 @@
 <p><strong>Depends on / preserve:</strong> F-HERD-001; accepted forward-flow and local-flock behavior.</p>
 <p><strong>Accept when:</strong> Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.</p>
 <h3 id="f-herd-005--yielding-at-gates-and-bridge-bottlenecks-p2">F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)<a class="heading-link" href="#f-herd-005--yielding-at-gates-and-bridge-bottlenecks-p2" aria-label="Link to F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)">#</a></h3>
-<p><strong>Status:</strong> In progress. Owner: Claude Code.</p>
+<p><strong>Status:</strong> Review. Owner: Claude Code. Source complete; blind review 9/10 after fixes (see <a href="quality.html#f-herd-005-and-f-world-001--crossing-bottlenecks-20-october-2026">QUALITY.md</a>); awaiting device smoke checks and user sign-off.</p>
 <p><strong>Branch:</strong> <code>feature/herd-bottlenecks</code></p>
 <p><strong>Depends on / preserve:</strong> Existing gate/bridge traversal; F-065.</p>
 <p><strong>Accept when:</strong> Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.</p>
@@ -892,7 +892,7 @@
 <p>Requested integration of main <code>d2484b9</code> into planning branch <code>plan/bird-behaviour</code> (<code>6ca2b35</code>). Main contributes five commits since shared base <code>5fd8cf5</code>: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch&#39;s planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy&#39;s 22:10 approval and is added directly to <a href="issues-closed.html">Closed issues</a>; 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.</p>
 <p>Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.</p>
 <h3 id="f-world-001--room-to-breathe-between-crossings-p2">F-WORLD-001 — Room to breathe between crossings (P2)<a class="heading-link" href="#f-world-001--room-to-breathe-between-crossings-p2" aria-label="Link to F-WORLD-001 — Room to breathe between crossings (P2)">#</a></h3>
-<p><strong>Status:</strong> In progress. Owner: Claude Code.</p>
+<p><strong>Status:</strong> Review. Owner: Claude Code. Source complete with F-HERD-005; awaiting device smoke checks and user sign-off.</p>
 <p><strong>Branch:</strong> <code>feature/herd-bottlenecks</code></p>
 <p><strong>Depends on / preserve:</strong> F-HERD-005 findings; F-038 (larger fields) remains the broader layout item.</p>
 <p><strong>Execution — 20 October 2026:</strong> <code>createLevel</code> adds 0.4 m of trail per animal above 30 (capped at 14 m) before the gate on non-early levels, keeping rivers at the same distance from the spawn. The last bridge exit to gate distance on 50–65 animal levels grows from about 22 m to 28–37 m; single-river levels 6–15 already have 41–49 m; levels 1–5 are unchanged. Measured gate reversals on levels 16–81 fell from 0.65 to 0.29 per animal with stalls 0.06 → 0.02 s (see F-HERD-005).</p>
