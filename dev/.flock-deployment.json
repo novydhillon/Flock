@@ -1,7 +1,7 @@
 {
   "environment": "dev",
-  "branch": "claude/build-deployment-scripts-6p1dnt",
-  "sourceSha": "032f03ea0d97524f4f67e298afd0bc841108eb1f",
+  "branch": "buddy_behaviour",
+  "sourceSha": "753159acfa115a2bd932a1af429fb847a3d05344",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,12 +30,12 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-B7u79i-O.js",
-      "sha256": "d613c8cf9dd6d945944aef69bbbf620d24d18dd25d45bca2a1783569fc3783ea"
-    },
-    {
       "path": "dev/assets/index-BL6CDKMp.css",
       "sha256": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8"
+    },
+    {
+      "path": "dev/assets/index-ChoDettG.js",
+      "sha256": "6a37dacf3b3b48b298df17cc024c2bfc230954dd9049b99cc888a3921c4ae830"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -62,8 +62,8 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-DGL2yE98.js",
-      "sha256": "d565197f143be0c79d847edede3c6e0985fe4e2a3c042dc5ea5c0c9d54e45c03"
+      "path": "dev/assets/qa-Cbc0RiwU.js",
+      "sha256": "4aac8e1fe9cbae8307c60f4967af02325be9423bf3d015706de04e2d04fd6625"
     },
     {
       "path": "dev/assets/qa-DWlVkWAo.css",
@@ -115,7 +115,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "6396ca19bf3c97845dd26332efde0f81ed0423d59020b61bdaf72baa585b3e40"
+      "sha256": "921287a2781325eca54cc75f47360e11079c5a0af6179a56b303796f4fe8c964"
     },
     {
       "path": "dev/site.webmanifest",
