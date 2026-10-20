@@ -3,6 +3,7 @@ import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } fr
 import { createLevel, canOccupy, moveBody, openingSteer, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
 import { flockGroups, updateBuddy } from './buddy.js';
 import { bridgeCrossing } from './bridge-crossing.js';
+import { yieldAtOpening } from './chokepoints.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
@@ -367,6 +368,13 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
         desiredZ = (home.z + Math.cos(level.time * .19 + phase) * 1.4 - old.z) * .35 + sz * .2;
       }
     }
+    if (pressure > 0.03 && !crossing && !holding && !animal.wanderHome && !wander?.bolting) {
+      // Queue at bridge mouths and open gates instead of surging and reversing.
+      const travel = flockMotion.get(flockMembership.get(animal.id)), help = buddyActivelyHerding ? buddy.forces.get(animal.id) : null;
+      const intent = { x: (dogActivelyHerding ? playerSignal.x : 0) + (help?.x || 0) + (travel?.forward ? travel.forward.x * travel.drive : 0),
+        z: (dogActivelyHerding ? playerSignal.z : 0) + (help?.z || 0) + (travel?.forward ? travel.forward.z * travel.drive : 0) };
+      ({ x: desiredX, z: desiredZ } = yieldAtOpening(level, animal, old, snapshot, { x: desiredX, z: desiredZ }, intent, { x: sx * 2.5, z: sz * 2.5 }));
+    } else delete animal.chokeYield;
     if(crossing){
       const lateral=clamp(sx*crossing.forward.z-sz*crossing.forward.x,-.7,.7);
       const speed=animal.type==='cow'?2.7:3.2;
@@ -401,7 +409,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (dt > 0 && playerAtDestination && !holding && containsTarget(level.target, animal, physicalRadius) && clearSignal(level, dog, animal)) {
-      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation; delete animal.bridgeCrossing;
+      animal.saved = true; animal.vx = 0; animal.vz = 0; delete animal.wander; delete animal.wanderHome; delete animal.nextWanderCheck; delete animal.wanderOpportunity; delete animal.buddyNavigation; delete animal.bridgeCrossing; delete animal.chokeYield; delete animal.lastBridge;
       events.push({ type: 'animalSaved', id: animal.id, animalType: animal.type });
     }
   }

@@ -163,7 +163,10 @@ export function createLevel(index=0,seed=index*7919+42) {
   const random=rng(seed),early=index<5,count=Math.min(5+index*3,65),roadWidth=index===1?9.4:early?4.1:4.8;
   // Early lessons preserve their intimate footprint; level six opens into a
   // meadow 3.5 times deeper, then later chapters expand further.
-  const endU=early?15+index*3:48+index*3,minU=early?-32:-40,maxU=endU+15,halfV=early?24:84+Math.floor(index/15)*14;
+  // Larger herds get more trail between the last bridge and the gate so a
+  // flock can leave the deck before reaching the next opening (F-WORLD-001).
+  const breathing=early?0:clamp((count-30)*.4,0,14);
+  const endU=early?15+index*3:48+index*3+breathing,minU=early?-32:-40,maxU=endU+15,halfV=early?24:84+Math.floor(index/15)*14;
   // Late destinations occupy every compass direction, not always screen right.
   const quarter=early?(index===0?0:seed%2*2):seed%4;
   const angle=quarter*Math.PI/2;
@@ -176,7 +179,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   const spawn=transform({x:early?-20:-26,z:0}),dog=transform({x:early?-26:-33,z:0});
   const routeCount=early?1:index<15?(index%2===1?2:1):(index%3===0?3:2);
   const gateU=early?endU-21:endU-32;
-  const riverBases=index===0?[]:early?[index===1?-10:-12]:index>=15?[gateU-48,gateU-23]:[gateU-23];
+  const riverBases=index===0?[]:early?[index===1?-10:-12]:index>=15?[gateU-breathing-48,gateU-breathing-23]:[gateU-breathing-23];
   const riverFunctions=riverBases.map(base=>{const phase=random()*Math.PI*2;return {width:early?3.1:3.7+Math.min(index*.025,1.8),at:v=>base+Math.sin(v/21+phase)*2.4+Math.sin(v/8+phase)*.65};});
   const canonicalRivers=riverFunctions.map(r=>({width:r.width,points:Array.from({length:Math.ceil((halfV*2+64)/2)+1},(_,i)=>{const z=-halfV-32+i*2;return{x:r.at(z),z};}),bridges:[]}));
   const canonicalGates=[],canonicalRoutes=[];
@@ -395,7 +398,15 @@ export function openingSteer(level,body,vx,vz,radius=.78) {
   // its opening. Steering is called only under pressure; no idle goal force
   // or collision bypass is introduced.
   if(opening.length||opening.enclosure){
-    const waypoint=navigationTarget(level,body,opening,radius),toward=unit(waypoint.x-body.x,waypoint.z-body.z);
+    // Aim for this body's own lane at the near deck end, not the deck centre,
+    // so a pressed crowd spreads across the deck instead of converging.
+    let aim=opening;
+    if(opening.length){
+      const f=yawVector(opening.heading),u=(body.x-opening.x)*f.x+(body.z-opening.z)*f.z,v=(body.x-opening.x)*f.z-(body.z-opening.z)*f.x;
+      const limit=Math.max(0,opening.width/2-radius-.35),lane=clamp(v,-limit,limit),end=(Math.sign(u)||1)*opening.length/2;
+      aim={x:opening.x+f.x*end+f.z*lane,z:opening.z+f.z*end-f.x*lane};
+    }
+    const waypoint=navigationTarget(level,body,aim,radius),toward=unit(waypoint.x-body.x,waypoint.z-body.z);
     return{x:toward.x*Math.min(2.4,speed*.8+.5),z:toward.z*Math.min(2.4,speed*.8+.5)};
   }
   const f=yawVector(opening.heading),u=(opening.x-body.x)*f.z-(opening.z-body.z)*f.x;

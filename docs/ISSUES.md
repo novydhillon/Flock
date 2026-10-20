@@ -44,7 +44,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
 | F-HERD-003 | P2 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
 | F-HERD-004 | P2 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | Open | Existing gate/bridge traversal; F-065 |
+| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | In progress | Existing gate/bridge traversal; F-065 |
+| F-WORLD-001 | P2 | World generation | Room to breathe between the last bridge and the gate for large herds | In progress | F-HERD-005 findings; F-038 |
 | F-HERD-006 | P2 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
 | F-HERD-007 | P2 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
 | F-HERD-008 | P2 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
@@ -411,12 +412,17 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 ### F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Claude Code.
+
+**Branch:** `feature/herd-bottlenecks`
 
 **Depends on / preserve:** Existing gate/bridge traversal; F-065.
 
 **Accept when:** Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.
 
+**Investigation — 20 October 2026:** A scripted player herded seeded levels 6–81 (20–65 animals, all cow sizes) while every bridge, gate and pen entrance recorded reversals (forward-to-backward turns in the approach) and stalls under pressure. 144 runs compared the current game with wider openings, more spacing and a smaller personal-space radius. Findings: herds rarely stall (under 0.2 s per animal) but reverse repeatedly in the last metres before a bridge deck: about 1.9 reversals per animal on levels 6–13 and 5.4 at the second bridge on levels 16+, worst 23. Bridges, not gates, are the bottleneck. No animal reversed once on a deck, so committed crossing works. The strongest backward forces at a reversal were the fixed 2 m separation radius, convergence of every pressured animal on the bridge centre (`openingSteer`), cohesion and player pressure. Wider decks and a smaller separation radius each cut the worst bridge by about 25%; extra spacing mainly helped the gate. The approved fix is behavioural (lanes, yielding, an approach commit zone, a deadlock escape), with spacing tracked separately as F-WORLD-001. Scripted-player counts are directional; they are not human playtesting or device evidence.
+
+**Connector waiver — 20 October 2026:** Regenerated docs HTML (about 600 KB) is too large for the connector. Novy explicitly authorized shell `git commit`/`git push` for F-HERD-005 and F-WORLD-001 on the new branch `feature/herd-bottlenecks`. The connector-only rule stays in force for other work.
 ### F-HERD-006 — Readable relaxation and settling (P2)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
@@ -641,3 +647,14 @@ Root AGENTS.md and DEVELOPMENT.md now require connector-only repository operatio
 Requested integration of main `d2484b9` into planning branch `plan/bird-behaviour` (`6ca2b35`). Main contributes five commits since shared base `5fd8cf5`: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch's planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy's 22:10 approval and is added directly to [Closed issues](ISSUES_CLOSED.md); 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.
 
 Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
+
+
+### F-WORLD-001 — Room to breathe between crossings (P2)
+
+**Status:** In progress. Owner: Claude Code.
+
+**Branch:** `feature/herd-bottlenecks`
+
+**Depends on / preserve:** F-HERD-005 findings; F-038 (larger fields) remains the broader layout item.
+
+**Accept when:** On levels with large herds, the trail distance between the last bridge exit and the gate grows with herd size so a flock can leave the deck before reaching the gate. Spawn-to-first-river distance and early levels (1–5) stay unchanged. Generated routes keep full-body clearance for the largest cow and stay connected with gates open or closed. Seeded route sweeps, existing journeys and bridge regressions pass, and the chokepoint measurement shows lower gate reversals without new stalls. No teleporting or collision bypass.

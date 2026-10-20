@@ -11,7 +11,7 @@ Many modules use long, dense lines. A file with a few hundred lines can hold ten
 | Layer | Modules | Rule |
 |---|---|---|
 | Controller | `main.js` | Owns UI mode, pause, input, the frame loop, and profile actions. Dispatches events to audio and render |
-| Simulation | `simulation.js`, `world.js`, `buddy.js`, `buddy-navigation.js`, `bridge-crossing.js`, `wandering.js`, `progression.js`, `gates.js`, `animal-size.js` | Mutates `level` and `dog`, returns events, never touches the DOM or rendering |
+| Simulation | `simulation.js`, `world.js`, `buddy.js`, `buddy-navigation.js`, `bridge-crossing.js`, `chokepoints.js`, `wandering.js`, `progression.js`, `gates.js`, `animal-size.js` | Mutates `level` and `dog`, returns events, never touches the DOM or rendering |
 | Presentation | `render.js`, `models.js`, `nature.js`, `weather.js`, `water-effects.js`, `rain-view.js`, `gate-view.js`, `goal-view.js`, `vegetation.js`, `tree-geometry.js`, `surfaces.js`, `cutaway.js`, `grazing.js`, `animal-turn.js`, `pip-motion.js`, `thruster-glow.js`, `tail-light.js`, `wildlife*.js` | Reads simulation state. Visual state must never decide collision, delivery or rewards |
 | Audio | `audio.js` | Async activation guarded by generation counters |
 | Styles | `style.css`, `gates.css` | Presentation only. `gates.css` styles the gate action button, while `gates.js` owns the gate state and rules |

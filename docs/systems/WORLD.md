@@ -128,3 +128,8 @@ Bridge alignment/width and shared enclosure geometry are Done by user acceptance
 ### P2 Node 22 enclosure retrieval regression
 
 Stone walls changed physical thickness and player-signal visibility, exposing late retrieval behind destination walls in the unchanged public level-16 journey: 46/50 delivered on Node 22. Threading the true radius through route fallback improved clearance but did not fully recover the flock. `30abd2a` adds exterior enclosure corners and real entrance nodes to the local visibility graph and selects this detour for pressured bodies against nearby target walls. The same five ordinary-input journeys pass on Node 22 and Node 24 without changing timers, collision/signal policy, wander cohort or test controls. `enclosure-navigation.test.js` checks 36 rotated side/far-wall paths at sheep, dog and cow radii and rejects unsafe smaller-radius fallback behavior. These are bounded source regressions, not human pacing evidence for F-013.
+
+
+## Room between crossings — 20 October 2026
+
+From public level 6, levels with more than 30 animals gain extra trail before the gate: 0.4 m per animal above 30, capped at 14 m. The river positions relative to the spawn are unchanged, so the space is added between the last bridge and the gate. For 65-animal levels the trail from the last bridge exit to the gate grows from about 22 m to 30–37 m. Levels 1–5 are unchanged. `tests/chokepoints.test.js` checks the gap on sampled large-herd levels.
