@@ -3,7 +3,8 @@
 // Usage: node scripts/measure-chokepoints.mjs [publicLevel[,publicLevel...]] [seed[,seed...]] [srcDir]
 // Prints one JSON line per run. A scripted player herds the rearmost animal
 // (the herding-journey policy, but an animal far off the trail ahead of the
-// flock does not count as rearmost) with route gates pre-opened. Counts are
+// flock does not count as rearmost, and Pip keeps its target unless another is
+// clearly further back) with route gates pre-opened. Counts are
 // directional evidence for tuning, not human playtesting or device results.
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -50,11 +51,16 @@ function measure(index, seed) {
     ...level.gates.map(g => ({ kind: 'gate', x: g.x, z: g.z, f: yaw(g.heading), width: g.width, half: .2 })),
     { kind: 'entrance', x: shape.entrance.x, z: shape.entrance.z, f: yaw(level.target.heading), width: shape.openingWidth, half: .2 },
   ].filter(onRoute).map(c => ({ ...c, stall: 0, flips: 0, side: new Map(), dir: new Map() }));
-  let desired;
+  let desired, targetId = null;
   for (let frame = 0; frame < SECONDS / DT && !level.completed; frame++) {
     if (frame % 6 === 0) {
-      const { animal, info } = level.animals.filter(a => !a.saved).map(animal => ({ animal, info: routeProgress(level, animal, routeId) }))
-        .sort((a, b) => (a.info.progress - Math.min(a.info.distance, 6)) - (b.info.progress - Math.min(b.info.distance, 6)))[0];
+      const rank = x => x.info.progress - Math.min(x.info.distance, 6);
+      const ranked = level.animals.filter(a => !a.saved).map(animal => ({ animal, info: routeProgress(level, animal, routeId) })).sort((a, b) => rank(a) - rank(b));
+      // Keep chasing the current target unless another is clearly further back,
+      // so Pip does not dither between two similar stragglers.
+      const current = ranked.find(x => x.animal.id === targetId);
+      const { animal, info } = current && rank(current) - rank(ranked[0]) < 3 ? current : ranked[0];
+      targetId = animal.id;
       const nearDestination = info.progress > info.length - 20, radius = animalRadius(animal);
       const aim = nearDestination ? destinationApproach(level, animal) : navigationTarget(level, animal, nextNavigationPoint(level, animal, routeId), radius);
       const forward = unit(aim.x - animal.x, aim.z - animal.z);

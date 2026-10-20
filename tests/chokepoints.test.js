@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { stepSimulation, canOccupy } from '../src/simulation.js';
-import { createLevel, routeProgress, distance } from '../src/world.js';
+import { createLevel, routeProgress, distance, targetFootprint } from '../src/world.js';
 import { animalRadius, COW_SCALES } from '../src/animal-size.js';
 import { yieldAtOpening, chokeApproach, YIELD_LIMIT, ESCAPE_TIME } from '../src/chokepoints.js';
 import { bridgeCrossing } from '../src/bridge-crossing.js';
@@ -116,6 +116,22 @@ test('a pressed crowd queues through an open gate and the destination entrance',
   // The entrance is approached from outside only: animals inside a pen are never steered back toward it.
   const pen = createLevel(2), inside = { ...pen.animals[0], x: pen.target.x, z: pen.target.z };
   assert.equal(chokeApproach(pen, inside), null);
+});
+
+test('at the destination entrance an animal outside queues and steers into the opening', () => {
+  const level = createLevel(2), t = level.target, shape = targetFootprint(t), f = { x: Math.sin(t.heading), z: Math.cos(t.heading) };
+  const at = (out, side) => ({ x: shape.entrance.x - f.x * out + f.z * side, z: shape.entrance.z - f.z * out - f.x * side });
+  const [a, b] = level.animals;
+  Object.assign(a, at(1.6, 0), { vx: 0, vz: 0 }); Object.assign(b, at(.45, 0), { vx: 0, vz: 0 });
+  level.time = 0;
+  const inward = { x: f.x * 3, z: f.z * 3 }, none = { x: 0, z: 0 };
+  const queued = yieldAtOpening(level, a, { ...a }, [{ ...a }, { ...b }], inward, inward, none);
+  assert.ok(queued.x * f.x + queued.z * f.z < 1, 'waits behind the animal standing in the entrance');
+  // Off to one side of the 7m opening, it is steered across into a lane.
+  Object.assign(a, at(1.2, 5.5));
+  const steered = yieldAtOpening(level, a, { ...a }, [{ ...a }], inward, inward, none);
+  const lateral = steered.x * f.z - steered.z * f.x;
+  assert.ok(lateral < -.5, `moves toward the opening (lateral ${lateral.toFixed(2)})`);
 });
 
 test('opposing groups at a deck do not deadlock', () => {
