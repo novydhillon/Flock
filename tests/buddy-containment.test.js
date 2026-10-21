@@ -83,6 +83,30 @@ test('already committed bridge animals complete crossing then hold their dry-ban
  }
 });
 
+test('containment beside narrow bridge and open gate never gains approach drive or queue state',()=>{
+ for(const kind of ['bridge','gate']){
+  const bridge={x:0,z:0,width:6,length:6.5,heading:Math.PI/2};
+  const gate={x:0,z:0,width:6,heading:Math.PI/2,operable:false,open:true};
+  const l=fixture([animal(0,-5,-1,0,.2),animal(1,-5,1,0,.2)],{
+   helpers:[{type:'helper',x:-9,z:0}],
+   rivers:kind==='bridge'?[{points:[{x:0,z:-100},{x:0,z:100}],width:5,bridges:[bridge]}]:[],
+   gates:kind==='gate'?[gate]:[],
+   fenceSegments:kind==='gate'?[{a:{x:0,z:-100},b:{x:0,z:-3},kind:'interior'},{a:{x:0,z:3},b:{x:0,z:100},kind:'interior'}]:[],
+  });
+  const starts=l.animals.map(a=>({...a}));
+  run(l,25,()=>{
+   for(const a of l.animals){
+    assert.ok(canOccupy(l,a.x,a.z,animalRadius(a)));
+    assert.equal(a.pushed,false,'watching Buddy is not crossing pressure');
+    assert.equal(a.chokeYield,undefined,'resting animals do not queue');
+    assert.equal(a.bridgeCrossing,undefined,'resting animals do not launch onto the deck');
+   }
+  });
+  assert.equal(l.helpers[0].mode,'contain');
+  assert.ok(l.animals.every((a,i)=>distance(a,starts[i])<1.2),'keeps the local resting area beside the opening');
+ }
+});
+
 test('wide nine-animal row and large mixed connected herd remain spread and graze through long perimeter patrols',()=>{
  for(const layout of ['row','mixed']){
   const animals=Array.from({length:layout==='row'?9:65},(_,id)=>{

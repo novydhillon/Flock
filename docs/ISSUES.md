@@ -47,7 +47,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
 | F-HERD-003 | P2 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
 | F-HERD-004 | P2 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-005 | P2 | Navigation | Yielding at gates and bridge bottlenecks | Open | Existing gate/bridge traversal; F-065 |
 | F-HERD-006 | P2 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
 | F-HERD-007 | P2 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
 | F-HERD-008 | P2 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
@@ -412,14 +411,6 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.
 
-### F-HERD-005 — Yielding at gates and bridge bottlenecks (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing gate/bridge traversal; F-065.
-
-**Accept when:** Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.
-
 ### F-HERD-006 — Readable relaxation and settling (P2)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
@@ -724,3 +715,10 @@ Requested main `7d848bc` into `buddy_behaviour` at `753159a`. The previously inc
 ## Delivery fallback integration — 19 October 2026
 
 User requested merging fallback changes to main and integrating main into buddy_behaviour. Main PR #18 merged at c35c466; this integration preserves Buddy runtime/tests and all branch-specific tracker/evidence records, resolves append conflicts and regenerates HTML. No Pages publication is included.
+
+## Buddy/chokepoint main integration — 20 October 2026
+
+User requested latest main into `buddy_behaviour` and a fresh blind review. Integrate main `75ad6e1` with Buddy head `368c452`, preserving F-COMP-001/002/003/007/009/010 in Review and main's accepted F-HERD-005/F-WORLD-001 archive. Keep the new crossing-pressure flag alongside individual resting headings; containment remains outside approach queuing and committed crossings finish before dry-bank resting positions update. Add a combined bridge/gate containment regression, regenerate documentation and validate the combined source. This is source integration only, with no deployment or production merge.
+
+**Validation:** final checked dev and production builds each pass 388/388 regressions, documentation checks and artifact-mode guards (release 27 files/zero QA; dev 29 files/two QA). Fresh blind review 9.3/10 found no material blocker and one delivery-cleanup coverage gap; the strengthened actual-admission regression passed independent follow-up at 9.4/10 with no remaining findings. See the dated integration record in QUALITY.md. Phone gameplay, touch/fun and FPS checks remain unverified; Buddy items remain Review pending user acceptance. Source integration does not publish the candidate.
+

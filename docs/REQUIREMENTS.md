@@ -14,6 +14,13 @@ Accepted by Novy on 19 October 2026, 14:47 America/Creston. The closed tracker h
 Run the standard checked build and **Deploy Flock** for real on a fresh branch from main, publishing to `/Flock/dev/` only. Confirm the published files match the checked build and that every other Pages path is preserved. Fix any defect or warning the run exposes, rerun the deployment on the fixed revision, and record the evidence. No production publication or merge is included.
 
 
+## F-HERD-005 and F-WORLD-001 — Herd bottlenecks at crossings
+
+Accepted by Novy on 19 October 2026, 21:03 America/Creston, after testing on dev. The closed tracker holds the acceptance record.
+
+Animals approaching a bridge deck or gate take lanes and yield rather than surging and reversing. Separation must not push an animal backward against its flock's travel near an opening. A short commit zone before the deck carries pressured animals onto it, and bounded yielding ends in a deadlock escape. The player can still deliberately turn a flock back before the commit zone. F-WORLD-001 lengthens the stretch between the last bridge and the gate as herds grow, without changing early levels.
+
+
 ## F-OPS-002 — Shared agent instructions
 
 Accepted by Novy on 19 October 2026, 14:03 America/Creston. The closed tracker holds the acceptance record.
@@ -471,3 +478,4 @@ F-COMP-010 addresses Novy's phone report: contained herd members synchronize fac
 ## F-OPS-004 — Connector deployment fallback
 
 Prefer the standard Deploy Flock workflow where connector dispatch is available. Missing/unsupported dispatch permits connector-only atomic gh-pages publication of the approved checked build through the existing planner, with byte-preserving blobs, existing-tree preservation, expected-head non-force update, exact native Pages success and live SHA-256 checks. Keep production approval/main-only and non-main dev-only rules. Failed workflow checks cannot trigger this fallback.
+
