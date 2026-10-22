@@ -335,3 +335,7 @@ Phone smoke checks on the dev build: on public QA 16, 21 and 31 push the whole f
 ## Buddy/chokepoint integration checks — 20 October 2026
 
 On `buddy_behaviour`, main `75ad6e1` and Buddy `368c452` are combined. With Pip far away, watch Buddy contain a flock beside a narrow bridge mouth and open gate: resting animals must not gain approach pressure, queue, or launch onto a deck. Already committed sheep/cows must finish on dry ground before settling locally; Pip's return resumes ordinary herding. Preserve natural individual headings/browsing, seven-second edible-surface grazing, pointer cancellation, physical collision and attended delivery. Source tests are not phone-fun, touch, native rendering or FPS evidence. Source integration does not publish a build.
+
+## Buddy accepted merge handoff — 22 October 2026
+
+Novy’s “Looks good. Merge to main and close the tickets” accepts F-COMP-001/002/003/007/009/010 for dev runtime `17f648d` / Pages `45110fa`, on `buddy_behaviour`. Full issue details and completion/publication evidence move to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026); these six are Done. Existing smoke-check procedures and older pending statements above are historical and superseded for this accepted batch. Preserve F-COMP-004/005/006/008 and unrelated statuses. This closure changes documentation only and authorizes source merge to main, not production deployment. Runtime and saved progress are unchanged; no new native-device/FPS/audio measurement is claimed.

@@ -1,8 +1,8 @@
 # FLOCK — Active issue tracker
 
-Updated 19 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 22 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
-This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007 are in the current behaviour batch; the other 38 bird/herd/companion/UI planning items remain Open.
+This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
 
 ## Tracker lifecycle and ownership
 
@@ -33,15 +33,9 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
-| F-COMP-010 | P1 | Behavior | Natural containment, varied resting headings and purposeful Buddy movement | Review | F-COMP-009 |
-| F-COMP-009 | P2 | Behavior | Buddy contains distant or barrier-separated flock; seven-second grazing | Review | F-COMP-001/002/003/007; surface-aware grazing |
-| F-COMP-001 | P2 | Behavior | Buddy gives Pip room to work | Review | F-046 accepted tier behavior; F-048 movement |
-| F-COMP-002 | P2 | Behavior | More useful Buddy herding positions | Review | F-COMP-001; F-046 accepted roles |
-| F-COMP-003 | P2 | Navigation | Progress-aware Buddy obstacle recovery | Review | F-048 accepted smooth movement; existing Buddy detours |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
-| F-COMP-007 | P2 | Behavior | Calm useful Buddy standby | Review | F-COMP-001; F-COMP-003; accepted standby resets |
 | F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
 | F-HERD-001 | P2 | Behavior | Bounded individual temperaments | Open | Existing wander/bolt and pressure behavior |
 | F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
@@ -442,47 +436,11 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 ## Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston
 
-**Historical planning record:** the Open/unimplemented status statements in this planning introduction are superseded by the 19 October execution records, current overview and individual issue details. F-COMP-001/002/003/007 are now in Review; F-COMP-004/005/006/008 remain Open. Follow-up F-COMP-009/010 are also in Review.
+**Historical planning record:** the Open/unimplemented status statements in this planning introduction are superseded by the 19 October execution records, current overview and individual issue details. F-COMP-001/002/003/007/009/010 are now Done in [Closed issues](ISSUES_CLOSED.md), accepted 22 October 2026; F-COMP-004/005/006/008 remain Open.
 
 Novy requested tracking all eight suggested improvements. **F-COMP-001–008 are P2, Open, unassigned and not implemented.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).
 
 Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reopening completed fixes. No second Buddy, upgrade pricing, new control scheme, automated Pip navigation or new gameplay resource is included. This request adds tracker scope only; runtime implementation, review and publication remain future work.
-
-### F-COMP-001 — Buddy gives Pip room to work (P2)
-
-**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
-
-**Branch:** `buddy_behaviour`
-
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
-
-**Depends on / preserve:** F-046 accepted tier behavior; F-048 movement.
-
-**Accept when:** Buddy avoids crowding Pip and repositions when both approach the same side of the flock. Maintain a tunable comfortable working gap without steering Pip or allowing Buddy through barriers. Yield predictably with hysteresis so brief crossings do not cause jitter or alternating sides. Preserve actual herd selection, tier rules, bridge commitment and the last-animal passage assistance. A constrained gate/bridge must not create a permanent avoidance deadlock.
-
-### F-COMP-002 — More useful Buddy herding positions (P2)
-
-**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
-
-**Branch:** `buddy_behaviour`
-
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
-
-**Depends on / preserve:** F-COMP-001; F-046 accepted roles.
-
-**Accept when:** Buddy selects a useful position behind or beside the actual chosen flock travel direction, with sufficient standoff to guide rather than repeatedly scatter animals. Retain separate-flock selection, tier-2 smaller-group support and tier-3 retrieval of a stray through ordinary pursuit. Existing local navigation and barriers override preferred geometry; stabilize side changes. Verify moving/stopped/reversing flocks, mixed sizes, splits and final singletons without changing accepted livestock cohesion or bolting rules.
-
-### F-COMP-003 — Progress-aware Buddy obstacle recovery (P2)
-
-**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
-
-**Branch:** `buddy_behaviour`
-
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
-
-**Depends on / preserve:** F-048 accepted smooth movement; existing Buddy detours.
-
-**Accept when:** Detect sustained lack of meaningful progress toward a valid task, then choose another feasible route or back out of a tight spot with bounded recovery attempts and a safe wait/retry fallback. Do not treat intentional arrival, standby, pause or a temporarily yielding animal as stuck. Respect trees, walls, water, gates, bridges and body clearance, with no teleportation, collision bypass or repeated pushing into the same obstacle. Clear stale path/recovery history on task changes and level reset; preserve low-speed smoothness.
 
 ### F-COMP-004 — Clear attention and working intent (P2)
 
@@ -507,18 +465,6 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 **Depends on / preserve:** F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004.
 
 **Accept when:** Pip reads as attentive and purposeful; Buddy as eager and puppy-like through subtle head tilts, Buddy ear gestures and occasional small celebratory motions. Keep accepted reference appearances, relative scales, hover, turn lean, acceleration/braking lean and ground glow. Vary idle timing; task, movement and bark poses take priority. Gestures do not alter navigation, input, rewards or animal pressure, and remain readable at ordinary phone zoom with bounded rendering cost.
-
-### F-COMP-007 — Calm useful Buddy standby (P2)
-
-**Status:** Review. Owner: Codex. Claimed 19 October 2026 (America/Creston).
-
-**Branch:** `buddy_behaviour`
-
-**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
-
-**Depends on / preserve:** F-COMP-001; F-COMP-003; accepted standby resets.
-
-**Accept when:** When no valid help task exists, Buddy waits calmly near Pip in a reachable, useful location, keeping gate/bridge throats and the destination entrance clear when space permits. Avoid continuous circling, low-speed stutter and rapid alternation between standby/work. Resume a valid tier-appropriate task promptly; clear stale target, path and pose state on transitions. Never autonomously move Pip or herd delivered animals. Narrow spaces use a safe bounded fallback rather than a blocked entrance or collision bypass.
 
 ### F-COMP-008 — Brief shared arrival celebration (P2)
 
@@ -657,51 +603,7 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 
 
 
-## Buddy development publication — 19 October 2026
 
-F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are deployed for review at https://novydhillon.github.io/Flock/dev/ from source `f1e31a6`, Pages `af7333a`. Source CI and native Pages succeeded; all 29 live files hash-match the checked build. Full evidence: [Buddy publication](validation/Buddy-behaviour-publication.json). This supersedes earlier not-deployed statements for this batch. Status remains Review; user playtest/sign-off and native phone motion/FPS validation are pending. Production and all unrelated Pages paths were preserved.
-
-
-### F-COMP-009 — Contain an unattended flock and settle into grazing (P2)
-
-**Status:** Review. Owner: Codex. 19 October 2026 (America/Creston).
-
-**Branch:** `buddy_behaviour`
-
-**Requirement:** When Pip is far from the selected flock or separated by a river/fence, Buddy moves around the flock to keep it together and in place rather than drive it in any direction. Livestock staying in relatively the same area settle into grazing after approximately seven seconds.
-
-**Accept when:** Distance/structural separation triggers stable containment, with hysteresis when Pip returns. Buddy patrols physically navigable perimeter positions around a retained local holding area; no net intentional travel drive, remote teleportation, collision bypass or unattended scoring. Prevent residual velocity/alignment and Buddy barks from continually translating the group. Preserve tier selection, physical tier-3 retrieval, saved-animal exclusion, current passage safety (animals already committed to a bridge finish to safe ground), body clearance, Pip input priority and task/reset/pause safety. Nearby clear Pip support resumes normal herding. Structural separation considers actual rivers/closed fences and openings, not a tree mistaken for a fence. Grazing takes ~7 seconds of relative stationarity, resets for meaningful displacement/pressure/travel and remains grass/bush only, excluding paths, bridges and barn floors. Record source tests, independent review and device limits; leave Review pending user sign-off.
-
-
-**Source evidence:** local Buddy acquisition, connected-flock rest and bounded structural attendance prevent directional drift during perimeter patrol. Grazing uses a seven-second fixed-area timer. Focused tests cover nine-sheep and 65mixed long patrols, all cow scales, physical remote arrival, Pip/barrier transitions, completed crossings and pose integration. Fresh blind review found wide-flock contact expiry; the corrected connected-flock approach passed follow-up at9/10 with no remaining material defect. Native phone gameplay/sign-off remain pending. Updated development publication evidence follows separately.
-
-
-## Buddy containment development publication — 19 October 2026
-
-F-COMP-009 is deployed at https://novydhillon.github.io/Flock/dev/ from source `cf6e182`, Pages `83125c0`. Source CI and native Pages succeeded; all 29 live files match the checked build. All 379 local regressions passed; blind review follow-up scored 9/10 with no material blocker. [Publication evidence](validation/Buddy-containment-publication.json). Status remains Review pending user playtest/sign-off; native phone appearance/FPS unmeasured. Production and all unrelated Pages paths remain unchanged.
-
-
-### F-COMP-010 — Natural containment and purposeful movement (P1)
-
-**Status:** Review. Owner: Codex. 19 October 2026.
-
-**Branch:** `buddy_behaviour`
-
-**User report:** containment makes the flock face the same direction and stop completely, while a robot dog circles mechanically. Uploaded phone screenshot shows a tightly packed mixed herd. Investigate actual Pip control separately; do not assume which robot the user means.
-
-**Accept when:** contained animals remain locally together without freezing into a synchronized heading/pose. Allow bounded individual shuffling/settling/resting orientation and surface-aware grazing around seven seconds, without continual forced walking or group travel drift. Buddy performs purposeful calm perimeter checks, changes position to attend drifting edges, and pauses/looks toward the herd rather than continuously orbiting. Preserve physical navigation, no initial remote influence, tier roles/retrieval, Pip control priority, bridge completion, collisions and scoring. Check touch release/cancellation and idle Pip so no autonomous Pip circling is introduced or left uninvestigated. Validate wide/large/mixed herds over long runs, visible diversity, grazing, reset/pause and transitions; obtain independent review and leave Review for user acceptance.
-
-
-
-**Source evidence:** individual bounded browse/rest cycles and hard-surface resting turns replace statue-like pinning and shared inherited heading. Buddy now alternates calm checks with 4–7s watching. Lost pointer capture clears Pip input and cannot create a bark; no autonomous Pip orbit was found. Fresh independent movement review scored 9/10 with no material defect; final standard checked build passed 375/375 regressions, both QA build modes and docs checks. Native phone appearance/fun and user sign-off remain pending.
-
-**Publication:** this correction is prepared on `buddy_behaviour`, not yet deployed. The current dev build still predates F-COMP-010. Main's standard delivery tooling is imported. Historical dispatch limitation: the connector then had no workflow-dispatch operation. Superseded by F-OPS-004: prefer Deploy Flock where available; otherwise use the connector-only gh-pages fallback in DEVELOPMENT.md.
-
-
-
-## Main integration — 19 October 2026, 17:43 America/Creston
-
-Requested main `7d848bc` into `buddy_behaviour` at `753159a`. The previously incorporated main revision is `3ccc8db`; this update brings ten later main commits with shared agent guides/symlinks, current Actions versions, improved native Pages logging, live delivery evidence and accepted delivery archival. Preserve F-COMP-001/002/003/007/009/010 in Review and their source/publication history. F-OPS-001/002/003 are accepted and remain only in the closed tracker. No runtime source or behavior tests change. Generated HTML, combined validation and independent integration review follow before the connector creates the two-parent merge. This request integrates source only; it does not deploy or merge to production.
 
 
 ### F-OPS-004 — Connector-only Pages fallback
@@ -712,17 +614,11 @@ Requested main `7d848bc` into `buddy_behaviour` at `753159a`. The previously inc
 
 19 October 2026: Updated root and documentation guides plus current development runbook. Uses existing deploymentPlan and verifier; no runtime/workflow behavior changed. Connector schemas expose base64 blobs, base trees, commits and expected-head non-force ref updates in this session. Documentation checks and independent review are recorded in REVIEW.md. No fallback deployment or production publication is claimed by this policy change; user acceptance remains pending.
 
+
 ## Delivery fallback integration — 19 October 2026
 
 User requested merging fallback changes to main and integrating main into buddy_behaviour. Main PR #18 merged at c35c466; this integration preserves Buddy runtime/tests and all branch-specific tracker/evidence records, resolves append conflicts and regenerates HTML. No Pages publication is included.
 
-## Buddy/chokepoint main integration — 20 October 2026
+## Buddy user acceptance — 22 October 2026
 
-User requested latest main into `buddy_behaviour` and a fresh blind review. Integrate main `75ad6e1` with Buddy head `368c452`, preserving F-COMP-001/002/003/007/009/010 in Review and main's accepted F-HERD-005/F-WORLD-001 archive. Keep the new crossing-pressure flag alongside individual resting headings; containment remains outside approach queuing and committed crossings finish before dry-bank resting positions update. Add a combined bridge/gate containment regression, regenerate documentation and validate the combined source. This is source integration only, with no deployment or production merge.
-
-**Validation:** final checked dev and production builds each pass 388/388 regressions, documentation checks and artifact-mode guards (release 27 files/zero QA; dev 29 files/two QA). Fresh blind review 9.3/10 found no material blocker and one delivery-cleanup coverage gap; the strengthened actual-admission regression passed independent follow-up at 9.4/10 with no remaining findings. See the dated integration record in QUALITY.md. Phone gameplay, touch/fun and FPS checks remain unverified; Buddy items remain Review pending user acceptance. Source integration does not publish the candidate.
-
-## Buddy merged-candidate development publication — 20 October 2026
-
-Novy authorized development publication after the main merge. F-COMP-001/002/003/007/009/010 are now available for playtest at https://novydhillon.github.io/Flock/dev/ from source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes earlier not-deployed/current-dev-predates-correction statements. The connector-only fallback was used because this session exposes no workflow dispatch; no Deploy Flock run is claimed. Source CI and native Pages succeeded; the shared checked dev build passed 388/388 regressions and all 29 live files match by SHA-256. Production, unrelated Pages files and old hashed assets are unchanged. [Publication evidence](validation/Buddy-natural-integration-publication.json). Buddy items remain Review pending user gameplay acceptance; native phone appearance, touch/fun, audio and FPS remain unverified.
-
+Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
