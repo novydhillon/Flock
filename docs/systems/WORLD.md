@@ -2,6 +2,20 @@
 
 Current contracts come from [world.js](../../src/world.js); [GAMEPLAY.md](GAMEPLAY.md) explains its simulation callers. The [issue tracker](../ISSUES.md) is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.
 
+## Map generation candidate — 22 October 2026
+
+Current source on `map_generation_improvements` implements F-031/F-032/F-034/F-038; the tracker retains separate validation and acceptance state. This section supersedes the older fixed stone sequence, universally gated late maps and one-way contextual gate action described below.
+
+`level.boundary` is the ordered world-space polygon for the playable meadow; `bounds` is its axis-aligned framing/search extent. Ordinary early/medium maps retain a rectangle. From public level 40, an independent seeded shape choice produces a concave L-shaped or stepped angular outline, mirrored and rotated with the level. The cut stays beyond the route/destination envelope with clearance, and interior barriers stop at the polygon boundary. Boundary fence segments, occupancy/path checks, ground rendering and minimap consume the same outline. The renderer triangulates the concave polygon as brighter playable turf above darker surrounding countryside, with an owned geometry disposed on level replacement; a point inside the bounds rectangle may still be outside playable ground. Concave corners remain physical barriers. Large maps use a local minimap viewport following Pip, clamped to the map AABB; compact levels retain fit-to-map framing. The viewport height cap of 120 world units is source tuning, with width derived from the minimap aspect ratio. Boundary, roads and actor markers are clipped to its frame; the existing goal-direction arrow continues guidance outside the viewport.
+
+Early lessons retain their route layout. Public level 20 onward adds longitudinal and lateral growth, wider route spacing, alternating river-crossing offsets and a seeded lateral destination offset. Existing bridge turning planes and herd breathing room are preserved. Herds over 30 receive an extra .1-unit downstream breathing tolerance so the smallest measured gate/bridge exit gap stays at least 26 units; river bases remain unchanged. This is a precision/spacing implementation correction, not a new user balance target. These dimensions and shape weights are tuning choices for review, not user-provided balance numbers. Tree placement remains excluded from routes, spawns and goals and is restricted to occupiable ground.
+
+Gate distribution and stone selection use independent seeded streams, avoiding layout-RNG coupling. At public level 20 onward, a 65% gated-map choice and, on eligible multi-gap gated maps, a 50% omitted-panel choice provide gate-free maps and gated maps with an ungated alternative. The omitted panel does not fill its route gap. Below level 20, gaps remain open and non-operable. Stone uses the requested 15% per-level probability for boundary/interior segments; target walls retain their own material.
+
+`gateButtons(gate)` in `gates.js` derives two ground pads beside the traffic lane, forward ±2 units and lateral `width/2 - .9`, with a .65-unit pad radius. `updateGateContacts(level,dog)` runs in the active simulation for Pip only: fresh overlap toggles, remaining in contact is latched and leaving both pads by a .2-unit release margin rearms. Closing is refused while the panel intersects Pip, a livestock body at its actual radius or a ground Buddy. Success increments `geometryRevision`, clears flock visibility and emits `gateToggled`; safe refusal emits `gateBlocked`. Controller toasts use the existing status region. The normal game no longer creates the contextual Open button; legacy exports remain for compatibility.
+
+Both pad meshes read the same panel state, red when closed and green when open; gate panel, collision, navigation and minimap also read that descriptor. All pad/gate resources belong to the level view and are disposed with it. Contact state resets with a newly generated level and does not advance during pause. No profile, bark, reward or helper-activation semantics change.
+
 ## Coordinates and generated state
 
 Positions use `{x, z}` on a flat ground plane; vertical height belongs to rendering. Distances are Euclidean world units. Heading is radians, with forward `{x:sin(h), z:cos(h)}` and lateral `{x:cos(h), z:-sin(h)}`. Do not assume destination progress always means increasing world X.
@@ -11,7 +25,7 @@ Positions use `{x, z}` on a flat ground plane; vertical height belongs to render
 | Field | Meaning |
 |---|---|
 | `index`, `seed`, `title`, `description`, `reward` | Campaign metadata; displayed level is `index + 1`; reward is `80 + index * 25`. |
-| `bounds` | `{minX,maxX,minZ,maxZ}` world-space axis-aligned playable bounds. |
+| `bounds`, `boundary` | Axis-aligned framing extent and ordered playable-boundary polygon; the polygon may be concave. |
 | `spawn`, `dog`, `animals` | Flock origin, Pip origin, initial body states. |
 | `target` | `{x,z,radius,type,heading}`; type cycles pen → field → barn by index modulo 3. |
 | `rivers` | Sampled centerline `points`, width, rotated bridge deck descriptors. |

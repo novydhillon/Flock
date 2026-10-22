@@ -148,6 +148,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/bridge-crossing.test.js` | Committed sheep/cow deck traversal, rotated/reverse crossings, pause and drone far-bank hold |
 | `tests/buddy.test.js` | Buddy tier behavior, rear pressure, split flock, retrieval, bridge traversal and autonomous bark |
 | `tests/world.test.js` | Generation, route/footprint validity, clearance and seeded fixtures |
+| `tests/map-generation.test.js` | Seeded gate distribution/alternatives, late-map growth/angular boundaries, largest-body route walks and stone-wall distribution |
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
 | `tests/progression.test.js` | Tier cost/unlock/activation and legacy data validation |
 | `tests/ui.test.js` | Production controller against DOM/audio substitutes; navigation, rewards, restart and input |
@@ -339,3 +340,12 @@ On `buddy_behaviour`, main `75ad6e1` and Buddy `368c452` are combined. With Pip 
 ## Buddy accepted merge handoff — 22 October 2026
 
 Novy’s “Looks good. Merge to main and close the tickets” accepts F-COMP-001/002/003/007/009/010 for dev runtime `17f648d` / Pages `45110fa`, on `buddy_behaviour`. Full issue details and completion/publication evidence move to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026); these six are Done. Existing smoke-check procedures and older pending statements above are historical and superseded for this accepted batch. Preserve F-COMP-004/005/006/008 and unrelated statuses. This closure changes documentation only and authorizes source merge to main, not production deployment. Runtime and saved progress are unchanged; no new native-device/FPS/audio measurement is claimed.
+
+
+## Map generation review procedure — 22 October 2026
+
+Branch `map_generation_improvements` covers F-031/F-032/F-034/F-038. Compare early public levels 1–5 with later meadows in every compass direction. Inspect late angular/L-shaped boundaries, fence/ground/minimap agreement and concave corners; verify the local minimap scrolls with Pip, clamps at map edges and clips offscreen roads/markers while the goal-direction arrow remains useful; Pip, all cow sizes and Buddy must remain on playable ground. Follow every bridge/gate branch and the full ungated alternative on a gated map; no panel may appear before public level 20. Restart a meadow to confirm seeded layout and wall choice.
+
+On an operable gate, guide Pip onto each red pad from its own side, confirm both turn green and the opening becomes physically passable. Leave both pads before returning to close it; holding contact must not repeatedly toggle. Try closing while a cow or Buddy occupies the panel and verify safe refusal, then clear the passage and retry. Confirm helpers never activate pads and straight centerline herd traffic does not accidentally toggle them. Repeat with wood/stone, rotated maps, pause/resume/restart and normal touch/keyboard controls. Check the minimap after each successful change.
+
+Assess later pacing with no helper and active Buddy tiers, including split-flock retrieval and attended delivery. Source clearance sweeps and headless journeys do not establish human difficulty, touch feel, appearance or phone FPS. Development publication remains a separate requested action; production merge/root publication requires explicit authorization.

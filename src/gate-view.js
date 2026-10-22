@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { gateButtons, GATE_BUTTON_RADIUS } from './gates.js';
 
 function ownedGroup(){
   const group=new THREE.Group(),geometries=new Set(),materials=new Set();
@@ -14,6 +15,8 @@ function ownedGroup(){
 export function createGateView(gates=[]){
   const group=ownedGroup(),wood=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#a97640',roughness:.9})),metal=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#4e594b',roughness:.7}));
   const cube=group.ownGeometry(new THREE.BoxGeometry(1,1,1)),panels=[];
+  const padGeometry=group.ownGeometry(new THREE.CylinderGeometry(GATE_BUTTON_RADIUS,GATE_BUTTON_RADIUS+.1,.16,12));
+  const red=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#d54b45',roughness:.8})),green=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#55b76b',roughness:.8}));
   const pending=new Map();
   const box=(parent,x,y,w,h,d,material)=>{let byMaterial=pending.get(parent);if(!byMaterial)pending.set(parent,byMaterial=new Map());let parts=byMaterial.get(material);if(!parts)byMaterial.set(material,parts=[]);parts.push({x,y,w,h,d});};
   for(const gate of gates.filter(g=>g.operable)){
@@ -23,7 +26,10 @@ export function createGateView(gates=[]){
     for(const y of [.45,1.2])box(panel,0,y,gate.width,.15,.22,wood);
     for(let i=0;i<=Math.ceil(gate.width/1.2);i++)box(panel,-gate.width/2+gate.width*i/Math.ceil(gate.width/1.2),.82,.14,1.05,.19,wood);
     box(panel,gate.width/2-.35,.85,.24,.28,.3,metal);
-    panels.push({gate,panel});
+    const buttons=gateButtons(gate).map(point=>{
+      const button=new THREE.Mesh(padGeometry,red);button.name='gate-button';button.position.set(point.x,.13,point.z);button.receiveShadow=true;group.add(button);return button;
+    });
+    panels.push({gate,panel,buttons});
   }
   const matrix=new THREE.Matrix4();
   for(const [parent,byMaterial] of pending)for(const [material,parts] of byMaterial){
@@ -31,7 +37,7 @@ export function createGateView(gates=[]){
     parts.forEach((part,i)=>{matrix.makeScale(part.w,part.h,part.d);matrix.setPosition(part.x,part.y,0);mesh.setMatrixAt(i,matrix);});
     mesh.castShadow=mesh.receiveShadow=true;parent.add(mesh);
   }
-  group.update=()=>{for(const {gate,panel} of panels)panel.position.x=gate.open?-gate.width:0;};
+  group.update=()=>{for(const {gate,panel,buttons} of panels){panel.position.x=gate.open?-gate.width:0;for(const button of buttons)button.material=gate.open?green:red;}};
   group.update();return group;
 }
 

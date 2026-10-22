@@ -88,9 +88,19 @@ export function gateSegment(gate) {
 }
 const barrierRadius=segment=>segment.material==='stone'?.3:.18;
 function solidSegments(level){return [...(level.fenceSegments||[]),...(level.gates||[]).filter(g=>g.operable&&!g.open).map(gateSegment)];}
+function insideBoundary(level,p){
+  const polygon=level.boundary;if(!polygon)return true;
+  let inside=false;
+  for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const a=polygon[i],b=polygon[j];
+    if((a.z>p.z)!==(b.z>p.z)&&p.x<(b.x-a.x)*(p.z-a.z)/(b.z-a.z)+a.x)inside=!inside;
+  }
+  return inside;
+}
 export function canOccupy(level,x,z,radius=.55) {
   const p={x,z},b=level.bounds;
   if(x<b.minX+radius+.18||x>b.maxX-radius-.18||z<b.minZ+radius+.18||z>b.maxZ-radius-.18)return false;
+  if(!insideBoundary(level,p))return false;
   for(const segment of solidSegments(level)) if(segmentDistance(p,segment.a,segment.b)<radius+barrierRadius(segment))return false;
   for(const river of level.rivers||[]) {
     if(river.bridges.some(bridge=>collidesWithBridgeRails(bridge,p,radius)))return false;
@@ -112,8 +122,9 @@ export function moveBody(level,body,dx,dz,radius=.55) {
 function clearPath(level,a,b,radius,solidRails,audible=false) {
   const bounds=level.bounds;
   for(const p of [a,b])if(p.x<bounds.minX+radius+.18||p.x>bounds.maxX-radius-.18||p.z<bounds.minZ+radius+.18||p.z>bounds.maxZ-radius-.18)return false;
+  if(!insideBoundary(level,a)||!insideBoundary(level,b))return false;
   for(const segment of solidSegments(level)){
-    if(audible&&segment.kind!=='gate'&&segment.material!=='stone'&&(segment.kind!=='target'||level.target?.type!=='barn'))continue;
+    if(audible&&segment.kind!=='boundary'&&segment.kind!=='gate'&&segment.material!=='stone'&&(segment.kind!=='target'||level.target?.type!=='barn'))continue;
     if(segmentsTouch(a,b,segment.a,segment.b,radius+barrierRadius(segment)))return false;
   }
   for(const tree of level.obstacles||[]){
@@ -159,14 +170,17 @@ export function createLevel(index=0,seed=index*7919+42) {
   index=clamp(Math.floor(Number(index)||0),0,99);seed=Number(seed)>>>0;
   // A broad first crossing accepts the starter flock before later lessons
   // require collecting stragglers. Its road widens with the physical deck.
-  const sizeRandom=rng(seed ^ 0x434f5753);
+  const sizeRandom=rng(seed ^ 0x434f5753),layoutRandom=rng(seed ^ 0x4d415053);
   const random=rng(seed),early=index<5,count=Math.min(5+index*3,65),roadWidth=index===1?9.4:early?4.1:4.8;
   // Early lessons preserve their intimate footprint; level six opens into a
   // meadow 3.5 times deeper, then later chapters expand further.
   // Larger herds get more trail between the last bridge and the gate so a
   // flock can leave the deck before reaching the next opening (F-WORLD-001).
-  const breathing=early?0:clamp((count-30)*.4,0,14);
-  const endU=early?15+index*3:48+index*3+breathing,minU=early?-32:-40,maxU=endU+15,halfV=early?24:84+Math.floor(index/15)*14;
+  const breathing=early?0:clamp((count-30)*.4,0,14)+(count>30?.1:0);
+  const expansion=Math.max(0,index-19),endU=early?15+index*3:48+index*3+breathing+expansion*.45,minU=early?-32:-40,maxU=endU+15,halfV=early?24:84+Math.floor(index/15)*14+expansion*.3;
+  // Late routes cross the meadow laterally as well as longitudinally. The
+  // destination stays on clear ground beyond every river and barrier.
+  const targetV=index<19?0:(layoutRandom()-.5)*Math.min(halfV*.7,24+expansion*.7);
   // Late destinations occupy every compass direction, not always screen right.
   const quarter=early?(index===0?0:seed%2*2):seed%4;
   const angle=quarter*Math.PI/2;
@@ -175,7 +189,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   const corners=[{x:minU,z:-halfV},{x:maxU,z:halfV},{x:minU,z:halfV},{x:maxU,z:-halfV}].map(transform);
   const bounds={minX:Math.min(...corners.map(p=>p.x)),maxX:Math.max(...corners.map(p=>p.x)),minZ:Math.min(...corners.map(p=>p.z)),maxZ:Math.max(...corners.map(p=>p.z))};
   if(!early){bounds.minZ=Math.min(bounds.minZ,-halfV);bounds.maxZ=Math.max(bounds.maxZ,halfV);}
-  const target={...transform({x:endU,z:0}),radius:4.7+Math.sqrt(count)*.2,type:index%3===2?'barn':index%3===1?'field':'pen',heading};
+  const target={...transform({x:endU,z:targetV}),radius:4.7+Math.sqrt(count)*.2,type:index%3===2?'barn':index%3===1?'field':'pen',heading};
   const spawn=transform({x:early?-20:-26,z:0}),dog=transform({x:early?-26:-33,z:0});
   const routeCount=early?1:index<15?(index%2===1?2:1):(index%3===0?3:2);
   const gateU=early?endU-21:endU-32;
@@ -185,12 +199,13 @@ export function createLevel(index=0,seed=index*7919+42) {
   const canonicalGates=[],canonicalRoutes=[];
   const sign=random()>.5?1:-1;
   for(let r=0;r<routeCount;r++) {
-    const offset=routeCount===1?0:(r-(routeCount-1)/2)*(early?12:32);
+    const branchSpread=32+Math.min(expansion*.32,24);
+    const offset=routeCount===1?0:(r-(routeCount-1)/2)*(early?12:branchSpread);
     const points=[{x:spawn.x*Math.cos(angle)+spawn.z*Math.sin(angle),z:0}];
     if(index===0){points.push({x:-8,z:2.8},{x:2,z:-2.2},{x:endU-target.radius-3,z:0},{x:endU,z:0,kind:'target'});}
     else {
       riverFunctions.forEach((river,j)=>{
-        const z=early?(index===1?0:sign*5):offset+sign*(j%2?-1:1)*(14+random()*5);
+        const z=early?(index===1?0:sign*5):offset+sign*(j%2?-1:1)*(14+Math.min(expansion*.22,16)+random()*5);
         // Align the deck to the actual sampled bank segment, rather than the
         // meadow axis. The road's usable surface sets deck width; its rendered
         // shoulder is decoration and is deliberately excluded.
@@ -214,18 +229,37 @@ export function createLevel(index=0,seed=index*7919+42) {
         points.push({x:gateU-5,z},{x:gateU,z,kind:'gate'},{x:gateU+5,z});
       }
       const approachU=endU-target.radius-4;
-      points.push({x:approachU-7,z:early?sign*3:offset*.3},{x:approachU,z:0},{x:endU,z:0,kind:'target'});
+      points.push({x:approachU-7,z:early?sign*3:targetV+offset*.3},{x:approachU,z:targetV},{x:endU,z:targetV,kind:'target'});
     }
     canonicalRoutes.push(points);
   }
   const rivers=canonicalRivers.map(r=>({width:r.width,points:r.points.map(transform),bridges:r.bridges.map(b=>({...b,...transform(b)}))}));
-  const stoneWalls=index>=7&&index%4===3;
-  const gates=canonicalGates.map((g,i)=>({...g,...transform(g),id:`gate-${i}`,operable:index>=19,open:index<19,material:stoneWalls?'stone':'wood'}));
-  const fenceSegments=perimeter(bounds);
+  // Independent streams keep wall/panel choices stable when scenery changes.
+  const stoneWalls=rng(seed ^ 0x53544f4e)()<.15,gateRandom=rng(seed ^ 0x47415445);
+  const gated=index>=19&&gateRandom()<.65;
+  const alternate=gated&&canonicalGates.length>1&&gateRandom()<.5?Math.floor(gateRandom()*canonicalGates.length):-1;
+  const gates=canonicalGates.map((g,i)=>({...g,...transform(g),id:`gate-${i}`,operable:index>=19,open:index<19,material:stoneWalls?'stone':'wood'}))
+    .filter((g,i)=>index<19||(gated&&i!==alternate));
+  let boundary=[{x:bounds.minX,z:bounds.minZ},{x:bounds.maxX,z:bounds.minZ},{x:bounds.maxX,z:bounds.maxZ},{x:bounds.minX,z:bounds.maxZ}];
+  let barrierLow=-halfV,barrierHigh=halfV;
+  if(index>=39){
+    // Concave angular meadows remove substantial unused land while keeping
+    // the whole sampled travel envelope clear of the new boundary.
+    const shapeRandom=rng(seed ^ 0x53484150),side=shapeRandom()<.5?-1:1,stepped=shapeRandom()<.5;
+    const envelope=Math.max(...canonicalRoutes.flat().map(p=>p.z*side),targetV*side+target.radius+1.4,8);
+    const cut=Math.max(halfV*.45,envelope+12),u1=minU+(maxU-minU)*.32,u2=minU+(maxU-minU)*.6;
+    const outline=[{x:minU,z:-halfV},{x:maxU,z:-halfV},{x:maxU,z:cut},
+      ...(stepped?[{x:u2,z:cut},{x:u2,z:(cut+halfV)/2},{x:u1,z:(cut+halfV)/2}]:[{x:u1,z:cut}]),
+      {x:u1,z:halfV},{x:minU,z:halfV}];
+    boundary=outline.map(p=>transform({x:p.x,z:p.z*side}));
+    const cap=gateU>=u2||!stepped&&gateU>=u1?cut:gateU>=u1?(cut+halfV)/2:halfV;
+    if(side>0)barrierHigh=cap;else barrierLow=-cap;
+  }
+  const fenceSegments=boundary.map((a,i)=>({a,b:boundary[(i+1)%boundary.length],kind:'boundary'}));
   if(gates.length) {
-    const sorted=[...canonicalGates].sort((a,b)=>a.z-b.z);let cursor=-halfV;
+    const sorted=[...canonicalGates].sort((a,b)=>a.z-b.z);let cursor=barrierLow;
     for(const gate of sorted){fenceSegments.push({a:transform({x:gateU,z:cursor}),b:transform({x:gateU,z:gate.z-gate.width/2}),kind:'interior'});cursor=gate.z+gate.width/2;}
-    fenceSegments.push({a:transform({x:gateU,z:cursor}),b:transform({x:gateU,z:halfV}),kind:'interior'});
+    fenceSegments.push({a:transform({x:gateU,z:cursor}),b:transform({x:gateU,z:barrierHigh}),kind:'interior'});
   }
   const shape=targetFootprint(target),e=shape.halfLength,w=shape.halfWidth,opening=shape.openingWidth/2;
   const box=[[[-e,-w],[e,-w]],[[e,-w],[e,w]],[[e,w],[-e,w]],[[-e,w],[-e,opening]],[[-e,-opening],[-e,-w]]];
@@ -233,12 +267,12 @@ export function createLevel(index=0,seed=index*7919+42) {
   for(const segment of fenceSegments)segment.material=stoneWalls&&segment.kind!=='target'?'stone':'wood';
   // Routes describe potential passage after the player's deliberate gate action.
   // Generation validates with panels open; runtime queries use live gate state.
-  const corridorGeometry={bounds,rivers,fenceSegments,obstacles:[]};
+  const corridorGeometry={bounds,boundary,rivers,fenceSegments,obstacles:[]};
   const routes=canonicalRoutes.map((points,i)=>{const sampled=wander(points.map(transform),random,corridorGeometry);return{id:`route-${i}`,points:sampled,length:sampled.slice(1).reduce((sum,p,j)=>sum+distance(p,sampled[j]),0)};});
   const roads=routes.map(route=>({routeId:route.id,points:route.points,width:roadWidth}));
   const level={index,seed,title:['First day on the farm','Over the babbling brook','Through the garden gate','A mixed-up meadow','The long way home'][index]||`Pasture patrol ${index+1}`,
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
-    bounds,spawn,dog,target,animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
+    bounds,boundary,spawn,dog,target,animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
     const type=index>=3&&i%4===0?'cow':'sheep';

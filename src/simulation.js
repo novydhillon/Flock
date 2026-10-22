@@ -6,6 +6,7 @@ import { canGrazeAt } from './grazing.js';
 import { bridgeCrossing } from './bridge-crossing.js';
 import { yieldAtOpening } from './chokepoints.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
+import { updateGateContacts } from './gates.js';
 export { UPGRADE_CATALOG, purchaseUpgrade, createLevel, canOccupy };
 
 /** Renderer-independent flock behaviour. Buddy follows flock travel;
@@ -258,6 +259,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   dog.vz = dt ? (dog.z - before.z) / dt : 0;
   dog.heading = magnitude > 0.03 ? Math.atan2(direction.x, direction.z) : (dog.heading || 0);
   level.dog = dog;
+  events.push(...updateGateContacts(level,dog));
   const active = level.animals.filter(a => !a.saved);
   const companions = companionState(level, active, effects, dt);
   const support = companionAssist(level, companions, dog, effects);

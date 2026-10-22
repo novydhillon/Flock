@@ -34,6 +34,47 @@ function setup({width=390,height=844,treeYaw=true}={}){
 
 // P2 adds fixed wildlife anatomy batches and 20 dormant puddle/splash objects.
 // Object count includes hidden pool slots; submitted draw budget remains 170.
+test('angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
+  const renderer=setup(),level=createLevel(69,201);renderer.setLevel(level);
+  const meadow=renderer.terrain.getObjectByName('playable-meadow');assert.ok(meadow);
+  const polygonArea=Math.abs(level.boundary.reduce((sum,p,i)=>{const q=level.boundary[(i+1)%level.boundary.length];return sum+p.x*q.z-q.x*p.z;},0))/2;
+  const g=meadow.geometry,p=g.attributes.position,indices=g.index;let triangleArea=0;
+  for(let i=0;i<indices.count;i+=3){const [a,b,c]=[0,1,2].map(j=>indices.getX(i+j));triangleArea+=Math.abs((p.getX(b)-p.getX(a))*(p.getZ(c)-p.getZ(a))-(p.getZ(b)-p.getZ(a))*(p.getX(c)-p.getX(a)))/2;}
+  assert.ok(Math.abs(triangleArea-polygonArea)<.05,'turf has exactly the playable polygon area, with no filled cutout');
+  assert.ok(g.attributes.normal.getY(0)>.99,'turf faces upward');
+  let disposed=false;g.addEventListener('dispose',()=>disposed=true);renderer.setLevel(createLevel(0));assert.ok(disposed);
+});
+
+test('minimap clips features to the shared concave playable boundary and restores the canvas',()=>{
+  const renderer=setup(),level=createLevel(0);
+  level.boundary=[{x:-32,z:-24},{x:30,z:-24},{x:30,z:4},{x:6,z:4},{x:6,z:24},{x:-32,z:24}];
+  const operations=[];let path=[];
+  const ctx={save(){operations.push('save');},restore(){operations.push('restore');},
+    fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},
+    closePath(){path.push('close');},fill(){},stroke(){},arc(){},clip(){operations.push([...path]);}};
+  renderer.drawMap({width:240,height:160,getContext:()=>ctx},level,level.dog);
+  assert.equal(operations[0],'save');assert.equal(operations.at(-1),'restore');
+  const clipped=operations[1];assert.equal(clipped.length,7);assert.equal(clipped.at(-1),'close');
+  level.boundary.forEach((p,i)=>assert.deepEqual(clipped[i],[8+(p.x+32)/62*224,8+(p.z+24)/48*144]));
+});
+
+test('large minimaps follow Pip at stable local scale and clamp the viewport at the world edge',()=>{
+  const renderer=setup(),level=createLevel(0);
+  level.bounds={minX:-200,maxX:200,minZ:-200,maxZ:200};level.boundary=null;
+  level.animals=[{x:0,z:0,type:'sheep'}];level.rivers=[];level.roads=[];level.fenceSegments=[];
+  const dots=[];let circle;let saved=0,restored=0,clips=0;
+  const ctx={save(){saved++;},restore(){restored++;},rect(){},clip(){clips++;},fillRect(){},beginPath(){},
+    moveTo(){},lineTo(){},closePath(){},stroke(){},arc(x,y,r){circle={x,y,r};},
+    fill(){if(circle)dots.push({...circle,color:this.fillStyle});circle=null;}};
+  const draw=dog=>{dots.length=0;renderer.drawMap({width:240,height:160,getContext:()=>ctx},level,dog);return dots.map(d=>({...d}));};
+  const first=draw({x:0,z:0}),next=draw({x:20,z:0}),edge=draw({x:195,z:195});
+  const pip=points=>points.find(p=>p.color==='#ffd166'),sheep=points=>points.find(p=>p.color==='#fff8e7');
+  assert.equal(pip(first).x,pip(next).x);assert.equal(pip(next).x,120);
+  assert.ok(Math.abs(sheep(first).x-sheep(next).x-24)<1e-8,'fixed world marker scrolls at 1.2 pixels per metre');
+  assert.ok(pip(edge).x>120&&pip(edge).x<232);assert.ok(pip(edge).y>80&&pip(edge).y<152);
+  assert.equal(saved,3);assert.equal(restored,3);assert.equal(clips,3);
+});
+
 test('destination introduction shrinks, fades on gameplay time and resets with each level',()=>{
   const renderer=setup(),level=createLevel(0),dog={...level.dog};renderer.setLevel(level);
   assert.equal(renderer.destinationSign.scale.x,4.5);
@@ -532,12 +573,15 @@ test('actual target meshes and map show the shared rectangle across every enclos
     const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,2,admitted.z),new THREE.Vector3(0,-1,0));
     assert.ok(ray.intersectObject(renderer.goal).length,'admitted cow corner is visibly inside goal');
     let path=[],fills=[];
-    const ctx={fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
+    const ctx={save(){},restore(){},rect(){},clip(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
     const canvas={width:240,height:160,getContext:()=>ctx};renderer.drawMap(canvas,level,level.dog);
     const mapGoal=fills.find(p=>p.color==='#f9e7a2');
     assert.ok(mapGoal,'minimap draws target');assert.equal(mapGoal.path.length,5);assert.equal(mapGoal.path[4],'close');
+    const viewW=Math.min(level.bounds.maxX-level.bounds.minX,120*224/144),viewD=Math.min(level.bounds.maxZ-level.bounds.minZ,120);
+    const left=Math.max(level.bounds.minX,Math.min(level.bounds.maxX-viewW,level.dog.x-viewW/2));
+    const top=Math.max(level.bounds.minZ,Math.min(level.bounds.maxZ-viewD,level.dog.z-viewD/2));
     shape.corners.forEach((corner,i)=>{
-      const expected=[8+(corner.x-level.bounds.minX)/(level.bounds.maxX-level.bounds.minX)*224,8+(corner.z-level.bounds.minZ)/(level.bounds.maxZ-level.bounds.minZ)*144];
+      const expected=[8+(corner.x-left)/viewW*224,8+(corner.z-top)/viewD*144];
       assert.ok(mapGoal.path[i].every((n,j)=>Math.abs(n-expected[j])<1e-8),'minimap uses exact projected physical corners');
     });
     if(target.type==='barn')assert.ok(renderer.cutaway?.parts.length>12,'barn cutaway remains installed');
@@ -552,6 +596,7 @@ test('minimap palette separates terrain features and outlines every animal marke
   level.gates=[{x:3,z:0,heading:0,width:4,operable:true,open:false}];
   const operations=[];let path=[];
   const ctx={
+    save(){},restore(){},rect(){},clip(){},
     fillRect(...args){operations.push({type:'background',color:this.fillStyle,args});},
     beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},
     arc(x,y,r){path.push({arc:true,x,y,r});},

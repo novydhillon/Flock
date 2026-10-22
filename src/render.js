@@ -84,6 +84,16 @@ export class MeadowRenderer{
     const b=level.bounds,w=b.maxX-b.minX,d=b.maxZ-b.minZ,r=rng(level.seed),treeRotation=rng(level.seed^0x746565),cx=(b.maxX+b.minX)/2,cz=(b.maxZ+b.minZ)/2;
     const ground=this.flat(new THREE.PlaneGeometry(w+90,d+90,1,1),this.grass,cx,cz,-.035);ground.userData.ownedGeometry=true;
     this.grass.map.repeat.set((w+90)/15,(d+90)/15);this.grass.bumpMap.repeat.copy(this.grass.map.repeat);
+    if(level.boundary?.length>4){
+      // The surrounding countryside is scenery; the brighter playable turf
+      // follows the same concave outline as collision and perimeter fences.
+      ground.material=this.grass.clone();ground.material.color.multiplyScalar(.72);ground.userData.ownedMaterial=true;
+      const outline=new THREE.Shape();level.boundary.forEach((p,i)=>i?outline.lineTo(p.x,-p.z):outline.moveTo(p.x,-p.z));outline.closePath();
+      const geometry=new THREE.ShapeGeometry(outline);geometry.rotateX(-Math.PI/2);
+      const positions=geometry.attributes.position,uv=geometry.attributes.uv;
+      for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)-cx)/(w+90)+.5,(positions.getZ(i)-cz)/(d+90)+.5);
+      const meadow=new THREE.Mesh(geometry,this.grass);meadow.name='playable-meadow';meadow.position.y=-.025;meadow.receiveShadow=true;meadow.userData.ownedGeometry=true;this.terrain.add(meadow);
+    }
     for(const spec of level.sceneryHills||[]){
       const hill=new THREE.Mesh(new THREE.SphereGeometry(1,20,12),new THREE.MeshStandardMaterial({color:['#799552','#6f914e','#93a75d'][Math.floor(r()*3)],roughness:1}));
       hill.position.set(spec.x,-.3,spec.z);hill.scale.set(spec.radius,spec.height,spec.radius);hill.userData.ownedGeometry=hill.userData.ownedMaterial=true;this.terrain.add(hill);
@@ -380,8 +390,21 @@ export class MeadowRenderer{
     this.barkEffects=(this.barkEffects||[]).filter(effect=>effect.age<.6);
   }
   drawMap(canvas,level,dog){
-    const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,b=level.bounds,px=x=>8+(x-b.minX)/(b.maxX-b.minX)*(w-16),pz=z=>8+(z-b.minZ)/(b.maxZ-b.minZ)*(h-16);
-    ctx.fillStyle='#29483a';ctx.fillRect(0,0,w,h);
+    const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,world=level.bounds;
+    const viewWidth=Math.min(world.maxX-world.minX,120*(w-16)/(h-16)),viewDepth=Math.min(world.maxZ-world.minZ,120);
+    const scrolling=viewWidth<world.maxX-world.minX||viewDepth<world.maxZ-world.minZ;
+    const start=(p,min,max,size)=>Math.max(min,Math.min(max-size,p-size/2));
+    const left=start(dog.x,world.minX,world.maxX,viewWidth),top=start(dog.z,world.minZ,world.maxZ,viewDepth);
+    const b={minX:left,maxX:left+viewWidth,minZ:top,maxZ:top+viewDepth};
+    const px=x=>8+(x-b.minX)/(b.maxX-b.minX)*(w-16),pz=z=>8+(z-b.minZ)/(b.maxZ-b.minZ)*(h-16);
+    const shaped=level.boundary?.length>4;
+    ctx.fillStyle=shaped?'#172e25':'#29483a';ctx.fillRect(0,0,w,h);
+    if(scrolling){ctx.save();ctx.beginPath();ctx.rect(8,8,w-16,h-16);ctx.clip();}
+    if(shaped){
+      ctx.save();ctx.beginPath();
+      level.boundary.forEach((p,i)=>i?ctx.lineTo(px(p.x),pz(p.z)):ctx.moveTo(px(p.x),pz(p.z)));
+      ctx.closePath();ctx.fillStyle='#29483a';ctx.fill();ctx.clip();
+    }
     const line=(points,width,color)=>{ctx.lineWidth=width;ctx.strokeStyle=color;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(px(p.x),pz(p.z)):ctx.moveTo(px(p.x),pz(p.z)));ctx.stroke();};
     const scale=Math.min((w-16)/(b.maxX-b.minX),(h-16)/(b.maxZ-b.minZ));
     for(const river of level.rivers){line(river.points,river.width*scale,'#35b9ed');for(const bridge of river.bridges){const vx=Math.sin(bridge.heading)*bridge.length/2,vz=Math.cos(bridge.heading)*bridge.length/2;line([{x:bridge.x-vx,z:bridge.z-vz},{x:bridge.x+vx,z:bridge.z+vz}],Math.max(3,bridge.width*scale),'#dfbd8c');}}
@@ -394,5 +417,7 @@ export class MeadowRenderer{
     // Pip's larger gold marker and separate outer ring distinguish the player from helpers.
     dot(dog.x,dog.z,4.8,'#ffd166');ctx.strokeStyle='#ffe6a3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),7,0,Math.PI*2);ctx.stroke();
     for(const helper of level.helpers||[])dot(helper.x,helper.z,3,'#45d9ef','#102c39');
+    if(shaped)ctx.restore();
+    if(scrolling)ctx.restore();
   }
 }

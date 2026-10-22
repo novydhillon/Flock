@@ -3,17 +3,20 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import * as THREE from 'three';
 import {createLevel,gateSegment,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,distance} from '../src/world.js';
-import {accessibleGate,openNearbyGate,createGateControl} from '../src/gates.js';
+import {accessibleGate,openNearbyGate,createGateControl,gateButtons,updateGateContacts} from '../src/gates.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {stepSimulation} from '../src/simulation.js';
 
 const near=(gate,side=-1,d=2)=>({x:gate.x+Math.sin(gate.heading)*d*side,z:gate.z+Math.cos(gate.heading)*d*side});
 
-test('the level-20 transition closes every passage, an explicit nearby action opens it, and restart restores it',()=>{
+const gatedLevel=(index=19)=>{for(let seed=200;seed<300;seed++){const level=createLevel(index,seed);if(level.gates.some(g=>g.operable))return level;}throw Error('No gated fixture');};
+const stoneLevel=()=>{for(let seed=200;seed<400;seed++){const level=createLevel(23,seed);if(level.fenceSegments.some(s=>s.material==='stone'))return level;}throw Error('No stone fixture');};
+
+test('operable gates remain closed until Pip acts and restart restores them',()=>{
   assert.ok(createLevel(18).gates.every(g=>g.open&&!g.operable));
   for(const index of [19,23,50,99])for(const seed of [200,201,202,203]){
     const level=createLevel(index,seed);
-    assert.ok(level.gates.length);
+
     for(const gate of level.gates){
       const a=near(gate),b=near(gate,1);
       assert.equal(gate.open,false);
@@ -35,7 +38,7 @@ test('the level-20 transition closes every passage, an explicit nearby action op
 });
 
 test('a wall or tree between Pip and a nearby latch prevents interaction',()=>{
-  const level=createLevel(19,200),gate=level.gates[0],dog=near(gate,-1,3);
+  const level=gatedLevel(),gate=level.gates[0],dog=near(gate,-1,3);
   assert.equal(accessibleGate(level,dog),gate);
   const middle=near(gate,-1,1.8);level.obstacles.push({...middle,radius:.35});
   assert.equal(accessibleGate(level,dog),null);
@@ -44,7 +47,7 @@ test('a wall or tree between Pip and a nearby latch prevents interaction',()=>{
 
 test('real touch controller opens the selected gate with one action, hides during pause, and leaves bark independent',()=>{
   const dom=new JSDOM('<div id="controls"><button id="bark">Woof</button></div>'),document=dom.window.document;
-  const level=createLevel(19,200),gate=level.gates[0],dog=near(gate);let playing=true,opens=0,barks=0;
+  const level=gatedLevel(),gate=level.gates[0],dog=near(gate);let playing=true,opens=0,barks=0;
   document.getElementById('bark').onclick=()=>barks++;
   const control=createGateControl({document,getState:()=>({level,dog,playing}),onOpen:()=>opens++});
   control.update();assert.equal(control.button.disabled,false);
@@ -56,7 +59,7 @@ test('real touch controller opens the selected gate with one action, hides durin
 });
 
 test('stone variants preserve the same segment openings and block bodies and herding signals',()=>{
-  const stone=createLevel(23,200),wood=createLevel(22,200);
+  const stone=stoneLevel(),wood=Array.from({length:100},(_,i)=>createLevel(22,200+i)).find(l=>l.fenceSegments.every(s=>s.material==='wood'));
   assert.ok(stone.fenceSegments.some(s=>s.material==='stone'));
   assert.ok(wood.fenceSegments.every(s=>s.material==='wood'));
   const segment=stone.fenceSegments.find(s=>s.kind==='interior'),p={x:(segment.a.x+segment.b.x)/2,z:(segment.a.z+segment.b.z)/2},dx=segment.b.x-segment.a.x,dz=segment.b.z-segment.a.z,d=Math.hypot(dx,dz);
@@ -66,10 +69,12 @@ test('stone variants preserve the same segment openings and block bodies and her
 });
 
 test('gate visuals follow descriptor state and own disposable resources; masonry stays on physical centerlines',()=>{
-  const level=createLevel(23,200),view=createGateView(level.gates),stone=createStoneWallView(level.fenceSegments);
-  const panels=view.children.map(local=>local.getObjectByName('gate-panel'));
+  const level=gatedLevel(23),view=createGateView(level.gates),stone=createStoneWallView(stoneLevel().fenceSegments);
+  const panels=view.children.map(local=>local.getObjectByName('gate-panel')).filter(Boolean);
+  const buttons=view.children.filter(local=>local.name==='gate-button');assert.equal(buttons.length,panels.length*2);
+  assert.ok(buttons.every(button=>button.material.color.getHexString()==='d54b45'));
   assert.ok(panels.every(panel=>panel.position.x===0));
-  level.gates[0].open=true;view.update();assert.equal(panels[0].position.x,-level.gates[0].width);assert.equal(panels[1].position.x,0);
+  level.gates[0].open=true;view.update();assert.equal(panels[0].position.x,-level.gates[0].width);if(panels[1])assert.equal(panels[1].position.x,0);assert.ok(buttons.slice(0,2).every(button=>button.material.color.getHexString()==='55b76b'));
   const endpoints=gateSegment(level.gates[0]);assert.ok(Math.abs(distance(endpoints.a,endpoints.b)-level.gates[0].width)<.00001);
   assert.ok(stone.children[0].count>0);let disposed=0;
   stone.children[0].geometry.addEventListener('dispose',()=>disposed++);stone.dispose();assert.equal(disposed,1);view.dispose();
@@ -117,4 +122,41 @@ test('clay dry-stone instances are deterministic and contained within rotated wa
   }
   const wood={a:{x:0,z:0},b:{x:5,z:0},material:'wood'};
   assert.equal(createStoneWallView([wood]).children.length,0);
+});
+
+test('both ground buttons toggle only on fresh Pip contact, update collision and reset on restart',()=>{
+  for(const heading of [0,Math.PI/2,Math.PI,Math.PI*1.5])for(const material of ['wood','stone']){
+    const gate={id:'contact',x:0,z:0,width:10,heading,material,open:false,operable:true};
+    const f={x:Math.sin(heading),z:Math.cos(heading)},l={x:f.z,z:-f.x};
+    const level={gates:[gate],animals:[],helpers:[],bounds:{minX:-30,maxX:30,minZ:-30,maxZ:30},rivers:[],obstacles:[],fenceSegments:[{a:{x:l.x*5,z:l.z*5},b:{x:l.x*30,z:l.z*30},material},{a:{x:-l.x*5,z:-l.z*5},b:{x:-l.x*30,z:-l.z*30},material}],flockVisibility:new Map([['old',true]])};
+    const pads=gateButtons(gate),dog={...pads[0]};
+    for(const pad of pads){assert.ok(canOccupy(level,pad.x,pad.z,.62));assert.ok(hasClearGroundPath(level,{x:pad.x+f.x*2*Math.sign(pad.x*f.x+pad.z*f.z),z:pad.z+f.z*2*Math.sign(pad.x*f.x+pad.z*f.z)},pad,.62));}
+    assert.equal(updateGateContacts(level,dog)[0].open,true);assert.equal(level.flockVisibility.size,0);assert.equal(level.geometryRevision,1);
+    assert.ok(hasClearGroundPath(level,near(gate),near(gate,1),.975));
+    for(let i=0;i<60;i++)assert.deepEqual(updateGateContacts(level,dog),[]);
+    updateGateContacts(level,{x:-15,z:-15});Object.assign(dog,pads[1]);
+    assert.equal(updateGateContacts(level,dog)[0].open,false);assert.equal(level.geometryRevision,2);
+    assert.equal(hasClearGroundPath(level,near(gate),near(gate,1),.62),false);
+    const restarted=gatedLevel();assert.ok(restarted.gates.every(g=>!g.buttonContact&&!g.open));
+  }
+});
+
+test('closing refuses to place a panel through livestock or a ground helper; helpers cannot press buttons',()=>{
+  const level=gatedLevel(),gate=level.gates[0],pads=gateButtons(gate),dog={...pads[0]};
+  updateGateContacts(level,dog);assert.equal(gate.open,true);
+  updateGateContacts(level,{x:level.dog.x,z:level.dog.z});
+  const cow={id:999,type:'cow',scale:1.25,x:gate.x,z:gate.z};level.animals.push(cow);
+  Object.assign(dog,pads[1]);assert.equal(updateGateContacts(level,dog)[0].type,'gateBlocked');assert.equal(gate.open,true);
+  level.animals.pop();updateGateContacts(level,level.dog);
+  level.helpers=[{type:'helper',x:gate.x,z:gate.z}];assert.equal(updateGateContacts(level,dog)[0].type,'gateBlocked');assert.equal(gate.open,true);
+  level.helpers=[{type:'helper',...pads[0]}];updateGateContacts(level,level.dog);assert.equal(gate.open,true,'helper on a pad does not activate it');
+  assert.equal(updateGateContacts(level,dog)[0].open,false);
+});
+
+test('normal simulation movement presses a button, while paused steps do not',()=>{
+  const level=gatedLevel(),gate=level.gates[0],pad=gateButtons(gate)[0],f={x:Math.sin(gate.heading),z:Math.cos(gate.heading)};
+  level.animals=[];const dog={x:pad.x-f.x*1.5,z:pad.z-f.z*1.5};
+  stepSimulation(level,dog,{},0,{});assert.equal(gate.open,false);
+  const result=stepSimulation(level,dog,{x:f.x,z:f.z},.1,{});
+  assert.equal(gate.open,true);assert.equal(result.events.filter(e=>e.type==='gateToggled').length,1);
 });
