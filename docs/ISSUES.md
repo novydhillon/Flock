@@ -626,3 +626,7 @@ Novy accepted the development build with “Looks good. Merge to main and close 
 ## Map generation validation — 22 October 2026
 
 F-031/F-032/F-034/F-038 on `map_generation_improvements` passed the independent follow-up review at 9.2/10 and all 399 source regressions. Angular playable turf and collision share the same outline; the minimap follows Pip locally on larger maps. See [quality evidence](QUALITY.md#map-generation-improvements--22-october-2026). The four items remain Review for gameplay/appearance acceptance, with later helper balance and device checks pending. No Pages deployment or production merge is included.
+
+## Map generation development deployment — 22 October 2026
+
+Novy authorized dev deployment. F-031/F-032/F-034/F-038 are live at `/Flock/dev/`, pinned source `ed7a2cb` / Pages `0108943`. Source CI, native Pages and all 29 live file hashes passed. See [publication evidence](validation/Map-generation-dev-publication.json). All four remain Review pending user gameplay/appearance acceptance; production/main are unchanged.
