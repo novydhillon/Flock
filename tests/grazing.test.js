@@ -19,11 +19,11 @@ test('grass and bush ground allow grazing; paths, rotated decks, water and barn 
 test('calm animals graze after settling, lift for motion and pressure, freeze and reject mouth over path',()=>{
   for(const type of ['sheep','cow']){
     const level=meadow(),a={x:0,z:0,vx:0,vz:0,type},pose={rotation:{y:0},userData:{}};
-    for(let i=0;i<120;i++)updateGrazing(pose,a,level,1/60);
+    for(let i=0;i<480;i++)updateGrazing(pose,a,level,1/60);
     assert.equal(pose.userData.graze,1);const frozen={...pose.userData};
     updateGrazing(pose,a,level,0);assert.deepEqual(pose.userData,frozen);
     a.vx=2;for(let i=0;i<30;i++)updateGrazing(pose,a,level,1/60);assert.equal(pose.userData.graze,0);
-    a.vx=0;a.alert=1;for(let i=0;i<120;i++)updateGrazing(pose,a,level,1/60);assert.equal(pose.userData.graze,0);
+    a.vx=0;a.alert=1;for(let i=0;i<480;i++)updateGrazing(pose,a,level,1/60);assert.equal(pose.userData.graze,0);
     a.alert=0;pose.userData.graze=1;level.roads=[{width:.1,points:[{x:-10,z:.8},{x:10,z:.8}]}];
     assert.ok(canGrazeAt(level,a));updateGrazing(pose,a,level,.1);assert.equal(pose.userData.graze,0);
   }
@@ -34,14 +34,14 @@ test('large cow hooves straddling barn and rotated deck edges prevent grazing',(
   const pose={rotation:{y:Math.PI},userData:{}};
   level.target={x:0,z:0,radius:5,heading:0,type:'barn'};
   assert.ok(canGrazeAt(level,a),'center is on grass outside barn');
-  for(let i=0;i<120;i++)updateGrazing(pose,a,level,1/60);
+  for(let i=0;i<480;i++)updateGrazing(pose,a,level,1/60);
   assert.equal(pose.userData.graze,0,'front/rear feet must also be off the barn floor');
   level.target=null;
   const heading=Math.PI/4,bridge={x:0,z:0,heading,width:4,length:10};
   level.rivers=[{width:1,points:[{x:-20,z:0},{x:20,z:0}],bridges:[bridge]}];
   a.x=Math.sin(heading)*5.3;a.z=Math.cos(heading)*5.3;pose.rotation.y=heading;
   assert.ok(canGrazeAt(level,a),'center is beyond the deck end');
-  for(let i=0;i<120;i++)updateGrazing(pose,a,level,1/60);
+  for(let i=0;i<480;i++)updateGrazing(pose,a,level,1/60);
   assert.equal(pose.userData.graze,0,'rear feet on deck prevent feeding');
 });
 
@@ -54,4 +54,26 @@ test('indexed road exclusion matches exact polyline queries across grid boundari
     const p={x,z},onRoad=level.roads.some(r=>r.points.slice(1).some((b,i)=>segmentDistance(p,r.points[i],b)<=r.width/2+.5));
     assert.equal(canGrazeAt(level,p),!onRoad);
   }
+});
+
+
+test('seven second settling permits bounded shuffling but resets on travel and pressure',()=>{
+  const level=meadow(),a={x:0,z:0,vx:0,vz:0,type:'sheep'},pose={rotation:{y:0},userData:{}};
+  for(let i=0;i<69;i++){a.x=Math.sin(i)*.2;updateGrazing(pose,a,level,.1);}
+  assert.equal(pose.userData.graze,0,'6.9 seconds is too early');
+  updateGrazing(pose,a,level,.1);assert.ok(pose.userData.graze>0,'head starts lowering at seven seconds');
+  a.alert=.2;updateGrazing(pose,a,level,.1);assert.equal(pose.userData.grazeWait,0);
+  a.alert=0;a.vx=.2;
+  for(let i=0;i<120;i++){a.x+=.02;updateGrazing(pose,a,level,.1);}
+  assert.equal(pose.userData.graze,0,'walking never lowers head');
+  assert.ok(pose.userData.grazeWait<4,'slow travel repeatedly leaves the fixed envelope');
+  a.vx=0;updateGrazing(pose,a,level,6.9-pose.userData.grazeWait);
+  assert.equal(pose.userData.graze,0);
+  const frozen=structuredClone(pose.userData);
+  updateGrazing(pose,a,level,0);assert.deepEqual(pose.userData,frozen);
+  updateGrazing(pose,a,level,.1);assert.ok(pose.userData.graze>0);
+  const fresh={rotation:{y:0},userData:{}};updateGrazing(fresh,a,level,.1);
+  assert.equal(fresh.userData.graze,0,'new pose starts its own settling interval');
+  pose.userData.turnSpeed=.1;updateGrazing(pose,a,level,.1);
+  assert.equal(pose.userData.grazeWait,0,'turning restarts settling');
 });

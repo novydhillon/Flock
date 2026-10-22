@@ -12,7 +12,7 @@ const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 function meadow(animals, changes = {}) {
   return { index:27, time:0, seed:42, reward:300, animals,
     bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},
-    dog:{x:-70,z:-70}, target:{x:80,z:80,radius:5,heading:Math.PI/2,type:'field'},
+    dog:{x:-12,z:0}, target:{x:80,z:80,radius:5,heading:Math.PI/2,type:'field'},
     helpers:[{type:'helper',x:-4,z:0}], rivers:[],fenceSegments:[],gates:[],obstacles:[],routes:[],...changes };
 }
 function run(level, seconds, upgrades={helper:3}, inspect=()=>{}) {
@@ -44,6 +44,8 @@ test('Buddy standby clears motion and resumes with bounded acceleration from res
   const h=buddy(level),effects={helper:1,helperTier:1};
   for(let i=0;i<20;i++)moveBuddy(level,h,{x:0,z:30},.05,7);
   assert.ok(h.moveSpeed>6,'establish motion before entering standby');
+  // A nearby no-task Buddy parks; a remote one now returns near Pip.
+  level.dog={x:h.x+4,z:h.z};
   const stopped={x:h.x,z:h.z};
   for(let i=0;i<40;i++){
     level.time+=.05;updateBuddy(level,[],effects,.05,[]);
@@ -52,6 +54,7 @@ test('Buddy standby clears motion and resumes with bounded acceleration from res
     assert.deepEqual({x:h.x,z:h.z},stopped);
   }
   const active=[animal(0,0,30,0,2),animal(1,0,32,0,2)];
+  level.dog={x:-12,z:30};
   level.time+=.05;updateBuddy(level,active,effects,.05,[]);
   assert.equal(h.mode,'herd');
   assert.ok(h.moveSpeed>0&&h.moveSpeed<=.5);
@@ -99,7 +102,7 @@ test('tier three retrieves active wanderers, bolters and settled strays to the c
 });
 
 test('lower tiers cannot retrieve; owned tiers respect public 20/24/28 activation gates',()=>{
-  for(const [index,mode,ids] of [[19,'hold',[0,1,2]],[23,'hold',[3,4]],[27,'retrieve',[3,4]]]) {
+  for(const [index,mode,ids] of [[19,'hold',[0,1,2]],[23,'contain',[3,4]],[27,'retrieve',[3,4]]]) {
     const stray=animal(5,40,0);stray.wanderHome={x:40,z:0};
     const level=meadow([animal(0,0,0),animal(1,0,2),animal(2,2,0),animal(3,25,0),animal(4,25,2),stray],{index});
     const result=stepSimulation(level,level.dog,{},.05,{helper:3});
@@ -126,7 +129,7 @@ test('Buddy bark uses simulation time, independent cooldown, pause and reset',()
   const first=stepSimulation(level,level.dog,{bark:true},.05,{helper:3});
   assert.equal(first.events.filter(e=>e.type==='buddyBark').length,1);assert.equal(buddy(level).barking,true);
   const paused=structuredClone(level);stepSimulation(level,level.dog,{bark:true},0,{helper:3});assert.deepEqual(level,paused);
-  const events=run(level,10,{helper:3});assert.ok(events.filter(e=>e.type==='buddyBark').length>=2);
+  const events=run(level,10,{helper:3},l=>{const c=center(l.animals);l.dog={x:c.x-12,z:c.z};});assert.ok(events.filter(e=>e.type==='buddyBark').length>=2);
   assert.ok(events.filter(e=>e.type==='buddyBark').length<=3,'no frame-based bark spam');
   assert.equal(meadow([]).buddyHerd,undefined);
 });
@@ -198,7 +201,7 @@ test('retrieved cows use their larger collision footprint and return without Pip
 test('Buddy detours around trees on and off a route instead of pushing against the trunk',()=>{
  for(const onRoute of [false,true])for(const z of [-3.2,-2.6]){
   const level=meadow([animal(0,10,0),animal(1,10,2)],{
-   helpers:[{type:'helper',x:-10,z:-3.2,heading:Math.PI/2}],obstacles:[{x:0,z,radius:1.6},{x:3,z:z-1,radius:1.1}],
+   dog:{x:10,z:-12},helpers:[{type:'helper',x:-10,z:-3.2,heading:Math.PI/2}],obstacles:[{x:0,z,radius:1.6},{x:3,z:z-1,radius:1.1}],
    routes:onRoute?[{id:'tree-road',points:[{x:-20,z:-3.2},{x:0,z:-3.2},{x:20,z:-3.2}]}]:[],
   });
   run(level,15,{helper:1},l=>assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6)));
@@ -301,13 +304,14 @@ test('Buddy movement pause and a fresh level do not preserve stale velocity or t
 test('tier two actively guides its flock onto and across an off-axis bridge',()=>{
  const bridge={x:0,z:0,width:7,length:5,heading:Math.PI/2};
  const level=meadow([animal(0,-9,6,1),animal(1,-7,8,1),animal(2,-7,6,1)],{
-  index:23,helpers:[{type:'helper',x:-12,z:7}],
+  index:23,dog:{x:-18,z:7},helpers:[{type:'helper',x:-12,z:7}],
   rivers:[{points:[{x:0,z:-100},{x:0,z:100}],width:3,bridges:[bridge]}],
   routes:[{id:'main',points:[{x:-20,z:8},{x:-4,z:0},{x:4,z:0},{x:20,z:8}]}],
  });
  let assisting=false;
  run(level,45,{helper:2},l=>{
   assisting ||= buddy(l).mode==='bridge';
+  const c=center(l.animals);l.dog={x:c.x-12,z:c.z};
   assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6));
   assert.ok(l.animals.every(a=>canOccupy(l,a.x,a.z,.55)));
  });
@@ -339,7 +343,8 @@ test('committed tier-two goal help still requires Pip for admission',()=>{
  stepSimulation(level,level.dog,{},.05,{helper:2});assert.equal(buddy(level).mode,'goal');
  level.dog={x:-80,z:-80};let entered=false;
  run(level,15,{helper:2},l=>{entered ||= l.animals.some(a=>Math.abs(a.x)<6&&Math.abs(a.z)<6);});
- assert.ok(entered,'Buddy guides the local group inside');
+ assert.equal(entered,false,'Buddy contains locally when Pip leaves instead of completing the goal approach');
+ assert.equal(buddy(level).mode,'contain');
  assert.ok(level.animals.every(a=>!a.saved));assert.notEqual(level.completed,true);
 });
 
@@ -358,7 +363,7 @@ test('tree detours also guide a retrieved cow around the trunk using its full bo
 
 test('an ideal rear position inside a tree is replaced by nearby usable standing ground',()=>{
  const level=meadow([animal(0,10,0),animal(1,10,2)],{
-  helpers:[{type:'helper',x:-10,z:-3.2}],obstacles:[{x:10,z:-3.2,radius:1.4}],
+  dog:{x:10,z:-12},helpers:[{type:'helper',x:-10,z:-3.2}],obstacles:[{x:10,z:-3.2,radius:1.4}],
  });
  run(level,15,{helper:1},l=>assert.ok(canOccupy(l,buddy(l).x,buddy(l).z,.6)));
  assert.ok(buddy(level).x>6,'Buddy reaches the flock instead of walking into the impossible rear point');

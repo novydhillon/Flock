@@ -161,6 +161,20 @@ test('delivered animals and fresh levels carry no crossing state', () => {
   pushAcross(level, 3);
   assert.ok(level.animals.some(a => a.chokeYield || a.bridgeCrossing || a.pushed), 'state exists mid-crossing');
   assert.ok(createLevel(20).animals.every(a => !a.chokeYield && !a.lastBridge && !a.bridgeCrossing && !a.pushed));
+  // Admission, not a pre-set saved flag, must clear live traversal history.
+  const arrival = createLevel(2), animal = arrival.animals[0], target = arrival.target;
+  const bridge = { x: target.x, z: target.z, width: 6, length: 6, heading: target.heading };
+  Object.assign(animal, { x: target.x, z: target.z, vx: 0, vz: 0,
+    bridgeCrossing: { bridge, sign: 1, lane: 0 },
+    chokeYield: { since: 0 }, lastBridge: { bridge, sign: -1 }, pushed: true });
+  Object.assign(arrival.dog, { x: target.x, z: target.z });
+  assert.ok(animal.bridgeCrossing && animal.chokeYield && animal.lastBridge && animal.pushed);
+  const result = stepSimulation(arrival, arrival.dog, {}, .05);
+  assert.equal(animal.saved, true, 'the real attended admission path saves the animal');
+  assert.ok(result.events.some(event => event.type === 'animalSaved' && event.id === animal.id));
+  for (const key of ['bridgeCrossing', 'chokeYield', 'lastBridge', 'pushed']) {
+    assert.equal(Object.hasOwn(animal, key), false, `admission removes ${key}`);
+  }
 });
 
 test('large-herd levels leave room between the last bridge and the gate', () => {

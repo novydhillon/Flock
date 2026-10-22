@@ -2,9 +2,8 @@ import { navigationTarget, hasClearGroundPath, canOccupy, segmentDistance, moveB
 
 const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 
-/** Follow physical route/crossing waypoints, adding a cached visibility detour
- * around circular tree footprints. Every edge uses the moving body's radius. */
-export function buddyNavigationTarget(level, body, desired, radius = .6) {
+/** Resolve the actual standing goal separately from intermediate route waypoints. */
+export function buddyStandingTarget(level, body, desired, radius = .6) {
   // The ideal rear position can itself overlap a tree, rail or bank. Route
   // to a nearby valid standing point instead of planning to an impossible end.
   if(!canOccupy(level,desired.x,desired.z,radius)){
@@ -17,9 +16,17 @@ export function buddyNavigationTarget(level, body, desired, radius = .6) {
       }
       if(best)break;
     }
-    if(!best)return {x:body.x,z:body.z};
+    if(!best)return null;
     desired=best;
   }
+  return desired;
+}
+
+/** Follow physical route/crossing waypoints, adding a cached visibility detour
+ * around circular tree footprints. Every edge uses the moving body's radius. */
+export function buddyNavigationTarget(level, body, desired, radius = .6) {
+  desired=buddyStandingTarget(level,body,desired,radius);
+  if(!desired)return {x:body.x,z:body.z};
   let aim = navigationTarget(level, body, desired, radius);
   // A road projection can land on a trunk or behind us. Where trees are
   // the only blockers, detour toward the actual work position directly.
@@ -64,6 +71,84 @@ export function buddyNavigationTarget(level, body, desired, radius = .6) {
   return path[0];
 }
 
+const recoveryLevels=new WeakMap();
+
+/** Recovery belongs to a task, never to the helper across tasks or levels. */
+export function resetBuddyRecovery(buddy) {
+  delete buddy.buddyRecovery;
+  recoveryLevels.delete(buddy);
+  delete buddy.buddyNavigation;
+  delete buddy.navigationBlocked;
+}
+
+/** Observe real collision-limited movement before attempting a short, clear
+ * back-out. Recovery never writes position; moveBuddy remains the only mover. */
+export function buddyRecoveryTarget(level, buddy, desired, dt, {taskKey, active=true, yielding=false} = {}) {
+  if (!(dt > 0) || !Number.isFinite(dt)) return {x:buddy.x,z:buddy.z};
+  // Measure arrival/progress against the reachable standing substitute, not
+  // an ideal point inside a trunk or a transient bridge/road waypoint.
+  desired=buddyStandingTarget(level,buddy,desired);
+  if(!desired){resetBuddyRecovery(buddy);return {x:buddy.x,z:buddy.z};}
+  if (!active || yielding || distance(buddy,desired)<.55) {
+    resetBuddyRecovery(buddy);
+    return buddyNavigationTarget(level,buddy,desired);
+  }
+  let state=buddy.buddyRecovery;
+  if (!state || recoveryLevels.get(buddy)!==level || state.lastTime>level.time || state.taskKey!==taskKey || distance(state.goal,desired)>6) {
+    resetBuddyRecovery(buddy);
+    state=buddy.buddyRecovery={lastTime:level.time,taskKey,bestDistance:distance(buddy,desired),goal:{...desired},progressGoal:{...desired},progressDistance:distance(buddy,desired),progressElapsed:0,anchor:{x:buddy.x,z:buddy.z},blocked:0,attempts:0,elapsed:0};
+  }
+  recoveryLevels.set(buddy,level);
+  state.lastTime=level.time;
+  state.elapsed+=dt;
+  // A clear but futile route can oscillate without reporting a collision.
+  // Only judge progress while the requested work point remains stable.
+  if(distance(state.progressGoal,desired)>.5 || distance(buddy,desired)<state.progressDistance-1e-5){
+    state.progressGoal={...desired};state.progressDistance=distance(buddy,desired);state.progressElapsed=0;
+  }else state.progressElapsed+=dt;
+  if(state.waitUntil){
+    if(state.elapsed<state.waitUntil)return {x:buddy.x,z:buddy.z};
+    delete state.waitUntil;
+    // Retry route planning after a quiet interval; each cycle stays bounded.
+    state.attempts=0;state.blocked=0;
+    delete buddy.buddyNavigation;
+  }
+  if(state.escape){
+    if(distance(buddy,state.escape)<.3 || state.elapsed>=state.escapeUntil || !hasClearGroundPath(level,buddy,state.escape,.6)){
+      delete state.escape;delete buddy.buddyNavigation;
+      state.blocked=0;state.progressElapsed=0;state.anchor={x:buddy.x,z:buddy.z};
+    }else return state.escape;
+  }
+  // Ordinary slow pursuit or turning is not stuck. Require a real collision
+  // plus sustained lack of displacement, rather than a minimum speed test.
+  if(distance(buddy,state.anchor)>.3){
+    state.anchor={x:buddy.x,z:buddy.z};state.blocked=0;
+    // Successful movement toward work replenishes the bounded attempt budget.
+    if(distance(buddy,desired)<state.bestDistance-.5){state.attempts=0;state.bestDistance=distance(buddy,desired);}
+  }
+  state.blocked=buddy.navigationBlocked ? state.blocked+dt : Math.max(0,state.blocked-dt);
+  if(state.blocked<1.5 && state.progressElapsed<6)return buddyNavigationTarget(level,buddy,desired);
+  delete buddy.buddyNavigation;
+  if(state.attempts>=3){
+    state.waitUntil=state.elapsed+2;state.blocked=0;
+    return {x:buddy.x,z:buddy.z};
+  }
+  const heading=Math.atan2(desired.x-buddy.x,desired.z-buddy.z);
+  const side=state.attempts%2 ? -1 : 1;
+  state.attempts++;state.blocked=0;state.progressElapsed=0;
+  // Alternate back/side exits. Every complete edge must obey water, rails,
+  // gates, walls, trees and full body clearance, just like a normal route.
+  for(const angle of [heading+side*Math.PI*.65,heading-side*Math.PI*.65,heading+Math.PI,heading+side*Math.PI/2]){
+    const point={x:buddy.x+Math.sin(angle)*1.8,z:buddy.z+Math.cos(angle)*1.8};
+    if(canOccupy(level,point.x,point.z,.68)&&hasClearGroundPath(level,buddy,point,.6)){
+      state.escape=point;state.escapeUntil=state.elapsed+2;
+      return point;
+    }
+  }
+  state.waitUntil=state.elapsed+2;
+  return {x:buddy.x,z:buddy.z};
+}
+
 export const angleDifference = (to, from) => Math.atan2(Math.sin(to-from),Math.cos(to-from));
 export function turnToward(current, target, rate, dt) {
   const change=angleDifference(target,current),limit=rate*dt;
@@ -75,6 +160,7 @@ export function moveBuddy(level, buddy, waypoint, dt, speed) {
   if (!(dt > 0) || !Number.isFinite(dt)) return;
   const dx=waypoint.x-buddy.x,dz=waypoint.z-buddy.z,d=Math.hypot(dx,dz);
   const old={x:buddy.x,z:buddy.z};
+  buddy.navigationBlocked=false;
   if(d>1e-4){
     const target=Math.atan2(dx,dz);
     buddy.heading=turnToward(buddy.heading??target,target,2.8,dt);
@@ -89,6 +175,7 @@ export function moveBuddy(level, buddy, waypoint, dt, speed) {
     const nextSpeed=currentSpeed+Math.max(-acceleration*dt,Math.min(acceleration*dt,desiredSpeed-currentSpeed));
     const travel=Math.min(d,dt*nextSpeed);
     const collision=moveBody(level,buddy,Math.sin(buddy.heading)*travel,Math.cos(buddy.heading)*travel,.6);
+    buddy.navigationBlocked=collision.blockedX||collision.blockedZ;
     const moved=Math.hypot(buddy.x-old.x,buddy.z-old.z);
     // Do not accumulate acceleration against a wall/tree/rail. Resume from
     // the actual body speed once a clear route opens.

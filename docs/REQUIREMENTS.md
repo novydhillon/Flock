@@ -452,7 +452,7 @@ Requested for tracking, not implemented. F-HERD-001–008 in [the issue tracker]
 
 ## Planned Pip and Buddy improvements — 18 October 2026
 
-Requested for tracking, not implemented. F-COMP-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: Buddy gives Pip working space, selects useful herding positions, recovers from blocked progress, shows clear attention, animates actual barks/recovery, has a distinct personality from Pip, waits in a useful standby location and shares a brief nonblocking final-delivery celebration. Prioritize working space, positioning and obstacle recovery. Preserve direct Pip control, accepted Buddy tier roles and low-speed movement, physical navigation, current hover/lean/glow, immediate bark effects/cooldowns, scoring and saved progress. See individual dependencies, pose priorities and shared runtime review/user-acceptance requirements in the tracker.
+F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are implemented in Review on `buddy_behaviour` from main for the 19 October 2026 Buddy behaviour batch. F-COMP-004, F-COMP-005, F-COMP-006 and F-COMP-008 remain Open. The P2 scope in [the issue tracker](ISSUES.md) covers: Buddy gives Pip working space, selects useful herding positions, recovers from blocked progress, shows clear attention, animates actual barks/recovery, has a distinct personality from Pip, waits in a useful standby location and shares a brief nonblocking final-delivery celebration. Prioritize working space, positioning and obstacle recovery. Preserve direct Pip control, accepted Buddy tier roles and low-speed movement, physical navigation, current hover/lean/glow, immediate bark effects/cooldowns, scoring and saved progress. See individual dependencies, pose priorities and shared runtime review/user-acceptance requirements in the tracker.
 
 
 ## Planned gameplay, loading and landing UI improvements — 18 October 2026
@@ -465,6 +465,20 @@ Requested for tracking, not implemented. F-UI-001–012 in [the tracker](ISSUES.
 Use a closeup of the current silver Pip head for browser favicons and iOS Home Screen artwork. Use a solid grass-green artwork background (`#779c4d`), superseding the initial transparency request on 18 October 2026. Supply SVG plus 16/32/48/96/120/152/167/180/192/512-pixel PNGs; link Apple touch sizes explicitly and provide a relative-scope manifest. Preserve game progression and runtime behavior. Native iOS may composite transparent artwork; verify final Home Screen appearance on device.
 
 
+## Buddy containment refinement — 19 October 2026
+
+F-COMP-009: Novy requests that Buddy contain the selected flock in its current area when Pip is far away or separated by a river/fence, patrolling around it instead of driving any travel direction. Resume ordinary support when Pip returns nearby with a clear connection, preserving physical crossing safety and existing tiers. Livestock staying relatively in place should settle into the accepted surface-aware grazing pose after about seven seconds. This extends the Buddy behaviour review on `buddy_behaviour`; the initial dev publication predates it. See current F-COMP-009 publication evidence in QUALITY.md.
+
+
+## Natural containment correction — 19 October 2026
+
+F-COMP-010 addresses Novy's phone report: contained herd members synchronize facing and freeze while a robot dog circles. Replace rigid individual pinning and endless uniform circling with bounded individual settling/shuffling/orientation and purposeful calm Buddy edge checks/rest. Keep the flock locally contained with no net travel drive and preserve seven-second surface-aware grazing. Investigate Pip/input motion separately, retaining direct player control.
+
+
 ## F-OPS-004 — Connector deployment fallback
 
 Prefer the standard Deploy Flock workflow where connector dispatch is available. Missing/unsupported dispatch permits connector-only atomic gh-pages publication of the approved checked build through the existing planner, with byte-preserving blobs, existing-tree preservation, expected-head non-force update, exact native Pages success and live SHA-256 checks. Keep production approval/main-only and non-main dev-only rules. Failed workflow checks cannot trigger this fallback.
+
+## Buddy behaviour acceptance — 22 October 2026
+
+Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main and close the tickets” after reviewing the dev build. These six requirements are Done on `buddy_behaviour`, with complete requirements, acceptance criteria, historical implementation/publication evidence and closure records in [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes the older Review/pending acceptance descriptions for these six items elsewhere in this document; F-COMP-004/005/006/008 remain Open and F-OPS-004 is unchanged. Main source merge is authorized; production publication is not requested. Acceptance is user gameplay sign-off, not an independent native-phone FPS/audio/touch measurement.

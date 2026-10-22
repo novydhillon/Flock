@@ -204,6 +204,35 @@ An animal more than .6m ahead of its component centroid along that travel direct
 Autonomous Buddy bark now starts at **tier 2 (public level 24)**. The same 3.2s simulation-time cooldown, .65s burst, local useful rear position, sound/ring/red tail and independent Pip cooldown apply at tiers 2 and 3. Tier 1 stays silent; retrieving wandering/bolting individuals still requires tier 3 at public level 28. Prices and save schema stay unchanged.
 
 
+
+### Buddy working space, positioning and recovery — 19 October 2026
+
+The `buddy_behaviour` candidate covers F-COMP-001/002/003/007. Buddy measures the selected group's own travel rather than borrowing the largest group's heading. Member-overlap history preserves turns and stops; existing tier selection, passage commitment and physical stray retrieval still apply. A tunable 3m comfortable gap shifts work/orbit positions laterally around Pip with retained side choice. Body-clear alternatives take priority; cramped passages keep their task and a constrained gate fallback is bounded to avoid permanently waiting for room. Pip is never steered.
+
+With no valid group, Buddy picks a stable reachable point 3.5–5.5m from Pip, preferring positions clear of bridge throats, gates and the destination approach. A suitable existing spot within 2–7m can remain parked. Candidate endpoints and the full bounded chain of navigation edges use physical clearance, including tree detours and multi-waypoint bridge returns; if none is available, Buddy waits safely. Standby does not pressure delivered animals and valid tier work resumes on the next simulation update.
+
+Recovery observes collision-limited movement or sustained lack of progress toward a stable work point. After 1.5s blocked or 6s futile progress it tries a short clear back/side exit, with at most three attempts before a 2s quiet retry. Every move still goes through the ordinary .6m collision body. Arrival, temporary yielding and inactive work do not accumulate stuck history; task/level changes clear caches and recovery. Existing bounded turn/acceleration behavior remains.
+
+Source tests and blind review are recorded in QUALITY.md. Phone motion, narrow-passage feel and actual device FPS require user/device review; no deployment or acceptance follows from source tests.
+
+### Buddy containment and seven-second grazing — 19 October 2026
+
+F-COMP-009 extends `buddy_behaviour`: if Pip is more than 18m from the nearest member of Buddy's selected group, or no structural ground connection to any selected member is clear, Buddy contains that group instead of giving it a travel direction. A contained group returns to normal support only when Pip is within 14m with a clear structural connection. Attendance ignores tree-only occlusion but respects river banks, rails, fences and closed gates. An open gate or usable bridge on the direct connection does not itself imply separation. Existing tier selection and ordinary tier-3 retrieval remain; a stray can return to the locally held receiving flock.
+
+Containment retains the group's holding area and member positions, with a body-clear perimeter patrol, gradual movement and no repeated bark pressure. Buddy must first visit a selected connected member within 12m on clear ground. Calm then propagates through that connected flock and persists while Buddy remains locally on its structurally connected perimeter, including interior members the orbit does not approach. Acquisition/reacquisition snapshots current physical positions instead of pulling a late-arriving group toward stale locations. Local holding dampens inherited velocity/alignment/forward carry and applies small separation around retained positions. Pip pressure overrides it. An animal already committed to a bridge finishes crossing; its new dry-bank location replaces its own old holding target before settling. No teleportation, collision bypass or unattended scoring is added.
+
+Grazing now waits about seven seconds of calm movement within a fixed .75m local envelope. Significant drift, active pressure, turning, wandering or bridge commitment restarts settling; head lowering requires speed below .1m/s. Paused updates freeze the timer, and fresh poses start fresh. The whole existing mouth/hoof surface checks still exclude paths, bridge decks, barn floors and water; grass and bushes remain edible.
+
+
+### Natural containment correction — 19 October 2026
+
+F-COMP-010 supersedes rigid individual pinning and continuous containment orbiting. Each locally acquired animal has a small personal resting patch, deterministic individual facing and staggered brief browsing steps followed by long quiet spells. Sheep and all cow sizes can face differently instead of retaining a shared inherited travel heading. Non-browsable patches permit capped individual resting turns without enabling grazing on paths, bridges or barn floors. Grass/bush grazing still requires approximately seven calm seconds and the existing mouth/hoof surface checks. Flock homes remain bounded, with no shared preferred travel direction.
+
+Buddy retains a check destination, walks there at a calm speed, then pauses for 4–7 seconds facing the flock. Later checks alternate sides and can target a drifting edge rather than wind continuously around the flock. A blocked sector eventually falls back to watching instead of perpetual wall pacing. Before physical flock acquisition, Buddy approaches its current nearest edge at ordinary working speed and does not watch from a distant stale checkpoint. Ordinary navigation, collision, Pip attendance/pressure, tier roles, stray retrieval and safe bridge completion remain.
+
+Pip remains player-controlled. Input now handles lost pointer capture as cancellation: clear drag movement and do not count it as a tap or bark. Tests establish that idle Pip stays fixed while Buddy works. This is a concrete stale-input fix; it does not establish that capture loss caused the reported phone circling.
+
+
 ## Queuing at crossings — 20 October 2026
 
 A pressured animal heading into a bridge deck, the destination entrance or an open gate narrower than 9 m (the 8 m gates of levels 3–5) keeps to a lane. Openings 9 m or wider, the 10 m gates from level 6 and level 2's broad 11.75 m deck, get no queuing; lane aiming and deck commitment still apply on the broad deck. A queuing animal follows the one ahead instead of surging and reversing, and can wait behind a blocked animal for at most 3 s, then pushes for 2 s before yielding again. Walking onto a deck from up to 3 m before its end commits the animal to the far bank, but only while Pip or Buddy is pressing it, it is lined up with the deck, and it is not heading back over a bridge it already crossed. Pip can still turn a flock back before it commits. See [architecture](../ARCHITECTURE.md#crossing-bottlenecks-f-herd-005-f-world-001--20-october-2026) and [tracker](../ISSUES.md).

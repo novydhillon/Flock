@@ -255,6 +255,44 @@ test('pointercancel ends movement without a woof and permits the next thumb gest
   assert.equal(ui.app.state().input.z, 0); assert.equal(ui.app.state().pointer, null);
 });
 
+test('lost pointer capture stops Pip without a woof and ignores unrelated pointers', async () => {
+  const ui=launch();await ui.click('play');
+  const drag={pointerId:7,clientX:100,clientY:100};
+  ui.emit('pointerdown',drag);
+  ui.emit('pointermove',{...drag,clientX:142});ui.tick();
+  const moved=ui.app.state().dog.x;
+  ui.emit('lostpointercapture',{pointerId:8});
+  assert.equal(ui.app.state().pointer,7);
+  assert.equal(ui.app.state().input.x,1);
+  ui.emit('lostpointercapture',{pointerId:7});
+  assert.equal(ui.app.state().pointer,null);
+  assert.equal(ui.app.state().input.x,0);assert.equal(ui.app.state().input.z,0);
+  ui.advance(1);
+  assert.equal(ui.app.state().dog.x,moved);
+  // A capture lost before any move must not seed the double-tap bark gesture.
+  ui.emit('pointerdown',drag);ui.emit('lostpointercapture',drag);
+  ui.emit('pointerdown',{...drag,pointerId:9});ui.emit('pointerup',{...drag,pointerId:9});
+  assert.equal(ui.audioEvents.filter(event=>event==='bark').length,0);
+  ui.emit('pointerdown',{...drag,pointerId:10});
+  ui.emit('pointermove',{...drag,pointerId:10,clientY:142});
+  assert.equal(ui.app.state().input.z,1);
+  ui.emit('pointerup',{pointerId:10});
+  assert.equal(ui.app.state().input.z,0);
+});
+
+test('idle Pip stays in place while Buddy works independently', async () => {
+  const ui=launch({highestLevel:27,upgrades:{helper:2}});await ui.click('play');ui.tick();
+  const {level,dog}=ui.app.state();
+  const before={x:dog.x,z:dog.z,heading:dog.heading};
+  const buddy=level.helpers.find(helper=>helper.type==='helper');
+  assert.ok(buddy,'Buddy is active');
+  const buddyBefore={x:buddy.x,z:buddy.z};
+  ui.advance(8);
+  assert.ok(Math.hypot(buddy.x-buddyBefore.x,buddy.z-buddyBefore.z)>.1,'Buddy performs autonomous work');
+  assert.equal(dog.x,before.x);assert.equal(dog.z,before.z);assert.equal(dog.heading,before.heading);
+  assert.equal(ui.app.state().input.x,0);assert.equal(ui.app.state().input.z,0);
+});
+
 test('focus loss pauses and clears both held keyboard and thumb movement', async () => {
   const ui = launch();
   await ui.click('play'); ui.emit('keydown', { key: 'w' });
@@ -494,7 +532,7 @@ test('tier-two autonomous Buddy bark reaches audio and renderer without consumin
  const state=ui.app.state(),l=state.level;
  Object.assign(l,{time:0,bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],fenceSegments:[],obstacles:[],routes:[],
   helpers:[{type:'helper',x:-4,z:0}],animals:[0,1].map(id=>({id,x:0,z:id*2,vx:2,vz:0,type:'sheep',saved:false,nextWanderCheck:1e9}))});
- Object.assign(state.dog,{x:-70,z:-70});
+ Object.assign(state.dog,{x:-12,z:0});
  ui.tick();assert.equal(ui.audioEvents.filter(e=>e==='bark').length,1);
  assert.equal(state.renderer.barks.length,1);assert.ok(Number.isFinite(state.renderer.barks[0].x));
  assert.equal(ui.el('bark').disabled,false,'Buddy does not consume Pip cooldown');

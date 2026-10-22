@@ -67,6 +67,14 @@ Headless smoke checks are possible in this cloud container: Playwright Chromium 
 
 [AGENTS.md](../AGENTS.md) is the single instruction file for every coding agent and for people. `CLAUDE.md` (Claude Code) and `GEMINI.md` (Gemini CLI) are symlinks to it at the root and beside the folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. Edit only the `AGENTS.md` files. AGENTS.md also maps the connector rule, the model tiers and the blind review procedure onto each tool. The Claude Code critic definition is [.claude/agents/flock-blind-critic.md](../.claude/agents/flock-blind-critic.md). This replaces the separate Claude guide added earlier the same day. A harness default to `git push` does not override the connector-only rule. Shell git needs an explicit user waiver for a named branch and task, recorded in the tracker item.
 
+
+## Buddy behaviour review — 19 October 2026
+
+Branch `buddy_behaviour` starts from main `1ad55f0`. Review F-COMP-001/002/003/007 at public QA levels 20/24/28. Guide a moving flock, stop/reverse it, split it with groups traveling opposite ways, and compare sheep/all cow sizes. Move Pip through Buddy's rear/flank route: Buddy should keep a stable side where space permits, without steering Pip or waiting forever in narrow gates/rotated bridges. Confirm tier-2 final-animal goal help still requires Pip attending and tier-3 stray retrieval stays physical.
+
+With no valid work, watch Buddy return near Pip, route around a large tree and settle without circling. An impassable barrier should produce a safe wait. Block a work route, then reopen it: recovery should back out only through clear ground, retry calmly and clear stale state on task changes/restarts. An obstructed ideal work point with nearby valid standing ground should settle without repeated escapes. Check pause/background/resume, restart, level jumps, absent Buddy, independent barks and low-speed motion. Source regression/build evidence is separate from phone motion and FPS. Development publication was authorized 19 October 2026; see the Buddy publication record in QUALITY.md. User acceptance remains pending. Non-main deployment uses `/Flock/dev/`.
+
+
 ## Standalone tracker publication
 
 The explicit 18 October request authorizes the standalone `tracker/` site at `https://novydhillon.github.io/Flock/tracker/`. This is a scoped tool publication, not a game build destination change. Novy accepted the deployed tracker on 18 October 2026 at 22:45 America/Creston and authorized merging `feature/work-tracker` through PR #11 to main. Copy only the four `tracker/` files to the same paths on the latest `gh-pages` tree through the GitHub connector and update its ref with the expected parent. Preserve all other Pages paths. Run `node --test tests/tracker-*.test.js`, generated-doc checks and independent review; inspect native Pages workflow success. The board always reads public main tracker files, including future updates without redeployment. Use `**Branch:** ` followed by a backtick-quoted branch name in each ticket detail to make ownership explicit; missing historical branches remain unrecorded. Verify source CI and record native/rendered verification limits.
@@ -298,8 +306,36 @@ F-064 coat smoke check: compare cows of the same size for different cream/black 
 F-065: `herd_turning_visual` contains the isolated renderer-only turn-rate/pivot-gait candidate. 333 regression checks (332 full plus added matrix check), both build modes and docs pass; independent review 10/10. Publication and user visual acceptance remain pending.
 
 
+## Buddy containment smoke checks — 19 October 2026
+
+F-COMP-009: with Buddy tiers1/2/3 active on public QA20/24/28, leave his selected group by more than18m, then approach within14m. Try staying nearby on the opposite river bank or behind a closed fence/gate, then return through an opening. Buddy should patrol the group's perimeter and contain its current area while unattended, then resume ordinary support when Pip returns. A tree alone should not trigger barrier separation. Compare mixed sheep/all cow sizes, wider groups, splits/merges, no Buddy, stray retrieval and already committed bridge crossings.
+
+Watch stationary grass/bush livestock lower their heads after roughly seven seconds. Buddy's passing patrol must not repeatedly spook or translate a calm group. Moving/pressured animals raise their heads; continuous drift does not count as staying in place. Paths, bridge decks and barn floors remain excluded. Pause/resume/background, restart and level jumps must preserve frozen or fresh containment/settling state appropriately. Source tests do not establish native phone motion or FPS. Publication and acceptance are recorded separately.
+
+
+## Natural containment correction smoke checks — 19 October 2026
+
+F-COMP-010: on a large mixed meadow, leave Pip stationary far from Buddy's selected flock. Compare grass and path cases: livestock should settle with varied headings, occasional staggered short steps and extended calm grazing on edible ground. They must remain together locally without becoming a frozen aligned formation or translating continuously. Buddy should alternate deliberate checks and watching pauses rather than circle endlessly; induce a small edge drift and verify useful repositioning. Watch all cow sizes and crowded groups, river/fence edges, already committed crossings, tier-3 retrieval and Pip's return.
+
+Drag/release, cancel and lose touch/pointer capture; Pip must stop promptly without an accidental bark. Unrelated pointer events must not steal the active gesture. Idle Pip must stay put while Buddy moves. Pause, background/resume, restart and QA jumps must freeze or replace transient movement/resting state correctly. Native phone feel/visual diversity remains for Novy's playtest; module metrics are source evidence only. Use the standard checked builds and Deploy Flock workflow above; no custom deployment fallback.
+
+
+## Buddy branch main integration — 19 October 2026, 17:43 America/Creston
+
+`buddy_behaviour` incorporates main `7d848bc`, retaining the natural containment and input fixes from `753159a`. The standard workflow versions, shared root/folder instructions and accepted delivery evidence above are now available on this feature branch. Runtime files are unchanged by this integration. The successful connector dispatch recorded in F-OPS-003 establishes the workflow on GitHub; this Codex session still lacks an exposed dispatch action and must use the documented Actions UI handoff if deployment is requested. Source integration alone does not publish a new dev game.
+
+
+
 ## Crossing bottleneck checks (F-HERD-005, F-WORLD-001) — 20 October 2026
 
 `npm run measure:chokepoints` runs `scripts/measure-chokepoints.mjs`: a scripted player herds seeded levels and prints, per bridge, gate and destination entrance, the reversals and stalled seconds per animal. Pass levels and seeds as comma lists, for example `npm run measure:chokepoints -- 16,21 default,1001`. A finished run takes a few seconds to about 30 s; a run that never finishes simulates the full 600 s and takes about a minute, so several levels and seeds can take many minutes. The scripted player herds the rearmost animal, except that an animal far off the trail ahead of the flock does not count as rearmost, and Pip keeps its current target unless another animal is at least 3 m further back. Use it to compare tuning before and after a change; it is not part of `npm test` and is not human or device evidence.
 
 Phone smoke checks on the dev build: on public QA 16, 21 and 31 push the whole flock across both rivers. At each bridge mouth the flock should funnel into two or three lanes and walk on without the front animals bouncing back. Push from an angle so animals land beside the deck end: they should slide along the bank into a lane rather than press into the post. Step Pip between the flock and a bridge before the flock reaches it: the flock should turn back. Repeat at the gate and the pen entrance, with cows of every size, and pause/resume and restart during a crossing. Check that the longer stretch before the gate on large-herd levels reads naturally.
+
+## Buddy/chokepoint integration checks — 20 October 2026
+
+On `buddy_behaviour`, main `75ad6e1` and Buddy `368c452` are combined. With Pip far away, watch Buddy contain a flock beside a narrow bridge mouth and open gate: resting animals must not gain approach pressure, queue, or launch onto a deck. Already committed sheep/cows must finish on dry ground before settling locally; Pip's return resumes ordinary herding. Preserve natural individual headings/browsing, seven-second edible-surface grazing, pointer cancellation, physical collision and attended delivery. Source tests are not phone-fun, touch, native rendering or FPS evidence. Source integration does not publish a build.
+
+## Buddy accepted merge handoff — 22 October 2026
+
+Novy’s “Looks good. Merge to main and close the tickets” accepts F-COMP-001/002/003/007/009/010 for dev runtime `17f648d` / Pages `45110fa`, on `buddy_behaviour`. Full issue details and completion/publication evidence move to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026); these six are Done. Existing smoke-check procedures and older pending statements above are historical and superseded for this accepted batch. Preserve F-COMP-004/005/006/008 and unrelated statuses. This closure changes documentation only and authorizes source merge to main, not production deployment. Runtime and saved progress are unchanged; no new native-device/FPS/audio measurement is claimed.

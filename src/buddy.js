@@ -1,6 +1,6 @@
 import { animalRadius } from './animal-size.js';
 import { canOccupy, hasClearGroundPath, targetFootprint, destinationApproach, containsTarget } from './world.js';
-import { buddyNavigationTarget, turnToward, moveBuddy } from './buddy-navigation.js';
+import { buddyNavigationTarget, buddyRecoveryTarget, resetBuddyRecovery, turnToward, moveBuddy } from './buddy-navigation.js';
 
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const normal = (x, z) => { const d = Math.hypot(x, z); return d > 1e-6 ? { x: x / d, z: z / d } : { x: 0, z: 0 }; };
@@ -68,10 +68,175 @@ function passageTarget(level, passage, animal) {
   return {x:b.x+Math.sin(b.heading)*passage.sign*extent,z:b.z+Math.cos(b.heading)*passage.sign*extent};
 }
 
+// Comfortable gap is deliberately separate from collision radii. In narrow
+// passages the best physically reachable candidate wins, so yielding is bounded.
+export const BUDDY_WORK_GAP = 3;
+function passageCost(level, point) {
+  let cost = 0;
+  for (const r of level.rivers || []) for (const b of r.bridges) {
+    const across = Math.abs((point.x-b.x)*Math.cos(b.heading)-(point.z-b.z)*Math.sin(b.heading));
+    if (across < b.width/2+1 && Math.abs(alongBridge(point,b,1)) < b.length/2+2) cost += 15;
+  }
+  for (const g of level.gates || []) if (distance(point,g)<4) cost += 15;
+  const entrance=destinationApproach(level,level.dog);
+  if (distance(point,entrance)<4) cost += 15;
+  return cost;
+}
+function standby(level,buddy,state,dt) {
+  // Keep a settled point until Pip leaves its neighbourhood. A body-clear
+  // detour may connect a nearby resting point even when a tree blocks sight.
+  if (!state.standby || distance(state.standby,level.dog)>7 || distance(state.standby,level.dog)<2 ||
+      !canOccupy(level,state.standby.x,state.standby.z,.6)) {
+    const candidates=[];
+    if(distance(buddy,level.dog)>=2 && distance(buddy,level.dog)<=7)candidates.push({x:buddy.x,z:buddy.z});
+    for(const reach of [3.5,5.5])for(let i=0;i<12;i++){
+      const angle=i*Math.PI/6;
+      candidates.push({x:level.dog.x+Math.sin(angle)*reach,z:level.dog.z+Math.cos(angle)*reach});
+    }
+    const usable=candidates.filter(p=>{
+      if(!canOccupy(level,p.x,p.z,.68)||!hasClearGroundPath(level,level.dog,p,.6))return false;
+      if(hasClearGroundPath(level,buddy,p,.6))return true;
+      // Probe a bounded chain of ordinary physical waypoints. Crossings may
+      // need both bridge ends before the final resting point is visible.
+      const probe={x:buddy.x,z:buddy.z},visited=[];
+      for(let step=0;step<16;step++){
+        if(hasClearGroundPath(level,probe,p,.6))return true;
+        const waypoint=buddyNavigationTarget(level,probe,p,.6);
+        if(distance(probe,waypoint)<.05 || !canOccupy(level,waypoint.x,waypoint.z,.6) ||
+            !hasClearGroundPath(level,probe,waypoint,.6) || visited.some(v=>distance(v,waypoint)<.1))return false;
+        visited.push({x:probe.x,z:probe.z});
+        probe.x=waypoint.x;probe.z=waypoint.z;
+      }
+      return false;
+    });
+    usable.sort((a,b)=>passageCost(level,a)-passageCost(level,b)||distance(buddy,a)-distance(buddy,b));
+    state.standby=usable[0]||{x:buddy.x,z:buddy.z};
+  }
+  buddy.desired={...state.standby};
+  if(distance(buddy,state.standby)<.08){buddy.moveSpeed=0;buddy.vx=0;buddy.vz=0;return;}
+  moveBuddy(level,buddy,buddyNavigationTarget(level,buddy,state.standby,.6),dt,4);
+}
+function workingGap(level,buddy,state,desired,drive,passage) {
+  const pip=level.dog;
+  const crowded=distance(pip,desired)<BUDDY_WORK_GAP || distance(pip,buddy)<2.2;
+  if(!crowded && (!state.yield || distance(pip,desired)>BUDDY_WORK_GAP+1))delete state.yield;
+  if(!crowded&&!state.yield)return desired;
+  const side=state.yield?.side || Math.sign((buddy.x-pip.x)*-drive.z+(buddy.z-pip.z)*drive.x)||1;
+  state.yield={side,since:state.yield?.since??level.time};
+  const candidates=[];
+  for(const lateral of [3.5,5,2])for(const sign of [side,-side]){
+    const p={x:desired.x-drive.z*lateral*sign,z:desired.z+drive.x*lateral*sign};
+    if(canOccupy(level,p.x,p.z,.68)&&hasClearGroundPath(level,desired,p,.6))
+      candidates.push({p,side:sign,cost:Math.max(0,BUDDY_WORK_GAP-distance(p,pip))*10+lateral+(sign!==side?2:0)});
+  }
+  candidates.sort((a,b)=>a.cost-b.cost);
+  if(candidates.length){state.yield.side=candidates[0].side;return candidates[0].p;}
+  // No lateral room: keep the passage task and ordinary body-clear navigation.
+  // Do not park forever waiting for a comfortable gap a gate cannot provide.
+  if(passage || distance(pip,desired)>=1.6 || level.time-state.yield.since>1.2)return desired;
+  return {x:buddy.x,z:buddy.z};
+}
+function groupTravel(state,group,dt,time) {
+  const ids=group.map(a=>a.id);
+  const prior=(state.flows||[]).sort((a,b)=>overlap(group,b.ids)-overlap(group,a.ids))[0];
+  const record=prior&&overlap(group,prior.ids)>0?prior:{ids,forward:null};
+  record.ids=ids;record.at=time;
+  const velocity=group.reduce((v,a)=>({x:v.x+(a.vx||0)/group.length,z:v.z+(a.vz||0)/group.length}),{x:0,z:0});
+  const moving=Math.hypot(velocity.x,velocity.z)>.28;
+  if(moving){
+    const measured=normal(velocity.x,velocity.z);
+    const angle=record.forward?turnToward(Math.atan2(record.forward.x,record.forward.z),Math.atan2(measured.x,measured.z),1.8,dt):Math.atan2(measured.x,measured.z);
+    record.forward={x:Math.sin(angle),z:Math.cos(angle)};
+  }
+  state.flows=[...(state.flows||[]).filter(r=>r!==record&&time-r.at<5),record];
+  return {moving,forward:record.forward||{x:0,z:1},measured:record.forward};
+}
+
+// Attendance ignores tree occlusion, but respects banks, rails, fences and gates.
+export const BUDDY_CONTAIN_ENTER = 18, BUDDY_CONTAIN_EXIT = 14;
+function containmentState(level, state, group) {
+  const centroid=center(group), geometry={...level,obstacles:[]};
+  const connected=group.some(a=>hasClearGroundPath(geometry,level.dog,a,.6));
+  const near=Math.min(...group.map(a=>distance(level.dog,a)));
+  const previous=state.containment;
+  const same=previous&&overlap(group,previous.ids)>0;
+  const holding=(!connected||near>(same?BUDDY_CONTAIN_EXIT:BUDDY_CONTAIN_ENTER));
+  if(!holding){delete state.containment;return null;}
+  const hold=same?previous:{anchor:{...centroid},positions:{},acquired:false,angle:null};
+  hold.ids=group.map(a=>a.id);
+  for(const a of group)hold.positions[a.id]||={x:a.x,z:a.z};
+  state.containment=hold;
+  return hold;
+}
+function patrolContainment(level,buddy,state,hold,group,dt,task) {
+  buddy.mode='contain';buddy.barking=false;delete buddy.forward;
+  if(!hold.acquired){
+    // Attendance starts with reaching the *current* nearest flock edge. A
+    // distant moving flock must not trigger perimeter watches en route or be
+    // pursued via an obsolete check point while it continues travelling.
+    delete hold.check;delete hold.watchUntil;
+    const subject=[...group].sort((a,b)=>distance(buddy,a)-distance(buddy,b))[0];
+    const outward=normal(buddy.x-subject.x,buddy.z-subject.z);
+    const desired={x:subject.x+outward.x*4,z:subject.z+outward.z*4};
+    buddy.desired=desired;buddy.containmentActivity='approach';
+    const waypoint=buddyRecoveryTarget(level,buddy,desired,dt,{taskKey:task,active:true});
+    moveBuddy(level,buddy,waypoint,dt,7);
+    return;
+  }
+  const anchor=hold.anchor;
+  const extent=Math.max(3,...group.map(a=>distance(a,anchor)+animalRadius(a)));
+  const reach=extent+3.5;
+  hold.angle??=Math.atan2(buddy.x-anchor.x,buddy.z-anchor.z);
+  // Keep a check point while approaching it, then stand and watch. The next
+  // check alternates sides rather than winding endlessly around the flock.
+  if(hold.watchUntil>level.time){
+    buddy.desired={x:buddy.x,z:buddy.z};
+    moveBuddy(level,buddy,buddy.desired,dt,0);
+    buddy.heading=turnToward(buddy.heading??0,Math.atan2(anchor.x-buddy.x,anchor.z-buddy.z),1.4,dt);
+    buddy.containmentActivity='watch';
+    return;
+  }
+  if(hold.check && distance(buddy,hold.check)<.4){
+    hold.watchUntil=level.time+4+(hold.checkIndex||0)%4;
+    delete hold.check;
+    buddy.containmentActivity='watch';
+    moveBuddy(level,buddy,{x:buddy.x,z:buddy.z},dt,0);
+    return;
+  }
+  if(!hold.check){
+    hold.checkIndex=(hold.checkIndex||0)+1;
+    const drifted=group.filter(a=>hold.positions[a.id]&&distance(a,hold.positions[a.id])>1.2)
+      .sort((a,b)=>distance(b,hold.positions[b.id])-distance(a,hold.positions[a.id]));
+    const edge=drifted[0];
+    const preferred=edge?Math.atan2(edge.x-anchor.x,edge.z-anchor.z):
+      hold.angle+(hold.checkIndex%2?1:-1)*Math.PI/3;
+    // Short perimeter chords stay outside the flock. Each waypoint and route
+    // uses the ordinary body-clear navigation, including fence/river edges.
+    for(let i=0;i<24;i++){
+      const angle=preferred+(i%2?1:-1)*Math.ceil(i/2)*Math.PI/12;
+      const p={x:anchor.x+Math.sin(angle)*reach,z:anchor.z+Math.cos(angle)*reach};
+      if(!canOccupy(level,p.x,p.z,.68))continue;
+      const route=buddyNavigationTarget(level,buddy,p,.6);
+      const dx=route.x-buddy.x,dz=route.z-buddy.z,d2=dx*dx+dz*dz;
+      const t=d2?Math.max(0,Math.min(1,((anchor.x-buddy.x)*dx+(anchor.z-buddy.z)*dz)/d2)):0;
+      const closest={x:buddy.x+dx*t,z:buddy.z+dz*t};
+      if(distance(buddy,anchor)>extent+1&&distance(closest,anchor)<extent+1)continue;
+      hold.check=p;hold.angle=angle;hold.checkStarted=level.time;break;
+    }
+  }
+  const desired=hold.check||{x:buddy.x,z:buddy.z};
+  buddy.containmentActivity='check';buddy.desired=desired;
+  const waypoint=buddyRecoveryTarget(level,buddy,desired,dt,{taskKey:task,active:distance(buddy,desired)>.5});
+  moveBuddy(level,buddy,waypoint,dt,2.6);
+  // An inaccessible perimeter sector must not turn into perpetual wall pacing.
+  if(hold.check && level.time-hold.checkStarted>15){delete hold.check;hold.watchUntil=level.time+4;}
+
+}
+
 /** Buddy follows flock travel, with tier-two local crossing/goal assistance.
  * All influence requires being behind the subject, in range, on clear ground. */
 export function updateBuddy(level, active, effects, dt, events) {
-  if (!effects.helper) return { forces: new Map(), memberIds: new Set() };
+  if (!(dt > 0) || !effects.helper) return { forces: new Map(), memberIds: new Set() };
   let buddy = level.helpers.find(h => h.type === 'helper');
   if (!buddy) { buddy = { type: 'helper', x: level.dog.x, z: level.dog.z }; level.helpers.push(buddy); }
   const state = level.buddyHerd ||= {};
@@ -98,22 +263,12 @@ export function updateBuddy(level, active, effects, dt, events) {
   const main = groups[0];
   if (!main) {
     buddy.mode = 'standby'; buddy.clusterIds = []; buddy.targetId = null; buddy.barking = false;
-    buddy.moveSpeed = 0; buddy.vx = 0; buddy.vz = 0;
-    delete state.retrieveId; return { forces: new Map(), memberIds: new Set() };
+    if(state.task!=='standby'){buddy.moveSpeed=0;buddy.vx=0;buddy.vz=0;delete buddy.buddyNavigation;resetBuddyRecovery(buddy);delete state.passage;delete state.workHeading;delete state.orbitSide;delete state.yield;delete buddy.forward;}
+    state.task='standby';
+    delete state.containment; delete state.retrieveId; standby(level,buddy,state,dt);
+    return { forces: new Map(), memberIds: new Set() };
   }
   state.travelIds = main.map(a => a.id);
-  const velocity = main.reduce((v, a) => ({ x: v.x + (a.vx || 0) / main.length, z: v.z + (a.vz || 0) / main.length }), { x: 0, z: 0 });
-  const moving = Math.hypot(velocity.x, velocity.z) > .28;
-  if (moving) {
-    const measured = normal(velocity.x, velocity.z);
-    // Follow a turn promptly without flipping the rear position on tiny jitter.
-    if (state.forward) {
-      const current = Math.atan2(state.forward.x, state.forward.z), target = Math.atan2(measured.x, measured.z);
-      const angle = turnToward(current,target,1.8,dt);
-      state.forward = { x: Math.sin(angle), z: Math.cos(angle) };
-    } else state.forward = measured;
-  }
-  const forward = state.forward || { x: 0, z: 1 };
   const nearestGroup = animal => [...groups].sort((a, b) => distance(animal, center(a)) - distance(animal, center(b)) || stableOrder(a, b))[0];
   if (stray) {
     const destination = nearestGroup(stray);
@@ -134,9 +289,40 @@ export function updateBuddy(level, active, effects, dt, events) {
     if(remaining.length&&!passageComplete(level,state.passage,remaining))selected=remaining;
   }
   const group = stray ? nearestGroup(stray) : selected;
-  const passage = !stray && tier>=2 ? choosePassage(level,state,group,forward) : null;
+  const {moving,forward,measured}=groupTravel(state,group,dt,level.time);
+  state.forward=measured;
+  const containment=containmentState(level,state,group);
+  const passage = !containment && !stray && tier>=2 ? choosePassage(level,state,group,forward) : null;
+  if(containment)delete state.passage;
+  const task=`${stray?'retrieve':containment?'contain':passage?.kind||'flock'}:${stray?.id??group.map(a=>a.id).join(',')}`;
+  if(state.task!==task){delete buddy.buddyNavigation;resetBuddyRecovery(buddy);delete state.standby;delete state.yield;delete state.orbitSide;delete state.workHeading;}
+  state.task=task;
   const centroid = center(group);
   buddy.clusterIds = group.map(a => a.id); buddy.anchor = centroid; buddy.targetId = stray?.id ?? null;
+  const holds=new Map();
+  if(containment){
+    // A real local Buddy visit settles this *connected* flock. Once settled,
+    // calm propagates through its physical neighbour chain, including interior
+    // animals a perimeter patrol never approaches. No directional pressure or
+    // stale remote position correction is applied before that first visit.
+    const local=group.some(a=>distance(buddy,a)<12&&hasClearGroundPath(level,buddy,a,.15));
+    const currentCenter=center(group);
+    const extent=Math.max(3,...group.map(a=>distance(a,currentCenter)+animalRadius(a)));
+    const structural={...level,obstacles:[]};
+    const attending=distance(buddy,currentCenter)<=extent+8&&
+      group.some(a=>hasClearGroundPath(structural,buddy,a,.6));
+    if(containment.acquired&&!attending)containment.acquired=false;
+    if(!containment.acquired)containment.anchor=currentCenter;
+    if(!containment.acquired&&local){
+      containment.acquired=true;containment.anchor=center(group);
+      containment.positions=Object.fromEntries(group.map(a=>[a.id,{x:a.x,z:a.z}]));
+    }
+    if(containment.acquired)for(const a of group)holds.set(a.id,containment.positions[a.id]);
+  }
+  if(containment&&!stray){
+    patrolContainment(level,buddy,state,containment,group,dt,task);
+    return {forces:new Map(),memberIds:new Set(),holds};
+  }
   let subject = centroid, drive = forward;
   if (stray) {
     subject = stray;
@@ -162,7 +348,7 @@ export function updateBuddy(level, active, effects, dt, events) {
   const rear = stray || passage ? 0 : Math.min(...group.map(a => (a.x - centroid.x) * drive.x + (a.z - centroid.z) * drive.z));
   // Lead a running stray so circling can overtake it before closing in.
   const lead = stray ? { x: (stray.vx || 0) * .4, z: (stray.vz || 0) * .4 } : { x: 0, z: 0 };
-  const desired = { x: subject.x + drive.x * (rear - 3.2) + lead.x, z: subject.z + drive.z * (rear - 3.2) + lead.z };
+  let desired = { x: subject.x + drive.x * (rear - 3.2) + lead.x, z: subject.z + drive.z * (rear - 3.2) + lead.z };
   buddy.desired = desired; buddy.forward = { ...drive };
   // Circle around the subject before applying pressure; crossing its front
   // must not scatter it away from the group we are trying to recover.
@@ -175,11 +361,13 @@ export function updateBuddy(level, active, effects, dt, events) {
     approach = { x: subject.x - drive.x * 4.5 - drive.z * side * 5 + lead.x, z: subject.z - drive.z * 4.5 + drive.x * side * 5 + lead.z };
   }
   if (offset.x * drive.x + offset.z * drive.z < -3) delete state.orbitSide;
-  const waypoint = buddyNavigationTarget(level,buddy,approach,.6);
+  approach=workingGap(level,buddy,state,approach,drive,passage);
+  buddy.desired=approach;
+  const waypoint = buddyRecoveryTarget(level,buddy,approach,dt,{taskKey:task,active:distance(buddy,approach)>.5,yielding:Boolean(state.yield)&&distance(buddy,level.dog)<2.2});
   moveBuddy(level,buddy,waypoint,dt,stray?9:7);
   const subjects = stray ? [stray] : group;
   const forces = new Map(), memberIds = new Set();
-  if (!moving && !stray && !passage) return { forces, memberIds };
+  if (!moving && !stray && !passage) return { forces, memberIds, holds };
   const directionFor = a => {
     if(!passage)return drive;
     const waypoint=buddyNavigationTarget(level,a,passageTarget(level,passage,a),radiusOf(a));
@@ -209,5 +397,5 @@ export function updateBuddy(level, active, effects, dt, events) {
     if (!canOccupy(level, ahead.x, ahead.z, radius) || !hasClearGroundPath(level, animal, ahead, radius)) continue;
     forces.set(animal.id, vector); memberIds.add(animal.id);
   }
-  return { forces, memberIds };
+  return { forces, memberIds, holds };
 }
