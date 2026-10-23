@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 22 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 23 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
 
@@ -75,6 +75,10 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
+
+| F-ENV-001 | P3 | Lighting/art | Daytime lighting: sunrise, noon and sunset | Open | Existing fixed-per-level weather; preserve F-008 deferral |
+| F-UI-013 | P2 | Gameplay UI | White screen-edge arrows for offscreen stray livestock | Open | F-UI-002; existing flock grouping and delivery state |
+| F-UI-014 | P2 | Gameplay UI | Thruster-blue screen-edge indicator for the offscreen flock | Open | F-UI-013; F-UI-002; existing flock grouping |
 
 ## Acceptance criteria and planned work
 
@@ -622,3 +626,45 @@ User requested merging fallback changes to main and integrating main into buddy_
 ## Buddy user acceptance — 22 October 2026
 
 Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
+
+
+## Daylight and offscreen guidance requests — 23 October 2026
+
+Priority choice: offscreen guidance is P2 alongside existing gameplay UI readability work (F-UI-002); time-of-day lighting is P3 visual polish, after correctness/performance and core gameplay work. All three requests are Open and unassigned; no runtime changes are implemented.
+
+### F-ENV-001 — Daytime lighting: sunrise, noon and sunset (P3)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Add distinct morning/sunrise, noon and sunset lighting. Do not add nighttime.
+
+**Depends on / preserve:** Existing fixed-per-level weather; preserve F-008 deferral.
+
+**Accept when:** Each daytime look is visibly distinct through light direction, warmth, sky/ambient color and shadows while keeping livestock, obstacles and UI readable. Preserve the existing fixed-per-level weather contract and keep clouds disabled. Nighttime is excluded. Whether these are per-meadow presets or a changing daytime sequence is a design choice to resolve before implementation; this request does not authorize weather transitions.
+
+### F-UI-013 — White screen-edge arrows for offscreen stray livestock (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Show white arrows pointing toward stray animals when they move offscreen. Place the arrows near the corresponding screen edge.
+
+**Depends on / preserve:** F-UI-002; existing flock grouping and delivery state.
+
+**Accept when:** Each eligible offscreen undelivered stray has an arrow pointing toward its actual world position, using the current camera projection and actual flock/stray state. Arrows track movement, disappear when the animal returns onscreen or is delivered, and do not mark decorative wildlife. Keep arrows inside safe areas and clear of controls; handle multiple nearby arrows without unreadable overlap. Do not change herd behavior.
+
+### F-UI-014 — Thruster-blue screen-edge indicator for the offscreen flock (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Show a light-blue arrow, similar in color to Pip's thrusters, pointing toward the flock when it is offscreen. Place it near the corresponding screen edge.
+
+**Depends on / preserve:** F-UI-013; F-UI-002; existing flock grouping.
+
+**Accept when:** Point toward the actual offscreen flock position using the current camera projection; remove the indicator when the flock is onscreen or no eligible undelivered flock remains. Coordinate white stray arrows with the blue group indicator so they do not contradict or overlap each other or controls. Define behavior for split flocks before implementation, using actual groups rather than an unrelated UI-only grouping rule. Respect portrait/landscape safe areas.
+

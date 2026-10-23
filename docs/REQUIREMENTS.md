@@ -327,7 +327,7 @@ User clarification (15 October 2026, 18:53 Vancouver): a bolter may get away and
 
 ## Queued second Buddy progression - F-047 (P4)
 
-After meadow 40, offer a second Buddy dog with independently saved leveling. Price its purchase and upgrades for later-game bolt earnings and make its maximum tier attainable by meadow 70. Exact costs remain to be tuned. This is queued only; see [F-047 in the tracker](ISSUES.md#f-047---second-buddy-dog-with-independent-progression-p4).
+After meadow 40, offer a second Buddy dog with independently saved leveling. Price its purchase and upgrades for later-game bolt earnings and make its maximum tier attainable by meadow 70. Exact costs remain to be tuned. This is queued only; see [F-047 in the tracker](ISSUES.md).
 
 
 ## Buddy follow-up requirements - 15 October 2026, 19:11 Vancouver
@@ -348,12 +348,12 @@ Fix Buddy dog stuttering when moving slowly. Low-speed movement, stopping and re
 
 ## Queued QA menu focus fix - F-049 (P4)
 
-Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it. Initial focus should go to the menu container or a suitable non-dropdown control. Preserve the current level value. Open, queued only. See [F-049 in the tracker](ISSUES.md#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4).
+Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it. Initial focus should go to the menu container or a suitable non-dropdown control. Preserve the current level value. Open, queued only. See [F-049 in the tracker](ISSUES.md).
 
 
 ## Queued bark upgrade tiers - F-050 (P2)
 
-Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES.md#f-050---bark-strength-and-two-bark-upgrade-tiers-p2).
+Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES.md).
 
 ### F-051 - Compact gameplay HUD
 
@@ -435,7 +435,7 @@ Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/
 
 ## Planned bird behavior expansion — 18 October 2026
 
-Requested; not implemented. See [bird feature plan and acceptance criteria](ISSUES.md#bird-behavior-feature-plan--18-october-2026-americacreston), F-BIRD-001–014 (P2, Open).
+Requested; not implemented. See [bird feature plan and acceptance criteria](ISSUES.md), F-BIRD-001–014 (P2, Open).
 
 - Expand existing birds to fly, land on the ground and peck, perch in trees and chirp, and perch on fences/other supported structures to chirp or sit quietly.
 - Ground birds fly away from nearby Pip/Buddy and quickly approaching livestock. Grazing or slowly moving livestock alone do not startle them; tune proximity, closing-speed thresholds and relanding hysteresis during implementation.
@@ -482,3 +482,11 @@ Prefer the standard Deploy Flock workflow where connector dispatch is available.
 ## Buddy behaviour acceptance — 22 October 2026
 
 Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main and close the tickets” after reviewing the dev build. These six requirements are Done on `buddy_behaviour`, with complete requirements, acceptance criteria, historical implementation/publication evidence and closure records in [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes the older Review/pending acceptance descriptions for these six items elsewhere in this document; F-COMP-004/005/006/008 remain Open and F-OPS-004 is unchanged. Main source merge is authorized; production publication is not requested. Acceptance is user gameplay sign-off, not an independent native-phone FPS/audio/touch measurement.
+
+
+## Daytime lighting and offscreen guidance — 23 October 2026
+
+- F-ENV-001 (P3): Add distinct morning/sunrise, noon and sunset lighting. Do not add nighttime. See [tracker acceptance criteria](ISSUES.md).
+- F-UI-013 (P2): Show white arrows pointing toward stray animals when they move offscreen. Place the arrows near the corresponding screen edge. See [tracker acceptance criteria](ISSUES.md).
+- F-UI-014 (P2): Show a light-blue arrow, similar in color to Pip's thrusters, pointing toward the flock when it is offscreen. Place it near the corresponding screen edge. See [tracker acceptance criteria](ISSUES.md).
+
