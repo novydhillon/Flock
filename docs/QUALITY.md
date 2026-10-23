@@ -16,6 +16,12 @@ Independent follow-up by the same critic scored the refreshed candidate **9.6/10
 
 Final `npm run build:checked:dev` and `npm run build:checked:production` each passed all **407 regressions**, documentation checks and the matching build/artifact checks. Release output contains 27 files/zero QA assets; development output contains 29 files/two QA assets. The existing Vite bundle-size advisory remains. No runtime edits follow the 9.6/10 recheck. Regenerated documentation is checked again with this evidence before connector source publication. F-038 and F-UI-013 remain Review, with no new user acceptance or production merge/publication claimed.
 
+### Corner-layout dev deployment — 22 October 2026
+
+Novy requested deploying the follow-up to dev. Pinned source `235611115e84016266fbf2a17211cb5dd8d05628` matched all 194 local source blobs. Fresh `npm ci` and `npm run build:checked:dev` passed; explicit dev artifact verification confirmed 29 files/two QA assets. Source CI [39900022693](https://github.com/novydhillon/Flock/actions/runs/39900022693) succeeded.
+
+Workflow dispatch remains absent. The documented connector-only fallback used the shared deployment planner and byte-preserving blobs, based on Pages `0108943cc9f02fecd285b16ffee861ef2af79bd2`. Expected-head non-force publication produced Pages `bb513cd4e800cfb17173d42e41b3476dfd0da130`, changing only planned dev files and its manifest while preserving 78 unrelated blobs and old assets. Native Pages [39900559676](https://github.com/novydhillon/Flock/actions/runs/39900559676) succeeded; the shared live verifier then matched SHA-256 for all 29 files. [Publication evidence](validation/Map-corner-followup-dev-publication.json). Production/main are unchanged. F-038 and F-UI-013 remain Review for device appearance, touch, full-flock/helper pacing and user acceptance. This publication record is documentation only and does not change the deployed runtime source.
+
 ## F-066 grazing candidate
 
 Novy approved the verified dev candidate and authorized merge to main and live publication on 18 October 2026, 22:10 America/Creston. F-066 is Done by user acceptance, superseding historical pending-sign-off wording below. The production release preserves the reviewed runtime and excludes QA. Production validation/publication evidence follows separately; user acceptance does not measure phone FPS.

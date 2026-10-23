@@ -643,3 +643,7 @@ Novy authorized dev deployment. F-031/F-032/F-034/F-038 are live at `/Flock/dev/
 ## Map layout feedback — 22 October 2026
 
 F-038 returns to In progress on `map_generation_improvements` for Novy's feedback: true corner-requiring L/U/Z/abstract routes with offshoot goals, denser starter-field groves from level 60, wider river-to-fence clearance and varied meandering rivers. F-UI-013 tracks centered camera follow. Owner: Codex. Preserve the prior gate/stone work, early lessons and saved progress. Earlier validation/publication records remain evidence for their pinned revisions, not acceptance of this follow-up.
+
+## Map feedback dev deployment — 22 October 2026
+
+The follow-up for F-038 and F-UI-013 is live at `/Flock/dev/` by Novy's deployment request: source `2356111`, Pages `bb513cd`. Source CI, native Pages and all 29 live SHA-256 file comparisons passed. [Deployment evidence](validation/Map-corner-followup-dev-publication.json). Both items remain Review for user gameplay/appearance acceptance; this supersedes earlier pending-publication statements for the follow-up. Production/main are unchanged.
