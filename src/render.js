@@ -11,7 +11,7 @@ import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
-import { ribbon, roadRibbon, createRoadMaterial, barkSurface } from './surfaces.js';
+import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from './surfaces.js';
 import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
@@ -86,13 +86,12 @@ export class MeadowRenderer{
     const ground=this.flat(new THREE.PlaneGeometry(w+90,d+90,1,1),this.grass,cx,cz,-.035);ground.userData.ownedGeometry=true;
     this.grass.map.repeat.set((w+90)/15,(d+90)/15);this.grass.bumpMap.repeat.copy(this.grass.map.repeat);
     if(level.boundary?.length>4){
-      // The surrounding countryside is scenery; the brighter playable turf
-      // follows the same concave outline as collision and perimeter fences.
-      ground.material=this.grass.clone();ground.material.color.multiplyScalar(.72);ground.userData.ownedMaterial=true;
+      // The field follows collision geometry, while both sides share the same
+      // grass shader, world-aligned texture and weather response.
       const outline=new THREE.Shape();level.boundary.forEach((p,i)=>i?outline.lineTo(p.x,-p.z):outline.moveTo(p.x,-p.z));outline.closePath();
       const geometry=new THREE.ShapeGeometry(outline);geometry.rotateX(-Math.PI/2);
       const positions=geometry.attributes.position,uv=geometry.attributes.uv;
-      for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)-cx)/(w+90)+.5,(positions.getZ(i)-cz)/(d+90)+.5);
+      for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)-cx)/(w+90)+.5,.5-(positions.getZ(i)-cz)/(d+90));
       const meadow=new THREE.Mesh(geometry,this.grass);meadow.name='playable-meadow';meadow.position.y=-.025;meadow.receiveShadow=true;meadow.userData.ownedGeometry=true;this.terrain.add(meadow);
     }
     for(const spec of level.sceneryHills||[]){
@@ -101,9 +100,9 @@ export class MeadowRenderer{
     }
     const surface=(g,m)=>{const mesh=new THREE.Mesh(g,m);mesh.receiveShadow=true;mesh.userData.ownedGeometry=true;this.terrain.add(mesh);return mesh;};
     const roadCore=level.roads.length?createRoadMaterial(this.path):null,roadShoulder=level.roads.length?createRoadMaterial(this.pathShoulder):null;
-    for(const road of level.roads){
-      surface(roadRibbon(road.points,road.width+.65,{ragged:true,y:.003,seed:level.seed+5}),roadShoulder).userData.ownedMaterial=true;
-      surface(roadRibbon(road.points,road.width,{ragged:true,y:.007,seed:level.seed}),roadCore).userData.ownedMaterial=true;
+    if(level.roads.length){
+      surface(roadNetwork(level.roads,{widthExtra:.65,ragged:true,y:.003,seed:level.seed+5}),roadShoulder).userData.ownedMaterial=true;
+      surface(roadNetwork(level.roads,{ragged:true,y:.007,seed:level.seed}),roadCore).userData.ownedMaterial=true;
     }
     const riverViews=[];
     for(const river of level.rivers){

@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Gate visibility and road rounding follow-up — 23 October 2026
+
+Check mounted gate lights at all fence headings from normal gameplay portrait/landscape framing, in sun and rain: a lit red dome when closed and green when open, with the same state on both sides. Check switching by Pip/Buddy, safe refusal and restart. Inspect tight road reversals and multiple starts/endings for rounded outlines and no overlapping/faded junction seam while retaining the accepted terminal fade. Cross the visual field boundary in QA and compare grass color, texture orientation, wetness and glow on both sides; physical crossing still follows world collision. Phone checks remain pending until observed. Barn roof appearance is accepted by Novy on 23 October.
+
 ## Visual feedback smoke checks — 23 October 2026
 
 For F-032/F-VIS-001/F-VIS-002, check portrait and landscape on a phone: approach both wood/stone gate faces with Pip and Buddy; confirm a mounted red light becomes green once, held/simultaneous contacts do not chatter, and occupied closing is refused. Enter/leave a rotated barn in rain; check roof coverage across grooves, pause/resume, opaque shadows and restart. Inspect short/curved/shared road starts and terminals for rounded grass fading, grain, depth occlusion and wetness; confirm barn floors, rivers and bridges retain their appearance. Repeat level jumps/restarts for resource stability. These device checks remain pending; geometry, shader-source and GPU-substitute tests are separate evidence.

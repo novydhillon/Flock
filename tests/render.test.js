@@ -14,7 +14,7 @@ import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
 import {WaterEffects} from '../src/water-effects.js';
 import {MeadowNature} from '../src/nature.js';
-import {ribbon,roadRibbon,createRoadMaterial,barkSurface} from '../src/surfaces.js';
+import {ribbon,roadNetwork,createRoadMaterial,barkSurface} from '../src/surfaces.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
@@ -27,7 +27,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadRibbon,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -53,6 +53,14 @@ test('road fade clones preserve glow, weather baselines and once-only replacemen
 test('angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
   const renderer=setup(),level=createLevel(69,201);renderer.setLevel(level);
   const meadow=renderer.terrain.getObjectByName('playable-meadow');assert.ok(meadow);
+  const ground=renderer.terrain.children.find(o=>o.isMesh&&o.geometry.type==='PlaneGeometry'&&o.material===renderer.grass);assert.ok(ground);
+  assert.equal(meadow.material,ground.material,'field and surrounding grass share color, wetness and glow');
+  const uv=meadow.geometry.attributes.uv,mp=meadow.geometry.attributes.position;
+  for(let i=0;i<mp.count;i++){
+    assert.ok(Math.abs(uv.getX(i)-((mp.getX(i)-ground.position.x)/ground.geometry.parameters.width+.5))<1e-6);
+    assert.ok(Math.abs(uv.getY(i)-(.5-(mp.getZ(i)-ground.position.z)/ground.geometry.parameters.height))<1e-6);
+  }
+  const shader={uniforms:{},vertexShader:'#include <project_vertex>',fragmentShader:'#include <emissivemap_fragment>'};ground.material.onBeforeCompile(shader);assert.ok(shader.uniforms.pipGlowCenters);
   const polygonArea=Math.abs(level.boundary.reduce((sum,p,i)=>{const q=level.boundary[(i+1)%level.boundary.length];return sum+p.x*q.z-q.x*p.z;},0))/2;
   const g=meadow.geometry,p=g.attributes.position,indices=g.index;let triangleArea=0;
   for(let i=0;i<indices.count;i+=3){const [a,b,c]=[0,1,2].map(j=>indices.getX(i+j));triangleArea+=Math.abs((p.getX(b)-p.getX(a))*(p.getZ(c)-p.getZ(a))-(p.getZ(b)-p.getZ(a))*(p.getX(c)-p.getX(a)))/2;}

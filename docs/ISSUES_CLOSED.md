@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-VIS-001~~ | ~~P2~~ | ~~Presentation~~ | ~~Uniform barn-roof cutaway transparency~~ | ~~Done~~ | ~~Existing structure cutaway~~ |
 | ~~F-COMP-001~~ | ~~P2~~ | ~~Behavior~~ | ~~Buddy gives Pip room to work~~ | ~~Done~~ | ~~F-046 accepted tier behavior; F-048 movement~~ |
 | ~~F-COMP-002~~ | ~~P2~~ | ~~Behavior~~ | ~~More useful Buddy herding positions~~ | ~~Done~~ | ~~F-COMP-001; F-046 accepted roles~~ |
 | ~~F-COMP-003~~ | ~~P2~~ | ~~Navigation~~ | ~~Progress-aware Buddy obstacle recovery~~ | ~~Done~~ | ~~F-048 accepted smooth movement; existing Buddy detours~~ |
@@ -72,6 +73,14 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 | ~~F-WORLD-001~~ | ~~P2~~ | ~~World generation~~ | ~~Room to breathe between the last bridge and the gate for large herds~~ | ~~Done~~ | ~~F-HERD-005 findings; F-038~~ |
 
 ## Preserved acceptance and execution records
+
+### F-VIS-001 — ~~Uniform barn-roof cutaway transparency (P2)~~
+
+**Status:** Done. Owner: Codex. **Branch:** `map_generation_improvements`. Closed 23 October 2026 (America/Creston): Novy states “The barn looks good” after testing dev runtime `d739fa2`, Pages `7800a90`.
+
+Continuous single-sheet roof implemented; 415 regressions and both checked builds passed. Independent review was 8/10 with no material source blocker, below the usual 9/10 gate because rendered/device evidence was unavailable at source review. [Quality record](QUALITY.md#gate-panels-roof-coverage-and-road-terminals--23-october-2026). [Verified dev publication](validation/Gate-roof-path-dev-publication.json): source CI, native Pages and all 29 live file hashes passed. User appearance acceptance now closes this scoped barn issue; no phone FPS claim is made.
+
+**Acceptance criteria retained:** the pitched barn roof fades with consistent visual coverage across seams and panels when occupied, without stacked/backface transparency stripes shown in IMG_8435.jpeg. Preserve the accepted 0.7 roof/facing-wall opacity, solid collision, normal opaque appearance/shadows, pause, restoration and disposal. Source geometry/material checks do not replace device appearance review.
 
 # Current UI release status — 18 October 2026
 

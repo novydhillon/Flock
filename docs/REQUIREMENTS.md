@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Gate illumination, grass continuity and rounded junctions — 23 October 2026
+
+Novy accepts the barn fix (F-VIS-001) and existing path terminal fade. F-032 follow-up must make mounted indicator lights visibly illuminated from the gameplay camera, red when closed and green when open (IMG_8438/8439.jpeg). F-VIS-002 extends rounding to near-reversals and multiple roads ending together (IMG_8436.jpeg), preserving the accepted terminal fade. F-VIS-003 requires matching grass color/texture/wetness/glow inside and outside playable fields (IMG_8437.jpeg), preserving physical boundaries. Work and dev deployment are authorized on `map_generation_improvements`; new appearance acceptance remains pending. These requirements supersede the contrasting darker countryside and insufficient vertical-only indicator presentation.
+
 ## Gate panels, barn cutaway and path terminals — 23 October 2026
 
 F-032 follow-up replaces ground gate pads with vertical switch panels attached to the fence or wall beside the opening, on both approaches. Each has a visible indicator light: red when closed, green when open, synchronized to actual gate state. Pip and an active Buddy can activate a panel by contact, without automatic gate-seeking. Preserve debounce, occupied closing refusal and collision/navigation/minimap cache updates. This supersedes earlier Pip-only ground-pad instructions.

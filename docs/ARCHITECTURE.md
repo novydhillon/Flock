@@ -1,5 +1,11 @@
 # Architecture and system contracts
 
+## Visual follow-up ownership — 23 October 2026
+
+Gate illumination remains a presentation concern: visible lamp color follows actual gate state, without changing contact, safe closing or navigation. The playable polygon and surrounding ground now share the same grass material, with aligned UVs including the plane's inverted Z/V orientation. This gives both sides the same weather and receiving glow. Physical collision/fences/minimap still own the field boundary. Road join/shared-ending changes stay in presentation geometry; simulation road centerlines and grazing remain authoritative.
+
+The renderer builds one road network mesh for each of core and shoulder using `roadNetwork`, so shared junctions have one coverage surface. Both meshes own their geometry and share two per-level owned materials. Water ribbons keep their separate API and physical widths.
+
 ## Gate and surface feedback — 23 October 2026
 
 `gates.js` owns fixed wall-panel descriptors, reachable ground approaches and the shared Pip/Buddy contact latch; `gate-view.js` reads actual gate state for mounted red/green lights. Contact evaluation follows active companion filtering and movement. No autonomous gate-seeking is added. `surfaces.js` supplies road-only rounded terminal geometry and hashed coverage materials, preserving ordinary river ribbons and barn-floor materials. The renderer owns per-level road clones, restores weather baselines before cloning and registers road cores for wetness. Barn roofs use one continuous pitched sheet so transparent cutaways do not stack overlapping roof faces. Collision and saved profiles are unaffected.

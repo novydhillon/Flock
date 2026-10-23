@@ -1,5 +1,15 @@
 # Presentation: renderer, nature and audio
 
+## Grass continuity and visible lamps — 23 October 2026 follow-up
+
+The outer ground no longer clones grass with a .72 color multiplier. Ground and angular playable turf share `this.grass`, its wetness snapshots and receiving-glow uniforms. Polygon U matches the surrounding plane; V uses `.5 - (z-centerZ)/depth` to match the plane after its X rotation. Fences and the minimap continue to identify playable boundaries. This supersedes the darker-countryside requirement below.
+
+Gate lamps now use curved luminous domes so the elevated camera sees colored surface even when a fence is edge-on. Bright untone-mapped basic red/green materials, a small hotspot and a restrained radial sprite halo convey illumination independently of sun/shadow exposure. The halo depth-tests against scenery; no per-lamp point light or bloom pass is added. Domes and halos follow actual gate state together; fixed mounts and simulation contacts are unchanged. Geometry, materials and a shared 32×32 halo texture belong to the gate view and dispose on replacement.
+
+Novy accepted the continuous barn roof and existing road terminal fade on dev runtime `d739fa2`; F-VIS-001 is archived. Gate illumination and road reversal/junction rounding remain follow-up work rather than changes to the accepted roof.
+
+`roadNetwork(roads,{widthExtra,ragged,y,seed,fadeLength})` now creates one unioned road geometry per core/shoulder layer. Road-only outer arcs and rounded reversal caps replace squared bevel nubs. Shared endpoint nodes keep opaque junction centers and a soft exposed circular rim; continuing-road coverage prevents faded seams. Standalone terminals retain their accepted fade. Visual centerline sampling stays within .025 units and bounds spans to 2.5 units before sweeping, without altering physical routes. Original sampled routes still determine coverage. `roadRibbon` remains a single-road wrapper; ordinary river `ribbon` behavior is preserved. Union sweep performance uses active X ranges and sorted edge candidates instead of allocating/sorting every slab's hits. Both road layers retain the existing material shader, weather/glow registration and owned disposal.
+
 ## Mounted lights and continuous surfaces — 23 October 2026
 
 Gate switches are fixed vertical housings on both barrier faces beside the opening, with a bezel and emissive lamp: red closed, green open. They stay fixed while the leaf slides. The barn roof is one continuous indexed sheet with shallow grooves and clay UVs; the existing cutaway still fades it and facing walls to .7, freezes when paused, restores opaque shadows and disposes clones on replacement.

@@ -65,8 +65,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Review | F-006 |
 | F-032 | P3 | Gameplay/UI | Fence/wall switch panels on both sides; red closed/green open; Pip/Buddy contact activates | Review | F-031 |
-| F-VIS-001 | P2 | Presentation | Uniform barn-roof cutaway transparency | Review | Existing structure cutaway |
-| F-VIS-002 | P2 | Presentation | Smooth rounded path ends fading into grass | Review | Existing unioned road surfaces |
+| F-VIS-002 | P2 | Presentation | Smooth rounded road turns, shared endings and fading terminals | Review | Existing unioned road surfaces |
+| F-VIS-003 | P2 | Presentation | Match grass appearance inside and outside playable fields | Review | Existing angular field boundary |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Review | F-033 |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Review | F-005, F-006, F-031 |
@@ -83,13 +83,15 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 **Dev publication, 23 October 2026:** F-032/F-VIS-001/F-VIS-002 are published from `d739fa2` at `/Flock/dev/`, Pages `7800a90`. Fresh checked dev build (415 regressions), source CI, native Pages and all 29 live file hashes passed. [Evidence](validation/Gate-roof-path-dev-publication.json). This supersedes the pending-publication statements in the source records below. The disclosed 8/10 review remains limited by unavailable device evidence; Novy authorized this dev deployment, while phone appearance/performance and user acceptance remain pending. Status stays Review; production/main are unchanged.
 
-### F-VIS-001 — Uniform barn-roof cutaway transparency (P2)
+### F-VIS-003 — Matching grass across field boundaries (P2)
 
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Continuous single-sheet roof implemented; 415 regressions and both checked builds pass. Independent review is 8/10 with no material source blocker, below the usual 9/10 gate because rendered/device evidence is unavailable. See [quality record](QUALITY.md#gate-panels-roof-coverage-and-road-terminals--23-october-2026). User appearance acceptance and new dev deployment remain pending.
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Shared material and aligned plane/polygon UVs implemented. Both checked builds pass 421 regressions; independent review has no material source blocker, 8.5/10 limited by unavailable rendered/device evidence. User authorized fix and dev deployment; new appearance acceptance remains pending.
 
-**Accept when:** the pitched barn roof fades with consistent visual coverage across seams and panels when occupied, without stacked/backface transparency stripes shown in IMG_8435.jpeg. Preserve the accepted 0.7 roof/facing-wall opacity, solid collision, normal opaque appearance/shadows, pause, restoration and disposal. Source geometry/material checks do not replace device appearance review.
+**Accept when:** grass outside and inside an angular playable field has matching color, texture scale/alignment, wetness and receiving glow, without the dark boundary strip in IMG_8437.jpeg. Preserve collision/fences/minimap boundary and level replacement ownership. Dev deployment is authorized; rendered/device acceptance remains separate.
 
 ### F-VIS-002 — Path ends fade smoothly into grass (P2)
+
+**Current follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Novy accepts the terminal fade and requests rounded near-180-degree turns and shared path endings (IMG_8436.jpeg). Unified rounded networks, filled joined endpoints and retained standalone fade are implemented. Eleven surface tests and both 421-regression checked builds pass; 40 river/bank Float32 comparisons are unchanged. Independent review 8.5/10 has no material source blocker, with rendered/device evidence unavailable. Fix and dev deployment authorized; appearance acceptance of the follow-up remains pending. Earlier records below describe the preceding candidate.
 
 **Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Rounded core/shoulder coverage, composed glow/weather and owned replacement resources implemented. Checks and the evidence-constrained 8/10 review are shared with F-VIS-001; rendered fade grain and phone profile remain pending. No new dev publication is included.
 
@@ -142,6 +144,8 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 **Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
 
 ### F-032 — World-fence gate indicator and dog activation (P3)
+
+**Latest follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Luminous domes, hotspot and depth-tested halo replace edge-on thin lamps from IMG_8438/8439. Red closed/green open state and exposed dome ray coverage pass across 16 headings, both states, wood/stone. Sixteen gate tests and both 421-regression checked builds pass. Independent review 8.5/10 has no material source blocker; actual brightness/device readability remains unverified. Fix and dev deployment authorized; appearance acceptance remains pending.
 
 **Current follow-up, 23 October 2026:** Review, owner Codex, branch `map_generation_improvements`. Vertical fence/wall-mounted panels and red closed/green open lights replace ground pads. Pip and active Buddy contact can toggle; no autonomous gate-seeking is added. Shared held/simultaneous-contact latch and occupied closing guards pass. All 415 regressions and both checked builds pass. The independent 8/10 review found no material source blocker but remains below the usual 9/10 gate due to unavailable rendered/device evidence; phone review and new dev deployment remain pending. Earlier Pip-only ground-pad requirements are superseded by this feedback.
 

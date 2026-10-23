@@ -72,10 +72,10 @@ test('gate visuals follow descriptor state and own disposable resources; masonry
   const level=gatedLevel(23),view=createGateView(level.gates),stone=createStoneWallView(stoneLevel().fenceSegments);
   const panels=view.children.map(local=>local.getObjectByName('gate-panel')).filter(Boolean);
   const buttons=[];view.traverse(local=>{if(local.name==='gate-button')buttons.push(local);});assert.equal(buttons.length,panels.length*2);
-  assert.ok(buttons.every(button=>button.parent.name==='gate-switch-panel'&&button.parent.position.y>1&&button.material.emissiveIntensity>0));
-  assert.ok(buttons.every(button=>button.material.color.getHexString()==='d54b45'));
+  assert.ok(buttons.every(button=>button.parent.name==='gate-switch-panel'&&button.parent.position.y>1&&button.material.isMeshBasicMaterial&&!button.material.toneMapped));
+  assert.ok(buttons.every(button=>button.material.color.getHexString()==='ff382b'));
   assert.ok(panels.every(panel=>panel.position.x===0));
-  level.gates[0].open=true;view.update();assert.equal(panels[0].position.x,-level.gates[0].width);if(panels[1])assert.equal(panels[1].position.x,0);assert.ok(buttons.slice(0,2).every(button=>button.material.color.getHexString()==='55b76b'));
+  level.gates[0].open=true;view.update();assert.equal(panels[0].position.x,-level.gates[0].width);if(panels[1])assert.equal(panels[1].position.x,0);assert.ok(buttons.slice(0,2).every(button=>button.material.color.getHexString()==='32f56a'));
   const endpoints=gateSegment(level.gates[0]);assert.ok(Math.abs(distance(endpoints.a,endpoints.b)-level.gates[0].width)<.00001);
   assert.ok(stone.children[0].count>0);let disposed=0;
   stone.children[0].geometry.addEventListener('dispose',()=>disposed++);stone.dispose();assert.equal(disposed,1);view.dispose();
@@ -85,6 +85,50 @@ test('closed gate prevents remote companions from delivering a flock, with no au
   const level={index:23,reward:300,bounds:{minX:-40,maxX:40,minZ:-30,maxZ:30},target:{x:18,z:0,radius:5,heading:Math.PI/2,type:'pen'},dog:{x:-15,z:0},animals:Array.from({length:4},(_,id)=>({id,type:'sheep',x:-3-(id%2)*2,z:Math.floor(id/2)*2,vx:5,vz:0,saved:false})),rivers:[],routes:[],obstacles:[],fenceSegments:[{a:{x:0,z:-30},b:{x:0,z:-5},kind:'interior'},{a:{x:0,z:5},b:{x:0,z:30},kind:'interior'}],gates:[{id:'gate-0',x:0,z:0,width:10,heading:Math.PI/2,open:false,operable:true}]};
   for(let i=0;i<600;i++)stepSimulation(level,level.dog,{},.1,{helper:3,drone:3,cohesion:3});
   assert.equal(level.gates[0].open,false);assert.equal(level.animals.filter(a=>a.saved).length,0);assert.ok(level.animals.every(a=>a.x<0));
+});
+
+test('luminous gate domes retain visible coverage from the gameplay camera across fence headings',()=>{
+  const towardCamera=new THREE.Vector3(0,36,31).normalize(),right=new THREE.Vector3(1,0,0),up=new THREE.Vector3(0,31,-36).normalize();
+  for(const material of ['wood','stone'])for(let step=0;step<16;step++){
+    const gate={id:'lit',x:0,z:0,width:10,heading:step*Math.PI/8,material,open:false,operable:true},view=createGateView([gate]);
+    const wall=new THREE.Mesh(new THREE.BoxGeometry(25,1.5,material==='stone'?.6:.36),new THREE.MeshBasicMaterial());wall.position.set(Math.cos(gate.heading)*17.5,.75,-Math.sin(gate.heading)*17.5);wall.rotation.y=gate.heading;
+    view.add(wall);view.updateMatrixWorld(true);
+    const meshes=[],buttons=[];view.traverse(o=>{if(o.isMesh)meshes.push(o);if(o.name==='gate-button')buttons.push(o);});
+    for(const open of [false,true]){
+      gate.open=open;view.update();view.updateMatrixWorld(true);
+      assert.ok(buttons.every(button=>button.material.color.getHexString()===(open?'32f56a':'ff382b')));
+      const visible=buttons.map(button=>{
+      const center=button.getWorldPosition(new THREE.Vector3());let hits=0;
+      for(const [x,y] of [[0,0],[-.10,0],[.10,0],[0,.10],[0,-.10]]){
+        const point=center.clone().addScaledVector(right,x).addScaledVector(up,y),ray=new THREE.Raycaster(point.clone().addScaledVector(towardCamera,10),towardCamera.clone().negate());
+        const first=ray.intersectObjects(meshes,false)[0]?.object;
+        if(first?.name==='gate-button'||first?.name==='gate-light-core')hits++;
+      }
+      return hits;
+    });
+      assert.ok(Math.max(...visible)>=4,`${material} heading ${step}, ${open?'open':'closed'}: a broad lamp surface must remain exposed, not an edge-on strip`);
+    }
+    wall.geometry.dispose();wall.material.dispose();view.dispose();
+  }
+});
+
+test('gate lamp state switches dome and halo together with bounded disposable resources',()=>{
+  const gate={id:'lit',x:0,z:0,width:10,heading:Math.PI/2,material:'stone',open:false,operable:true},view=createGateView([gate]),domes=[],halos=[],materials=new Set(),geometries=new Set(),textures=new Set();
+  view.traverse(o=>{if(o.name==='gate-button')domes.push(o);if(o.name==='gate-light-halo')halos.push(o);if(o.isMesh)geometries.add(o.geometry);if(o.material){materials.add(o.material);if(o.material.map)textures.add(o.material.map);}assert.equal(o.isLight,undefined,'no per-panel realtime lights');});
+  assert.equal(domes.length,2);assert.equal(halos.length,2);assert.equal(textures.size,1);
+  const positions=domes.map(o=>o.getWorldPosition(new THREE.Vector3()));
+  for(const open of [true,false,true,false]){
+    gate.open=open;view.update();view.updateMatrixWorld(true);
+    for(let i=0;i<2;i++){
+      assert.equal(domes[i].material.color.getHexString(),open?'32f56a':'ff382b');assert.equal(halos[i].material.color.getHexString(),open?'32f56a':'ff382b');
+      assert.equal(domes[i].material.toneMapped,false);assert.equal(halos[i].material.depthTest,true);assert.equal(halos[i].material.depthWrite,false);
+      assert.ok(domes[i].getWorldPosition(new THREE.Vector3()).distanceTo(positions[i])<1e-8,'switch remains mounted while leaf moves');
+    }
+  }
+  // Both state materials are owned even if only one is currently attached.
+  gate.open=true;view.update();domes.forEach(o=>materials.add(o.material));halos.forEach(o=>materials.add(o.material));
+  const counts=new Map([...materials,...geometries,...textures].map(resource=>[resource,0]));for(const resource of counts.keys())resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));
+  view.dispose();assert.ok([...counts.values()].every(value=>value===1));
 });
 
 
