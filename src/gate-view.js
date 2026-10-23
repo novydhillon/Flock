@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { gateButtons, GATE_BUTTON_RADIUS } from './gates.js';
+import { gateSwitchPanels } from './gates.js';
 
 function ownedGroup(){
   const group=new THREE.Group(),geometries=new Set(),materials=new Set();
@@ -15,8 +15,9 @@ function ownedGroup(){
 export function createGateView(gates=[]){
   const group=ownedGroup(),wood=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#a97640',roughness:.9})),metal=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#4e594b',roughness:.7}));
   const cube=group.ownGeometry(new THREE.BoxGeometry(1,1,1)),panels=[];
-  const padGeometry=group.ownGeometry(new THREE.CylinderGeometry(GATE_BUTTON_RADIUS,GATE_BUTTON_RADIUS+.1,.16,12));
-  const red=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#d54b45',roughness:.8})),green=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#55b76b',roughness:.8}));
+  const lightGeometry=group.ownGeometry(new THREE.CylinderGeometry(.21,.21,.09,16));
+  const red=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#d54b45',emissive:'#d54b45',emissiveIntensity:.65,roughness:.3})),green=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#55b76b',emissive:'#55b76b',emissiveIntensity:.65,roughness:.3}));
+  const bezel=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#d1d5bd',metalness:.3,roughness:.6}));
   const pending=new Map();
   const box=(parent,x,y,w,h,d,material)=>{let byMaterial=pending.get(parent);if(!byMaterial)pending.set(parent,byMaterial=new Map());let parts=byMaterial.get(material);if(!parts)byMaterial.set(material,parts=[]);parts.push({x,y,w,h,d});};
   for(const gate of gates.filter(g=>g.operable)){
@@ -26,8 +27,11 @@ export function createGateView(gates=[]){
     for(const y of [.45,1.2])box(panel,0,y,gate.width,.15,.22,wood);
     for(let i=0;i<=Math.ceil(gate.width/1.2);i++)box(panel,-gate.width/2+gate.width*i/Math.ceil(gate.width/1.2),.82,.14,1.05,.19,wood);
     box(panel,gate.width/2-.35,.85,.24,.28,.3,metal);
-    const buttons=gateButtons(gate).map(point=>{
-      const button=new THREE.Mesh(padGeometry,red);button.name='gate-button';button.position.set(point.x,.13,point.z);button.receiveShadow=true;group.add(button);return button;
+    const buttons=gateSwitchPanels(gate).map(point=>{
+      const housing=new THREE.Group();housing.name='gate-switch-panel';housing.position.set(point.x,point.y,point.z);housing.rotation.y=point.heading;group.add(housing);
+      const plate=new THREE.Mesh(cube,metal);plate.scale.set(.64,.78,.14);plate.castShadow=plate.receiveShadow=true;housing.add(plate);
+      const ring=new THREE.Mesh(lightGeometry,bezel);ring.rotation.x=Math.PI/2;ring.scale.set(1.24,1,1.24);ring.position.z=.10;housing.add(ring);
+      const button=new THREE.Mesh(lightGeometry,red);button.name='gate-button';button.rotation.x=Math.PI/2;button.position.z=.15;housing.add(button);return button;
     });
     panels.push({gate,panel,buttons});
   }

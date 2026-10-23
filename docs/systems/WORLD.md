@@ -1,5 +1,9 @@
 # World generation, collision, and navigation
 
+## Gate contact panels — 23 October 2026
+
+`gateSwitchPanels` returns fixed mounts beside the opening on both wall faces and separate body-clear approach points. `gateButtons` retains the approach-point helper for compatibility. Pip and active ground Buddy contacts use the actual mounted panel position, same-side checks, occupancy and a clear approach path. One shared latch requires all dogs to leave before rearming, avoiding simultaneous double toggles. Occupied closing is refused; successful toggles invalidate geometry/visibility caches. Simulation filters companions and moves Buddy before evaluating contacts. Drones/livestock do not activate panels; Buddy gains no automatic switch-seeking behavior. These contracts supersede older Pip-only ground-pad descriptions below.
+
 ## Corner-route follow-up — 22 October 2026
 
 This follow-up supersedes the earlier cosmetic L/stepped cutout generator. From public level 40, a seeded choice builds L, U, Z or stepped fields by unioning the starter rectangle with wide connected arm rectangles. The goal sits at the end of the final arm, faces along that arm and can lie on either mirrored side. The boundary itself blocks direct shortcuts across the missing corner land. Crossing choices converge after the gate before the corner corridor; route samples, target enclosure, turf, minimap and collision share the resulting geometry. `layoutKind` records the shape; `startHeading` describes the initial travel direction, while `target.heading` describes the final approach. `bounds` remains an AABB for search/framing, not an occupiable rectangle.

@@ -1,5 +1,11 @@
 # Presentation: renderer, nature and audio
 
+## Mounted lights and continuous surfaces — 23 October 2026
+
+Gate switches are fixed vertical housings on both barrier faces beside the opening, with a bezel and emissive lamp: red closed, green open. They stay fixed while the leaf slides. The barn roof is one continuous indexed sheet with shallow grooves and clay UVs; the existing cutaway still fades it and facing walls to .7, freezes when paused, restores opaque shadows and disposes clones on replacement.
+
+`roadRibbon` adds rounded caps and subdivides terminal neighborhoods for interpolated coverage. `createRoadMaterial` composes existing shader hooks with alpha-hashed coverage, retaining depth writes; both core and shoulder fade. Each level owns two shared road material clones, separate from barn floors and water. Weather restores source baselines before replacement, and road cores join explicit wetness tracking. Hashed coverage needs device review for visible grain; source checks do not establish rendered blending.
+
 ## Centered gameplay camera — F-UI-013, 22 October 2026
 
 Gameplay camera follows Pip independently of flock centroid or goal position. The desired camera center is Pip's X and Z + 2, canceling the existing ground look-at offset. Both axes interpolate at the same rate, with lag limited to 12% of their respective half-view dimensions; level jumps cannot leave Pip near an edge. Intro framing remains unchanged. Projection tests cover portrait/landscape and sideways, vertical, diagonal and reversing travel, including distant livestock. These are real Three.js camera calculations with a substituted GPU, not device feel or rendered-pixel evidence.

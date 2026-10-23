@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 22 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 23 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
 
@@ -64,7 +64,9 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
 | F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Review | F-006 |
-| F-032 | P3 | Gameplay/UI | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates | Review | F-031 |
+| F-032 | P3 | Gameplay/UI | Fence/wall switch panels on both sides; red closed/green open; Pip/Buddy contact activates | Review | F-031 |
+| F-VIS-001 | P2 | Presentation | Uniform barn-roof cutaway transparency | Review | Existing structure cutaway |
+| F-VIS-002 | P2 | Presentation | Smooth rounded path ends fading into grass | Review | Existing unioned road surfaces |
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Review | F-033 |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Review | F-005, F-006, F-031 |
@@ -78,6 +80,18 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 
 ## Acceptance criteria and planned work
+
+### F-VIS-001 — Uniform barn-roof cutaway transparency (P2)
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Continuous single-sheet roof implemented; 415 regressions and both checked builds pass. Independent review is 8/10 with no material source blocker, below the usual 9/10 gate because rendered/device evidence is unavailable. See [quality record](QUALITY.md#gate-panels-roof-coverage-and-road-terminals--23-october-2026). User appearance acceptance and new dev deployment remain pending.
+
+**Accept when:** the pitched barn roof fades with consistent visual coverage across seams and panels when occupied, without stacked/backface transparency stripes shown in IMG_8435.jpeg. Preserve the accepted 0.7 roof/facing-wall opacity, solid collision, normal opaque appearance/shadows, pause, restoration and disposal. Source geometry/material checks do not replace device appearance review.
+
+### F-VIS-002 — Path ends fade smoothly into grass (P2)
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Rounded core/shoulder coverage, composed glow/weather and owned replacement resources implemented. Checks and the evidence-constrained 8/10 review are shared with F-VIS-001; rendered fade grain and phone profile remain pending. No new dev publication is included.
+
+**Accept when:** road core and shoulder terminals have smooth rounded ends and a gradual blend into grass, including short/curved routes and shared route starts. Preserve nonoverlapping union geometry, ordinary depth occlusion, bridge/river behavior, barn-floor materials and bounded owned resources. No physical route, collision, grazing or scoring changes are included.
 
 ### F-UI-013 — Keep Pip centered in every direction (P2)
 
@@ -126,6 +140,8 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 **Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
 
 ### F-032 — World-fence gate indicator and dog activation (P3)
+
+**Current follow-up, 23 October 2026:** Review, owner Codex, branch `map_generation_improvements`. Vertical fence/wall-mounted panels and red closed/green open lights replace ground pads. Pip and active Buddy contact can toggle; no autonomous gate-seeking is added. Shared held/simultaneous-contact latch and occupied closing guards pass. All 415 regressions and both checked builds pass. The independent 8/10 review found no material source blocker but remains below the usual 9/10 gate due to unavailable rendered/device evidence; phone review and new dev deployment remain pending. Earlier Pip-only ground-pad requirements are superseded by this feedback.
 
 **Requirement:** place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.
 

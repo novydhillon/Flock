@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Visual feedback smoke checks — 23 October 2026
+
+For F-032/F-VIS-001/F-VIS-002, check portrait and landscape on a phone: approach both wood/stone gate faces with Pip and Buddy; confirm a mounted red light becomes green once, held/simultaneous contacts do not chatter, and occupied closing is refused. Enter/leave a rotated barn in rain; check roof coverage across grooves, pause/resume, opaque shadows and restart. Inspect short/curved/shared road starts and terminals for rounded grass fading, grain, depth occlusion and wetness; confirm barn floors, rivers and bridges retain their appearance. Repeat level jumps/restarts for resource stability. These device checks remain pending; geometry, shader-source and GPU-substitute tests are separate evidence.
+
 ## Standard build and deployment commands — 19 October 2026
 
 Use these checked-in entry points for future builds and deployments; do not create one-off publishing scripts.

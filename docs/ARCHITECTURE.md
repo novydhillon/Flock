@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Gate and surface feedback — 23 October 2026
+
+`gates.js` owns fixed wall-panel descriptors, reachable ground approaches and the shared Pip/Buddy contact latch; `gate-view.js` reads actual gate state for mounted red/green lights. Contact evaluation follows active companion filtering and movement. No autonomous gate-seeking is added. `surfaces.js` supplies road-only rounded terminal geometry and hashed coverage materials, preserving ordinary river ribbons and barn-floor materials. The renderer owns per-level road clones, restores weather baselines before cloning and registers road cores for wetness. Barn roofs use one continuous pitched sheet so transparent cutaways do not stack overlapping roof faces. Collision and saved profiles are unaffected.
+
 ## Map feedback and camera ownership — 22 October 2026
 
 F-038 follow-up keeps generated corner routes, bridges, fences, tree groves and final-arm destination geometry in the simulation/world layer. F-UI-013 removes flock-centroid camera attraction: gameplay framing follows Pip on both axes with bounded lag, independent of destination direction. The renderer still consumes world boundary and target descriptors for turf, minimap and goal arrow; camera changes do not move actors, alter collision or save state. Source completion, dev publication and user acceptance remain separate.

@@ -1,5 +1,11 @@
 # Flock product requirements
 
+## Gate panels, barn cutaway and path terminals — 23 October 2026
+
+F-032 follow-up replaces ground gate pads with vertical switch panels attached to the fence or wall beside the opening, on both approaches. Each has a visible indicator light: red when closed, green when open, synchronized to actual gate state. Pip and an active Buddy can activate a panel by contact, without automatic gate-seeking. Preserve debounce, occupied closing refusal and collision/navigation/minimap cache updates. This supersedes earlier Pip-only ground-pad instructions.
+
+F-VIS-001 fixes inconsistent barn-roof transparency visible in IMG_8435.jpeg. The occupied barn's entire pitched roof and camera-facing walls retain the accepted 0.7 opacity without stacked or backface bands. Preserve opaque restoration, pause, collision and resource ownership. F-VIS-002 gives road cores and shoulders rounded terminal shapes with a gradual fade into grass while preserving opaque-depth behavior, shared route geometry, water/bridges and barn floors. These are Review candidates on `map_generation_improvements`: 415 regressions and both checked builds pass; independent review is 8/10 with no material source blocker and a persistent rendered/device evidence limit, below the usual 9/10 gate. User appearance/gameplay acceptance and new dev publication remain pending.
+
 ## Map layout follow-up and F-UI-013 camera — 22 October 2026
 
 On `map_generation_improvements`, extend F-038 with goals in either L offshoot and U/Z/other angular layouts that require the flock to go around corners. Add denser trees and groves in large starter fields from public level 60, while retaining clear routes, spawns and helper movement. Increase river-to-fence spacing and vary rivers with stronger meanders on some levels. Keep the early teaching levels intact. F-UI-013 keeps Pip near screen center in every travel direction, independent of distant flock/goal positions, while preserving intro framing and pause behavior. This follow-up is a Review source candidate; the previously published dev build remains `ed7a2cb` until an explicitly recorded replacement deployment.

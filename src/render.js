@@ -11,7 +11,7 @@ import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
-import { ribbon, barkSurface } from './surfaces.js';
+import { ribbon, roadRibbon, createRoadMaterial, barkSurface } from './surfaces.js';
 import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
@@ -73,6 +73,7 @@ export class MeadowRenderer{
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
     this.level=level;this.barkEffects=[];
+    this.waterEffects.restoreMaterials();
     this.cutaway?.dispose();this.cutaway=null;
     this.gateView?.dispose();this.gateView?.removeFromParent();this.stoneView?.dispose();this.stoneView?.removeFromParent();this.gateView=this.stoneView=null;
     // Dispose world-owned geometry; model geometry/materials are cached across levels.
@@ -99,9 +100,10 @@ export class MeadowRenderer{
       hill.position.set(spec.x,-.3,spec.z);hill.scale.set(spec.radius,spec.height,spec.radius);hill.userData.ownedGeometry=hill.userData.ownedMaterial=true;this.terrain.add(hill);
     }
     const surface=(g,m)=>{const mesh=new THREE.Mesh(g,m);mesh.receiveShadow=true;mesh.userData.ownedGeometry=true;this.terrain.add(mesh);return mesh;};
+    const roadCore=level.roads.length?createRoadMaterial(this.path):null,roadShoulder=level.roads.length?createRoadMaterial(this.pathShoulder):null;
     for(const road of level.roads){
-      surface(ribbon(road.points,road.width+.65,{ragged:true,y:.003,seed:level.seed+5}),this.pathShoulder);
-      surface(ribbon(road.points,road.width,{ragged:true,y:.007,seed:level.seed}),this.path);
+      surface(roadRibbon(road.points,road.width+.65,{ragged:true,y:.003,seed:level.seed+5}),roadShoulder).userData.ownedMaterial=true;
+      surface(roadRibbon(road.points,road.width,{ragged:true,y:.007,seed:level.seed}),roadCore).userData.ownedMaterial=true;
     }
     const riverViews=[];
     for(const river of level.rivers){
@@ -131,7 +133,7 @@ export class MeadowRenderer{
       if(segment.material==='stone')continue;
       const {a,b,kind}=segment,len=Math.hypot(b.x-a.x,b.z-a.z);
       if(kind==='target'&&t.type==='barn'){
-        // Short panels reveal only the section hiding an actor, including split flocks.
+        // Segmented clay walls share a cutaway state for each facing side.
         const count=Math.ceil(len/3);
         for(let i=0;i<count;i++){
           const start={x:a.x+(b.x-a.x)*i/count,z:a.z+(b.z-a.z)*i/count},end={x:a.x+(b.x-a.x)*(i+1)/count,z:a.z+(b.z-a.z)*(i+1)/count};
@@ -149,11 +151,29 @@ export class MeadowRenderer{
     this.gateView=createGateView(level.gates);this.stoneView=createStoneWallView(level.fenceSegments);this.terrain.add(this.gateView,this.stoneView);
     if(t.type==='barn'){
       this.goalFloor=surface(goalSurface(t,.013),this.path);
-      // Full pitched roof; the complete roof and camera-facing wall fade together.
-      const roof=new THREE.Group(),heading=t.heading||0;
-      const rows=Math.ceil(s*2/2.4),depth=(s*2+.6)/rows;
-      for(const side of [-1,1])for(let i=0;i<rows;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(s+.6,.18,depth),this.materials.roof);m.position.set(side*s/2,3.2,-s-.3+(i+.5)*depth);m.rotation.z=-side*.21;m.castShadow=true;m.userData.ownedGeometry=true;m.userData.coverKind='roof';roof.add(m);structure.push(m);}
-      roof.position.set(t.x,0,t.z);roof.rotation.y=heading;this.terrain.add(roof);
+      // One continuous sheet: thick overlapping panels would accumulate alpha
+      // at their ridge, seam faces and undersides during the cutaway. Shallow
+      // grooves retain the clay boards without adding another transparent layer.
+      const extent=s+.3,rows=Math.ceil(s*2/2.4),depth=extent*2/rows;
+      const zs=[-extent];
+      for(let i=1;i<rows;i++){const z=-extent+i*depth;zs.push(z-.045,z,z+.045);}
+      zs.push(extent);
+      const positions=[],uvs=[],indices=[],ridge=3.29+s*.5*Math.tan(.21);
+      for(let j=0;j<zs.length;j++)for(const x of [-extent,0,extent]){
+        const groove=j>0&&j<zs.length-1&&(j-2)%3===0?.025:0;
+        positions.push(x,ridge-Math.abs(x)*Math.tan(.21)-groove,zs[j]);
+        uvs.push((x+extent)/2.4,(zs[j]+extent)/2.4);
+      }
+      for(let j=0;j<zs.length-1;j++)for(let i=0;i<2;i++){
+        const a=j*3+i,b=a+3;indices.push(a,b,a+1,a+1,b,b+1);
+      }
+      const roofGeometry=new THREE.BufferGeometry();
+      roofGeometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+      roofGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+      roofGeometry.setIndex(indices);roofGeometry.computeVertexNormals();
+      const roof=new THREE.Mesh(roofGeometry,this.materials.roof);
+      roof.name='barn-roof';roof.castShadow=true;roof.userData.ownedGeometry=true;roof.userData.coverKind='roof';
+      roof.position.set(t.x,0,t.z);roof.rotation.y=t.heading||0;this.terrain.add(roof);structure.push(roof);
       this.cutaway=new StructureCutaway(t,structure,{halfExtent:s+.3});
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.scale.set(4.5,1.125,1);sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.name='Destination introduction';sign.userData.ownedLabel=true;this.destinationSign=sign;this.terrain.add(sign);
@@ -198,7 +218,7 @@ export class MeadowRenderer{
     }
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
     this.nature.setLevel(level);
-    this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
+    this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path,roadCore],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
     this.batchScenery();
     this.dog=createPip();this.dog.scale.setScalar(1.35*.75);this.actors.add(this.dog);
     const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.scale.setScalar(1/.75);halo.rotation.x=-Math.PI/2;halo.position.y=.03/.75;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);

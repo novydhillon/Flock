@@ -14,7 +14,7 @@ import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
 import {WaterEffects} from '../src/water-effects.js';
 import {MeadowNature} from '../src/nature.js';
-import {ribbon,barkSurface} from '../src/surfaces.js';
+import {ribbon,roadRibbon,createRoadMaterial,barkSurface} from '../src/surfaces.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
@@ -27,12 +27,28 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadRibbon,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
 
 // P2 adds fixed wildlife anatomy batches and 20 dormant puddle/splash objects.
+test('road fade clones preserve glow, weather baselines and once-only replacement disposal',()=>{
+  const renderer=setup(),level=createLevel(15,201),baseline=renderer.path.color.clone();renderer.setLevel(level);
+  const roads=[];renderer.terrain.traverse(o=>{if(o.isMesh&&o.geometry.attributes.roadOpacity)roads.push(o);});
+  assert.ok(roads.length>=2);const materials=new Set(roads.map(o=>o.material));assert.equal(materials.size,2);
+  for(const material of materials){
+    assert.notEqual(material,renderer.path);assert.notEqual(material,renderer.pathShoulder);
+    const shader={uniforms:{},vertexShader:'#include <begin_vertex>\n#include <project_vertex>',fragmentShader:'#include <emissivemap_fragment>\n#include <alphahash_fragment>'};material.onBeforeCompile(shader);
+    assert.ok(shader.uniforms.pipGlowCenters);assert.match(shader.fragmentShader,/vRoadOpacity/);
+  }
+  const core=roads.find(o=>o.material.map===renderer.path.map).material;
+  assert.ok(renderer.waterEffects.materialSnapshots.some(s=>s.material===core));
+  const counts=new Map([...materials].map(m=>[m,0]));for(const m of materials)m.addEventListener('dispose',()=>counts.set(m,counts.get(m)+1));
+  renderer.path.color.set('#000000');renderer.setLevel(createLevel(0,201));
+  assert.ok(renderer.path.color.distanceTo?renderer.path.color.distanceTo(baseline)<1e-6:renderer.path.color.equals(baseline));
+  for(const count of counts.values())assert.equal(count,1);
+});
 // Object count includes hidden pool slots; submitted draw budget remains 170.
 test('angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
   const renderer=setup(),level=createLevel(69,201);renderer.setLevel(level);
@@ -256,10 +272,57 @@ test('trees have deterministic independent full-yaw rotations in both placement 
   assert.deepEqual(first.trees.map(({yaw,...pose})=>pose),withoutYaw.trees.map(({yaw,...pose})=>pose),'tree positions/scales remain identical with yaw disabled');
 });
 
+test('barn roof is one pitched clay sheet with complete coverage and no stacked transparent faces',()=>{
+  for(const heading of [0,.7,Math.PI/2]){
+    const renderer=setup(),level=createLevel(2);level.target.heading=heading;renderer.setLevel(level);
+    const roofs=renderer.cutaway.parts.filter(p=>p.mesh.userData.coverKind==='roof');
+    assert.equal(roofs.length,1,'the roof has a single surface and material');
+    const roof=roofs[0].mesh,g=roof.geometry,p=g.attributes.position,index=g.index;
+    assert.equal(roof.material.side,THREE.FrontSide,'no second backface pass');
+    assert.equal(roof.material.map,renderer.materials.roof.map,'clay texture is retained');
+    const extent=targetFootprint(level.target).halfLength+.3,edges=new Map();let area=0;
+    for(let i=0;i<index.count;i+=3){
+      const ids=[0,1,2].map(j=>index.getX(i+j)),[a,b,c]=ids.map(v=>new THREE.Vector3().fromBufferAttribute(p,v));
+      const normal=new THREE.Vector3().subVectors(b,a).cross(new THREE.Vector3().subVectors(c,a));
+      assert.ok(normal.y>0,'every roof triangle faces upward');area+=normal.y/2;
+      for(let j=0;j<3;j++){const key=[ids[j],ids[(j+1)%3]].sort((a,b)=>a-b).join(':');edges.set(key,(edges.get(key)||0)+1);}
+    }
+    assert.ok(Math.abs(area-4*extent*extent)<.0001,'projected area contains neither gaps nor overlap');
+    for(const [edge,count] of edges){
+      assert.ok(count===1||count===2,'the sheet has no duplicate faces');
+      if(count===1){const [a,b]=edge.split(':').map(Number);
+        assert.ok((Math.abs(p.getX(a))===Math.abs(p.getX(b))&&Math.abs(Math.abs(p.getX(a))-extent)<1e-5)||
+          (p.getZ(a)===p.getZ(b)&&Math.abs(Math.abs(p.getZ(a))-extent)<1e-5),'only eaves and gable ends are open edges');}
+    }
+    roof.updateMatrixWorld(true);
+    // Sample both slopes, ridge and every groove/board row, using downward and
+    // oblique camera-like sightlines. Coincident triangle-edge hits count once.
+    const zs=[...new Set(Array.from({length:p.count},(_,i)=>p.getZ(i)))];
+    const directions=[[0,-1,0],[.35,-1,.6],[-.35,-1,-.6]].map(v=>new THREE.Vector3(...v).normalize());
+    for(const row of zs.slice(1,-1))for(const x of [-extent*.97,-extent*.47,.001,extent*.47,extent*.97]){
+      // Keep numerical ray intersections just off triangle edges; shared edge
+      // topology above checks the exact seams without floating-point ray ties.
+      const z=row+.001,localProbe=new THREE.Raycaster(new THREE.Vector3(x,30,z),new THREE.Vector3(0,-1,0));
+      const localRoof=new THREE.Mesh(g,roof.material),surface=localProbe.intersectObject(localRoof)[0]?.point;
+      assert.ok(surface,'the whole footprint, including grooves and ridge, has a roof');
+      const world=surface.clone().applyMatrix4(roof.matrixWorld);
+      for(const direction of directions){
+        const worldDirection=direction.clone().transformDirection(roof.matrixWorld);
+        const ray=new THREE.Raycaster(world.clone().addScaledVector(worldDirection,-40),worldDirection);
+        const hits=ray.intersectObject(roof),depths=new Set(hits.map(h=>h.distance.toFixed(4)));
+        assert.equal(depths.size,1,`one alpha layer at heading ${heading}, x ${x}, z ${z}, direction ${direction.toArray()}`);
+        assert.ok(hits[0].point.distanceTo(world)<1e-4);
+      }
+    }
+  }
+});
+
 test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{
   const renderer=setup(),level=createLevel(2),target=level.target;
   const collision=JSON.stringify(level.fenceSegments);renderer.setLevel(level);
   const controller=renderer.cutaway;
+  const roofPart=controller.parts.find(p=>p.mesh.userData.coverKind==='roof');
+  assert.equal(roofPart.mesh.castShadow,true,'opaque roof casts its normal shadow');
   assert.ok(controller.parts.length>12,'complete roof and segmented walls exist');
   level.dog.x=target.x;level.dog.z=target.z;
   for(let i=0;i<60;i++)renderer.update(level,level.dog,1/60);
@@ -267,10 +330,16 @@ test('actual barn panels reveal Pip and dispose their private materials on level
   assert.ok(controller.parts.some(p=>p.material.opacity===1),'unrelated structure stays opaque');
   assert.equal(JSON.stringify(level.fenceSegments),collision,'visibility never changes collision');
   assert.equal(renderer.materials.barn.opacity,1);assert.equal(renderer.materials.roof.opacity,1);
-  const count=controller.parts.length;let disposed=0;
+  assert.equal(roofPart.material.opacity,.7);assert.equal(roofPart.material.depthWrite,false);assert.equal(roofPart.mesh.castShadow,false);
+  controller.update(renderer.camera,[],0);assert.equal(roofPart.material.opacity,.7,'pause freezes the complete roof fade');
+  for(let i=0;i<60;i++)controller.update(renderer.camera,[],1/60);
+  assert.equal(roofPart.material.opacity,1);assert.equal(roofPart.material.transparent,false);
+  assert.equal(roofPart.material.depthWrite,true);assert.equal(roofPart.mesh.castShadow,true,'empty barn restores its roof shadow');
+  const count=controller.parts.length;let disposed=0,geometryDisposed=0;
   for(const part of controller.parts)part.material.addEventListener('dispose',()=>disposed++);
+  roofPart.mesh.geometry.addEventListener('dispose',()=>geometryDisposed++);
   renderer.setLevel(createLevel(0));
-  assert.equal(disposed,count);assert.equal(controller.disposed,true);assert.equal(renderer.cutaway,null);
+  assert.equal(disposed,count);assert.equal(geometryDisposed,1);assert.equal(controller.disposed,true);assert.equal(renderer.cutaway,null);
 });
 
 test('portrait camera keeps Pip visible when helpers move the flock far away',()=>{

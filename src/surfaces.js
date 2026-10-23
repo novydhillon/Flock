@@ -53,7 +53,7 @@ export function unionSurface(polygons,y=0){
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geometry.computeVertexNormals();return geometry;
 }
 
-export function ribbon(points,width,{ragged=false,y=.008,seed=1}={}){
+export function ribbon(points,width,{ragged=false,y=.008,seed=1,roundCaps=false}={}){
   let state=seed,distance=0;const offsets=points.map((p,i)=>{if(i)distance+=Math.hypot(p.x-points[i-1].x,p.z-points[i-1].z);state=(state*1664525+1013904223)>>>0;return ragged?Math.sin(distance*.72)*.11+(state/4294967296-.5)*.17:0;});
   const polygons=[],ends=[];
   for(let i=1;i<points.length;i++){
@@ -68,7 +68,82 @@ export function ribbon(points,width,{ragged=false,y=.008,seed=1}={}){
     }
     ends[i]=end;
   }
+  if(roundCaps&&polygons.length)for(const p of [points[0],points[points.length-1]])polygons.push(Array.from({length:20},(_,i)=>({x:p.x+Math.cos(i*Math.PI/10)*width/2,z:p.z+Math.sin(i*Math.PI/10)*width/2})));
   return unionSurface(polygons,y);
+}
+
+const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
+
+// Subdivide only the terminal neighborhoods. Long interior strokes keep their
+// compact union mesh; endpoint opacity cannot interpolate across an entire road.
+export function roadRibbon(points,width,{fadeLength=2.4,...options}={}){
+  const source=ribbon(points,width,{...options,roundCaps:true}),input=source.getAttribute('position');
+  const segments=[];let total=0;
+  for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.z-a.z);if(length>EPS){segments.push({a,b,length,start:total});total+=length;}}
+  if(!segments.length){source.setAttribute('roadOpacity',new THREE.Float32BufferAttribute([],1));return source;}
+  const radius=width/2,fade=Math.max(.01,Math.min(fadeLength,total*.3)),reach=radius+fade+.25;
+  const cellSize=Math.max(2,reach),grid=new Map(),coverageCache=new Map();
+  segments.forEach((segment,i)=>{
+    const {a,b}=segment,margin=radius+.25;
+    for(let x=Math.floor((Math.min(a.x,b.x)-margin)/cellSize);x<=Math.floor((Math.max(a.x,b.x)+margin)/cellSize);x++)for(let z=Math.floor((Math.min(a.z,b.z)-margin)/cellSize);z<=Math.floor((Math.max(a.z,b.z)+margin)/cellSize);z++){
+      const key=x+','+z;if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);
+    }
+  });
+  const terminals=[segments[0].a,segments[segments.length-1].b];
+  let pieces=[];
+  for(let i=0;i<input.count;i+=3)pieces.push([0,1,2].map(j=>({x:input.getX(i+j),z:input.getZ(i+j)})));
+  for(const end of terminals){
+    const bounds=[p=>p.x-end.x-reach,p=>p.x-end.x+reach,p=>p.z-end.z-reach,p=>p.z-end.z+reach];
+    for(const line of bounds)pieces=pieces.flatMap(p=>splitPolygon(p,line));
+    const next=[];
+    for(const polygon of pieces){
+      const center=polygon.reduce((a,p)=>({x:a.x+p.x/polygon.length,z:a.z+p.z/polygon.length}),{x:0,z:0});
+      if(Math.abs(center.x-end.x)>reach+EPS||Math.abs(center.z-end.z)>reach+EPS){next.push(polygon);continue;}
+      let cells=[polygon];
+      for(let offset=-reach+.5;offset<reach;offset+=.5)for(const axis of ['x','z'])cells=cells.flatMap(p=>splitPolygon(p,v=>v[axis]-end[axis]-offset));
+      next.push(...cells);
+    }
+    pieces=next;
+  }
+  const opacity=p=>{
+    const cacheKey=p.x+','+p.z;if(coverageCache.has(cacheKey))return coverageCache.get(cacheKey);
+    let coverage=0;
+    for(const i of grid.get(Math.floor(p.x/cellSize)+','+Math.floor(p.z/cellSize))||[]){
+      const {a,b,length,start}=segments[i],dx=(b.x-a.x)/length,dz=(b.z-a.z)/length;
+      const along=(p.x-a.x)*dx+(p.z-a.z)*dz,clamped=Math.max(0,Math.min(length,along));
+      const distance=Math.hypot(p.x-a.x-dx*clamped,p.z-a.z-dz*clamped);
+      if(distance>radius+.25)continue;
+      const station=start+clamped,left=i===0?along:station,right=i===segments.length-1?total-start-along:total-station;
+      const terminal=Math.min(left,right),longitudinal=smooth(-radius,fade,terminal);
+      const feather=.45*(1-smooth(0,fade,terminal));
+      const edge=feather>EPS?1-smooth(radius-feather,radius,distance):1;
+      coverage=Math.max(coverage,longitudinal*edge);
+      if(coverage>=1)break;
+    }
+    coverageCache.set(cacheKey,coverage);
+    return coverage;
+  };
+  const positions=[],uvs=[],opacities=[],y=options.y??.008;
+  for(const polygon of pieces)for(let j=1;j<polygon.length-1;j++){
+    let [a,b,c]=[polygon[0],polygon[j],polygon[j+1]].map(p=>({x:Math.fround(p.x),z:Math.fround(p.z)}));
+    const area=cross(sub(b,a),sub(c,a));if(Math.abs(area)<EPS)continue;if(area>0)[b,c]=[c,b];
+    for(const p of [a,b,c]){positions.push(p.x,y,p.z);uvs.push(p.x/4,p.z/4);opacities.push(opacity(p));}
+  }
+  source.dispose();const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geometry.setAttribute('roadOpacity',new THREE.Float32BufferAttribute(opacities,1));geometry.computeVertexNormals();return geometry;
+}
+
+// Hashed coverage keeps ordinary depth occlusion and avoids dark alpha stacks
+// where independent roads meet. Shared floor/river materials remain untouched.
+export function createRoadMaterial(source){
+  const material=source.clone(),compile=source.onBeforeCompile,key=source.customProgramCacheKey();
+  material.transparent=false;material.alphaHash=true;material.depthWrite=true;
+  material.onBeforeCompile=(shader,renderer)=>{
+    compile.call(material,shader,renderer);
+    shader.vertexShader='attribute float roadOpacity;\nvarying float vRoadOpacity;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvRoadOpacity = roadOpacity;');
+    shader.fragmentShader='varying float vRoadOpacity;\n'+shader.fragmentShader.replace('#include <alphahash_fragment>','diffuseColor.a *= clamp(vRoadOpacity, 0.0, 1.0);\n#include <alphahash_fragment>');
+  };
+  material.customProgramCacheKey=()=>key+'|road-terminal-fade-v1';return material;
 }
 
 // Split at each deck and plank edge before applying height: a triangle can

@@ -1,12 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {ribbon,barkSurface} from '../src/surfaces.js';
+import {ribbon,roadRibbon,createRoadMaterial,barkSurface} from '../src/surfaces.js';
 import {createLevel} from '../src/simulation.js';
 import {createBridge} from '../src/models.js';
 import {MeadowRenderer} from '../src/render.js';
 
 const cross=(a,b,c)=>(b.x-a.x)*(c.z-a.z)-(b.z-a.z)*(c.x-a.x);
+test('road terminals are rounded with gradual bounded coverage; water keeps square ends',()=>{
+  for(const points of [[{x:0,z:0},{x:0,z:20}],[{x:0,z:0},{x:0,z:1}],[{x:0,z:0},{x:0,z:8},{x:8,z:8}]]){
+    const geometry=roadRibbon(points,3),p=geometry.attributes.position,alpha=geometry.attributes.roadOpacity;
+    assert.equal(alpha.count,p.count);assert.ok(p.count>0);
+    assert.ok([...alpha.array].every(v=>v>=0&&v<=1));
+    assert.ok([...alpha.array].some(v=>v>.05&&v<.95),'fade has intermediate coverage');
+    assert.ok([...alpha.array].some(v=>v<.02),'terminal reaches grass');
+    assert.ok([...p.array].every(Number.isFinite));geometry.dispose();
+  }
+  const water=ribbon([{x:0,z:0},{x:0,z:20}],3);water.computeBoundingBox();assert.equal(water.boundingBox.min.z,0);assert.equal(water.boundingBox.max.z,20);assert.equal(water.attributes.roadOpacity,undefined);water.dispose();
+});
+test('road fade composes existing shading and keeps depth without changing shared materials',()=>{
+  const source=new THREE.MeshStandardMaterial({transparent:true,opacity:.36,depthWrite:false});
+  source.onBeforeCompile=shader=>{shader.uniforms.existing={value:2};};source.customProgramCacheKey=()=> 'existing';
+  const road=createRoadMaterial(source),shader={uniforms:{},vertexShader:'#include <begin_vertex>',fragmentShader:'#include <alphahash_fragment>'};road.onBeforeCompile(shader);
+  assert.equal(shader.uniforms.existing.value,2);assert.match(shader.vertexShader,/vRoadOpacity = roadOpacity/);assert.match(shader.fragmentShader,/diffuseColor.a \*=/);
+  assert.equal(road.alphaHash,true);assert.equal(road.depthWrite,true);assert.equal(road.transparent,false);assert.equal(source.transparent,true);assert.equal(source.depthWrite,false);assert.match(road.customProgramCacheKey(),/existing/);road.dispose();source.dispose();
+});
 function triangles(geometry){
   const p=geometry.getAttribute('position'),result=[];
   for(let i=0;i<Math.min(p.count,geometry.drawRange.count);i+=3)result.push([0,1,2].map(j=>({x:p.getX(i+j),y:p.getY(i+j),z:p.getZ(i+j)})));
