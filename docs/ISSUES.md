@@ -81,6 +81,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
+**Dev publication, 23 October 2026:** F-032/F-VIS-001/F-VIS-002 are published from `d739fa2` at `/Flock/dev/`, Pages `7800a90`. Fresh checked dev build (415 regressions), source CI, native Pages and all 29 live file hashes passed. [Evidence](validation/Gate-roof-path-dev-publication.json). This supersedes the pending-publication statements in the source records below. The disclosed 8/10 review remains limited by unavailable device evidence; Novy authorized this dev deployment, while phone appearance/performance and user acceptance remain pending. Status stays Review; production/main are unchanged.
+
 ### F-VIS-001 — Uniform barn-roof cutaway transparency (P2)
 
 **Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Continuous single-sheet roof implemented; 415 regressions and both checked builds pass. Independent review is 8/10 with no material source blocker, below the usual 9/10 gate because rendered/device evidence is unavailable. See [quality record](QUALITY.md#gate-panels-roof-coverage-and-road-terminals--23-october-2026). User appearance acceptance and new dev deployment remain pending.

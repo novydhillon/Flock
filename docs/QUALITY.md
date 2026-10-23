@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## Gate and surface fixes dev publication — 23 October 2026
+
+Novy authorized dev deployment after the 8/10 evidence-constrained review was disclosed. This authorizes the dev preview; it is not user appearance acceptance or a claim that the usual 9/10 review threshold passed. Source `d739fa24d27616806130459afc115ed77527a720` matched all 195 local blobs, including symlinks and binary assets. Fresh `npm ci` and `npm run build:checked:dev` passed all 415 regressions, docs checks, release exclusion (27 files/zero QA assets) and development inclusion (29 files/two QA assets). Source CI [39991260930](https://github.com/novydhillon/Flock/actions/runs/39991260930) passed.
+
+Workflow dispatch is unavailable in this connector, so the documented fallback used the shared deployment planner and expected-head non-force GitHub connector publication. Pages `7800a904226eba116a34d4084dc8c32731f68814`, parent `bb513cd4e800cfb17173d42e41b3476dfd0da130`, updates only 29 planned dev files and the dev manifest, preserving 80 unrelated blobs and old assets. Native Pages [40006628153](https://github.com/novydhillon/Flock/actions/runs/40006628153) succeeded. After that success the shared verifier confirmed all 29 live SHA-256 hashes; an earlier pre-build verification request returned 404 for the unpublished new asset. [Publication evidence](validation/Gate-roof-path-dev-publication.json). Production/main are unchanged. F-032/F-VIS-001/F-VIS-002 remain Review for phone appearance, touch, loading profile and user acceptance. This documentation record does not replace the pinned runtime build.
+
 ## Gate panels, roof coverage and road terminals — 23 October 2026
 
 Branch `map_generation_improvements`, base `6b0283928b7699fd7ff8eb8d4091fa72f25338c5`. Implementation used the session model, identifier and effort not recorded because this environment does not expose them. Disjoint agents handled gate behavior/view, barn geometry and road surfaces; root integrated materials/weather/glow, regression checks and documentation. Independent isolated critic used `gpt-6-luna`, medium effort.
