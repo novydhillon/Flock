@@ -1,5 +1,13 @@
 # Flock revision quality record
 
+## Lamp, grass and rounded-network dev publication — 23 October 2026
+
+Novy's explicit fix-and-deploy request authorized publishing source `4a0b3f01b162341a0c6976cd599d85e179ec6eff` on `map_generation_improvements`. All 196 local blobs matched that pinned source, including binary assets/symlinks. Fresh `npm ci` and checked dev build passed all 421 tests, docs, release exclusion (27 files/zero QA assets) and dev inclusion (29 files/two QA assets). Both checked modes had already passed during source validation. Source CI [40010749311](https://github.com/novydhillon/Flock/actions/runs/40010749311) succeeded with the final open/green test extension.
+
+Workflow dispatch remains absent, so the documented GitHub connector fallback used the shared planner, byte-preserving blobs and expected-head non-force update. Final artifact preparation encountered an unused release chunk; a standalone dev rebuild and artifact recheck restored the exact 29-file development output before planning/publication. Pages `139823659177b513e4ffad2d752de01d69514162`, parent `7800a904226eba116a34d4084dc8c32731f68814`, writes only 29 planned dev files plus the manifest and preserves 82 unrelated blobs/old assets. Native Pages [40011177542](https://github.com/novydhillon/Flock/actions/runs/40011177542) succeeded, then the shared verifier matched all 29 live SHA-256 files. [Publication evidence](validation/Lamps-grass-road-network-dev-publication.json).
+
+The 8.5/10 independent follow-up has no material source findings and remains evidence-constrained below the usual 9/10 gate: actual rendered phone brightness/readability/performance are pending. Deployment authorization is explicit; new appearance acceptance is not implied. F-032/F-VIS-002/F-VIS-003 remain Review; F-VIS-001 is archived by barn acceptance. Production/main are unchanged. This documentation-only record does not replace the pinned runtime.
+
 ## Visible gate lamps, matching grass and rounded road network — 23 October 2026
 
 Branch `map_generation_improvements`, base `1b5e11b1263bd88d815d4bb78b93a27f0653e543`. User screenshots IMG_8438/8439 expose edge-on, dim gate indicators; IMG_8437 shows contrasting field grass; IMG_8436 shows squared reversal/shared-end outlines. Novy accepts the barn and existing terminal fade, and authorizes fixes plus dev deployment. F-VIS-001 is archived with that acceptance; F-032/F-VIS-002/F-VIS-003 own this follow-up.

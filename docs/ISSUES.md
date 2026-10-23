@@ -81,6 +81,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
+**Latest dev publication, 23 October 2026:** F-032/F-VIS-002/F-VIS-003 are live from `4a0b3f0`, Pages `1398236`, after 421-regression checked builds, source CI, native Pages and all 29 live SHA-256 hashes passed. [Evidence](validation/Lamps-grass-road-network-dev-publication.json). Review stays open for phone appearance/readability/performance; independent 8.5/10 review has no material source finding but remains below the usual 9/10 gate due to unavailable device evidence. F-VIS-001 is accepted and archived. The prior publication record below is historical.
+
 **Dev publication, 23 October 2026:** F-032/F-VIS-001/F-VIS-002 are published from `d739fa2` at `/Flock/dev/`, Pages `7800a90`. Fresh checked dev build (415 regressions), source CI, native Pages and all 29 live file hashes passed. [Evidence](validation/Gate-roof-path-dev-publication.json). This supersedes the pending-publication statements in the source records below. The disclosed 8/10 review remains limited by unavailable device evidence; Novy authorized this dev deployment, while phone appearance/performance and user acceptance remain pending. Status stays Review; production/main are unchanged.
 
 ### F-VIS-003 — Matching grass across field boundaries (P2)
