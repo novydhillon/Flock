@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Map layout follow-up and F-UI-013 camera — 22 October 2026
+
+On `map_generation_improvements`, extend F-038 with goals in either L offshoot and U/Z/other angular layouts that require the flock to go around corners. Add denser trees and groves in large starter fields from public level 60, while retaining clear routes, spawns and helper movement. Increase river-to-fence spacing and vary rivers with stronger meanders on some levels. Keep the early teaching levels intact. F-UI-013 keeps Pip near screen center in every travel direction, independent of distant flock/goal positions, while preserving intro framing and pause behavior. This follow-up is a Review source candidate; the previously published dev build remains `ed7a2cb` until an explicitly recorded replacement deployment.
+
 ## Map generation improvements — 22 October 2026
 
 Current work on `map_generation_improvements`, based on main `f5301a4fd8cf3fc6110bb692b1f0978145a4e594`, covers F-031, F-032, F-034 and F-038. This section supersedes older statements that gate closing is unrequested or every late map must have gates. All four items are Review as source candidates; combined checked build and independent review are pending. No development publication, production merge or user acceptance is claimed.

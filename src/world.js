@@ -166,6 +166,35 @@ function wander(points,random,geometry) {
   }
   return result;
 }
+/** Outline the union of overlapping axis-aligned field/corridor rectangles. */
+function fieldOutline(rectangles){
+  const xs=[...new Set(rectangles.flatMap(r=>[r.minX,r.maxX]))].sort((a,b)=>a-b),zs=[...new Set(rectangles.flatMap(r=>[r.minZ,r.maxZ]))].sort((a,b)=>a-b);
+  const cells=new Set(),key=(x,z)=>`${x},${z}`;
+  for(let x=0;x<xs.length-1;x++)for(let z=0;z<zs.length-1;z++){
+    const px=(xs[x]+xs[x+1])/2,pz=(zs[z]+zs[z+1])/2;
+    if(rectangles.some(r=>px>r.minX&&px<r.maxX&&pz>r.minZ&&pz<r.maxZ))cells.add(key(x,z));
+  }
+  const edges=new Map(),add=(a,b)=>edges.set(key(a.x,a.z),b);
+  for(let x=0;x<xs.length-1;x++)for(let z=0;z<zs.length-1;z++)if(cells.has(key(x,z))){
+    const a={x:xs[x],z:zs[z]},b={x:xs[x+1],z:zs[z]},c={x:xs[x+1],z:zs[z+1]},d={x:xs[x],z:zs[z+1]};
+    if(!cells.has(key(x,z-1)))add(a,b);if(!cells.has(key(x+1,z)))add(b,c);if(!cells.has(key(x,z+1)))add(c,d);if(!cells.has(key(x-1,z)))add(d,a);
+  }
+  const start=edges.keys().next().value,points=[];let current=start;
+  do{const [x,z]=current.split(',').map(Number);points.push({x,z});const next=edges.get(current);current=key(next.x,next.z);}while(current!==start&&points.length<=edges.size);
+  return points.filter((p,i)=>{const a=points[(i+points.length-1)%points.length],b=points[(i+1)%points.length];return Math.abs((p.x-a.x)*(b.z-p.z)-(p.z-a.z)*(b.x-p.x))>1e-8;});
+}
+function angularFields(index,seed,minU,endU,halfV){
+  const random=rng(seed^0x41524d53),kind=['L','U','Z','step'][Math.floor(random()*4)],side=random()<.5?-1:1;
+  const width=28+Math.min((index-39)*.12,6),bend=endU+18,reach=halfV+105+(index-39)*.55;
+  const corners=[{x:bend,z:0},{x:bend,z:side*reach}];
+  if(kind==='U')corners.push({x:minU+65,z:side*reach});
+  if(kind==='Z')corners.push({x:bend+110+(index-39)*.4,z:side*reach});
+  if(kind==='step'){corners.push({x:bend-100,z:side*reach},{x:bend-100,z:side*(reach+105)});}
+  const rectangles=[{minX:minU,maxX:bend+width,minZ:-halfV,maxZ:halfV}];
+  for(let i=1;i<corners.length;i++){const a=corners[i-1],b=corners[i];rectangles.push({minX:Math.min(a.x,b.x)-width,maxX:Math.max(a.x,b.x)+width,minZ:Math.min(a.z,b.z)-width,maxZ:Math.max(a.z,b.z)+width});}
+  const a=corners.at(-2),b=corners.at(-1),f=unit(b.x-a.x,b.z-a.z);
+  return {kind,side,corners,boundary:fieldOutline(rectangles),heading:Math.atan2(f.x,f.z),target:b,width};
+}
 export function createLevel(index=0,seed=index*7919+42) {
   index=clamp(Math.floor(Number(index)||0),0,99);seed=Number(seed)>>>0;
   // A broad first crossing accepts the starter flock before later lessons
@@ -176,8 +205,8 @@ export function createLevel(index=0,seed=index*7919+42) {
   // meadow 3.5 times deeper, then later chapters expand further.
   // Larger herds get more trail between the last bridge and the gate so a
   // flock can leave the deck before reaching the next opening (F-WORLD-001).
-  const breathing=early?0:clamp((count-30)*.4,0,14)+(count>30?.1:0);
-  const expansion=Math.max(0,index-19),endU=early?15+index*3:48+index*3+breathing+expansion*.45,minU=early?-32:-40,maxU=endU+15,halfV=early?24:84+Math.floor(index/15)*14+expansion*.3;
+  const breathing=early?0:18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
+  const expansion=Math.max(0,index-19),endU=early?15+index*3:index>=39?150+Math.min(index-39,40)*.3:48+index*3+breathing+expansion*.45,minU=early?-32:-40,maxU=endU+15,halfV=early?24:index>=39?84+Math.min(expansion*.1,8):84+Math.floor(index/15)*14+expansion*.3;
   // Late routes cross the meadow laterally as well as longitudinally. The
   // destination stays on clear ground beyond every river and barrier.
   const targetV=index<19?0:(layoutRandom()-.5)*Math.min(halfV*.7,24+expansion*.7);
@@ -194,18 +223,20 @@ export function createLevel(index=0,seed=index*7919+42) {
   const routeCount=early?1:index<15?(index%2===1?2:1):(index%3===0?3:2);
   const gateU=early?endU-21:endU-32;
   const riverBases=index===0?[]:early?[index===1?-10:-12]:index>=15?[gateU-breathing-48,gateU-breathing-23]:[gateU-breathing-23];
-  const riverFunctions=riverBases.map(base=>{const phase=random()*Math.PI*2;return {width:early?3.1:3.7+Math.min(index*.025,1.8),at:v=>base+Math.sin(v/21+phase)*2.4+Math.sin(v/8+phase)*.65};});
+  const meandering=index>=19&&rng(seed^0x4d45414e)()<.55;
+  if(meandering&&riverBases.length>1)riverBases[0]-=15;
+  const riverFunctions=riverBases.map(base=>{const phase=random()*Math.PI*2;return {width:early?3.1:3.7+Math.min(index*.025,1.8),at:v=>base+Math.sin(v/(meandering?32:21)+phase)*(meandering?6:2.4)+Math.sin(v/(meandering?12:8)+phase)*(meandering?1:.65)};});
   const canonicalRivers=riverFunctions.map(r=>({width:r.width,points:Array.from({length:Math.ceil((halfV*2+64)/2)+1},(_,i)=>{const z=-halfV-32+i*2;return{x:r.at(z),z};}),bridges:[]}));
   const canonicalGates=[],canonicalRoutes=[];
   const sign=random()>.5?1:-1;
   for(let r=0;r<routeCount;r++) {
-    const branchSpread=32+Math.min(expansion*.32,24);
+    const branchSpread=index>=39?32:32+Math.min(expansion*.32,24);
     const offset=routeCount===1?0:(r-(routeCount-1)/2)*(early?12:branchSpread);
     const points=[{x:spawn.x*Math.cos(angle)+spawn.z*Math.sin(angle),z:0}];
     if(index===0){points.push({x:-8,z:2.8},{x:2,z:-2.2},{x:endU-target.radius-3,z:0},{x:endU,z:0,kind:'target'});}
     else {
       riverFunctions.forEach((river,j)=>{
-        const z=early?(index===1?0:sign*5):offset+sign*(j%2?-1:1)*(14+Math.min(expansion*.22,16)+random()*5);
+        const z=early?(index===1?0:sign*5):offset+sign*(j%2?-1:1)*(14+Math.min(expansion*(index>=39?.07:.22),index>=39?5:16)+random()*5);
         // Align the deck to the actual sampled bank segment, rather than the
         // meadow axis. The road's usable surface sets deck width; its rendered
         // shoulder is decoration and is deliberately excluded.
@@ -218,7 +249,7 @@ export function createLevel(index=0,seed=index*7919+42) {
         // Every branch reaches common dry turning planes before changing
         // lanes. This prevents a turn crossing another deck's side rail.
         // Turning space belongs to the trail, not the shortened deck.
-        const approach=river.width/2+2.5+(early?3:6);
+        const approach=river.width/2+2.5+(early?3:meandering?10:6);
         const nearU=early?approach:(x-riverBases[j]+approach)/f.x,farU=early?approach:(riverBases[j]+approach-x)/f.x;
         const near={x:x-f.x*nearU,z:z-f.z*nearU},far={x:x+f.x*farU,z:z+f.z*farU};
         points.push({x:near.x-4,z:near.z-sign*(early?3:8)},near,{x,z,kind:'bridge'},far);
@@ -233,6 +264,16 @@ export function createLevel(index=0,seed=index*7919+42) {
     }
     canonicalRoutes.push(points);
   }
+  const angular=index>=39?angularFields(index,seed,minU,endU,halfV):null;
+  if(angular){
+    Object.assign(target,transform(angular.target),{heading:angular.heading-angle});
+    canonicalRoutes.forEach((points,i)=>{
+      const gateIndex=points.findIndex(p=>p.kind==='gate'),tail=gateIndex>=0?points.slice(0,gateIndex+2):points.slice(0,-3);
+      tail.push({x:angular.corners[0].x-10,z:0},...angular.corners.slice(0,-1));
+      const end=angular.target,f=yawVector(angular.heading);
+      tail.push({x:end.x-f.x*(target.radius+4),z:end.z-f.z*(target.radius+4)},{...end,kind:'target'});canonicalRoutes[i]=tail;
+    });
+  }
   const rivers=canonicalRivers.map(r=>({width:r.width,points:r.points.map(transform),bridges:r.bridges.map(b=>({...b,...transform(b)}))}));
   // Independent streams keep wall/panel choices stable when scenery changes.
   const stoneWalls=rng(seed ^ 0x53544f4e)()<.15,gateRandom=rng(seed ^ 0x47415445);
@@ -242,18 +283,9 @@ export function createLevel(index=0,seed=index*7919+42) {
     .filter((g,i)=>index<19||(gated&&i!==alternate));
   let boundary=[{x:bounds.minX,z:bounds.minZ},{x:bounds.maxX,z:bounds.minZ},{x:bounds.maxX,z:bounds.maxZ},{x:bounds.minX,z:bounds.maxZ}];
   let barrierLow=-halfV,barrierHigh=halfV;
-  if(index>=39){
-    // Concave angular meadows remove substantial unused land while keeping
-    // the whole sampled travel envelope clear of the new boundary.
-    const shapeRandom=rng(seed ^ 0x53484150),side=shapeRandom()<.5?-1:1,stepped=shapeRandom()<.5;
-    const envelope=Math.max(...canonicalRoutes.flat().map(p=>p.z*side),targetV*side+target.radius+1.4,8);
-    const cut=Math.max(halfV*.45,envelope+12),u1=minU+(maxU-minU)*.32,u2=minU+(maxU-minU)*.6;
-    const outline=[{x:minU,z:-halfV},{x:maxU,z:-halfV},{x:maxU,z:cut},
-      ...(stepped?[{x:u2,z:cut},{x:u2,z:(cut+halfV)/2},{x:u1,z:(cut+halfV)/2}]:[{x:u1,z:cut}]),
-      {x:u1,z:halfV},{x:minU,z:halfV}];
-    boundary=outline.map(p=>transform({x:p.x,z:p.z*side}));
-    const cap=gateU>=u2||!stepped&&gateU>=u1?cut:gateU>=u1?(cut+halfV)/2:halfV;
-    if(side>0)barrierHigh=cap;else barrierLow=-cap;
+  if(angular){
+    boundary=angular.boundary.map(transform);
+    bounds.minX=Math.min(...boundary.map(p=>p.x));bounds.maxX=Math.max(...boundary.map(p=>p.x));bounds.minZ=Math.min(...boundary.map(p=>p.z));bounds.maxZ=Math.max(...boundary.map(p=>p.z));
   }
   const fenceSegments=boundary.map((a,i)=>({a,b:boundary[(i+1)%boundary.length],kind:'boundary'}));
   if(gates.length) {
@@ -272,7 +304,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   const roads=routes.map(route=>({routeId:route.id,points:route.points,width:roadWidth}));
   const level={index,seed,title:['First day on the farm','Over the babbling brook','Through the garden gate','A mixed-up meadow','The long way home'][index]||`Pasture patrol ${index+1}`,
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
-    bounds,boundary,spawn,dog,target,animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
+    bounds,boundary,spawn,dog,target,startHeading:heading,layoutKind:angular?.kind||'field',riverStyle:meandering?'meandering':'gentle',animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
     const type=index>=3&&i%4===0?'cow':'sheep';
@@ -306,11 +338,28 @@ export function createLevel(index=0,seed=index*7919+42) {
     }
   }
   // Trees never intrude on a viable herd corridor or on spawns/destinations.
+  const addTree=(p,radius,grove)=>{
+    if(distance(p,spawn)<14||distance(p,target)<target.radius+10||!canOccupy(level,p.x,p.z,radius+1))return false;
+    if(routes.some(route=>route.points.slice(1).some((q,j)=>segmentDistance(p,route.points[j],q)<7+radius)))return false;
+    level.obstacles.push({...p,radius,...(grove===undefined?{}:{grove})});return true;
+  };
   for(let i=0;i<Math.min(10+index*2,130);i++) {
-    const p=transform({x:minU+5+random()*(maxU-minU-10),z:-halfV+5+random()*(halfV*2-10)}),radius=.7+random()*.7;
-    if(distance(p,spawn)<14||distance(p,target)<target.radius+10||!canOccupy(level,p.x,p.z,radius+1))continue;
-    if(routes.some(route=>route.points.slice(1).some((q,j)=>segmentDistance(p,route.points[j],q)<7+radius)))continue;
-    level.obstacles.push({...p,radius});
+    const p=angular?{x:bounds.minX+5+random()*(bounds.maxX-bounds.minX-10),z:bounds.minZ+5+random()*(bounds.maxZ-bounds.minZ-10)}:transform({x:minU+5+random()*(maxU-minU-10),z:-halfV+5+random()*(halfV*2-10)}),radius=.7+random()*.7;
+    addTree(p,radius);
+  }
+  if(index>=59){
+    const groveRandom=rng(seed^0x47524f56),limit=260;level.groves=[];
+    for(let group=0;group<18&&level.obstacles.length<limit;group++){
+      // Most anchors populate the starter field close enough to encounter
+      // immediately; the rest soften later arms without blocking their route.
+      const starter=group<12,anchor=starter?transform({x:-15+groveRandom()*Math.min(145,gateU+5),z:(group%2?1:-1)*(24+groveRandom()*(halfV-38))}):{x:bounds.minX+10+groveRandom()*(bounds.maxX-bounds.minX-20),z:bounds.minZ+10+groveRandom()*(bounds.maxZ-bounds.minZ-20)};
+      let trees=0;
+      for(let attempt=0;attempt<50&&trees<10&&level.obstacles.length<limit;attempt++){
+        const angle=groveRandom()*Math.PI*2,r=Math.sqrt(groveRandom())*10,p={x:anchor.x+Math.cos(angle)*r,z:anchor.z+Math.sin(angle)*r};
+        if(addTree(p,.7+groveRandom()*.7,group))trees++;
+      }
+      if(trees)level.groves.push({...anchor,id:group,trees});
+    }
   }
   for(let i=0;i<14;i++) {
     const radius=7+random()*8,height=3+random()*5;

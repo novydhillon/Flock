@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Map feedback and camera ownership — 22 October 2026
+
+F-038 follow-up keeps generated corner routes, bridges, fences, tree groves and final-arm destination geometry in the simulation/world layer. F-UI-013 removes flock-centroid camera attraction: gameplay framing follows Pip on both axes with bounded lag, independent of destination direction. The renderer still consumes world boundary and target descriptors for turf, minimap and goal arrow; camera changes do not move actors, alter collision or save state. Source completion, dev publication and user acceptance remain separate.
+
 ## Read-only tracker
 
 `tracker/index.html`, `styles.css`, `app.js` and `parser.js` form a standalone buildless site. It has no dependency on game initialization or saved profiles. A refresh resolves public main to a commit SHA, validates and parses both Markdown overview tables from that SHA, then atomically replaces the view. Only authoritative overview rows create tickets; matching detail headings and scoped execution records add details and branch evidence. Deferred/Blocked remain labelled under Open. Repository Markdown is rendered as text, with branch URLs safely encoded. There are no write requests or drag handlers. Refresh failures preserve the prior snapshot with a visible warning.

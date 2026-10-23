@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import * as models from '../src/models.js';
 import {animalScale} from '../src/animal-size.js';
 import {createLevel} from '../src/simulation.js';
-import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment} from '../src/world.js';
+import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment,canOccupy} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
 import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
@@ -27,7 +27,7 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -283,6 +283,22 @@ test('portrait camera keeps Pip visible when helpers move the flock far away',()
   assert.ok(Math.abs(position.y)<.8);
 });
 
+test('camera keeps Pip near screen center in every travel direction and aspect',()=>{
+  for(const viewport of [{width:390,height:844},{width:844,height:390}]){
+    const renderer=setup(viewport),level=createLevel(0),dog={...level.dog};renderer.setLevel(level);
+    // Rendering follows the controlled actor even across a level jump or a
+    // flock far away. Project through the real Three.js camera, not a stub.
+    for(const animal of level.animals){animal.x=500;animal.z=-500;}
+    for(const [dx,dz] of [[12,0],[-12,0],[0,12],[0,-12],[9,9],[-9,-9]]){
+      for(let frame=0;frame<8;frame++){
+        dog.x+=dx;dog.z+=dz;renderer.update(level,dog,1/60,false);renderer.camera.updateMatrixWorld(true);
+        const p=new THREE.Vector3(dog.x,.5,dog.z).project(renderer.camera);
+        assert.ok(Math.abs(p.x)<.13&&Math.abs(p.y)<.16,`Pip centered ${viewport.width}x${viewport.height} ${dx}/${dz}: ${p.x},${p.y}`);
+      }
+    }
+  }
+});
+
 test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=>{
   const renderer=setup(),level=createLevel(0),dog=level.dog;
   renderer.setLevel(level);
@@ -466,6 +482,7 @@ test('wide maps allocate a bounded detail budget beside winding routes with clea
     assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650);
     for(const p of renderer.meadowDetails){
       const padding=p.kind==='flower'?1:.4;
+      assert.ok(canOccupy(level,p.x,p.z,padding),'detail footprint stays inside the playable polygon');
       for(const river of level.rivers)assert.ok(lineDistance(p,river.points)>=river.width/2+padding+.5);
       for(const road of level.roads)assert.ok(lineDistance(p,road.points)>=road.width/2+padding+.35);
       for(const fence of level.fenceSegments)assert.ok(distance(p,fence.a,fence.b)>=padding+.7);

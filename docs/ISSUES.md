@@ -68,6 +68,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Review | F-033 |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
 | F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Review | F-005, F-006, F-031 |
+| F-UI-013 | P2 | Camera | Keep Pip close to screen center in every movement direction | Review | Existing portrait/landscape camera |
 | F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
@@ -77,6 +78,12 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 
 ## Acceptance criteria and planned work
+
+### F-UI-013 — Keep Pip centered in every direction (P2)
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source validation: 407 regressions, both checked build modes and independent 9.6/10 follow-up passed. User appearance/gameplay acceptance remains pending.
+
+**Accept when:** gameplay camera follows Pip near the center during sideways, vertical, diagonal and reversing movement, regardless of flock/goal position. Preserve smooth following, portrait/landscape, intro framing, pause/restart and development level jumps. Verify real camera projection, with device appearance/feel checked separately.
 
 ### F-008 — Clouds temporarily deferred
 
@@ -143,6 +150,8 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 **Status:** Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.
 
 ### F-038 — Larger, less-linear multi-directional levels (P2)
+
+**Current follow-up:** Review source candidate, owner Codex, branch `map_generation_improvements`, 22 October 2026. Mandatory corner routes and offshoot goals, U/Z/abstract shapes, starter groves at 60+, more river/fence separation and meanders are implemented. All 407 regressions, both checked build modes and independent 9.6/10 follow-up passed. Full-flock/helper pacing and user gameplay/appearance acceptance remain pending. Earlier source-review status below is historical for `ed7a2cb`.
 
 **Requirement:** levels should grow progressively larger and less linear, using multiple directions, fields, rivers and tree clusters; routes must preserve body clearance and avoid stuck animals, and later difficulty must account for helpers. Clarified 22 October 2026: later fields and the overall map may use nonrectangular L shapes and other angular, nonorganic shapes. These must be real playable boundaries, with matching collision, fences, ground and minimap. The minimap may show a local viewport scrolling with Pip instead of fitting the entire large/nonrectangular map.
 
@@ -630,3 +639,7 @@ F-031/F-032/F-034/F-038 on `map_generation_improvements` passed the independent 
 ## Map generation development deployment — 22 October 2026
 
 Novy authorized dev deployment. F-031/F-032/F-034/F-038 are live at `/Flock/dev/`, pinned source `ed7a2cb` / Pages `0108943`. Source CI, native Pages and all 29 live file hashes passed. See [publication evidence](validation/Map-generation-dev-publication.json). All four remain Review pending user gameplay/appearance acceptance; production/main are unchanged.
+
+## Map layout feedback — 22 October 2026
+
+F-038 returns to In progress on `map_generation_improvements` for Novy's feedback: true corner-requiring L/U/Z/abstract routes with offshoot goals, denser starter-field groves from level 60, wider river-to-fence clearance and varied meandering rivers. F-UI-013 tracks centered camera follow. Owner: Codex. Preserve the prior gate/stone work, early lessons and saved progress. Earlier validation/publication records remain evidence for their pinned revisions, not acceptance of this follow-up.

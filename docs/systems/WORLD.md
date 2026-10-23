@@ -1,5 +1,13 @@
 # World generation, collision, and navigation
 
+## Corner-route follow-up — 22 October 2026
+
+This follow-up supersedes the earlier cosmetic L/stepped cutout generator. From public level 40, a seeded choice builds L, U, Z or stepped fields by unioning the starter rectangle with wide connected arm rectangles. The goal sits at the end of the final arm, faces along that arm and can lie on either mirrored side. The boundary itself blocks direct shortcuts across the missing corner land. Crossing choices converge after the gate before the corner corridor; route samples, target enclosure, turf, minimap and collision share the resulting geometry. `layoutKind` records the shape; `startHeading` describes the initial travel direction, while `target.heading` describes the final approach. `bounds` remains an AABB for search/framing, not an occupiable rectangle.
+
+Later starter modules have bounded longitudinal/lateral extent; progression adds travel through the arms instead of moving the first river ever farther from spawn. From public level 60, seeded starter-biased groves supplement scattered trees, with up to 18 grove anchors and 260 physical trees total. Placement rejects spawn/destination space, routes, water, fences, other trees and gate approaches through shared occupancy/corridor checks. `groves` and each tree's `grove` ID are generated metadata only. Density and exact dimensions are tuning choices, not new user-specified constants or phone-performance claims.
+
+Non-early levels add dry spacing before the interior fence. A seeded subset from public level 20 uses stronger, longer river bends (`riverStyle: meandering`); these maps also separate the two rivers further and widen dry turning planes around bridges. Deck headings still follow the local sampled river normal. Rivers end beyond their local starter-field perimeter, which may lie inside the overall AABB of a returning U/stepped level. Validate against actual playable polygon occupancy rather than assuming every river must extend past the full-map AABB.
+
 Current contracts come from [world.js](../../src/world.js); [GAMEPLAY.md](GAMEPLAY.md) explains its simulation callers. The [issue tracker](../ISSUES.md) is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.
 
 ## Map generation candidate — 22 October 2026

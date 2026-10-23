@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Centered gameplay camera — F-UI-013, 22 October 2026
+
+Gameplay camera follows Pip independently of flock centroid or goal position. The desired camera center is Pip's X and Z + 2, canceling the existing ground look-at offset. Both axes interpolate at the same rate, with lag limited to 12% of their respective half-view dimensions; level jumps cannot leave Pip near an edge. Intro framing remains unchanged. Projection tests cover portrait/landscape and sideways, vertical, diagonal and reversing travel, including distant livestock. These are real Three.js camera calculations with a substituted GPU, not device feel or rendered-pixel evidence.
+
 ## Current minimap placement — F-057
 
 The minimap is anchored at `left:50%` with a negative half-width translation and `top:var(--hud-top)`, including short landscape. Existing 166px desktop/132px mobile and short-landscape sizes are retained. Below 384px, the map uses `top:calc(var(--hud-top) + 76px)` to clear the top-left weather/count/timer and top-right pause/help. This supersedes historical right-aligned placement below.

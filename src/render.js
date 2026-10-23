@@ -9,7 +9,7 @@ import { MeadowNature } from './nature.js';
 import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
-import { terrainHeight, targetFootprint, gateSegment } from './world.js';
+import { terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { ribbon, barkSurface } from './surfaces.js';
 import { createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
@@ -162,7 +162,7 @@ export class MeadowRenderer{
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.place(createBush(i),obstacle.x+Math.cos(angle)*obstacle.radius*.48,obstacle.z+Math.sin(angle)*obstacle.radius*.48,obstacle.radius*.7);}
     }
-    const meadowClear=(x,z,padding=0)=>x>b.minX+padding&&x<b.maxX-padding&&z>b.minZ+padding&&z<b.maxZ-padding&&!level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+padding+.5)&&!level.roads.some(v=>lineDistance(x,z,v.points)<v.width/2+padding+.35)&&Math.hypot(x-t.x,z-t.z)>t.radius+padding+2&&!level.obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.radius+padding)&&!(level.fenceSegments||[]).some(v=>segmentDistance(x,z,v.a,v.b)<padding+.7);
+    const meadowClear=(x,z,padding=0)=>x>b.minX+padding&&x<b.maxX-padding&&z>b.minZ+padding&&z<b.maxZ-padding&&(!(level.boundary?.length>4)||canOccupy(level,x,z,padding))&&!level.rivers.some(v=>lineDistance(x,z,v.points)<v.width/2+padding+.5)&&!level.roads.some(v=>lineDistance(x,z,v.points)<v.width/2+padding+.35)&&Math.hypot(x-t.x,z-t.z)>t.radius+padding+2&&!level.obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.radius+padding)&&!(level.fenceSegments||[]).some(v=>segmentDistance(x,z,v.a,v.b)<padding+.7);
     // Spend the same detail budget beside winding routes, including wide maps.
     // Sampling by arc length avoids concentrating patches at dense curve points.
     const routeSegments=[];let routeLength=0;
@@ -314,18 +314,21 @@ export class MeadowRenderer{
     }
   }
   update(level,dog,dt,preview=false){
-    this.time+=dt;this.preview=preview;const active=level.animals.filter(a=>!a.saved);
+    this.time+=dt;this.preview=preview;
     // Simulation time advances only during play, so menus freeze this introduction.
     this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-4)/1.2));
     this.destinationSign.visible=this.destinationSign.material.opacity>0;
-    const avg=active.reduce((p,a)=>({x:p.x+a.x/active.length,z:p.z+a.z/active.length}),{x:0,z:0});
     const viewHeight=preview?(this.aspect<.8?50:44):(this.aspect<.8?39:36);const half=viewHeight/2,halfWidth=half*this.aspect;
-    // Follow Pip; enough leading space keeps the flock and crossing visible.
-    let desiredX=preview?level.spawn.x+(this.aspect<.8?2:10):dog.x*.68+(active.length?avg.x:level.target.x)*.32+2;
-    let desiredZ=preview?level.spawn.z+1:dog.z*.75+(active.length?avg.z:level.target.z)*.25+1;
-    if(!preview){desiredX=Math.max(dog.x-halfWidth*.45,Math.min(dog.x+halfWidth*.45,desiredX));desiredZ=Math.max(dog.z-4,Math.min(dog.z+4,desiredZ));}
+    // Center on Pip independently of distant livestock or the goal. The +2
+    // cancels the camera's ground look-at offset in every travel direction.
+    const desiredX=preview?level.spawn.x+(this.aspect<.8?2:10):dog.x;
+    const desiredZ=preview?level.spawn.z+1:dog.z+2;
     const lerp=preview?Math.min(1,dt*.8):Math.min(1,dt*3.5);this.center.x+=(desiredX-this.center.x)*lerp;this.center.z+=(desiredZ-this.center.z)*lerp;
-    if(!preview){const margin=Math.max(1,halfWidth-2.5);this.center.x=Math.max(dog.x-margin,Math.min(dog.x+margin,this.center.x));}
+    if(!preview){
+      const marginX=halfWidth*.12,marginZ=half*.12;
+      this.center.x=Math.max(desiredX-marginX,Math.min(desiredX+marginX,this.center.x));
+      this.center.z=Math.max(desiredZ-marginZ,Math.min(desiredZ+marginZ,this.center.z));
+    }
     this.camera.left=-halfWidth;this.camera.right=halfWidth;this.camera.top=half;this.camera.bottom=-half;this.camera.updateProjectionMatrix();
     this.camera.position.set(this.center.x,36,this.center.z+29);this.camera.lookAt(this.center.x,0,this.center.z-2);
     this.sun.position.set(this.center.x-18,35,this.center.z+20);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();

@@ -117,13 +117,25 @@ test('blocked storage getters preserve a playable in-memory profile',()=>{
   assert.deepEqual(validateProfile({points:-100,upgrades:{bogus:true},completedLevels:[-1,0,0]}).completedLevels,[0]);
 });
 
-test('larger flocks and longer destination journeys continue through the campaign',()=>{
+test('flock size progresses while comparable seeded route journeys grow through later chapters',()=>{
   let previous=createLevel(0);
   for(let i=1;i<100;i++){
     const level=createLevel(i);
     assert.ok(level.animals.length>=previous.animals.length);
-    assert.ok(distance(level.spawn,level.target)>distance(previous.spawn,previous.target));
+    assert.ok(level.routes.every(route=>route.length>=distance(level.spawn,level.target)-.001));
     assert.ok(level.animals.length<=65);previous=level;
+  }
+  // Straight-line displacement does not measure a U-shaped journey. Hold the
+  // layout seed fixed so changing chapter size is not confused with a random
+  // switch to a different topology or a different compass direction.
+  for(const seed of [0,200,201,203]){
+    let previousLength=0,kind;
+    for(const index of [19,39,59,79,99]){
+      const level=createLevel(index,seed),journey=Math.min(...level.routes.map(route=>route.length));
+      if(index>=39){if(kind)assert.equal(level.layoutKind,kind);kind=level.layoutKind;}
+      assert.ok(journey>previousLength,`seed ${seed}, level ${index+1}: actual route journey grows`);
+      previousLength=journey;
+    }
   }
 });
 

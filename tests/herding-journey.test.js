@@ -54,8 +54,8 @@ function aroundDestination(level, desired) {
 // All herding occurs through legitimate dog inputs; companion tiers are gated
 // by the level inside stepSimulation. This is a bounded representative policy,
 // not a claim that this policy solves every campaign seed or every route.
-function herdThroughLevel(level, seconds = 400) {
-  const routeId = 'route-0', upgrades = { speed: 3, flock: 3, drone: 3 };
+function herdThroughLevel(level, seconds = 400, upgrades = { speed: 3, flock: 3, drone: 3 }) {
+  const routeId = 'route-0';
   const speed = 7.8 + upgradeEffects(upgrades, level.index + 1).speedBoost;
   const fineMovementDivisor = speed * .1 > 1 ? 1.3 : 1;
   let desired;
@@ -102,6 +102,20 @@ function herdThroughLevel(level, seconds = 400) {
   }
   return level.animals.filter(a => !a.saved).map(a => ({ id: a.id, x: a.x, z: a.z }));
 }
+
+// Start a single real cow on clear post-gate ground to isolate the new bends
+// from the older full-flock bridge journeys above. Only Pip inputs move it.
+for(const seed of [0,200,201,203])test(`Pip physically herds a cow around the seeded angular field corners (${seed})`,()=>{
+  const level=createLevel(69,seed),f={x:Math.sin(level.startHeading),z:Math.cos(level.startHeading)};
+  level.gates.forEach(g=>g.open=true);
+  level.animals=level.animals.slice(0,1);
+  Object.assign(level.animals[0],{x:f.x*150-f.z*2.5,z:f.z*150+f.x*2.5,scale:1.25,nextWanderCheck:10000});
+  Object.assign(level.dog,{x:f.x*143,z:f.z*143});
+  assert.ok(canOccupy(level,level.animals[0].x,level.animals[0].z,.975));assert.ok(canOccupy(level,level.dog.x,level.dog.z,.62));
+  const remaining=herdThroughLevel(level,240,{speed:3,flock:3,drone:0,helper:0});
+  assert.equal(level.completed,true,`corner journey left ${JSON.stringify(remaining)}`);
+  assert.equal(level.animals[0].saved,true);
+});
 
 for (const { index, seed, direction } of [
   { index: 1, direction: 'west' },
