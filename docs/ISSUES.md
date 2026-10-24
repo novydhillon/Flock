@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 23 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 24 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
 
@@ -20,7 +20,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-OPS-004 | P1 | Delivery | Connector-only Pages fallback when dispatch is unavailable | Review | Existing checked builds and deployment planner |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -579,14 +578,6 @@ Preserve connector-only repository operations, same-commit archive-on-closure an
 
 
 
-### F-OPS-004 — Connector-only Pages fallback
-
-**Status:** Review. Owner: Codex. **Branch:** `feature/connector-pages-fallback`.
-
-**Accept when:** Prefer Deploy Flock when connector dispatch exists; otherwise publish the approved checked build using connector Git Data blobs/tree/commit/ref to gh-pages. Preserve destination/production authorization, binary bytes, unrelated files and old assets; reject concurrent updates; wait for exact native Pages success and live hashes. Do not bypass a started/failed workflow.
-
-19 October 2026: Updated root and documentation guides plus current development runbook. Uses existing deploymentPlan and verifier; no runtime/workflow behavior changed. Connector schemas expose base64 blobs, base trees, commits and expected-head non-force ref updates in this session. Documentation checks and independent review are recorded in REVIEW.md. No fallback deployment or production publication is claimed by this policy change; user acceptance remains pending.
-
 
 ## Delivery fallback integration — 19 October 2026
 
@@ -595,4 +586,5 @@ User requested merging fallback changes to main and integrating main into buddy_
 ## Buddy user acceptance — 22 October 2026
 
 Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
+
 

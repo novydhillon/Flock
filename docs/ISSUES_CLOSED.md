@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-OPS-004~~ | ~~P1~~ | ~~Delivery~~ | ~~Connector-only Pages fallback when dispatch is unavailable~~ | ~~Done~~ | ~~Existing checked builds and deployment planner~~ |
 | ~~F-031~~ | ~~P2~~ | ~~World generation~~ | ~~Gates on 20+ levels, with some ungated alternative paths~~ | ~~Done~~ | ~~F-006~~ |
 | ~~F-032~~ | ~~P3~~ | ~~Gameplay/UI~~ | ~~Fence/wall switch panels on both sides; red closed/green open; Pip/Buddy contact activates~~ | ~~Done~~ | ~~F-031~~ |
 | ~~F-034~~ | ~~P3~~ | ~~World generation~~ | ~~Seeded 15% stone-wall chance per level~~ | ~~Done~~ | ~~F-033~~ |
@@ -1202,3 +1203,15 @@ User requested latest main into `buddy_behaviour` and a fresh blind review. Inte
 ## Buddy merged-candidate development publication — 20 October 2026
 
 Novy authorized development publication after the main merge. F-COMP-001/002/003/007/009/010 are now available for playtest at https://novydhillon.github.io/Flock/dev/ from source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes earlier not-deployed/current-dev-predates-correction statements. The connector-only fallback was used because this session exposes no workflow dispatch; no Deploy Flock run is claimed. Source CI and native Pages succeeded; the shared checked dev build passed 388/388 regressions and all 29 live files match by SHA-256. Production, unrelated Pages files and old hashed assets are unchanged. [Publication evidence](validation/Buddy-natural-integration-publication.json). Buddy items remain Review pending user gameplay acceptance; native phone appearance, touch/fun, audio and FPS remain unverified.
+
+
+### F-OPS-004 — ~~Connector-only Pages fallback~~
+
+**Status:** Done. Owner: Codex. **Branch:** `feature/connector-pages-fallback`.
+
+**Accept when:** Prefer Deploy Flock when connector dispatch exists; otherwise publish the approved checked build using connector Git Data blobs/tree/commit/ref to gh-pages. Preserve destination/production authorization, binary bytes, unrelated files and old assets; reject concurrent updates; wait for exact native Pages success and live hashes. Do not bypass a started/failed workflow.
+
+19 October 2026: Updated root and documentation guides plus current development runbook. Uses existing deploymentPlan and verifier; no runtime/workflow behavior changed. Connector schemas expose base64 blobs, base trees, commits and expected-head non-force ref updates in this session. Documentation checks and independent review are recorded in REVIEW.md. No fallback deployment or production publication is claimed by this policy change; user acceptance was pending at implementation; superseded by the sign-off below.
+
+**User sign-off — 24 October 2026 (America/Creston):** Novy explicitly requested “Sign off on F-OPS-004”. Accepted and closed. The policy was already merged to main in PR #18 (`c35c466`). This acceptance does not claim a new fallback deployment or production publication; existing evidence and validation limits remain as recorded above and in REVIEW.md.
+
