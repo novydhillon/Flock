@@ -8,6 +8,7 @@ import * as simulationAPI from '../src/simulation.js';
 import * as progressionAPI from '../src/progression.js';
 import * as gatesAPI from '../src/gates.js';
 import * as worldAPI from '../src/world.js';
+import * as barkAPI from '../src/bark.js';
 
 const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', import.meta.url));
 
@@ -89,7 +90,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     play(name) { audioEvents.push(name); }
   }
   const context = {
-    ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,
+    ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,...barkAPI,
     document, window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
     navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio,
     setTimeout: () => 1, clearTimeout() {}, requestAnimationFrame() {},
@@ -690,4 +691,43 @@ test('Woof cooldown fills progressively, blocks repeated barks and resets on res
   ui.advance(1.2);assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').style['--bark-progress'],'1');
   await ui.click('bark');await ui.click('pause');await ui.click('restart');
   assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').style['--bark-progress'],'1');
+});
+
+
+test('Quit discards only the current meadow, stops input and preserves the campaign', async () => {
+  const ui=launch({points:120,highestLevel:4,upgrades:{speed:1},completedLevels:[0,1]});
+  await ui.click('play');const oldLevel=ui.app.state().level;
+  const saved=ui.storage.get('flock-foundry-v1');
+  ui.emit('keydown',{key:'ArrowRight'});ui.tick();await ui.click('bark');
+  await ui.click('pause');await ui.click('quit');
+  const state=ui.app.state();assert.equal(state.mode,'intro');assert.notEqual(state.level,oldLevel);
+  assert.equal(state.keyCount,0);assert.equal(state.pointer,null);assert.equal(state.input.x,0);
+  assert.equal(state.profile.points,120);assert.equal(state.profile.highestLevel,4);
+  assert.equal(ui.storage.get('flock-foundry-v1'),saved);
+  for(const id of ['mission','controls','map-box','tip','countdown'])assert.ok(ui.el(id).classList.contains('hidden'),id);
+  assert.ok(!ui.el('intro').classList.contains('hidden'));assert.equal(ui.document.activeElement,ui.el('play'));
+  ui.advance(3);assert.equal(state.level.time??0,0);assert.equal(ui.audioEvents.at(-1),'pause');
+  await ui.click('play');assert.equal(ui.app.state().level.index,4);assert.notEqual(ui.app.state().level,oldLevel);
+});
+
+test('tier-three Woof consumes distinct gestures, freezes on pause and restores two charges', async () => {
+  const ui=launch({highestLevel:20,upgrades:{bark:3}});await ui.click('play');
+  assert.equal(ui.el('bark').dataset.charges,'2');
+  ui.emit('touchend',{target:ui.el('bark')});await ui.click('bark');
+  assert.equal(ui.audioEvents.filter(x=>x==='bark').length,1);
+  assert.equal(ui.el('bark').dataset.charges,'1');assert.equal(ui.el('bark').disabled,false);
+  ui.emit('keydown',{key:' ',repeat:false});ui.emit('keydown',{key:' ',repeat:true});
+  assert.equal(ui.audioEvents.filter(x=>x==='bark').length,2);assert.equal(ui.el('bark').disabled,true);
+  ui.advance(.5);const progress=ui.el('bark').style['--bark-progress'];
+  await ui.click('pause');ui.advance(10);assert.equal(ui.el('bark').style['--bark-progress'],progress);
+  await ui.click('resume');ui.advance(1.7);assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').dataset.charges,'2');
+  await ui.click('pause');await ui.click('restart');assert.equal(ui.el('bark').dataset.charges,'2');
+});
+
+test('restarting a meadow clears the first half of a pending double tap', async () => {
+  const ui=launch({highestLevel:20,upgrades:{bark:3}});await ui.click('play');
+  const tap=()=>{ui.emit('pointerdown',{pointerId:1,clientX:150,clientY:300});ui.emit('pointerup',{pointerId:1,clientX:150,clientY:300});};
+  tap();await ui.click('pause');await ui.click('restart');tap();
+  assert.equal(ui.audioEvents.filter(x=>x==='bark').length,0);assert.equal(ui.el('bark').dataset.charges,'2');
+  tap();assert.equal(ui.audioEvents.filter(x=>x==='bark').length,1);
 });

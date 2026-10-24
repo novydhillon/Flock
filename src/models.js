@@ -30,7 +30,16 @@ function bakeModel(root) {
   root.traverse((object) => {
     if (!object.isMesh) return;
     if (!byMaterial.has(object.material)) byMaterial.set(object.material, []);
-    byMaterial.get(object.material).push(object.geometry.clone().applyMatrix4(object.matrixWorld));
+    const piece=object.geometry.clone().applyMatrix4(object.matrixWorld);
+    if(root.userData.animalRig){
+      const count=piece.attributes.position.count,tag=object.userData.gestureKind||0;
+      const pivot=new THREE.Vector3(...(object.userData.gesturePivot||[0,0,0])).applyMatrix4(root.matrixWorld);
+      const tags=new Float32Array(count*2),pivots=new Float32Array(count*3);
+      for(let i=0;i<count;i++){tags[i*2]=tag;tags[i*2+1]=object.userData.gestureSide||1;pivots.set(pivot.toArray(),i*3);}
+      piece.setAttribute('animalGesturePart',new THREE.BufferAttribute(tags,2));
+      piece.setAttribute('animalGesturePivot',new THREE.BufferAttribute(pivots,3));
+    }
+    byMaterial.get(object.material).push(piece);
   });
   const baked = new THREE.Group();
   baked.name = root.name;
@@ -38,7 +47,8 @@ function bakeModel(root) {
   for (const [material, pieces] of byMaterial) {
     const combined = mergeGeometries(pieces, false);
     pieces.forEach((piece) => piece.dispose());
-    const object = new THREE.Mesh(combined, material);
+    if(root.userData.animalRig)combined.userData.animalRig=true;
+    const object = new THREE.Mesh(combined, root.userData.animalRig ? animalGestureMaterial(material) : material);
     object.castShadow = object.receiveShadow = true;
     baked.add(object);
   }
@@ -526,13 +536,13 @@ function createCow(m) {
   sphere(head,m.cream,[0,-.055,.21],[.095,.15,.065],16);
   sphere(head,pink,[0,-.115,.255],[.224,.115,.125],16);
   sphere(head,nostril,[0,-.203,.245],[.145,.012,.06],12);
-  sphere(head,pink,[0,-.215,.237],[.157,.026,.065],12);
+  tagGesture(sphere(head,pink,[0,-.215,.237],[.157,.026,.065],12),4,[0,-.215,.237]);
   for(const side of [-1,1]) {
-    eye(head,m,side*.087,.075,.207,.068);
+    animalEye(head,m,side*.087,.075,.207,.068);
     sphere(head,m.dark,[side*.086,.133,.2],[.078,.026,.043],12);
     const ear=sphere(head,m.dark,[side*.255,.09,.005],[.139,.065,.08],14);
-    ear.rotation.z=side*.28;
-    const inner=sphere(head,nostril,[side*.265,.096,.055],[.09,.037,.023],12);inner.rotation.z=side*.28;
+    ear.rotation.z=side*.28;tagGesture(ear,1,[side*.16,.09,.005],side);
+    const inner=sphere(head,nostril,[side*.265,.096,.055],[.09,.037,.023],12);inner.rotation.z=side*.28;tagGesture(inner,1,[side*.16,.09,.005],side);
     const hole=sphere(head,nostril,[side*.115,-.089,.359],[.037,.045,.014],12);hole.rotation.z=side*-.22;
     sphere(head,pink,[side*.115,-.074,.36],[.028,.014,.015],10);
     // Smooth tapered bent horns, using a short welded tube with a shrinking radius.
@@ -556,12 +566,58 @@ function createCow(m) {
   }
   sphere(cow,pink,[0,.295,-.23125],[.105,.067,.12],12);
   for(const x of [-.052,.052]) for(const z of [-.2875,-.1875]) sphere(cow,pink,[x,.24,z],[.019,.038,.02],8);
-  const tail=sphere(cow,m.cream,[.035,.48,-.4835],[.027,.18,.027],10);tail.rotation.x=.2;
-  sphere(cow,m.dark,[.035,.312,-.5175],[.048,.069,.043],10);
+  const tail=sphere(cow,m.cream,[.035,.48,-.4835],[.027,.18,.027],10);tail.rotation.x=.2;tagGesture(tail,2,[.035,.66,-.4835]);
+  tagGesture(sphere(cow,m.dark,[.035,.312,-.5175],[.048,.069,.043],10),2,[.035,.66,-.4835]);
   return { animal:cow, legs, head };
 }
 
+function tagGesture(object,kind,pivot,side=1){Object.assign(object.userData,{gestureKind:kind,gesturePivot:pivot,gestureSide:side});return object;}
+function animalEye(parent,m,x,y,z,size){
+  const start=parent.children.length;eye(parent,m,x,y,z,size);
+  for(const child of parent.children.slice(start))tagGesture(child,3,[x,y,z]);
+}
+const animalGestureMaterials=new WeakMap();
+function animalGestureMaterial(source){
+  if(animalGestureMaterials.has(source))return animalGestureMaterials.get(source);
+  const material=source.clone(),previous=source.onBeforeCompile;
+  material.onBeforeCompile=shader=>{
+    previous?.call(material,shader);
+    shader.vertexShader='attribute vec2 animalGesturePart;\nattribute vec3 animalGesturePivot;\nattribute vec4 animalGesture;\n'+shader.vertexShader;
+    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+      vec3 gestureOffset=transformed-animalGesturePivot;
+      float gestureAngle=0.0;
+      if(animalGesturePart.x>0.5&&animalGesturePart.x<1.5)gestureAngle=animalGesture.x*animalGesturePart.y;
+      if(animalGesturePart.x>1.5&&animalGesturePart.x<2.5)gestureAngle=animalGesture.y;
+      if(animalGesturePart.x>0.5&&animalGesturePart.x<2.5){
+        float gc=cos(gestureAngle),gs=sin(gestureAngle);
+        transformed=animalGesturePivot+vec3(gc*gestureOffset.x-gs*gestureOffset.y,gs*gestureOffset.x+gc*gestureOffset.y,gestureOffset.z);
+      }
+      if(animalGesturePart.x>2.5&&animalGesturePart.x<3.5)transformed.y=animalGesturePivot.y+gestureOffset.y*(1.0-animalGesture.z);
+      if(animalGesturePart.x>3.5)transformed.y+=animalGesture.w;
+    `);
+    shader.vertexShader=shader.vertexShader.replace('#include <beginnormal_vertex>',`#include <beginnormal_vertex>
+      float normalAngle=animalGesturePart.x>0.5&&animalGesturePart.x<1.5?animalGesture.x*animalGesturePart.y:animalGesturePart.x>1.5&&animalGesturePart.x<2.5?animalGesture.y:0.0;
+      float nc=cos(normalAngle),ns=sin(normalAngle);
+      objectNormal.xy=mat2(nc,ns,-ns,nc)*objectNormal.xy;
+    `);
+  };
+  material.customProgramCacheKey=()=>source.customProgramCacheKey()+'|animal-gestures-v1';
+  material.defaultAttributeValues={animalGesture:[0,0,0,0]};
+  animalGestureMaterials.set(source,material);return material;
+}
+// Only the instance gesture buffer belongs to the level. Cached static buffers
+// remain shared; no geometry or material is created while a frame is updated.
+export function createAnimalGestureGeometry(source,count){
+  const geometry=new THREE.BufferGeometry();geometry.index=source.index;
+  for(const [name,attribute]of Object.entries(source.attributes))geometry.setAttribute(name,attribute);
+  geometry.boundingBox=source.boundingBox;geometry.boundingSphere=source.boundingSphere;
+  geometry.setAttribute('animalGesture',new THREE.InstancedBufferAttribute(new Float32Array(count*4),4).setUsage(THREE.DynamicDrawUsage));
+  geometry.userData.animalGestureWrapper=true;return geometry;
+}
+
 function bakeArticulatedAnimal(animal,legs,head,size) {
+  animal.userData.animalRig=true;head.userData.animalRig=true;
+  for(const limb of legs)limb.userData.animalRig=true;
   animal.scale.setScalar(size);
   for(const limb of legs)animal.remove(limb);
   animal.remove(head);
@@ -617,13 +673,13 @@ export function createAnimal(type = 'sheep') {
   head.position.set(0, 0.7, cow ? 0.46 : 0.34);
   animal.add(head);
   sphere(head, cow ? m.cream : m.dark, [0, 0, 0.06], [0.22, 0.235, 0.205]);
-  sphere(head, cow ? m.rust : m.black, [0, -0.08, 0.225], [0.185, 0.12, 0.09]);
-  eye(head, m, -0.096, 0.055, 0.221, 0.075);
-  eye(head, m, 0.096, 0.055, 0.221, 0.075);
+  tagGesture(sphere(head, cow ? m.rust : m.black, [0, -0.08, 0.225], [0.185, 0.12, 0.09]),4,[0,-.08,.225]);
+  animalEye(head, m, -0.096, 0.055, 0.221, 0.075);
+  animalEye(head, m, 0.096, 0.055, 0.221, 0.075);
   [-1, 1].forEach((s) => {
     const ear = sphere(head, cow ? m.rust : m.cream, [s * 0.235, 0.075, 0.025], [0.135, 0.048, 0.082]);
-    ear.rotation.z = s * 0.25;
-    sphere(head, m.brass, [s * 0.193, 0.075, 0.025], [0.045, 0.045, 0.045]);
+    ear.rotation.z = s * 0.25;tagGesture(ear,1,[s*.16,.075,.025],s);
+    tagGesture(sphere(head, m.brass, [s * 0.193, 0.075, 0.025], [0.045, 0.045, 0.045]),1,[s*.16,.075,.025],s);
     if (cow) {
       const horn = mesh(head, 'ConeGeometry', [0.047, 0.2, 8], m.brass, [s * 0.15, 0.255, -0.018]);
       horn.rotation.z = s * -0.32;
@@ -634,6 +690,7 @@ export function createAnimal(type = 'sheep') {
   cylinder(animal, m.dark, [0, 0.64, 0.31], 0.13, 0.11, [Math.PI / 2, 0, 0]);
   const legs = [leg(animal, m, -0.22, 0.22, 0.25), leg(animal, m, 0.22, 0.22, 0.25), leg(animal, m, -0.22, -0.24, 0.25), leg(animal, m, 0.22, -0.24, 0.25)];
   const tail = sphere(animal, m.dark, [0, 0.6, cow ? -0.53 : -0.39], [0.061, cow ? 0.15 : 0.065, 0.07]);
+  tagGesture(tail,2,[0,.65,-.36]);
   const size = cow ? 1.23 : 1;
   // Body, head and limbs retain shared material batches. Head vertices use neck
   // coordinates so every facial detail follows the same grazing transform.
@@ -838,3 +895,4 @@ export function createBush(variant = 0) {
   }
   return cachedModel(key, bush);
 }
+

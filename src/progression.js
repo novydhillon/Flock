@@ -19,7 +19,7 @@ const catalog = [
   { id: 'bark', name: 'Happy bark', icon: 'bark', costs: [100, 160, 240], unlockLevels: [4, 8, 13],
     description: 'A stronger bark gives wandering robots a cheerful nudge.',
     tierNames: ['Bright bark', 'Resonant bark', 'Meadow chorus'],
-    tierDescriptions: ['+0.25 bark strength', '+0.45 bark strength', '+0.65 bark strength'] },
+    tierDescriptions: ['Stronger bark · one bark before cooldown', '+33% strength versus level 1 · one bark before cooldown', '+33% strength versus level 1 · two barks before cooldown'] },
   { id: 'cohesion', name: 'Flock harmony', icon: 'harmony', costs: [160, 220, 320], unlockLevels: [12, 14, 15],
     description: 'Robots regroup more readily when the flock stretches across a meadow.',
     tierNames: ['Stay together', 'Close companions', 'Perfect formation'],
@@ -136,7 +136,9 @@ export function upgradeEffects(upgrades, levelNumber = 1) {
   const effects = {
     speedBoost: [0, 1.8, 2.7, 3.5][tier('speed')],
     signalBoost: [0, 2, 3, 4][tier('flock')],
-    barkBoost: [0, 0.25, 0.45, 0.65][tier('bark')],
+    barkBoost: [0, .25, 1.9 * 1.33 - 1.65, 1.9 * 1.33 - 1.65][tier('bark')],
+    barkMultiplier: [1.65, 1.9, 1.9 * 1.33, 1.9 * 1.33][tier('bark')],
+    barkCharges: tier('bark') >= 3 ? 2 : 1,
     cohesionBoost: [0, 0.12, 0.23, 0.35][tier('cohesion')],
     droneStrength: [0, 0.7, 0.93, 1.17][tier('drone')],
     helperStrength: [0, 1, 1.3, 1.58][tier('helper')],
@@ -146,3 +148,4 @@ export function upgradeEffects(upgrades, levelNumber = 1) {
   };
   return effects;
 }
+

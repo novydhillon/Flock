@@ -10,6 +10,8 @@ export const wildlifeParts = {
     { part: 'ear', at: [.10, .62, .19], scale: [.055, .095, .045], color: '#915b43' },
     { part: 'paw', at: [-.14, .13, .13], scale: [.06, .10, .09], color: '#74503b' },
     { part: 'paw', at: [.14, .13, .13], scale: [.06, .10, .09], color: '#74503b' },
+    { part: 'paw', at: [-.19, .12, -.22], scale: [.085, .11, .13], color: '#74503b' },
+    { part: 'paw', at: [.19, .12, -.22], scale: [.085, .11, .13], color: '#74503b' },
     { part: 'eye', at: [-.105, .50, .33], scale: [.025, .03, .018], color: '#171819' },
     { part: 'eye', at: [.105, .50, .33], scale: [.025, .03, .018], color: '#171819' },
   ],
@@ -22,6 +24,8 @@ export const wildlifeParts = {
     { part: 'tail', at: [0, .34, -.40], scale: [.095, .10, .095], color: '#f0e9dc' },
     { part: 'paw', at: [-.15, .10, .20], scale: [.07, .10, .12], color: '#b09b7c' },
     { part: 'paw', at: [.15, .10, .20], scale: [.07, .10, .12], color: '#b09b7c' },
+    { part: 'paw', at: [-.23, .10, -.27], scale: [.095, .10, .18], color: '#b09b7c' },
+    { part: 'paw', at: [.23, .10, -.27], scale: [.095, .10, .18], color: '#b09b7c' },
     { part: 'eye', at: [-.12, .51, .36], scale: [.025, .03, .018], color: '#211c19' },
     { part: 'eye', at: [.12, .51, .36], scale: [.025, .03, .018], color: '#211c19' },
   ],
@@ -59,3 +63,4 @@ export function wildlifeBodyGeometry(kind) {
   geometry.computeBoundingSphere();
   return geometry;
 }
+

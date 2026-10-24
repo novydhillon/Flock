@@ -1,4 +1,5 @@
 import { animalRadius } from './animal-size.js';
+import { temperament, familiarNeighbor, updateRelaxation, unattendedBrowse } from './herd-behavior.js';
 import { UPGRADE_CATALOG, purchaseUpgrade, validateUpgrades, upgradeEffects } from './progression.js';
 import { createLevel, canOccupy, moveBody, openingSteer, hasClearGroundPath, hasClearPlayerSignal, containsTarget, targetLocalPoint, targetWorldPoint, targetFootprint } from './world.js';
 import { flockGroups, updateBuddy } from './buddy.js';
@@ -186,18 +187,37 @@ function roamSavedAnimals(level, dt, phaseTime) {
     animal.roamPhase = phase;
     const halfForward = shape.halfLength - radius - 0.48;
     const halfLateral = shape.halfWidth - radius - 0.24;
-    const goal = {
-      forward: Math.sin(phaseTime * 0.22 + phase) * halfForward * 0.72,
-      lateral: Math.cos(phaseTime * 0.19 + phase * 1.7) * halfLateral * 0.72,
-    };
-    let vx = (goal.forward - local.forward) * 0.32;
-    let vz = (goal.lateral - local.lateral) * 0.32;
+    // Reserve a quiet patch of available floor, with a long pause before
+    // browsing to another patch. Reservations keep arrivals from converging
+    // on a shared oscillator and favor space beyond the doorway.
+    const epoch=Math.floor((phaseTime+(animal.id*7%19))/32);
+    if(!animal.arrivalRest||animal.arrivalRest.epoch!==epoch){
+      let best=null,bestScore=-Infinity;
+      const spacing=2.3,forwardStart=-halfForward*.25;
+      for(let forward=forwardStart;forward<=halfForward;forward+=spacing)for(let lateral=-halfLateral;lateral<=halfLateral;lateral+=spacing){
+        const point=targetWorldPoint(level.target,forward,lateral);
+        if(!canOccupy(level,point.x,point.z,radius)||!hasClearGroundPath(level,animal,point,radius))continue;
+        let clearance=Infinity;
+        for(const other of level.animals){
+          if(other===animal||!other.saved)continue;
+          const reserved=other.arrivalRest?.point||other;
+          clearance=Math.min(clearance,distance(point,reserved)-radius-animalRadius(other));
+        }
+        const score=Math.min(3,clearance)+forward*.025-distance(point,animal)*.025+Math.sin(phase+forward+lateral+epoch)*.04;
+        if(score>bestScore){bestScore=score;best={point,forward,lateral,epoch};}
+      }
+      animal.arrivalRest=best||{point:{x:animal.x,z:animal.z},forward:local.forward,lateral:local.lateral,epoch};
+    }
+    const goal=animal.arrivalRest;
+    const arrived=Math.hypot(goal.forward-local.forward,goal.lateral-local.lateral)<.12;
+    let vx = arrived?0:(goal.forward - local.forward) * 0.65;
+    let vz = arrived?0:(goal.lateral - local.lateral) * 0.65;
     for (const other of level.animals) {
       if (other === animal || !other.saved) continue;
       const dx = animal.x - other.x, dz = animal.z - other.z, d = Math.hypot(dx, dz);
       const separation = radius + (animalRadius(other)) + 0.35;
       if (d > 1e-4 && d < separation) {
-        const force = (separation - d) / d * 0.6;
+        const force = (separation - d) / d * 2.5;
         vx += (dx * shape.forward.x + dz * shape.forward.z) * force;
         vz += (dx * shape.side.x + dz * shape.side.z) * force;
       }
@@ -216,10 +236,28 @@ function roamSavedAnimals(level, dt, phaseTime) {
     if (speed > 0.65) { wx *= 0.65 / speed; wz *= 0.65 / speed; }
     const before = { x: animal.x, z: animal.z };
     moveBody(level, animal, wx * dt, wz * dt, radius);
-    if (!(canOccupy(level, animal.x, animal.z, radius) && containsTarget(level.target, animal, radius))) {
+    const crowdEnergy=point=>level.animals.reduce((sum,other)=>other===animal||!other.saved?sum:
+      sum+Math.max(0,radius+animalRadius(other)+.04-distance(point,other))**2,0);
+    const priorEnergy=crowdEnergy(before);
+    // A crowded admission may already overlap several arrivals. Reducing total
+    // penetration permits a physical untangling step even if one individual
+    // gap briefly shrinks; a clear start can never create a fresh overlap.
+    if (crowdEnergy(animal)>priorEnergy+1e-10 || !(canOccupy(level, animal.x, animal.z, radius) && containsTarget(level.target, animal, radius))) {
       animal.x = before.x; animal.z = before.z;
+      if(priorEnergy>1e-8){
+        let best=before,energy=priorEnergy;
+        for(let direction=0;direction<16;direction++){
+          const angle=direction*Math.PI/8,p={x:before.x+Math.sin(angle)*.45*dt,z:before.z+Math.cos(angle)*.45*dt};
+          if(!canOccupy(level,p.x,p.z,radius)||!containsTarget(level.target,p,radius)||!hasClearGroundPath(level,before,p,radius))continue;
+          const candidate=crowdEnergy(p);
+          if(candidate<energy-1e-10){best=p;energy=candidate;}
+        }
+        animal.x=best.x;animal.z=best.z;
+      }
     }
     animal.vx = (animal.x - before.x) / dt; animal.vz = (animal.z - before.z) / dt;
+    animal.alert=0;
+    updateRelaxation(level,animal,0,dt,undefined,phaseTime);
     animal.heading = Math.hypot(animal.vx, animal.vz) > 0.03 ? Math.atan2(animal.vx, animal.vz) : (animal.heading || 0);
   }
 }
@@ -307,21 +345,22 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     for(const animal of group)flockMembership.set(animal.id,index);
   });
   level.flockTravel=nextTravel;
+  const browseGround={...level,obstacles:[]};
   for (let i = 0; i < active.length; i++) {
     const animal = active[i], old = snapshot[i];
-    const physicalRadius = animalRadius(animal);
+    const physicalRadius = animalRadius(animal), traits=temperament(level,animal);
     const bridgeIntent=bridgeCrossing(level,animal,old);
     const crossing=bridgeIntent?.finished?null:bridgeIntent;
     if(bridgeIntent?.finished&&companions.hold&&companions.memberIds.has(animal.id)){
       companions.state.positions[animal.id]={x:old.x,z:old.z};
     }
-    let sx = 0, sz = 0, cx = 0, cz = 0, avx = 0, avz = 0, neighbors = 0, pressure = 0;
+    let sx = 0, sz = 0, cx = 0, cz = 0, avx = 0, avz = 0, neighbors = 0, socialWeight = 0, preferred = 0, pressure = 0;
     for (const other of snapshot) {
       if (other.id === animal.id) continue;
       const dx = old.x - other.x, dz = old.z - other.z, d = Math.hypot(dx, dz);
-      const separation = Math.max(2, physicalRadius + animalRadius(other) + .35);
+      const separation = Math.max(animal.type==='cow'?2.15:2, physicalRadius + animalRadius(other) + .35);
       if (d < separation && d > 0.01) { const force = (separation - d) / d; sx += dx * force; sz += dz * force; }
-      if (d < 18 && flockMembership.get(old.id) === flockMembership.get(other.id) && visibleNeighbor(old, other)) { cx += other.x; cz += other.z; avx += other.vx; avz += other.vz; neighbors++; }
+      if (d < 18 && flockMembership.get(old.id) === flockMembership.get(other.id) && visibleNeighbor(old, other)) { const weight=d<6&&preferred<2&&familiarNeighbor(level,animal,other)?(preferred++,1.12):1; cx += other.x*weight; cz += other.z*weight; socialWeight+=weight; avx += other.vx; avz += other.vz; neighbors++; }
     }
     let desiredX = sx * 2.5, desiredZ = sz * 2.5;
     const playerSignal=playerSignals.get(animal.id);
@@ -330,7 +369,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     const helperActivelyHerding = (!companions.hold && companions.memberIds.has(animal.id)) || buddyActivelyHerding;
     if (dogActivelyHerding || helperActivelyHerding || crossing) { delete animal.wander; delete animal.wanderHome; }
     if (dogActivelyHerding) {
-      desiredX+=playerSignal.x;desiredZ+=playerSignal.z;
+      desiredX+=playerSignal.x*traits.confidence;desiredZ+=playerSignal.z*traits.confidence;
       pressure=playerSignal.urgency;animal.lastPlayerPressure=level.time;
     }
     if (buddyActivelyHerding) {
@@ -351,7 +390,10 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     if (opportunity !== null && pressure < 0.03) {
       const center = companions.centroid || centerOf(snapshot);
       const candidate = evaluateWanderOpportunity(level, animal, opportunity, center, dogActivelyHerding || helperActivelyHerding || holding || Boolean(crossing));
-      if (candidate) animal.wander = candidate;
+      if (candidate) {
+        if(!candidate.bolting){candidate.departAt=level.time+.35;candidate.until+=.35;}
+        animal.wander = candidate;
+      }
     }
     let wander = animal.wander;
     if (holding) {
@@ -375,11 +417,11 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     } else {
       delete animal.buddyRest;
       if (neighbors && !wander && !animal.wanderHome && !(buddyActivelyHerding && level.buddyHerd?.retrieveId === animal.id)) {
-        const dx = cx / neighbors - old.x, dz = cz / neighbors - old.z, d = Math.hypot(dx, dz);
+        const dx = cx / socialWeight - old.x, dz = cz / socialWeight - old.z, d = Math.hypot(dx, dz);
         const motion=flockMotion.get(flockMembership.get(animal.id)),forward=motion.forward;
         const leading=forward&&((old.x-motion.center.x)*forward.x+(old.z-motion.center.z)*forward.z)>.6;
         if (d > 2.6) {
-          const toward=normal(dx,dz),cohesion=Math.min(2.6,(d-2.6)*.36)*.7*(1+effects.cohesionBoost);
+          const toward=normal(dx,dz),cohesion=Math.min(2.6,(d-2.6)*.36)*.7*(1+effects.cohesionBoost)*traits.follow*(animal.type==='cow'?.96:1);
           let pullX=toward.x*cohesion,pullZ=toward.z*cohesion;
           // Leading animals may tuck in sideways, but cohesion cannot pull
           // them backward against their connected flock's established travel.
@@ -405,7 +447,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
         desiredX += Math.sin(level.time * 0.6 + animal.id * 2.1) * 0.12;
         desiredZ += Math.cos(level.time * 0.5 + animal.id * 1.7) * 0.12;
       }
-      if (wander) {
+      if (wander && !(wander.departAt>level.time+1e-9)) {
         const dx = wander.x - old.x, dz = wander.z - old.z, d = Math.hypot(dx, dz);
         if (d > 0.35) { desiredX += dx / d * (wander.bolting ? 5.8 : 2.1); desiredZ += dz / d * (wander.bolting ? 5.8 : 2.1); }
         else { settle(); wander = null; }
@@ -416,6 +458,17 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
         desiredZ = (home.z + Math.cos(level.time * .19 + phase) * 1.4 - old.z) * .35 + sz * .2;
       }
     }
+    // Browsing is separate from straggler schedules and is cancelled by any
+    // active control/committed crossing. It replaces passive magnetic return.
+    const watchingBuddy=level.helpers.some(h=>h.type==='helper'&&h.mode!=='standby'&&h.clusterIds?.includes(animal.id)&&distance(h,animal)<12&&hasClearGroundPath(browseGround,h,animal,.15));
+    const browse=unattendedBrowse(level,animal,dogActivelyHerding||helperActivelyHerding||watchingBuddy||holding||Boolean(crossing)||Boolean(wander)||Boolean(animal.wanderHome)||pressure>.03,dt);
+    if(browse){desiredX=browse.x+sx*.3;desiredZ=browse.z+sz*.3;}
+    const preparation=browse?.preparing?browse:wander&&!wander.bolting&&wander.departAt>level.time+1e-9?{
+      heading:Math.atan2(wander.x-old.x,wander.z-old.z),anticipation:clamp(1-(wander.departAt-level.time)/.35,.01,1)
+    }:null;
+    if(preparation){desiredX=sx*.3;desiredZ=sz*.3;animal.ordinaryAnticipation=preparation.anticipation;animal.ordinaryAttentionHeading=preparation.heading;}
+    else {delete animal.ordinaryAnticipation;delete animal.ordinaryAttentionHeading;}
+    updateRelaxation(level,animal,pressure,dt,dogActivelyHerding?Math.atan2(dog.x-animal.x,dog.z-animal.z):animal.heading);
     if (pressure > 0.03 && !crossing && !holding && !animal.wanderHome && !wander?.bolting) {
       // Queue at bridge mouths and open gates instead of surging and reversing.
       // Only direct Pip/Buddy pressure counts: a flock's travel direction can
@@ -452,7 +505,8 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     }
     if (collision.blockedX) animal.vx *= 0.45;
     if (collision.blockedZ) animal.vz *= 0.45;
-    if(Math.hypot(animal.vx,animal.vz)>.1)animal.heading=Math.atan2(animal.vx,animal.vz);
+    if(preparation)animal.heading=preparation.heading;
+    else if(Math.hypot(animal.vx,animal.vz)>.1)animal.heading=Math.atan2(animal.vx,animal.vz);
     else if(holding&&animal.buddyRest?.facing!==undefined){
       const heading=animal.heading||0,target=animal.buddyRest.facing;
       const delta=Math.atan2(Math.sin(target-heading),Math.cos(target-heading));
@@ -550,3 +604,4 @@ export function saveProfile(profile, storage, key = 'flock-foundry-v1') {
     return true;
   } catch { return false; }
 }
+

@@ -1,5 +1,13 @@
 # Presentation: renderer, nature and audio
 
+## Herd gestures, vocal calls, wildlife and waves — 24 October 2026
+
+`herd-pose.js` owns per-animal presentation clocks, anticipation, attention, ear/tail/blink/chew gestures, with quiet gaps and immediate threat priority. Relaxation comes from simulation; head-down grazing still requires eligible grass/bush surfaces. Cached anatomy carries gesture tags/pivots; cached gesture materials accompany the anatomy and each level owns its small instance gesture buffer, with no per-frame geometry allocation or added animal draw batches. Dispose level wrappers without disposing shared anatomy buffers. Animation does not control collision, delivery or rewards.
+
+`FarmAudio.updateLivestock` uses individual seeded transient schedules: ordinary wandering/calm calls every 5–10 seconds after staggered startup, herded/bolting calls every 12–24 seconds at 1.25 times baseline per-voice gain before distance attenuation. A new bolt triggers immediately; six active voices bound overlap, with ordinary starts limited per frame. Cached synthesized dog/sheep/cow PCM buffers replace the electronic bark sweep. Calls stop on pause/mute/replacement/disposal; missed calls are not replayed on resume. Recognizable timbre and phone mix need listening acceptance.
+
+Squirrels and rabbits now define four visible paws and use four-instance indexing for pose, shelter and hide operations. Existing species batches are reused. River flow crests use pale color and transparent troughs with weather-bounded opacity, preserving physical river geometry and local flow direction. An owned strip uses three shared vertices per centerline station with explicit bank/center U and cumulative V; conservative average-normal joins keep the overlay inside the source river without long union-triangle interpolation or refinement budget starvation. Phone readability, visual seams and GPU cost remain separate from matrix/source checks.
+
 ## Stateful scenery batching — F-032, 23 October 2026
 
 Gate lamp domes set `userData.dynamicScenery=true`. `batchScenery` excludes these meshes so `gateView.update` swaps the materials of the actual visible scene objects. The prior optimizer detached opaque red domes into immutable scenery instances while the gate view updated only detached originals; sprites already escaped that mesh-only batch. State transitions now retain original ownership and material disposal. Static housing/highlight meshes can still batch. Validate this through `MeadowRenderer.setLevel` and contact-driven `update`, including both lamp sides and restart; isolated gate-view tests do not cover this boundary.
@@ -325,3 +333,4 @@ Novy approved the current cow update at 17:30 America/Creston and authorized mer
 ## Pip favicon and Home Screen artwork
 
 `public/icons/` contains a closeup on grass-green `#779c4d` of the actual `createPip()` head mesh. `index.html` links browser SVG/PNG and Apple touch PNG variants. `public/site.webmanifest` keeps start URL, scope and identity relative so production and dev installations stay separate. No service worker or offline cache is introduced. `scripts/generate-pip-icons.mjs` uses Three SVGRenderer and jsdom to project the existing geometry with simplified material lighting (no texture sampling). Run `node scripts/generate-pip-icons.mjs` at repository root with Inkscape and Python/Pillow installed; it regenerates SVG and every PNG in one command. PNG backgrounds are fully opaque grass green, matching the base field texture colour. iOS final appearance requires device review.
+

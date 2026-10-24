@@ -1,5 +1,13 @@
 # Gameplay and progression
 
+## P1 herd and bark contracts — 24 October 2026
+
+`herd-behavior.js` derives confidence, curiosity and following traits from a separate seed hash; it does not consume world or wander randomness. Small familiar-neighbor weights remain limited to visible local members of the same flock, with the accepted total cohesion cap and front-motion protection. Cows retain slower response and slightly larger personal space. Existing turn caps, collision, bridge commitment, wandering opportunities and Buddy ownership remain authoritative.
+
+Unattended undelivered animals start slow, collision-checked browsing after eight quiet seconds, rest between excursions and keep clear of destination admission. Pip, local active helpers, holding and committed crossings cancel browsing. Local Buddy oversight prevents browsing away while he arrives. A .35-second low-pressure browse/non-bolting-wander preparation signal gives the presentation a look, head lift and weight shift before departure; wandering opportunity timing and movement duration remain unchanged, and renewed pressure bypasses preparation immediately. The candidate's mixed-herd coverage metric is implementation tuning, not user-approved game balance. Saved animals reserve physically reachable interior patches, favoring space away from the doorway; bounded motion forbids new overlaps from clear starts and physically reduces existing crowd penetration and remains inside the physical destination. Long quiet spells permit eligible grazing; score/result/reward state never advances from roaming.
+
+`bark.js` owns transient Pip charges, burst and cooldown in gameplay seconds. `main.js` advances them only while playing. The second tier multiplies first-tier force by exactly 1.33; the third retains that force and grants two charges before a 2.1-second cooldown refills both. Distinct accepted actions each emit audio/visual events and reset the existing sustained .65-second pressure burst. Touch compatibility clicks and key repeats do not double-spend charges. Buddy retains independent bark ownership. Current-meadow restart, Quit and QA jumps rebuild transient state; pause freezes it.
+
 This describes current source behavior, not the queued design in the [issue tracker](../ISSUES.md). Geometry and navigation contracts are in [WORLD.md](WORLD.md). Entry points: [simulation.js](../../src/simulation.js), [progression.js](../../src/progression.js), and browser orchestration in [main.js](../../src/main.js).
 
 ## State and interfaces
@@ -236,3 +244,4 @@ Pip remains player-controlled. Input now handles lost pointer capture as cancell
 ## Queuing at crossings — 20 October 2026
 
 A pressured animal heading into a bridge deck, the destination entrance or an open gate narrower than 9 m (the 8 m gates of levels 3–5) keeps to a lane. Openings 9 m or wider, the 10 m gates from level 6 and level 2's broad 11.75 m deck, get no queuing; lane aiming and deck commitment still apply on the broad deck. A queuing animal follows the one ahead instead of surging and reversing, and can wait behind a blocked animal for at most 3 s, then pushes for 2 s before yielding again. Walking onto a deck from up to 3 m before its end commits the animal to the far bank, but only while Pip or Buddy is pressing it, it is lined up with the deck, and it is not heading back over a bridge it already crossed. Pip can still turn a flock back before it commits. See [architecture](../ARCHITECTURE.md#crossing-bottlenecks-f-herd-005-f-world-001--20-october-2026) and [tracker](../ISSUES.md).
+

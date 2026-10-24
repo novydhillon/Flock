@@ -1,5 +1,6 @@
 import { canOccupy, containsTarget, segmentDistance } from './world.js';
 import { animalScale } from './animal-size.js';
+import { updateHerdPose } from './herd-pose.js';
 
 const roadQueries = new WeakMap(), CELL = 8;
 function nearbyRoadSegments(level, point) {
@@ -39,9 +40,10 @@ export function canGrazeAt(level, point) {
 export function updateGrazing(pose, animal, level, dt) {
   if (!(dt > 0) || !Number.isFinite(dt)) return;
   const state = pose.userData;
+  updateHerdPose(state, animal, dt, pose.rotation.y);
   const quiet = Math.hypot(animal.vx, animal.vz) < .45 &&
     (animal.alert || 0) < .03 && (state.turnSpeed || 0) < .05 &&
-    !animal.wander && !animal.bridgeCrossing;
+    !animal.wander && !animal.bridgeCrossing && !animal.ordinaryAnticipation;
   // Keep a fixed local anchor: minor shuffling can settle, continuous drift cannot.
   const anchor = state.grazeAnchor;
   const local = anchor && Math.hypot(animal.x-anchor.x, animal.z-anchor.z) <= .75;
@@ -65,7 +67,8 @@ export function updateGrazing(pose, animal, level, dt) {
   })));
   const edible = [animal, mouth, ...feet].every(point => canGrazeAt(level, point));
   state.grazeWait = edible && quiet ? (state.grazeWait || 0) + dt : 0;
-  const target = state.grazeWait + 1e-9 >= 7 && Math.hypot(animal.vx, animal.vz) < .1 ? 1 : 0;
+  const settleTime = 7 + ((animal.temperament?.confidence ?? 1) - 1) * 4;
+  const target = state.grazeWait + 1e-9 >= settleTime && (animal.relaxation ?? 1) > .85 && Math.hypot(animal.vx, animal.vz) < .1 ? 1 : 0;
   // Never retain a lowered head after crossing onto an excluded surface.
   state.graze = edible ? (state.graze || 0) +
     Math.max(-dt*4, Math.min(dt*2, target - (state.graze || 0))) : 0;
@@ -75,3 +78,4 @@ export function updateGrazing(pose, animal, level, dt) {
 export function grazingAngle(state, index) {
   return (state.graze || 0) * (1.05 + Math.sin((state.grazeTime || 0)*3 + index*1.7)*.02);
 }
+

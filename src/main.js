@@ -8,11 +8,12 @@ import '@fontsource/dm-sans/latin-700.css';
 import { MeadowRenderer } from './render.js';
 import { FarmAudio } from './audio.js';
 import { createLevel, stepSimulation, stepSavedRoaming, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG } from './simulation.js';
-import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades } from './progression.js';
+import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades, upgradeEffects } from './progression.js';
 import { canOccupy } from './world.js';
+import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from './bark.js';
 
 const $=id=>document.getElementById(id);
-let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkUntil=0,barkCooldown=0,tipStep=0,tipDismissed=false,tipChangedAt=0,tipManual=false,toastTimer,modalFocus=null;
+let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkState=createBarkState(),lastTouchBark=-Infinity,tipStep=0,tipDismissed=false,tipChangedAt=0,tipManual=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
 let qaSession=false;
@@ -27,16 +28,18 @@ async function toggleSound(){
   profile.music=!profile.music;audio.setMuted(!profile.music);persist();updateWallet();
   if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}
 }
-function updateBark(now){
-  const cooldown=now<barkCooldown;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
-  $('bark').style.setProperty('--bark-progress',String(Math.max(0,Math.min(1,1-(barkCooldown-now)/2100))));
+function updateBark(){
+  const cooldown=barkState.remaining>0;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
+  $('bark').style.setProperty('--bark-progress',String(Math.max(0,Math.min(1,1-barkState.remaining/BARK_COOLDOWN))));
+  $('bark').setAttribute('aria-label',cooldown?'Woof recharging':`Woof · ${barkState.charges} ${barkState.charges===1?'bark':'barks'} ready`);
+  $('bark').dataset.charges=String(barkState.charges);
 }
 function updateCountdown(started=false,remaining=0){
   visible('countdown',started);$('countdown').textContent=started?`${Math.ceil(remaining)}s`:'';
   $('countdown').setAttribute('aria-label',started?`${Math.ceil(remaining)} seconds remaining to deliver the flock`:'Delivery countdown has not started');
   $('countdown').classList.toggle('running',started);$('countdown').classList.toggle('urgent',started&&remaining<=10);
 }
-function resetInput(){input.x=input.z=0;pointer=null;keys.clear();$('stick').style.transform='translate(0,0)';}
+function resetInput(){input.x=input.z=0;pointer=null;keys.clear();lastTap=-Infinity;lastTapPosition=null;$('stick').style.transform='translate(0,0)';}
 function updateLevelIntroduction(){
   const progress=Math.max(0,Math.min(1,elapsed/3));
   const opacity=Math.max(0,Math.min(1,elapsed/.65,(3-elapsed)/1.2));
@@ -46,7 +49,7 @@ function updateLevelIntroduction(){
 }
 async function begin(index=profile.highestLevel){
   index=Math.max(0,Math.min(99,Math.floor(Number(index)||0)));
-  closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkUntil=barkCooldown=0;resetInput();renderer.setLevel(level);mode='playing';document.body.classList.toggle('in-game',true);updateBark(performance.now());
+  closeModal(false);level=createLevel(index);dog={...level.dog,heading:level.dog.heading??Math.atan2(level.spawn.x-level.dog.x,level.spawn.z-level.dog.z)};elapsed=0;tipStep=0;tipDismissed=false;barkState=createBarkState(upgradeEffects(profile.upgrades,index+1).barkCharges);lastTouchBark=-Infinity;audio.resetLivestock?.(level);resetInput();renderer.setLevel(level);mode='playing';document.body.classList.toggle('in-game',true);updateBark(performance.now());
   for(const id of ['intro','scene-tag'])visible(id,false);for(const id of ['mission','controls','map-box'])visible(id,true);
   $('level-number').textContent=`Level ${index+1}`;updateLevelIntroduction();$('mission').setAttribute('aria-label',`Level ${index+1} · Livestock delivery status`);$('total').textContent=level.animals.length;$('saved').textContent=0;
   updateCountdown();
@@ -61,7 +64,10 @@ function tipsFor(index){return index===0?[
 ]:[level.routes.length>1?'Choose a trail on the map.':'Gather stragglers before crossing.'];}
 function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visible('toggle-tip',true);$('toggle-tip').setAttribute('aria-expanded','false');$('toggle-tip').setAttribute('aria-label','Show tips');}
 function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
-function bark(){if(mode!=='playing'||performance.now()<barkCooldown)return;barkUntil=performance.now()+650;barkCooldown=performance.now()+2100;updateBark(performance.now());audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);}
+function bark(){
+  if(mode!=='playing'||!triggerBark(barkState,upgradeEffects(profile.upgrades,level.index+1).barkCharges))return;
+  updateBark();audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);
+}
 function openModal(html,newMode='paused'){
   previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
 }
@@ -71,8 +77,18 @@ function menu(){
   if(mode==='shop'){$('shop-back').onclick();return;}
   if(mode==='paused'){closeModal();return;}
   if(mode==='complete')return;
-  openModal(`<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode==='intro'?'Hello, shepherd.':'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode==='intro'?'Back to the meadow':'Keep herding'} <span>➜</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button>${mode==='playing'?'<button class="secondary" id="restart">Restart this meadow</button>':''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music?'On':'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart Game</button><div class="eyebrow" style="margin-top:23px">YOUR MEADOWS</div><div class="level-picker">${Array.from({length:Math.min(100,profile.highestLevel+1)},(_,i)=>`<button class="${i===level.index?'current':''}" data-level="${i}" aria-label="Play level ${i+1}">${i+1}</button>`).join('')}</div>`);
-  $('close').onclick=()=>closeModal();$('resume').onclick=()=>closeModal();$('menu-sound').onclick=toggleSound;$('upgrades-menu').onclick=shop;$('restart-game-menu').onclick=confirmRestart;if($('restart'))$('restart').onclick=()=>begin(level.index);$('modal-card').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>begin(Number(b.dataset.level)));
+  openModal(`<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode==='intro'?'Hello, shepherd.':'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode==='intro'?'Back to the meadow':'Keep herding'} <span>➜</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button>${mode==='playing'?'<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>':''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music?'On':'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart Game</button><div class="eyebrow" style="margin-top:23px">YOUR MEADOWS</div><div class="level-picker">${Array.from({length:Math.min(100,profile.highestLevel+1)},(_,i)=>`<button class="${i===level.index?'current':''}" data-level="${i}" aria-label="Play level ${i+1}">${i+1}</button>`).join('')}</div>`);
+  $('close').onclick=()=>closeModal();$('resume').onclick=()=>closeModal();$('menu-sound').onclick=toggleSound;$('upgrades-menu').onclick=shop;$('restart-game-menu').onclick=confirmRestart;if($('restart'))$('restart').onclick=()=>begin(level.index);if($('quit'))$('quit').onclick=quitToLanding;$('modal-card').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>begin(Number(b.dataset.level)));
+}
+function quitToLanding(){
+  // Discard this meadow's transient run; the campaign profile is unchanged.
+  closeModal(false);mode=previousMode='intro';resetInput();lastTap=-Infinity;lastTapPosition=null;
+  barkState=createBarkState();lastTouchBark=-Infinity;audio.resetLivestock?.(null);elapsed=0;tipStep=0;tipDismissed=false;tipManual=false;lastReward=0;
+  audio.pause();level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);
+  document.body.classList.toggle('in-game',false);
+  for(const id of ['mission','controls','map-box','tip','toggle-tip','countdown','level-introduction'])visible(id,false);
+  for(const id of ['intro','scene-tag'])visible(id,true);
+  updateWallet();$('play').focus();
 }
 function confirmRestart(){
   const returnMode=mode,returnPrevious=previousMode;
@@ -116,16 +132,16 @@ document.addEventListener('pointerdown',pointerStart,{passive:false});document.a
 // captured. Block native gestures only on the play surface; menus stay scrollable.
 const gameSurface=target=>target===$('world')||Boolean(target.closest('#controls'));
 document.addEventListener('touchstart',e=>{if(mode==='playing'&&gameSurface(e.target))e.preventDefault();},{passive:false});
-document.addEventListener('touchend',e=>{if(mode==='playing'&&gameSurface(e.target)){e.preventDefault();if(e.target.closest('#bark'))bark();}},{passive:false});
+document.addEventListener('touchend',e=>{if(mode==='playing'&&gameSurface(e.target)){e.preventDefault();if(e.target.closest('#bark')){lastTouchBark=performance.now();bark();}}},{passive:false});
 document.addEventListener('gesturestart',e=>{if(mode==='playing')e.preventDefault();},{passive:false});
 document.addEventListener('gesturechange',e=>{if(mode==='playing')e.preventDefault();},{passive:false});
 document.addEventListener('dblclick',e=>{if(mode==='playing'&&gameSurface(e.target))e.preventDefault();},{passive:false});
-document.addEventListener('keydown',e=>{if(mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)&&!e.target.closest('input,textarea,[contenteditable="true"]')&&!(e.key===' '&&e.target.closest('button'))){e.preventDefault();keys.add(e.key.toLowerCase());if(e.key===' ')bark();}if(e.key==='Escape'){e.preventDefault();menu();}if(e.key==='Tab'&&!$('modal').classList.contains('hidden')){const focusable=[...$('modal-card').querySelectorAll('button:not([disabled])')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+document.addEventListener('keydown',e=>{if(mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)&&!e.target.closest('input,textarea,[contenteditable="true"]')&&!(e.key===' '&&e.target.closest('button'))){e.preventDefault();keys.add(e.key.toLowerCase());if(e.key===' '&&!e.repeat)bark();}if(e.key==='Escape'){e.preventDefault();menu();}if(e.key==='Tab'&&!$('modal').classList.contains('hidden')){const focusable=[...$('modal-card').querySelectorAll('button:not([disabled])')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 window.addEventListener('blur',()=>{resetInput();pointer=null;if(mode==='playing')menu();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')menu();});
 window.addEventListener('resize',()=>renderer?.resize());
-$('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=bark;$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
+$('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=()=>{if(performance.now()-lastTouchBark>500)bark();};$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=toggleSound;
 $('dismiss-tip').onclick=hideTip;
 $('toggle-tip').onclick=()=>{if(mode!=='playing')return;if(!$('tip').classList.contains('hidden')){hideTip();return;}tipDismissed=false;tipManual=true;tipStep=0;tipChangedAt=elapsed;setTip(tipsFor(level.index)[0]);visible('tip',true);$('toggle-tip').setAttribute('aria-expanded','true');$('toggle-tip').setAttribute('aria-label','Hide tips');};
@@ -134,10 +150,10 @@ let mapTick=0,qaFrame;
 function frame(now){
   requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;if(!renderer||!level)return;
   if(mode==='playing'){
-    elapsed+=dt;
+    elapsed+=dt;stepBark(barkState,dt,upgradeEffects(profile.upgrades,level.index+1).barkCharges);
     const ix=keys.has('arrowright')||keys.has('d')?1:keys.has('arrowleft')||keys.has('a')?-1:input.x;
     const iz=keys.has('arrowdown')||keys.has('s')?1:keys.has('arrowup')||keys.has('w')?-1:input.z;
-    const result=stepSimulation(level,dog,{x:ix,z:iz,bark:now<barkUntil},dt,profile.upgrades);
+    const result=stepSimulation(level,dog,{x:ix,z:iz,bark:barkState.burstRemaining>0},dt,profile.upgrades);
     $('saved').textContent=result.saved;
     updateCountdown(result.countdownStarted,result.remaining);
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}else if(event.type==='gateToggled')toast(event.open?'Gate open — guide the flock through.':'Gate closed.');else if(event.type==='gateBlocked')toast('Gate is occupied — let everyone clear it first.');}
@@ -157,6 +173,7 @@ function frame(now){
   renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'||mode==='complete')?dt:0,mode==='intro');
   if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();
   const weather=renderer.nature?.weather||level.weather;if(weather){const [icon,label]=({sun:['☀','Clear skies'],wind:['↝','Breezy'],rain:['☂','Light rain'],'heavy-rain':['☂','Heavy rain'],storm:['ϟ','Thunderstorm']})[weather.kind||weather.type||weather]||['☀','Clear skies'];$('weather-status').textContent=icon;$('weather-status').setAttribute('title',label);$('weather-status').setAttribute('aria-label',label);}
+  if(mode==='playing')audio.updateLivestock?.(dt,{animals:level.animals,listener:dog,level});
   if(mode==='playing')audio.updateAmbience?.(dt,{weather:renderer.nature?.weather||level.weather||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
   mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);}
 }
@@ -181,3 +198,4 @@ if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__){
     qaFrame=()=>qa.update();
   });
 }
+

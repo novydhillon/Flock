@@ -42,6 +42,68 @@ class DeferredContext extends Context {
   }
 }
 
+test('livestock voices use independent clocks, state cadence and immediate bolt calls', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const level = {seed:15};
+    const sheep = {id:0,type:'sheep',x:0,z:0}, cow = {id:1,type:'cow',x:0,z:0};
+    const animals = [sheep,cow], listener = {x:0,z:0};
+    audio.updateLivestock(.01,{level,animals,listener});
+    assert.notEqual(audio.livestockSchedules.get(sheep).remaining, audio.livestockSchedules.get(cow).remaining);
+    audio.livestockSchedules.get(sheep).remaining = 0;
+    audio.updateLivestock(.01,{level,animals,listener});
+    const ordinary = [...audio.livestockSources].at(-1);
+    assert.equal(ordinary.connections[0].gain.value, .14);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 5 && audio.livestockSchedules.get(sheep).remaining <= 10);
+    sheep.wander = {bolting:true};
+    audio.updateLivestock(.01,{level,animals,listener});
+    const bolt = [...audio.livestockSources].at(-1);
+    assert.notEqual(ordinary, bolt);
+    assert.equal(bolt.connections[0].gain.value, .14 * 1.25);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 12);
+    audio.updateLivestock(.01,{level,animals,listener});
+    assert.equal(audio.livestockSources.size, 2, 'held bolt state does not retrigger each frame');
+    assert.notEqual(audio._voiceBuffer('cow'), audio._voiceBuffer('sheep'));
+    assert.equal(audio._voiceBuffer('sheep'), ordinary.buffer, 'species buffer is reused');
+  });
+});
+
+test('livestock calls are bounded, attenuated and canceled on pause or level replacement', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    const level = {}, animals = Array.from({length:100},(_,id)=>({id,type:'cow',x:12,z:0,wander:{bolting:true}}));
+    audio.updateLivestock(.01,{level,animals,listener:{x:0,z:0}});
+    assert.equal(audio.livestockSources.size, 6, 'bolt transitions replace old voices rather than exceeding the voice cap');
+    assert.equal([...audio.livestockSources][0].connections[0].gain.value,.14 * 1.25 / 2);
+    for(const animal of animals)audio.livestockSchedules.get(animal).remaining=0;
+    for(let i=0;i<10;i++)audio.updateLivestock(.1,{level,animals});
+    assert.ok(audio.livestockSources.size<=6);
+    const voices=[...audio.livestockSources];audio.pause();
+    assert.equal(audio.livestockSources.size,0);
+    assert.ok(voices.every(source=>source.disconnected&&source.stops.includes(undefined)));
+    const frozen=audio.livestockSchedules.get(animals[0]).remaining;
+    audio.updateLivestock(.1,{level,animals});
+    assert.equal(audio.livestockSchedules.get(animals[0]).remaining,frozen);
+    audio.resetLivestock({});
+    assert.equal(audio.livestockSchedules.size,0);
+  });
+});
+
+test('dog bark uses a cached finite voiced buffer and mute prevents it', async () => {
+  await withAudio(async audio => {
+    await audio.start();
+    audio.play('bark');
+    const source=[...audio.ambientSources].at(-1);
+    assert.equal(source.buffer,audio._voiceBuffer('bark'));
+    assert.ok(source.stops[0]-source.startTime<.4);
+    audio.setMuted(true);
+    const count=audio.context.sources.length;
+    audio.play('bark');
+    assert.equal(audio.context.sources.length,count);
+    assert.equal(audio.ambientSources.size,0);
+  });
+});
+
 test('shared storm lightning flashes before its paired reverberant thunder starts', async () => {
   await withAudio(async audio => {
     await audio.start();
@@ -445,3 +507,4 @@ test('storm suppresses ambient bird calls even when explicit rain intensity is m
     }
   });
 });
+
