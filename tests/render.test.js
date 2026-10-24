@@ -18,6 +18,7 @@ import {ribbon,roadNetwork,createRoadMaterial,barkSurface} from '../src/surfaces
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
+import {gateButtons,updateGateContacts} from '../src/gates.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
@@ -33,6 +34,34 @@ function setup({width=390,height=844,treeYaw=true}={}){
 }
 
 // P2 adds fixed wildlife anatomy batches and 20 dormant puddle/splash objects.
+test('live gate lamps follow contact state after scenery batching and level replacement',()=>{
+  const renderer=setup();
+  const fixture=material=>{
+    const level=createLevel(0,201),gate={id:'render-contact-gate',x:-7,z:0,width:5,heading:0,material,operable:true,open:false};
+    Object.assign(level,{gates:[gate],animals:[],helpers:[],obstacles:[],rivers:[],fenceSegments:[{a:{x:-32,z:0},b:{x:-9.5,z:0},material},{a:{x:-4.5,z:0},b:{x:30,z:0},material}]});
+    return {level,gate};
+  };
+  for(const material of ['wood','stone']){
+    const {level,gate}=fixture(material),pads=gateButtons(gate),dog={...level.dog,x:-20,z:-10};renderer.setLevel(level);
+    const live=(name)=>{const found=[];renderer.scene.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+    const assertState=(open)=>{
+      assert.equal(gate.open,open);const color=open?'32f56a':'ff382b';
+      const domes=live('gate-button'),halos=live('gate-light-halo');assert.equal(domes.length,2,'both domes remain in the rendered scene after batching');assert.equal(halos.length,2);
+      for(const object of [...domes,...halos]){assert.equal(object.material.color.getHexString(),color);assert.ok(renderer.gateView.getObjectById(object.id),'stateful visual remains in the live gate view');}
+      renderer.scene.traverse(o=>{if(o.isInstancedMesh)assert.ok(!['ff382b','32f56a'].includes(o.material.color?.getHexString()),'no static red/green lamp ghost survives batching');});
+    };
+    assertState(false);renderer.batchScenery();assertState(false);
+    Object.assign(dog,pads[0]);assert.equal(updateGateContacts(level,dog)[0]?.open,true);renderer.update(level,dog,1/60,false);assertState(true);
+    assert.deepEqual(updateGateContacts(level,dog),[],'held contact does not toggle again');renderer.update(level,dog,0,false);assertState(true);
+    Object.assign(dog,{x:-20,z:-10});updateGateContacts(level,dog);
+    level.helpers=[{type:'helper',...pads[1],heading:0}];assert.equal(updateGateContacts(level,dog)[0]?.open,false);renderer.update(level,dog,1/60,false);assertState(false);
+    level.helpers=[];updateGateContacts(level,dog);Object.assign(dog,pads[1]);assert.equal(updateGateContacts(level,dog)[0]?.open,true);renderer.update(level,dog,1/60,false);assertState(true);
+    const dome=live('gate-button')[0],oldMaterial=dome.material,oldGeometry=dome.geometry;let materialDisposals=0,geometryDisposals=0;
+    oldMaterial.addEventListener('dispose',()=>materialDisposals++);oldGeometry.addEventListener('dispose',()=>geometryDisposals++);
+    const restart=fixture(material);renderer.setLevel(restart.level);assert.equal(materialDisposals,1);assert.equal(geometryDisposals,1);
+    assert.ok(!renderer.scene.getObjectById(dome.id),'old lamp is removed on restart');assert.equal(live('gate-button').length,2);assert.ok(live('gate-button').every(o=>o.material.color.getHexString()==='ff382b'),'replacement gate starts visibly red');
+  }
+});
 test('road fade clones preserve glow, weather baselines and once-only replacement disposal',()=>{
   const renderer=setup(),level=createLevel(15,201),baseline=renderer.path.color.clone();renderer.setLevel(level);
   const roads=[];renderer.terrain.traverse(o=>{if(o.isMesh&&o.geometry.attributes.roadOpacity)roads.push(o);});

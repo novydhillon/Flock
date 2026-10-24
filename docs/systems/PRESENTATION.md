@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Stateful scenery batching — F-032, 23 October 2026
+
+Gate lamp domes set `userData.dynamicScenery=true`. `batchScenery` excludes these meshes so `gateView.update` swaps the materials of the actual visible scene objects. The prior optimizer detached opaque red domes into immutable scenery instances while the gate view updated only detached originals; sprites already escaped that mesh-only batch. State transitions now retain original ownership and material disposal. Static housing/highlight meshes can still batch. Validate this through `MeadowRenderer.setLevel` and contact-driven `update`, including both lamp sides and restart; isolated gate-view tests do not cover this boundary.
+
 ## Grass continuity and visible lamps — 23 October 2026 follow-up
 
 The outer ground no longer clones grass with a .72 color multiplier. Ground and angular playable turf share `this.grass`, its wetness snapshots and receiving-glow uniforms. Polygon U matches the surrounding plane; V uses `.5 - (z-centerZ)/depth` to match the plane after its X rotation. Fences and the minimap continue to identify playable boundaries. This supersedes the darker-countryside requirement below.

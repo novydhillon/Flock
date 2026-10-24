@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Dynamic scenery contract — 23 October 2026
+
+Meshes whose owner changes material or pose after level setup must opt out of immutable scenery batching with `userData.dynamicScenery`. Gate lamp domes use this contract so the visible mesh remains under gate-view control after `MeadowRenderer.setLevel`. State remains owned by simulation; renderer batching cannot snapshot a stateful indicator into permanent red scenery.
+
 ## Visual follow-up ownership — 23 October 2026
 
 Gate illumination remains a presentation concern: visible lamp color follows actual gate state, without changing contact, safe closing or navigation. The playable polygon and surrounding ground now share the same grass material, with aligned UVs including the plane's inverted Z/V orientation. This gives both sides the same weather and receiving glow. Physical collision/fences/minimap still own the field boundary. Road join/shared-ending changes stay in presentation geometry; simulation road centerlines and grazing remain authoritative.

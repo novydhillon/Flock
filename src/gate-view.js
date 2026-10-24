@@ -40,7 +40,7 @@ export function createGateView(gates=[]){
       const housing=new THREE.Group();housing.name='gate-switch-panel';housing.position.set(point.x,point.y,point.z);housing.rotation.y=point.heading;group.add(housing);
       const plate=new THREE.Mesh(cube,metal);plate.scale.set(.64,.78,.14);plate.castShadow=plate.receiveShadow=true;housing.add(plate);
       const ring=new THREE.Mesh(lightGeometry,bezel);ring.rotation.x=Math.PI/2;ring.scale.set(1.34,1,1.34);ring.position.set(0,.12,.10);housing.add(ring);
-      const button=new THREE.Mesh(dome,red);button.name='gate-button';button.scale.set(1,1,.8);button.position.set(0,.12,.20);housing.add(button);
+      const button=new THREE.Mesh(dome,red);button.name='gate-button';button.userData.dynamicScenery=true;button.scale.set(1,1,.8);button.position.set(0,.12,.20);housing.add(button);
       const highlight=new THREE.Mesh(dome,hot);highlight.name='gate-light-core';highlight.scale.set(.3,.3,.3);highlight.position.set(-.055,.27,.31);housing.add(highlight);
       const halo=new THREE.Sprite(redHalo);halo.name='gate-light-halo';halo.position.copy(button.position);halo.scale.set(.95,.95,1);housing.add(halo);return {button,halo};
     });

@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Gate-state batching regression — 23 October 2026
+
+In dev, touch a closed gate switch, walk through the open gap and confirm both visible domes/halos turn green; leave the switch, return to close and confirm red. Repeat from each side for wood/stone and restart the level. Check actual rendered lamps after normal scene initialization, rather than a standalone gate-view fixture. Source integration tests inspect live scene membership after scenery batching and real contact transitions; phone color appearance remains a separate observation.
+
 ## Gate visibility and road rounding follow-up — 23 October 2026
 
 Check mounted gate lights at all fence headings from normal gameplay portrait/landscape framing, in sun and rain: a lit red dome when closed and green when open, with the same state on both sides. Check switching by Pip/Buddy, safe refusal and restart. Inspect tight road reversals and multiple starts/endings for rounded outlines and no overlapping/faded junction seam while retaining the accepted terminal fade. Cross the visual field boundary in QA and compare grass color, texture orientation, wetness and glow on both sides; physical crossing still follows world collision. Phone checks remain pending until observed. Barn roof appearance is accepted by Novy on 23 October.

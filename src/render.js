@@ -275,7 +275,9 @@ export class MeadowRenderer{
   }
   batchScenery(){
     this.terrain.updateMatrixWorld(true);const groups=new Map();
-    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.userData.treeWidth!==undefined?'treeWood':o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
+    // Stateful meshes must remain attached to their owner; static batches
+    // cannot follow later material swaps such as red/green gate indicators.
+    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.dynamicScenery||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.userData.treeWidth!==undefined?'treeWood':o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
     for(const pieces of groups.values()){
       if(pieces.length<2&&pieces[0].userData.treeWidth===undefined)continue;const first=pieces[0],wood=first.userData.treeWidth!==undefined;
       const geometry=wood?first.geometry.clone():first.geometry;
