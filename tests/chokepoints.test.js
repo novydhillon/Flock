@@ -178,13 +178,23 @@ test('delivered animals and fresh levels carry no crossing state', () => {
 });
 
 test('large-herd levels leave room between the last bridge and the gate', () => {
+  let checked=0,gateFree=0;
   for (const index of [5, 9, 12, 14, 15, 17, 20, 30, 45, 70, 99]) for (const seed of [undefined, 1001, 1002]) {
-    const level = createLevel(index, seed), route = level.routes[0], gate = level.gates[0];
-    const bridges = level.rivers.flatMap(r => r.bridges).filter(b => route.points.some(p => distance(p, b) < 1));
-    const at = p => routeProgress(level, p, route.id).progress;
-    const last = bridges.map(b => ({ b, u: at(b) })).filter(x => x.u < at(gate)).sort((x, y) => y.u - x.u)[0];
-    const gap = at(gate) - last.u - last.b.length / 2;
-    assert.ok(gap >= 26, `level ${index + 1} seed ${seed}: ${gap.toFixed(1)}m from bridge exit to gate`);
+    const level = createLevel(index, seed);
+    if(!level.gates.length)gateFree++;
+    for(const gate of level.gates){
+      const route=level.routes.find(r=>r.points.some(p=>p.kind==='gate'&&distance(p,gate)<.001));
+      assert.ok(route,`panel ${gate.id} has a matching route`);
+      const bridges = level.rivers.flatMap(r => r.bridges).filter(b => route.points.some(p => distance(p, b) < 1));
+      const at = p => routeProgress(level, p, route.id).progress;
+      const last = bridges.map(b => ({ b, u: at(b) })).filter(x => x.u < at(gate)).sort((x, y) => y.u - x.u)[0];
+      assert.ok(last,`panel ${gate.id} has an upstream crossing`);
+      const gap = at(gate) - last.u - last.b.length / 2;
+      assert.ok(gap >= 26, `level ${index + 1} seed ${seed} ${gate.id}: ${gap.toFixed(1)}m from bridge exit to gate`);
+      checked++;
+    }
   }
+  assert.ok(checked>=25,'spacing covers a substantial sample of actual panels and early open gaps');
+  assert.ok(gateFree>0,'the sample includes generated gate-free meadows');
   assert.ok(distance(createLevel(2).spawn, createLevel(2).rivers[0].bridges[0]) < 30, 'early lessons keep their compact layout');
 });

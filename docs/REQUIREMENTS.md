@@ -1,5 +1,38 @@
 # Flock product requirements
 
+## Map-generation sign-off — 24 October 2026
+
+Novy explicitly accepted all changes from this map-generation work: F-031/F-032/F-034/F-038/F-UI-013/F-VIS-002/F-VIS-003 are Done and archived; F-VIS-001 barn acceptance was already recorded. This includes final gate-light batching correction `00bdda0`, manually deployed by Novy to dev. Historical pending-review statements below are superseded. Production merge/publication remains separate.
+
+## Live gate-state lamp synchronization — 23 October 2026
+
+F-032 must keep the rendered lamp domes and halos synchronized after full renderer scenery batching: red closed, green open, on both sides. IMG_8440 demonstrates that standalone gate-view state tests did not establish this integration contract. Verify real contact, live scene membership, repeated transitions and level replacement; preserve safe closing and existing illumination. Fix and dev deployment continue under the authorized gate follow-up.
+
+## Gate illumination, grass continuity and rounded junctions — 23 October 2026
+
+Novy accepts the barn fix (F-VIS-001) and existing path terminal fade. F-032 follow-up must make mounted indicator lights visibly illuminated from the gameplay camera, red when closed and green when open (IMG_8438/8439.jpeg). F-VIS-002 extends rounding to near-reversals and multiple roads ending together (IMG_8436.jpeg), preserving the accepted terminal fade. F-VIS-003 requires matching grass color/texture/wetness/glow inside and outside playable fields (IMG_8437.jpeg), preserving physical boundaries. Work and dev deployment are authorized on `map_generation_improvements`; new appearance acceptance remains pending. These requirements supersede the contrasting darker countryside and insufficient vertical-only indicator presentation.
+
+## Gate panels, barn cutaway and path terminals — 23 October 2026
+
+F-032 follow-up replaces ground gate pads with vertical switch panels attached to the fence or wall beside the opening, on both approaches. Each has a visible indicator light: red when closed, green when open, synchronized to actual gate state. Pip and an active Buddy can activate a panel by contact, without automatic gate-seeking. Preserve debounce, occupied closing refusal and collision/navigation/minimap cache updates. This supersedes earlier Pip-only ground-pad instructions.
+
+F-VIS-001 fixes inconsistent barn-roof transparency visible in IMG_8435.jpeg. The occupied barn's entire pitched roof and camera-facing walls retain the accepted 0.7 opacity without stacked or backface bands. Preserve opaque restoration, pause, collision and resource ownership. F-VIS-002 gives road cores and shoulders rounded terminal shapes with a gradual fade into grass while preserving opaque-depth behavior, shared route geometry, water/bridges and barn floors. These are Review candidates on `map_generation_improvements`: 415 regressions and both checked builds pass; independent review is 8/10 with no material source blocker and a persistent rendered/device evidence limit, below the usual 9/10 gate. User appearance/gameplay acceptance and new dev publication remain pending.
+
+## Map layout follow-up and F-UI-013 camera — 22 October 2026
+
+On `map_generation_improvements`, extend F-038 with goals in either L offshoot and U/Z/other angular layouts that require the flock to go around corners. Add denser trees and groves in large starter fields from public level 60, while retaining clear routes, spawns and helper movement. Increase river-to-fence spacing and vary rivers with stronger meanders on some levels. Keep the early teaching levels intact. F-UI-013 keeps Pip near screen center in every travel direction, independent of distant flock/goal positions, while preserving intro framing and pause behavior. This follow-up is a Review source candidate; the previously published dev build remains `ed7a2cb` until an explicitly recorded replacement deployment.
+
+## Map generation improvements — 22 October 2026
+
+Current work on `map_generation_improvements`, based on main `f5301a4fd8cf3fc6110bb692b1f0978145a4e594`, covers F-031, F-032, F-034 and F-038. This section supersedes older statements that gate closing is unrequested or every late map must have gates. All four items are Review as source candidates; combined checked build and independent review are pending. No development publication, production merge or user acceptance is claimed.
+
+- **F-038:** progressively larger, less-linear levels with routes in multiple directions across fields, rivers and tree clusters. Later fields and overall maps may be nonrectangular, including L shapes and other angular, nonorganic layouts. The playable boundary, fence, ground and minimap must agree. The minimap may scroll with Pip and show a local portion of a large/nonrectangular map; retain destination guidance and clip offscreen content to the map frame. Routes must fit the largest cows and helpers and preserve early teaching/crossing regressions. Evaluate later layouts with helpers; geometry alone does not establish difficulty or fun.
+- **F-031:** public levels below 20 have no operable gates. At level 20 onward, seeded generation mixes gated and gate-free maps; some gated maps provide a complete body-clear route with no panel to operate. Open route gaps remain physical openings even when a gate panel is omitted.
+- **F-032:** place reachable ground buttons on both sides of each operable gate. Pip touching either toggles the same panel; both show red when closed and green when open. Avoid repeated toggles while Pip remains touching a pad, refuse closing through an occupied panel and keep collision/navigation/minimap synchronized. Helpers do not activate buttons; movement works through existing touch and keyboard input without a second thumb.
+- **F-034:** use an independent seeded 15% stone-wall choice per level, replacing the fixed every-fourth-level rule. Preserve the accepted dry-stone appearance, physical thickness and route openings.
+
+Exact gate distribution, field-growth and layout-shape weights are implementation tuning choices to review; only the 15% stone-wall probability is user-specified. Saved progress, unlocks, scoring and player-attended delivery are preserved. Implemented work remains Review until Novy's sign-off.
+
 ## F-OPS-001 — Standard delivery automation
 
 Accepted by Novy on 19 October 2026, 14:47 America/Creston. The closed tracker holds the acceptance record.
@@ -210,14 +243,14 @@ Status: the original P0/P1 batch and F-028 remain accepted for their deployed bu
 | F-026 | P3 | Pause-menu Quit returns to the landing page while preserving saved progress. | Open; distinct from Restart Game. In-progress-meadow resume policy unresolved. |
 | F-027 | P2 | Wildlife may cross fences and leave/reenter the game area. | Done: accepted 15 October 2026 at approximately 10:56 America/Vancouver for Pages `cc13865`, source `b1fdac3`. | `wildlife.js` uses a fence-permeable occupancy view and permits ambient fauna up to .45 units outside the bounds; water, trees, barn walls and stone walls remain solid. Robotic gameplay actors remain behind fences, stone walls, closed gates and map limits. |
 | F-030 | P3 | Lighter, more contrasting water waves. | Open | New request; F-004 acceptance does not include this enhancement. |
-| F-031 | P2 | Gates on some, not all, levels 20+; some gate levels have an ungated alternative. | Open | New request; retain accepted F-006 gate interaction. |
-| F-032 | P3 | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates. | Open | New request; coordinate with F-031 and F-006. |
+| F-031 | P2 | Gates on some, not all, levels 20+; some gate levels have an ungated alternative. | Review | New request; retain accepted F-006 gate interaction. |
+| F-032 | P3 | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates. | Review | New request; coordinate with F-031 and F-006. |
 | F-033 | P2 | Photo-referenced claymation English dry-stone walls: irregular weathered hand-laid stones, no mortar, uneven coping, restrained moss/lichen staining. | Done: Novy signed off 16 October 2026 at 14:00 America/Vancouver, Pages `29f48f3`, source `1941302`. | Three shared sculpted shapes, matte warm-grey per-instance color, tapered courses; physical strip/openings unchanged. User acceptance recorded; no independent phone FPS measurement. F-007 remains Done. |
-| F-034 | P3 | Seeded 15% stone-wall chance per level, replacing fixed four-level sequence. | Open | New generation request; depends on F-033. |
+| F-034 | P3 | Seeded 15% stone-wall chance per level, replacing fixed four-level sequence. | Review | New generation request; depends on F-033. |
 | F-035 | P2 | Baseline bolts 3-5s; public40-69 4-6s,70+5-10s. | **Done** | Seeded durations, pause/restart and interruption checks implemented. |
 | F-036 | P3 | Unattended flock spreads across field. | Open | New behavior, separate from straggler behavior F-012 and saved roaming F-028. |
 | F-037 | P2 | Per-level cap floor(20% of current undelivered animals), no cross-level memory. | **Done** | Seeded ranking refreshes after delivery; saved/herded animals excluded from excursions. |
-| F-038 | P2 | Progressively larger multi-directional, less-linear levels over fields/rivers/tree clusters; body clearance, no stuck animals, later difficulty accounts for helpers. | Open | Preserve F-005 and accepted F-006 navigation. |
+| F-038 | P2 | Progressively larger multi-directional, less-linear levels over fields/rivers/tree clusters; body clearance, no stuck animals, later difficulty accounts for helpers. | Review | Preserve F-005 and accepted F-006 navigation. |
 | F-039 | P2 | Independent 5-8s checks; 33% early,20% at41-70,25% at71+ wander odds; conditional bolt10% early,20% at41+. | **Done** | New user clarification supersedes former30%/50% ambiguity. See current revision table. |
 | F-040 | P1 | Remove all snow; select a fixed weather type once per level. Public level 9 starts light rain; later levels may become heavier. Public levels 16 and 24 are guaranteed heavy-rain/storm QA fixtures. Their use as permanent unlock thresholds and the seeded selection weights remain provisional tuning choices. | **Done**, user accepted 15 October 2026 at 16:34 Vancouver. | Implemented fixed kinds, no snow, public 9/16/24 QA anchors and seeded other-level selection. Later unlock numbers and weights remain tunable source choices; the current weather build was accepted on 15 October 2026 at 16:34 Vancouver. |
 | F-041 | P2 | Wanderers/bolters settle locally until actively herded. | **Done** | Cohesion/alignment suppressed; calm roaming within3m, collision/player/helper/delivery regressions implemented. |

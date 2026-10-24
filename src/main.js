@@ -1,6 +1,4 @@
 import './style.css';
-import './gates.css';
-import { createGateControl } from './gates.js';
 import '@fontsource/outfit/latin-600.css';
 import '@fontsource/outfit/latin-700.css';
 import '@fontsource/outfit/latin-900.css';
@@ -16,7 +14,6 @@ import { canOccupy } from './world.js';
 const $=id=>document.getElementById(id);
 let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkUntil=0,barkCooldown=0,tipStep=0,tipDismissed=false,tipChangedAt=0,tipManual=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
-const gateControl=createGateControl({document,getState:()=>({level,dog,playing:mode==='playing'}),onOpen:()=>toast('Gate open — guide the flock through.')});
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
 let qaSession=false;
 const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
@@ -143,7 +140,7 @@ function frame(now){
     const result=stepSimulation(level,dog,{x:ix,z:iz,bark:now<barkUntil},dt,profile.upgrades);
     $('saved').textContent=result.saved;
     updateCountdown(result.countdownStarted,result.remaining);
-    for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}}
+    for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}else if(event.type==='gateToggled')toast(event.open?'Gate open — guide the flock through.':'Gate closed.');else if(event.type==='gateBlocked')toast('Gate is occupied — let everyone clear it first.');}
     updateBark(now);
     if(!tipDismissed){
       const dwell=tipManual||level.index!==0||tipStep>0?TIP_CYCLE:5;
@@ -156,7 +153,7 @@ function frame(now){
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
-  updateLevelIntroduction();gateControl.update();
+  updateLevelIntroduction();
   renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'||mode==='complete')?dt:0,mode==='intro');
   if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();
   const weather=renderer.nature?.weather||level.weather;if(weather){const [icon,label]=({sun:['☀','Clear skies'],wind:['↝','Breezy'],rain:['☂','Light rain'],'heavy-rain':['☂','Heavy rain'],storm:['ϟ','Thunderstorm']})[weather.kind||weather.type||weather]||['☀','Clear skies'];$('weather-status').textContent=icon;$('weather-status').setAttribute('title',label);$('weather-status').setAttribute('aria-label',label);}

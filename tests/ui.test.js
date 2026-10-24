@@ -498,17 +498,18 @@ test('Restart Game erases both score and earned-bolt ledgers from an in-progress
   assert.equal(ui.el('countdown').textContent,'');assert.ok(ui.el('countdown').classList.contains('hidden'));
 });
 
-test('production controller exposes a nearby gate action without barking and restarts with fresh closed panels',async()=>{
-  const ui=launch({highestLevel:19});await ui.click('play');
-  const state=ui.app.state(),gate=state.level.gates[0],f={x:Math.sin(gate.heading),z:Math.cos(gate.heading)};
-  Object.assign(state.dog,{x:gate.x-f.x*2,z:gate.z-f.z*2});ui.tick();
-  assert.equal(ui.el('open-gate').disabled,false);
+test('production movement presses ground gate buttons without barking and restart restores panels',async()=>{
+  const gatedIndex=Array.from({length:81},(_,i)=>19+i).find(i=>worldAPI.createLevel(i).gates.some(g=>g.operable));
+  const ui=launch({highestLevel:gatedIndex});await ui.click('play');
+  const state=ui.app.state(),gate=state.level.gates.find(g=>g.operable),pads=gatesAPI.gateButtons(gate);
   const barks=ui.audioEvents.filter(e=>e==='bark').length;
-  await ui.click('open-gate');assert.equal(gate.open,true);
+  Object.assign(state.dog,pads[0]);ui.tick();assert.equal(gate.open,true);
+  ui.tick();assert.equal(gate.open,true,'remaining on a pad does not toggle twice');
+  Object.assign(state.dog,state.level.spawn);ui.tick();Object.assign(state.dog,pads[1]);ui.tick();assert.equal(gate.open,false);
   assert.equal(ui.audioEvents.filter(e=>e==='bark').length,barks);
   await ui.click('bark');assert.equal(ui.audioEvents.filter(e=>e==='bark').length,barks+1);
   await ui.click('pause');await ui.click('restart');
-  assert.ok(ui.app.state().level.gates.every(g=>g.operable&&!g.open));
+  assert.ok(ui.app.state().level.gates.every(g=>g.operable&&!g.open&&!g.buttonContact));
 });
 
 

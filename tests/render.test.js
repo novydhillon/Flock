@@ -8,16 +8,17 @@ import * as THREE from 'three';
 import * as models from '../src/models.js';
 import {animalScale} from '../src/animal-size.js';
 import {createLevel} from '../src/simulation.js';
-import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment} from '../src/world.js';
+import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment,canOccupy} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
 import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
 import {WaterEffects} from '../src/water-effects.js';
 import {MeadowNature} from '../src/nature.js';
-import {ribbon,barkSurface} from '../src/surfaces.js';
+import {ribbon,roadNetwork,createRoadMaterial,barkSurface} from '../src/surfaces.js';
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
+import {gateButtons,updateGateContacts} from '../src/gates.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
@@ -27,13 +28,106 @@ function setup({width=390,height=844,treeYaw=true}={}){
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
 
 // P2 adds fixed wildlife anatomy batches and 20 dormant puddle/splash objects.
+test('live gate lamps follow contact state after scenery batching and level replacement',()=>{
+  const renderer=setup();
+  const fixture=material=>{
+    const level=createLevel(0,201),gate={id:'render-contact-gate',x:-7,z:0,width:5,heading:0,material,operable:true,open:false};
+    Object.assign(level,{gates:[gate],animals:[],helpers:[],obstacles:[],rivers:[],fenceSegments:[{a:{x:-32,z:0},b:{x:-9.5,z:0},material},{a:{x:-4.5,z:0},b:{x:30,z:0},material}]});
+    return {level,gate};
+  };
+  for(const material of ['wood','stone']){
+    const {level,gate}=fixture(material),pads=gateButtons(gate),dog={...level.dog,x:-20,z:-10};renderer.setLevel(level);
+    const live=(name)=>{const found=[];renderer.scene.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+    const assertState=(open)=>{
+      assert.equal(gate.open,open);const color=open?'32f56a':'ff382b';
+      const domes=live('gate-button'),halos=live('gate-light-halo');assert.equal(domes.length,2,'both domes remain in the rendered scene after batching');assert.equal(halos.length,2);
+      for(const object of [...domes,...halos]){assert.equal(object.material.color.getHexString(),color);assert.ok(renderer.gateView.getObjectById(object.id),'stateful visual remains in the live gate view');}
+      renderer.scene.traverse(o=>{if(o.isInstancedMesh)assert.ok(!['ff382b','32f56a'].includes(o.material.color?.getHexString()),'no static red/green lamp ghost survives batching');});
+    };
+    assertState(false);renderer.batchScenery();assertState(false);
+    Object.assign(dog,pads[0]);assert.equal(updateGateContacts(level,dog)[0]?.open,true);renderer.update(level,dog,1/60,false);assertState(true);
+    assert.deepEqual(updateGateContacts(level,dog),[],'held contact does not toggle again');renderer.update(level,dog,0,false);assertState(true);
+    Object.assign(dog,{x:-20,z:-10});updateGateContacts(level,dog);
+    level.helpers=[{type:'helper',...pads[1],heading:0}];assert.equal(updateGateContacts(level,dog)[0]?.open,false);renderer.update(level,dog,1/60,false);assertState(false);
+    level.helpers=[];updateGateContacts(level,dog);Object.assign(dog,pads[1]);assert.equal(updateGateContacts(level,dog)[0]?.open,true);renderer.update(level,dog,1/60,false);assertState(true);
+    const dome=live('gate-button')[0],oldMaterial=dome.material,oldGeometry=dome.geometry;let materialDisposals=0,geometryDisposals=0;
+    oldMaterial.addEventListener('dispose',()=>materialDisposals++);oldGeometry.addEventListener('dispose',()=>geometryDisposals++);
+    const restart=fixture(material);renderer.setLevel(restart.level);assert.equal(materialDisposals,1);assert.equal(geometryDisposals,1);
+    assert.ok(!renderer.scene.getObjectById(dome.id),'old lamp is removed on restart');assert.equal(live('gate-button').length,2);assert.ok(live('gate-button').every(o=>o.material.color.getHexString()==='ff382b'),'replacement gate starts visibly red');
+  }
+});
+test('road fade clones preserve glow, weather baselines and once-only replacement disposal',()=>{
+  const renderer=setup(),level=createLevel(15,201),baseline=renderer.path.color.clone();renderer.setLevel(level);
+  const roads=[];renderer.terrain.traverse(o=>{if(o.isMesh&&o.geometry.attributes.roadOpacity)roads.push(o);});
+  assert.ok(roads.length>=2);const materials=new Set(roads.map(o=>o.material));assert.equal(materials.size,2);
+  for(const material of materials){
+    assert.notEqual(material,renderer.path);assert.notEqual(material,renderer.pathShoulder);
+    const shader={uniforms:{},vertexShader:'#include <begin_vertex>\n#include <project_vertex>',fragmentShader:'#include <emissivemap_fragment>\n#include <alphahash_fragment>'};material.onBeforeCompile(shader);
+    assert.ok(shader.uniforms.pipGlowCenters);assert.match(shader.fragmentShader,/vRoadOpacity/);
+  }
+  const core=roads.find(o=>o.material.map===renderer.path.map).material;
+  assert.ok(renderer.waterEffects.materialSnapshots.some(s=>s.material===core));
+  const counts=new Map([...materials].map(m=>[m,0]));for(const m of materials)m.addEventListener('dispose',()=>counts.set(m,counts.get(m)+1));
+  renderer.path.color.set('#000000');renderer.setLevel(createLevel(0,201));
+  assert.ok(renderer.path.color.distanceTo?renderer.path.color.distanceTo(baseline)<1e-6:renderer.path.color.equals(baseline));
+  for(const count of counts.values())assert.equal(count,1);
+});
 // Object count includes hidden pool slots; submitted draw budget remains 170.
+test('angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
+  const renderer=setup(),level=createLevel(69,201);renderer.setLevel(level);
+  const meadow=renderer.terrain.getObjectByName('playable-meadow');assert.ok(meadow);
+  const ground=renderer.terrain.children.find(o=>o.isMesh&&o.geometry.type==='PlaneGeometry'&&o.material===renderer.grass);assert.ok(ground);
+  assert.equal(meadow.material,ground.material,'field and surrounding grass share color, wetness and glow');
+  const uv=meadow.geometry.attributes.uv,mp=meadow.geometry.attributes.position;
+  for(let i=0;i<mp.count;i++){
+    assert.ok(Math.abs(uv.getX(i)-((mp.getX(i)-ground.position.x)/ground.geometry.parameters.width+.5))<1e-6);
+    assert.ok(Math.abs(uv.getY(i)-(.5-(mp.getZ(i)-ground.position.z)/ground.geometry.parameters.height))<1e-6);
+  }
+  const shader={uniforms:{},vertexShader:'#include <project_vertex>',fragmentShader:'#include <emissivemap_fragment>'};ground.material.onBeforeCompile(shader);assert.ok(shader.uniforms.pipGlowCenters);
+  const polygonArea=Math.abs(level.boundary.reduce((sum,p,i)=>{const q=level.boundary[(i+1)%level.boundary.length];return sum+p.x*q.z-q.x*p.z;},0))/2;
+  const g=meadow.geometry,p=g.attributes.position,indices=g.index;let triangleArea=0;
+  for(let i=0;i<indices.count;i+=3){const [a,b,c]=[0,1,2].map(j=>indices.getX(i+j));triangleArea+=Math.abs((p.getX(b)-p.getX(a))*(p.getZ(c)-p.getZ(a))-(p.getZ(b)-p.getZ(a))*(p.getX(c)-p.getX(a)))/2;}
+  assert.ok(Math.abs(triangleArea-polygonArea)<.05,'turf has exactly the playable polygon area, with no filled cutout');
+  assert.ok(g.attributes.normal.getY(0)>.99,'turf faces upward');
+  let disposed=false;g.addEventListener('dispose',()=>disposed=true);renderer.setLevel(createLevel(0));assert.ok(disposed);
+});
+
+test('minimap clips features to the shared concave playable boundary and restores the canvas',()=>{
+  const renderer=setup(),level=createLevel(0);
+  level.boundary=[{x:-32,z:-24},{x:30,z:-24},{x:30,z:4},{x:6,z:4},{x:6,z:24},{x:-32,z:24}];
+  const operations=[];let path=[];
+  const ctx={save(){operations.push('save');},restore(){operations.push('restore');},
+    fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},
+    closePath(){path.push('close');},fill(){},stroke(){},arc(){},clip(){operations.push([...path]);}};
+  renderer.drawMap({width:240,height:160,getContext:()=>ctx},level,level.dog);
+  assert.equal(operations[0],'save');assert.equal(operations.at(-1),'restore');
+  const clipped=operations[1];assert.equal(clipped.length,7);assert.equal(clipped.at(-1),'close');
+  level.boundary.forEach((p,i)=>assert.deepEqual(clipped[i],[8+(p.x+32)/62*224,8+(p.z+24)/48*144]));
+});
+
+test('large minimaps follow Pip at stable local scale and clamp the viewport at the world edge',()=>{
+  const renderer=setup(),level=createLevel(0);
+  level.bounds={minX:-200,maxX:200,minZ:-200,maxZ:200};level.boundary=null;
+  level.animals=[{x:0,z:0,type:'sheep'}];level.rivers=[];level.roads=[];level.fenceSegments=[];
+  const dots=[];let circle;let saved=0,restored=0,clips=0;
+  const ctx={save(){saved++;},restore(){restored++;},rect(){},clip(){clips++;},fillRect(){},beginPath(){},
+    moveTo(){},lineTo(){},closePath(){},stroke(){},arc(x,y,r){circle={x,y,r};},
+    fill(){if(circle)dots.push({...circle,color:this.fillStyle});circle=null;}};
+  const draw=dog=>{dots.length=0;renderer.drawMap({width:240,height:160,getContext:()=>ctx},level,dog);return dots.map(d=>({...d}));};
+  const first=draw({x:0,z:0}),next=draw({x:20,z:0}),edge=draw({x:195,z:195});
+  const pip=points=>points.find(p=>p.color==='#ffd166'),sheep=points=>points.find(p=>p.color==='#fff8e7');
+  assert.equal(pip(first).x,pip(next).x);assert.equal(pip(next).x,120);
+  assert.ok(Math.abs(sheep(first).x-sheep(next).x-24)<1e-8,'fixed world marker scrolls at 1.2 pixels per metre');
+  assert.ok(pip(edge).x>120&&pip(edge).x<232);assert.ok(pip(edge).y>80&&pip(edge).y<152);
+  assert.equal(saved,3);assert.equal(restored,3);assert.equal(clips,3);
+});
+
 test('destination introduction shrinks, fades on gameplay time and resets with each level',()=>{
   const renderer=setup(),level=createLevel(0),dog={...level.dog};renderer.setLevel(level);
   assert.equal(renderer.destinationSign.scale.x,4.5);
@@ -215,10 +309,57 @@ test('trees have deterministic independent full-yaw rotations in both placement 
   assert.deepEqual(first.trees.map(({yaw,...pose})=>pose),withoutYaw.trees.map(({yaw,...pose})=>pose),'tree positions/scales remain identical with yaw disabled');
 });
 
+test('barn roof is one pitched clay sheet with complete coverage and no stacked transparent faces',()=>{
+  for(const heading of [0,.7,Math.PI/2]){
+    const renderer=setup(),level=createLevel(2);level.target.heading=heading;renderer.setLevel(level);
+    const roofs=renderer.cutaway.parts.filter(p=>p.mesh.userData.coverKind==='roof');
+    assert.equal(roofs.length,1,'the roof has a single surface and material');
+    const roof=roofs[0].mesh,g=roof.geometry,p=g.attributes.position,index=g.index;
+    assert.equal(roof.material.side,THREE.FrontSide,'no second backface pass');
+    assert.equal(roof.material.map,renderer.materials.roof.map,'clay texture is retained');
+    const extent=targetFootprint(level.target).halfLength+.3,edges=new Map();let area=0;
+    for(let i=0;i<index.count;i+=3){
+      const ids=[0,1,2].map(j=>index.getX(i+j)),[a,b,c]=ids.map(v=>new THREE.Vector3().fromBufferAttribute(p,v));
+      const normal=new THREE.Vector3().subVectors(b,a).cross(new THREE.Vector3().subVectors(c,a));
+      assert.ok(normal.y>0,'every roof triangle faces upward');area+=normal.y/2;
+      for(let j=0;j<3;j++){const key=[ids[j],ids[(j+1)%3]].sort((a,b)=>a-b).join(':');edges.set(key,(edges.get(key)||0)+1);}
+    }
+    assert.ok(Math.abs(area-4*extent*extent)<.0001,'projected area contains neither gaps nor overlap');
+    for(const [edge,count] of edges){
+      assert.ok(count===1||count===2,'the sheet has no duplicate faces');
+      if(count===1){const [a,b]=edge.split(':').map(Number);
+        assert.ok((Math.abs(p.getX(a))===Math.abs(p.getX(b))&&Math.abs(Math.abs(p.getX(a))-extent)<1e-5)||
+          (p.getZ(a)===p.getZ(b)&&Math.abs(Math.abs(p.getZ(a))-extent)<1e-5),'only eaves and gable ends are open edges');}
+    }
+    roof.updateMatrixWorld(true);
+    // Sample both slopes, ridge and every groove/board row, using downward and
+    // oblique camera-like sightlines. Coincident triangle-edge hits count once.
+    const zs=[...new Set(Array.from({length:p.count},(_,i)=>p.getZ(i)))];
+    const directions=[[0,-1,0],[.35,-1,.6],[-.35,-1,-.6]].map(v=>new THREE.Vector3(...v).normalize());
+    for(const row of zs.slice(1,-1))for(const x of [-extent*.97,-extent*.47,.001,extent*.47,extent*.97]){
+      // Keep numerical ray intersections just off triangle edges; shared edge
+      // topology above checks the exact seams without floating-point ray ties.
+      const z=row+.001,localProbe=new THREE.Raycaster(new THREE.Vector3(x,30,z),new THREE.Vector3(0,-1,0));
+      const localRoof=new THREE.Mesh(g,roof.material),surface=localProbe.intersectObject(localRoof)[0]?.point;
+      assert.ok(surface,'the whole footprint, including grooves and ridge, has a roof');
+      const world=surface.clone().applyMatrix4(roof.matrixWorld);
+      for(const direction of directions){
+        const worldDirection=direction.clone().transformDirection(roof.matrixWorld);
+        const ray=new THREE.Raycaster(world.clone().addScaledVector(worldDirection,-40),worldDirection);
+        const hits=ray.intersectObject(roof),depths=new Set(hits.map(h=>h.distance.toFixed(4)));
+        assert.equal(depths.size,1,`one alpha layer at heading ${heading}, x ${x}, z ${z}, direction ${direction.toArray()}`);
+        assert.ok(hits[0].point.distanceTo(world)<1e-4);
+      }
+    }
+  }
+});
+
 test('actual barn panels reveal Pip and dispose their private materials on level replacement',()=>{
   const renderer=setup(),level=createLevel(2),target=level.target;
   const collision=JSON.stringify(level.fenceSegments);renderer.setLevel(level);
   const controller=renderer.cutaway;
+  const roofPart=controller.parts.find(p=>p.mesh.userData.coverKind==='roof');
+  assert.equal(roofPart.mesh.castShadow,true,'opaque roof casts its normal shadow');
   assert.ok(controller.parts.length>12,'complete roof and segmented walls exist');
   level.dog.x=target.x;level.dog.z=target.z;
   for(let i=0;i<60;i++)renderer.update(level,level.dog,1/60);
@@ -226,10 +367,16 @@ test('actual barn panels reveal Pip and dispose their private materials on level
   assert.ok(controller.parts.some(p=>p.material.opacity===1),'unrelated structure stays opaque');
   assert.equal(JSON.stringify(level.fenceSegments),collision,'visibility never changes collision');
   assert.equal(renderer.materials.barn.opacity,1);assert.equal(renderer.materials.roof.opacity,1);
-  const count=controller.parts.length;let disposed=0;
+  assert.equal(roofPart.material.opacity,.7);assert.equal(roofPart.material.depthWrite,false);assert.equal(roofPart.mesh.castShadow,false);
+  controller.update(renderer.camera,[],0);assert.equal(roofPart.material.opacity,.7,'pause freezes the complete roof fade');
+  for(let i=0;i<60;i++)controller.update(renderer.camera,[],1/60);
+  assert.equal(roofPart.material.opacity,1);assert.equal(roofPart.material.transparent,false);
+  assert.equal(roofPart.material.depthWrite,true);assert.equal(roofPart.mesh.castShadow,true,'empty barn restores its roof shadow');
+  const count=controller.parts.length;let disposed=0,geometryDisposed=0;
   for(const part of controller.parts)part.material.addEventListener('dispose',()=>disposed++);
+  roofPart.mesh.geometry.addEventListener('dispose',()=>geometryDisposed++);
   renderer.setLevel(createLevel(0));
-  assert.equal(disposed,count);assert.equal(controller.disposed,true);assert.equal(renderer.cutaway,null);
+  assert.equal(disposed,count);assert.equal(geometryDisposed,1);assert.equal(controller.disposed,true);assert.equal(renderer.cutaway,null);
 });
 
 test('portrait camera keeps Pip visible when helpers move the flock far away',()=>{
@@ -240,6 +387,22 @@ test('portrait camera keeps Pip visible when helpers move the flock far away',()
   const position=new THREE.Vector3(dog.x,.5,dog.z).project(renderer.camera);
   assert.ok(Math.abs(position.x)<.8,`Pip stays within screen margins: ${position.x}`);
   assert.ok(Math.abs(position.y)<.8);
+});
+
+test('camera keeps Pip near screen center in every travel direction and aspect',()=>{
+  for(const viewport of [{width:390,height:844},{width:844,height:390}]){
+    const renderer=setup(viewport),level=createLevel(0),dog={...level.dog};renderer.setLevel(level);
+    // Rendering follows the controlled actor even across a level jump or a
+    // flock far away. Project through the real Three.js camera, not a stub.
+    for(const animal of level.animals){animal.x=500;animal.z=-500;}
+    for(const [dx,dz] of [[12,0],[-12,0],[0,12],[0,-12],[9,9],[-9,-9]]){
+      for(let frame=0;frame<8;frame++){
+        dog.x+=dx;dog.z+=dz;renderer.update(level,dog,1/60,false);renderer.camera.updateMatrixWorld(true);
+        const p=new THREE.Vector3(dog.x,.5,dog.z).project(renderer.camera);
+        assert.ok(Math.abs(p.x)<.13&&Math.abs(p.y)<.16,`Pip centered ${viewport.width}x${viewport.height} ${dx}/${dz}: ${p.x},${p.y}`);
+      }
+    }
+  }
 });
 
 test('Pip ground glow shades receiving surfaces rather than hovering meshes',()=>{
@@ -425,6 +588,7 @@ test('wide maps allocate a bounded detail budget beside winding routes with clea
     assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650);
     for(const p of renderer.meadowDetails){
       const padding=p.kind==='flower'?1:.4;
+      assert.ok(canOccupy(level,p.x,p.z,padding),'detail footprint stays inside the playable polygon');
       for(const river of level.rivers)assert.ok(lineDistance(p,river.points)>=river.width/2+padding+.5);
       for(const road of level.roads)assert.ok(lineDistance(p,road.points)>=road.width/2+padding+.35);
       for(const fence of level.fenceSegments)assert.ok(distance(p,fence.a,fence.b)>=padding+.7);
@@ -532,12 +696,15 @@ test('actual target meshes and map show the shared rectangle across every enclos
     const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,2,admitted.z),new THREE.Vector3(0,-1,0));
     assert.ok(ray.intersectObject(renderer.goal).length,'admitted cow corner is visibly inside goal');
     let path=[],fills=[];
-    const ctx={fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
+    const ctx={save(){},restore(){},rect(){},clip(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
     const canvas={width:240,height:160,getContext:()=>ctx};renderer.drawMap(canvas,level,level.dog);
     const mapGoal=fills.find(p=>p.color==='#f9e7a2');
     assert.ok(mapGoal,'minimap draws target');assert.equal(mapGoal.path.length,5);assert.equal(mapGoal.path[4],'close');
+    const viewW=Math.min(level.bounds.maxX-level.bounds.minX,120*224/144),viewD=Math.min(level.bounds.maxZ-level.bounds.minZ,120);
+    const left=Math.max(level.bounds.minX,Math.min(level.bounds.maxX-viewW,level.dog.x-viewW/2));
+    const top=Math.max(level.bounds.minZ,Math.min(level.bounds.maxZ-viewD,level.dog.z-viewD/2));
     shape.corners.forEach((corner,i)=>{
-      const expected=[8+(corner.x-level.bounds.minX)/(level.bounds.maxX-level.bounds.minX)*224,8+(corner.z-level.bounds.minZ)/(level.bounds.maxZ-level.bounds.minZ)*144];
+      const expected=[8+(corner.x-left)/viewW*224,8+(corner.z-top)/viewD*144];
       assert.ok(mapGoal.path[i].every((n,j)=>Math.abs(n-expected[j])<1e-8),'minimap uses exact projected physical corners');
     });
     if(target.type==='barn')assert.ok(renderer.cutaway?.parts.length>12,'barn cutaway remains installed');
@@ -552,6 +719,7 @@ test('minimap palette separates terrain features and outlines every animal marke
   level.gates=[{x:3,z:0,heading:0,width:4,operable:true,open:false}];
   const operations=[];let path=[];
   const ctx={
+    save(){},restore(){},rect(){},clip(){},
     fillRect(...args){operations.push({type:'background',color:this.fillStyle,args});},
     beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},
     arc(x,y,r){path.push({arc:true,x,y,r});},

@@ -1,5 +1,29 @@
 # Presentation: renderer, nature and audio
 
+## Stateful scenery batching — F-032, 23 October 2026
+
+Gate lamp domes set `userData.dynamicScenery=true`. `batchScenery` excludes these meshes so `gateView.update` swaps the materials of the actual visible scene objects. The prior optimizer detached opaque red domes into immutable scenery instances while the gate view updated only detached originals; sprites already escaped that mesh-only batch. State transitions now retain original ownership and material disposal. Static housing/highlight meshes can still batch. Validate this through `MeadowRenderer.setLevel` and contact-driven `update`, including both lamp sides and restart; isolated gate-view tests do not cover this boundary.
+
+## Grass continuity and visible lamps — 23 October 2026 follow-up
+
+The outer ground no longer clones grass with a .72 color multiplier. Ground and angular playable turf share `this.grass`, its wetness snapshots and receiving-glow uniforms. Polygon U matches the surrounding plane; V uses `.5 - (z-centerZ)/depth` to match the plane after its X rotation. Fences and the minimap continue to identify playable boundaries. This supersedes the darker-countryside requirement below.
+
+Gate lamps now use curved luminous domes so the elevated camera sees colored surface even when a fence is edge-on. Bright untone-mapped basic red/green materials, a small hotspot and a restrained radial sprite halo convey illumination independently of sun/shadow exposure. The halo depth-tests against scenery; no per-lamp point light or bloom pass is added. Domes and halos follow actual gate state together; fixed mounts and simulation contacts are unchanged. Geometry, materials and a shared 32×32 halo texture belong to the gate view and dispose on replacement.
+
+Novy accepted the continuous barn roof and existing road terminal fade on dev runtime `d739fa2`; F-VIS-001 is archived. Gate illumination and road reversal/junction rounding remain follow-up work rather than changes to the accepted roof.
+
+`roadNetwork(roads,{widthExtra,ragged,y,seed,fadeLength})` now creates one unioned road geometry per core/shoulder layer. Road-only outer arcs and rounded reversal caps replace squared bevel nubs. Shared endpoint nodes keep opaque junction centers and a soft exposed circular rim; continuing-road coverage prevents faded seams. Standalone terminals retain their accepted fade. Visual centerline sampling stays within .025 units and bounds spans to 2.5 units before sweeping, without altering physical routes. Original sampled routes still determine coverage. `roadRibbon` remains a single-road wrapper; ordinary river `ribbon` behavior is preserved. Union sweep performance uses active X ranges and sorted edge candidates instead of allocating/sorting every slab's hits. Both road layers retain the existing material shader, weather/glow registration and owned disposal.
+
+## Mounted lights and continuous surfaces — 23 October 2026
+
+Gate switches are fixed vertical housings on both barrier faces beside the opening, with a bezel and emissive lamp: red closed, green open. They stay fixed while the leaf slides. The barn roof is one continuous indexed sheet with shallow grooves and clay UVs; the existing cutaway still fades it and facing walls to .7, freezes when paused, restores opaque shadows and disposes clones on replacement.
+
+`roadRibbon` adds rounded caps and subdivides terminal neighborhoods for interpolated coverage. `createRoadMaterial` composes existing shader hooks with alpha-hashed coverage, retaining depth writes; both core and shoulder fade. Each level owns two shared road material clones, separate from barn floors and water. Weather restores source baselines before replacement, and road cores join explicit wetness tracking. Hashed coverage needs device review for visible grain; source checks do not establish rendered blending.
+
+## Centered gameplay camera — F-UI-013, 22 October 2026
+
+Gameplay camera follows Pip independently of flock centroid or goal position. The desired camera center is Pip's X and Z + 2, canceling the existing ground look-at offset. Both axes interpolate at the same rate, with lag limited to 12% of their respective half-view dimensions; level jumps cannot leave Pip near an edge. Intro framing remains unchanged. Projection tests cover portrait/landscape and sideways, vertical, diagonal and reversing travel, including distant livestock. These are real Three.js camera calculations with a substituted GPU, not device feel or rendered-pixel evidence.
+
 ## Current minimap placement — F-057
 
 The minimap is anchored at `left:50%` with a negative half-width translation and `top:var(--hud-top)`, including short landscape. Existing 166px desktop/132px mobile and short-landscape sizes are retained. Below 384px, the map uses `top:calc(var(--hud-top) + 76px)` to clear the top-left weather/count/timer and top-right pause/help. This supersedes historical right-aligned placement below.

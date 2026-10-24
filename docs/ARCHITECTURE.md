@@ -1,5 +1,23 @@
 # Architecture and system contracts
 
+## Dynamic scenery contract — 23 October 2026
+
+Meshes whose owner changes material or pose after level setup must opt out of immutable scenery batching with `userData.dynamicScenery`. Gate lamp domes use this contract so the visible mesh remains under gate-view control after `MeadowRenderer.setLevel`. State remains owned by simulation; renderer batching cannot snapshot a stateful indicator into permanent red scenery.
+
+## Visual follow-up ownership — 23 October 2026
+
+Gate illumination remains a presentation concern: visible lamp color follows actual gate state, without changing contact, safe closing or navigation. The playable polygon and surrounding ground now share the same grass material, with aligned UVs including the plane's inverted Z/V orientation. This gives both sides the same weather and receiving glow. Physical collision/fences/minimap still own the field boundary. Road join/shared-ending changes stay in presentation geometry; simulation road centerlines and grazing remain authoritative.
+
+The renderer builds one road network mesh for each of core and shoulder using `roadNetwork`, so shared junctions have one coverage surface. Both meshes own their geometry and share two per-level owned materials. Water ribbons keep their separate API and physical widths.
+
+## Gate and surface feedback — 23 October 2026
+
+`gates.js` owns fixed wall-panel descriptors, reachable ground approaches and the shared Pip/Buddy contact latch; `gate-view.js` reads actual gate state for mounted red/green lights. Contact evaluation follows active companion filtering and movement. No autonomous gate-seeking is added. `surfaces.js` supplies road-only rounded terminal geometry and hashed coverage materials, preserving ordinary river ribbons and barn-floor materials. The renderer owns per-level road clones, restores weather baselines before cloning and registers road cores for wetness. Barn roofs use one continuous pitched sheet so transparent cutaways do not stack overlapping roof faces. Collision and saved profiles are unaffected.
+
+## Map feedback and camera ownership — 22 October 2026
+
+F-038 follow-up keeps generated corner routes, bridges, fences, tree groves and final-arm destination geometry in the simulation/world layer. F-UI-013 removes flock-centroid camera attraction: gameplay framing follows Pip on both axes with bounded lag, independent of destination direction. The renderer still consumes world boundary and target descriptors for turf, minimap and goal arrow; camera changes do not move actors, alter collision or save state. Source completion, dev publication and user acceptance remain separate.
+
 ## Read-only tracker
 
 `tracker/index.html`, `styles.css`, `app.js` and `parser.js` form a standalone buildless site. It has no dependency on game initialization or saved profiles. A refresh resolves public main to a commit SHA, validates and parses both Markdown overview tables from that SHA, then atomically replaces the view. Only authoritative overview rows create tickets; matching detail headings and scoped execution records add details and branch evidence. Deferred/Blocked remain labelled under Open. Repository Markdown is rendered as text, with branch URLs safely encoded. There are no write requests or drag handlers. Refresh failures preserve the prior snapshot with a visible warning.
@@ -164,3 +182,10 @@ Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/
 `chokepoints.js` finds the opening an animal is approaching (bridge deck ends, including the bank beside a deck, open gates, and the destination entrance from outside only, within 8 m). Only openings narrower than 9 m queue: wider ones, such as the 10 m gates from level 6, measured better with normal flocking. The list is cached per level geometry and gate state and shapes the desired velocity of a pressured animal whose forward intent points into it. Intent is only the direct Pip and Buddy push, never the flock's travel direction, which can point back across a river the flock straddles, so deliberate backward pressure from Pip is never altered. An animal pushed back toward a deck it already crossed gets no queuing help. Otherwise, in order: separation cannot push it back out; an animal lined up with its lane cannot back out; an animal beside the opening slides along the bank into its lane, easing back when wedged against an end post; and it follows, rather than shoves, the animal just ahead. Yielding lasts at most 3 s, then a 2 s escape lets it push. `openingSteer` aims each body at its own lane at the near deck end instead of the deck centre. `bridgeCrossing` also commits a pressured animal that is lined up with the deck and walking onto it within 3 m of the deck end, but never back over a deck it already crossed in the other direction. State (`chokeYield`, `lastBridge`, `pushed`) lives on the animal, is cleared on delivery and freezes with pause.
 
 `createLevel` adds `breathing` trail before the gate on non-early levels, from 0 m at 30 animals up to 14 m at 65. Rivers keep their distance from the spawn, so the extra length sits between the last bridge and the gate.
+
+
+## Map boundary and gate-contact ownership — 22 October 2026
+
+The `map_generation_improvements` candidate keeps `world.js` authoritative for the ordered `level.boundary` polygon, physical boundary/interior fences, gate descriptors and largest-body route geometry. Axis-aligned `bounds` still frame generation/camera/minimap work; they do not imply that concave cutouts are playable. Renderer ground and minimap use the boundary polygon, while world occupancy/path queries enforce it. Concave `ShapeGeometry` forms brighter playable turf above darker surrounding scenery; its geometry is level-owned and disposed on replacement. On large maps, the minimap uses a Pip-following local viewport clamped to the AABB, clipping geometry and markers to the frame; compact levels retain fit-to-map framing. Angular/L-shaped maps must preserve routes, spawn, target and safe gate-pad access.
+
+`gates.js` owns two-sided pad coordinates, Pip-only fresh-contact activation, release hysteresis and occupied-panel closing refusal. `stepSimulation` invokes it only during active simulation; `main.js` announces toggle/refusal events through the existing status toast. `gate-view.js` displays both pads from the shared open state. Successful toggles increment geometry revision and clear visibility caches; world queries and minimap read that same state. Gate contact remains transient level data, and no DOM control or helper independently owns panel state. See the [current world contract](systems/WORLD.md#map-generation-candidate--22-october-2026).

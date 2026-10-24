@@ -1,5 +1,17 @@
 # Development, QA and release context
 
+## Gate-state batching regression — 23 October 2026
+
+In dev, touch a closed gate switch, walk through the open gap and confirm both visible domes/halos turn green; leave the switch, return to close and confirm red. Repeat from each side for wood/stone and restart the level. Check actual rendered lamps after normal scene initialization, rather than a standalone gate-view fixture. Source integration tests inspect live scene membership after scenery batching and real contact transitions; phone color appearance remains a separate observation.
+
+## Gate visibility and road rounding follow-up — 23 October 2026
+
+Check mounted gate lights at all fence headings from normal gameplay portrait/landscape framing, in sun and rain: a lit red dome when closed and green when open, with the same state on both sides. Check switching by Pip/Buddy, safe refusal and restart. Inspect tight road reversals and multiple starts/endings for rounded outlines and no overlapping/faded junction seam while retaining the accepted terminal fade. Cross the visual field boundary in QA and compare grass color, texture orientation, wetness and glow on both sides; physical crossing still follows world collision. Phone checks remain pending until observed. Barn roof appearance is accepted by Novy on 23 October.
+
+## Visual feedback smoke checks — 23 October 2026
+
+For F-032/F-VIS-001/F-VIS-002, check portrait and landscape on a phone: approach both wood/stone gate faces with Pip and Buddy; confirm a mounted red light becomes green once, held/simultaneous contacts do not chatter, and occupied closing is refused. Enter/leave a rotated barn in rain; check roof coverage across grooves, pause/resume, opaque shadows and restart. Inspect short/curved/shared road starts and terminals for rounded grass fading, grain, depth occlusion and wetness; confirm barn floors, rivers and bridges retain their appearance. Repeat level jumps/restarts for resource stability. These device checks remain pending; geometry, shader-source and GPU-substitute tests are separate evidence.
+
 ## Standard build and deployment commands — 19 October 2026
 
 Use these checked-in entry points for future builds and deployments; do not create one-off publishing scripts.
@@ -148,6 +160,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/bridge-crossing.test.js` | Committed sheep/cow deck traversal, rotated/reverse crossings, pause and drone far-bank hold |
 | `tests/buddy.test.js` | Buddy tier behavior, rear pressure, split flock, retrieval, bridge traversal and autonomous bark |
 | `tests/world.test.js` | Generation, route/footprint validity, clearance and seeded fixtures |
+| `tests/map-generation.test.js` | Seeded gate distribution/alternatives, late-map growth/angular boundaries, largest-body route walks and stone-wall distribution |
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
 | `tests/progression.test.js` | Tier cost/unlock/activation and legacy data validation |
 | `tests/ui.test.js` | Production controller against DOM/audio substitutes; navigation, rewards, restart and input |
@@ -339,3 +352,14 @@ On `buddy_behaviour`, main `75ad6e1` and Buddy `368c452` are combined. With Pip 
 ## Buddy accepted merge handoff — 22 October 2026
 
 Novy’s “Looks good. Merge to main and close the tickets” accepts F-COMP-001/002/003/007/009/010 for dev runtime `17f648d` / Pages `45110fa`, on `buddy_behaviour`. Full issue details and completion/publication evidence move to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026); these six are Done. Existing smoke-check procedures and older pending statements above are historical and superseded for this accepted batch. Preserve F-COMP-004/005/006/008 and unrelated statuses. This closure changes documentation only and authorizes source merge to main, not production deployment. Runtime and saved progress are unchanged; no new native-device/FPS/audio measurement is claimed.
+
+
+## Map generation review procedure — 22 October 2026
+
+Follow-up feedback: verify goals in both left/right L arms and U/Z/abstract routes requiring actual corner travel. Walk the largest cows and Buddy around inner corners and every branch, including against normal travel and split-flock recovery. At public 60+, inspect the starter field's denser tree groves from ordinary phone zoom; they must not seal off usable land, obstruct spawns/pads or intrude into route clearance. Compare quiet and more meandering river variants, bridge perpendicularity, dry turning room and the increased gap before interior fences. Move Pip sideways, vertically, diagonally and in reverse with the herd far away in portrait/landscape: Pip should stay near the screen center. Pause, restart, rotate and jump levels. Record visual density, fun, touch feel and phone performance as pending until observed on device.
+
+Branch `map_generation_improvements` covers F-031/F-032/F-034/F-038. Compare early public levels 1–5 with later meadows in every compass direction. Inspect late angular/L-shaped boundaries, fence/ground/minimap agreement and concave corners; verify the local minimap scrolls with Pip, clamps at map edges and clips offscreen roads/markers while the goal-direction arrow remains useful; Pip, all cow sizes and Buddy must remain on playable ground. Follow every bridge/gate branch and the full ungated alternative on a gated map; no panel may appear before public level 20. Restart a meadow to confirm seeded layout and wall choice.
+
+On an operable gate, guide Pip onto each red pad from its own side, confirm both turn green and the opening becomes physically passable. Leave both pads before returning to close it; holding contact must not repeatedly toggle. Try closing while a cow or Buddy occupies the panel and verify safe refusal, then clear the passage and retry. Confirm helpers never activate pads and straight centerline herd traffic does not accidentally toggle them. Repeat with wood/stone, rotated maps, pause/resume/restart and normal touch/keyboard controls. Check the minimap after each successful change.
+
+Assess later pacing with no helper and active Buddy tiers, including split-flock retrieval and attended delivery. Source clearance sweeps and headless journeys do not establish human difficulty, touch feel, appearance or phone FPS. Development publication remains a separate requested action; production merge/root publication requires explicit authorization.

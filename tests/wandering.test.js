@@ -56,7 +56,7 @@ test('seeded opportunity rates match all bands, with saved/herded/settled animal
   for(const index of [0,6])assert.equal(evaluateWanderOpportunity({...level,index},a,1,center),null);
 });
 
-function meadow(){const level=createLevel(16,42);Object.assign(level,{bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],obstacles:[],fenceSegments:[],animals:flock(30).map(a=>({...a,x:-10+(a.id%6)*1.5,z:Math.floor(a.id/6)*1.5,vx:0,vz:0,type:'sheep',nextWanderCheck:10000})),dog:{x:-70,z:-70}});Object.assign(level.target,{x:80,z:80});return level;}
+function meadow(){const level=createLevel(16,42);Object.assign(level,{boundary:null,bounds:{minX:-100,maxX:100,minZ:-100,maxZ:100},rivers:[],obstacles:[],fenceSegments:[],animals:flock(30).map(a=>({...a,x:-10+(a.id%6)*1.5,z:Math.floor(a.id/6)*1.5,vx:0,vz:0,type:'sheep',nextWanderCheck:10000})),dog:{x:-70,z:-70}});Object.assign(level.target,{x:80,z:80});return level;}
 function step(level,seconds,upgrades={}){for(let i=0;i<Math.round(seconds*10);i++)stepSimulation(level,level.dog,{},.1,upgrades);}
 
 test('wander and bolt expiry settle locally against flock cohesion until active Pip pressure resumes',()=>{

@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 22 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 23 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
 
@@ -63,11 +63,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
-| F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Open | F-006 |
-| F-032 | P3 | Gameplay/UI | Open/close buttons on both sides of each gate; closed red/open green; dog touch activates | Open | F-031 |
-| F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Open | F-033 |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
-| F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Open | F-005, F-006, F-031 |
 | F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
@@ -77,6 +73,11 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 
 ## Acceptance criteria and planned work
+
+
+
+
+
 
 ### F-008 — Clouds temporarily deferred
 
@@ -110,29 +111,8 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Status:** Open; no implementation authorized by the acceptance of F-004.
 
-### F-031 — Random gates and ungated alternatives (P2)
 
-**Requirement:** gates are present on 20+ levels, but not every level; some gate levels offer an alternative route without a gate.
 
-**Accept when:** deterministic per-level generation can produce gated and gate-free levels at 20+, never places gates on levels below 20, and some gated levels have a complete, navigable ungated alternative. Tests cover multiple seeds, route connectivity, body clearance and helper navigation. Preserve the existing approved gate interaction in F-006.
-
-**Status:** Open. Exact random distribution is unspecified and must not be invented as user-approved.
-
-### F-032 — World-fence gate indicator and dog activation (P3)
-
-**Requirement:** place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.
-
-**Accept when:** each gate has a reachable button on both sides, including when the gate is closed. Dog contact with either button opens a closed gate or closes an open gate. Both buttons stay synchronized: red when closed and green when open. Each activation reliably updates the same gate and its collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
-
-**Status:** Open. Clarify the interaction mapping during implementation if the visual button/control relationship is ambiguous; do not silently change F-006's accepted action.
-
-### F-034 — Seeded per-level stone-wall chance (P3)
-
-**Requirement:** each level has a seeded 15% chance to use stone walls, replacing the existing fixed four-level sequence.
-
-**Accept when:** each level's wall selection is reproducible from its seed and uses a 15% per-level probability; no deterministic every-fourth-level rule remains. Statistical tests assess broad distribution across a large seed set without brittle per-seed expectations; route openings and clearance remain valid.
-
-**Status:** Open; depends on the F-033 appearance contract and F-007 accepted wall functionality.
 
 ### F-036 — Unattended flock spreads across the field (P3)
 
@@ -142,13 +122,6 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Status:** Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.
 
-### F-038 — Larger, less-linear multi-directional levels (P2)
-
-**Requirement:** levels should grow progressively larger and less linear, using multiple directions, fields, rivers and tree clusters; routes must preserve body clearance and avoid stuck animals, and later difficulty must account for helpers.
-
-**Accept when:** public level progression includes larger usable fields and more multi-directional route choices across generated fields, rivers and tree clusters. Every route fits the largest applicable animal body and helper footprint, avoids pinches/stalls, and remains connected under gates/walls; later levels are evaluated with helpers present so added companions do not make progression artificially easy. Use seeded route sweeps and ordinary-input journeys while preserving the level-2 bridge retrieval regression. Exact size/progression thresholds remain implementation decisions, not user-approved values.
-
-**Status:** Open.
 
 ### F-042 - Investigate and fix missing back legs on small wild animals (P3)
 
@@ -622,3 +595,4 @@ User requested merging fallback changes to main and integrating main into buddy_
 ## Buddy user acceptance — 22 October 2026
 
 Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
+

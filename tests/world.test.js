@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createLevel,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,separatedByBank,terrainHeight,routeProgress,nextNavigationPoint,navigationTarget,openingSteer,distance} from '../src/world.js';
+import {createLevel,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,separatedByBank,terrainHeight,routeProgress,nextNavigationPoint,navigationTarget,openingSteer,distance,segmentDistance} from '../src/world.js';
 
 test('ground helper navigation walks around dry bridge ends instead of pushing through rails',()=>{
   for(const seed of [200,201,202,203])for(const side of [-1,1])for(const end of [-1,1]){
@@ -88,7 +88,7 @@ test('destination rims have generous clear land beyond the last bridges and gate
 test('river meshes extend beyond the fenced map instead of ending in rectangular stubs',()=>{
   for(let i=1;i<100;i++){
     const l=createLevel(i),b=l.bounds;
-    const outside=p=>p.x<b.minX-10||p.x>b.maxX+10||p.z<b.minZ-10||p.z>b.maxZ+10;
+    const outside=p=>l.layoutKind==='field'?(p.x<b.minX-10||p.x>b.maxX+10||p.z<b.minZ-10||p.z>b.maxZ+10):!canOccupy({...l,rivers:[],obstacles:[],gates:[],fenceSegments:[]},p.x,p.z,.01)&&Math.min(...l.boundary.map((a,i)=>segmentDistance(p,a,l.boundary[(i+1)%l.boundary.length])))>10;
     for(const river of l.rivers){assert.ok(outside(river.points[0]));assert.ok(outside(river.points.at(-1)));}
   }
 });
@@ -135,7 +135,7 @@ test('later organic trails visibly reverse their lateral travel and navigation f
 test('curved-bank custom seeds keep the whole spawn grid safe, compact, and ahead of Pip',()=>{
   const seeds=[5,30,31,38,41,48,73,80,82,88,102,113,119,125,162,195];
   for(const index of [0,1,2,3,4,5,15,40,99])for(const seed of seeds){
-    const l=createLevel(index,seed),f={x:Math.sin(l.target.heading),z:Math.cos(l.target.heading)};
+    const l=createLevel(index,seed),f={x:Math.sin(l.startHeading),z:Math.cos(l.startHeading)};
     assert.ok(canOccupy(l,l.dog.x,l.dog.z,.62),`dog ${index}/${seed}`);
     for(const animal of l.animals){
       const r=animal.type==='cow'?.78:.55;

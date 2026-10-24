@@ -1,12 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {ribbon,barkSurface} from '../src/surfaces.js';
+import {ribbon,roadRibbon,roadNetwork,createRoadMaterial,barkSurface} from '../src/surfaces.js';
 import {createLevel} from '../src/simulation.js';
 import {createBridge} from '../src/models.js';
 import {MeadowRenderer} from '../src/render.js';
 
 const cross=(a,b,c)=>(b.x-a.x)*(c.z-a.z)-(b.z-a.z)*(c.x-a.x);
+test('road terminals are rounded with gradual bounded coverage; water keeps square ends',()=>{
+  for(const points of [[{x:0,z:0},{x:0,z:20}],[{x:0,z:0},{x:0,z:1}],[{x:0,z:0},{x:0,z:8},{x:8,z:8}]]){
+    const geometry=roadRibbon(points,3),p=geometry.attributes.position,alpha=geometry.attributes.roadOpacity;
+    assert.equal(alpha.count,p.count);assert.ok(p.count>0);
+    assert.ok([...alpha.array].every(v=>v>=0&&v<=1));
+    assert.ok([...alpha.array].some(v=>v>.05&&v<.95),'fade has intermediate coverage');
+    assert.ok([...alpha.array].some(v=>v<.02),'terminal reaches grass');
+    assert.ok([...p.array].every(Number.isFinite));geometry.dispose();
+  }
+  const water=ribbon([{x:0,z:0},{x:0,z:20}],3);water.computeBoundingBox();assert.equal(water.boundingBox.min.z,0);assert.equal(water.boundingBox.max.z,20);assert.equal(water.attributes.roadOpacity,undefined);water.dispose();
+});
+test('road fade composes existing shading and keeps depth without changing shared materials',()=>{
+  const source=new THREE.MeshStandardMaterial({transparent:true,opacity:.36,depthWrite:false});
+  source.onBeforeCompile=shader=>{shader.uniforms.existing={value:2};};source.customProgramCacheKey=()=> 'existing';
+  const road=createRoadMaterial(source),shader={uniforms:{},vertexShader:'#include <begin_vertex>',fragmentShader:'#include <alphahash_fragment>'};road.onBeforeCompile(shader);
+  assert.equal(shader.uniforms.existing.value,2);assert.match(shader.vertexShader,/vRoadOpacity = roadOpacity/);assert.match(shader.fragmentShader,/diffuseColor.a \*=/);
+  assert.equal(road.alphaHash,true);assert.equal(road.depthWrite,true);assert.equal(road.transparent,false);assert.equal(source.transparent,true);assert.equal(source.depthWrite,false);assert.match(road.customProgramCacheKey(),/existing/);road.dispose();source.dispose();
+});
 function triangles(geometry){
   const p=geometry.getAttribute('position'),result=[];
   for(let i=0;i<Math.min(p.count,geometry.drawRange.count);i+=3)result.push([0,1,2].map(j=>({x:p.getX(i+j),y:p.getY(i+j),z:p.getZ(i+j)})));
@@ -25,6 +43,58 @@ function overlap(a,b){
   }
   return Math.abs(polygon.reduce((sum,p,i)=>sum+p.x*polygon[(i+1)%polygon.length].z-p.z*polygon[(i+1)%polygon.length].x,0))/2;
 }
+function coverageAt(geometry,p){
+  const ts=triangles(geometry),alpha=geometry.attributes.roadOpacity;
+  for(let i=0;i<ts.length;i++){
+    const [a,b,c]=ts[i],area=cross(a,b,c),weights=[cross(p,b,c)/area,cross(a,p,c)/area,cross(a,b,p)/area];
+    if(weights.every(w=>w>=-1e-6&&w<=1+1e-6))return weights.reduce((sum,w,j)=>sum+w*alpha.getX(i*3+j),0);
+  }
+  return null;
+}
+test('rounded road reversals cover the outer bend and retain a circular silhouette',()=>{
+  for(const x of [0,.25,1]){
+    const geometry=roadRibbon([{x:0,z:0},{x:0,z:8},{x,z:0}],3);
+    // The former bevel fan stopped at z=8, making a hard squared turn.
+    assert.ok(coverageAt(geometry,{x:0,z:9.25})>.99,'hairpin has full rounded outer coverage');
+    assert.equal(coverageAt(geometry,{x:-1.4,z:9.4}),null,'round tip does not fill a square corner');
+    for(const t of triangles(geometry))assert.ok(cross(...t)<-1e-10,'round fan remains upward and nondegenerate');
+    geometry.dispose();
+  }
+});
+test('shared road endings form a single round union with interior coverage and no stacked layers',()=>{
+  const roads=[{points:[{x:-8,z:0},{x:0,z:0}],width:3},{points:[{x:0,z:-8},{x:0,z:8}],width:3},{points:[{x:8,z:8},{x:0,z:0}],width:3}];
+  const geometry=roadNetwork(roads),ts=triangles(geometry);
+  assert.ok(coverageAt(geometry,{x:0,z:0})>.99,'another continuing road prevents a dim terminal seam');
+  for(const p of [{x:-1.2,z:0},{x:0,z:-1.2},{x:.9,z:.9}])assert.ok(coverageAt(geometry,p)>.99,'shared junction stays filled');
+  for(let i=0;i<ts.length;i++)for(let j=i+1;j<ts.length;j++)assert.ok(overlap(ts[i],ts[j])<2e-5,'network triangles cannot stack at a shared end');
+  const single=roadRibbon(roads[0].points,3);assert.ok(coverageAt(single,{x:0,z:0})<.5,'standalone endpoint retains the accepted grass fade');
+  const again=roadNetwork(roads);assert.deepEqual([...again.attributes.position.array],[...geometry.attributes.position.array]);assert.deepEqual([...again.attributes.roadOpacity.array],[...geometry.attributes.roadOpacity.array]);
+  geometry.dispose();single.dispose();again.dispose();
+});
+test('opposite and branching shared endpoints remain solid while an exposed dead-end rim fades',()=>{
+  const road=(x,z)=>({points:[{x,z},{x:0,z:0}],width:3});
+  for(const roads of [[road(-8,0),road(8,0)],[road(-8,0),road(0,-8)],[road(-8,0),road(8,0),road(0,-8),road(0,8)]]){
+    const geometry=roadNetwork(roads);
+    assert.ok(coverageAt(geometry,{x:0,z:0})>.99,'connected endpoints cannot dim the junction centre');
+    assert.ok(coverageAt(geometry,{x:.4,z:.4})>.99,'junction interior stays filled across endpoint fans');
+    geometry.dispose();
+  }
+  const ending=roadNetwork([road(-8,0),road(0,-8)]);
+  assert.ok(coverageAt(ending,{x:.95,z:.95})<.8,'exposed circular rim still fades into grass');
+  assert.equal(coverageAt(ending,{x:1.4,z:1.4}),null,'shared ending stays round rather than square');ending.dispose();
+});
+test('dense curved road samples retain centreline coverage and bounded stroke width after visual simplification',()=>{
+  const points=Array.from({length:301},(_,i)=>({x:Math.sin(i*.035)*1.5,z:i*.12})),width=3;
+  const geometry=roadNetwork([{points,width}],{ragged:false});
+  for(let i=30;i<points.length-30;i+=3)assert.ok(coverageAt(geometry,points[i])>.99,'physical centreline remains inside the road');
+  const p=geometry.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const v={x:p.getX(i),z:p.getZ(i)};let distance=Infinity;
+    for(let j=1;j<points.length;j++){const a=points[j-1],b=points[j],dx=b.x-a.x,dz=b.z-a.z,t=Math.max(0,Math.min(1,((v.x-a.x)*dx+(v.z-a.z)*dz)/(dx*dx+dz*dz)));distance=Math.min(distance,Math.hypot(v.x-a.x-t*dx,v.z-a.z-t*dz));}
+    assert.ok(distance<=width/2+.026,'stroke never moves more than 2.5cm outside the physical swept width');
+  }
+  geometry.dispose();
+});
 function checkRibbon(points,width,options){
   const geometry=ribbon(points,width,options),ts=triangles(geometry);
   assert.ok(ts.length>0);

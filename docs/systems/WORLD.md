@@ -1,6 +1,32 @@
 # World generation, collision, and navigation
 
+## Gate contact panels — 23 October 2026
+
+`gateSwitchPanels` returns fixed mounts beside the opening on both wall faces and separate body-clear approach points. `gateButtons` retains the approach-point helper for compatibility. Pip and active ground Buddy contacts use the actual mounted panel position, same-side checks, occupancy and a clear approach path. One shared latch requires all dogs to leave before rearming, avoiding simultaneous double toggles. Occupied closing is refused; successful toggles invalidate geometry/visibility caches. Simulation filters companions and moves Buddy before evaluating contacts. Drones/livestock do not activate panels; Buddy gains no automatic switch-seeking behavior. These contracts supersede older Pip-only ground-pad descriptions below.
+
+## Corner-route follow-up — 22 October 2026
+
+This follow-up supersedes the earlier cosmetic L/stepped cutout generator. From public level 40, a seeded choice builds L, U, Z or stepped fields by unioning the starter rectangle with wide connected arm rectangles. The goal sits at the end of the final arm, faces along that arm and can lie on either mirrored side. The boundary itself blocks direct shortcuts across the missing corner land. Crossing choices converge after the gate before the corner corridor; route samples, target enclosure, turf, minimap and collision share the resulting geometry. `layoutKind` records the shape; `startHeading` describes the initial travel direction, while `target.heading` describes the final approach. `bounds` remains an AABB for search/framing, not an occupiable rectangle.
+
+Later starter modules have bounded longitudinal/lateral extent; progression adds travel through the arms instead of moving the first river ever farther from spawn. From public level 60, seeded starter-biased groves supplement scattered trees, with up to 18 grove anchors and 260 physical trees total. Placement rejects spawn/destination space, routes, water, fences, other trees and gate approaches through shared occupancy/corridor checks. `groves` and each tree's `grove` ID are generated metadata only. Density and exact dimensions are tuning choices, not new user-specified constants or phone-performance claims.
+
+Non-early levels add dry spacing before the interior fence. A seeded subset from public level 20 uses stronger, longer river bends (`riverStyle: meandering`); these maps also separate the two rivers further and widen dry turning planes around bridges. Deck headings still follow the local sampled river normal. Rivers end beyond their local starter-field perimeter, which may lie inside the overall AABB of a returning U/stepped level. Validate against actual playable polygon occupancy rather than assuming every river must extend past the full-map AABB.
+
 Current contracts come from [world.js](../../src/world.js); [GAMEPLAY.md](GAMEPLAY.md) explains its simulation callers. The [issue tracker](../ISSUES.md) is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.
+
+## Map generation candidate — 22 October 2026
+
+Current source on `map_generation_improvements` implements F-031/F-032/F-034/F-038; the tracker retains separate validation and acceptance state. This section supersedes the older fixed stone sequence, universally gated late maps and one-way contextual gate action described below.
+
+`level.boundary` is the ordered world-space polygon for the playable meadow; `bounds` is its axis-aligned framing/search extent. Ordinary early/medium maps retain a rectangle. From public level 40, an independent seeded shape choice produces a concave L-shaped or stepped angular outline, mirrored and rotated with the level. The cut stays beyond the route/destination envelope with clearance, and interior barriers stop at the polygon boundary. Boundary fence segments, occupancy/path checks, ground rendering and minimap consume the same outline. The renderer triangulates the concave polygon as brighter playable turf above darker surrounding countryside, with an owned geometry disposed on level replacement; a point inside the bounds rectangle may still be outside playable ground. Concave corners remain physical barriers. Large maps use a local minimap viewport following Pip, clamped to the map AABB; compact levels retain fit-to-map framing. The viewport height cap of 120 world units is source tuning, with width derived from the minimap aspect ratio. Boundary, roads and actor markers are clipped to its frame; the existing goal-direction arrow continues guidance outside the viewport.
+
+Early lessons retain their route layout. Public level 20 onward adds longitudinal and lateral growth, wider route spacing, alternating river-crossing offsets and a seeded lateral destination offset. Existing bridge turning planes and herd breathing room are preserved. Herds over 30 receive an extra .1-unit downstream breathing tolerance so the smallest measured gate/bridge exit gap stays at least 26 units; river bases remain unchanged. This is a precision/spacing implementation correction, not a new user balance target. These dimensions and shape weights are tuning choices for review, not user-provided balance numbers. Tree placement remains excluded from routes, spawns and goals and is restricted to occupiable ground.
+
+Gate distribution and stone selection use independent seeded streams, avoiding layout-RNG coupling. At public level 20 onward, a 65% gated-map choice and, on eligible multi-gap gated maps, a 50% omitted-panel choice provide gate-free maps and gated maps with an ungated alternative. The omitted panel does not fill its route gap. Below level 20, gaps remain open and non-operable. Stone uses the requested 15% per-level probability for boundary/interior segments; target walls retain their own material.
+
+`gateButtons(gate)` in `gates.js` derives two ground pads beside the traffic lane, forward ±2 units and lateral `width/2 - .9`, with a .65-unit pad radius. `updateGateContacts(level,dog)` runs in the active simulation for Pip only: fresh overlap toggles, remaining in contact is latched and leaving both pads by a .2-unit release margin rearms. Closing is refused while the panel intersects Pip, a livestock body at its actual radius or a ground Buddy. Success increments `geometryRevision`, clears flock visibility and emits `gateToggled`; safe refusal emits `gateBlocked`. Controller toasts use the existing status region. The normal game no longer creates the contextual Open button; legacy exports remain for compatibility.
+
+Both pad meshes read the same panel state, red when closed and green when open; gate panel, collision, navigation and minimap also read that descriptor. All pad/gate resources belong to the level view and are disposed with it. Contact state resets with a newly generated level and does not advance during pause. No profile, bark, reward or helper-activation semantics change.
 
 ## Coordinates and generated state
 
@@ -11,7 +37,7 @@ Positions use `{x, z}` on a flat ground plane; vertical height belongs to render
 | Field | Meaning |
 |---|---|
 | `index`, `seed`, `title`, `description`, `reward` | Campaign metadata; displayed level is `index + 1`; reward is `80 + index * 25`. |
-| `bounds` | `{minX,maxX,minZ,maxZ}` world-space axis-aligned playable bounds. |
+| `bounds`, `boundary` | Axis-aligned framing extent and ordered playable-boundary polygon; the polygon may be concave. |
 | `spawn`, `dog`, `animals` | Flock origin, Pip origin, initial body states. |
 | `target` | `{x,z,radius,type,heading}`; type cycles pen → field → barn by index modulo 3. |
 | `rivers` | Sampled centerline `points`, width, rotated bridge deck descriptors. |

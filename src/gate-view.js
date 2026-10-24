@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { gateSwitchPanels } from './gates.js';
 
 function ownedGroup(){
-  const group=new THREE.Group(),geometries=new Set(),materials=new Set();
+  const group=new THREE.Group(),geometries=new Set(),materials=new Set(),textures=new Set();
   group.ownGeometry=value=>(geometries.add(value),value);
   group.ownMaterial=value=>(materials.add(value),value);
-  group.dispose=()=>{group.traverse(object=>{if(object.isInstancedMesh)object.dispose();});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());};
+  group.ownTexture=value=>(textures.add(value),value);
+  group.dispose=()=>{group.traverse(object=>{if(object.isInstancedMesh)object.dispose();});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());};
   return group;
 }
 /** Panels slide along the existing barrier: an open passage has no leaf
@@ -14,6 +16,17 @@ function ownedGroup(){
 export function createGateView(gates=[]){
   const group=ownedGroup(),wood=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#a97640',roughness:.9})),metal=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#4e594b',roughness:.7}));
   const cube=group.ownGeometry(new THREE.BoxGeometry(1,1,1)),panels=[];
+  const lightGeometry=group.ownGeometry(new THREE.CylinderGeometry(.21,.21,.09,16)),dome=group.ownGeometry(new THREE.SphereGeometry(.25,16,10));
+  // A shallow vertical disc disappears when a fence points toward the camera.
+  // This luminous dome exposes a curved upper surface at every fence heading.
+  const red=group.ownMaterial(new THREE.MeshBasicMaterial({color:'#ff382b',toneMapped:false})),green=group.ownMaterial(new THREE.MeshBasicMaterial({color:'#32f56a',toneMapped:false}));
+  const hot=group.ownMaterial(new THREE.MeshBasicMaterial({color:'#fff5cf',toneMapped:false}));
+  const pixels=new Uint8Array(32*32*4);
+  for(let y=0;y<32;y++)for(let x=0;x<32;x++){const i=(y*32+x)*4,r=Math.hypot((x-15.5)/15.5,(y-15.5)/15.5);pixels[i]=pixels[i+1]=pixels[i+2]=255;pixels[i+3]=Math.round(255*Math.max(0,1-r)**2);}
+  const haloMap=group.ownTexture(new THREE.DataTexture(pixels,32,32));haloMap.magFilter=haloMap.minFilter=THREE.LinearFilter;haloMap.needsUpdate=true;
+  const haloMaterial=color=>group.ownMaterial(new THREE.SpriteMaterial({map:haloMap,color,transparent:true,opacity:.45,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,toneMapped:false}));
+  const redHalo=haloMaterial('#ff382b'),greenHalo=haloMaterial('#32f56a');
+  const bezel=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#d1d5bd',metalness:.3,roughness:.6}));
   const pending=new Map();
   const box=(parent,x,y,w,h,d,material)=>{let byMaterial=pending.get(parent);if(!byMaterial)pending.set(parent,byMaterial=new Map());let parts=byMaterial.get(material);if(!parts)byMaterial.set(material,parts=[]);parts.push({x,y,w,h,d});};
   for(const gate of gates.filter(g=>g.operable)){
@@ -23,7 +36,15 @@ export function createGateView(gates=[]){
     for(const y of [.45,1.2])box(panel,0,y,gate.width,.15,.22,wood);
     for(let i=0;i<=Math.ceil(gate.width/1.2);i++)box(panel,-gate.width/2+gate.width*i/Math.ceil(gate.width/1.2),.82,.14,1.05,.19,wood);
     box(panel,gate.width/2-.35,.85,.24,.28,.3,metal);
-    panels.push({gate,panel});
+    const buttons=gateSwitchPanels(gate).map(point=>{
+      const housing=new THREE.Group();housing.name='gate-switch-panel';housing.position.set(point.x,point.y,point.z);housing.rotation.y=point.heading;group.add(housing);
+      const plate=new THREE.Mesh(cube,metal);plate.scale.set(.64,.78,.14);plate.castShadow=plate.receiveShadow=true;housing.add(plate);
+      const ring=new THREE.Mesh(lightGeometry,bezel);ring.rotation.x=Math.PI/2;ring.scale.set(1.34,1,1.34);ring.position.set(0,.12,.10);housing.add(ring);
+      const button=new THREE.Mesh(dome,red);button.name='gate-button';button.userData.dynamicScenery=true;button.scale.set(1,1,.8);button.position.set(0,.12,.20);housing.add(button);
+      const highlight=new THREE.Mesh(dome,hot);highlight.name='gate-light-core';highlight.scale.set(.3,.3,.3);highlight.position.set(-.055,.27,.31);housing.add(highlight);
+      const halo=new THREE.Sprite(redHalo);halo.name='gate-light-halo';halo.position.copy(button.position);halo.scale.set(.95,.95,1);housing.add(halo);return {button,halo};
+    });
+    panels.push({gate,panel,buttons});
   }
   const matrix=new THREE.Matrix4();
   for(const [parent,byMaterial] of pending)for(const [material,parts] of byMaterial){
@@ -31,7 +52,7 @@ export function createGateView(gates=[]){
     parts.forEach((part,i)=>{matrix.makeScale(part.w,part.h,part.d);matrix.setPosition(part.x,part.y,0);mesh.setMatrixAt(i,matrix);});
     mesh.castShadow=mesh.receiveShadow=true;parent.add(mesh);
   }
-  group.update=()=>{for(const {gate,panel} of panels)panel.position.x=gate.open?-gate.width:0;};
+  group.update=()=>{for(const {gate,panel,buttons} of panels){panel.position.x=gate.open?-gate.width:0;for(const {button,halo} of buttons){button.material=gate.open?green:red;halo.material=gate.open?greenHalo:redHalo;}}};
   group.update();return group;
 }
 
