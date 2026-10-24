@@ -36,13 +36,13 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
 | F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
-| F-HERD-001 | P2 | Behavior | Bounded individual temperaments | Open | Existing wander/bolt and pressure behavior |
-| F-HERD-002 | P2 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
-| F-HERD-003 | P2 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
-| F-HERD-004 | P2 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-006 | P2 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
-| F-HERD-007 | P2 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
-| F-HERD-008 | P2 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
+| F-HERD-001 | P1 | Behavior | Bounded individual temperaments | Open | Existing wander/bolt and pressure behavior |
+| F-HERD-002 | P1 | Animation/behavior | Anticipation before movement | Open | F-065 accepted turning; existing pressure signals |
+| F-HERD-003 | P1 | Animation | Natural herd resting gestures | Open | Current sheep/cow articulated models |
+| F-HERD-004 | P1 | Behavior | Gentle preferred-neighbor relationships | Open | F-HERD-001; accepted forward-flow and local-flock behavior |
+| F-HERD-006 | P1 | Behavior/animation | Readable relaxation and settling | Open | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
+| F-HERD-007 | P1 | Behavior | Distinct sheep and cow movement character | Open | F-HERD-001; F-HERD-005; F-065 |
+| F-HERD-008 | P1 | Gameplay/behavior | Spread and settle after arrival | Open | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
 | F-BIRD-009 | P2 | Behavior | Small social foraging groups | Open | F-BIRD-001; F-BIRD-004 |
 | F-BIRD-010 | P2 | Animation | Ground hops and perched idle gestures | Open | F-BIRD-002; F-BIRD-003 |
 | F-BIRD-011 | P2 | Behavior/audio | React to Pip and Buddy barking | Open | F-BIRD-004; F-BIRD-005 |
@@ -60,16 +60,16 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-008 | P1 | Art | Cloud visuals temporarily removed at user request | Deferred | No runtime clouds or cloud shadows |
 | F-013 | P2 | Known review concern | Level-5 pacing spike | Open | F-005; retest after F-009/F-012 |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
-| F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
-| F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
-| F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
-| F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
-| F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
-| F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
+| F-026 | P1 | UI | Pause-menu Quit returns to landing page | Open | — |
+| F-030 | P1 | Environment | Lighter, more contrasting water waves | Open | — |
+| F-036 | P1 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
+| F-042 | P1 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
+| F-043 | P1 | Audio | Make the bark sound resemble a barking dog | Open | - |
+| F-044 | P1 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
-| F-050 | P2 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
+| F-050 | P1 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Open | - |
 
 ## Acceptance criteria and planned work
 
@@ -102,7 +102,7 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Accept when:** Quit returns to the intro/landing screen with movement stopped and transient gameplay/audio handled consistently. Normal saved progress and earned money are preserved. Define whether the current in-progress meadow is discarded or can be resumed; do not treat Quit as Restart Game.
 
-### F-030 — Lighter, more contrasting water waves (P3)
+### F-030 — Lighter, more contrasting water waves (P1)
 
 **Requirement:** make river waves lighter and more contrasting.
 
@@ -113,7 +113,7 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 
 
-### F-036 — Unattended flock spreads across the field (P3)
+### F-036 — Unattended flock spreads across the field (P1)
 
 **Requirement:** when unattended, the flock spreads out across the field.
 
@@ -122,7 +122,7 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 **Status:** Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.
 
 
-### F-042 - Investigate and fix missing back legs on small wild animals (P3)
+### F-042 - Investigate and fix missing back legs on small wild animals (P1)
 
 **Status:** Open, queued only; unassigned.
 
@@ -134,7 +134,7 @@ Acceptance criteria:
 
 **Migration source:** [GitHub #2](https://github.com/novydhillon/Flock/issues/2); moved to this document without implementing or completing the request.
 
-### F-043 - Make the bark sound resemble a barking dog (P3)
+### F-043 - Make the bark sound resemble a barking dog (P1)
 
 **Status:** Open, queued only; unassigned.
 
@@ -145,7 +145,7 @@ Acceptance criteria:
 
 **Migration source:** [GitHub #3](https://github.com/novydhillon/Flock/issues/3); moved to this document without implementing or completing the request.
 
-### F-044 - Add sheep and cow calls with state-dependent frequency and volume (P3)
+### F-044 - Add sheep and cow calls with state-dependent frequency and volume (P1)
 
 **Status:** Open, queued only; unassigned.
 
@@ -208,7 +208,7 @@ Acceptance criteria:
 **Scope:** queued QA usability fix only; no implementation or acceptance claimed.
 
 
-### F-050 - Bark strength and two-bark upgrade tiers (P2)
+### F-050 - Bark strength and two-bark upgrade tiers (P1)
 
 **Status:** Open, queued only; unassigned.
 
@@ -345,7 +345,7 @@ Novy requested tracking all eight suggested herd enhancements. **F-HERD-001–00
 
 These extend accepted behavior rather than reopen signed-off issues. Preserve current collision/navigation, turn caps, weaker cohesion, forward bridge commitment, local settling, delivered-animal containment and progression. The separate requested surface-aware grazing change remains distinct and must be integrated from its actual latest implementation when these items are claimed. No implementation or game deployment is authorized by this tracker update.
 
-### F-HERD-001 — Bounded individual temperaments (P2)
+### F-HERD-001 — Bounded individual temperaments (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
@@ -353,7 +353,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Give animals small, stable seeded differences in confidence, curiosity and willingness to follow. Keep variation bounded and readable: every animal remains responsive to appropriate herding pressure, with no unbeatable stubbornness or new uncontrolled bolting. Preserve accepted wander/bolt frequencies, local settling and weak cohesion unless a separately reviewed adjustment is necessary. Restart preserves traits without altering original world/herd random streams.
 
-### F-HERD-002 — Anticipation before movement (P2)
+### F-HERD-002 — Anticipation before movement (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
@@ -361,7 +361,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Animals look toward a disturbance, lift their heads and visibly shift weight before ordinary movement or flight. Strong nearby pressure or an actual bark still produces an immediate gameplay response: anticipation must not add input latency or stall escape. Blend out of grazing safely and coordinate head, body and legs with current turn limits; preserve simulation-owned movement and collisions.
 
-### F-HERD-003 — Natural herd resting gestures (P2)
+### F-HERD-003 — Natural herd resting gestures (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
@@ -369,7 +369,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Add occasional ear flicks, tail swishes, blinking and chewing with varied timing and restful gaps. Species-appropriate gestures remain subtle and legible in the clay style at gameplay zoom. They do not synchronize the entire herd or change gameplay state; locomotion and threats take precedence. Respect grass/bush-only head-down grazing and its exclusions for paths, bridges and barns. Keep shared geometry/materials and bounded instance cost.
 
-### F-HERD-004 — Gentle preferred-neighbor relationships (P2)
+### F-HERD-004 — Gentle preferred-neighbor relationships (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
@@ -377,7 +377,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.
 
-### F-HERD-006 — Readable relaxation and settling (P2)
+### F-HERD-006 — Readable relaxation and settling (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
@@ -385,7 +385,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** After pressure ends, transition progressively from alert to walking to calm/grazing, with varied timing and hysteresis that prevents rapid state flicker. Renewed pressure interrupts relaxation immediately. Keep accepted local settling locations and wander/bolt rules; do not reset their schedules just for presentation. Graze only where the separately requested surface eligibility allows it, with no head-down feeding on paths, bridges or in barns.
 
-### F-HERD-007 — Distinct sheep and cow movement character (P2)
+### F-HERD-007 — Distinct sheep and cow movement character (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
@@ -393,7 +393,7 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Accept when:** Sheep read as a somewhat tighter group; cows move more deliberately with somewhat greater personal space, using bounded species tuning. Preserve sheep turning at no more than 180 degrees/second and cows at no more than 120 degrees/second, with walking legs during stationary turns. Do not reintroduce stronger flock-wide magnetic attraction or rear-to-front pushing. Validate route clearance, delivery pacing and all cow sizes; any tuning values are proposed implementation choices requiring gameplay review.
 
-### F-HERD-008 — Spread and settle after arrival (P2)
+### F-HERD-008 — Spread and settle after arrival (P1)
 
 **Status:** Open. Owner: unassigned. Branch: not yet claimed.
 
