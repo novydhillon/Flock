@@ -4,7 +4,7 @@ const callHash = value => {
   return (x >>> 0) / 4294967296;
 };
 
-/** Cheerful, entirely synthesized farm soundtrack. Call start from a user gesture. */
+/** Farm soundtrack with cached recorded animal voices and a synthesis fallback. Call start from a user gesture. */
 export class FarmAudio {
   constructor() {
     this.context = null;
@@ -31,6 +31,7 @@ export class FarmAudio {
     this.activationGeneration = 0;
     this.tempo = 106;
     this.voiceBuffers = new Map();
+    this.recordedVoices = new Map();this.voiceLoad = null;this.voiceGeneration = 0;
     this.livestockSchedules = new Map();
     this.livestockSources = new Set();
     this.livestockLevel = null;
@@ -65,6 +66,7 @@ export class FarmAudio {
       this.music.gain.cancelScheduledValues(this.context.currentTime);
       this.music.gain.setTargetAtTime(0.42, this.context.currentTime, 0.025);
       this._begin();
+      this._loadVoices();
       return true;
     } catch {
       // Restricted browsers can still play the game silently.
@@ -210,7 +212,7 @@ export class FarmAudio {
       const herded = bolting || Boolean(animal.pushed) || animal.alert > .03;
       let schedule = this.livestockSchedules.get(animal);
       if (!schedule) {
-        schedule = {remaining: 1 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 7, sequence: 0, bolting: false};
+        schedule = {remaining: 4 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 16, sequence: 0, bolting: false};
         this.livestockSchedules.set(animal, schedule);
       }
       const immediate = bolting && !schedule.bolting;
@@ -218,7 +220,7 @@ export class FarmAudio {
       schedule.remaining -= step;
       if (!immediate && schedule.remaining > 0) continue;
       const roll = callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137) ^ Math.imul(++schedule.sequence, 7919));
-      schedule.remaining = herded ? 12 + roll * 12 : 5 + roll * 5;
+      schedule.remaining = herded ? 30 + roll * 30 : 13 + roll * 12;
       // Observe calls while muted too: unmuting never replays a missed bolt.
       if (!available || (!immediate && (emitted >= 2 || this.livestockSources.size >= 6))) continue;
       const distance = listener ? Math.hypot(animal.x - listener.x, animal.z - listener.z) : 0;
@@ -227,9 +229,21 @@ export class FarmAudio {
       // call when necessary rather than losing its one-shot state transition.
       if (immediate && this.livestockSources.size >= 6) this._releaseAmbience(this.livestockSources.values().next().value);
       const attenuation = 1 / (1 + (distance / 12) ** 2);
-      this._voice(animal.type, .14 * (herded ? 1.25 : 1) * attenuation, 0, .94 + roll * .12, true);
+      this._voice(animal.type, .077 * (herded ? 1.25 : 1) * attenuation, 0, animal.type==='cow'?1.10+roll*.04:.94+roll*.025, true);
       emitted++;
     }
+  }
+
+  _loadVoices() {
+    if(this.voiceLoad || !this.context?.decodeAudioData || typeof document==='undefined' || !document.baseURI || typeof fetch!=='function')return this.voiceLoad;
+    const context=this.context,generation=this.voiceGeneration;
+    this.voiceLoad=Promise.allSettled(['bark','sheep','cow'].map(async kind=>{
+      const response=await fetch(new URL(`audio/${kind}.mp3`,document.baseURI),{signal:AbortSignal.timeout(10000)});
+      if(!response.ok)throw Error('Animal recording unavailable');
+      const buffer=await context.decodeAudioData(await response.arrayBuffer());
+      if(!this.disposed && this.context===context && this.voiceGeneration===generation)this.recordedVoices.set(kind,buffer);
+    }));
+    return this.voiceLoad;
   }
 
   _voiceBuffer(kind) {
@@ -241,7 +255,7 @@ export class FarmAudio {
     let phase = 0, peak = .001;
     for (let i = 0; i < samples.length; i++) {
       const t = i / rate, fraction = t / duration;
-      const base = kind === 'bark' ? 155 - 55 * fraction : kind === 'cow' ? 92 + 10 * Math.sin(fraction * Math.PI) : 230 + 25 * Math.sin(t * 2 * Math.PI * 8);
+      const base = kind === 'bark' ? 155 - 55 * fraction : kind === 'cow' ? 112 + 10 * Math.sin(fraction * Math.PI) : 205 + 14 * Math.sin(t * 2 * Math.PI * 8);
       phase += 2 * Math.PI * base / rate;
       let voiced = 0;
       const formants = kind === 'bark' ? [650, 1250] : kind === 'cow' ? [340 + 100 * Math.sin(fraction * Math.PI), 780] : [750, 1450];
@@ -263,7 +277,7 @@ export class FarmAudio {
 
   _voice(kind, volume, offset = 0, pitch = 1, livestock = false) {
     const source = this.context.createBufferSource(), envelope = this.context.createGain();
-    source.buffer = this._voiceBuffer(kind);
+    source.buffer = this.recordedVoices.get(kind) || this._voiceBuffer(kind);
     if (source.playbackRate) source.playbackRate.value = pitch;
     envelope.gain.value = volume;
     source.connect(envelope); envelope.connect(this.effects);
@@ -273,7 +287,7 @@ export class FarmAudio {
     source.onended = () => { ended(); this.livestockSources.delete(source); };
     const now = this.context.currentTime + .01 + offset;
     source.start(now);
-    source.stop(now + (kind === 'bark' ? .28 : kind === 'cow' ? 1.25 : .85) / pitch + .02);
+    source.stop(now + (source.buffer.duration || (kind === 'bark' ? .28 : kind === 'cow' ? 1.25 : .85)) / pitch + .02);
     return source;
   }
 
@@ -482,6 +496,7 @@ export class FarmAudio {
     this.context = null;
     this.master = this.music = this.effects = this.ambience = null;
     this.noiseBuffer = null;
+    this.voiceGeneration++;this.recordedVoices.clear();this.voiceLoad=null;
     this.voiceBuffers.clear(); this.livestockSchedules.clear(); this.livestockLevel = null;
   }
 }

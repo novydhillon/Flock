@@ -23,14 +23,17 @@ function safePuddleSite(level,p){
 }
 
 function flowTexture(){
-  const n=64,data=new Uint8Array(n*n*4);
+  const n=128,data=new Uint8Array(n*n*4);
   for(let y=0;y<n;y++)for(let x=0;x<n;x++){
     const i=(y*n+x)*4,u=x/(n-1),v=y/(n-1),tau=Math.PI*2;
     // Integer periods tile without a flashing seam. Narrow pale crests leave
     // the river base visible between waves instead of tinting the entire ribbon.
-    const wave=Math.sin(tau*(v*3+.10*Math.sin(u*tau))),crest=Math.pow(Math.max(0,wave),5);
+    const bend=.15*Math.sin(u*tau)+.07*Math.sin((u+v)*tau*2);
+    const wave=Math.sin(tau*(v*3+bend)),secondary=Math.sin(tau*(v*5-u*2+.08*Math.sin(v*tau)));
+    const gaps=.48+.52*(.5+.5*Math.sin(tau*(u*2+v)));
+    const crest=clamp((Math.pow(Math.max(0,wave),5)*gaps+Math.pow(Math.max(0,secondary),9)*.25)*(.7+.3*Math.cos(u*tau*3)));
     const edge=Math.abs(u<=.5?u:u-1),bank=1-clamp((edge-.36)/.14);
-    data[i]=213;data[i+1]=244;data[i+2]=249;data[i+3]=Math.round(255*crest*bank);
+    data[i]=185;data[i+1]=218;data[i+2]=224;data[i+3]=Math.round(255*crest*bank);
   }
   const t=new THREE.DataTexture(data,n,n);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1,5);t.magFilter=t.minFilter=THREE.LinearFilter;t.needsUpdate=true;return t;
 }
@@ -60,7 +63,7 @@ export class WaterEffects {
   constructor(scene,{maxSplashes=12,maxPuddles=8}={}){
     this.scene=scene;this.root=new THREE.Group();this.root.name='Water and wetness effects';scene.add(this.root);
     this.maxSplashes=Math.max(0,maxSplashes|0);this.maxPuddles=Math.max(0,maxPuddles|0);this.elapsed=0;this.wetness=0;this.level=null;
-    this.flowMap=flowTexture();this.flowMaterial=new THREE.MeshBasicMaterial({map:this.flowMap,color:0xffffff,transparent:true,opacity:.34,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
+    this.flowMap=flowTexture();this.flowMaterial=new THREE.MeshBasicMaterial({map:this.flowMap,color:0xffffff,transparent:true,opacity:.20,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
     this.splashGeometry=new THREE.TorusGeometry(.2,.025,4,12);
     this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
   }
@@ -143,7 +146,7 @@ export class WaterEffects {
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
     this.applySurfaceWeather(weather);
-    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.32+rain*.12+(weather.daylight??.7)*.025+(weather.lightningFlash||0)*.12;}
+    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.18+rain*.06+(weather.daylight??.7)*.015+(weather.lightningFlash||0)*.04;}
     // Any fixed rainy tier reaches full size within the expected level duration.
     // Intensity changes atmosphere density; it must not hide light-rain accumulation.
     if(rain>0)this.rainElapsed+=dt;

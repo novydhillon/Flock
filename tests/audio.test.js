@@ -12,7 +12,7 @@ class Param {
 }
 class Node {
   constructor() {
-    this.gain = new Param(); this.frequency = new Param(); this.Q = new Param();
+    this.gain = new Param(); this.frequency = new Param(); this.Q = new Param(); this.playbackRate = new Param();
     this.connections = []; this.started = false; this.stops = []; this.disconnected = false;
   }
   connect(node) { this.connections.push(node); }
@@ -53,14 +53,14 @@ test('livestock voices use independent clocks, state cadence and immediate bolt 
     audio.livestockSchedules.get(sheep).remaining = 0;
     audio.updateLivestock(.01,{level,animals,listener});
     const ordinary = [...audio.livestockSources].at(-1);
-    assert.equal(ordinary.connections[0].gain.value, .14);
-    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 5 && audio.livestockSchedules.get(sheep).remaining <= 10);
+    assert.equal(ordinary.connections[0].gain.value, .077);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 13 && audio.livestockSchedules.get(sheep).remaining <= 25);
     sheep.wander = {bolting:true};
     audio.updateLivestock(.01,{level,animals,listener});
     const bolt = [...audio.livestockSources].at(-1);
     assert.notEqual(ordinary, bolt);
-    assert.equal(bolt.connections[0].gain.value, .14 * 1.25);
-    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 12);
+    assert.equal(bolt.connections[0].gain.value, .077 * 1.25);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 30);
     audio.updateLivestock(.01,{level,animals,listener});
     assert.equal(audio.livestockSources.size, 2, 'held bolt state does not retrigger each frame');
     assert.notEqual(audio._voiceBuffer('cow'), audio._voiceBuffer('sheep'));
@@ -74,7 +74,7 @@ test('livestock calls are bounded, attenuated and canceled on pause or level rep
     const level = {}, animals = Array.from({length:100},(_,id)=>({id,type:'cow',x:12,z:0,wander:{bolting:true}}));
     audio.updateLivestock(.01,{level,animals,listener:{x:0,z:0}});
     assert.equal(audio.livestockSources.size, 6, 'bolt transitions replace old voices rather than exceeding the voice cap');
-    assert.equal([...audio.livestockSources][0].connections[0].gain.value,.14 * 1.25 / 2);
+    assert.equal([...audio.livestockSources][0].connections[0].gain.value,.077 * 1.25 / 2);
     for(const animal of animals)audio.livestockSchedules.get(animal).remaining=0;
     for(let i=0;i<10;i++)audio.updateLivestock(.1,{level,animals});
     assert.ok(audio.livestockSources.size<=6);
@@ -508,3 +508,52 @@ test('storm suppresses ambient bird calls even when explicit rain intensity is m
   });
 });
 
+
+for(const prefix of ['/Flock/','/Flock/dev/'])test(`recordings load once from ${prefix} and late loads never replay calls`, async () => {
+ const oldFetch=globalThis.fetch,oldDocument=globalThis.document;
+ const requests=[],pending=[];
+ globalThis.document={baseURI:`https://example.test${prefix}`};
+ globalThis.fetch=async url=>{requests.push(String(url));return {ok:true,arrayBuffer:async()=>new ArrayBuffer(2)};};
+ Context.prototype.decodeAudioData=()=>new Promise(resolve=>pending.push(resolve));
+ try {
+  await withAudio(async audio=>{
+   await audio.start();await new Promise(resolve=>setImmediate(resolve));
+   assert.deepEqual(requests.map(u=>u.split('/').at(-1)).sort(),['bark.mp3','cow.mp3','sheep.mp3']);
+   assert.ok(requests.every(u=>u.startsWith(`https://example.test${prefix}audio/`)));
+   audio.pause();const count=audio.context.sources.length;
+   const recordings=pending.map((resolve,i)=>{const b={duration:.6+i};resolve(b);return b;});
+   await audio.voiceLoad;
+   assert.equal(audio.context.sources.length,count,'decode completion cannot play a stale call');
+   await audio.resume();assert.equal(requests.length,3,'resume reuses sample loading');
+   audio.play('bark');const source=audio.context.sources.at(-1);
+   assert.equal(source.buffer,recordings[0]);assert.ok(Math.abs(source.stops[0]-source.startTime-.62)<1e-8,'sample duration controls stop, not old generated duration');
+   for(const [type,recording,low,high] of [['sheep',recordings[1],.94,.965],['cow',recordings[2],1.10,1.14]]){
+    const level={seed:34};
+    for(let id=0;id<8;id++){
+     const animal={id,type,x:0,z:0,wander:{bolting:true}};
+     audio.updateLivestock(.01,{level,animals:[animal],listener:{x:0,z:0}});
+     const call=audio.context.sources.at(-1),rate=call.playbackRate.value;
+     assert.equal(call.buffer,recording);assert.ok(rate>=low&&rate<=high,`${type} rate ${rate} stays within its species bounds`);
+     assert.ok(Math.abs(call.stops[0]-call.startTime-recording.duration/rate-.02)<1e-8,'sample stop follows actual assigned playback rate');
+    }
+   }
+
+  });
+ } finally {globalThis.fetch=oldFetch;if(oldDocument===undefined)delete globalThis.document;else globalThis.document=oldDocument;delete Context.prototype.decodeAudioData;}
+});
+
+test('failed recordings retain fallback and disposed decodes cannot repopulate released buffers', async () => {
+ const oldFetch=globalThis.fetch,oldDocument=globalThis.document;
+ globalThis.document={baseURI:'https://example.test/Flock/'};
+ globalThis.fetch=async()=>({ok:false});Context.prototype.decodeAudioData=async()=>({duration:1});
+ try {
+  await withAudio(async audio=>{await audio.start();await audio.voiceLoad;assert.equal(audio.recordedVoices.size,0);audio.play('bark');assert.equal(audio.context.sources.at(-1).buffer,audio._voiceBuffer('bark'));});
+  const decoders=[];globalThis.fetch=async()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(2)});
+  Context.prototype.decodeAudioData=()=>new Promise(r=>{decoders.push(r);});
+  await withAudio(async audio=>{
+   await audio.start();await new Promise(r=>setImmediate(r));const load=audio.voiceLoad;
+   audio.dispose();for(const resolve of decoders)resolve({duration:1});await load;
+   assert.equal(audio.recordedVoices.size,0);
+  });
+ } finally {globalThis.fetch=oldFetch;if(oldDocument===undefined)delete globalThis.document;else globalThis.document=oldDocument;delete Context.prototype.decodeAudioData;}
+});

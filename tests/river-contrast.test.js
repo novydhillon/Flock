@@ -35,12 +35,13 @@ test('river crests add light contrast in every fixed weather tier without fillin
   const pixel=(x,y)=>Array.from(data.slice((y*n+x)*4,(y*n+x)*4+4));
   for(let i=0;i<n;i++){assert.deepEqual(pixel(0,i),pixel(n-1,i));assert.deepEqual(pixel(i,0),pixel(i,n-1));}
   let maxAlpha=0,minAlpha=255;for(let i=3;i<data.length;i+=4){maxAlpha=Math.max(maxAlpha,data[i]);minAlpha=Math.min(minAlpha,data[i]);}
-  assert.equal(minAlpha,0);assert.ok(maxAlpha>230);
+  assert.equal(minAlpha,0);assert.ok(maxAlpha>100);
+  const rows=new Set();for(let y=0;y<n-1;y++)rows.add(Array.from({length:n},(_,x)=>data[(y*n+x)*4+3]).join(','));assert.ok(rows.size>n*.8,'crests vary across the tile');
   for(const weather of [{type:'sun',daylight:1},{type:'wind',daylight:.8},{type:'rain',rainIntensity:.3},{type:'rain',rainIntensity:.65},{type:'rain',rainIntensity:1}]){
     effects.update(.1,{weather});const base=source.material.color;
     const crest=new THREE.Color(data[0]/255,data[1]/255,data[2]/255).multiply(overlay.material.color),alpha=maxAlpha/255*overlay.material.opacity;
     const composed=base.clone().lerp(crest,alpha),luminance=c=>c.r*.2126+c.g*.7152+c.b*.0722;
-    assert.ok(luminance(composed)-luminance(base)>.1,'light crest has meaningful contrast against the actual wet/dry base');
+    assert.ok(luminance(composed)-luminance(base)>.03,'light crest has meaningful contrast against the actual wet/dry base');
     assert.ok(overlay.material.depthTest&&!overlay.material.depthWrite,'bridges continue to occlude the flow overlay');
   }
   const offset=overlay.material.map.offset.clone(),opacity=overlay.material.opacity;effects.update(.1,{paused:true,weather:{type:'sun'}});assert.deepEqual(overlay.material.map.offset,offset);assert.equal(overlay.material.opacity,opacity);

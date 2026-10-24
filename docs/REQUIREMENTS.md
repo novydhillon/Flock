@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Animal and water follow-up — 24 October 2026
+
+F-POLISH-001: quieter and less frequent recorded animal calls where licensed samples are obtainable, capped sheep pitch/slightly higher cows, realistic bark; subdued varied waves; clay birds with hinged wing flight, grounded folded wings, dry landings, hopping/pecking and coherent transitions.
+
 ## P1 gameplay batch — 24 October 2026
 
 Implement the explicit reprioritized P1 backlog F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008 using their tracker acceptance criteria. Clouds remain deferred. Quit discards the transient meadow and returns to landing while retaining the campaign profile, upgrades and earned bolts; returning Play starts the campaign continuation meadow anew. Bark tier 3 uses two charges with the existing 2.1-second cooldown beginning after the second bark, then restores both; pause freezes burst/cooldown time. Tier 2 and tier 3 retain a +33% force increase relative to tier 1. Tuning and appearance await gameplay/listening sign-off.

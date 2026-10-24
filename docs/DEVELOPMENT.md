@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Follow-up smoke checks — 24 October 2026
+
+Compare livestock cadence/pitch/mix and dog bark on phone; mute/pause/restart with async samples pending. Observe waves in all weather and river bends. Watch birds fly, land on dry ground, fold wings, hop/peck, take off and hide in storms; pause and jump repeatedly. These listening/rendered/phone checks remain pending.
+
 ## P1 batch smoke checks — 24 October 2026
 
 On `p1_gameplay_polish`, test phone portrait/landscape: Quit during motion/held input and during a bark, return to landing with sound stopped and saved bolts/upgrades intact, then start the continuation meadow anew. At public levels 8/13 or later, compare bark tier 1/2 force, workshop +33% wording, two distinct tier-3 taps, compatibility click/key repeat suppression, cooldown progress, pause/background freeze, restart and backward QA jumps. Listen to bark/bleat/moo identity and mix; watch immediate bolting calls, quieter/more frequent wandering and louder/less frequent herding. Mute/pause/restart repeatedly with no replayed call burst.

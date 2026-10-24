@@ -1,5 +1,9 @@
 # World generation, collision, and navigation
 
+## Bird landing contract — 24 October 2026
+
+birdLandingPositionSafe vetoes the full river footprint even where bridges are playable. Landing searches validate ground endpoints and the approach in bounded samples; failed searches leave birds airborne and defer retry. Hops validate their short dry-ground path. This is ambient wildlife movement only and does not change physical game collision or navigation.
+
 ## Gate contact panels — 23 October 2026
 
 `gateSwitchPanels` returns fixed mounts beside the opening on both wall faces and separate body-clear approach points. `gateButtons` retains the approach-point helper for compatibility. Pip and active ground Buddy contacts use the actual mounted panel position, same-side checks, occupancy and a clear approach path. One shared latch requires all dogs to leave before rearming, avoiding simultaneous double toggles. Occupied closing is refused; successful toggles invalidate geometry/visibility caches. Simulation filters companions and moves Buddy before evaluating contacts. Drones/livestock do not activate panels; Buddy gains no automatic switch-seeking behavior. These contracts supersede older Pip-only ground-pad descriptions below.

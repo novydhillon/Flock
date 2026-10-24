@@ -1,5 +1,15 @@
 # Presentation: renderer, nature and audio
 
+## Clay bird follow-up — 24 October 2026
+
+Birds now use seeded forage/takeoff/flight/landing states. Forage gestures alternate bounded dry-ground hops and head/body pecks while feet retain support. Rounded head, beak, eye, breast, tail, leg and foot parts share one instanced body batch; a shoulder-local custom wing mesh uses mirrored bounded hinges, folded rearward and static on ground. Takeoff and landing blend altitude and wing extension, and threats interrupt ground/landing. Population remains capped at six; existing eight nature batches and resource ownership are preserved. No extra per-frame geometry/material construction. Elevated perches, nests and bird audio remain future scope.
+
+## Animal audio and softer waves follow-up — 24 October 2026
+
+F-POLISH-001 supersedes the earlier animal mix: recorded CC0 dog/sheep/cow MP3 assets are bundled under `public/audio/`; provenance and exact license/source links are in `public/audio/CREDITS.md`. FarmAudio asynchronously fetches/decode-caches them once after permitted audio activation, relative to the current document directory for dev/root hosting. Loading never blocks game start or replays a missed call. Decode failure retains an explicit synthesis fallback; disposal/generation guards reject stale completion. Livestock gain is .077 (45% below .14), initial calls stagger 4–20 seconds, calm/wandering calls recur 13–25 seconds and herded/bolting calls 30–60 seconds. Herded/bolt calls retain a 1.25 gain ratio; bolt onset remains immediate. Sheep playback rate is narrowly bounded .94–.965, cows modestly raised to 1.10–1.14. Recorded duration determines source stop time. Audible realism/mix still requires listening approval.
+
+River flow retains the accepted centerline strip/collision footprint with a 128-square tile combining broken, modulated primary crests and finer secondary ripples. Softer blue-gray crests and lower weather-bounded opacity replace bright uniform bands; integer-period modulation preserves wrapping seams, transparent troughs/banks and pause. No new draw or per-frame geometry cost.
+
 ## Herd gestures, vocal calls, wildlife and waves — 24 October 2026
 
 `herd-pose.js` owns per-animal presentation clocks, anticipation, attention, ear/tail/blink/chew gestures, with quiet gaps and immediate threat priority. Relaxation comes from simulation; head-down grazing still requires eligible grass/bush surfaces. Cached anatomy carries gesture tags/pivots; cached gesture materials accompany the anatomy and each level owns its small instance gesture buffer, with no per-frame geometry allocation or added animal draw batches. Dispose level wrappers without disposing shared anatomy buffers. Animation does not control collision, delivery or rewards.

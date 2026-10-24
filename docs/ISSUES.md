@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-POLISH-001 | P1 | Audio/water/birds | Sampled animal calls, softer waves and natural bird flight/foraging | Review | P1 gameplay candidate |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -647,3 +648,11 @@ Novy requested work on the reprioritized P1 backlog using the established develo
 ## P1 review handoff — 24 October 2026
 
 All fourteen claimed P1 items are implemented and in Review on `p1_gameplay_polish`. Controller/audio review passed at 9.2/10, herd review at 9.2/10 and water/wildlife review at 9.5/10 after confirmed findings were fixed. Final validation evidence is in QUALITY.md and the P1 quality manifest. Novy's previous F-OPS-004 sign-off and P1 priorities from `docs/signoff-f-ops-004` are preserved; no cloud work was resumed. This handoff does not claim dev publication, user acceptance or production merge.
+
+### F-POLISH-001 — Animal sound, waves and bird follow-up
+
+**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Accept when:** Lower animal volume/frequency, narrow sheep pitch and slightly raise cows; use real recorded dog/sheep/cow samples where suitable licensed files are obtainable. Bark should sound realistic. Reduce wave brightness and add varied crests while retaining local flow, bank containment and pause. Clay-style birds flap hinged wings instead of spinning, fold grounded wings, land only on dry valid ground, hop and peck, and take off coherently. Preserve bounded resources, storms, seed/restart, lifecycle and save contracts. Fresh high-effort blind review plus focused/full checked builds required. Device listening and rendered appearance remain separate acceptance checks. User authorized escalation for difficult animation work; bird implementation uses xhigh effort.
+
+**24 October source handoff:** Recorded CC0 animal samples, quieter/slower calls, capped sheep/raised cow pitch, subdued varied waves, clay bird states/hinged wings/dry ground foraging implemented. High independent audio/wave review 9.5/10 and bird review 9.2/10 after fixes. Checked dev build passes457 tests and both artifact modes. Listening/phone appearance and user sign-off remain pending; no follow-up deployment is claimed. See QUALITY.md and public/audio/CREDITS.md.

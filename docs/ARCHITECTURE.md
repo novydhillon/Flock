@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Follow-up audio and bird ownership — 24 October 2026
+
+FarmAudio owns async recorded sample caching with stale-disposal rejection and explicit synthesis fallback. Public audio files include source/license provenance. Wildlife owns seeded bird state transitions and dry endpoint/approach checks, including water under bridges; nature only reads states to compose local bird part/wing matrices. Physical herd, progression and original world random streams remain independent.
+
 ## P1 ownership — 24 October 2026
 
 Simulation owns seeded herd temperaments, local social weights, unattended browsing, relaxation and saved arrival reservations through `herd-behavior.js`. Presentation reads that state through `herd-pose.js`, grazing and instanced animal geometry. `bark.js` owns controller-side transient Pip charges and gameplay-time cooldown, while progression supplies the exact force/charge definitions and Buddy retains independent state. `FarmAudio` owns bounded livestock schedules and cached vocal buffers; the controller passes current animals/listener only during play and resets schedules on level replacement. Quit builds a fresh landing scene while preserving the campaign profile.
