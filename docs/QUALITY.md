@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## User acceptance and manual dev publication — 24 October 2026
+
+Novy signed off all map-generation, camera, gate, grass and path changes, and reported manually deploying the final gate-state correction. Dev manifest pins source `00bdda05af2bdbe45bc28d6e19d41d13bf0eb083`; Pages `f7cc956bfc690393fe5dd5d36642cb0567e7e8d0` native run [40054866051](https://github.com/novydhillon/Flock/actions/runs/40054866051) succeeded. The shared verifier matched all 29 live files. Source CI [40054183900](https://github.com/novydhillon/Flock/actions/runs/40054183900) passed; both checked builds pass 422 regressions, release27/QA0 and dev29/QA2. Independent source review was 9/10. Seven remaining scoped tickets are archived Done; barn F-VIS-001 was already archived. Earlier pending-acceptance prose is historical. Manual publication is attributed to Novy; no agent deployment or production merge is claimed. Phone performance remains unmeasured.
+
 ## Gate lamp batching/state correction — 23 October 2026
 
 Branch `map_generation_improvements`, base `f35dee0debfa3486d6ffb8a59086504003f2e264`. IMG_8440 reports an open gate retaining red domes in the deployed runtime. Root cause: `batchScenery` absorbed opaque lamp meshes into immutable red scenery instances, detaching the originals later updated by `gateView.update`. Prior standalone gate-view and heading/raycast tests passed but missed full renderer setup/batching; the earlier source review therefore did not establish live indicator synchronization.

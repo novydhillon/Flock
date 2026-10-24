@@ -63,14 +63,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
 | F-026 | P3 | UI | Pause-menu Quit returns to landing page | Open | — |
 | F-030 | P3 | Environment | Lighter, more contrasting water waves | Open | — |
-| F-031 | P2 | World generation | Gates on 20+ levels, with some ungated alternative paths | Review | F-006 |
-| F-032 | P3 | Gameplay/UI | Fence/wall switch panels on both sides; red closed/green open; Pip/Buddy contact activates | Review | F-031 |
-| F-VIS-002 | P2 | Presentation | Smooth rounded road turns, shared endings and fading terminals | Review | Existing unioned road surfaces |
-| F-VIS-003 | P2 | Presentation | Match grass appearance inside and outside playable fields | Review | Existing angular field boundary |
-| F-034 | P3 | World generation | Seeded 15% stone-wall chance per level | Review | F-033 |
 | F-036 | P3 | Gameplay | Unattended flock spreads out in the field | Open | F-012, F-028 |
-| F-038 | P2 | World generation/gameplay | Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers | Review | F-005, F-006, F-031 |
-| F-UI-013 | P2 | Camera | Keep Pip close to screen center in every movement direction | Review | Existing portrait/landscape camera |
 | F-042 | P3 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Open | - |
 | F-043 | P3 | Audio | Make the bark sound resemble a barking dog | Open | - |
 | F-044 | P3 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Open | - |
@@ -81,29 +74,10 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
-**Latest dev publication, 23 October 2026:** F-032/F-VIS-002/F-VIS-003 are live from `4a0b3f0`, Pages `1398236`, after 421-regression checked builds, source CI, native Pages and all 29 live SHA-256 hashes passed. [Evidence](validation/Lamps-grass-road-network-dev-publication.json). Review stays open for phone appearance/readability/performance; independent 8.5/10 review has no material source finding but remains below the usual 9/10 gate due to unavailable device evidence. F-VIS-001 is accepted and archived. The prior publication record below is historical.
 
-**Dev publication, 23 October 2026:** F-032/F-VIS-001/F-VIS-002 are published from `d739fa2` at `/Flock/dev/`, Pages `7800a90`. Fresh checked dev build (415 regressions), source CI, native Pages and all 29 live file hashes passed. [Evidence](validation/Gate-roof-path-dev-publication.json). This supersedes the pending-publication statements in the source records below. The disclosed 8/10 review remains limited by unavailable device evidence; Novy authorized this dev deployment, while phone appearance/performance and user acceptance remain pending. Status stays Review; production/main are unchanged.
 
-### F-VIS-003 — Matching grass across field boundaries (P2)
 
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Shared material and aligned plane/polygon UVs implemented. Both checked builds pass 421 regressions; independent review has no material source blocker, 8.5/10 limited by unavailable rendered/device evidence. User authorized fix and dev deployment; new appearance acceptance remains pending.
 
-**Accept when:** grass outside and inside an angular playable field has matching color, texture scale/alignment, wetness and receiving glow, without the dark boundary strip in IMG_8437.jpeg. Preserve collision/fences/minimap boundary and level replacement ownership. Dev deployment is authorized; rendered/device acceptance remains separate.
-
-### F-VIS-002 — Path ends fade smoothly into grass (P2)
-
-**Current follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Novy accepts the terminal fade and requests rounded near-180-degree turns and shared path endings (IMG_8436.jpeg). Unified rounded networks, filled joined endpoints and retained standalone fade are implemented. Eleven surface tests and both 421-regression checked builds pass; 40 river/bank Float32 comparisons are unchanged. Independent review 8.5/10 has no material source blocker, with rendered/device evidence unavailable. Fix and dev deployment authorized; appearance acceptance of the follow-up remains pending. Earlier records below describe the preceding candidate.
-
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Rounded core/shoulder coverage, composed glow/weather and owned replacement resources implemented. Checks and the evidence-constrained 8/10 review are shared with F-VIS-001; rendered fade grain and phone profile remain pending. No new dev publication is included.
-
-**Accept when:** road core and shoulder terminals have smooth rounded ends and a gradual blend into grass, including short/curved routes and shared route starts. Preserve nonoverlapping union geometry, ordinary depth occlusion, bridge/river behavior, barn-floor materials and bounded owned resources. No physical route, collision, grazing or scoring changes are included.
-
-### F-UI-013 — Keep Pip centered in every direction (P2)
-
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source validation: 407 regressions, both checked build modes and independent 9.6/10 follow-up passed. User appearance/gameplay acceptance remains pending.
-
-**Accept when:** gameplay camera follows Pip near the center during sideways, vertical, diagonal and reversing movement, regardless of flock/goal position. Preserve smooth following, portrait/landscape, intro framing, pause/restart and development level jumps. Verify real camera projection, with device appearance/feel checked separately.
 
 ### F-008 — Clouds temporarily deferred
 
@@ -137,35 +111,8 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Status:** Open; no implementation authorized by the acceptance of F-004.
 
-### F-031 — Random gates and ungated alternatives (P2)
 
-**Requirement:** gates are present on 20+ levels, but not every level; some gate levels offer an alternative route without a gate.
 
-**Accept when:** deterministic per-level generation can produce gated and gate-free levels at 20+, never places gates on levels below 20, and some gated levels have a complete, navigable ungated alternative. Tests cover multiple seeds, route connectivity, body clearance and helper navigation. Preserve the existing approved gate interaction in F-006.
-
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
-
-### F-032 — World-fence gate indicator and dog activation (P3)
-
-**Gate-state follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. IMG_8440 exposed static batching detaching the red domes from their updater. Stateful lamp meshes now remain in the live gate view. A full-renderer contact/batching/restart regression fails before the fix (zero live domes) and passes after; both checked builds pass all 422 regressions. Independent fresh review is 9/10 with no source blocker. Prior standalone gate-view tests missed this integration contract. Fix and dev publication continue under the existing follow-up authorization; new phone color-state acceptance remains pending.
-
-**Latest follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Luminous domes, hotspot and depth-tested halo replace edge-on thin lamps from IMG_8438/8439. Red closed/green open state and exposed dome ray coverage pass across 16 headings, both states, wood/stone. Sixteen gate tests and both 421-regression checked builds pass. Independent review 8.5/10 has no material source blocker; actual brightness/device readability remains unverified. Fix and dev deployment authorized; appearance acceptance remains pending.
-
-**Current follow-up, 23 October 2026:** Review, owner Codex, branch `map_generation_improvements`. Vertical fence/wall-mounted panels and red closed/green open lights replace ground pads. Pip and active Buddy contact can toggle; no autonomous gate-seeking is added. Shared held/simultaneous-contact latch and occupied closing guards pass. All 415 regressions and both checked builds pass. The independent 8/10 review found no material source blocker but remains below the usual 9/10 gate due to unavailable rendered/device evidence; phone review and new dev deployment remain pending. Earlier Pip-only ground-pad requirements are superseded by this feedback.
-
-**Requirement:** place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.
-
-**Accept when:** each gate has a reachable button on both sides, including when the gate is closed. Dog contact with either button opens a closed gate or closes an open gate. Both buttons stay synchronized: red when closed and green when open. Each activation reliably updates the same gate and its collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
-
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
-
-### F-034 — Seeded per-level stone-wall chance (P3)
-
-**Requirement:** each level has a seeded 15% chance to use stone walls, replacing the existing fixed four-level sequence.
-
-**Accept when:** each level's wall selection is reproducible from its seed and uses a 15% per-level probability; no deterministic every-fourth-level rule remains. Statistical tests assess broad distribution across a large seed set without brittle per-seed expectations; route openings and clearance remain valid.
-
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
 
 ### F-036 — Unattended flock spreads across the field (P3)
 
@@ -175,15 +122,6 @@ Real phone GPU frame rate and level-transition memory stability remain unmeasure
 
 **Status:** Open; distinct from F-012 straggler wandering and F-028 delivered-animal roaming.
 
-### F-038 — Larger, less-linear multi-directional levels (P2)
-
-**Current follow-up:** Review source candidate, owner Codex, branch `map_generation_improvements`, 22 October 2026. Mandatory corner routes and offshoot goals, U/Z/abstract shapes, starter groves at 60+, more river/fence separation and meanders are implemented. All 407 regressions, both checked build modes and independent 9.6/10 follow-up passed. Full-flock/helper pacing and user gameplay/appearance acceptance remain pending. Earlier source-review status below is historical for `ed7a2cb`.
-
-**Requirement:** levels should grow progressively larger and less linear, using multiple directions, fields, rivers and tree clusters; routes must preserve body clearance and avoid stuck animals, and later difficulty must account for helpers. Clarified 22 October 2026: later fields and the overall map may use nonrectangular L shapes and other angular, nonorganic shapes. These must be real playable boundaries, with matching collision, fences, ground and minimap. The minimap may show a local viewport scrolling with Pip instead of fitting the entire large/nonrectangular map.
-
-**Accept when:** public level progression includes larger usable fields and more multi-directional route choices across generated fields, rivers and tree clusters. Every route fits the largest applicable animal body and helper footprint, avoids pinches/stalls, and remains connected under gates/walls; later levels are evaluated with helpers present so added companions do not make progression artificially easy. Use seeded route sweeps and ordinary-input journeys while preserving the level-2 bridge retrieval regression. Verify concave/angular map boundaries, including L shapes, against body occupancy and straight-path queries; keep generated routes, spawns, destinations and pads inside the playable shape, and match the ground/minimap outline. Exact size/progression thresholds remain implementation decisions, not user-approved values.
-
-**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
 
 ### F-042 - Investigate and fix missing back legs on small wild animals (P3)
 
@@ -658,18 +596,3 @@ User requested merging fallback changes to main and integrating main into buddy_
 
 Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
 
-## Map generation validation — 22 October 2026
-
-F-031/F-032/F-034/F-038 on `map_generation_improvements` passed the independent follow-up review at 9.2/10 and all 399 source regressions. Angular playable turf and collision share the same outline; the minimap follows Pip locally on larger maps. See [quality evidence](QUALITY.md#map-generation-improvements--22-october-2026). The four items remain Review for gameplay/appearance acceptance, with later helper balance and device checks pending. No Pages deployment or production merge is included.
-
-## Map generation development deployment — 22 October 2026
-
-Novy authorized dev deployment. F-031/F-032/F-034/F-038 are live at `/Flock/dev/`, pinned source `ed7a2cb` / Pages `0108943`. Source CI, native Pages and all 29 live file hashes passed. See [publication evidence](validation/Map-generation-dev-publication.json). All four remain Review pending user gameplay/appearance acceptance; production/main are unchanged.
-
-## Map layout feedback — 22 October 2026
-
-F-038 returns to In progress on `map_generation_improvements` for Novy's feedback: true corner-requiring L/U/Z/abstract routes with offshoot goals, denser starter-field groves from level 60, wider river-to-fence clearance and varied meandering rivers. F-UI-013 tracks centered camera follow. Owner: Codex. Preserve the prior gate/stone work, early lessons and saved progress. Earlier validation/publication records remain evidence for their pinned revisions, not acceptance of this follow-up.
-
-## Map feedback dev deployment — 22 October 2026
-
-The follow-up for F-038 and F-UI-013 is live at `/Flock/dev/` by Novy's deployment request: source `2356111`, Pages `bb513cd`. Source CI, native Pages and all 29 live SHA-256 file comparisons passed. [Deployment evidence](validation/Map-corner-followup-dev-publication.json). Both items remain Review for user gameplay/appearance acceptance; this supersedes earlier pending-publication statements for the follow-up. Production/main are unchanged.

@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Map-generation sign-off — 24 October 2026
+
+Novy explicitly accepted all changes from this map-generation work: F-031/F-032/F-034/F-038/F-UI-013/F-VIS-002/F-VIS-003 are Done and archived; F-VIS-001 barn acceptance was already recorded. This includes final gate-light batching correction `00bdda0`, manually deployed by Novy to dev. Historical pending-review statements below are superseded. Production merge/publication remains separate.
+
 ## Live gate-state lamp synchronization — 23 October 2026
 
 F-032 must keep the rendered lamp domes and halos synchronized after full renderer scenery batching: red closed, green open, on both sides. IMG_8440 demonstrates that standalone gate-view state tests did not establish this integration contract. Verify real contact, live scene membership, repeated transitions and level replacement; preserve safe closing and existing illumination. Fix and dev deployment continue under the authorized gate follow-up.
