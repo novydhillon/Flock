@@ -29,7 +29,7 @@ export class FarmAudio {
     this.active = new Set();
     this.disposed = false;
     this.activationGeneration = 0;
-    this.tempo = 106;
+    this.tempo = 72;
     this.voiceBuffers = new Map();
     this.recordedVoices = new Map();this.voiceLoad = null;this.voiceGeneration = 0;
     this.livestockSchedules = new Map();
@@ -127,36 +127,31 @@ export class FarmAudio {
   }
 
   _musicStep(step, time, eighth) {
-    // Eight bars: C, F, C, G, Am, F, G, C. A small melody with breathing space.
-    const roots = [48, 53, 48, 55, 57, 53, 55, 48];
-    const melodies = [
-      [72, 76, 79, null, 76, 74, 72, null],
-      [77, 81, 79, null, 77, 76, 74, null],
-      [72, 76, 79, 81, 79, null, 76, null],
-      [74, 79, 83, null, 81, 79, 74, null],
-      [76, 81, 84, null, 83, 81, 79, null],
-      [77, null, 81, 79, 77, 76, 74, null],
-      [74, 77, 79, null, 83, 81, 79, 74],
-      [76, 74, 72, null, 79, null, 72, null],
-    ];
-    const bar = Math.floor(step / 16);
-    const pos = step % 16;
-    const root = roots[bar];
-    const minor = bar === 4;
-    if (pos % 4 === 0) {
-      this._note(root + (pos === 8 ? 7 : 0), time, 0.32, 0.15, 'bass', this.music);
+    // Original eight-phrase lo-fi progression: Am9, Dm9, Gmaj9, Cmaj9.
+    // Odd eighths lean behind the beat; sparse answers leave room for the meadow.
+    const chords=[[45,52,55,59,62],[50,53,57,60,64],[43,50,54,57,62],[48,52,55,59,62]];
+    const phrase=Math.floor(step/16),pos=step%16,chord=chords[phrase%4];
+    const at=time+(pos%2?eighth*.14:0);
+    if(pos===0||pos===8){
+      for(const [i,note]of chord.slice(1).entries())this._note(note+12,at+i*.014,eighth*5.5,.035,'lofi',this.music);
+      this._note(chord[0]-12,at,eighth*2.8,.11,'bass',this.music);
     }
-    if (pos % 4 === 2) {
-      this._note(root + 12, time, 0.22, 0.048, 'pluck', this.music);
-      this._note(root + (minor ? 15 : 16), time + 0.018, 0.22, 0.042, 'pluck', this.music);
-      this._note(root + 19, time + 0.035, 0.22, 0.036, 'pluck', this.music);
-    }
-    // The melody repeats its eight-note phrase at half time; the second half
-    // becomes a delicate flute answer rather than a continuous busy loop.
-    if (pos % 2 === 0) {
-      const note = melodies[bar][pos / 2];
-      if (note !== null) this._note(note, time, eighth * 1.5, 0.12, bar % 2 ? 'flute' : 'marimba', this.music);
-    }
+    if(pos===6||pos===14)this._note(chord[0]-12+(phrase%2?7:0),at,eighth*1.3,.065,'bass',this.music);
+    if(pos===3||pos===11||pos===15&&phrase%2)this._note(chord[2]+24+(pos===11?2:0),at,eighth*1.8,.025,'lofi',this.music);
+    if(pos===0||pos===7||pos===10)this._note(29,at,.13,.12,'kick',this.music);
+    if(pos===4||pos===12)this._percussion(at,.09,.032,'snare');
+    if(pos%2===0||pos===15)this._percussion(at,.035,.012*(pos%4?.7:1),'hat');
+  }
+
+  _percussion(time,duration,volume,kind) {
+    if(!this.context||this.disposed||this.active.size>=128)return;
+    const source=this.context.createBufferSource(),filter=this.context.createBiquadFilter(),envelope=this.context.createGain();
+    source.buffer=this._noise();filter.type=kind==='hat'?'highpass':'bandpass';
+    filter.frequency.value=kind==='hat'?5500:1500;filter.Q.value=.7;
+    envelope.gain.setValueAtTime(volume,time);envelope.gain.exponentialRampToValueAtTime(.0001,time+duration);
+    source.connect(filter);filter.connect(envelope);envelope.connect(this.music);this.active.add(source);
+    source.onended=()=>{source.disconnect();filter.disconnect();envelope.disconnect();this.active.delete(source);};
+    source.start(time);source.stop(time+duration+.02);
   }
 
   /** Driven by gameplay frames: never starts audio without a user gesture. */
@@ -212,7 +207,7 @@ export class FarmAudio {
       const herded = bolting || Boolean(animal.pushed) || animal.alert > .03;
       let schedule = this.livestockSchedules.get(animal);
       if (!schedule) {
-        schedule = {remaining: 4 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 16, sequence: 0, bolting: false};
+        schedule = {remaining: 8 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 32, sequence: 0, bolting: false};
         this.livestockSchedules.set(animal, schedule);
       }
       const immediate = bolting && !schedule.bolting;
@@ -220,7 +215,7 @@ export class FarmAudio {
       schedule.remaining -= step;
       if (!immediate && schedule.remaining > 0) continue;
       const roll = callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137) ^ Math.imul(++schedule.sequence, 7919));
-      schedule.remaining = herded ? 30 + roll * 30 : 13 + roll * 12;
+      schedule.remaining = herded ? 60 + roll * 60 : 26 + roll * 24;
       // Observe calls while muted too: unmuting never replays a missed bolt.
       if (!available || (!immediate && (emitted >= 2 || this.livestockSources.size >= 6))) continue;
       const distance = listener ? Math.hypot(animal.x - listener.x, animal.z - listener.z) : 0;
@@ -229,7 +224,7 @@ export class FarmAudio {
       // call when necessary rather than losing its one-shot state transition.
       if (immediate && this.livestockSources.size >= 6) this._releaseAmbience(this.livestockSources.values().next().value);
       const attenuation = 1 / (1 + (distance / 12) ** 2);
-      this._voice(animal.type, .077 * (herded ? 1.25 : 1) * attenuation, 0, animal.type==='cow'?1.10+roll*.04:.94+roll*.025, true);
+      this._voice(animal.type, .05775 * (herded ? 1.25 : 1) * attenuation, 0, animal.type==='cow'?1.10+roll*.04:.94+roll*.025, true);
       emitted++;
     }
   }
@@ -437,21 +432,24 @@ export class FarmAudio {
   }
 
   _note(midi, time, duration, volume, voice = 'marimba', destination = this.effects) {
-    if (!this.context || !destination || this.disposed) return;
+    if (!this.context || !destination || this.disposed || this.active.size>=128) return;
     const context = this.context;
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     const frequency = 440 * 2 ** ((midi - 69) / 12);
     oscillator.type = voice === 'pluck' ? 'triangle' : 'sine';
     oscillator.frequency.setValueAtTime(frequency, time);
+    if(voice==='kick')oscillator.frequency.exponentialRampToValueAtTime(38,time+.10);
     envelope.gain.setValueAtTime(0.0001, time);
     envelope.gain.exponentialRampToValueAtTime(Math.max(0.001, volume), time + (voice === 'flute' ? 0.035 : 0.009));
     envelope.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-    oscillator.connect(envelope);
+    const filter=voice==='lofi'?context.createBiquadFilter():null;
+    if(filter){filter.type='lowpass';filter.frequency.value=1800;filter.Q.value=.5;oscillator.connect(filter);filter.connect(envelope);}else oscillator.connect(envelope);
     envelope.connect(destination);
     this.active.add(oscillator);
     oscillator.onended = () => {
       oscillator.disconnect();
+      filter?.disconnect();
       envelope.disconnect();
       this.active.delete(oscillator);
     };
@@ -463,11 +461,11 @@ export class FarmAudio {
     }
   }
 
-  play(name) {
+  play(name, actor = 'buddy') {
     if (!this.context || this.context.state !== 'running' || this.muted || this.disposed) return;
     const now = this.context.currentTime + 0.01;
     if (name === 'bark') {
-      this._voice('bark', .2);
+      this._voice('bark', .2, 0, actor==='pip'?.78:1);
       return;
     }
     const phrases = {

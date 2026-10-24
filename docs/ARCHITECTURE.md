@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Explicit bark actor ownership — 24 October 2026
+
+Controller dispatches explicit pip/buddy identities to FarmAudio.play for bark events; voice pitch remains an audio concern and cannot alter gameplay pressure/charges or Buddy autonomy. FarmAudio owns procedural lo-fi scheduling/instrument nodes and the current livestock mix, preserving activation-generation guards, pause/mute/disposal and async sample cache ownership.
+
 ## Follow-up audio and bird ownership — 24 October 2026
 
 FarmAudio owns async recorded sample caching with stale-disposal rejection and explicit synthesis fallback. Public audio files include source/license provenance. Wildlife owns seeded bird state transitions and dry endpoint/approach checks, including water under bridges; nature only reads states to compose local bird part/wing matrices. Physical herd, progression and original world random streams remain independent.

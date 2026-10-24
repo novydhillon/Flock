@@ -19,7 +19,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
   const documentEvents = new Map(), windowEvents = new Map();
-  const audioEvents = [];
+  const audioEvents = [],audioActors=[],audioFrames=[];
   let resolveAudioStart;
   const audioActivation = deferAudioStart ? new Promise(resolve => { resolveAudioStart = resolve; }) : Promise.resolve();
   let clock = 1000;
@@ -87,7 +87,10 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     setMuted(value) { audioEvents.push(`muted:${value}`); }
     pause() { audioEvents.push('pause'); }
     resume() { audioEvents.push('resume'); }
-    play(name) { audioEvents.push(name); }
+    play(name,actor) { audioEvents.push(name);audioActors.push([name,actor]); }
+    updateLivestock(dt,state) { audioFrames.push({kind:'livestock',dt,state}); }
+    updateAmbience(dt,state) { audioFrames.push({kind:'ambience',dt,state}); }
+    resetLivestock(level) { audioFrames.push({kind:'reset',level}); }
   }
   const context = {
     ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,...barkAPI,
@@ -116,7 +119,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   const tick = () => { clock += 16; app.frame(clock); };
   const advance = seconds => { for (let i = 0; i < Math.ceil(seconds * 20); i++) { clock += 50; app.frame(clock); } };
   const completeFlock = () => { const state = app.state();state.dog.x=state.level.target.x;state.dog.z=state.level.target.z;for (const animal of state.level.animals) Object.assign(animal, { x: state.level.target.x, z: state.level.target.z, vx: 0, vz: 0 }); tick(); };
-  return { app, el, click, buy, emit, tick, advance, completeFlock, audioEvents, windowEvents, storage, document, settleAudioStart: () => resolveAudioStart?.() };
+  return { app, el, click, buy, emit, tick, advance, completeFlock, audioEvents, audioActors, audioFrames, windowEvents, storage, document, settleAudioStart: () => resolveAudioStart?.() };
 }
 
 test('manually reopening tips restarts at 01 and cycles through 02, 03, then 01', async () => {
@@ -540,6 +543,7 @@ test('tier-two autonomous Buddy bark reaches audio and renderer without consumin
  assert.equal(ui.el('bark').disabled,false,'Buddy does not consume Pip cooldown');
  await ui.click('bark');assert.equal(ui.audioEvents.filter(e=>e==='bark').length,2);
  assert.equal(state.renderer.barks[1],undefined,'Pip uses its own bark origin');
+ assert.deepEqual(ui.audioActors.filter(e=>e[0]==='bark'),[['bark','buddy'],['bark','pip']]);
  await ui.click('pause');const count=ui.audioEvents.filter(e=>e==='bark').length;ui.tick();
  assert.equal(ui.audioEvents.filter(e=>e==='bark').length,count);
 });
@@ -730,4 +734,21 @@ test('restarting a meadow clears the first half of a pending double tap', async 
   tap();await ui.click('pause');await ui.click('restart');tap();
   assert.equal(ui.audioEvents.filter(x=>x==='bark').length,0);assert.equal(ui.el('bark').dataset.charges,'2');
   tap();assert.equal(ui.audioEvents.filter(x=>x==='bark').length,1);
+});
+
+
+test('controller feeds current livestock only during play and resets ownership on level replacement',async()=>{
+ const ui=launch();ui.tick();assert.equal(ui.audioFrames.length,0,'intro cannot schedule animal calls');
+ await ui.click('play');const first=ui.app.state().level;
+ assert.equal(ui.audioFrames.at(-1).kind,'reset');assert.equal(ui.audioFrames.at(-1).level,first);
+ ui.tick();const livestock=ui.audioFrames.find(f=>f.kind==='livestock'),ambience=ui.audioFrames.find(f=>f.kind==='ambience');
+ assert.ok(livestock.dt>0);assert.equal(livestock.state.level,first);assert.equal(livestock.state.animals,first.animals);
+ assert.equal(livestock.state.listener,ui.app.state().dog);assert.equal(ambience.state.animals,first.animals);assert.equal(ambience.state.level,1);
+ await ui.click('pause');const frozen=ui.audioFrames.length;ui.advance(3);assert.equal(ui.audioFrames.length,frozen);
+ await ui.click('restart');const second=ui.app.state().level;assert.notEqual(first,second);
+ assert.equal(ui.audioFrames.at(-1).kind,'reset');assert.equal(ui.audioFrames.at(-1).level,second);
+ ui.tick();assert.equal(ui.audioFrames.filter(f=>f.kind==='livestock').at(-1).state.level,second);
+ ui.document.hidden=true;ui.emit('visibilitychange');const hidden=ui.audioFrames.length;ui.advance(3);
+ assert.equal(ui.audioFrames.length,hidden,'hidden-page pause cannot feed animal clocks');
+ ui.document.hidden=false;await ui.click('resume');ui.tick();assert.ok(ui.audioFrames.length>hidden);
 });

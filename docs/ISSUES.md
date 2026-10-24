@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-POLISH-002 | P1 | Audio/music | Quieter rarer livestock, procedural lo-fi chill music and deeper Pip bark | Review | F-POLISH-001 audio |
 | F-POLISH-001 | P1 | Audio/water/birds | Sampled animal calls, softer waves and natural bird flight/foraging | Review | P1 gameplay candidate |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
@@ -656,3 +657,11 @@ All fourteen claimed P1 items are implemented and in Review on `p1_gameplay_poli
 **Accept when:** Lower animal volume/frequency, narrow sheep pitch and slightly raise cows; use real recorded dog/sheep/cow samples where suitable licensed files are obtainable. Bark should sound realistic. Reduce wave brightness and add varied crests while retaining local flow, bank containment and pause. Clay-style birds flap hinged wings instead of spinning, fold grounded wings, land only on dry valid ground, hop and peck, and take off coherently. Preserve bounded resources, storms, seed/restart, lifecycle and save contracts. Fresh high-effort blind review plus focused/full checked builds required. Device listening and rendered appearance remain separate acceptance checks. User authorized escalation for difficult animation work; bird implementation uses xhigh effort.
 
 **24 October source handoff:** Recorded CC0 animal samples, quieter/slower calls, capped sheep/raised cow pitch, subdued varied waves, clay bird states/hinged wings/dry ground foraging implemented. High independent audio/wave review 9.5/10 and bird review 9.2/10 after fixes. Checked dev build passes457 tests and both artifact modes. Listening/phone appearance and user sign-off remain pending; no follow-up deployment is claimed. See QUALITY.md and public/audio/CREDITS.md.
+
+### F-POLISH-002 — Livestock mix, lo-fi music and deeper Pip bark
+
+**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Accept when:** Reduce livestock call frequency further; reduce livestock volume exactly25% relative to current mix while preserving state gain ratio and immediate bolt transitions. Replace background music with procedural generated lo-fi chill music; preserve sound toggle, activation/race guards, pause/background/restart/dispose and bounded sources/scheduling. Deepen Pip bark only, retaining current Buddy bark sound. Retain real local recorded animals and existing sample fallback/loader contracts. High independent blind review and checked build required; listening approval remains distinct. No deployment or main merge authorized by this change request.
+
+**24 October source handoff:** Livestock gain reduced exactly25% (.077→.05775), independent call intervals doubled, procedural72BPM lo-fi soundtrack generated, Pip recorded bark lowered to.78rate and Buddyretained1.0. Highblindreview9.5/10 aftertestcoverage fixes. Full459runtimechecks plus final70audio/controllerchecks and bothartifactmodes pass. Listening approval remains pending; no deployment/mainmerge claimed. SeeQUALITY.md.

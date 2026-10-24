@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Lo-fi and animal mix smoke checks — 24 October 2026
+
+Listen to F-POLISH-002 on phone: livestock should be25%quieter and call less often than previous dev; pressure retains relative state mix and bolt onset. Trigger Pip and Buddy independently/simultaneously: Pip should sound deeper while Buddy retains the current voice. Listen to the generated lo-fi groove across several phrases for calm tempo, unobtrusive mix and no clipping or sharp note tails. Toggle mute, pause/background/resume, restart/jump and overlap async audio activation: no duplicate scheduler, catch-up burst, unwanted startup or stuck source. These listening/device checks remain pending until observed; automated gains/notes/lifecycle tests are separate evidence.
+
 ## Follow-up smoke checks — 24 October 2026
 
 Compare livestock cadence/pitch/mix and dog bark on phone; mute/pause/restart with async samples pending. Observe waves in all weather and river bends. Watch birds fly, land on dry ground, fold wings, hop/peck, take off and hide in storms; pause and jump repeatedly. These listening/rendered/phone checks remain pending.

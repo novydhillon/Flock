@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Lo-fi music and current animal mix — 24 October 2026
+
+F-POLISH-002 supersedes prior mix: livestock gain .05775 is exactly .75 of .077; initial calls8–40seconds, calm/wander26–50seconds and herded/bolt60–120seconds. Existing immediate bolt onset,1.25herdedgain and realrecording/fallback contracts remain. Procedural music runs at72BPM with extended Am9/Dm9/Gmaj9/Cmaj9 harmony, low-pass keys, soft bass, restrained kick/snare/hat,14%odd-eighth swing and sparse answers. Bounded scheduling skips missed beats, caps voices and disposes source/filter nodes. Audio events explicitly identify Pip(.78playbackrate) and Buddy(1.0); legacy unspecified bark retains1.0. The same cached recorded buffer is used, with pitch-adjusted duration. Listening remains pending.
+
 ## Clay bird follow-up — 24 October 2026
 
 Birds now use seeded forage/takeoff/flight/landing states. Forage gestures alternate bounded dry-ground hops and head/body pecks while feet retain support. Rounded head, beak, eye, breast, tail, leg and foot parts share one instanced body batch; a shoulder-local custom wing mesh uses mirrored bounded hinges, folded rearward and static on ground. Takeoff and landing blend altitude and wing extension, and threats interrupt ground/landing. Population remains capped at six; existing eight nature batches and resource ownership are preserved. No extra per-frame geometry/material construction. Elevated perches, nests and bird audio remain future scope.

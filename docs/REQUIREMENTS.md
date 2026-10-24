@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Lo-fi music and animal mix — 24 October 2026
+
+F-POLISH-002 reduces call frequency again and livestock gain by exactly25% relative to the F-POLISH-001 mix, adds procedurally generated lo-fi chill music, and deepens Pip's bark while preserving Buddy's existing bark. Source lifecycle/saved-game contracts remain unchanged. Listening approval and deployment are separate milestones.
+
 ## Animal and water follow-up — 24 October 2026
 
 F-POLISH-001: quieter and less frequent recorded animal calls where licensed samples are obtainable, capped sheep pitch/slightly higher cows, realistic bark; subdued varied waves; clay birds with hinged wing flight, grounded folded wings, dry landings, hopping/pecking and coherent transitions.

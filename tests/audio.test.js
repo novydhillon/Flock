@@ -53,14 +53,14 @@ test('livestock voices use independent clocks, state cadence and immediate bolt 
     audio.livestockSchedules.get(sheep).remaining = 0;
     audio.updateLivestock(.01,{level,animals,listener});
     const ordinary = [...audio.livestockSources].at(-1);
-    assert.equal(ordinary.connections[0].gain.value, .077);
-    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 13 && audio.livestockSchedules.get(sheep).remaining <= 25);
+    assert.equal(ordinary.connections[0].gain.value, .05775);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 26 && audio.livestockSchedules.get(sheep).remaining <= 50);
     sheep.wander = {bolting:true};
     audio.updateLivestock(.01,{level,animals,listener});
     const bolt = [...audio.livestockSources].at(-1);
     assert.notEqual(ordinary, bolt);
-    assert.equal(bolt.connections[0].gain.value, .077 * 1.25);
-    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 30);
+    assert.equal(bolt.connections[0].gain.value, .05775 * 1.25);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 60);
     audio.updateLivestock(.01,{level,animals,listener});
     assert.equal(audio.livestockSources.size, 2, 'held bolt state does not retrigger each frame');
     assert.notEqual(audio._voiceBuffer('cow'), audio._voiceBuffer('sheep'));
@@ -74,7 +74,7 @@ test('livestock calls are bounded, attenuated and canceled on pause or level rep
     const level = {}, animals = Array.from({length:100},(_,id)=>({id,type:'cow',x:12,z:0,wander:{bolting:true}}));
     audio.updateLivestock(.01,{level,animals,listener:{x:0,z:0}});
     assert.equal(audio.livestockSources.size, 6, 'bolt transitions replace old voices rather than exceeding the voice cap');
-    assert.equal([...audio.livestockSources][0].connections[0].gain.value,.077 * 1.25 / 2);
+    assert.equal([...audio.livestockSources][0].connections[0].gain.value,.05775 * 1.25 / 2);
     for(const animal of animals)audio.livestockSchedules.get(animal).remaining=0;
     for(let i=0;i<10;i++)audio.updateLivestock(.1,{level,animals});
     assert.ok(audio.livestockSources.size<=6);
@@ -202,7 +202,7 @@ test('music keeps its normal sequence and skips overdue steps after a stalled ti
     const context = audio.context;
     const callback = [...timers][0].callback;
     for (const time of [0.1, 0.2, 0.3, 0.4]) { context.currentTime = time; callback(); }
-    assert.deepEqual(steps.map(({ step }) => step), [0, 1, 2]);
+    assert.deepEqual(steps.map(({ step }) => step), [0, 1]);
     const eighth = 60 / audio.tempo / 2;
     assert.ok(Math.abs(steps[1].time - steps[0].time - eighth) < 1e-10);
     const previousStep = audio.step;
@@ -245,7 +245,7 @@ test('ambience never creates audio before start, start is reusable, and frames a
     assert.equal(timers.size, 1);
     for (let i = 0; i < 12; i++) audio.updateAmbience(0.25, { weather: 'rain' });
     assert.equal(timers.size, 1);
-    assert.equal(context.sources.length, 1);
+    assert.equal(context.sources.filter(source=>source.loop).length, 1);
     assert.equal(context.buffers.length, 1);
   });
 });
@@ -385,7 +385,7 @@ test('one lightning event schedules one delayed thunder, pause cancels it and re
     assert.equal(thunder.loop, true);
     assert.ok(thunder.stops[0] - thunder.startTime <= 5.000001);
     for (let i = 0; i < 20; i++) audio.updateAmbience(.01, { weather });
-    assert.equal(audio.context.sources.length, 2); assert.equal(timers.size, 1);
+    assert.equal(audio.context.sources.filter(source=>source.loop).length, 2); assert.equal(timers.size, 1);
     audio.pause(); assert.equal(thunder.disconnected, true); assert.equal(audio.thunderSource, null);
     await audio.resume(); audio.updateAmbience(.1, { weather }); assert.equal(audio.thunderSource, null);
     weather.lightningId = 'storm:2'; weather.lightningAge = 0;
@@ -556,4 +556,52 @@ test('failed recordings retain fallback and disposed decodes cannot repopulate r
    assert.equal(audio.recordedVoices.size,0);
   });
  } finally {globalThis.fetch=oldFetch;if(oldDocument===undefined)delete globalThis.document;else globalThis.document=oldDocument;delete Context.prototype.decodeAudioData;}
+});
+
+
+test('Pip lowers the recorded bark while Buddy and legacy callers retain the current pitch',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();const sample={duration:.8};audio.recordedVoices.set('bark',sample);
+  for(const actor of ['pip','buddy',undefined]){
+   audio.play('bark',actor);const source=audio.context.sources.at(-1),pitch=actor==='pip'?.78:1;
+   assert.equal(source.buffer,sample);assert.equal(source.playbackRate.value,pitch);
+   assert.ok(Math.abs(source.stops[0]-source.startTime-.8/pitch-.02)<1e-9);
+  }
+ });
+});
+
+test('generated lo-fi uses extended soft chords, sparse swung percussion and a bounded voice budget',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();assert.equal(audio.tempo,72);
+  const notes=[],beats=[],eighth=60/72/2;
+  const note=audio._note.bind(audio),beat=audio._percussion.bind(audio);
+  audio._note=(...args)=>{notes.push(args);note(...args);};audio._percussion=(...args)=>{beats.push(args);beat(...args);};
+  for(let step=0;step<128;step++)audio._musicStep(step,step*eighth,eighth);
+  const chords=notes.filter(n=>n[4]==='lofi');assert.ok(chords.length>30);assert.ok(new Set(chords.map(n=>n[0])).size>6);
+  const answer=notes.find(n=>n[0]===79&&Math.abs(n[1]-(3+.14)*eighth)<1e-8);assert.ok(answer,'odd eighth melody leans behind beat');
+  assert.ok(beats.some(b=>b[3]==='hat')&&beats.some(b=>b[3]==='snare'));
+  assert.ok(notes.every(n=>n[5]===audio.music));assert.ok(audio.active.size<=128);
+  const percussion=audio.context.sources.filter(s=>s.connections[0]?.type==='bandpass'||s.connections[0]?.type==='highpass');
+  assert.ok(percussion.length);assert.ok(percussion.every(s=>s.connections[0].connections[0].connections[0]===audio.music));
+  for(const source of [...audio.active])source.end();assert.equal(audio.active.size,0,'all generated voices release their graph');
+ });
+});
+
+
+test('lo-fi scheduling releases expired voices and maintains modest steady-state polyphony over two minutes',async()=>{
+ await withAudio(async(audio,timers)=>{
+  await audio.start();const context=audio.context,callback=[...timers][0].callback;let peak=audio.active.size,ended=0;
+  for(let tick=1;tick<=2400;tick++){
+   context.currentTime=tick*.05;
+   for(const source of [...context.oscillators,...context.sources])if(!source.disconnected&&source.stops.some(time=>Number.isFinite(time)&&time<=context.currentTime)){source.end();ended++;}
+   callback();peak=Math.max(peak,audio.active.size);
+  }
+  assert.ok(ended>200,'normal expiry releases generated music throughout the loop');
+  assert.ok(peak>6&&peak<40,`steady-state peak ${peak} stays well below the defensive cap`);
+  assert.ok(audio.active.size<40);audio.pause();assert.equal(timers.size,0);
+  context.currentTime+=5;
+  for(const source of [...context.oscillators,...context.sources])if(!source.disconnected&&source.stops.some(time=>Number.isFinite(time)&&time<=context.currentTime))source.end();
+  assert.equal(audio.active.size,0,'all remaining finite music tails expire after pause');
+  const nodes=[...context.oscillators,...context.sources];assert.ok(nodes.every(n=>n.disconnected));
+ });
 });

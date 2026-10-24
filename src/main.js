@@ -66,7 +66,7 @@ function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visibl
 function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
 function bark(){
   if(mode!=='playing'||!triggerBark(barkState,upgradeEffects(profile.upgrades,level.index+1).barkCharges))return;
-  updateBark();audio.play('bark');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);
+  updateBark();audio.play('bark','pip');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);
 }
 function openModal(html,newMode='paused'){
   previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
@@ -156,7 +156,7 @@ function frame(now){
     const result=stepSimulation(level,dog,{x:ix,z:iz,bark:barkState.burstRemaining>0},dt,profile.upgrades);
     $('saved').textContent=result.saved;
     updateCountdown(result.countdownStarted,result.remaining);
-    for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark');renderer.bark(event);}else if(event.type==='gateToggled')toast(event.open?'Gate open — guide the flock through.':'Gate closed.');else if(event.type==='gateBlocked')toast('Gate is occupied — let everyone clear it first.');}
+    for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark','buddy');renderer.bark(event);}else if(event.type==='gateToggled')toast(event.open?'Gate open — guide the flock through.':'Gate closed.');else if(event.type==='gateBlocked')toast('Gate is occupied — let everyone clear it first.');}
     updateBark(now);
     if(!tipDismissed){
       const dwell=tipManual||level.index!==0||tipStep>0?TIP_CYCLE:5;
