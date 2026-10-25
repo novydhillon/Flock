@@ -139,19 +139,8 @@ export class FarmAudio {
     if(pos===6||pos===14)this._note(chord[0]-12+(phrase%2?7:0),at,eighth*1.3,.065,'bass',this.music);
     if(pos===3||pos===11||pos===15&&phrase%2)this._note(chord[2]+24+(pos===11?2:0),at,eighth*1.8,.025,'lofi',this.music);
     if(pos===0||pos===7||pos===10)this._note(29,at,.13,.12,'kick',this.music);
-    if(pos===4||pos===12)this._percussion(at,.09,.032,'snare');
-    if(pos%2===0||pos===15)this._percussion(at,.035,.012*(pos%4?.7:1),'hat');
-  }
-
-  _percussion(time,duration,volume,kind) {
-    if(!this.context||this.disposed||this.active.size>=128)return;
-    const source=this.context.createBufferSource(),filter=this.context.createBiquadFilter(),envelope=this.context.createGain();
-    source.buffer=this._noise();filter.type=kind==='hat'?'highpass':'bandpass';
-    filter.frequency.value=kind==='hat'?5500:1500;filter.Q.value=.7;
-    envelope.gain.setValueAtTime(volume,time);envelope.gain.exponentialRampToValueAtTime(.0001,time+duration);
-    source.connect(filter);filter.connect(envelope);envelope.connect(this.music);this.active.add(source);
-    source.onended=()=>{source.disconnect();filter.disconnect();envelope.disconnect();this.active.delete(source);};
-    source.start(time);source.stop(time+duration+.02);
+    // Keep the soundtrack free of short noise bursts: their sharp onsets
+    // match the beat-spaced transient pattern in the supplied recording.
   }
 
   /** Driven by gameplay frames: never starts audio without a user gesture. */
@@ -441,7 +430,7 @@ export class FarmAudio {
     oscillator.frequency.setValueAtTime(frequency, time);
     if(voice==='kick')oscillator.frequency.exponentialRampToValueAtTime(38,time+.10);
     envelope.gain.setValueAtTime(0.0001, time);
-    envelope.gain.exponentialRampToValueAtTime(Math.max(0.001, volume), time + (voice === 'flute' ? 0.035 : 0.009));
+    envelope.gain.exponentialRampToValueAtTime(Math.max(0.001, volume), time + (voice === 'lofi' || voice === 'flute' ? .035 : voice === 'bass' ? .025 : voice === 'kick' ? .020 : .009));
     envelope.gain.exponentialRampToValueAtTime(0.0001, time + duration);
     const filter=voice==='lofi'?context.createBiquadFilter():null;
     if(filter){filter.type='lowpass';filter.frequency.value=1800;filter.Q.value=.5;oscillator.connect(filter);filter.connect(envelope);}else oscillator.connect(envelope);

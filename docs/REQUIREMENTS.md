@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Remove sharp soundtrack clicks — 24 October 2026
+
+F-POLISH-003 investigates the supplied screenrecording and removes the offending sharp clicking from the soundtrack, preserving mellowlo-fi chords/bass, animalcalls and wildlife visuals. Evidence/inference must be labelled accurately; listeningapproval remains separate.
+
 ## Lo-fi music and animal mix — 24 October 2026
 
 F-POLISH-002 reduces call frequency again and livestock gain by exactly25% relative to the F-POLISH-001 mix, adds procedurally generated lo-fi chill music, and deepens Pip's bark while preserving Buddy's existing bark. Source lifecycle/saved-game contracts remain unchanged. Listening approval and deployment are separate milestones.

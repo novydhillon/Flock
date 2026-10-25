@@ -570,19 +570,25 @@ test('Pip lowers the recorded bark while Buddy and legacy callers retain the cur
  });
 });
 
-test('generated lo-fi uses extended soft chords, sparse swung percussion and a bounded voice budget',async()=>{
+test('generated lo-fi keeps soft swung chords and bass without sharp noise percussion',async()=>{
  await withAudio(async audio=>{
   await audio.start();assert.equal(audio.tempo,72);
-  const notes=[],beats=[],eighth=60/72/2;
-  const note=audio._note.bind(audio),beat=audio._percussion.bind(audio);
-  audio._note=(...args)=>{notes.push(args);note(...args);};audio._percussion=(...args)=>{beats.push(args);beat(...args);};
-  for(let step=0;step<128;step++)audio._musicStep(step,step*eighth,eighth);
+  audio._stopScheduler();for(const source of [...audio.active])source.end();
+  const initialOscillators=audio.context.oscillators.length,notes=[],eighth=60/72/2;
+  const note=audio._note.bind(audio);
+  audio._note=(...args)=>{notes.push(args);note(...args);};
+  for(let step=0;step<128;step++){
+   audio.context.currentTime=step*eighth;
+   for(const source of [...audio.active])if(source.stops.some(time=>time<=audio.context.currentTime))source.end();
+   audio._musicStep(step,step*eighth,eighth);
+  }
+  assert.equal(audio.context.oscillators.length-initialOscillators,notes.length,'every requested phrase note is actually rendered below the voice cap');
   const chords=notes.filter(n=>n[4]==='lofi');assert.ok(chords.length>30);assert.ok(new Set(chords.map(n=>n[0])).size>6);
   const answer=notes.find(n=>n[0]===79&&Math.abs(n[1]-(3+.14)*eighth)<1e-8);assert.ok(answer,'odd eighth melody leans behind beat');
-  assert.ok(beats.some(b=>b[3]==='hat')&&beats.some(b=>b[3]==='snare'));
+  assert.ok(notes.some(n=>n[4]==='bass')&&notes.some(n=>n[4]==='kick'));
   assert.ok(notes.every(n=>n[5]===audio.music));assert.ok(audio.active.size<=128);
   const percussion=audio.context.sources.filter(s=>s.connections[0]?.type==='bandpass'||s.connections[0]?.type==='highpass');
-  assert.ok(percussion.length);assert.ok(percussion.every(s=>s.connections[0].connections[0].connections[0]===audio.music));
+  assert.equal(percussion.length,0);assert.equal(audio.context.sources.length,0,'a complete music cycle produces no noise-buffer attacks');
   for(const source of [...audio.active])source.end();assert.equal(audio.active.size,0,'all generated voices release their graph');
  });
 });
@@ -603,5 +609,19 @@ test('lo-fi scheduling releases expired voices and maintains modest steady-state
   for(const source of [...context.oscillators,...context.sources])if(!source.disconnected&&source.stops.some(time=>Number.isFinite(time)&&time<=context.currentTime))source.end();
   assert.equal(audio.active.size,0,'all remaining finite music tails expire after pause');
   const nodes=[...context.oscillators,...context.sources];assert.ok(nodes.every(n=>n.disconnected));
+ });
+});
+
+
+test('music instruments start near zero and ramp gently while animal voices remain unchanged',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();
+  for(const [voice,attack]of [['lofi',.035],['bass',.025],['kick',.020]]){
+   audio._note(48,10,.5,.1,voice,audio.music);const osc=audio.context.oscillators.at(-1),gain=voice==='lofi'?osc.connections[0].connections[0]:osc.connections[0];
+   assert.deepEqual(gain.gain.events.slice(0,2),[['set',.0001,10],['ramp',.1,10+attack]]);
+   assert.equal(gain.connections[0],audio.music);
+  }
+  audio.recordedVoices.set('bark',{duration:.8});audio.play('bark','pip');assert.equal(audio.context.sources.at(-1).playbackRate.value,.78);
+  audio.play('bark','buddy');assert.equal(audio.context.sources.at(-1).playbackRate.value,1);
  });
 });

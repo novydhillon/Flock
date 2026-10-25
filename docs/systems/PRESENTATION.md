@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Sharp click follow-up — 24 October 2026
+
+F-POLISH-003 removes short noise-buffer hats and snares from the music cycle, preserving extended chords, bass, swing and soft sinekick. Music-only attacks now ramp from .0001 gain over35ms for keys,25ms for bass and20ms for kick; game rewardeffects and recordedanimals retain their separate paths. Supplied2.825srecording has four dominant high-frequency impulses separated by.833333seconds, matching the72BPM even-eighth clock. This strongly supports musical timing rather than movement audio, but its impulse amplitude exceeds the current nominalhatgain, so the exact original source mechanism is inferred, not proven. No listeningclaim.
+
 ## Lo-fi music and current animal mix — 24 October 2026
 
 F-POLISH-002 supersedes prior mix: livestock gain .05775 is exactly .75 of .077; initial calls8–40seconds, calm/wander26–50seconds and herded/bolt60–120seconds. Existing immediate bolt onset,1.25herdedgain and realrecording/fallback contracts remain. Procedural music runs at72BPM with extended Am9/Dm9/Gmaj9/Cmaj9 harmony, low-pass keys, soft bass, restrained kick/snare/hat,14%odd-eighth swing and sparse answers. Bounded scheduling skips missed beats, caps voices and disposes source/filter nodes. Audio events explicitly identify Pip(.78playbackrate) and Buddy(1.0); legacy unspecified bark retains1.0. The same cached recorded buffer is used, with pitch-adjusted duration. Listening remains pending.

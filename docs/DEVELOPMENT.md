@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Sharp click listening check — 24 October 2026
+
+Compare the soundtrack with the supplied recording: confirm regular sharpclicks are gone while mellowkeys/bass/softkick, Pip/Buddy voices and quiet livestock remain. Pause/mute/background/resume and restart/jump repeatedly without duplicate rhythms, catch-upbursts or abrupt noise attacks. Wildlife visuals are unchanged and no movementaudio is disabled because noneexists. Device/listeningapproval remains pending.
+
 ## Lo-fi and animal mix smoke checks — 24 October 2026
 
 Listen to F-POLISH-002 on phone: livestock should be25%quieter and call less often than previous dev; pressure retains relative state mix and bolt onset. Trigger Pip and Buddy independently/simultaneously: Pip should sound deeper while Buddy retains the current voice. Listen to the generated lo-fi groove across several phrases for calm tempo, unobtrusive mix and no clipping or sharp note tails. Toggle mute, pause/background/resume, restart/jump and overlap async audio activation: no duplicate scheduler, catch-up burst, unwanted startup or stuck source. These listening/device checks remain pending until observed; automated gains/notes/lifecycle tests are separate evidence.

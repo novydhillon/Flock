@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 24 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 25 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
 
@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-POLISH-003 | P1 | Audio | Remove sharp clicking from lo-fi soundtrack | Review | F-POLISH-002 |
 | F-POLISH-002 | P1 | Audio/music | Quieter rarer livestock, procedural lo-fi chill music and deeper Pip bark | Review | F-POLISH-001 audio |
 | F-POLISH-001 | P1 | Audio/water/birds | Sampled animal calls, softer waves and natural bird flight/foraging | Review | P1 gameplay candidate |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
@@ -665,3 +666,11 @@ All fourteen claimed P1 items are implemented and in Review on `p1_gameplay_poli
 **Accept when:** Reduce livestock call frequency further; reduce livestock volume exactly25% relative to current mix while preserving state gain ratio and immediate bolt transitions. Replace background music with procedural generated lo-fi chill music; preserve sound toggle, activation/race guards, pause/background/restart/dispose and bounded sources/scheduling. Deepen Pip bark only, retaining current Buddy bark sound. Retain real local recorded animals and existing sample fallback/loader contracts. High independent blind review and checked build required; listening approval remains distinct. No deployment or main merge authorized by this change request.
 
 **24 October source handoff:** Livestock gain reduced exactly25% (.077→.05775), independent call intervals doubled, procedural72BPM lo-fi soundtrack generated, Pip recorded bark lowered to.78rate and Buddyretained1.0. Highblindreview9.5/10 aftertestcoverage fixes. Full459runtimechecks plus final70audio/controllerchecks and bothartifactmodes pass. Listening approval remains pending; no deployment/mainmerge claimed. SeeQUALITY.md.
+
+### F-POLISH-003 — Remove sharp soundtrack clicks
+
+**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Accept when:** Investigate supplied short screenrecording transient timing/spectrum and remove identified sharp clicking source while preserving mellowlo-fi harmony/bass and animalcalls. Fauna movement visuals must remain; there are no rabbit/squirrel footstep audio events. Distinguish waveform/source inference from unperformed listening. Add meaningful audioevent/envelope regression, high blindreview and checkedbuilds; leave listeningapprovalpending. Sourceonly; no deployment/mainmerge authorization.
+
+**25 October source handoff:** Removed short noise hats/snares and softened music-only attacks; mellowchords/bass/softkick, animals and visuals retained. Suppliedrecording impulses are music-clockaligned, exactcauseinferred ratherthanproved. Highblindreview9.3/10clear; fullcheckedbuild and finalfocusedtests pass. Awaiting listeningconfirmation; notdeployed. SeeQUALITY.md.
