@@ -6,7 +6,7 @@ F-AUDIO-002 is separately queued: investigate a gentle release for an existing l
 
 ## Livestock call tuning — 25 October 2026
 
-F-AUDIO-001 applies to a new feature branch after the approved P1 merge. Sheep-only scheduled intervals double; cow intervals stay at the accepted baseline. All flockcalls become exactly20%quieter with subtle pitch/durationvariation. Preserve real recordedassets, lifecycle/statevolume/boltcontracts and Pip/Buddy bark/music. Listeningapproval and any future deployment/merge are separate.
+F-AUDIO-001 applies to a new feature branch after the approved P1 merge. Sheep-only scheduled intervals double; cow intervals stay at the accepted baseline. All flockcalls become exactly20%quieter with subtle pitch/durationvariation. Preserve real recordedassets, lifecycle/statevolume/boltcontracts and Pip/Buddy bark/music. Novy accepted F-AUDIO-001 and requested main merge on 25 October 2026; its complete record is archived. Production publication remains separate.
 
 ## P1 branch acceptance — 25 October 2026
 

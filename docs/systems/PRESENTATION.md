@@ -2,7 +2,7 @@
 
 ## Current sheep and cow call tuning — 25 October 2026
 
-F-AUDIO-001 on feature/flock-call-tuning doubles sheep-only initial/calm/herded schedules to16–80/52–100/120–240seconds. Cow schedules remain8–40/26–50/60–120seconds. Livestock gain .0462 is exactly80%of.05775, with1.25herdedratio/attenuation and immediatebolt retained. A separatehashdomain supplies stableindividualpitch plus tinypercalljitter (sheep.937–.968,cow1.096–1.144) and independentdurationScale.93–1. Recorded tails shorten by0–7%, with≤80mssoftfade and20msattack to avoid abruptcuts; actual sampleduration/pitch/scale owns stop timing. Cachedsamples/fallback and bark/music routes remain unchanged. Subtlety and tailquality require listeningapproval.
+F-AUDIO-001 on feature/flock-call-tuning doubles sheep-only initial/calm/herded schedules to16–80/52–100/120–240seconds. Cow schedules remain8–40/26–50/60–120seconds. Livestock gain .0462 is exactly80%of.05775, with1.25herdedratio/attenuation and immediatebolt retained. A separatehashdomain supplies stableindividualpitch plus tinypercalljitter (sheep.937–.968,cow1.096–1.144) and independentdurationScale.93–1. Recorded tails shorten by0–7%, with≤80mssoftfade and20msattack to avoid abruptcuts; actual sampleduration/pitch/scale owns stop timing. Cachedsamples/fallback and bark/music routes remain unchanged. Novy accepted the tuning and requested main merge on 25 October 2026; no new listening measurement is claimed.
 
 ## Sharp click follow-up — 24 October 2026
 
