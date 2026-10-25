@@ -20,6 +20,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
+| F-AUDIO-001 | P1 | Audio | Rarer sheep calls, subtle flock pitch/duration variation and quieter livestock | Review | Accepted recorded animal audio |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -430,3 +432,19 @@ Novy accepted the development build with “Looks good. Merge to main and close 
 ## Accepted P1 branch — 25 October 2026
 
 The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archived in [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). All other Open/Deferred work retains its state. This updates source acceptance and authorizes main merge only, with no production deployment.
+
+### F-AUDIO-001 — Livestock call tuning
+
+**Status:** Review. Owner: Codex. **Branch:** `feature/flock-call-tuning`.
+
+**Accept when:** Double sheep-only scheduled call intervals (halving sheep frequency again) while cow intervals retain the accepted baseline. Lower current livestock gain by exactly20%. Add subtle varied pitch and duration to sheep/cow calls using existing local realrecordings, preserving cachedloader/fallback, distanceattenuation, state1.25gain ratio and immediateboltonset. Keep Pip/Buddy bark and music unchanged. Lifecycle/mute/pause/restart/disposal and boundedvoices remain safe; no abrupt cuts, dead air or incoherent duration ownership. Highblindreview and checkedbuilds required, listeningapprovalpending. Sourceonly:newbranchfromapprovedmain1386c7a; no merge/deploy authorized.
+
+**F-AUDIO-001 source completion — 25 October 2026:** Sheep-only intervals doubled, cow intervals preserved, livestock gain .0462 (exactly20%lower), bounded individual/per-call pitch and softly faded duration variation implemented on `feature/flock-call-tuning`. Independent high review9.5/10 has no remaining current-patch findings;464broadchecks plus final32audio checks pass, bothartifactmodes verified. F-AUDIO-002 remains separatelyOpen. User listening/sign-off, deployment and any merge remain pending.
+
+### F-AUDIO-002 — Existing bolt voice-steal hard-cut risk
+
+**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+
+**Accept when:** Investigate a short release for a livestock voice replaced at the six-call cap, avoiding potential discontinuity while retaining immediate bolt onset, bounded audible/resource ownership, mute/pause/dispose cleanup and no delayed catch-up. Source inspection identifies possible risk, not an observed/listening-confirmed defect.
+
+**25 October provenance:** Independent F-AUDIO-001 review observed existing immediate `_releaseAmbience` stop/disconnect during saturated bolt replacement. Verified unchanged in approved main `1386c7a` and the new patch. Root explicitly keeps this outside current tuning scope and tracks it separately; no implementation or audible click claim.

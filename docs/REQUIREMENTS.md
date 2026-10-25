@@ -1,5 +1,13 @@
 # Flock product requirements
 
+## Existing saturated voice-steal investigation — 25 October 2026
+
+F-AUDIO-002 is separately queued: investigate a gentle release for an existing livestock call replaced at the six-call cap, preserving immediate bolt onset and bounded ownership. This source-level discontinuity risk predates F-AUDIO-001 and has not been confirmed by listening; it is not part of the current tuning implementation.
+
+## Livestock call tuning — 25 October 2026
+
+F-AUDIO-001 applies to a new feature branch after the approved P1 merge. Sheep-only scheduled intervals double; cow intervals stay at the accepted baseline. All flockcalls become exactly20%quieter with subtle pitch/durationvariation. Preserve real recordedassets, lifecycle/statevolume/boltcontracts and Pip/Buddy bark/music. Listeningapproval and any future deployment/merge are separate.
+
 ## P1 branch acceptance — 25 October 2026
 
 Novy approved the current development build and requested merging `p1_gameplay_polish` to main. The fourteen P1 items (F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008) plus F-POLISH-001/002/003 are Done and archived. Their historical pending-review/listening text is superseded by this acceptance. Clouds remain Deferred; broader unimplemented bird, companion and UI plans remain Open. Acceptance authorizes main merge, not production publication or unmeasured FPS/causal proof.
