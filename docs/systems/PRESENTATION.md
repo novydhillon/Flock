@@ -1,5 +1,31 @@
 # Presentation: renderer, nature and audio
 
+## Sharp click follow-up — 24 October 2026
+
+F-POLISH-003 removes short noise-buffer hats and snares from the music cycle, preserving extended chords, bass, swing and soft sinekick. Music-only attacks now ramp from .0001 gain over35ms for keys,25ms for bass and20ms for kick; game rewardeffects and recordedanimals retain their separate paths. Supplied2.825srecording has four dominant high-frequency impulses separated by.833333seconds, matching the72BPM even-eighth clock. This strongly supports musical timing rather than movement audio, but its impulse amplitude exceeds the current nominalhatgain, so the exact original source mechanism is inferred, not proven. No listeningclaim.
+
+## Lo-fi music and current animal mix — 24 October 2026
+
+F-POLISH-002 supersedes prior mix: livestock gain .05775 is exactly .75 of .077; initial calls8–40seconds, calm/wander26–50seconds and herded/bolt60–120seconds. Existing immediate bolt onset,1.25herdedgain and realrecording/fallback contracts remain. Procedural music runs at72BPM with extended Am9/Dm9/Gmaj9/Cmaj9 harmony, low-pass keys, soft bass, restrained kick/snare/hat,14%odd-eighth swing and sparse answers. Bounded scheduling skips missed beats, caps voices and disposes source/filter nodes. Audio events explicitly identify Pip(.78playbackrate) and Buddy(1.0); legacy unspecified bark retains1.0. The same cached recorded buffer is used, with pitch-adjusted duration. Listening remains pending.
+
+## Clay bird follow-up — 24 October 2026
+
+Birds now use seeded forage/takeoff/flight/landing states. Forage gestures alternate bounded dry-ground hops and head/body pecks while feet retain support. Rounded head, beak, eye, breast, tail, leg and foot parts share one instanced body batch; a shoulder-local custom wing mesh uses mirrored bounded hinges, folded rearward and static on ground. Takeoff and landing blend altitude and wing extension, and threats interrupt ground/landing. Population remains capped at six; existing eight nature batches and resource ownership are preserved. No extra per-frame geometry/material construction. Elevated perches, nests and bird audio remain future scope.
+
+## Animal audio and softer waves follow-up — 24 October 2026
+
+F-POLISH-001 supersedes the earlier animal mix: recorded CC0 dog/sheep/cow MP3 assets are bundled under `public/audio/`; provenance and exact license/source links are in `public/audio/CREDITS.md`. FarmAudio asynchronously fetches/decode-caches them once after permitted audio activation, relative to the current document directory for dev/root hosting. Loading never blocks game start or replays a missed call. Decode failure retains an explicit synthesis fallback; disposal/generation guards reject stale completion. Livestock gain is .077 (45% below .14), initial calls stagger 4–20 seconds, calm/wandering calls recur 13–25 seconds and herded/bolting calls 30–60 seconds. Herded/bolt calls retain a 1.25 gain ratio; bolt onset remains immediate. Sheep playback rate is narrowly bounded .94–.965, cows modestly raised to 1.10–1.14. Recorded duration determines source stop time. Audible realism/mix still requires listening approval.
+
+River flow retains the accepted centerline strip/collision footprint with a 128-square tile combining broken, modulated primary crests and finer secondary ripples. Softer blue-gray crests and lower weather-bounded opacity replace bright uniform bands; integer-period modulation preserves wrapping seams, transparent troughs/banks and pause. No new draw or per-frame geometry cost.
+
+## Herd gestures, vocal calls, wildlife and waves — 24 October 2026
+
+`herd-pose.js` owns per-animal presentation clocks, anticipation, attention, ear/tail/blink/chew gestures, with quiet gaps and immediate threat priority. Relaxation comes from simulation; head-down grazing still requires eligible grass/bush surfaces. Cached anatomy carries gesture tags/pivots; cached gesture materials accompany the anatomy and each level owns its small instance gesture buffer, with no per-frame geometry allocation or added animal draw batches. Dispose level wrappers without disposing shared anatomy buffers. Animation does not control collision, delivery or rewards.
+
+`FarmAudio.updateLivestock` uses individual seeded transient schedules: ordinary wandering/calm calls every 5–10 seconds after staggered startup, herded/bolting calls every 12–24 seconds at 1.25 times baseline per-voice gain before distance attenuation. A new bolt triggers immediately; six active voices bound overlap, with ordinary starts limited per frame. Cached synthesized dog/sheep/cow PCM buffers replace the electronic bark sweep. Calls stop on pause/mute/replacement/disposal; missed calls are not replayed on resume. Recognizable timbre and phone mix need listening acceptance.
+
+Squirrels and rabbits now define four visible paws and use four-instance indexing for pose, shelter and hide operations. Existing species batches are reused. River flow crests use pale color and transparent troughs with weather-bounded opacity, preserving physical river geometry and local flow direction. An owned strip uses three shared vertices per centerline station with explicit bank/center U and cumulative V; conservative average-normal joins keep the overlay inside the source river without long union-triangle interpolation or refinement budget starvation. Phone readability, visual seams and GPU cost remain separate from matrix/source checks.
+
 ## Stateful scenery batching — F-032, 23 October 2026
 
 Gate lamp domes set `userData.dynamicScenery=true`. `batchScenery` excludes these meshes so `gateView.update` swaps the materials of the actual visible scene objects. The prior optimizer detached opaque red domes into immutable scenery instances while the gate view updated only detached originals; sprites already escaped that mesh-only batch. State transitions now retain original ownership and material disposal. Static housing/highlight meshes can still batch. Validate this through `MeadowRenderer.setLevel` and contact-driven `update`, including both lamp sides and restart; isolated gate-view tests do not cover this boundary.
@@ -325,3 +351,4 @@ Novy approved the current cow update at 17:30 America/Creston and authorized mer
 ## Pip favicon and Home Screen artwork
 
 `public/icons/` contains a closeup on grass-green `#779c4d` of the actual `createPip()` head mesh. `index.html` links browser SVG/PNG and Apple touch PNG variants. `public/site.webmanifest` keeps start URL, scope and identity relative so production and dev installations stay separate. No service worker or offline cache is introduced. `scripts/generate-pip-icons.mjs` uses Three SVGRenderer and jsdom to project the existing geometry with simplified material lighting (no texture sampling). Run `node scripts/generate-pip-icons.mjs` at repository root with Inkscape and Python/Pillow installed; it regenerates SVG and every PNG in one command. PNG backgrounds are fully opaque grass green, matching the base field texture colour. iOS final appearance requires device review.
+

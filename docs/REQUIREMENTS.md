@@ -1,5 +1,25 @@
 # Flock product requirements
 
+## P1 branch acceptance — 25 October 2026
+
+Novy approved the current development build and requested merging `p1_gameplay_polish` to main. The fourteen P1 items (F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008) plus F-POLISH-001/002/003 are Done and archived. Their historical pending-review/listening text is superseded by this acceptance. Clouds remain Deferred; broader unimplemented bird, companion and UI plans remain Open. Acceptance authorizes main merge, not production publication or unmeasured FPS/causal proof.
+
+## Remove sharp soundtrack clicks — 24 October 2026
+
+F-POLISH-003 investigates the supplied screenrecording and removes the offending sharp clicking from the soundtrack, preserving mellowlo-fi chords/bass, animalcalls and wildlife visuals. Evidence/inference must be labelled accurately; listeningapproval remains separate.
+
+## Lo-fi music and animal mix — 24 October 2026
+
+F-POLISH-002 reduces call frequency again and livestock gain by exactly25% relative to the F-POLISH-001 mix, adds procedurally generated lo-fi chill music, and deepens Pip's bark while preserving Buddy's existing bark. Source lifecycle/saved-game contracts remain unchanged. Listening approval and deployment are separate milestones.
+
+## Animal and water follow-up — 24 October 2026
+
+F-POLISH-001: quieter and less frequent recorded animal calls where licensed samples are obtainable, capped sheep pitch/slightly higher cows, realistic bark; subdued varied waves; clay birds with hinged wing flight, grounded folded wings, dry landings, hopping/pecking and coherent transitions.
+
+## P1 gameplay batch — 24 October 2026
+
+Implement the explicit reprioritized P1 backlog F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008 using their tracker acceptance criteria. Clouds remain deferred. Quit discards the transient meadow and returns to landing while retaining the campaign profile, upgrades and earned bolts; returning Play starts the campaign continuation meadow anew. Bark tier 3 uses two charges with the existing 2.1-second cooldown beginning after the second bark, then restores both; pause freezes burst/cooldown time. Tier 2 and tier 3 retain a +33% force increase relative to tier 1. Tuning and appearance await gameplay/listening sign-off.
+
 ## Map-generation sign-off — 24 October 2026
 
 Novy explicitly accepted all changes from this map-generation work: F-031/F-032/F-034/F-038/F-UI-013/F-VIS-002/F-VIS-003 are Done and archived; F-VIS-001 barn acceptance was already recorded. This includes final gate-light batching correction `00bdda0`, manually deployed by Novy to dev. Historical pending-review statements below are superseded. Production merge/publication remains separate.
@@ -386,7 +406,7 @@ Open the QA menu without automatically focusing, selecting or expanding the leve
 
 ## Queued bark upgrade tiers - F-050 (P2)
 
-Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES.md#f-050---bark-strength-and-two-bark-upgrade-tiers-p2).
+Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES_CLOSED.md#f-050---bark-strength-and-two-bark-upgrade-tiers-p1).
 
 ### F-051 - Compact gameplay HUD
 
@@ -515,3 +535,4 @@ Prefer the standard Deploy Flock workflow where connector dispatch is available.
 ## Buddy behaviour acceptance — 22 October 2026
 
 Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main and close the tickets” after reviewing the dev build. These six requirements are Done on `buddy_behaviour`, with complete requirements, acceptance criteria, historical implementation/publication evidence and closure records in [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes the older Review/pending acceptance descriptions for these six items elsewhere in this document; F-COMP-004/005/006/008 remain Open and F-OPS-004 is unchanged. Main source merge is authorized; production publication is not requested. Acceptance is user gameplay sign-off, not an independent native-phone FPS/audio/touch measurement.
+

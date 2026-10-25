@@ -178,19 +178,22 @@ test('portrait scene builds articulated instance poses and finite camera matrice
 test('changing levels disposes world resources without disposing cached animal geometry',()=>{
   const renderer=setup(),level=createLevel(3);renderer.setLevel(level);
   assert.deepEqual([...new Set(level.animals.map(animal=>animal.type))].sort(),['cow','sheep'],'mixed-species lifecycle fixture');
-  let worldDisposed=0,animalDisposed=0,fenceDisposed=0,treeDisposed=0;const worldGeometries=new Set();
+  let worldDisposed=0,animalDisposed=0,gestureDisposed=0,fenceDisposed=0,treeDisposed=0;const worldGeometries=new Set();
   renderer.fenceParts.forEach(p=>p.geometry.addEventListener('dispose',()=>fenceDisposed++));
   new Set(models.createTree(0,0).children.map(p=>p.geometry)).forEach(g=>g.addEventListener('dispose',()=>treeDisposed++));
   renderer.terrain.traverse(o=>{if(o.userData.ownedGeometry)worldGeometries.add(o.geometry);});
   worldGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>worldDisposed++));
   const animalGeometries=new Set(renderer.animalBatches.flatMap(batch=>batch.meshes.map(mesh=>mesh.geometry)));
-  animalGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>animalDisposed++));
+  const wrappers=[...animalGeometries].filter(g=>g.userData.animalGestureWrapper);
+  wrappers.forEach(geometry=>geometry.addEventListener('dispose',()=>gestureDisposed++));
+  const cachedAnimalGeometries=new Set(['sheep','cow'].flatMap(type=>models.createAnimal(type).children.map(part=>part.geometry)));
+  cachedAnimalGeometries.forEach(geometry=>geometry.addEventListener('dispose',()=>animalDisposed++));
   renderer.bark();let barkDisposed=0;renderer.barkEffects[0].mesh.material.addEventListener('dispose',()=>barkDisposed++);
   renderer.celebrate(level.target.x,level.target.z);
   let confettiDisposed=0;renderer.particles.forEach(p=>p.mesh.geometry.addEventListener('dispose',()=>confettiDisposed++));
   renderer.setLevel(createLevel(1));
   assert.equal(barkDisposed,1);assert.equal(renderer.barkEffects.length,0);
-  assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.equal(fenceDisposed,0);assert.equal(treeDisposed,0);
+  assert.ok(worldGeometries.size>0);assert.equal(worldDisposed,worldGeometries.size);assert.equal(confettiDisposed,36);assert.equal(animalDisposed,0);assert.ok(wrappers.length>0);assert.equal(gestureDisposed,wrappers.length);assert.equal(fenceDisposed,0);assert.equal(treeDisposed,0);
   const a=models.createFlowerPatch(1,3),b=models.createFlowerPatch(7,3);
   assert.equal(a.children[0].geometry,b.children[0].geometry,'flower variants reuse bounded geometry');
 });
@@ -613,7 +616,7 @@ function assertAnimalMatrices(renderer,level){
     assert.equal(mesh.visible,mesh.count>0);
     batch.visibleIndices.forEach((index,slot)=>{
       expected.copy(renderer.animalMeshes[index].matrix);
-      if(mesh.userData.headPart){const state=renderer.animalMeshes[index].userData,p=mesh.userData.pivot;rotation.makeTranslation(p[0],p[1]-(state.graze||0)*mesh.userData.grazeDrop,p[2]).multiply(new THREE.Matrix4().makeRotationX(grazingAngle(state,index)));expected.multiply(rotation);}
+      if(mesh.userData.headPart){const state=renderer.animalMeshes[index].userData,p=mesh.userData.pivot;rotation.makeTranslation(p[0],p[1]-(state.graze||0)*mesh.userData.grazeDrop+(state.herdPose?.headLift||0),p[2]).multiply(new THREE.Matrix4().makeRotationY(state.herdPose?.headYaw||0)).multiply(new THREE.Matrix4().makeRotationX(grazingAngle(state,index)));expected.multiply(rotation);}
       if(mesh.userData.limbIndex!==undefined){
         const a=level.animals[index],limb=mesh.userData.limbIndex,phase=limb===0||limb===3?0:Math.PI;
         const gait=Math.sin(poseTime*12+index*.8+phase)*Math.min(.5,Math.hypot(a.vx,a.vz)*.15);
@@ -1037,3 +1040,4 @@ test('both species lower complete instanced heads near grass, freeze, lift on pa
   renderer.update(level,level.dog,.1);assert.ok(renderer.animalMeshes.every(m=>m.userData.graze===0));
   renderer.setLevel(level);assert.ok(renderer.animalMeshes.every(m=>m.userData.graze===undefined));
 });
+

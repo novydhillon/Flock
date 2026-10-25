@@ -73,7 +73,9 @@ test('river arc-length flow follows a bend and owns its UV geometry',()=>{
   const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial()),effects=new WaterEffects(new THREE.Scene());
   effects.setLevel(level,{rivers:[{mesh,points:[{x:0,z:0},{x:0,z:8},{x:8,z:8}],width:4}]});
   const overlay=effects.root.children.find(c=>c.name==='River flow');assert.notEqual(overlay.geometry,geometry);
-  assert.deepEqual([...overlay.geometry.attributes.uv.array],[0,0,0,2,0,4]);assert.deepEqual([...overlay.material.map.repeat],[1,1]);
+  const positions=overlay.geometry.attributes.position,uvs=overlay.geometry.attributes.uv;
+  for(const [x,z,u,v] of [[0,0,0,0],[0,8,0,2],[8,8,0,4]]){let found=false;for(let i=0;i<positions.count;i++)if(positions.getX(i)===x&&positions.getZ(i)===z){found=true;assert.equal(uvs.getX(i),u);assert.equal(uvs.getY(i),v);}assert.ok(found);}
+  assert.deepEqual([...overlay.material.map.repeat],[1,1]);
   effects.update(.1,{weather:{type:'sun'}});assert.equal(overlay.material.map.offset.x,0);assert.ok(overlay.material.map.offset.y>0);
   let disposed=0;overlay.geometry.addEventListener('dispose',()=>disposed++);effects.dispose();assert.equal(disposed,1);assert.deepEqual([...geometry.attributes.uv.array],[0,0,0,2,2,2]);
 });
@@ -143,3 +145,4 @@ test('portrait players see accumulating puddles along large level routes, includ
   }
   effects.dispose();
 });
+

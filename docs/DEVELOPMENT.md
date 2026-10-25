@@ -1,5 +1,23 @@
 # Development, QA and release context
 
+## Sharp click listening check — 24 October 2026
+
+Compare the soundtrack with the supplied recording: confirm regular sharpclicks are gone while mellowkeys/bass/softkick, Pip/Buddy voices and quiet livestock remain. Pause/mute/background/resume and restart/jump repeatedly without duplicate rhythms, catch-upbursts or abrupt noise attacks. Wildlife visuals are unchanged and no movementaudio is disabled because noneexists. Device/listeningapproval remains pending.
+
+## Lo-fi and animal mix smoke checks — 24 October 2026
+
+Listen to F-POLISH-002 on phone: livestock should be25%quieter and call less often than previous dev; pressure retains relative state mix and bolt onset. Trigger Pip and Buddy independently/simultaneously: Pip should sound deeper while Buddy retains the current voice. Listen to the generated lo-fi groove across several phrases for calm tempo, unobtrusive mix and no clipping or sharp note tails. Toggle mute, pause/background/resume, restart/jump and overlap async audio activation: no duplicate scheduler, catch-up burst, unwanted startup or stuck source. These listening/device checks remain pending until observed; automated gains/notes/lifecycle tests are separate evidence.
+
+## Follow-up smoke checks — 24 October 2026
+
+Compare livestock cadence/pitch/mix and dog bark on phone; mute/pause/restart with async samples pending. Observe waves in all weather and river bends. Watch birds fly, land on dry ground, fold wings, hop/peck, take off and hide in storms; pause and jump repeatedly. These listening/rendered/phone checks remain pending.
+
+## P1 batch smoke checks — 24 October 2026
+
+On `p1_gameplay_polish`, test phone portrait/landscape: Quit during motion/held input and during a bark, return to landing with sound stopped and saved bolts/upgrades intact, then start the continuation meadow anew. At public levels 8/13 or later, compare bark tier 1/2 force, workshop +33% wording, two distinct tier-3 taps, compatibility click/key repeat suppression, cooldown progress, pause/background freeze, restart and backward QA jumps. Listen to bark/bleat/moo identity and mix; watch immediate bolting calls, quieter/more frequent wandering and louder/less frequent herding. Mute/pause/restart repeatedly with no replayed call burst.
+
+Observe mixed herds/all cow sizes with Pip/Buddy absent, approaching, holding and moving: bounded spreading, local split independence, barrier clearance, bridge/gate completion, immediate response and gradual relaxation. Look for desynchronized ears/tails/blinks/chewing, head attention and weight shifts without delayed escape. Keep heads up on roads/bridges/barns. Fill rotated destinations, verify arrival space, entrance clearance, containment, quiet spells and unchanged scores. Compare river crests along bends/banks/bridges in all weather and four wildlife paws while idle/moving/sheltering. These device/listening/appearance/FPS checks are pending until observed; automated behavior, matrix, shader-source and resource checks are separate evidence.
+
 ## Gate-state batching regression — 23 October 2026
 
 In dev, touch a closed gate switch, walk through the open gap and confirm both visible domes/halos turn green; leave the switch, return to close and confirm red. Repeat from each side for wood/stone and restart the level. Check actual rendered lamps after normal scene initialization, rather than a standalone gate-view fixture. Source integration tests inspect live scene membership after scenery batching and real contact transitions; phone color appearance remains a separate observation.
@@ -363,3 +381,8 @@ Branch `map_generation_improvements` covers F-031/F-032/F-034/F-038. Compare ear
 On an operable gate, guide Pip onto each red pad from its own side, confirm both turn green and the opening becomes physically passable. Leave both pads before returning to close it; holding contact must not repeatedly toggle. Try closing while a cow or Buddy occupies the panel and verify safe refusal, then clear the passage and retry. Confirm helpers never activate pads and straight centerline herd traffic does not accidentally toggle them. Repeat with wood/stone, rotated maps, pause/resume/restart and normal touch/keyboard controls. Check the minimap after each successful change.
 
 Assess later pacing with no helper and active Buddy tiers, including split-flock retrieval and attended delivery. Source clearance sweeps and headless journeys do not establish human difficulty, touch feel, appearance or phone FPS. Development publication remains a separate requested action; production merge/root publication requires explicit authorization.
+
+
+### P1 test map — 24 October 2026
+
+`tests/herd-personality.test.js` covers deterministic traits, unattended spread/barriers/control, relaxation and saved mixed-herd arrival. `tests/herd-pose.test.js` covers gesture timing, threat/grazing priority and owned instance resources. `tests/bark.test.js` covers charges and pause/recovery state; audio/progression/UI/QA integration tests cover actual wiring. `tests/river-contrast.test.js` and `tests/wildlife-legs.test.js` cover flow data and live limb instances.

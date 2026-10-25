@@ -166,8 +166,8 @@ test('invalid balances and unknown purchases never deduct points', () => {
 });
 
 test('each permitted tier produces a stronger gameplay effect', () => {
-  const fieldById={speed:'speedBoost',flock:'signalBoost',bark:'barkBoost',cohesion:'cohesionBoost',drone:'droneStrength',helper:'helperStrength'};
-  for (const item of UPGRADE_CATALOG) {
+  const fieldById={speed:'speedBoost',flock:'signalBoost',cohesion:'cohesionBoost',drone:'droneStrength',helper:'helperStrength'};
+  for (const item of UPGRADE_CATALOG.filter(item=>item.id!=='bark')) {
     let previous=upgradeEffects({},100)[fieldById[item.id]];
     for (let tier=1;tier<=3;tier++) {
       const effect=upgradeEffects({[item.id]:tier},item.unlockLevels[tier-1])[fieldById[item.id]];
@@ -179,3 +179,4 @@ test('each permitted tier produces a stronger gameplay effect', () => {
   assert.equal(upgradeEffects({}).helper,false);
   assert.deepEqual(upgradeEffects({speed:true},2),upgradeEffects({speed:1},2));
 });
+

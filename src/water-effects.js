@@ -23,12 +23,39 @@ function safePuddleSite(level,p){
 }
 
 function flowTexture(){
-  const n=64,data=new Uint8Array(n*n*4);
+  const n=128,data=new Uint8Array(n*n*4);
   for(let y=0;y<n;y++)for(let x=0;x<n;x++){
-    const i=(y*n+x)*4, streak=(Math.sin(y*.72+Math.sin(x*.31)*1.5)+Math.sin(y*1.37+x*.18))*.5;
-    const v=Math.round(145+streak*28);data[i]=Math.round(v*.65);data[i+1]=v;data[i+2]=Math.min(255,v+24);data[i+3]=255;
+    const i=(y*n+x)*4,u=x/(n-1),v=y/(n-1),tau=Math.PI*2;
+    // Integer periods tile without a flashing seam. Narrow pale crests leave
+    // the river base visible between waves instead of tinting the entire ribbon.
+    const bend=.15*Math.sin(u*tau)+.07*Math.sin((u+v)*tau*2);
+    const wave=Math.sin(tau*(v*3+bend)),secondary=Math.sin(tau*(v*5-u*2+.08*Math.sin(v*tau)));
+    const gaps=.48+.52*(.5+.5*Math.sin(tau*(u*2+v)));
+    const crest=clamp((Math.pow(Math.max(0,wave),5)*gaps+Math.pow(Math.max(0,secondary),9)*.25)*(.7+.3*Math.cos(u*tau*3)));
+    const edge=Math.abs(u<=.5?u:u-1),bank=1-clamp((edge-.36)/.14);
+    data[i]=185;data[i+1]=218;data[i+2]=224;data[i+3]=Math.round(255*crest*bank);
   }
   const t=new THREE.DataTexture(data,n,n);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1,5);t.magFilter=t.minFilter=THREE.LinearFilter;t.needsUpdate=true;return t;
+}
+
+// A centerline-owned strip avoids the long sweep triangles of the physical
+// ribbon. Shared stations keep U=0 on the current, with cumulative V at bends.
+// Averaging the adjacent bank normals puts outer joins on the source bevel
+// (rather than a protruding miter), narrowing the effect through tight turns.
+function flowGeometry(river,source){
+  const points=river.points.filter((p,i,all)=>!i||Math.hypot(p.x-all[i-1].x,p.z-all[i-1].z)>1e-6);
+  if(points.length<2)return source.clone();
+  const positions=[],uvs=[],indices=[],half=(river.width||4)/2,y=source.attributes.position.getY(0),normals=[];
+  for(let i=1;i<points.length;i++){const dx=points[i].x-points[i-1].x,dz=points[i].z-points[i-1].z,length=Math.hypot(dx,dz);normals.push({x:-dz/length,z:dx/length});}
+  let along=0;
+  for(let i=0;i<points.length;i++){
+    const p=points[i],a=normals[Math.max(0,i-1)],b=normals[Math.min(normals.length-1,i)];
+    if(i)along+=Math.hypot(p.x-points[i-1].x,p.z-points[i-1].z);
+    const nx=(a.x+b.x)*.5,nz=(a.z+b.z)*.5;
+    for(const side of [-1,0,1]){positions.push(p.x+nx*half*side,y,p.z+nz*half*side);uvs.push(side*.5,along/4);}
+    if(i){const j=(i-1)*3,k=i*3;indices.push(j,j+1,k+1,j,k+1,k,j+1,j+2,k+2,j+1,k+2,k+1);}
+  }
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geometry.setIndex(indices);return geometry;
 }
 
 /** Bounded weather-driven river, wet-ground, puddle and splash scenery. */
@@ -36,7 +63,7 @@ export class WaterEffects {
   constructor(scene,{maxSplashes=12,maxPuddles=8}={}){
     this.scene=scene;this.root=new THREE.Group();this.root.name='Water and wetness effects';scene.add(this.root);
     this.maxSplashes=Math.max(0,maxSplashes|0);this.maxPuddles=Math.max(0,maxPuddles|0);this.elapsed=0;this.wetness=0;this.level=null;
-    this.flowMap=flowTexture();this.flowMaterial=new THREE.MeshBasicMaterial({map:this.flowMap,color:0x8acbd2,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
+    this.flowMap=flowTexture();this.flowMaterial=new THREE.MeshBasicMaterial({map:this.flowMap,color:0xffffff,transparent:true,opacity:.20,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
     this.splashGeometry=new THREE.TorusGeometry(.2,.025,4,12);
     this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
   }
@@ -48,14 +75,11 @@ export class WaterEffects {
     this.waterSnapshot=waterMaterial?{material:waterMaterial,color:waterMaterial.color?.clone(),roughness:waterMaterial.roughness}:null;
     for(const river of rivers){if(!river?.mesh)continue;const mesh=river.mesh;
       // The lightweight overlay has its own material and texture; it never replaces or disposes the game's source material.
-      // Ribbon UVs are world x/z coordinates, so flow along the river axis
-      // must advance the matching U/V components instead of rotating the map.
+      // Real rivers use local arc-length V; legacy point-free fixtures retain
+      // source world UVs and advance their matching heading components.
       const map=this.flowMap.clone();map.repeat.set(1,1);
       const material=this.flowMaterial.clone();material.map=map;material.userData.ownedFlowMap=map;
-      const geometry=mesh.geometry.clone(),positions=geometry.attributes.position,uv=geometry.attributes.uv;
-      // Arc-length V follows each local tangent, independent of world compass.
-      const points=river.points;
-      if(points?.length>1){for(let i=0;i<positions.count;i++){const x=positions.getX(i),z=positions.getZ(i);let best=Infinity,along=0,side=0,total=0;for(let j=1;j<points.length;j++){const a=points[j-1],b=points[j],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz);if(!len)continue;const t=clamp(((x-a.x)*dx+(z-a.z)*dz)/(len*len)),px=x-a.x-t*dx,pz=z-a.z-t*dz,d=px*px+pz*pz;if(d<best){best=d;along=total+t*len;side=(-dz*px+dx*pz)/len;}total+=len;}uv.setXY(i,side/Math.max(1,river.width||4),along/4);}uv.needsUpdate=true;}
+      const points=river.points,geometry=points?.length>1?flowGeometry(river,mesh.geometry):mesh.geometry.clone();
       const overlay=new THREE.Mesh(geometry,material);overlay.name='River flow';overlay.position.copy(mesh.position);overlay.position.y+=.003;overlay.rotation.copy(mesh.rotation);overlay.scale.copy(mesh.scale);overlay.frustumCulled=mesh.frustumCulled;overlay.userData.flow={heading:river.heading||0,speed:river.flowSpeed??.12,localUV:Boolean(points?.length>1)};this.root.add(overlay);
     }
     for(let i=0;i<this.maxSplashes;i++){const material=new THREE.MeshBasicMaterial({color:0xc9eef0,transparent:true,opacity:.78,depthWrite:false});const mesh=new THREE.Mesh(this.splashGeometry,material);mesh.visible=false;mesh.rotation.x=-Math.PI/2;this.root.add(mesh);this.splashes.push({mesh,material,age:1});}
@@ -122,7 +146,7 @@ export class WaterEffects {
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
     this.applySurfaceWeather(weather);
-    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.08+rain*.18+(weather.daylight??.7)*.025+(weather.lightningFlash||0)*.2;}
+    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.18+rain*.06+(weather.daylight??.7)*.015+(weather.lightningFlash||0)*.04;}
     // Any fixed rainy tier reaches full size within the expected level duration.
     // Intensity changes atmosphere density; it must not hide light-rain accumulation.
     if(rain>0)this.rainElapsed+=dt;
@@ -138,3 +162,4 @@ export class WaterEffects {
   spawnSplash(pos){const s=this.splashes.find(v=>v.age>=1);if(!s)return;s.age=0;s.mesh.position.set(pos.x,terrainHeight(this.level,pos.x,pos.z)+.08,pos.z);s.mesh.scale.setScalar(.35);s.mesh.visible=true;}
   dispose(){this.restoreMaterials();this.clearEffects();this.root.removeFromParent();this.flowMap.dispose();this.flowMaterial.dispose();this.splashGeometry.dispose();this.level=null;this.scene=null;}
 }
+

@@ -1,5 +1,17 @@
 # Architecture and system contracts
 
+## Explicit bark actor ownership — 24 October 2026
+
+Controller dispatches explicit pip/buddy identities to FarmAudio.play for bark events; voice pitch remains an audio concern and cannot alter gameplay pressure/charges or Buddy autonomy. FarmAudio owns procedural lo-fi scheduling/instrument nodes and the current livestock mix, preserving activation-generation guards, pause/mute/disposal and async sample cache ownership.
+
+## Follow-up audio and bird ownership — 24 October 2026
+
+FarmAudio owns async recorded sample caching with stale-disposal rejection and explicit synthesis fallback. Public audio files include source/license provenance. Wildlife owns seeded bird state transitions and dry endpoint/approach checks, including water under bridges; nature only reads states to compose local bird part/wing matrices. Physical herd, progression and original world random streams remain independent.
+
+## P1 ownership — 24 October 2026
+
+Simulation owns seeded herd temperaments, local social weights, unattended browsing, relaxation and saved arrival reservations through `herd-behavior.js`. Presentation reads that state through `herd-pose.js`, grazing and instanced animal geometry. `bark.js` owns controller-side transient Pip charges and gameplay-time cooldown, while progression supplies the exact force/charge definitions and Buddy retains independent state. `FarmAudio` owns bounded livestock schedules and cached vocal buffers; the controller passes current animals/listener only during play and resets schedules on level replacement. Quit builds a fresh landing scene while preserving the campaign profile.
+
 ## Dynamic scenery contract — 23 October 2026
 
 Meshes whose owner changes material or pose after level setup must opt out of immutable scenery batching with `userData.dynamicScenery`. Gate lamp domes use this contract so the visible mesh remains under gate-view control after `MeadowRenderer.setLevel`. State remains owned by simulation; renderer batching cannot snapshot a stateful indicator into permanent red scenery.
@@ -189,3 +201,4 @@ Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/
 The `map_generation_improvements` candidate keeps `world.js` authoritative for the ordered `level.boundary` polygon, physical boundary/interior fences, gate descriptors and largest-body route geometry. Axis-aligned `bounds` still frame generation/camera/minimap work; they do not imply that concave cutouts are playable. Renderer ground and minimap use the boundary polygon, while world occupancy/path queries enforce it. Concave `ShapeGeometry` forms brighter playable turf above darker surrounding scenery; its geometry is level-owned and disposed on replacement. On large maps, the minimap uses a Pip-following local viewport clamped to the AABB, clipping geometry and markers to the frame; compact levels retain fit-to-map framing. Angular/L-shaped maps must preserve routes, spawn, target and safe gate-pad access.
 
 `gates.js` owns two-sided pad coordinates, Pip-only fresh-contact activation, release hysteresis and occupied-panel closing refusal. `stepSimulation` invokes it only during active simulation; `main.js` announces toggle/refusal events through the existing status toast. `gate-view.js` displays both pads from the shared open state. Successful toggles increment geometry revision and clear visibility caches; world queries and minimap read that same state. Gate contact remains transient level data, and no DOM control or helper independently owns panel state. See the [current world contract](systems/WORLD.md#map-generation-candidate--22-october-2026).
+
