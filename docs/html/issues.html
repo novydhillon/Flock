@@ -3,7 +3,7 @@
 <body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
 <div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="issues-closed.html" >Closed issues</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="issues-closed.html" >Closed issues</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="flock--active-issue-tracker">FLOCK — Active issue tracker<a class="heading-link" href="#flock--active-issue-tracker" aria-label="Link to FLOCK — Active issue tracker">#</a></h1>
 <p>Updated 25 October 2026 (America/Creston). Repository: <code>novydhillon/Flock</code>.</p>
-<p>This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in <a href="issues-closed.html">Closed issues</a>. References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.</p>
+<p>This file contains active work only. The fourteen P1 items and three follow-ups on <code>p1_gameplay_polish</code> were accepted on 25 October 2026 and moved in full to <a href="issues-closed.html#p1-gameplay-and-follow-up-acceptance--25-october-2026">Closed issues</a>. Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.</p>
 <h2 id="tracker-lifecycle-and-ownership">Tracker lifecycle and ownership<a class="heading-link" href="#tracker-lifecycle-and-ownership" aria-label="Link to Tracker lifecycle and ownership">#</a></h2>
 <ol>
 <li>Read <a href="../../AGENTS.md">AGENTS.md</a>, <a href="development.html">development rules</a>, current requirements and this tracker before implementation. Public level numbers are one-based.</li>
@@ -28,30 +28,6 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>F-POLISH-003</td>
-<td>P1</td>
-<td>Audio</td>
-<td>Remove sharp clicking from lo-fi soundtrack</td>
-<td>Review</td>
-<td>F-POLISH-002</td>
-</tr>
-<tr>
-<td>F-POLISH-002</td>
-<td>P1</td>
-<td>Audio/music</td>
-<td>Quieter rarer livestock, procedural lo-fi chill music and deeper Pip bark</td>
-<td>Review</td>
-<td>F-POLISH-001 audio</td>
-</tr>
-<tr>
-<td>F-POLISH-001</td>
-<td>P1</td>
-<td>Audio/water/birds</td>
-<td>Sampled animal calls, softer waves and natural bird flight/foraging</td>
-<td>Review</td>
-<td>P1 gameplay candidate</td>
-</tr>
-<tr>
 <td>F-UI-001</td>
 <td>P2</td>
 <td>Gameplay UI</td>
@@ -178,62 +154,6 @@
 <td>Brief shared arrival celebration</td>
 <td>Open</td>
 <td>F-COMP-006; existing full-completion/results flow</td>
-</tr>
-<tr>
-<td>F-HERD-001</td>
-<td>P1</td>
-<td>Behavior</td>
-<td>Bounded individual temperaments</td>
-<td>Review</td>
-<td>Existing wander/bolt and pressure behavior</td>
-</tr>
-<tr>
-<td>F-HERD-002</td>
-<td>P1</td>
-<td>Animation/behavior</td>
-<td>Anticipation before movement</td>
-<td>Review</td>
-<td>F-065 accepted turning; existing pressure signals</td>
-</tr>
-<tr>
-<td>F-HERD-003</td>
-<td>P1</td>
-<td>Animation</td>
-<td>Natural herd resting gestures</td>
-<td>Review</td>
-<td>Current sheep/cow articulated models</td>
-</tr>
-<tr>
-<td>F-HERD-004</td>
-<td>P1</td>
-<td>Behavior</td>
-<td>Gentle preferred-neighbor relationships</td>
-<td>Review</td>
-<td>F-HERD-001; accepted forward-flow and local-flock behavior</td>
-</tr>
-<tr>
-<td>F-HERD-006</td>
-<td>P1</td>
-<td>Behavior/animation</td>
-<td>Readable relaxation and settling</td>
-<td>Review</td>
-<td>F-HERD-002; existing F-041 local settling; grass/bush grazing work</td>
-</tr>
-<tr>
-<td>F-HERD-007</td>
-<td>P1</td>
-<td>Behavior</td>
-<td>Distinct sheep and cow movement character</td>
-<td>Review</td>
-<td>F-HERD-001; F-HERD-005; F-065</td>
-</tr>
-<tr>
-<td>F-HERD-008</td>
-<td>P1</td>
-<td>Gameplay/behavior</td>
-<td>Spread and settle after arrival</td>
-<td>Review</td>
-<td>F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006</td>
 </tr>
 <tr>
 <td>F-BIRD-009</td>
@@ -372,54 +292,6 @@
 <td>Rendering batches</td>
 </tr>
 <tr>
-<td>F-026</td>
-<td>P1</td>
-<td>UI</td>
-<td>Pause-menu Quit returns to landing page</td>
-<td>Review</td>
-<td>—</td>
-</tr>
-<tr>
-<td>F-030</td>
-<td>P1</td>
-<td>Environment</td>
-<td>Lighter, more contrasting water waves</td>
-<td>Review</td>
-<td>—</td>
-</tr>
-<tr>
-<td>F-036</td>
-<td>P1</td>
-<td>Gameplay</td>
-<td>Unattended flock spreads out in the field</td>
-<td>Review</td>
-<td>F-012, F-028</td>
-</tr>
-<tr>
-<td>F-042</td>
-<td>P1</td>
-<td>Wildlife/art</td>
-<td>Investigate and fix missing back legs on small wild animals</td>
-<td>Review</td>
-<td>-</td>
-</tr>
-<tr>
-<td>F-043</td>
-<td>P1</td>
-<td>Audio</td>
-<td>Make the bark sound resemble a barking dog</td>
-<td>Review</td>
-<td>-</td>
-</tr>
-<tr>
-<td>F-044</td>
-<td>P1</td>
-<td>Audio</td>
-<td>Add sheep and cow calls with state-dependent frequency and volume</td>
-<td>Review</td>
-<td>-</td>
-</tr>
-<tr>
 <td>F-045</td>
 <td>P4</td>
 <td>Weather/water</td>
@@ -443,14 +315,6 @@
 <td>Open</td>
 <td>-</td>
 </tr>
-<tr>
-<td>F-050</td>
-<td>P1</td>
-<td>Gameplay/upgrades/UI</td>
-<td>Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown</td>
-<td>Review</td>
-<td>-</td>
-</tr>
 </tbody></table></div>
 <h2 id="acceptance-criteria-and-planned-work">Acceptance criteria and planned work<a class="heading-link" href="#acceptance-criteria-and-planned-work" aria-label="Link to Acceptance criteria and planned work">#</a></h2>
 <h3 id="f-008--clouds-temporarily-deferred">F-008 — Clouds temporarily deferred<a class="heading-link" href="#f-008--clouds-temporarily-deferred" aria-label="Link to F-008 — Clouds temporarily deferred">#</a></h3>
@@ -462,64 +326,6 @@
 <h3 id="f-015--performance-verification-gap">F-015 — Performance verification gap<a class="heading-link" href="#f-015--performance-verification-gap" aria-label="Link to F-015 — Performance verification gap">#</a></h3>
 <p>Real phone GPU frame rate and level-transition memory stability remain unmeasured. The existing bounded submission/resource tests are useful but do not establish FPS. Historical production JavaScript was roughly <strong>576 kB / 155 kB gzip</strong>, with an advisory Vite chunk-size warning; this is an optimization consideration, not a confirmed gameplay bug.</p>
 <p><strong>Accept when:</strong> measure normal/large/split herds, later expansive worlds, weather/cloud effects and repeated transitions on representative phones. Record frame-time distribution, load behavior and resource growth. Set a device-specific performance target before judging success.</p>
-<h3 id="f-026--quit-to-landing-page">F-026 — Quit to landing page<a class="heading-link" href="#f-026--quit-to-landing-page" aria-label="Link to F-026 — Quit to landing page">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Requirement:</strong> the pause menu should include a Quit button that returns to the landing page. Added directly on GitHub while this batch was in progress; retained as an Open P3 item.</p>
-<p><strong>Accept when:</strong> Quit returns to the intro/landing screen with movement stopped and transient gameplay/audio handled consistently. Normal saved progress and earned money are preserved. Define whether the current in-progress meadow is discarded or can be resumed; do not treat Quit as Restart Game.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-030--lighter-more-contrasting-water-waves-p1">F-030 — Lighter, more contrasting water waves (P1)<a class="heading-link" href="#f-030--lighter-more-contrasting-water-waves-p1" aria-label="Link to F-030 — Lighter, more contrasting water waves (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Requirement:</strong> make river waves lighter and more contrasting.</p>
-<p><strong>Accept when:</strong> wave detail is visibly lighter and has stronger contrast against the river base at normal portrait zoom, follows the local river direction through bends, remains seamless at banks/bridges and stays readable in all fixed weather types. Check pause and mobile rendering cost.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-036--unattended-flock-spreads-across-the-field-p1">F-036 — Unattended flock spreads across the field (P1)<a class="heading-link" href="#f-036--unattended-flock-spreads-across-the-field-p1" aria-label="Link to F-036 — Unattended flock spreads across the field (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Requirement:</strong> when unattended, the flock spreads out across the field.</p>
-<p><strong>Accept when:</strong> with Pip and helpers not actively controlling the herd, eligible undelivered animals disperse across usable field area; spread remains bounded by gameplay barriers and field edges, does not cause stuck animals or autonomous goal delivery, and stops/reverses appropriately when herding resumes. Saved animals continue to follow F-028&#39;s enclosure roaming contract. Define measurable spread/coverage during implementation without presenting a chosen metric as user-approved.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-042---investigate-and-fix-missing-back-legs-on-small-wild-animals-p1">F-042 - Investigate and fix missing back legs on small wild animals (P1)<a class="heading-link" href="#f-042---investigate-and-fix-missing-back-legs-on-small-wild-animals-p1" aria-label="Link to F-042 - Investigate and fix missing back legs on small wild animals (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p>Small wild animals appear to be missing their back legs. Investigate the cause and fix their appearance.</p>
-<p>Acceptance criteria:</p>
-<ul>
-<li>Identify why the back legs are not visible.</li>
-<li>Ensure small wild animals display their back legs correctly while idle and moving.</li>
-</ul>
-<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/2">GitHub #2</a>; moved to this document without implementing or completing the request.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-043---make-the-bark-sound-resemble-a-barking-dog-p1">F-043 - Make the bark sound resemble a barking dog (P1)<a class="heading-link" href="#f-043---make-the-bark-sound-resemble-a-barking-dog-p1" aria-label="Link to F-043 - Make the bark sound resemble a barking dog (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p>The current bark sound does not sound like a barking dog. Update or replace it so the bark is clearly recognizable as a dog barking.</p>
-<p>Acceptance criteria:</p>
-<ul>
-<li>Triggering the bark plays a recognizable dog bark.</li>
-</ul>
-<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/3">GitHub #3</a>; moved to this document without implementing or completing the request.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-044---add-sheep-and-cow-calls-with-state-dependent-frequency-and-volume-p1">F-044 - Add sheep and cow calls with state-dependent frequency and volume (P1)<a class="heading-link" href="#f-044---add-sheep-and-cow-calls-with-state-dependent-frequency-and-volume-p1" aria-label="Link to F-044 - Add sheep and cow calls with state-dependent frequency and volume (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p>Add recognizable sheep bleats (&quot;bahhh&quot;) and cow moos. Each individual animal should vocalize intermittently at random intervals, so the combined calls sound like a flock/herd rather than synchronized playback.</p>
-<p>Behavior by state:</p>
-<ul>
-<li>Wandering: more frequent calls at baseline volume.</li>
-<li>Being herded / flocked: less frequent calls, 25% louder than baseline.</li>
-<li>Bolting: use the same sound behavior as being herded / flocked (less frequent calls, 25% louder than baseline), with a call starting immediately when the animal begins bolting. Subsequent calls occur intermittently at random intervals.</li>
-</ul>
-<p>Acceptance criteria:</p>
-<ul>
-<li>Sheep sound recognizably like sheep and cows sound recognizably like cows.</li>
-<li>Each animal calls occasionally on its own randomized schedule; combined calls create a natural flock/herd sound.</li>
-<li>Wandering calls occur more frequently than herding calls and use baseline volume.</li>
-<li>Herding calls occur less frequently and are 25% louder than baseline.</li>
-<li>Bolting immediately triggers a call and then follows the herding call frequency and volume.</li>
-</ul>
-<p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/4">GitHub #4</a>; moved to this document without implementing or completing the request.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
 <h3 id="f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)<a class="heading-link" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4" aria-label="Link to F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)">#</a></h3>
 <p><strong>Status:</strong> Open, queued only; unassigned.</p>
 <p>Add visible raindrop impacts and splashes on rivers, streams, and other water surfaces when heavy rain or stronger rain is falling.</p>
@@ -551,18 +357,6 @@
 <li>Initial focus goes to the QA menu container or a suitable non-dropdown control.</li>
 </ul>
 <p><strong>Scope:</strong> queued QA usability fix only; no implementation or acceptance claimed.</p>
-<h3 id="f-050---bark-strength-and-two-bark-upgrade-tiers-p1">F-050 - Bark strength and two-bark upgrade tiers (P1)<a class="heading-link" href="#f-050---bark-strength-and-two-bark-upgrade-tiers-p1" aria-label="Link to F-050 - Bark strength and two-bark upgrade tiers (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Requirement:</strong> Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown.</p>
-<p><strong>Accept when:</strong></p>
-<ul>
-<li>Bark level 2 applies a 33% strength increase relative to level 1.</li>
-<li>The workshop clearly displays the level-2 bark strength bonus as +33%.</li>
-<li>Bark level 3 allows two barks before entering cooldown.</li>
-</ul>
-<p><strong>Scope:</strong> queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
 <h2 id="bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)<a class="heading-link" href="#bird-behavior-feature-plan--18-october-2026-americacreston" aria-label="Link to Bird behavior feature plan — 18 October 2026 (America/Creston)">#</a></h2>
 <p>Planning requested by Novy; <strong>all F-BIRD items are Open, unassigned and not implemented</strong>. Planning owner: Codex; documentation branch: <code>plan/bird-behaviour</code>, based on main <code>5fd8cf5</code>. Runtime implementation branch: to be claimed from current main when scheduled. Bird-scoped IDs avoid collisions with concurrently assigned numeric F-IDs. Proposed priority: P2 for this ambient-life feature. This request authorizes planning/tracker updates; no runtime work or game deployment is included.</p>
 <p><strong>Existing foundation:</strong> <code>src/wildlife.js</code> already supplies seeded, area-scaled birds (currently capped at six), threat response and weather sheltering. <code>src/nature.js</code> renders continuously airborne birds; <code>src/audio.js</code> schedules generic ambient calls. Extend these systems rather than introduce a second population/audio loop. New ambient birds do not affect herding, collision admission, scoring or progression.</p>
@@ -621,53 +415,6 @@
 <p><strong>Depends on:</strong> F-BIRD-003; F-BIRD-004; F-BIRD-009; F-BIRD-011.</p>
 <p><strong>Accept when:</strong> After Pip, Buddy and quickly approaching livestock leave an area, birds can gradually return to safe ground and resume foraging. Require a tunable clear interval and recheck threats before landing; stagger returns so the meadow settles naturally. Calm or grazing livestock do not prevent return. Repeated barking or a renewed threat postpones landing without rapid oscillation. Returns use existing birds, honor weather shelter and cannot teleport or add population.</p>
 <p><strong>Documentation handoff:</strong> the original planning commit is <code>1fbfe08</code>; remote publication was blocked by automatic approval review, which required explicit authorization for <code>novydhillon/Flock</code>. This follow-up updates the same local planning branch; no new push is attempted without that authorization. Documentation generation/checks cover this addition; runtime implementation and acceptance remain future work.</p>
-<h2 id="herd-life-and-readability-plan--18-october-2026-2149-americacreston">Herd life and readability plan — 18 October 2026, 21:49 America/Creston<a class="heading-link" href="#herd-life-and-readability-plan--18-october-2026-2149-americacreston" aria-label="Link to Herd life and readability plan — 18 October 2026, 21:49 America/Creston">#</a></h2>
-<p>Novy requested tracking all eight suggested herd enhancements. <strong>F-HERD-001–008 are P2, Open, unassigned and not implemented.</strong> Planning owner: Codex. Documentation recorded on the existing local <code>plan/bird-behaviour</code> planning branch; runtime branch/owner to be claimed from current main when implementation is scheduled. Herd-scoped IDs avoid collisions with concurrently assigned numeric issues. Prioritize bottleneck yielding (005), anticipation (002) and arrival behavior (008); dependencies below describe integration prerequisites, not a requirement to finish every other item first.</p>
-<p>These extend accepted behavior rather than reopen signed-off issues. Preserve current collision/navigation, turn caps, weaker cohesion, forward bridge commitment, local settling, delivered-animal containment and progression. The separate requested surface-aware grazing change remains distinct and must be integrated from its actual latest implementation when these items are claimed. No implementation or game deployment is authorized by this tracker update.</p>
-<h3 id="f-herd-001--bounded-individual-temperaments-p1">F-HERD-001 — Bounded individual temperaments (P1)<a class="heading-link" href="#f-herd-001--bounded-individual-temperaments-p1" aria-label="Link to F-HERD-001 — Bounded individual temperaments (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> Existing wander/bolt and pressure behavior.</p>
-<p><strong>Accept when:</strong> Give animals small, stable seeded differences in confidence, curiosity and willingness to follow. Keep variation bounded and readable: every animal remains responsive to appropriate herding pressure, with no unbeatable stubbornness or new uncontrolled bolting. Preserve accepted wander/bolt frequencies, local settling and weak cohesion unless a separately reviewed adjustment is necessary. Restart preserves traits without altering original world/herd random streams.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-herd-002--anticipation-before-movement-p1">F-HERD-002 — Anticipation before movement (P1)<a class="heading-link" href="#f-herd-002--anticipation-before-movement-p1" aria-label="Link to F-HERD-002 — Anticipation before movement (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> F-065 accepted turning; existing pressure signals.</p>
-<p><strong>Accept when:</strong> Animals look toward a disturbance, lift their heads and visibly shift weight before ordinary movement or flight. Strong nearby pressure or an actual bark still produces an immediate gameplay response: anticipation must not add input latency or stall escape. Blend out of grazing safely and coordinate head, body and legs with current turn limits; preserve simulation-owned movement and collisions.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-herd-003--natural-herd-resting-gestures-p1">F-HERD-003 — Natural herd resting gestures (P1)<a class="heading-link" href="#f-herd-003--natural-herd-resting-gestures-p1" aria-label="Link to F-HERD-003 — Natural herd resting gestures (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> Current sheep/cow articulated models.</p>
-<p><strong>Accept when:</strong> Add occasional ear flicks, tail swishes, blinking and chewing with varied timing and restful gaps. Species-appropriate gestures remain subtle and legible in the clay style at gameplay zoom. They do not synchronize the entire herd or change gameplay state; locomotion and threats take precedence. Respect grass/bush-only head-down grazing and its exclusions for paths, bridges and barns. Keep shared geometry/materials and bounded instance cost.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-herd-004--gentle-preferred-neighbor-relationships-p1">F-HERD-004 — Gentle preferred-neighbor relationships (P1)<a class="heading-link" href="#f-herd-004--gentle-preferred-neighbor-relationships-p1" aria-label="Link to F-HERD-004 — Gentle preferred-neighbor relationships (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> F-HERD-001; accepted forward-flow and local-flock behavior.</p>
-<p><strong>Accept when:</strong> Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-herd-006--readable-relaxation-and-settling-p1">F-HERD-006 — Readable relaxation and settling (P1)<a class="heading-link" href="#f-herd-006--readable-relaxation-and-settling-p1" aria-label="Link to F-HERD-006 — Readable relaxation and settling (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> F-HERD-002; existing F-041 local settling; grass/bush grazing work.</p>
-<p><strong>Accept when:</strong> After pressure ends, transition progressively from alert to walking to calm/grazing, with varied timing and hysteresis that prevents rapid state flicker. Renewed pressure interrupts relaxation immediately. Keep accepted local settling locations and wander/bolt rules; do not reset their schedules just for presentation. Graze only where the separately requested surface eligibility allows it, with no head-down feeding on paths, bridges or in barns.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-herd-007--distinct-sheep-and-cow-movement-character-p1">F-HERD-007 — Distinct sheep and cow movement character (P1)<a class="heading-link" href="#f-herd-007--distinct-sheep-and-cow-movement-character-p1" aria-label="Link to F-HERD-007 — Distinct sheep and cow movement character (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> F-HERD-001; F-HERD-005; F-065.</p>
-<p><strong>Accept when:</strong> Sheep read as a somewhat tighter group; cows move more deliberately with somewhat greater personal space, using bounded species tuning. Preserve sheep turning at no more than 180 degrees/second and cows at no more than 120 degrees/second, with walking legs during stationary turns. Do not reintroduce stronger flock-wide magnetic attraction or rear-to-front pushing. Validate route clearance, delivery pacing and all cow sizes; any tuning values are proposed implementation choices requiring gameplay review.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
-<h3 id="f-herd-008--spread-and-settle-after-arrival-p1">F-HERD-008 — Spread and settle after arrival (P1)<a class="heading-link" href="#f-herd-008--spread-and-settle-after-arrival-p1" aria-label="Link to F-HERD-008 — Spread and settle after arrival (P1)">#</a></h3>
-<p><strong>Current execution — 24 October 2026:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>. High-effort independent blind review required. Earlier queued status below is historical.</p>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Depends on / preserve:</strong> F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006.</p>
-<p><strong>Accept when:</strong> Delivered animals move toward available space inside the destination and settle naturally, keeping the entrance clear for arrivals when space permits. Retain accepted F-028 roaming and strict goal containment; avoid overlap and test full/mixed herds and all cow sizes. Do not force grazing inside a barn or on ineligible surfaces. Preserve Pip-at-goal scoring, delivery counts/timer/rewards, and one-time delivery registration; no exits, teleportation or scoring from the arrival animation.</p>
-<p><strong>Shared validation and acceptance:</strong> test sheep, every cow size, mixed herds, open/closed gates, rotated bridges, split groups, Pip/Buddy pressure, destination capacity, pause/resume/restart and stable seeded behavior. Source checks must verify no collision escape, deadlock or delivery/progression regression. Follow AGENTS.md independent ownership/blind-review requirements for substantial runtime work, full relevant regressions and both artifact modes. Record measured resource costs separately from phone FPS. Phone appearance, animation readability and herding feel require rendered/play testing; leave implementations in Review until Novy&#39;s sign-off. Regenerate/check documentation. Publish future authorized development builds only to <code>/Flock/dev/</code>; production merge/publication requires separate authorization.</p>
-<p><strong>Planning handoff:</strong> documentation-only scope, with no runtime tests or blind review claim. Generated documentation and link/behavior checks are run for this update. All runtime implementation and acceptance remain outstanding. The earlier automatic approval rejection still blocks remote publication without explicit push authorization; these additions are committed locally without retrying the blocked action.</p>
-<p><strong>Source completion — 24 October 2026:</strong> Implemented and independently reviewed at high effort. See the P1 gameplay record in <a href="quality.html">QUALITY.md</a>. Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.</p>
 <h2 id="pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston<a class="heading-link" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston" aria-label="Link to Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston">#</a></h2>
 <p><strong>Historical planning record:</strong> the Open/unimplemented status statements in this planning introduction are superseded by the 19 October execution records, current overview and individual issue details. F-COMP-001/002/003/007/009/010 are now Done in <a href="issues-closed.html">Closed issues</a>, accepted 22 October 2026; F-COMP-004/005/006/008 remain Open.</p>
 <p>Novy requested tracking all eight suggested improvements. <strong>F-COMP-001–008 are P2, Open, unassigned and not implemented.</strong> Planning owner: Codex; documentation branch: existing local <code>plan/bird-behaviour</code>. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).</p>
@@ -753,21 +500,7 @@
 <p>User requested merging fallback changes to main and integrating main into buddy_behaviour. Main PR #18 merged at c35c466; this integration preserves Buddy runtime/tests and all branch-specific tracker/evidence records, resolves append conflicts and regenerates HTML. No Pages publication is included.</p>
 <h2 id="buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026<a class="heading-link" href="#buddy-user-acceptance--22-october-2026" aria-label="Link to Buddy user acceptance — 22 October 2026">#</a></h2>
 <p>Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to <a href="issues-closed.html#buddy-user-acceptance--22-october-2026">Closed issues</a>. F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source <code>17f648d</code>, Pages <code>45110fa</code>; source branch <code>buddy_behaviour</code> (documentation head before closure <code>15666f2</code>). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.</p>
-<h2 id="p1-execution--24-october-2026">P1 execution — 24 October 2026<a class="heading-link" href="#p1-execution--24-october-2026" aria-label="Link to P1 execution — 24 October 2026">#</a></h2>
-<p>Novy requested work on the reprioritized P1 backlog using the established development process, with high effort for blind critics. This branch starts at main <code>2655525</code> and carries forward the explicit P1 priorities from <code>docs/signoff-f-ops-004</code> without replacing accepted main map work. Claims: F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008. Clouds (F-008) remain Deferred. Source publication is part of the development handoff; PR, dev deployment and production merge/publication are not requested by this instruction. Separate implementation ownership: herd simulation/presentation, bark/audio, water/wildlife, controller/docs.</p>
-<h2 id="p1-review-handoff--24-october-2026">P1 review handoff — 24 October 2026<a class="heading-link" href="#p1-review-handoff--24-october-2026" aria-label="Link to P1 review handoff — 24 October 2026">#</a></h2>
-<p>All fourteen claimed P1 items are implemented and in Review on <code>p1_gameplay_polish</code>. Controller/audio review passed at 9.2/10, herd review at 9.2/10 and water/wildlife review at 9.5/10 after confirmed findings were fixed. Final validation evidence is in QUALITY.md and the P1 quality manifest. Novy&#39;s previous F-OPS-004 sign-off and P1 priorities from <code>docs/signoff-f-ops-004</code> are preserved; no cloud work was resumed. This handoff does not claim dev publication, user acceptance or production merge.</p>
-<h3 id="f-polish-001--animal-sound-waves-and-bird-follow-up">F-POLISH-001 — Animal sound, waves and bird follow-up<a class="heading-link" href="#f-polish-001--animal-sound-waves-and-bird-follow-up" aria-label="Link to F-POLISH-001 — Animal sound, waves and bird follow-up">#</a></h3>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Accept when:</strong> Lower animal volume/frequency, narrow sheep pitch and slightly raise cows; use real recorded dog/sheep/cow samples where suitable licensed files are obtainable. Bark should sound realistic. Reduce wave brightness and add varied crests while retaining local flow, bank containment and pause. Clay-style birds flap hinged wings instead of spinning, fold grounded wings, land only on dry valid ground, hop and peck, and take off coherently. Preserve bounded resources, storms, seed/restart, lifecycle and save contracts. Fresh high-effort blind review plus focused/full checked builds required. Device listening and rendered appearance remain separate acceptance checks. User authorized escalation for difficult animation work; bird implementation uses xhigh effort.</p>
-<p><strong>24 October source handoff:</strong> Recorded CC0 animal samples, quieter/slower calls, capped sheep/raised cow pitch, subdued varied waves, clay bird states/hinged wings/dry ground foraging implemented. High independent audio/wave review 9.5/10 and bird review 9.2/10 after fixes. Checked dev build passes457 tests and both artifact modes. Listening/phone appearance and user sign-off remain pending; no follow-up deployment is claimed. See QUALITY.md and public/audio/CREDITS.md.</p>
-<h3 id="f-polish-002--livestock-mix-lo-fi-music-and-deeper-pip-bark">F-POLISH-002 — Livestock mix, lo-fi music and deeper Pip bark<a class="heading-link" href="#f-polish-002--livestock-mix-lo-fi-music-and-deeper-pip-bark" aria-label="Link to F-POLISH-002 — Livestock mix, lo-fi music and deeper Pip bark">#</a></h3>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Accept when:</strong> Reduce livestock call frequency further; reduce livestock volume exactly25% relative to current mix while preserving state gain ratio and immediate bolt transitions. Replace background music with procedural generated lo-fi chill music; preserve sound toggle, activation/race guards, pause/background/restart/dispose and bounded sources/scheduling. Deepen Pip bark only, retaining current Buddy bark sound. Retain real local recorded animals and existing sample fallback/loader contracts. High independent blind review and checked build required; listening approval remains distinct. No deployment or main merge authorized by this change request.</p>
-<p><strong>24 October source handoff:</strong> Livestock gain reduced exactly25% (.077→.05775), independent call intervals doubled, procedural72BPM lo-fi soundtrack generated, Pip recorded bark lowered to.78rate and Buddyretained1.0. Highblindreview9.5/10 aftertestcoverage fixes. Full459runtimechecks plus final70audio/controllerchecks and bothartifactmodes pass. Listening approval remains pending; no deployment/mainmerge claimed. SeeQUALITY.md.</p>
-<h3 id="f-polish-003--remove-sharp-soundtrack-clicks">F-POLISH-003 — Remove sharp soundtrack clicks<a class="heading-link" href="#f-polish-003--remove-sharp-soundtrack-clicks" aria-label="Link to F-POLISH-003 — Remove sharp soundtrack clicks">#</a></h3>
-<p><strong>Status:</strong> Review. Owner: Codex. <strong>Branch:</strong> <code>p1_gameplay_polish</code>.</p>
-<p><strong>Accept when:</strong> Investigate supplied short screenrecording transient timing/spectrum and remove identified sharp clicking source while preserving mellowlo-fi harmony/bass and animalcalls. Fauna movement visuals must remain; there are no rabbit/squirrel footstep audio events. Distinguish waveform/source inference from unperformed listening. Add meaningful audioevent/envelope regression, high blindreview and checkedbuilds; leave listeningapprovalpending. Sourceonly; no deployment/mainmerge authorization.</p>
-<p><strong>25 October source handoff:</strong> Removed short noise hats/snares and softened music-only attacks; mellowchords/bass/softkick, animals and visuals retained. Suppliedrecording impulses are music-clockaligned, exactcauseinferred ratherthanproved. Highblindreview9.3/10clear; fullcheckedbuild and finalfocusedtests pass. Awaiting listeningconfirmation; notdeployed. SeeQUALITY.md.</p>
-</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#tracker-lifecycle-and-ownership">Tracker lifecycle and ownership</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#acceptance-criteria-and-planned-work">Acceptance criteria and planned work</a><a class="toc-level-3" href="#f-008--clouds-temporarily-deferred">F-008 — Clouds temporarily deferred</a><a class="toc-level-3" href="#f-013--known-level-5-pacing-concern">F-013 — Known level-5 pacing concern</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-026--quit-to-landing-page">F-026 — Quit to landing page</a><a class="toc-level-3" href="#f-030--lighter-more-contrasting-water-waves-p1">F-030 — Lighter, more contrasting water waves (P1)</a><a class="toc-level-3" href="#f-036--unattended-flock-spreads-across-the-field-p1">F-036 — Unattended flock spreads across the field (P1)</a><a class="toc-level-3" href="#f-042---investigate-and-fix-missing-back-legs-on-small-wild-animals-p1">F-042 - Investigate and fix missing back legs on small wild animals (P1)</a><a class="toc-level-3" href="#f-043---make-the-bark-sound-resemble-a-barking-dog-p1">F-043 - Make the bark sound resemble a barking dog (P1)</a><a class="toc-level-3" href="#f-044---add-sheep-and-cow-calls-with-state-dependent-frequency-and-volume-p1">F-044 - Add sheep and cow calls with state-dependent frequency and volume (P1)</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-3" href="#f-050---bark-strength-and-two-bark-upgrade-tiers-p1">F-050 - Bark strength and two-bark upgrade tiers (P1)</a><a class="toc-level-2" href="#bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)</a><a class="toc-level-3" href="#f-bird-001--bird-states-and-seeded-population-p2">F-BIRD-001 — Bird states and seeded population (P2)</a><a class="toc-level-3" href="#f-bird-002--clay-birds-and-animated-transitions-p2">F-BIRD-002 — Clay birds and animated transitions (P2)</a><a class="toc-level-3" href="#f-bird-003--safe-ground-and-elevated-landing-sites-p2">F-BIRD-003 — Safe ground and elevated landing sites (P2)</a><a class="toc-level-3" href="#f-bird-004--conditional-ground-bird-fleeing-p2">F-BIRD-004 — Conditional ground-bird fleeing (P2)</a><a class="toc-level-3" href="#f-bird-005--perched-chirping-and-quiet-sitting-p2">F-BIRD-005 — Perched chirping and quiet sitting (P2)</a><a class="toc-level-3" href="#f-bird-006--rare-tree-nest-p2">F-BIRD-006 — Rare tree nest (P2)</a><a class="toc-level-3" href="#f-bird-007--weather-lifecycle-and-resource-integration-p2">F-BIRD-007 — Weather, lifecycle and resource integration (P2)</a><a class="toc-level-3" href="#f-bird-008--validation-blind-review-and-dev-sign-off-p2">F-BIRD-008 — Validation, blind review and dev sign-off (P2)</a><a class="toc-level-2" href="#bird-feature-additions--18-october-2026-2147-americacreston">Bird feature additions — 18 October 2026, 21:47 America/Creston</a><a class="toc-level-3" href="#f-bird-009--small-social-foraging-groups-p2">F-BIRD-009 — Small social foraging groups (P2)</a><a class="toc-level-3" href="#f-bird-010--ground-hops-and-perched-idle-gestures-p2">F-BIRD-010 — Ground hops and perched idle gestures (P2)</a><a class="toc-level-3" href="#f-bird-011--react-to-pip-and-buddy-barking-p2">F-BIRD-011 — React to Pip and Buddy barking (P2)</a><a class="toc-level-3" href="#f-bird-012--occasional-visits-to-the-nest-p2">F-BIRD-012 — Occasional visits to the nest (P2)</a><a class="toc-level-3" href="#f-bird-013--two-or-three-recognizable-bird-varieties-p2">F-BIRD-013 — Two or three recognizable bird varieties (P2)</a><a class="toc-level-3" href="#f-bird-014--gradual-return-after-the-meadow-settles-p2">F-BIRD-014 — Gradual return after the meadow settles (P2)</a><a class="toc-level-2" href="#herd-life-and-readability-plan--18-october-2026-2149-americacreston">Herd life and readability plan — 18 October 2026, 21:49 America/Creston</a><a class="toc-level-3" href="#f-herd-001--bounded-individual-temperaments-p1">F-HERD-001 — Bounded individual temperaments (P1)</a><a class="toc-level-3" href="#f-herd-002--anticipation-before-movement-p1">F-HERD-002 — Anticipation before movement (P1)</a><a class="toc-level-3" href="#f-herd-003--natural-herd-resting-gestures-p1">F-HERD-003 — Natural herd resting gestures (P1)</a><a class="toc-level-3" href="#f-herd-004--gentle-preferred-neighbor-relationships-p1">F-HERD-004 — Gentle preferred-neighbor relationships (P1)</a><a class="toc-level-3" href="#f-herd-006--readable-relaxation-and-settling-p1">F-HERD-006 — Readable relaxation and settling (P1)</a><a class="toc-level-3" href="#f-herd-007--distinct-sheep-and-cow-movement-character-p1">F-HERD-007 — Distinct sheep and cow movement character (P1)</a><a class="toc-level-3" href="#f-herd-008--spread-and-settle-after-arrival-p1">F-HERD-008 — Spread and settle after arrival (P1)</a><a class="toc-level-2" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston</a><a class="toc-level-3" href="#f-comp-004--clear-attention-and-working-intent-p2">F-COMP-004 — Clear attention and working intent (P2)</a><a class="toc-level-3" href="#f-comp-005--bark-pose-and-recovery-gesture-p2">F-COMP-005 — Bark pose and recovery gesture (P2)</a><a class="toc-level-3" href="#f-comp-006--distinct-pip-and-buddy-personalities-p2">F-COMP-006 — Distinct Pip and Buddy personalities (P2)</a><a class="toc-level-3" href="#f-comp-008--brief-shared-arrival-celebration-p2">F-COMP-008 — Brief shared arrival celebration (P2)</a><a class="toc-level-2" href="#gameplay-loading-and-landing-ui-plan--18-october-2026-2157-americacreston">Gameplay, loading and landing UI plan — 18 October 2026, 21:57 America/Creston</a><a class="toc-level-3" href="#f-ui-001--clear-bark-cooldown-to-ready-feedback-p2">F-UI-001 — Clear bark cooldown-to-ready feedback (P2)</a><a class="toc-level-3" href="#f-ui-002--distinct-livestock-states-on-the-minimap-p2">F-UI-002 — Distinct livestock states on the minimap (P2)</a><a class="toc-level-3" href="#f-ui-003--current-to-next-upgrade-benefits-and-previews-p2">F-UI-003 — Current-to-next upgrade benefits and previews (P2)</a><a class="toc-level-3" href="#f-ui-004--clay-meadow-loading-vignette-p2">F-UI-004 — Clay meadow loading vignette (P2)</a><a class="toc-level-3" href="#f-ui-005--honest-initialization-progress-p2">F-UI-005 — Honest initialization progress (P2)</a><a class="toc-level-3" href="#f-ui-006--smooth-reveal-of-the-ready-meadow-p2">F-UI-006 — Smooth reveal of the ready meadow (P2)</a><a class="toc-level-3" href="#f-ui-007--retry-and-clear-loading-error-recovery-p2">F-UI-007 — Retry and clear loading-error recovery (P2)</a><a class="toc-level-3" href="#f-ui-008--progress-aware-start-or-continue-action-p2">F-UI-008 — Progress-aware Start or Continue action (P2)</a><a class="toc-level-3" href="#f-ui-009--living-showcase-meadow-p2">F-UI-009 — Living showcase meadow (P2)</a><a class="toc-level-3" href="#f-ui-010--move-full-game-reset-out-of-the-play-area-p2">F-UI-010 — Move full-game reset out of the Play area (P2)</a><a class="toc-level-3" href="#f-ui-011--clear-meadow-selector-with-remembered-browsing-position-p2">F-UI-011 — Clear meadow selector with remembered browsing position (P2)</a><a class="toc-level-3" href="#f-ui-012--introduction-copy-for-sheep-cows-pip-and-buddy-p2">F-UI-012 — Introduction copy for sheep, cows, Pip and Buddy (P2)</a><a class="toc-level-2" href="#tracker-archive-maintenance--18-october-2026-2204-americacreston">Tracker archive maintenance — 18 October 2026, 22:04 America/Creston</a><a class="toc-level-2" href="#main-integration--18-october-2026-2217-americacreston">Main integration — 18 October 2026, 22:17 America/Creston</a><a class="toc-level-2" href="#delivery-fallback-integration--19-october-2026">Delivery fallback integration — 19 October 2026</a><a class="toc-level-2" href="#buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026</a><a class="toc-level-2" href="#p1-execution--24-october-2026">P1 execution — 24 October 2026</a><a class="toc-level-2" href="#p1-review-handoff--24-october-2026">P1 review handoff — 24 October 2026</a><a class="toc-level-3" href="#f-polish-001--animal-sound-waves-and-bird-follow-up">F-POLISH-001 — Animal sound, waves and bird follow-up</a><a class="toc-level-3" href="#f-polish-002--livestock-mix-lo-fi-music-and-deeper-pip-bark">F-POLISH-002 — Livestock mix, lo-fi music and deeper Pip bark</a><a class="toc-level-3" href="#f-polish-003--remove-sharp-soundtrack-clicks">F-POLISH-003 — Remove sharp soundtrack clicks</a></nav></aside></div>
+<h2 id="accepted-p1-branch--25-october-2026">Accepted P1 branch — 25 October 2026<a class="heading-link" href="#accepted-p1-branch--25-october-2026" aria-label="Link to Accepted P1 branch — 25 October 2026">#</a></h2>
+<p>The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archived in <a href="issues-closed.html#p1-gameplay-and-follow-up-acceptance--25-october-2026">Closed issues</a>. All other Open/Deferred work retains its state. This updates source acceptance and authorizes main merge only, with no production deployment.</p>
+</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#tracker-lifecycle-and-ownership">Tracker lifecycle and ownership</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#acceptance-criteria-and-planned-work">Acceptance criteria and planned work</a><a class="toc-level-3" href="#f-008--clouds-temporarily-deferred">F-008 — Clouds temporarily deferred</a><a class="toc-level-3" href="#f-013--known-level-5-pacing-concern">F-013 — Known level-5 pacing concern</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-2" href="#bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)</a><a class="toc-level-3" href="#f-bird-001--bird-states-and-seeded-population-p2">F-BIRD-001 — Bird states and seeded population (P2)</a><a class="toc-level-3" href="#f-bird-002--clay-birds-and-animated-transitions-p2">F-BIRD-002 — Clay birds and animated transitions (P2)</a><a class="toc-level-3" href="#f-bird-003--safe-ground-and-elevated-landing-sites-p2">F-BIRD-003 — Safe ground and elevated landing sites (P2)</a><a class="toc-level-3" href="#f-bird-004--conditional-ground-bird-fleeing-p2">F-BIRD-004 — Conditional ground-bird fleeing (P2)</a><a class="toc-level-3" href="#f-bird-005--perched-chirping-and-quiet-sitting-p2">F-BIRD-005 — Perched chirping and quiet sitting (P2)</a><a class="toc-level-3" href="#f-bird-006--rare-tree-nest-p2">F-BIRD-006 — Rare tree nest (P2)</a><a class="toc-level-3" href="#f-bird-007--weather-lifecycle-and-resource-integration-p2">F-BIRD-007 — Weather, lifecycle and resource integration (P2)</a><a class="toc-level-3" href="#f-bird-008--validation-blind-review-and-dev-sign-off-p2">F-BIRD-008 — Validation, blind review and dev sign-off (P2)</a><a class="toc-level-2" href="#bird-feature-additions--18-october-2026-2147-americacreston">Bird feature additions — 18 October 2026, 21:47 America/Creston</a><a class="toc-level-3" href="#f-bird-009--small-social-foraging-groups-p2">F-BIRD-009 — Small social foraging groups (P2)</a><a class="toc-level-3" href="#f-bird-010--ground-hops-and-perched-idle-gestures-p2">F-BIRD-010 — Ground hops and perched idle gestures (P2)</a><a class="toc-level-3" href="#f-bird-011--react-to-pip-and-buddy-barking-p2">F-BIRD-011 — React to Pip and Buddy barking (P2)</a><a class="toc-level-3" href="#f-bird-012--occasional-visits-to-the-nest-p2">F-BIRD-012 — Occasional visits to the nest (P2)</a><a class="toc-level-3" href="#f-bird-013--two-or-three-recognizable-bird-varieties-p2">F-BIRD-013 — Two or three recognizable bird varieties (P2)</a><a class="toc-level-3" href="#f-bird-014--gradual-return-after-the-meadow-settles-p2">F-BIRD-014 — Gradual return after the meadow settles (P2)</a><a class="toc-level-2" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston</a><a class="toc-level-3" href="#f-comp-004--clear-attention-and-working-intent-p2">F-COMP-004 — Clear attention and working intent (P2)</a><a class="toc-level-3" href="#f-comp-005--bark-pose-and-recovery-gesture-p2">F-COMP-005 — Bark pose and recovery gesture (P2)</a><a class="toc-level-3" href="#f-comp-006--distinct-pip-and-buddy-personalities-p2">F-COMP-006 — Distinct Pip and Buddy personalities (P2)</a><a class="toc-level-3" href="#f-comp-008--brief-shared-arrival-celebration-p2">F-COMP-008 — Brief shared arrival celebration (P2)</a><a class="toc-level-2" href="#gameplay-loading-and-landing-ui-plan--18-october-2026-2157-americacreston">Gameplay, loading and landing UI plan — 18 October 2026, 21:57 America/Creston</a><a class="toc-level-3" href="#f-ui-001--clear-bark-cooldown-to-ready-feedback-p2">F-UI-001 — Clear bark cooldown-to-ready feedback (P2)</a><a class="toc-level-3" href="#f-ui-002--distinct-livestock-states-on-the-minimap-p2">F-UI-002 — Distinct livestock states on the minimap (P2)</a><a class="toc-level-3" href="#f-ui-003--current-to-next-upgrade-benefits-and-previews-p2">F-UI-003 — Current-to-next upgrade benefits and previews (P2)</a><a class="toc-level-3" href="#f-ui-004--clay-meadow-loading-vignette-p2">F-UI-004 — Clay meadow loading vignette (P2)</a><a class="toc-level-3" href="#f-ui-005--honest-initialization-progress-p2">F-UI-005 — Honest initialization progress (P2)</a><a class="toc-level-3" href="#f-ui-006--smooth-reveal-of-the-ready-meadow-p2">F-UI-006 — Smooth reveal of the ready meadow (P2)</a><a class="toc-level-3" href="#f-ui-007--retry-and-clear-loading-error-recovery-p2">F-UI-007 — Retry and clear loading-error recovery (P2)</a><a class="toc-level-3" href="#f-ui-008--progress-aware-start-or-continue-action-p2">F-UI-008 — Progress-aware Start or Continue action (P2)</a><a class="toc-level-3" href="#f-ui-009--living-showcase-meadow-p2">F-UI-009 — Living showcase meadow (P2)</a><a class="toc-level-3" href="#f-ui-010--move-full-game-reset-out-of-the-play-area-p2">F-UI-010 — Move full-game reset out of the Play area (P2)</a><a class="toc-level-3" href="#f-ui-011--clear-meadow-selector-with-remembered-browsing-position-p2">F-UI-011 — Clear meadow selector with remembered browsing position (P2)</a><a class="toc-level-3" href="#f-ui-012--introduction-copy-for-sheep-cows-pip-and-buddy-p2">F-UI-012 — Introduction copy for sheep, cows, Pip and Buddy (P2)</a><a class="toc-level-2" href="#tracker-archive-maintenance--18-october-2026-2204-americacreston">Tracker archive maintenance — 18 October 2026, 22:04 America/Creston</a><a class="toc-level-2" href="#main-integration--18-october-2026-2217-americacreston">Main integration — 18 October 2026, 22:17 America/Creston</a><a class="toc-level-2" href="#delivery-fallback-integration--19-october-2026">Delivery fallback integration — 19 October 2026</a><a class="toc-level-2" href="#buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026</a><a class="toc-level-2" href="#accepted-p1-branch--25-october-2026">Accepted P1 branch — 25 October 2026</a></nav></aside></div>
 <dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>

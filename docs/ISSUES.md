@@ -2,7 +2,7 @@
 
 Updated 25 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
-This file contains Open, In progress, Review, Blocked and Deferred work only. Completed issues, acceptance records and historical execution evidence live in [Closed issues](ISSUES_CLOSED.md). References to a closed ID below are dependencies, not reopened issues. Buddy F-COMP-001/002/003/007/009/010 were accepted and archived on 22 October 2026; the other 38 bird/herd/companion/UI planning items remain Open.
+This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
 
 ## Tracker lifecycle and ownership
 
@@ -20,9 +20,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-POLISH-003 | P1 | Audio | Remove sharp clicking from lo-fi soundtrack | Review | F-POLISH-002 |
-| F-POLISH-002 | P1 | Audio/music | Quieter rarer livestock, procedural lo-fi chill music and deeper Pip bark | Review | F-POLISH-001 audio |
-| F-POLISH-001 | P1 | Audio/water/birds | Sampled animal calls, softer waves and natural bird flight/foraging | Review | P1 gameplay candidate |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -39,13 +36,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
 | F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
-| F-HERD-001 | P1 | Behavior | Bounded individual temperaments | Review | Existing wander/bolt and pressure behavior |
-| F-HERD-002 | P1 | Animation/behavior | Anticipation before movement | Review | F-065 accepted turning; existing pressure signals |
-| F-HERD-003 | P1 | Animation | Natural herd resting gestures | Review | Current sheep/cow articulated models |
-| F-HERD-004 | P1 | Behavior | Gentle preferred-neighbor relationships | Review | F-HERD-001; accepted forward-flow and local-flock behavior |
-| F-HERD-006 | P1 | Behavior/animation | Readable relaxation and settling | Review | F-HERD-002; existing F-041 local settling; grass/bush grazing work |
-| F-HERD-007 | P1 | Behavior | Distinct sheep and cow movement character | Review | F-HERD-001; F-HERD-005; F-065 |
-| F-HERD-008 | P1 | Gameplay/behavior | Spread and settle after arrival | Review | F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006 |
 | F-BIRD-009 | P2 | Behavior | Small social foraging groups | Open | F-BIRD-001; F-BIRD-004 |
 | F-BIRD-010 | P2 | Animation | Ground hops and perched idle gestures | Open | F-BIRD-002; F-BIRD-003 |
 | F-BIRD-011 | P2 | Behavior/audio | React to Pip and Buddy barking | Open | F-BIRD-004; F-BIRD-005 |
@@ -63,16 +53,9 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-008 | P1 | Art | Cloud visuals temporarily removed at user request | Deferred | No runtime clouds or cloud shadows |
 | F-013 | P2 | Known review concern | Level-5 pacing spike | Open | F-005; retest after F-009/F-012 |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
-| F-026 | P1 | UI | Pause-menu Quit returns to landing page | Review | — |
-| F-030 | P1 | Environment | Lighter, more contrasting water waves | Review | — |
-| F-036 | P1 | Gameplay | Unattended flock spreads out in the field | Review | F-012, F-028 |
-| F-042 | P1 | Wildlife/art | Investigate and fix missing back legs on small wild animals | Review | - |
-| F-043 | P1 | Audio | Make the bark sound resemble a barking dog | Review | - |
-| F-044 | P1 | Audio | Add sheep and cow calls with state-dependent frequency and volume | Review | - |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
-| F-050 | P1 | Gameplay/upgrades/UI | Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown | Review | - |
 
 ## Acceptance criteria and planned work
 
@@ -98,95 +81,6 @@ The fresh gameplay critic's unchanged input controller completed default levels 
 Real phone GPU frame rate and level-transition memory stability remain unmeasured. The existing bounded submission/resource tests are useful but do not establish FPS. Historical production JavaScript was roughly **576 kB / 155 kB gzip**, with an advisory Vite chunk-size warning; this is an optimization consideration, not a confirmed gameplay bug.
 
 **Accept when:** measure normal/large/split herds, later expansive worlds, weather/cloud effects and repeated transitions on representative phones. Record frame-time distribution, load behavior and resource growth. Set a device-specific performance target before judging success.
-
-### F-026 — Quit to landing page
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Requirement:** the pause menu should include a Quit button that returns to the landing page. Added directly on GitHub while this batch was in progress; retained as an Open P3 item.
-
-**Accept when:** Quit returns to the intro/landing screen with movement stopped and transient gameplay/audio handled consistently. Normal saved progress and earned money are preserved. Define whether the current in-progress meadow is discarded or can be resumed; do not treat Quit as Restart Game.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-030 — Lighter, more contrasting water waves (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Requirement:** make river waves lighter and more contrasting.
-
-**Accept when:** wave detail is visibly lighter and has stronger contrast against the river base at normal portrait zoom, follows the local river direction through bends, remains seamless at banks/bridges and stays readable in all fixed weather types. Check pause and mobile rendering cost.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-036 — Unattended flock spreads across the field (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Requirement:** when unattended, the flock spreads out across the field.
-
-**Accept when:** with Pip and helpers not actively controlling the herd, eligible undelivered animals disperse across usable field area; spread remains bounded by gameplay barriers and field edges, does not cause stuck animals or autonomous goal delivery, and stops/reverses appropriately when herding resumes. Saved animals continue to follow F-028's enclosure roaming contract. Define measurable spread/coverage during implementation without presenting a chosen metric as user-approved.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-042 - Investigate and fix missing back legs on small wild animals (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-Small wild animals appear to be missing their back legs. Investigate the cause and fix their appearance.
-
-Acceptance criteria:
-- Identify why the back legs are not visible.
-- Ensure small wild animals display their back legs correctly while idle and moving.
-
-**Migration source:** [GitHub #2](https://github.com/novydhillon/Flock/issues/2); moved to this document without implementing or completing the request.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-043 - Make the bark sound resemble a barking dog (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-The current bark sound does not sound like a barking dog. Update or replace it so the bark is clearly recognizable as a dog barking.
-
-Acceptance criteria:
-- Triggering the bark plays a recognizable dog bark.
-
-**Migration source:** [GitHub #3](https://github.com/novydhillon/Flock/issues/3); moved to this document without implementing or completing the request.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-044 - Add sheep and cow calls with state-dependent frequency and volume (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-Add recognizable sheep bleats ("bahhh") and cow moos. Each individual animal should vocalize intermittently at random intervals, so the combined calls sound like a flock/herd rather than synchronized playback.
-
-Behavior by state:
-- Wandering: more frequent calls at baseline volume.
-- Being herded / flocked: less frequent calls, 25% louder than baseline.
-- Bolting: use the same sound behavior as being herded / flocked (less frequent calls, 25% louder than baseline), with a call starting immediately when the animal begins bolting. Subsequent calls occur intermittently at random intervals.
-
-Acceptance criteria:
-- Sheep sound recognizably like sheep and cows sound recognizably like cows.
-- Each animal calls occasionally on its own randomized schedule; combined calls create a natural flock/herd sound.
-- Wandering calls occur more frequently than herding calls and use baseline volume.
-- Herding calls occur less frequently and are 25% louder than baseline.
-- Bolting immediately triggers a call and then follows the herding call frequency and volume.
-
-**Migration source:** [GitHub #4](https://github.com/novydhillon/Flock/issues/4); moved to this document without implementing or completing the request.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
 
 ### F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)
 
@@ -230,23 +124,6 @@ Acceptance criteria:
 
 **Scope:** queued QA usability fix only; no implementation or acceptance claimed.
 
-
-### F-050 - Bark strength and two-bark upgrade tiers (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Requirement:** Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown.
-
-**Accept when:**
-- Bark level 2 applies a 33% strength increase relative to level 1.
-- The workshop clearly displays the level-2 bark strength bonus as +33%.
-- Bark level 3 allows two barks before entering cooldown.
-
-**Scope:** queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
 
 ## Bird behavior feature plan — 18 October 2026 (America/Creston)
 
@@ -365,100 +242,6 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 **Documentation handoff:** the original planning commit is `1fbfe08`; remote publication was blocked by automatic approval review, which required explicit authorization for `novydhillon/Flock`. This follow-up updates the same local planning branch; no new push is attempted without that authorization. Documentation generation/checks cover this addition; runtime implementation and acceptance remain future work.
 
-
-## Herd life and readability plan — 18 October 2026, 21:49 America/Creston
-
-Novy requested tracking all eight suggested herd enhancements. **F-HERD-001–008 are P2, Open, unassigned and not implemented.** Planning owner: Codex. Documentation recorded on the existing local `plan/bird-behaviour` planning branch; runtime branch/owner to be claimed from current main when implementation is scheduled. Herd-scoped IDs avoid collisions with concurrently assigned numeric issues. Prioritize bottleneck yielding (005), anticipation (002) and arrival behavior (008); dependencies below describe integration prerequisites, not a requirement to finish every other item first.
-
-These extend accepted behavior rather than reopen signed-off issues. Preserve current collision/navigation, turn caps, weaker cohesion, forward bridge commitment, local settling, delivered-animal containment and progression. The separate requested surface-aware grazing change remains distinct and must be integrated from its actual latest implementation when these items are claimed. No implementation or game deployment is authorized by this tracker update.
-
-### F-HERD-001 — Bounded individual temperaments (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** Existing wander/bolt and pressure behavior.
-
-**Accept when:** Give animals small, stable seeded differences in confidence, curiosity and willingness to follow. Keep variation bounded and readable: every animal remains responsive to appropriate herding pressure, with no unbeatable stubbornness or new uncontrolled bolting. Preserve accepted wander/bolt frequencies, local settling and weak cohesion unless a separately reviewed adjustment is necessary. Restart preserves traits without altering original world/herd random streams.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-HERD-002 — Anticipation before movement (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** F-065 accepted turning; existing pressure signals.
-
-**Accept when:** Animals look toward a disturbance, lift their heads and visibly shift weight before ordinary movement or flight. Strong nearby pressure or an actual bark still produces an immediate gameplay response: anticipation must not add input latency or stall escape. Blend out of grazing safely and coordinate head, body and legs with current turn limits; preserve simulation-owned movement and collisions.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-HERD-003 — Natural herd resting gestures (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** Current sheep/cow articulated models.
-
-**Accept when:** Add occasional ear flicks, tail swishes, blinking and chewing with varied timing and restful gaps. Species-appropriate gestures remain subtle and legible in the clay style at gameplay zoom. They do not synchronize the entire herd or change gameplay state; locomotion and threats take precedence. Respect grass/bush-only head-down grazing and its exclusions for paths, bridges and barns. Keep shared geometry/materials and bounded instance cost.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-HERD-004 — Gentle preferred-neighbor relationships (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** F-HERD-001; accepted forward-flow and local-flock behavior.
-
-**Accept when:** Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-HERD-006 — Readable relaxation and settling (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** F-HERD-002; existing F-041 local settling; grass/bush grazing work.
-
-**Accept when:** After pressure ends, transition progressively from alert to walking to calm/grazing, with varied timing and hysteresis that prevents rapid state flicker. Renewed pressure interrupts relaxation immediately. Keep accepted local settling locations and wander/bolt rules; do not reset their schedules just for presentation. Graze only where the separately requested surface eligibility allows it, with no head-down feeding on paths, bridges or in barns.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-HERD-007 — Distinct sheep and cow movement character (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** F-HERD-001; F-HERD-005; F-065.
-
-**Accept when:** Sheep read as a somewhat tighter group; cows move more deliberately with somewhat greater personal space, using bounded species tuning. Preserve sheep turning at no more than 180 degrees/second and cows at no more than 120 degrees/second, with walking legs during stationary turns. Do not reintroduce stronger flock-wide magnetic attraction or rear-to-front pushing. Validate route clearance, delivery pacing and all cow sizes; any tuning values are proposed implementation choices requiring gameplay review.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
-
-### F-HERD-008 — Spread and settle after arrival (P1)
-
-**Current execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Depends on / preserve:** F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006.
-
-**Accept when:** Delivered animals move toward available space inside the destination and settle naturally, keeping the entrance clear for arrivals when space permits. Retain accepted F-028 roaming and strict goal containment; avoid overlap and test full/mixed herds and all cow sizes. Do not force grazing inside a barn or on ineligible surfaces. Preserve Pip-at-goal scoring, delivery counts/timer/rewards, and one-time delivery registration; no exits, teleportation or scoring from the arrival animation.
-
-**Shared validation and acceptance:** test sheep, every cow size, mixed herds, open/closed gates, rotated bridges, split groups, Pip/Buddy pressure, destination capacity, pause/resume/restart and stable seeded behavior. Source checks must verify no collision escape, deadlock or delivery/progression regression. Follow AGENTS.md independent ownership/blind-review requirements for substantial runtime work, full relevant regressions and both artifact modes. Record measured resource costs separately from phone FPS. Phone appearance, animation readability and herding feel require rendered/play testing; leave implementations in Review until Novy's sign-off. Regenerate/check documentation. Publish future authorized development builds only to `/Flock/dev/`; production merge/publication requires separate authorization.
-
-**Planning handoff:** documentation-only scope, with no runtime tests or blind review claim. Generated documentation and link/behavior checks are run for this update. All runtime implementation and acceptance remain outstanding. The earlier automatic approval rejection still blocks remote publication without explicit push authorization; these additions are committed locally without retrying the blocked action.
-
-**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
 
 ## Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston
 
@@ -643,34 +426,7 @@ Novy accepted the development build with “Looks good. Merge to main and close 
 
 
 
-## P1 execution — 24 October 2026
 
-Novy requested work on the reprioritized P1 backlog using the established development process, with high effort for blind critics. This branch starts at main `2655525` and carries forward the explicit P1 priorities from `docs/signoff-f-ops-004` without replacing accepted main map work. Claims: F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008. Clouds (F-008) remain Deferred. Source publication is part of the development handoff; PR, dev deployment and production merge/publication are not requested by this instruction. Separate implementation ownership: herd simulation/presentation, bark/audio, water/wildlife, controller/docs.
+## Accepted P1 branch — 25 October 2026
 
-## P1 review handoff — 24 October 2026
-
-All fourteen claimed P1 items are implemented and in Review on `p1_gameplay_polish`. Controller/audio review passed at 9.2/10, herd review at 9.2/10 and water/wildlife review at 9.5/10 after confirmed findings were fixed. Final validation evidence is in QUALITY.md and the P1 quality manifest. Novy's previous F-OPS-004 sign-off and P1 priorities from `docs/signoff-f-ops-004` are preserved; no cloud work was resumed. This handoff does not claim dev publication, user acceptance or production merge.
-
-### F-POLISH-001 — Animal sound, waves and bird follow-up
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Accept when:** Lower animal volume/frequency, narrow sheep pitch and slightly raise cows; use real recorded dog/sheep/cow samples where suitable licensed files are obtainable. Bark should sound realistic. Reduce wave brightness and add varied crests while retaining local flow, bank containment and pause. Clay-style birds flap hinged wings instead of spinning, fold grounded wings, land only on dry valid ground, hop and peck, and take off coherently. Preserve bounded resources, storms, seed/restart, lifecycle and save contracts. Fresh high-effort blind review plus focused/full checked builds required. Device listening and rendered appearance remain separate acceptance checks. User authorized escalation for difficult animation work; bird implementation uses xhigh effort.
-
-**24 October source handoff:** Recorded CC0 animal samples, quieter/slower calls, capped sheep/raised cow pitch, subdued varied waves, clay bird states/hinged wings/dry ground foraging implemented. High independent audio/wave review 9.5/10 and bird review 9.2/10 after fixes. Checked dev build passes457 tests and both artifact modes. Listening/phone appearance and user sign-off remain pending; no follow-up deployment is claimed. See QUALITY.md and public/audio/CREDITS.md.
-
-### F-POLISH-002 — Livestock mix, lo-fi music and deeper Pip bark
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Accept when:** Reduce livestock call frequency further; reduce livestock volume exactly25% relative to current mix while preserving state gain ratio and immediate bolt transitions. Replace background music with procedural generated lo-fi chill music; preserve sound toggle, activation/race guards, pause/background/restart/dispose and bounded sources/scheduling. Deepen Pip bark only, retaining current Buddy bark sound. Retain real local recorded animals and existing sample fallback/loader contracts. High independent blind review and checked build required; listening approval remains distinct. No deployment or main merge authorized by this change request.
-
-**24 October source handoff:** Livestock gain reduced exactly25% (.077→.05775), independent call intervals doubled, procedural72BPM lo-fi soundtrack generated, Pip recorded bark lowered to.78rate and Buddyretained1.0. Highblindreview9.5/10 aftertestcoverage fixes. Full459runtimechecks plus final70audio/controllerchecks and bothartifactmodes pass. Listening approval remains pending; no deployment/mainmerge claimed. SeeQUALITY.md.
-
-### F-POLISH-003 — Remove sharp soundtrack clicks
-
-**Status:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`.
-
-**Accept when:** Investigate supplied short screenrecording transient timing/spectrum and remove identified sharp clicking source while preserving mellowlo-fi harmony/bass and animalcalls. Fauna movement visuals must remain; there are no rabbit/squirrel footstep audio events. Distinguish waveform/source inference from unperformed listening. Add meaningful audioevent/envelope regression, high blindreview and checkedbuilds; leave listeningapprovalpending. Sourceonly; no deployment/mainmerge authorization.
-
-**25 October source handoff:** Removed short noise hats/snares and softened music-only attacks; mellowchords/bass/softkick, animals and visuals retained. Suppliedrecording impulses are music-clockaligned, exactcauseinferred ratherthanproved. Highblindreview9.3/10clear; fullcheckedbuild and finalfocusedtests pass. Awaiting listeningconfirmation; notdeployed. SeeQUALITY.md.
+The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archived in [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). All other Open/Deferred work retains its state. This updates source acceptance and authorizes main merge only, with no production deployment.

@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## P1 branch acceptance — 25 October 2026
+
+Novy approved the current development build and requested merging `p1_gameplay_polish` to main. The fourteen P1 items (F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008) plus F-POLISH-001/002/003 are Done and archived. Their historical pending-review/listening text is superseded by this acceptance. Clouds remain Deferred; broader unimplemented bird, companion and UI plans remain Open. Acceptance authorizes main merge, not production publication or unmeasured FPS/causal proof.
+
 ## Remove sharp soundtrack clicks — 24 October 2026
 
 F-POLISH-003 investigates the supplied screenrecording and removes the offending sharp clicking from the soundtrack, preserving mellowlo-fi chords/bass, animalcalls and wildlife visuals. Evidence/inference must be labelled accurately; listeningapproval remains separate.
@@ -402,7 +406,7 @@ Open the QA menu without automatically focusing, selecting or expanding the leve
 
 ## Queued bark upgrade tiers - F-050 (P2)
 
-Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES.md#f-050---bark-strength-and-two-bark-upgrade-tiers-p1).
+Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown. Open, queued only. See [F-050 in the tracker](ISSUES_CLOSED.md#f-050---bark-strength-and-two-bark-upgrade-tiers-p1).
 
 ### F-051 - Compact gameplay HUD
 
