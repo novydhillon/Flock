@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## New flock call listening checks — 25 October 2026
+
+On the new featurebranch, listen long enough to compare rarer sheep calls with unchanged cow pacing,20%lower livestockgain, and gentle per-animal/per-call pitch/lengthvariation. Confirm varied sheep/cowtails end softly rather than sounding clipped. Trigger bolt, mute/pause/background/resume, restart/jump and pending sampledecode; no replaybursts/stalesources. Pip/Buddy bark and mellowmusic should retain their accepted sound. Novy accepted this tuning and requested main merge on 25 October 2026. These remain reusable smoke checks; no new listening measurement is claimed, and automated clocks/gain/envelope checks do not prove preference.
+
 ## Sharp click listening check — 24 October 2026
 
 Compare the soundtrack with the supplied recording: confirm regular sharpclicks are gone while mellowkeys/bass/softkick, Pip/Buddy voices and quiet livestock remain. Pause/mute/background/resume and restart/jump repeatedly without duplicate rhythms, catch-upbursts or abrupt noise attacks. Wildlife visuals are unchanged and no movementaudio is disabled because noneexists. Device/listeningapproval remains pending.

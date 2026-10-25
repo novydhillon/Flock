@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-AUDIO-001~~ | ~~P1~~ | ~~Audio~~ | ~~Rarer sheep calls, subtle flock pitch/duration variation and quieter livestock~~ | ~~Done~~ | ~~Accepted recorded animal audio~~ |
 | ~~F-026~~ | ~~P1~~ | ~~UI~~ | ~~Pause-menu Quit returns to landing page~~ | ~~Done~~ | ~~—~~ |
 | ~~F-030~~ | ~~P1~~ | ~~Environment~~ | ~~Lighter, more contrasting water waves~~ | ~~Done~~ | ~~—~~ |
 | ~~F-036~~ | ~~P1~~ | ~~Gameplay~~ | ~~Unattended flock spreads out in the field~~ | ~~Done~~ | ~~F-012, F-028~~ |
@@ -1527,3 +1528,13 @@ Novy requested tracking all eight suggested herd enhancements. **F-HERD-001–00
 
 These extend accepted behavior rather than reopen signed-off issues. Preserve current collision/navigation, turn caps, weaker cohesion, forward bridge commitment, local settling, delivered-animal containment and progression. The separate requested surface-aware grazing change remains distinct and must be integrated from its actual latest implementation when these items are claimed. No implementation or game deployment is authorized by this tracker update.
 
+
+### F-AUDIO-001 — ~~Livestock call tuning~~
+
+**Status:** Done. Owner: Codex. **Branch:** `feature/flock-call-tuning`.
+
+**Accept when:** Double sheep-only scheduled call intervals (halving sheep frequency again) while cow intervals retain the accepted baseline. Lower current livestock gain by exactly20%. Add subtle varied pitch and duration to sheep/cow calls using existing local realrecordings, preserving cachedloader/fallback, distanceattenuation, state1.25gain ratio and immediateboltonset. Keep Pip/Buddy bark and music unchanged. Lifecycle/mute/pause/restart/disposal and boundedvoices remain safe; no abrupt cuts, dead air or incoherent duration ownership. Highblindreview and checkedbuilds required, listeningapprovalpending. Sourceonly:newbranchfromapprovedmain1386c7a; no merge/deploy authorized.
+
+**F-AUDIO-001 source completion — 25 October 2026:** Sheep-only intervals doubled, cow intervals preserved, livestock gain .0462 (exactly20%lower), bounded individual/per-call pitch and softly faded duration variation implemented on `feature/flock-call-tuning`. Independent high review9.5/10 has no remaining current-patch findings;464broadchecks plus final32audio checks pass, bothartifactmodes verified. F-AUDIO-002 remains separatelyOpen. User listening/sign-off, deployment and any merge remain pending.
+
+**Closure — 25 October 2026:** Novy explicitly requested “Merge to main” for this tuning revision. This acceptance supersedes the historical pending sign-off/merge wording above. Runtime source `5972f503931df8b687bc8c5a3a6464822383ff43` passed [source CI 40245758954](https://github.com/novydhillon/Flock/actions/runs/40245758954): 465 tests, release 31 files/zero QA and development 33 files/two QA. Independent high review reached 9.5/10 with no current-patch findings. F-AUDIO-002 remains Open and outside this closure. No new listening, phone or combined-mix measurement is claimed. Merge is authorized; production publication is not.
