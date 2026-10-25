@@ -1,7 +1,7 @@
 {
   "environment": "dev",
   "branch": "p1_gameplay_polish",
-  "sourceSha": "a855f031084dcd2b6dac78ea12845563a325190f",
+  "sourceSha": "5bd85e08b87d2d6e09e216d476cb953387cea50d",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,12 +30,12 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-C0sJ1O8O.js",
-      "sha256": "87214c5d1bb91bcc2238499095f64c8dd8edbcda9c7419df77bdcf23d9efcd3e"
-    },
-    {
       "path": "dev/assets/index-CTeL47d3.css",
       "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503"
+    },
+    {
+      "path": "dev/assets/index-FzT2u7E1.js",
+      "sha256": "d35be2be6f5b33288a4a102d7a84dcec3e173b1087876d15af72790850782894"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -62,12 +62,12 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-D2swaSyw.js",
-      "sha256": "3db3dfce1fe5616232e6184566dd73a54866d311f5f2def740122e62a09b4deb"
-    },
-    {
       "path": "dev/assets/qa-DWlVkWAo.css",
       "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525"
+    },
+    {
+      "path": "dev/assets/qa-UJVBCXX5.js",
+      "sha256": "a38a86a50bfad33d305bfe4703af209fb00e1e5a8f8a2c1abcb25ecf3704acbf"
     },
     {
       "path": "dev/audio/CREDITS.md",
@@ -131,7 +131,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "ad8e826a819b4cb049f888a9f2d3b05047b58145c1840fded40cc6004178c9d4"
+      "sha256": "ed631311e8f428d2d10e36ee2a3cd207e78ba8eee8629c989a2ea539f42677b8"
     },
     {
       "path": "dev/site.webmanifest",
