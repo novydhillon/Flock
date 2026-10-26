@@ -1,7 +1,7 @@
 {
   "environment": "dev",
   "branch": "feature/chill-lofi-music",
-  "sourceSha": "cf0258012790f8beec142e64be0dd1b8ddea1413",
+  "sourceSha": "7d411fe5ffa8836423d8d3736f7521300c10caff",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,12 +30,12 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-BewjX166.js",
-      "sha256": "39c6708d78832716a6329643c4ac94bc59f7e0f71e00d9dbdcdfadb50a535ea0"
-    },
-    {
       "path": "dev/assets/index-CTeL47d3.css",
       "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503"
+    },
+    {
+      "path": "dev/assets/index-Dqfh-eiq.js",
+      "sha256": "5b838bb5f088dc9ea6c3e93a142b8c68728ced2c05a2515b4bfa600ea5c08ad7"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -62,8 +62,8 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-BtEvjniO.js",
-      "sha256": "0a363d110f92410ffb2917d8ad3eb3596ecb3e2870d32d527452057660385e9d"
+      "path": "dev/assets/qa-DQa1lxZx.js",
+      "sha256": "330b68e9159a3d092df61de402a7dcd404b58ad18660beb5e7aced00aaf08537"
     },
     {
       "path": "dev/assets/qa-DWlVkWAo.css",
@@ -131,7 +131,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "80e7b9047f9edd01f3a6aa08f7deda55b4b20d98ebda00f804fa70f7fcd269f7"
+      "sha256": "b67f81c22858f57cd6d1c644ea8886aa6aee4079015d4a9510f86a482f54c82c"
     },
     {
       "path": "dev/site.webmanifest",
