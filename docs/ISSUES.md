@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-AUDIO-001 | P2 | Audio | Independent chill lo-fi ambient soundtrack | Review | Accepted animal mix and click removal |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -58,6 +59,17 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
 ## Acceptance criteria and planned work
+
+### F-AUDIO-001 — Independent chill lo-fi ambient soundtrack
+
+**Status:** Review. Owner: Codex implementation agent (`gpt-6-astra`, high effort, explicitly requested).
+
+**Branch:** `feature/chill-lofi-music`
+
+**Accept when:** music generation lives in its own JavaScript module imported by `audio.js`; the generated soundtrack has warm mellow chords, relaxed soft rhythm, restrained evolving motifs and no sharp noise clicks. Preserve mute, pause/resume, async activation guards, bounded scheduling, disposal, weather ducking and the accepted livestock/Pip/Buddy tuning. Focused/full checks, both build modes, independent blind review and separate device listening evidence are recorded. Source and development publication are authorized; PR and main merge are not requested. User listening sign-off remains separate.
+
+**25 October 2026:** Open → In progress on current main `1386c7a40880ebcdf4cbe20b812ccd67cb868985`. Implementation completed; own music module and preserved controls/animal mix are covered by focused checks. Initial checked dev/production builds pass 463 regressions. Blind first pass 8.5/10 identified a compatibility release-envelope jump, now corrected with independent gain gates and a no-cancelAndHoldAtTime regression (31/31 focused audio checks). Follow-up review passes 9.3/10 with no material blockers. The final checked dev build passes all 464 regressions, docs checks and both artifact modes. Source publication and authorized dev publication follow; user listening acceptance remains pending.
+
 
 
 

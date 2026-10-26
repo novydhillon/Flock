@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FarmAudio } from '../src/audio.js';
+import { LoFiMusic, MUSIC_STEPS, MUSIC_TEMPO } from '../src/music.js';
 import { createWeatherState, stepWeather } from '../src/weather.js';
 
 class Param {
   constructor() { this.value = 0; this.targets = []; this.events = []; }
   setValueAtTime(value, time) { this.value = value; this.events.push(['set', value, time]); }
+  linearRampToValueAtTime(value, time) { this.value = value; this.events.push(['linear', value, time]); }
   exponentialRampToValueAtTime(value, time) { this.value = value; this.events.push(['ramp', value, time]); }
   setTargetAtTime(value, time) { this.value = value; this.targets.push(value); this.events.push(['target', value, time]); }
   cancelScheduledValues(time) { this.events.push(['cancel', time]); }
@@ -570,26 +572,30 @@ test('Pip lowers the recorded bark while Buddy and legacy callers retain the cur
  });
 });
 
-test('generated lo-fi keeps soft swung chords and bass without sharp noise percussion',async()=>{
+test('independent music score renders evolving diatonic phrases with swing and no noise attacks',async()=>{
  await withAudio(async audio=>{
-  await audio.start();assert.equal(audio.tempo,72);
+  await audio.start();assert.ok(audio.musicGenerator instanceof LoFiMusic);assert.equal(audio.tempo,MUSIC_TEMPO);
   audio._stopScheduler();for(const source of [...audio.active])source.end();
-  const initialOscillators=audio.context.oscillators.length,notes=[],eighth=60/72/2;
-  const note=audio._note.bind(audio);
-  audio._note=(...args)=>{notes.push(args);note(...args);};
-  for(let step=0;step<128;step++){
+  const initialOscillators=audio.context.oscillators.length,notes=[],eighth=60/audio.tempo/2;
+  const tone=audio.musicGenerator._tone.bind(audio.musicGenerator);
+  audio.musicGenerator._tone=(...args)=>{notes.push(args);tone(...args);};
+  for(let step=0;step<MUSIC_STEPS;step++){
    audio.context.currentTime=step*eighth;
    for(const source of [...audio.active])if(source.stops.some(time=>time<=audio.context.currentTime))source.end();
    audio._musicStep(step,step*eighth,eighth);
   }
-  assert.equal(audio.context.oscillators.length-initialOscillators,notes.length,'every requested phrase note is actually rendered below the voice cap');
-  const chords=notes.filter(n=>n[4]==='lofi');assert.ok(chords.length>30);assert.ok(new Set(chords.map(n=>n[0])).size>6);
-  const answer=notes.find(n=>n[0]===79&&Math.abs(n[1]-(3+.14)*eighth)<1e-8);assert.ok(answer,'odd eighth melody leans behind beat');
-  assert.ok(notes.some(n=>n[4]==='bass')&&notes.some(n=>n[4]==='kick'));
-  assert.ok(notes.every(n=>n[5]===audio.music));assert.ok(audio.active.size<=128);
-  const percussion=audio.context.sources.filter(s=>s.connections[0]?.type==='bandpass'||s.connections[0]?.type==='highpass');
-  assert.equal(percussion.length,0);assert.equal(audio.context.sources.length,0,'a complete music cycle produces no noise-buffer attacks');
-  for(const source of [...audio.active])source.end();assert.equal(audio.active.size,0,'all generated voices release their graph');
+  assert.equal(audio.context.oscillators.length-initialOscillators,notes.length,'no requested voice is dropped by the defensive cap');
+  const pitched=notes.filter(n=>!['kick','tap'].includes(n[4]));
+  assert.ok(pitched.every(n=>[0,2,4,5,7,9,11].includes(n[0]%12)),'chords and answers share one diatonic palette');
+  const melodies=notes.filter(n=>n[4]==='melody');
+  assert.ok(melodies.length>8&&melodies.length<24,'motifs leave space');
+  assert.ok(new Set(melodies.map(n=>n[0])).size>=6,'answers vary over the whole progression');
+  assert.ok(melodies.some(n=>Math.abs(n[1]/eighth-Math.round(n[1]/eighth)-.16)<1e-8),'offbeat melody swings late');
+  assert.ok(notes.some(n=>n[4]==='bass')&&notes.some(n=>n[4]==='kick')&&notes.some(n=>n[4]==='tap'));
+  assert.ok([...audio.musicGenerator.voices.values()].every(({release})=>release.connections[0]===audio.music));
+  assert.equal(audio.context.sources.length,0,'a complete music cycle produces no noise-buffer attacks');
+  for(const source of [...audio.active])source.end();assert.equal(audio.active.size,0);
+  assert.equal(audio.musicGenerator.voices.size,0,'ended voices release the complete graph');
  });
 });
 
@@ -613,15 +619,65 @@ test('lo-fi scheduling releases expired voices and maintains modest steady-state
 });
 
 
-test('music instruments start near zero and ramp gently while animal voices remain unchanged',async()=>{
- await withAudio(async audio=>{
-  await audio.start();
-  for(const [voice,attack]of [['lofi',.035],['bass',.025],['kick',.020]]){
-   audio._note(48,10,.5,.1,voice,audio.music);const osc=audio.context.oscillators.at(-1),gain=voice==='lofi'?osc.connections[0].connections[0]:osc.connections[0];
-   assert.deepEqual(gain.gain.events.slice(0,2),[['set',.0001,10],['ramp',.1,10+attack]]);
-   assert.equal(gain.connections[0],audio.music);
+test('music envelopes reach zero at both ends and pause cancels scheduled voices before rapid resume',async()=>{
+ await withAudio(async (audio,timers)=>{
+  await audio.start();const generator=audio.musicGenerator;
+  for(const voice of ['keys','melody','bass','kick','tap'])generator._tone(60,10,.5,.1,voice);
+  const records=[...generator.voices.entries()];
+  for(const [source,{envelope,filter}]of records){
+   const events=envelope.gain.events;
+   assert.deepEqual(events[0].slice(0,2),['set',0]);
+   assert.equal(events[1][0],'linear');assert.ok(events[1][2]-source.startTime>=.029);
+   assert.equal(events.at(-1)[0],'linear');assert.equal(events.at(-1)[1],0);
+   assert.ok(source.stops[0]>events.at(-1)[2],'stop occurs after the zero tail');
+   assert.equal(filter.type,'lowpass');assert.ok(filter.frequency.value<=1450);
   }
+  audio.pause();assert.equal(timers.size,0);
+  for(const [source,{envelope}]of records){
+   assert.equal(source.stops.at(-1),.08,'future voices are stopped before their attack');
+   assert.ok(envelope.gain.events.some(e=>e[0]==='cancel'&&e[1]===0));
+   assert.ok(envelope.gain.events.some(e=>e[0]==='set'&&e[1]===0&&e[2]===0));
+  }
+  await audio.resume();assert.equal(timers.size,1);assert.equal(audio.musicGenerator,generator);
+  for(const [source]of records)source.end();
+  assert.ok(records.every(([source,{envelope,filter,release}])=>source.disconnected&&envelope.disconnected&&filter.disconnected&&release.disconnected));
+  audio.dispose();assert.equal(generator.voices.size,0);assert.equal(audio.active.size,0);
+  assert.equal(audio.musicGenerator,null);assert.equal(timers.size,0);
+ });
+});
+
+test('music mute and thunder duck stay on their existing buses while effect voices remain independent',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();const generator=audio.musicGenerator;
+  audio.context.currentTime=.2;
+  audio.pause();
+  assert.ok([...generator.voices.values()].some(({release})=>release.gain.events.some(e=>e[0]==='target'&&e[1]===0&&e[2]===.2)),'running notes fade through their independent release gate');
+  await audio.resume();audio.setMuted(true);assert.equal(audio.master.gain.value,0);
+  audio.setMuted(false);assert.equal(audio.master.gain.value,.975);
   audio.recordedVoices.set('bark',{duration:.8});audio.play('bark','pip');assert.equal(audio.context.sources.at(-1).playbackRate.value,.78);
   audio.play('bark','buddy');assert.equal(audio.context.sources.at(-1).playbackRate.value,1);
+  audio.play('click');const effect=audio.context.oscillators.at(-1);
+  assert.ok(!generator.voices.has(effect));assert.equal(effect.connections[0].connections[0],audio.effects);
+ });
+});
+
+
+test('pause during attack or decay preserves the live envelope without cancelAndHoldAtTime',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();
+  for(const elapsed of [.025,.4]){
+   const start=audio.context.currentTime;
+   audio.musicGenerator._tone(60,start,2,.1,'keys');
+   const source=audio.context.oscillators.at(-1),{envelope,release}=audio.musicGenerator.voices.get(source);
+   assert.equal(envelope.gain.cancelAndHoldAtTime,undefined,'exercise the older WebAudio API');
+   const originalEnvelope=structuredClone(envelope.gain.events);
+   for(const offset of [elapsed,elapsed+.01,elapsed+.02]){
+    audio.context.currentTime=start+offset;audio.pause();
+    assert.deepEqual(envelope.gain.events,originalEnvelope,'do not remove the ramp endpoint and jump back to its start');
+    assert.deepEqual(release.gain.events.at(-1),['target',0,start+offset],'release targets zero from the continuously evolving gate value');
+   }
+   source.end();assert.ok(release.disconnected);
+   await audio.resume();
+  }
  });
 });

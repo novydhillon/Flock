@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## Independent chill soundtrack — 25 October 2026
+
+F-AUDIO-001 reworks the background music into a mellow, gently evolving lo-fi ambient score. Music composition and instrument synthesis belong in a dedicated JavaScript module imported by `audio.js`. Preserve the accepted livestock calls and Pip/Buddy voices, weather mix, mute, pause/resume, async activation guards and bounded resources. No sharp noise percussion or abrupt note endpoints. Listening acceptance remains a separate check. Development publication is authorized; production and merge are not.
+
+
 ## P1 branch acceptance — 25 October 2026
 
 Novy approved the current development build and requested merging `p1_gameplay_polish` to main. The fourteen P1 items (F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008) plus F-POLISH-001/002/003 are Done and archived. Their historical pending-review/listening text is superseded by this acceptance. Clouds remain Deferred; broader unimplemented bird, companion and UI plans remain Open. Acceptance authorizes main merge, not production publication or unmeasured FPS/causal proof.

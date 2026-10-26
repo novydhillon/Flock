@@ -1,5 +1,12 @@
 # Presentation: renderer, nature and audio
 
+## Chill lo-fi soundtrack — 25 October 2026
+
+The current `music.js` score is a 70 BPM, 16-bar cycle with extended Am/F/C/G/Dm voicings, soft electric-piano partials, restrained bass and sparse diatonic call/answer motifs. Alternate eighths lean late; rounded sine kick/taps avoid noise percussion and crackle. Voices use gradual attacks, filtered timbres and envelopes that reach zero before source stop. Quiet, slow pitch drift varies sustained keys without consuming any shared random sequence.
+
+FarmAudio retains transport and the existing music bus, including thunder ducking, master mute and activation race guards. `LoFiMusic.scheduleStep(step, time, eighth)` renders one future score step; `stop()` releases running notes and cancels future attacks; `dispose()` synchronously disconnects all owned nodes. Ended voices remove themselves from both the module and FarmAudio's bounded source set. The module creates neither context nor scheduler. Accepted animal recordings, gain, cadence, pitch and UI effects are unchanged. Source checks do not establish headphone/phone listening quality.
+
+
 ## Sharp click follow-up — 24 October 2026
 
 F-POLISH-003 removes short noise-buffer hats and snares from the music cycle, preserving extended chords, bass, swing and soft sinekick. Music-only attacks now ramp from .0001 gain over35ms for keys,25ms for bass and20ms for kick; game rewardeffects and recordedanimals retain their separate paths. Supplied2.825srecording has four dominant high-frequency impulses separated by.833333seconds, matching the72BPM even-eighth clock. This strongly supports musical timing rather than movement audio, but its impulse amplitude exceeds the current nominalhatgain, so the exact original source mechanism is inferred, not proven. No listeningclaim.

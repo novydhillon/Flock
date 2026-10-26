@@ -1,5 +1,10 @@
 # Architecture and system contracts
 
+## Music module boundary — 25 October 2026
+
+`audio.js` imports `LoFiMusic`, `MUSIC_TEMPO` and `MUSIC_STEPS` from `music.js`. FarmAudio owns the AudioContext, music/effect/ambience buses, activation-generation guard and bounded look-ahead transport. `music.js` owns the score, music instrument envelopes, filters and voice cleanup. It receives the music bus and shared active-source set; it never creates a context, timer, fetch or gameplay dependency. Pause stops scheduling and releases pending/running music voices; disposal disconnects every owned graph. UI effects and accepted livestock/dog tuning remain in FarmAudio.
+
+
 ## Explicit bark actor ownership — 24 October 2026
 
 Controller dispatches explicit pip/buddy identities to FarmAudio.play for bark events; voice pitch remains an audio concern and cannot alter gameplay pressure/charges or Buddy autonomy. FarmAudio owns procedural lo-fi scheduling/instrument nodes and the current livestock mix, preserving activation-generation guards, pause/mute/disposal and async sample cache ownership.

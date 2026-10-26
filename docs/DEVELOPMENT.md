@@ -1,5 +1,10 @@
 # Development, QA and release context
 
+## Independent soundtrack smoke checks — 25 October 2026
+
+F-AUDIO-001: listen for at least two 16-bar cycles on headphones and phone speakers. Check the 70 BPM chord changes, relaxed low taps, warm bass and sparse motifs for a calm unobtrusive mix, no sharp clicks, clipping or tiring repetition. Compare Pip/Buddy and sheep/cows with the accepted build; their pitch, cadence and gain must remain unchanged. Trigger storm thunder to check music duck/recovery. Repeatedly mute, pause/background/resume, restart, jump levels and quit/start, including rapid reactivation: no duplicate beat, stale queued attack, catch-up burst or stuck voice. Device listening and performance remain pending until actually observed.
+
+
 ## Sharp click listening check — 24 October 2026
 
 Compare the soundtrack with the supplied recording: confirm regular sharpclicks are gone while mellowkeys/bass/softkick, Pip/Buddy voices and quiet livestock remain. Pause/mute/background/resume and restart/jump repeatedly without duplicate rhythms, catch-upbursts or abrupt noise attacks. Wildlife visuals are unchanged and no movementaudio is disabled because noneexists. Device/listeningapproval remains pending.
