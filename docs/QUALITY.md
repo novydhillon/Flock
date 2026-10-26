@@ -1,5 +1,12 @@
 # Flock revision quality record
 
+## Music gain increase — 25 October 2026
+
+F-AUDIO-001 on `feature/chill-lofi-music`, base `cbc4e8b9878197483fbeb23699661be6c0ab7801`. Novy requested 50% more music volume after the verified lo-fi dev publication. Implementation remains `gpt-6-astra`, high effort. This bounded gain-only follow-up changes nominal music from 0.42 to 0.63 and thunder duck from 0.16 to 0.24, including activation and every restoration path. Composition, effects, ambience, animal voices, master level and lifecycle behavior are unchanged. The earlier 9.3/10 review covered the module implementation; no new blind score is claimed for this small tuning update.
+
+Focused audio passes 31/31. The checked dev build passes all 464 regressions, documentation checks and both artifact modes (release 31 files / zero QA assets; development 33 files / two QA assets). Existing Vite large-chunk advisory remains. Authorized dev publication follows source CI. Phone/headphone mix and user listening acceptance remain pending; a 50% linear gain increase does not assert an equal perceived-loudness change.
+
+
 ## Independent chill lo-fi soundtrack — 25 October 2026
 
 F-AUDIO-001, branch `feature/chill-lofi-music`, base main `1386c7a40880ebcdf4cbe20b812ccd67cb868985`. Implementation: `gpt-6-astra`, high effort, explicitly selected by Novy. Fresh independent blind critic: `gpt-6.1-sol`, medium effort, isolated candidate without history. Source and dev publication are authorized; no PR or main merge is included.

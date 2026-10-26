@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## Music volume follow-up — 25 October 2026
+
+F-AUDIO-001: increase music gain by 50% from the reviewed lo-fi mix, including proportional thunder duck/recovery. Preserve effects, ambience, livestock and dog levels, composition and playback lifecycle. Update the development build; user listening acceptance remains separate.
+
+
 ## Independent chill soundtrack — 25 October 2026
 
 F-AUDIO-001 reworks the background music into a mellow, gently evolving lo-fi ambient score. Music composition and instrument synthesis belong in a dedicated JavaScript module imported by `audio.js`. Preserve the accepted livestock calls and Pip/Buddy voices, weather mix, mute, pause/resume, async activation guards and bounded resources. No sharp noise percussion or abrupt note endpoints. Listening acceptance remains a separate check. Development publication is authorized; production and merge are not.

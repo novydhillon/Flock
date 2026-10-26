@@ -53,7 +53,7 @@ export class FarmAudio {
         this.effects = this.context.createGain();
         this.ambience = this.context.createGain();
         this.master.gain.value = this.muted ? 0 : 0.975;
-        this.music.gain.value = 0.42;
+        this.music.gain.value = 0.63;
         this.effects.gain.value = 0.6;
         this.ambience.gain.value = 0.38;
         this.music.connect(this.master);
@@ -68,7 +68,7 @@ export class FarmAudio {
       if (this.disposed || generation !== this.activationGeneration || this.context !== context) return false;
       this.paused = false;
       this.music.gain.cancelScheduledValues(this.context.currentTime);
-      this.music.gain.setTargetAtTime(0.42, this.context.currentTime, 0.025);
+      this.music.gain.setTargetAtTime(0.63, this.context.currentTime, 0.025);
       this._begin();
       this._loadVoices();
       return true;
@@ -306,9 +306,9 @@ export class FarmAudio {
     }
     // Preserve the music, with brief room for thunder in the shared mix.
     this.music.gain.cancelScheduledValues(context.currentTime);
-    this.music.gain.setValueAtTime(.42, context.currentTime);
-    this.music.gain.setTargetAtTime(.16, at, .04);
-    this.music.gain.setTargetAtTime(.42, at + duration * .72, .35);
+    this.music.gain.setValueAtTime(.63, context.currentTime);
+    this.music.gain.setTargetAtTime(.24, at, .04);
+    this.music.gain.setTargetAtTime(.63, at + duration * .72, .35);
     this._trackAmbience(source, [filter, gain, ...reflections]); this.thunderSource = source;
     const ended = source.onended;
     source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
@@ -400,7 +400,7 @@ export class FarmAudio {
     if (!this.context || !this.music || this.context.state === 'closed') return;
     const now = this.context.currentTime;
     this.music.gain.cancelScheduledValues(now);
-    this.music.gain.setTargetAtTime(this.paused ? .0001 : .42, now, .025);
+    this.music.gain.setTargetAtTime(this.paused ? .0001 : .63, now, .025);
   }
 
   _stopAmbience() {

@@ -71,6 +71,9 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 **25 October 2026:** Open → In progress on current main `1386c7a40880ebcdf4cbe20b812ccd67cb868985`. Implementation completed; own music module and preserved controls/animal mix are covered by focused checks. Initial checked dev/production builds pass 463 regressions. Blind first pass 8.5/10 identified a compatibility release-envelope jump, now corrected with independent gain gates and a no-cancelAndHoldAtTime regression (31/31 focused audio checks). Follow-up review passes 9.3/10 with no material blockers. The final checked dev build passes all 464 regressions, docs checks and both artifact modes. Source `8b19c916db30aa28054d4374bae21e30dfbd40e2` is published and source CI passes. Authorized dev publication is verified: Pages `f49f3b1f067325d35c96e00e314856a271fec3fd`, native run [40278459790](https://github.com/novydhillon/Flock/actions/runs/40278459790) successful and all 33 live file hashes match. [Publication evidence](validation/F-AUDIO-001-dev-publication.json). User listening acceptance remains pending; keep Review.
 
 
+**Volume follow-up — 25 October 2026:** Novy requested 50% more music volume. Raising the music bus from 0.42 to 0.63 and proportional thunder duck from 0.16 to 0.24; effects, ambience, animal voices and the composition remain unchanged. Focused audio passes 31/31 and the checked dev build passes 464 regressions, docs and release/development artifact checks. Authorized dev update follows source CI. Keep Review pending listening sign-off.
+
+
 
 
 

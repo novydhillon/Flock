@@ -454,8 +454,8 @@ test('thunder uses deep filtering, a tapered rumble and music duck that cancels 
     const peak = envelope.gain.events.find(([kind, value]) => kind === 'ramp' && value === .65);
     assert.ok(peak && peak[2] === 1.12, 'rumble has a softened attack');
     assert.ok(envelope.gain.events.every(([, value]) => value >= .0001 && value <= .65));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .16 && at === 1));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && Math.abs(at - (1 + duration * .72)) < 1e-9));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .24 && at === 1));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .63 && Math.abs(at - (1 + duration * .72)) < 1e-9));
     const reflections = envelope.connections.slice(1);
     assert.equal(reflections.length, 5);
     assert.ok(reflections.every(delay => delay.delayTime.value > 0 && delay.delayTime.value <= 1.1));
@@ -467,13 +467,13 @@ test('thunder uses deep filtering, a tapered rumble and music duck that cancels 
     audio.updateAmbience(.1, { weather: { type: 'sun' } });
     assert.equal(thunder.disconnected, true);
     assert.ok(reflections.every(delay => delay.disconnected && delay.connections[0].disconnected), 'cancel releases dry and reverberant paths');
-    assert.deepEqual(audio.music.gain.events.slice(-2), [['cancel', .5], ['target', .42, .5]]);
+    assert.deepEqual(audio.music.gain.events.slice(-2), [['cancel', .5], ['target', .63, .5]]);
     weather.lightningId = 'storm:next'; audio.updateAmbience(.1, { weather });
     audio.pause();
     assert.equal(audio.music.gain.value, .0001);
     assert.equal(audio.thunderSource, null);
     await audio.resume();
-    assert.equal(audio.music.gain.value, .42);
+    assert.equal(audio.music.gain.value, .63);
   });
 });
 
@@ -649,11 +649,14 @@ test('music envelopes reach zero at both ends and pause cancels scheduled voices
 test('music mute and thunder duck stay on their existing buses while effect voices remain independent',async()=>{
  await withAudio(async audio=>{
   await audio.start();const generator=audio.musicGenerator;
+  assert.equal(audio.music.gain.value,.63,'music starts 50% above the previous .42 mix');
+  assert.equal(audio.effects.gain.value,.6);assert.equal(audio.ambience.gain.value,.38);
   audio.context.currentTime=.2;
   audio.pause();
   assert.ok([...generator.voices.values()].some(({release})=>release.gain.events.some(e=>e[0]==='target'&&e[1]===0&&e[2]===.2)),'running notes fade through their independent release gate');
-  await audio.resume();audio.setMuted(true);assert.equal(audio.master.gain.value,0);
-  audio.setMuted(false);assert.equal(audio.master.gain.value,.975);
+  await audio.resume();assert.equal(audio.music.gain.value,.63,'resume retains the louder music mix');
+  audio.setMuted(true);assert.equal(audio.master.gain.value,0);
+  audio.setMuted(false);assert.equal(audio.master.gain.value,.975);assert.equal(audio.music.gain.value,.63,'unmute restores the louder music mix');
   audio.recordedVoices.set('bark',{duration:.8});audio.play('bark','pip');assert.equal(audio.context.sources.at(-1).playbackRate.value,.78);
   audio.play('bark','buddy');assert.equal(audio.context.sources.at(-1).playbackRate.value,1);
   audio.play('click');const effect=audio.context.oscillators.at(-1);

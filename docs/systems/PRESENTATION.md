@@ -1,5 +1,10 @@
 # Presentation: renderer, nature and audio
 
+## Music mix follow-up — 25 October 2026
+
+The requested 50% music-volume increase changes the music bus from 0.42 to 0.63 at initialization, activation and restoration. Thunder ducks it to 0.24 instead of 0.16, preserving the same relative duck depth before returning to 0.63. Pause still fades to near silence; master, effects, ambience and animal gains remain unchanged. The score and instrument envelopes are unchanged.
+
+
 ## Chill lo-fi soundtrack — 25 October 2026
 
 The current `music.js` score is a 70 BPM, 16-bar cycle with extended Am/F/C/G/Dm voicings, soft electric-piano partials, restrained bass and sparse diatonic call/answer motifs. Alternate eighths lean late; rounded sine kick/taps avoid noise percussion and crackle. Voices use gradual attacks, filtered timbres and envelopes that reach zero before source stop. Quiet, slow pitch drift varies sustained keys without consuming any shared random sequence.
