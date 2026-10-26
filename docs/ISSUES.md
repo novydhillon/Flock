@@ -58,6 +58,10 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
+| F-WORLD-002 | P2 | World generation/gameplay | Random separated starting flocks from level 30 | Open | Existing seeded levels, spawn clearance and flock grouping |
+| F-WORLD-003 | P3 | Gameplay/design investigation | Investigate mixed flocks with multiple goals at levels 70 and 90 | Open | F-WORLD-002; existing delivery, goal and minimap systems |
+| F-WORLD-004 | P3 | Gameplay/progression investigation | Investigate species-specific multiple goals from level 100 | Open | F-WORLD-003; existing campaign cap of 100 levels |
+
 ## Acceptance criteria and planned work
 
 
@@ -439,3 +443,45 @@ The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archive
 **Accept when:** Investigate a short release for a livestock voice replaced at the six-call cap, avoiding potential discontinuity while retaining immediate bolt onset, bounded audible/resource ownership, mute/pause/dispose cleanup and no delayed catch-up. Source inspection identifies possible risk, not an observed/listening-confirmed defect.
 
 **25 October provenance:** Independent F-AUDIO-001 review observed existing immediate `_releaseAmbience` stop/disconnect during saturated bolt replacement. Verified unchanged in approved main `1386c7a` and the new patch. Root explicitly keeps this outside current tuning scope and tracks it separately; no implementation or audible click claim.
+
+
+## Late-game flock and goal planning — 25 October 2026
+
+Split starting herds are P2 gameplay progression work; the two multi-goal proposals are P3 investigations pending design and feasibility decisions. All three items are Open and unassigned. Runtime implementation, campaign expansion and deployment are not part of this planning update.
+
+### F-WORLD-002 — Random separated starting flocks from level 30 (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** On levels 30 and above, give each level a 20% chance of starting with the herd split into two groups at least 50 m apart. One group starts close to Pip. On levels 30–49, place the second group randomly within the first field. From level 50 onward, the second group may be anywhere on the map inside the playable area.
+
+**Depends on / preserve:** Existing seeded levels, spawn clearance and flock grouping.
+
+**Accept when:** Use reproducible seeded selection and placement; levels below 30 never use this split-start feature. Eligible levels use a 20% chance, not a forced every-fifth-level schedule. Both groups spawn safely inside reachable playable ground with physical clearance, at least 50 m apart, and the near group is close to Pip's starting position. Keep the second group in the first field at 30–49; allow the full playable map at 50+. Validate separation, river/fence/gate connectivity and reachability across seeds. Group-size balance, the exact near-Pip distance and fallback for maps too small for safe 50 m separation must be resolved before implementation without silently violating the spacing requirement. Preserve total herd counts, rewards and existing delivery rules.
+
+### F-WORLD-003 — Investigate mixed flocks with multiple goals at levels 70 and 90 (P3)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Investigate multiple mixed-species flocks with multiple goal locations: two flocks and two goals at levels 70–89; three flocks and three goals at level 90 and above.
+
+**Depends on / preserve:** F-WORLD-002; existing delivery, goal and minimap systems.
+
+**Accept when:** Produce a design and feasibility recommendation for mixed flocks and multiple reachable goal locations. Resolve whether each flock is assigned a specific goal or animals may enter any goal; define counts, completion, partial delivery, scoring, UI/minimap guidance, Buddy roles and persistence. Assess interaction with the 20% split-start feature, route generation, difficulty, mobile performance and the current campaign cap. Investigate options and record follow-up work only; do not implement or assume a goal-assignment rule.
+
+### F-WORLD-004 — Investigate species-specific multiple goals from level 100 (P3)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Investigate multiple flocks and multiple goals at level 100 and above, where individual animal types must be delivered into their corresponding species-specific goals.
+
+**Depends on / preserve:** F-WORLD-003; existing campaign cap of 100 levels.
+
+**Accept when:** Recommend how sheep and cows are sorted into clearly identified species-specific goals, including mixed-flock handling, wrong-species arrival behavior, counts, scoring, completion, goal capacity/reachability, UI and helper behavior. Identify the changes required to support levels beyond the current 100-level campaign, including generation, unlocks, saved progress, QA and selectors. Resolve how this tier combines with the 90+ three-flock/three-goal proposal, including species-to-goal mapping, without assuming a third species. Record design choices, risks and implementation follow-ups; investigation only.
+

@@ -544,3 +544,11 @@ Prefer the standard Deploy Flock workflow where connector dispatch is available.
 
 Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main and close the tickets” after reviewing the dev build. These six requirements are Done on `buddy_behaviour`, with complete requirements, acceptance criteria, historical implementation/publication evidence and closure records in [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes the older Review/pending acceptance descriptions for these six items elsewhere in this document; F-COMP-004/005/006/008 remain Open and F-OPS-004 is unchanged. Main source merge is authorized; production publication is not requested. Acceptance is user gameplay sign-off, not an independent native-phone FPS/audio/touch measurement.
 
+
+
+## Late-game flock and goal requests — 25 October 2026
+
+- F-WORLD-002 (P2): On levels 30 and above, give each level a 20% chance of starting with the herd split into two groups at least 50 m apart. One group starts close to Pip. On levels 30–49, place the second group randomly within the first field. From level 50 onward, the second group may be anywhere on the map inside the playable area. See [tracker acceptance criteria](ISSUES.md).
+- F-WORLD-003 (P3): Investigate multiple mixed-species flocks with multiple goal locations: two flocks and two goals at levels 70–89; three flocks and three goals at level 90 and above. See [tracker acceptance criteria](ISSUES.md).
+- F-WORLD-004 (P3): Investigate multiple flocks and multiple goals at level 100 and above, where individual animal types must be delivered into their corresponding species-specific goals. See [tracker acceptance criteria](ISSUES.md).
+
