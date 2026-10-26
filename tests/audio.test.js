@@ -659,3 +659,61 @@ test('repeated activation leaves the running music clock and thunder duck automa
   assert.deepEqual(audio.music.gain.events,events);assert.equal(audio.step,step);assert.equal(audio.nextNoteTime,next);assert.equal(audio.timer,timer);
  });
 });
+
+test('a fresh gesture unlocks synchronously while autoplay resume remains pending', async () => {
+ await withAudio(async(audio,timers)=>{
+  const autoplay=audio.start(),context=audio.context;
+  assert.equal(context.sources.length,0,'autoplay does not queue an unlock source');
+  const gesture=audio.start({gesture:true});
+  const unlock=context.sources[0];
+  assert.equal(context.pendingResumes.length,2,'gesture issues a new resume without awaiting autoplay');
+  assert.equal(unlock.started,true,'source starts inside the gesture stack');
+  assert.equal(unlock.connections[0],context.destination);
+  assert.ok(unlock.buffer.getChannelData(0).every(sample=>sample===0),'unlock is silent');
+  context.pendingResumes[1]();assert.equal(await gesture,true);
+  assert.equal(timers.size,1);const timer=audio.timer,step=audio.step;
+  context.pendingResumes[0]();assert.equal(await autoplay,false);
+  assert.equal(audio.timer,timer);assert.equal(audio.step,step);
+  unlock.end();assert.equal(unlock.disconnected,true);assert.ok(!audio.active.has(unlock));
+  const count=context.sources.length;await audio.start({gesture:true});
+  assert.equal(context.sources.length,count,'healthy playback never queues unlock sources');
+ },DeferredContext);
+});
+
+test('interrupted transport recovers on gesture with one scheduler and preserved mix', async () => {
+ await withAudio(async(audio,timers)=>{
+  await audio.start();const timer=audio.timer,context=audio.context;
+  context.state='interrupted';
+  await audio.start({gesture:true});
+  assert.equal(context.state,'running');assert.equal(audio.timer,timer);assert.equal(timers.size,1);
+  assert.equal(audio.music.gain.value,.63);assert.equal(audio.effects.gain.value,.6);
+  const unlock=context.sources.at(-1);audio.dispose();
+  assert.equal(unlock.disconnected,true);assert.equal(timers.size,0);
+ });
+});
+
+test('repeated denied and pending unlock attempts keep at most one connected silent source',async()=>{
+ class DeniedContext extends Context {async resume(){throw Error('NotAllowedError');}}
+ await withAudio(async audio=>{
+  for(let i=0;i<20;i++){
+   assert.equal(await audio.start({gesture:true}),false);
+   assert.equal(audio.active.size,0);assert.equal(audio.unlockSource,null);
+  }
+  assert.ok(audio.context.sources.every(source=>source.disconnected&&source.stops.length===1));
+ },DeniedContext);
+ await withAudio(async(audio,timers)=>{
+  const pending=[];
+  for(let i=0;i<20;i++){
+   pending.push(audio.start({gesture:true}));
+   assert.equal(audio.active.size,1);assert.equal(audio.unlockSource,audio.context.sources.at(-1));
+   assert.ok(audio.context.sources.slice(0,-1).every(source=>source.disconnected));
+  }
+  const context=audio.context,last=audio.unlockSource;
+  context.pendingResumes.at(-1)();assert.equal(await pending.at(-1),true);assert.equal(timers.size,1);
+  for(let i=0;i<19;i++)context.pendingResumes[i]();
+  assert.ok((await Promise.all(pending.slice(0,-1))).every(result=>result===false));
+  assert.equal(audio.unlockSource,last,'older promises cannot release the current unlock');
+  audio.pause();assert.equal(last.disconnected,true);assert.equal(audio.unlockSource,null);
+  assert.equal(timers.size,0);
+ },DeferredContext);
+});

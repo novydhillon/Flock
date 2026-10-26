@@ -840,3 +840,46 @@ test('pending landing and level activation can finish in menus but cannot overri
   assert.equal(audio.paused,true);assert.equal(timers.size,0,'late context resume cannot recreate a background soundtrack');
  },DeferredContext);
 });
+
+test('touchend and click recover pending launch audio even without a browser focus event',async()=>{
+ for(const gesture of ['touchend','click'])await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio}),context=audio.context;
+  assert.equal(context.pendingResumes.length,1);assert.equal(timers.size,0);
+  ui.windowEvents.get('blur')();
+  ui.emit(gesture,{target:ui.el('intro')});
+  assert.equal(context.pendingResumes.length,2,'visible interaction supersedes a stale blur gate synchronously');
+  assert.equal(context.sources.length,1,'touch/click unlock is issued before its resume settles');
+  context.pendingResumes[1]();await settleAudio();
+  assert.equal(timers.size,1);assert.equal(ui.app.state().mode,'intro');
+  const timer=audio.timer;context.pendingResumes[0]();await settleAudio();
+  assert.equal(audio.timer,timer,'old autoplay completion cannot replace gesture playback');
+ },DeferredContext);
+});
+
+test('touch/click retries respect saved mute and cannot activate a hidden page',async()=>{
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio,music:false});
+  for(const gesture of ['touchend','click'])ui.emit(gesture);
+  assert.equal(audio.context,null);assert.equal(timers.size,0);
+  await ui.click('sound');const timer=audio.timer;
+  ui.document.hidden=true;ui.emit('visibilitychange');
+  for(const gesture of ['touchend','click'])ui.emit(gesture);
+  await settleAudio();assert.equal(timers.size,0);
+  ui.document.hidden=false;ui.emit('visibilitychange');await settleAudio();
+  assert.equal(timers.size,1);assert.notEqual(audio.timer,timer);
+ });
+});
+
+test('foreground visibility and pageshow restore music without focus while gameplay stays paused',async()=>{
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio});await settleAudio();await ui.click('play');
+  ui.windowEvents.get('blur')();ui.document.hidden=true;ui.emit('visibilitychange');
+  assert.equal(timers.size,0);assert.equal(ui.app.state().mode,'paused');
+  audio.context.state='interrupted';ui.document.hidden=false;ui.emit('visibilitychange');await settleAudio();
+  assert.equal(timers.size,1);assert.equal(audio.gameplayPaused,true);
+  ui.windowEvents.get('pagehide')();assert.equal(timers.size,0);
+  ui.windowEvents.get('pageshow')();await settleAudio();
+  assert.equal(timers.size,1);assert.equal(ui.app.state().mode,'paused');
+  const timer=audio.timer;ui.windowEvents.get('pageshow')();await settleAudio();assert.equal(audio.timer,timer);
+ });
+});

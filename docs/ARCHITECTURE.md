@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Gesture and foreground audio recovery — 26 October 2026
+
+The controller retries enabled audio from touchend and capture-phase click as well as pointer/key gestures. A visible interaction establishes foreground intent even if an earlier blur lacked a matching focus event. A real hidden-to-visible transition and pageshow restore that intent; repeated visible notifications alone do not undo an unrelated blur. pagehide silences music and pauses gameplay, including back/forward-cache restoration. FarmAudio.start({gesture:true}) starts a silent one-sample source synchronously before calling resume, then uses the existing activation generation guard after awaiting it. Every gesture can issue a fresh resume even while an older autoplay resume remains pending. Healthy running playback returns without changing its score, timer or mix.
+
 ## Continuous soundtrack lifecycle — 25 October 2026
 
 The controller attempts `FarmAudio.start()` once the landing scene is ready and retries from normal pointer/keyboard gestures when sound is enabled. Repeated calls on a running transport are idempotent: they do not touch its beat clock, active music voices, timer or thunder automation. `setGameplayPaused(true)` stops only scene ambience/animal voices and freezes livestock clocks; menus, results, landing and QA use this API. Starting/resuming gameplay clears that scene pause without restarting music. `pause()` remains a full soundtrack suspension for page visibility/focus loss and invalidates pending activation. A later visible/focused activation cannot be undone by an older resume promise. Saved mute gates autoplay/gesture attempts; the existing master gain still owns sound toggling. The score remains exclusively in `music.js`.

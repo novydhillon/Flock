@@ -32,6 +32,7 @@ export class FarmAudio {
     this.active = new Set();
     this.disposed = false;
     this.activationGeneration = 0;
+    this.unlockSource = null;
     this.tempo = MUSIC_TEMPO;
     this.musicGenerator = null;
     this.voiceBuffers = new Map();
@@ -41,11 +42,12 @@ export class FarmAudio {
     this.livestockLevel = null;
   }
 
-  async start() {
+  async start({ gesture = false } = {}) {
     if (this.disposed) return false;
     // UI transitions and user gestures reuse the same transport and ducking.
     if (this.context?.state === 'running' && !this.paused && this.timer !== null) return true;
     const generation = ++this.activationGeneration;
+    let unlock;
     try {
       if (!this.context) {
         const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -66,9 +68,24 @@ export class FarmAudio {
         this.musicGenerator = new LoFiMusic(this.context, this.music, this.active);
       }
       const context = this.context;
+      // WebKit can require a source to be started inside the touch/click stack.
+      // Do this before awaiting resume; an earlier autoplay resume may never settle.
+      if (gesture && context.state !== 'running') {
+        this._releaseUnlock();
+        unlock = context.createBufferSource();
+        this.unlockSource = unlock;
+        unlock.buffer = context.createBuffer(1, 1, context.sampleRate);
+        unlock.connect(context.destination);
+        unlock.onended = () => { unlock.disconnect(); this.active.delete(unlock); if(this.unlockSource===unlock)this.unlockSource=null; };
+        this.active.add(unlock);
+        unlock.start();
+      }
       await context.resume();
       // A later pause, activation, or disposal owns the playback intent.
-      if (this.disposed || generation !== this.activationGeneration || this.context !== context || context.state !== 'running') return false;
+      if (this.disposed || generation !== this.activationGeneration || this.context !== context || context.state !== 'running') {
+        if(this.unlockSource===unlock)this._releaseUnlock();
+        return false;
+      }
       this.paused = false;
       this.music.gain.cancelScheduledValues(this.context.currentTime);
       this.music.gain.setTargetAtTime(0.63, this.context.currentTime, 0.025);
@@ -76,9 +93,17 @@ export class FarmAudio {
       this._loadVoices();
       return true;
     } catch {
+      if(this.unlockSource===unlock)this._releaseUnlock();
       // Restricted browsers can still play the game silently.
       return false;
     }
+  }
+
+  _releaseUnlock() {
+    const source=this.unlockSource;
+    if(!source)return;
+    try { source.stop(); } catch { /* Already ended. */ }
+    source.onended=null;source.disconnect();this.active.delete(source);this.unlockSource=null;
   }
 
   setMuted(muted) {
@@ -100,6 +125,7 @@ export class FarmAudio {
   pause() {
     this.activationGeneration++;
     this.paused = true;
+    this._releaseUnlock();
     this._stopScheduler();
     this._stopAmbience();
     if (this.context && this.context.state !== 'closed') this.music.gain.setTargetAtTime(0.0001, this.context.currentTime, 0.025);
@@ -471,6 +497,7 @@ export class FarmAudio {
     if (this.disposed) return;
     this.activationGeneration++;
     this.disposed = true;
+    this._releaseUnlock();
     this._stopScheduler();
     this.musicGenerator?.dispose();
     this.musicGenerator = null;

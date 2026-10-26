@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Browser and Home Screen audio launch — 26 October 2026
+
+F-AUDIO-001: attempt enabled music as soon as landing is ready. If autoplay is restricted, the first normal touch, click, pointer or keyboard interaction must retry directly without toggling Sound. Foreground return and visible user interaction must recover from a missing focus event; hidden pages remain silent and gameplay remains paused on return. Preserve saved mute, one scheduler and the existing 50% music-gain increase. Browser policy may require interaction; no-touch audible launch cannot be guaranteed.
+
 ## Continuous landing and menu soundtrack — 25 October 2026
 
 F-AUDIO-001: music starts on the landing page when browser autoplay permits it, with normal pointer/keyboard gestures retrying restricted activation. The same soundtrack continues without restarting or releasing music voices when Let's Herd begins a meadow, menus/popups/workshop/results/QA open, levels restart/change or the player returns to landing. Gameplay ambience and livestock clocks still pause with gameplay. Preserve saved mute and the 50% louder mix; hidden/unfocused pages silence the soundtrack and resume safely on return. Browser restrictions may require the first user interaction before any audible landing music. This supersedes earlier guidance that gameplay menus pause the entire soundtrack.

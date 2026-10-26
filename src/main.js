@@ -15,10 +15,10 @@ import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from './bark.js
 const $=id=>document.getElementById(id);
 let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkState=createBarkState(),lastTouchBark=-Infinity,tipStep=0,tipDismissed=false,tipChangedAt=0,tipManual=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
-let pageFocused=true;
+let pageFocused=true, pageWasHidden=document.hidden;
 audio.setMuted(!profile.music);audio.setGameplayPaused(true);
-function activateMusic(){return profile.music&&!document.hidden&&pageFocused?audio.start():Promise.resolve(false);}
-function activateFromGesture(event){if(!event.target?.closest?.('#sound, #menu-sound'))void activateMusic();}
+function activateMusic(gesture=false){return profile.music&&!document.hidden&&pageFocused?audio.start({gesture}):Promise.resolve(false);}
+function activateFromGesture(event){if(document.hidden)return;pageFocused=true;if(!event.target?.closest?.('#sound, #menu-sound'))void activateMusic(true);}
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
 let qaSession=false;
 const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
@@ -30,7 +30,7 @@ function updateWallet(){
 }
 async function toggleSound(){
   profile.music=!profile.music;audio.setMuted(!profile.music);persist();updateWallet();
-  if(profile.music)await activateMusic();
+  if(profile.music)await activateMusic(true);
 }
 function updateBark(){
   const cooldown=barkState.remaining>0;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
@@ -136,15 +136,18 @@ document.addEventListener('pointerdown',pointerStart,{passive:false});document.a
 // captured. Block native gestures only on the play surface; menus stay scrollable.
 const gameSurface=target=>target===$('world')||Boolean(target.closest('#controls'));
 document.addEventListener('touchstart',e=>{if(mode==='playing'&&gameSurface(e.target))e.preventDefault();},{passive:false});
-document.addEventListener('touchend',e=>{if(mode==='playing'&&gameSurface(e.target)){e.preventDefault();if(e.target.closest('#bark')){lastTouchBark=performance.now();bark();}}},{passive:false});
+document.addEventListener('touchend',e=>{activateFromGesture(e);if(mode==='playing'&&gameSurface(e.target)){e.preventDefault();if(e.target.closest('#bark')){lastTouchBark=performance.now();bark();}}},{passive:false});
 document.addEventListener('gesturestart',e=>{if(mode==='playing')e.preventDefault();},{passive:false});
 document.addEventListener('gesturechange',e=>{if(mode==='playing')e.preventDefault();},{passive:false});
 document.addEventListener('dblclick',e=>{if(mode==='playing'&&gameSurface(e.target))e.preventDefault();},{passive:false});
 document.addEventListener('keydown',e=>{activateFromGesture(e);if(mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)&&!e.target.closest('input,textarea,[contenteditable="true"]')&&!(e.key===' '&&e.target.closest('button'))){e.preventDefault();keys.add(e.key.toLowerCase());if(e.key===' '&&!e.repeat)bark();}if(e.key==='Escape'){e.preventDefault();menu();}if(e.key==='Tab'&&!$('modal').classList.contains('hidden')){const focusable=[...$('modal-card').querySelectorAll('button:not([disabled])')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+document.addEventListener('click',activateFromGesture,{capture:true});
 window.addEventListener('blur',()=>{pageFocused=false;resetInput();pointer=null;if(mode==='playing')menu();audio.pause();});
 window.addEventListener('focus',()=>{pageFocused=true;void activateMusic();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(mode==='playing')menu();audio.pause();}else void activateMusic();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pageWasHidden=true;if(mode==='playing')menu();audio.pause();}else{if(pageWasHidden)pageFocused=true;pageWasHidden=false;void activateMusic();}});
+window.addEventListener('pagehide',()=>{pageWasHidden=true;pageFocused=false;resetInput();pointer=null;if(mode==='playing')menu();audio.pause();});
+window.addEventListener('pageshow',()=>{if(!document.hidden){pageFocused=true;pageWasHidden=false;void activateMusic();}});
 window.addEventListener('resize',()=>renderer?.resize());
 $('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=()=>{if(performance.now()-lastTouchBark>500)bark();};$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=toggleSound;

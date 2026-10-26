@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Browser and iOS launch recovery — 26 October 2026
+
+Enabled landing autoplay remains the first attempt. Normal touchend/click/pointer/key handlers retry activation synchronously, with a silent one-sample WebAudio source before resume when the context is suspended or interrupted. New resume attempts do not wait for earlier pending promises; generation guards keep late startup from overriding pause/disposal/newer activation. Only one unlock source may remain pending: superseding gestures, denied activation, pause and disposal stop/disconnect it, and normal completion removes it from the shared active set. A visible interaction or foreground/page restoration recovers stale focus bookkeeping, while hidden pages stay silent and gameplay stays paused. Music/effect/ambience gains and thunder ducking are unchanged. These paths are tested with substitutes; actual browser and Home Screen listening remain pending.
+
 ## Music across landing, gameplay and overlays — 25 October 2026
 
 Landing, gameplay, menus, workshop, reset confirmation, completion, QA and level/landing transitions share one music context, score position and scheduler. `FarmAudio.start()` returns without changing an already-running transport. `setGameplayPaused()` independently gates weather/birds and livestock clocks/voices, allowing music to continue while simulation is paused. Only page background/focus suspension uses full `pause()`; return activates music while leaving gameplay safely paused in its menu. Explicit mute remains global and retains the existing 0.63 music mix and proportional 0.24 thunder duck when re-enabled. Landing playback is attempted when ready; a browser that blocks autoplay waits for a normal user gesture, which retries safely without requiring a separate screen.

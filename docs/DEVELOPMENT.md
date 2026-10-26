@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Browser and Home Screen launch smoke checks — 26 October 2026
+
+With sound enabled, cold-open the dev URL in Safari/iOS, an iOS Home Screen install and a normal browser. Record whether music begins without interaction (only where autoplay is permitted); otherwise make one ordinary landing touch/click and confirm music starts without toggling Sound. Repeat after a denied/pending autoplay request, background/foreground, screen lock, app switching, and back/forward navigation, including returns without a focus event. Gameplay must remain paused on return, music must use one transport, and saved mute must stay silent through all retries until explicitly enabled. Confirm touch controls/bark and settings still work, and the 50% music mix is retained. Physical-device/browser listening remains pending; lifecycle mocks do not prove iOS policy behavior.
+
 ## Continuous soundtrack smoke checks — 25 October 2026
 
 With sound enabled, open the landing page: music should start where autoplay is allowed, or on the first pointer/keyboard interaction where the browser requires it. Confirm saved mute produces no sound and that enabling Sound starts music on landing. Listen through Let's Herd, pause, nested workshop, reset confirmation/cancel, result/reward screens, replay/next meadow, QA and Quit to landing: the same phrase must continue with no restart, beat gap or duplicate scheduler, while gameplay/animal ambience pauses appropriately. Hide the tab or change window focus, then return; music should resume safely while gameplay stays paused. Repeat with pending/rejected activation, mute toggles and quick transitions. Verify on Safari/iOS and Chrome/Android; mock WebAudio tests do not establish actual browser activation or gapless listening.
