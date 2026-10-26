@@ -544,3 +544,12 @@ Prefer the standard Deploy Flock workflow where connector dispatch is available.
 
 Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main and close the tickets” after reviewing the dev build. These six requirements are Done on `buddy_behaviour`, with complete requirements, acceptance criteria, historical implementation/publication evidence and closure records in [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes the older Review/pending acceptance descriptions for these six items elsewhere in this document; F-COMP-004/005/006/008 remain Open and F-OPS-004 is unchanged. Main source merge is authorized; production publication is not requested. Acceptance is user gameplay sign-off, not an independent native-phone FPS/audio/touch measurement.
 
+
+
+## Rough pasture and rolling terrain requests — 25 October 2026
+
+- F-TERRAIN-001 (P3): Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style. See [tracker criteria and photo references](ISSUES.md).
+- F-TERRAIN-002 (P2): Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over. See [tracker criteria and photo references](ISSUES.md).
+- F-TERRAIN-003 (P2): Make fences and stone walls follow the undulating ground instead of remaining on a flat plane. See [tracker criteria and photo references](ISSUES.md).
+- F-TERRAIN-004 (P2): Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades. See [tracker criteria and photo references](ISSUES.md).
+

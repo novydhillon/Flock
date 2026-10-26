@@ -58,6 +58,11 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
+| F-TERRAIN-001 | P3 | Environment/art | Rough pasture appearance on selected levels | Open | Existing clay grass and ground presentation |
+| F-TERRAIN-002 | P2 | Terrain/navigation | Navigable undulating fields | Open | Existing world generation, navigation and actor presentation |
+| F-TERRAIN-003 | P2 | World/structures | Fences and stone walls follow terrain undulations | Open | F-TERRAIN-002; existing fences, stone walls and gates |
+| F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
+
 ## Acceptance criteria and planned work
 
 
@@ -439,3 +444,59 @@ The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archive
 **Accept when:** Investigate a short release for a livestock voice replaced at the six-call cap, avoiding potential discontinuity while retaining immediate bolt onset, bounded audible/resource ownership, mute/pause/dispose cleanup and no delayed catch-up. Source inspection identifies possible risk, not an observed/listening-confirmed defect.
 
 **25 October provenance:** Independent F-AUDIO-001 review observed existing immediate `_releaseAmbience` stop/disconnect during saturated bolt replacement. Verified unchanged in approved main `1386c7a` and the new patch. Root explicitly keeps this outside current tuning scope and tracks it separately; no implementation or audible click claim.
+
+
+## Rough pasture and rolling terrain — 25 October 2026
+
+Reference photos supplied by Novy: picture 1 `IMG_8450.webp` and picture 2 `IMG_8451.jpeg` guide rough tufted pasture; `IMG_8454.jpeg`, `IMG_8453.jpeg` and `IMG_8452.webp` guide rolling fields, low valleys and terrain-following boundaries. Translate these landscape references into the existing claymation style. References are visual direction, not a request to reproduce photographic textures or watermarks.
+
+All four items are Open and unassigned. Rough-ground appearance is P3 polish; navigable relief, aligned boundaries and terrain-aware water are linked P2 features that must be coordinated before a rolling-terrain release. This adds planned work only; no terrain, physics, water or game deployment changes are implemented.
+
+### F-TERRAIN-001 — Rough pasture appearance on selected levels (P3)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
+
+**Depends on / preserve:** Existing clay grass and ground presentation.
+
+**Accept when:** Selected levels visibly differ from smoother meadows through bounded tufts, patchiness and ground variation, without obscuring animals or routes. Preserve navigable clearance, collision and mobile performance. Do not apply the rough look to every level or invent a user-approved frequency. Coordinate physical height variation with F-TERRAIN-002; visual roughness alone must not silently add blockers.
+
+### F-TERRAIN-002 — Navigable undulating fields (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
+
+**Depends on / preserve:** Existing world generation, navigation and actor presentation.
+
+**Accept when:** Generate continuous terrain heights with traversable rolling slopes, safe spawn/goal areas and connected routes. Keep simulation, rendering and navigation consistent about surface elevation; livestock stay grounded and Pip/Buddy retain appropriate hover clearance without clipping, floating or becoming stuck. Paths, bridge landings and goal approaches join the terrain cleanly. Verify sheep, all cow sizes, helpers, split herds and terrain edges across seeds. Agree on height, slope limits and which levels use relief before implementation; do not require jumping or change controls.
+
+### F-TERRAIN-003 — Fences and stone walls follow terrain undulations (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
+
+**Depends on / preserve:** F-TERRAIN-002; existing fences, stone walls and gates.
+
+**Accept when:** Fence posts, rails, stone-wall bases and associated collision follow local terrain with no floating spans, buried sections or unintended gaps. Gates, switch panels, openings and traversable clearances remain usable from both sides on slopes. Preserve the accepted wall appearance, gate states and navigation connectivity. Test changing grades, corners, boundaries and crossings rather than only one straight slope.
+
+### F-TERRAIN-004 — Lowland rivers and slope-aware rain pooling (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
+
+**Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
+
+**Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
+
