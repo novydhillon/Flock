@@ -25,6 +25,7 @@ export class FarmAudio {
     this.birdCountdown = 4 + Math.random() * 6;
     this.muted = false;
     this.paused = false;
+    this.gameplayPaused = false;
     this.timer = null;
     this.step = 0;
     this.nextNoteTime = 0;
@@ -42,6 +43,8 @@ export class FarmAudio {
 
   async start() {
     if (this.disposed) return false;
+    // UI transitions and user gestures reuse the same transport and ducking.
+    if (this.context?.state === 'running' && !this.paused && this.timer !== null) return true;
     const generation = ++this.activationGeneration;
     try {
       if (!this.context) {
@@ -65,7 +68,7 @@ export class FarmAudio {
       const context = this.context;
       await context.resume();
       // A later pause, activation, or disposal owns the playback intent.
-      if (this.disposed || generation !== this.activationGeneration || this.context !== context) return false;
+      if (this.disposed || generation !== this.activationGeneration || this.context !== context || context.state !== 'running') return false;
       this.paused = false;
       this.music.gain.cancelScheduledValues(this.context.currentTime);
       this.music.gain.setTargetAtTime(0.63, this.context.currentTime, 0.025);
@@ -87,6 +90,13 @@ export class FarmAudio {
     this.master.gain.setTargetAtTime(this.muted ? 0 : 0.975, now, 0.025);
   }
 
+  /** Pause scene sounds and clocks without interrupting the soundtrack. */
+  setGameplayPaused(paused) {
+    this.gameplayPaused = Boolean(paused);
+    if (this.gameplayPaused) this._stopAmbience();
+  }
+
+  /** Full page/background suspension; menus use setGameplayPaused instead. */
   pause() {
     this.activationGeneration++;
     this.paused = true;
@@ -138,7 +148,7 @@ export class FarmAudio {
   /** Driven by gameplay frames: never starts audio without a user gesture. */
   updateAmbience(dt, state = {}) {
     const raw = state.weather || 'sun';
-    const available = this.context && this.context.state === 'running' && !this.paused && !this.muted && !this.disposed;
+    const available = this.context && this.context.state === 'running' && !this.paused && !this.gameplayPaused && !this.muted && !this.disposed;
     this._updateThunder(typeof raw === 'object' ? raw : null, available);
     if (!available) return;
     const type = typeof raw === 'string' ? raw : raw.type || 'sun';
@@ -176,9 +186,9 @@ export class FarmAudio {
   /** One independent clock per animal, driven by simulation frames, not timers. */
   updateLivestock(dt, {animals = [], listener, level = null} = {}) {
     if (level !== this.livestockLevel) this.resetLivestock(level);
-    const available = this.context && this.context.state === 'running' && !this.paused && !this.muted && !this.disposed;
+    const available = this.context && this.context.state === 'running' && !this.paused && !this.gameplayPaused && !this.muted && !this.disposed;
     const step = Number.isFinite(dt) ? Math.max(0, Math.min(.1, dt)) : 0;
-    if (!step || this.paused || this.disposed) return;
+    if (!step || this.paused || this.gameplayPaused || this.disposed) return;
     const present = new Set(animals);
     for (const animal of this.livestockSchedules.keys()) if (!present.has(animal)) this.livestockSchedules.delete(animal);
     let emitted = 0;

@@ -1,5 +1,14 @@
 # Flock revision quality record
 
+## Continuous landing and overlay soundtrack — 25 October 2026
+
+F-AUDIO-001, branch `feature/chill-lofi-music`, base `4955f3485a4ff6f541f3550a4f4ec8662cbc066d`. Implementation: `gpt-6-astra`, high effort, continuing Novy's explicit selection. Fresh independent critic: `gpt-6.1-sol`, medium effort, reviewing an isolated candidate. The fresh blind review scored 9.2/10 with no material blockers. Its optional coverage suggestion was addressed by explicitly clicking Next meadow and confirmed Restart Game in the real-transport integration test; no runtime changes followed review. The checked dev build passes all 470 regressions, documentation checks and both artifact modes (release 31 files / zero QA assets; development 33 files / two QA assets). The final controller-only rerun also passes 46/46, including the added transitions. Existing Vite large-chunk advisory remains.
+
+The controller now attempts landing playback and retries restricted activation from normal user gestures. A scene-only pause stops ambient/livestock audio and clocks while preserving the soundtrack; full pause is reserved for hidden/unfocused pages. Running activation is idempotent, preserving the clock, sounding voices and thunder automation. The reviewed music score and 50% gain increase are unchanged. Existing controller regressions now distinguish paused gameplay from paused music. A shared WebAudio fixture lets controller tests use the real FarmAudio transport across landing/play/menus/results/restart/quit, plus saved mute, rejected autoplay retry and background activation races. Focused audio/UI/QA checks pass 82/82.
+
+No phone/browser listening or physical autoplay-policy behavior has been observed. Source mocks establish lifecycle behavior, not audible continuity or mix quality. Source/dev publication follows successful source CI; user listening acceptance remains separate.
+
+
 ## Music gain increase — 25 October 2026
 
 F-AUDIO-001 on `feature/chill-lofi-music`, base `cbc4e8b9878197483fbeb23699661be6c0ab7801`. Novy requested 50% more music volume after the verified lo-fi dev publication. Implementation remains `gpt-6-astra`, high effort. This bounded gain-only follow-up changes nominal music from 0.42 to 0.63 and thunder duck from 0.16 to 0.24, including activation and every restoration path. Composition, effects, ambience, animal voices, master level and lifecycle behavior are unchanged. The earlier 9.3/10 review covered the module implementation; no new blind score is claimed for this small tuning update.

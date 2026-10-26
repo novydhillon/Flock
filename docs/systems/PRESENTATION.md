@@ -1,5 +1,10 @@
 # Presentation: renderer, nature and audio
 
+## Music across landing, gameplay and overlays — 25 October 2026
+
+Landing, gameplay, menus, workshop, reset confirmation, completion, QA and level/landing transitions share one music context, score position and scheduler. `FarmAudio.start()` returns without changing an already-running transport. `setGameplayPaused()` independently gates weather/birds and livestock clocks/voices, allowing music to continue while simulation is paused. Only page background/focus suspension uses full `pause()`; return activates music while leaving gameplay safely paused in its menu. Explicit mute remains global and retains the existing 0.63 music mix and proportional 0.24 thunder duck when re-enabled. Landing playback is attempted when ready; a browser that blocks autoplay waits for a normal user gesture, which retries safely without requiring a separate screen.
+
+
 ## Music mix follow-up — 25 October 2026
 
 The requested 50% music-volume increase changes the music bus from 0.42 to 0.63 at initialization, activation and restoration. Thunder ducks it to 0.24 instead of 0.16, preserving the same relative duck depth before returning to 0.63. Pause still fades to near silence; master, effects, ambience and animal gains remain unchanged. The score and instrument envelopes are unchanged.

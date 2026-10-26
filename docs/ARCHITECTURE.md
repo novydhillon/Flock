@@ -1,5 +1,10 @@
 # Architecture and system contracts
 
+## Continuous soundtrack lifecycle — 25 October 2026
+
+The controller attempts `FarmAudio.start()` once the landing scene is ready and retries from normal pointer/keyboard gestures when sound is enabled. Repeated calls on a running transport are idempotent: they do not touch its beat clock, active music voices, timer or thunder automation. `setGameplayPaused(true)` stops only scene ambience/animal voices and freezes livestock clocks; menus, results, landing and QA use this API. Starting/resuming gameplay clears that scene pause without restarting music. `pause()` remains a full soundtrack suspension for page visibility/focus loss and invalidates pending activation. A later visible/focused activation cannot be undone by an older resume promise. Saved mute gates autoplay/gesture attempts; the existing master gain still owns sound toggling. The score remains exclusively in `music.js`.
+
+
 ## Music module boundary — 25 October 2026
 
 `audio.js` imports `LoFiMusic`, `MUSIC_TEMPO` and `MUSIC_STEPS` from `music.js`. FarmAudio owns the AudioContext, music/effect/ambience buses, activation-generation guard and bounded look-ahead transport. `music.js` owns the score, music instrument envelopes, filters and voice cleanup. It receives the music bus and shared active-source set; it never creates a context, timer, fetch or gameplay dependency. Pause stops scheduling and releases pending/running music voices; disposal disconnects every owned graph. UI effects and accepted livestock/dog tuning remain in FarmAudio.

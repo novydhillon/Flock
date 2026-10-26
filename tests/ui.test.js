@@ -9,12 +9,13 @@ import * as progressionAPI from '../src/progression.js';
 import * as gatesAPI from '../src/gates.js';
 import * as worldAPI from '../src/world.js';
 import * as barkAPI from '../src/bark.js';
+import { Context, DeferredContext, withAudio } from './audio-fixture.js';
 
 const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', import.meta.url));
 
 // Run the production controller and simulation together. Rendering, browser DOM,
 // and WebAudio are the only substitutes; navigation and rewards are real code.
-function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades = {}, completedLevels = [], music = true, deferAudioStart = false } = {}) {
+function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades = {}, completedLevels = [], music = true, deferAudioStart = false, audioInstance = null } = {}) {
   const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '');
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
@@ -46,6 +47,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     setAttribute(key, value) { this.attrs[key] = value; }
     focus() { document.activeElement = this; }
     closest(selector) {
+      if (selector === '#sound, #menu-sound' && ['sound','menu-sound'].includes(this.id)) return this;
       if (selector === '#joystick' && this.id === 'joystick') return this;
       if (selector === '#bark' && this.id === 'bark') return this;
       if (selector === '#controls' && ['joystick','bark','controls'].includes(this.id)) return this;
@@ -86,6 +88,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     async start() { audioEvents.push('start'); await audioActivation; }
     setMuted(value) { audioEvents.push(`muted:${value}`); }
     pause() { audioEvents.push('pause'); }
+    setGameplayPaused(value) { audioEvents.push(`gameplay-paused:${value}`); }
     resume() { audioEvents.push('resume'); }
     play(name,actor) { audioEvents.push(name);audioActors.push([name,actor]); }
     updateLivestock(dt,state) { audioFrames.push({kind:'livestock',dt,state}); }
@@ -95,7 +98,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   const context = {
     ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,...barkAPI,
     document, window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
-    navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio,
+    navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio: audioInstance ? class {constructor(){return audioInstance;}} : FarmAudio,
     setTimeout: () => 1, clearTimeout() {}, requestAnimationFrame() {},
     console: { error: (...args) => { throw new Error(`Controller startup failed: ${args.join(' ')}`); } },
   };
@@ -167,19 +170,19 @@ test('delayed audio startup cannot undo menu or visibility pause', async () => {
     assert.equal(ui.app.state().mode, 'paused');
     ui.settleAudioStart(); await startup;
     assert.equal(ui.app.state().mode, 'paused');
-    assert.equal(ui.audioEvents.at(-1), 'pause');
+    assert.equal(ui.audioEvents.at(-1), cause==='menu'?'gameplay-paused:true':'pause');
     assert.ok(!ui.audioEvents.includes('resume'));
   }
 });
 
-test('sound activation finishing in a paused menu cannot resume music', async () => {
+test('sound activation on landing may finish without starting gameplay', async () => {
   const ui = launch({ deferAudioStart: true });
   await ui.click('sound'); // Turn sound off without requesting activation.
   const activation = ui.click('sound');
   assert.equal(ui.app.state().mode, 'intro');
   ui.settleAudioStart(); await activation;
-  assert.equal(ui.audioEvents.at(-1), 'pause');
-  assert.ok(!ui.audioEvents.includes('resume'));
+  assert.equal(ui.audioEvents.at(-1), 'start');
+  assert.ok(!ui.audioEvents.includes('pause'));
 });
 
 test('intro starts the tutorial, enables thumb controls and respects audio settings', async () => {
@@ -212,8 +215,9 @@ test('pause -> workshop -> back resumes play instead of reverting to intro', asy
   assert.equal(ui.app.state().mode, 'paused');
   await ui.click('upgrades-menu'); ui.buy('speed'); await ui.click('shop-back');
   assert.equal(ui.app.state().mode, 'playing');
-  assert.ok(ui.audioEvents.includes('pause'));
-  assert.equal(ui.audioEvents.at(-1), 'resume');
+  assert.ok(ui.audioEvents.includes('gameplay-paused:true'));
+  assert.equal(ui.audioEvents.at(-1), 'start');
+  assert.ok(!ui.audioEvents.includes('pause'));
 });
 
 test('completed level rewards once and workshop back preserves the reward screen', async () => {
@@ -440,7 +444,7 @@ test('delayed Restart Game audio does not move focus out of a newly opened pause
   ui.settleAudioStart(); await restarting;
   assert.equal(ui.app.state().mode, 'paused');
   assert.equal(ui.document.activeElement, ui.el('resume'));
-  assert.equal(ui.audioEvents.at(-1), 'pause');
+  assert.equal(ui.audioEvents.at(-1), 'gameplay-paused:true');
 });
 
 test('first delivery starts the visible timer and pause, workshop and hidden tabs freeze it', async () => {
@@ -665,7 +669,7 @@ test('pause sound reflects and persists changes while delayed activation cannot 
   await ui.click('menu-sound');
   assert.equal(ui.el('menu-sound').textContent,'Sound: On');
   assert.equal(ui.el('menu-sound').attrs['aria-pressed'],'true');
-  assert.equal(ui.app.state().mode,'paused');assert.equal(ui.audioEvents.at(-1),'pause');
+  assert.equal(ui.app.state().mode,'paused');assert.equal(ui.audioEvents.at(-1),'start');
   assert.equal(simulationAPI.loadProfile({getItem:key=>ui.storage.get(key)}).music,true);
   await ui.click('resume');await ui.click('pause');
   assert.match(ui.el('modal-card').innerHTML,/Sound: On/);
@@ -680,7 +684,7 @@ test('pause sound reflects and persists changes while delayed activation cannot 
   delayed.settleAudioStart();await Promise.all([starting,enabling]);
   assert.equal(delayed.app.state().profile.music,false);
   assert.equal(delayed.el('menu-sound').textContent,'Sound: Off');
-  assert.equal(delayed.app.state().mode,'paused');assert.equal(delayed.audioEvents.at(-1),'pause');
+  assert.equal(delayed.app.state().mode,'paused');assert.equal(delayed.audioEvents.at(-1),'muted:true');
 });
 
 test('Woof cooldown fills progressively, blocks repeated barks and resets on restart',async()=>{
@@ -710,7 +714,7 @@ test('Quit discards only the current meadow, stops input and preserves the campa
   assert.equal(ui.storage.get('flock-foundry-v1'),saved);
   for(const id of ['mission','controls','map-box','tip','countdown'])assert.ok(ui.el(id).classList.contains('hidden'),id);
   assert.ok(!ui.el('intro').classList.contains('hidden'));assert.equal(ui.document.activeElement,ui.el('play'));
-  ui.advance(3);assert.equal(state.level.time??0,0);assert.equal(ui.audioEvents.at(-1),'pause');
+  ui.advance(3);assert.equal(state.level.time??0,0);assert.equal(ui.audioEvents.at(-1),'gameplay-paused:true');
   await ui.click('play');assert.equal(ui.app.state().level.index,4);assert.notEqual(ui.app.state().level,oldLevel);
 });
 
@@ -751,4 +755,88 @@ test('controller feeds current livestock only during play and resets ownership o
  ui.document.hidden=true;ui.emit('visibilitychange');const hidden=ui.audioFrames.length;ui.advance(3);
  assert.equal(ui.audioFrames.length,hidden,'hidden-page pause cannot feed animal clocks');
  ui.document.hidden=false;await ui.click('resume');ui.tick();assert.ok(ui.audioFrames.length>hidden);
+});
+
+const settleAudio=()=>new Promise(resolve=>setImmediate(resolve));
+
+test('real soundtrack keeps one transport from landing through play, overlays, results, restart and quit',async()=>{
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio});await settleAudio();
+  assert.equal(ui.app.state().mode,'intro');assert.equal(audio.gameplayPaused,true);
+  assert.equal(audio.context.state,'running');assert.equal(timers.size,1,'landing starts music when autoplay is allowed');
+  const context=audio.context,generator=audio.musicGenerator,timer=audio.timer;
+  const voices=[...generator.voices.keys()],step=audio.step,next=audio.nextNoteTime;
+  const continuous=()=>{
+   assert.equal(audio.context,context);assert.equal(audio.musicGenerator,generator);
+   assert.equal(audio.timer,timer);assert.equal(timers.size,1);assert.equal(audio.paused,false);
+   assert.equal(audio.step,step);assert.equal(audio.nextNoteTime,next,'navigation never resets the next beat');
+   assert.ok(voices.every(source=>source.stops.length===1&&!source.disconnected),'navigation never releases the sounding music voices');
+  };
+  await ui.click('wallet');continuous();await ui.click('shop-back');continuous();
+  await ui.click('restart-game-main');continuous();await ui.click('cancel-reset');continuous();
+  await ui.click('play');continuous();assert.equal(audio.gameplayPaused,false);
+  await ui.click('pause');continuous();assert.equal(audio.gameplayPaused,true);
+  await ui.click('upgrades-menu');continuous();await ui.click('shop-back');continuous();
+  ui.completeFlock();assert.equal(ui.app.state().mode,'complete');continuous();
+  await ui.click('reward-shop');continuous();await ui.click('shop-back');continuous();
+  await ui.click('next');continuous();ui.completeFlock();assert.equal(ui.app.state().mode,'complete');continuous();
+  await ui.click('replay');continuous();await ui.click('pause');await ui.click('restart');continuous();
+  await ui.click('pause');await ui.click('quit');continuous();assert.equal(ui.app.state().mode,'intro');
+  await ui.click('restart-game-main');continuous();await ui.click('confirm-reset');continuous();
+  await ui.click('pause');await ui.click('quit');continuous();
+  context.currentTime=.3;timer.callback();assert.notEqual(audio.step,step,'the same score advances while landing is visible');
+  await ui.click('wallet');const before=audio.step;context.currentTime=.8;timer.callback();
+  assert.notEqual(audio.step,before,'the score also advances under a menu');
+ });
+});
+
+test('landing respects saved mute and retries a rejected autoplay request from normal gestures',async()=>{
+ class RestrictedContext extends Context {
+  async resume(){this.attempts=(this.attempts||0)+1;if(this.attempts===1)throw Error('NotAllowedError');return super.resume();}
+ }
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio});await settleAudio();
+  assert.equal(audio.context.state,'suspended');assert.equal(timers.size,0,'rejected autoplay creates no running scheduler');
+  ui.emit('pointerup');await settleAudio();
+  assert.equal(audio.context.attempts,2);assert.equal(audio.context.state,'running');assert.equal(timers.size,1);
+  const timer=audio.timer;ui.emit('keydown',{key:'Tab'});await settleAudio();
+  assert.equal(audio.timer,timer);assert.equal(audio.context.attempts,2,'later gestures do not touch a running context');
+ },RestrictedContext);
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio,music:false});await settleAudio();
+  ui.emit('pointerdown');ui.emit('pointerup');ui.emit('keydown',{key:'Tab'});await settleAudio();
+  assert.equal(audio.context,null);assert.equal(timers.size,0,'saved mute blocks landing autoplay and gesture retries');
+  await ui.click('sound');assert.equal(audio.context.state,'running');assert.equal(ui.app.state().mode,'intro');
+  const timer=audio.timer;await ui.click('play');assert.equal(audio.timer,timer,'enabling sound on landing joins play without restarting');
+  await ui.click('pause');await ui.click('menu-sound');assert.equal(audio.master.gain.value,0);
+  await ui.click('menu-sound');assert.equal(audio.master.gain.value,.975);assert.equal(audio.music.gain.value,.63);assert.equal(audio.timer,timer);
+ });
+});
+
+test('background and focus suspend music independently of the paused gameplay mode',async()=>{
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio});await settleAudio();await ui.click('play');
+  ui.document.hidden=true;ui.emit('visibilitychange');
+  assert.equal(ui.app.state().mode,'paused');assert.equal(audio.paused,true);assert.equal(timers.size,0);
+  const step=audio.step;audio.context.currentTime=30;
+  ui.document.hidden=false;ui.emit('visibilitychange');await settleAudio();
+  assert.equal(ui.app.state().mode,'paused');assert.equal(audio.gameplayPaused,true);assert.equal(timers.size,1);
+  assert.equal(audio.step,(step+1)%128,'return resumes the next score step without a catch-up burst');
+  ui.windowEvents.get('blur')();assert.equal(timers.size,0);
+  ui.emit('visibilitychange');await settleAudio();assert.equal(timers.size,0,'visibility alone cannot override loss of focus');
+  ui.windowEvents.get('focus')();await settleAudio();assert.equal(timers.size,1);assert.equal(ui.app.state().mode,'paused');
+ });
+});
+
+test('pending landing and level activation can finish in menus but cannot override a hidden-page pause',async()=>{
+ await withAudio(async(audio,timers)=>{
+  const ui=launch({audioInstance:audio});const startup=ui.click('play');await ui.click('pause');
+  for(const resolve of [...audio.context.pendingResumes].reverse())resolve();
+  await startup;await settleAudio();
+  assert.equal(ui.app.state().mode,'paused');assert.equal(audio.gameplayPaused,true);assert.equal(timers.size,1);
+  ui.windowEvents.get('blur')();ui.windowEvents.get('focus')();
+  const pending=audio.context.pendingResumes.at(-1);
+  ui.document.hidden=true;ui.emit('visibilitychange');pending();await settleAudio();
+  assert.equal(audio.paused,true);assert.equal(timers.size,0,'late context resume cannot recreate a background soundtrack');
+ },DeferredContext);
 });

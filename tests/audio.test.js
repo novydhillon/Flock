@@ -1,48 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FarmAudio } from '../src/audio.js';
+import { Context, DeferredContext, withAudio } from './audio-fixture.js';
 import { LoFiMusic, MUSIC_STEPS, MUSIC_TEMPO } from '../src/music.js';
 import { createWeatherState, stepWeather } from '../src/weather.js';
-
-class Param {
-  constructor() { this.value = 0; this.targets = []; this.events = []; }
-  setValueAtTime(value, time) { this.value = value; this.events.push(['set', value, time]); }
-  linearRampToValueAtTime(value, time) { this.value = value; this.events.push(['linear', value, time]); }
-  exponentialRampToValueAtTime(value, time) { this.value = value; this.events.push(['ramp', value, time]); }
-  setTargetAtTime(value, time) { this.value = value; this.targets.push(value); this.events.push(['target', value, time]); }
-  cancelScheduledValues(time) { this.events.push(['cancel', time]); }
-}
-class Node {
-  constructor() {
-    this.gain = new Param(); this.frequency = new Param(); this.Q = new Param(); this.playbackRate = new Param();
-    this.connections = []; this.started = false; this.stops = []; this.disconnected = false;
-  }
-  connect(node) { this.connections.push(node); }
-  disconnect() { this.disconnected = true; }
-  start(time = 0) { this.started = true; this.startTime = time; }
-  stop(time) { this.stops.push(time); }
-  end() { this.onended?.(); }
-}
-class Context {
-  constructor() { this.state = 'suspended'; this.currentTime = 0; this.sampleRate = 100; this.destination = new Node(); this.oscillators = []; this.buffers = []; this.sources = []; }
-  createGain() { return new Node(); }
-  createOscillator() { const node = new Node(); this.oscillators.push(node); return node; }
-  createBiquadFilter() { return new Node(); }
-  createDelay() { const node = new Node(); node.delayTime = new Param(); return node; }
-  createBuffer(channels, count) { const buffer = { getChannelData: () => new Float32Array(count) }; this.buffers.push(buffer); return buffer; }
-  createBufferSource() { const node = new Node(); this.sources.push(node); return node; }
-  async resume() { this.state = 'running'; }
-  async close() { this.state = 'closed'; }
-}
-class DeferredContext extends Context {
-  constructor() { super(); this.pendingResumes = []; }
-  resume() {
-    return new Promise((resolve) => this.pendingResumes.push(() => {
-      if (this.state !== 'closed') this.state = 'running';
-      resolve();
-    }));
-  }
-}
 
 test('livestock voices use independent clocks, state cadence and immediate bolt calls', async () => {
   await withAudio(async audio => {
@@ -125,17 +85,6 @@ test('shared storm lightning flashes before its paired reverberant thunder start
     assert.ok(delays.every(d => d.disconnected && d.connections[0].disconnected));
   });
 });
-
-async function withAudio(fn, AudioContext = Context) {
-  const originals = { AudioContext: globalThis.AudioContext, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval };
-  const timers = new Set();
-  globalThis.AudioContext = AudioContext;
-  globalThis.setInterval = (callback) => { const id = { callback }; timers.add(id); return id; };
-  globalThis.clearInterval = (id) => timers.delete(id);
-  const audio = new FarmAudio();
-  try { await fn(audio, timers); }
-  finally { audio.dispose(); Object.assign(globalThis, originals); }
-}
 
 test('a pause during pending start or resume remains paused after activation settles', async () => {
   for (const operation of ['start', 'resume']) {
@@ -682,5 +631,31 @@ test('pause during attack or decay preserves the live envelope without cancelAnd
    source.end();assert.ok(release.disconnected);
    await audio.resume();
   }
+ });
+});
+
+test('gameplay pause stops scene voices and freezes livestock clocks while music keeps advancing',async()=>{
+ await withAudio(async(audio,timers)=>{
+  await audio.start();const timer=audio.timer,level={seed:4},animal={id:0,type:'cow',x:0,z:0,wander:{bolting:true}};
+  audio.updateAmbience(.1,{weather:'rain'});audio.updateLivestock(.1,{level,animals:[animal]});
+  const scene=[...audio.ambientSources],music=[...audio.musicGenerator.voices.keys()];
+  const remaining=audio.livestockSchedules.get(animal).remaining;
+  audio.setGameplayPaused(true);
+  assert.equal(audio.timer,timer);assert.equal(timers.size,1);assert.equal(audio.paused,false);
+  assert.ok(scene.every(source=>source.disconnected));assert.ok(music.every(source=>source.stops.length===1));
+  audio.updateLivestock(.1,{level,animals:[animal]});audio.updateAmbience(.1,{weather:'rain'});
+  assert.equal(audio.livestockSchedules.get(animal).remaining,remaining);assert.equal(audio.ambientSources.size,0);
+  const step=audio.step;audio.context.currentTime=.3;timer.callback();assert.notEqual(audio.step,step);
+  audio.setGameplayPaused(false);audio.updateLivestock(.1,{level,animals:[animal]});
+  assert.ok(audio.livestockSchedules.get(animal).remaining<remaining);
+ });
+});
+
+test('repeated activation leaves the running music clock and thunder duck automation unchanged',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();audio.updateAmbience(.1,{weather:{type:'storm',lightningId:'same',lightningAge:0,thunderDelay:1}});
+  const events=structuredClone(audio.music.gain.events),step=audio.step,next=audio.nextNoteTime,timer=audio.timer;
+  for(let i=0;i<5;i++)assert.equal(await audio.start(),true);
+  assert.deepEqual(audio.music.gain.events,events);assert.equal(audio.step,step);assert.equal(audio.nextNoteTime,next);assert.equal(audio.timer,timer);
  });
 });
