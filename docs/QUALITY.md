@@ -1,5 +1,13 @@
 # Flock revision quality record
 
+## Verified production soundtrack publication — 26 October 2026
+
+Novy's later explicit request to deploy production authorizes the root release separately from the earlier merge. Pinned main `80212d02412172dfe1dc5c04c08b0a475dd84c94` has 221 connector-verified source blobs and successful [main CI 40424923012](https://github.com/novydhillon/Flock/actions/runs/40424923012). The verification session (`gpt-6.1-sol`, medium effort) ran npm ci and the checked production entry point, then independently confirmed 31 release files with zero QA assets.
+
+While preparing the documented fallback (dispatch is unavailable in this session), reconciliation found that the official **Deploy Flock** workflow had already been dispatched by `novydhillon`. [Run 40437268684](https://github.com/novydhillon/Flock/actions/runs/40437268684) succeeded for exactly that source, including 479 regressions, the release mode check, root publication, native Pages and live verification. It published Pages `18921f22436ae4c437c6becb94aedc618b352516` from parent `6220d1411f4f37e76096a50c3d05b5c76d859d28`; [native Pages 40437423272](https://github.com/novydhillon/Flock/actions/runs/40437423272) succeeded. The official evidence artifact was downloaded through the connector and matches the independent 31-file plan. A separate run of the shared verifier matched every live production SHA-256 hash. No duplicate Pages update was issued.
+
+The seven changed blobs are the root manifest/index, one new JavaScript bundle and four bundled audio files; 137 prior blobs remain unchanged. dev, dev2, flock and tracker directory tree SHAs are unchanged, and old assets are retained. [Publication and preservation evidence](validation/F-MUSIC-001-production-publication.json) and [downloaded workflow evidence](validation/F-MUSIC-001-production-workflow-evidence.json) record the exact source, Pages, run and file hashes. F-AUDIO-003 remains Open: publication proves current bytes, not a physical browser/iOS audio-launch fix or new listening approval. This branch-only evidence update changes no runtime or main source.
+
 ## Accepted soundtrack merge and remaining launch defect — 26 October 2026
 
 Novy explicitly authorizes the soundtrack merge while reporting that music still needs audio off/on at launch in both browser and iOS Home Screen. F-MUSIC-001 is accepted; F-AUDIO-003 is separately Open. Previous source review, substitute WebAudio tests, CI and published asset hashes establish only their recorded source/build properties and did not prove audible device recovery. The implementation and merge/logging agent is `gpt-6.1-sol`, medium effort, as requested; no Astra is used for this task.
