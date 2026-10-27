@@ -1,0 +1,183 @@
+{
+  "environment": "dev2",
+  "buildEnvironment": "dev",
+  "branch": "refactor/validated-area-config",
+  "sourceSha": "b11d3efe47edff533a709516dacfeb0893e980c5",
+  "prefix": "dev2/",
+  "url": "https://novydhillon.github.io/Flock/dev2/",
+  "destinationOverride": {
+    "requestedBy": "user",
+    "request": "Deploy changes to \\dev2 for playtesting",
+    "scope": "This publication only",
+    "standingNonMainDestination": "dev/",
+    "requestedDestination": "dev2/",
+    "reason": "Explicit user destination overrides the repository default for this deployment."
+  },
+  "files": [
+    {
+      "path": "dev2/assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "bytes": 18356
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "bytes": 14200
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "bytes": 14144
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "bytes": 18320
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "bytes": 18504
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "bytes": 14348
+    },
+    {
+      "path": "dev2/assets/index-CTeL47d3.css",
+      "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503",
+      "bytes": 12731
+    },
+    {
+      "path": "dev2/assets/index-DrGb2bfy.js",
+      "sha256": "cb1145edcc5a063f458e585f56a1a70e9ca27c93c9cde070dec7d0b53d0b54d8",
+      "bytes": 797121
+    },
+    {
+      "path": "dev2/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "bytes": 14140
+    },
+    {
+      "path": "dev2/assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "bytes": 18412
+    },
+    {
+      "path": "dev2/assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "bytes": 14060
+    },
+    {
+      "path": "dev2/assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "bytes": 18344
+    },
+    {
+      "path": "dev2/assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "bytes": 13500
+    },
+    {
+      "path": "dev2/assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "bytes": 17752
+    },
+    {
+      "path": "dev2/assets/qa-BfiOSITF.js",
+      "sha256": "7648999b8a08e9aff21f4d5c364c2bd054019f537dceffcc4932cd10bfd098e8",
+      "bytes": 8826
+    },
+    {
+      "path": "dev2/assets/qa-DWlVkWAo.css",
+      "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "bytes": 1910
+    },
+    {
+      "path": "dev2/audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0",
+      "bytes": 1465
+    },
+    {
+      "path": "dev2/audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34",
+      "bytes": 14112
+    },
+    {
+      "path": "dev2/audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b",
+      "bytes": 92384
+    },
+    {
+      "path": "dev2/audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac",
+      "bytes": 30176
+    },
+    {
+      "path": "dev2/icons/pip-120.png",
+      "sha256": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7",
+      "bytes": 9769
+    },
+    {
+      "path": "dev2/icons/pip-152.png",
+      "sha256": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec",
+      "bytes": 13117
+    },
+    {
+      "path": "dev2/icons/pip-16.png",
+      "sha256": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182",
+      "bytes": 712
+    },
+    {
+      "path": "dev2/icons/pip-167.png",
+      "sha256": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662",
+      "bytes": 14808
+    },
+    {
+      "path": "dev2/icons/pip-180.png",
+      "sha256": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107",
+      "bytes": 16430
+    },
+    {
+      "path": "dev2/icons/pip-192.png",
+      "sha256": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e",
+      "bytes": 17674
+    },
+    {
+      "path": "dev2/icons/pip-32.png",
+      "sha256": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76",
+      "bytes": 1748
+    },
+    {
+      "path": "dev2/icons/pip-48.png",
+      "sha256": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e",
+      "bytes": 3002
+    },
+    {
+      "path": "dev2/icons/pip-512.png",
+      "sha256": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841",
+      "bytes": 40511
+    },
+    {
+      "path": "dev2/icons/pip-96.png",
+      "sha256": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758",
+      "bytes": 7295
+    },
+    {
+      "path": "dev2/icons/pip.svg",
+      "sha256": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6",
+      "bytes": 35484
+    },
+    {
+      "path": "dev2/index.html",
+      "sha256": "587f9d8c7c991c8096582bbfc9019245b42410b702066a212b88f4253bac9b11",
+      "bytes": 4721
+    },
+    {
+      "path": "dev2/site.webmanifest",
+      "sha256": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4",
+      "bytes": 417
+    }
+  ]
+}
