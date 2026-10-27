@@ -1,3 +1,10 @@
+import { CONFIG_CONTRACTS } from './config/contracts.js';
+import settings from './config/controls.json' with { type: 'json' };
+import presentationSettings from './config/presentation.json' with { type: 'json' };
+import { resolveConfig } from './config/resolve.js';
+const CONTROLS=resolveConfig(settings, 'controls', CONFIG_CONTRACTS.controls);
+const PRESENTATION=resolveConfig(presentationSettings, 'presentation', CONFIG_CONTRACTS.presentation);
+
 import './style.css';
 import '@fontsource/outfit/latin-600.css';
 import '@fontsource/outfit/latin-700.css';
@@ -7,8 +14,9 @@ import '@fontsource/dm-sans/latin-600.css';
 import '@fontsource/dm-sans/latin-700.css';
 import { MeadowRenderer } from './render.js';
 import { FarmAudio } from './audio.js';
-import { createLevel, stepSimulation, stepSavedRoaming, defaultProfile, loadProfile, saveProfile, applyLevelReward, purchaseUpgrade, UPGRADE_CATALOG } from './simulation.js';
-import { upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades, upgradeEffects } from './progression.js';
+import { createLevel, stepSimulation, stepSavedRoaming } from './simulation.js';
+import { defaultProfile, loadProfile, saveProfile, applyLevelReward } from './profile.js';
+import { purchaseUpgrade, UPGRADE_CATALOG, upgradeLevel, upgradeCost, upgradeAvailability, activeUpgrades, upgradeEffects } from './progression.js';
 import { canOccupy } from './world.js';
 import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from './bark.js';
 
@@ -23,7 +31,7 @@ const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
 let qaSession=false;
 const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function toast(message){$('toast').textContent=message;visible('toast',true);clearTimeout(toastTimer);toastTimer=setTimeout(()=>visible('toast',false),2800);}
+function toast(message){$('toast').textContent=message;visible('toast',true);clearTimeout(toastTimer);toastTimer=setTimeout(()=>visible('toast',false),CONTROLS.feedback.toastMs);}
 function updateWallet(){
   $('points').textContent=profile.points;$('sound').textContent=profile.music?'♫':'♪';$('sound').setAttribute('aria-label',profile.music?'Mute sound':'Enable sound');$('sound').style.opacity=profile.music?'1':'.55';
   if($('menu-sound')){$('menu-sound').textContent=`Sound: ${profile.music?'On':'Off'}`;$('menu-sound').setAttribute('aria-pressed',String(profile.music));}
@@ -41,15 +49,15 @@ function updateBark(){
 function updateCountdown(started=false,remaining=0){
   visible('countdown',started);$('countdown').textContent=started?`${Math.ceil(remaining)}s`:'';
   $('countdown').setAttribute('aria-label',started?`${Math.ceil(remaining)} seconds remaining to deliver the flock`:'Delivery countdown has not started');
-  $('countdown').classList.toggle('running',started);$('countdown').classList.toggle('urgent',started&&remaining<=10);
+  $('countdown').classList.toggle('running',started);$('countdown').classList.toggle('urgent',started&&remaining<=CONTROLS.feedback.urgentCountdownSeconds);
 }
 function resetInput(){input.x=input.z=0;pointer=null;keys.clear();lastTap=-Infinity;lastTapPosition=null;$('stick').style.transform='translate(0,0)';}
 function updateLevelIntroduction(){
-  const progress=Math.max(0,Math.min(1,elapsed/3));
-  const opacity=Math.max(0,Math.min(1,elapsed/.65,(3-elapsed)/1.2));
+  const progress=Math.max(0,Math.min(1,elapsed/PRESENTATION.introduction.durationSeconds));
+  const opacity=Math.max(0,Math.min(1,elapsed/PRESENTATION.introduction.fadeInSeconds,(PRESENTATION.introduction.durationSeconds-elapsed)/PRESENTATION.introduction.fadeOutSeconds));
   $('level-introduction').style.opacity=String(opacity);
-  $('level-introduction').style.setProperty('--level-scale',String(.72+.48*(1-(1-progress)**2)));
-  visible('level-introduction',mode==='playing'&&elapsed<3);
+  $('level-introduction').style.setProperty('--level-scale',String(PRESENTATION.introduction.initialScale+PRESENTATION.introduction.scaleGrowth*(1-(1-progress)**2)));
+  visible('level-introduction',mode==='playing'&&elapsed<PRESENTATION.introduction.durationSeconds);
 }
 async function begin(index=profile.highestLevel){
   index=Math.max(0,Math.min(99,Math.floor(Number(index)||0)));
@@ -60,7 +68,7 @@ async function begin(index=profile.highestLevel){
   tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(tipsFor(index)[0]);
   audio.setGameplayPaused(false);audio.setMuted(!profile.music);await activateMusic();updateWallet();
 }
-const TIP_CYCLE=14;
+const TIP_CYCLE=CONTROLS.tips.cycleSeconds;
 function tipsFor(index){return index===0?[
   'Drag to move Pip.',
   'Move behind the flock to guide it.',
@@ -70,10 +78,10 @@ function hideTip(){tipDismissed=true;tipManual=false;visible('tip',false);visibl
 function setTip(text){tipChangedAt=elapsed;$('tip-text').textContent=text;$('tip').querySelector('.tip-number').textContent=`0${tipStep+1}`;}
 function bark(){
   if(mode!=='playing'||!triggerBark(barkState,upgradeEffects(profile.upgrades,level.index+1).barkCharges))return;
-  updateBark();audio.play('bark','pip');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);
+  updateBark();audio.play('bark','pip');renderer.bark();if(navigator.vibrate)navigator.vibrate(CONTROLS.feedback.barkVibrationMs);
 }
 function openModal(html,newMode='paused'){
-  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.setGameplayPaused(true);if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
+  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.setGameplayPaused(true);if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),CONTROLS.feedback.modalFocusDelayMs);
 }
 function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');audio.setGameplayPaused(mode!=='playing');void activateMusic();modalFocus?.focus();}updateLevelIntroduction();resetInput();}
 function menu(){
@@ -129,8 +137,8 @@ function complete(award=true){
 // Pointer capture means a single thumb can roam without lifting off the glass.
 let pointer=null,origin={x:0,y:0},lastTap=-Infinity,lastTapPosition=null,moved=false;
 function pointerStart(e){activateFromGesture(e);if(mode!=='playing'||pointer!==null||e.isPrimary===false||e.target.closest('button,header,.map-box,.tip'))return;if(e.target!==$('world')&&!e.target.closest('#joystick'))return;e.preventDefault();pointer=e.pointerId;origin={x:e.clientX,y:e.clientY};moved=false;e.target.setPointerCapture?.(pointer);}
-function pointerMove(e){if(e.pointerId!==pointer)return;const dx=e.clientX-origin.x,dy=e.clientY-origin.y,len=Math.hypot(dx,dy),range=42;moved ||= len>9;input.x=dx/Math.max(range,len);input.z=dy/Math.max(range,len);$('stick').style.transform=`translate(${input.x*range}px,${input.z*range}px)`;}
-function pointerEnd(e){if(e.type==='pointerup')activateFromGesture(e);if(e.pointerId!==pointer)return;e.preventDefault();if(e.type==='pointerup'&&!moved){const now=performance.now(),near=lastTapPosition&&Math.hypot(e.clientX-lastTapPosition.x,e.clientY-lastTapPosition.y)<42;if(near&&now-lastTap<330){bark();lastTap=-Infinity;lastTapPosition=null;}else{lastTap=now;lastTapPosition={x:e.clientX,y:e.clientY};}}else{lastTap=-Infinity;lastTapPosition=null;}pointer=null;input.x=input.z=0;$('stick').style.transform='translate(0,0)';}
+function pointerMove(e){if(e.pointerId!==pointer)return;const dx=e.clientX-origin.x,dy=e.clientY-origin.y,len=Math.hypot(dx,dy),range=CONTROLS.pointer.joystickRangePixels;moved ||= len>CONTROLS.pointer.tapMovementPixels;input.x=dx/Math.max(range,len);input.z=dy/Math.max(range,len);$('stick').style.transform=`translate(${input.x*range}px,${input.z*range}px)`;}
+function pointerEnd(e){if(e.type==='pointerup')activateFromGesture(e);if(e.pointerId!==pointer)return;e.preventDefault();if(e.type==='pointerup'&&!moved){const now=performance.now(),near=lastTapPosition&&Math.hypot(e.clientX-lastTapPosition.x,e.clientY-lastTapPosition.y)<CONTROLS.pointer.doubleTapDistancePixels;if(near&&now-lastTap<CONTROLS.pointer.doubleTapMs){bark();lastTap=-Infinity;lastTapPosition=null;}else{lastTap=now;lastTapPosition={x:e.clientX,y:e.clientY};}}else{lastTap=-Infinity;lastTapPosition=null;}pointer=null;input.x=input.z=0;$('stick').style.transform='translate(0,0)';}
 document.addEventListener('pointerdown',pointerStart,{passive:false});document.addEventListener('pointermove',pointerMove,{passive:false});document.addEventListener('pointerup',pointerEnd,{passive:false});document.addEventListener('pointercancel',pointerEnd,{passive:false});document.addEventListener('lostpointercapture',pointerEnd,{passive:false});
 // Safari can turn a double tap into page zoom even when Pointer Events are
 // captured. Block native gestures only on the play surface; menus stay scrollable.
@@ -149,14 +157,14 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){pageWasHid
 window.addEventListener('pagehide',()=>{pageWasHidden=true;pageFocused=false;resetInput();pointer=null;if(mode==='playing')menu();audio.pause();});
 window.addEventListener('pageshow',()=>{if(!document.hidden){pageFocused=true;pageWasHidden=false;void activateMusic();}});
 window.addEventListener('resize',()=>renderer?.resize());
-$('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=()=>{if(performance.now()-lastTouchBark>500)bark();};$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
+$('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=()=>{if(performance.now()-lastTouchBark>CONTROLS.pointer.compatibilityClickMs)bark();};$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=toggleSound;
 $('dismiss-tip').onclick=hideTip;
 $('toggle-tip').onclick=()=>{if(mode!=='playing')return;if(!$('tip').classList.contains('hidden')){hideTip();return;}tipDismissed=false;tipManual=true;tipStep=0;tipChangedAt=elapsed;setTip(tipsFor(level.index)[0]);visible('tip',true);$('toggle-tip').setAttribute('aria-expanded','true');$('toggle-tip').setAttribute('aria-label','Hide tips');};
 
 let mapTick=0,qaFrame;
 function frame(now){
-  requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;if(!renderer||!level)return;
+  requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,CONTROLS.frame.maxDeltaSeconds);last=now;if(!renderer||!level)return;
   if(mode==='playing'){
     elapsed+=dt;stepBark(barkState,dt,upgradeEffects(profile.upgrades,level.index+1).barkCharges);
     const ix=keys.has('arrowright')||keys.has('d')?1:keys.has('arrowleft')||keys.has('a')?-1:input.x;
@@ -167,7 +175,7 @@ function frame(now){
     for(const event of result.events){if(event.type==='animalSaved')audio.play('saved');else if(event.type==='buddyBark'){audio.play('bark','buddy');renderer.bark(event);}else if(event.type==='gateToggled')toast(event.open?'Gate open — guide the flock through.':'Gate closed.');else if(event.type==='gateBlocked')toast('Gate is occupied — let everyone clear it first.');}
     updateBark(now);
     if(!tipDismissed){
-      const dwell=tipManual||level.index!==0||tipStep>0?TIP_CYCLE:5;
+      const dwell=tipManual||level.index!==0||tipStep>0?TIP_CYCLE:CONTROLS.tips.initialSeconds;
       if(elapsed-tipChangedAt>=dwell){
         const tips=tipsFor(level.index);
         if(tipManual){tipStep=(tipStep+1)%tips.length;setTip(tips[tipStep]);}
@@ -183,7 +191,7 @@ function frame(now){
   const weather=renderer.nature?.weather||level.weather;if(weather){const [icon,label]=({sun:['☀','Clear skies'],wind:['↝','Breezy'],rain:['☂','Light rain'],'heavy-rain':['☂','Heavy rain'],storm:['ϟ','Thunderstorm']})[weather.kind||weather.type||weather]||['☀','Clear skies'];$('weather-status').textContent=icon;$('weather-status').setAttribute('title',label);$('weather-status').setAttribute('aria-label',label);}
   if(mode==='playing')audio.updateLivestock?.(dt,{animals:level.animals,listener:dog,level});
   if(mode==='playing')audio.updateAmbience?.(dt,{weather:renderer.nature?.weather||level.weather||'sun',level:level.index+1,time:level.time,dog,animals:level.animals});
-  mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);}
+  mapTick+=dt;if(mapTick>CONTROLS.frame.mapIntervalSeconds){mapTick=0;renderer.drawMap($('map'),level,dog);}
 }
 try{
   renderer=new MeadowRenderer($('world'));level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);updateWallet();visible('loading',false);requestAnimationFrame(frame);void activateMusic();

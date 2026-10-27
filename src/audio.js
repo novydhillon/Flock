@@ -1,3 +1,8 @@
+import { CONFIG_CONTRACTS } from './config/contracts.js';
+import settings from './config/audio.json' with { type: 'json' };
+import { resolveConfig } from './config/resolve.js';
+const AUDIO=resolveConfig(settings, 'audio', CONFIG_CONTRACTS.audio);
+
 import { LoFiMusic, MUSIC_TEMPO, MUSIC_STEPS } from './music.js';
 
 const callHash = value => {
@@ -22,7 +27,7 @@ export class FarmAudio {
     this.thunderSource = null;
     this.thunderEvent = null;
     this.weatherState = null;
-    this.birdCountdown = 4 + Math.random() * 6;
+    this.birdCountdown = AUDIO.birds.clearDelaySeconds + Math.random() * AUDIO.birds.clearJitterSeconds;
     this.muted = false;
     this.paused = false;
     this.gameplayPaused = false;
@@ -57,10 +62,10 @@ export class FarmAudio {
         this.music = this.context.createGain();
         this.effects = this.context.createGain();
         this.ambience = this.context.createGain();
-        this.master.gain.value = this.muted ? 0 : 0.975;
-        this.music.gain.value = 0.63;
-        this.effects.gain.value = 0.6;
-        this.ambience.gain.value = 0.38;
+        this.master.gain.value = this.muted ? 0 : AUDIO.mix.masterGain;
+        this.music.gain.value = AUDIO.mix.musicGain;
+        this.effects.gain.value = AUDIO.mix.effectsGain;
+        this.ambience.gain.value = AUDIO.mix.ambienceGain;
         this.music.connect(this.master);
         this.effects.connect(this.master);
         this.ambience.connect(this.master);
@@ -88,7 +93,7 @@ export class FarmAudio {
       }
       this.paused = false;
       this.music.gain.cancelScheduledValues(this.context.currentTime);
-      this.music.gain.setTargetAtTime(0.63, this.context.currentTime, 0.025);
+      this.music.gain.setTargetAtTime(AUDIO.mix.musicGain, this.context.currentTime, AUDIO.mix.smoothingSeconds);
       this._begin();
       this._loadVoices();
       return true;
@@ -112,7 +117,7 @@ export class FarmAudio {
     if (!this.context || !this.master) return;
     const now = this.context.currentTime;
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setTargetAtTime(this.muted ? 0 : 0.975, now, 0.025);
+    this.master.gain.setTargetAtTime(this.muted ? 0 : AUDIO.mix.masterGain, now, AUDIO.mix.smoothingSeconds);
   }
 
   /** Pause scene sounds and clocks without interrupting the soundtrack. */
@@ -128,7 +133,7 @@ export class FarmAudio {
     this._releaseUnlock();
     this._stopScheduler();
     this._stopAmbience();
-    if (this.context && this.context.state !== 'closed') this.music.gain.setTargetAtTime(0.0001, this.context.currentTime, 0.025);
+    if (this.context && this.context.state !== 'closed') this.music.gain.setTargetAtTime(0.0001, this.context.currentTime, AUDIO.mix.smoothingSeconds);
   }
 
   async resume() {
@@ -137,9 +142,9 @@ export class FarmAudio {
 
   _begin() {
     if (this.timer || this.paused || this.disposed) return;
-    this.nextNoteTime = this.context.currentTime + 0.06;
+    this.nextNoteTime = this.context.currentTime + AUDIO.scheduler.startLeadSeconds;
     this._schedule();
-    this.timer = globalThis.setInterval(() => this._schedule(), 100);
+    this.timer = globalThis.setInterval(() => this._schedule(), AUDIO.scheduler.intervalMs);
   }
 
   _stopScheduler() {
@@ -160,7 +165,7 @@ export class FarmAudio {
       this.step = (this.step + skipped) % MUSIC_STEPS;
       this.nextNoteTime = Math.max(now, this.nextNoteTime + skipped * eighth);
     }
-    for (let scheduled = 0; scheduled < 8 && this.nextNoteTime < now + 0.25; scheduled++) {
+    for (let scheduled = 0; scheduled < AUDIO.scheduler.maxStepsPerTick && this.nextNoteTime < now + AUDIO.scheduler.lookAheadSeconds; scheduled++) {
       this._musicStep(this.step, this.nextNoteTime, eighth);
       this.step = (this.step + 1) % MUSIC_STEPS;
       this.nextNoteTime += eighth;
@@ -179,23 +184,23 @@ export class FarmAudio {
     if (!available) return;
     const type = typeof raw === 'string' ? raw : raw.type || 'sun';
     const intensity = typeof raw === 'object' && Number.isFinite(raw.intensity)
-      ? Math.max(0, Math.min(1, raw.intensity)) : 0.3;
+      ? Math.max(0, Math.min(1, raw.intensity)) : AUDIO.weather.defaultIntensity;
     const kind = ['rain', 'light-rain', 'heavy-rain', 'storm'].includes(type) ? 'rain' : type === 'wind' ? 'wind' : 'sun';
     const tier = typeof raw === 'object' ? (raw.storm ? 'storm' : raw.kind || type) : type;
-    const rainScale = tier === 'storm' ? 1 : tier === 'heavy-rain' ? .85 : .5;
+    const rainScale = tier === 'storm' ? AUDIO.weather.stormRainScale : tier === 'heavy-rain' ? AUDIO.weather.heavyRainScale : AUDIO.weather.lightRainScale;
     this._weather(kind, intensity, rainScale);
     // Clamp frame gaps so resuming a hidden tab cannot emit a burst of birds.
-    this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, 0.25)) : 0;
+    this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, AUDIO.birds.frameCapSeconds)) : 0;
     if (this.birdCountdown > 0) return;
-    this.birdCountdown = kind === 'rain' ? 10 + Math.random() * 10 : 4 + Math.random() * 6;
-    if ((typeof raw === 'object' && (raw.storm || raw.kind === 'storm')) || type === 'storm' || (kind === 'rain' && intensity >= 0.7)) return;
-    this._chirp(kind === 'rain' ? 0.018 : 0.03);
+    this.birdCountdown = kind === 'rain' ? AUDIO.birds.rainDelaySeconds + Math.random() * AUDIO.birds.rainJitterSeconds : AUDIO.birds.clearDelaySeconds + Math.random() * AUDIO.birds.clearJitterSeconds;
+    if ((typeof raw === 'object' && (raw.storm || raw.kind === 'storm')) || type === 'storm' || (kind === 'rain' && intensity >= AUDIO.birds.rainSuppressionIntensity)) return;
+    this._chirp(kind === 'rain' ? AUDIO.birds.rainGain : AUDIO.birds.clearGain);
   }
 
   _noise() {
     if (!this.noiseBuffer) {
       const context = this.context;
-      this.noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+      this.noiseBuffer = context.createBuffer(1, context.sampleRate * AUDIO.voices.noiseBufferSeconds, context.sampleRate);
       const samples = this.noiseBuffer.getChannelData(0);
       for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
     }
@@ -213,7 +218,7 @@ export class FarmAudio {
   updateLivestock(dt, {animals = [], listener, level = null} = {}) {
     if (level !== this.livestockLevel) this.resetLivestock(level);
     const available = this.context && this.context.state === 'running' && !this.paused && !this.gameplayPaused && !this.muted && !this.disposed;
-    const step = Number.isFinite(dt) ? Math.max(0, Math.min(.1, dt)) : 0;
+    const step = Number.isFinite(dt) ? Math.max(0, Math.min(AUDIO.livestock.frameCapSeconds, dt)) : 0;
     if (!step || this.paused || this.gameplayPaused || this.disposed) return;
     const present = new Set(animals);
     for (const animal of this.livestockSchedules.keys()) if (!present.has(animal)) this.livestockSchedules.delete(animal);
@@ -221,10 +226,10 @@ export class FarmAudio {
     for (const animal of animals) {
       if (animal.type !== 'sheep' && animal.type !== 'cow') continue;
       const bolting = Boolean(animal.wander?.bolting);
-      const herded = bolting || Boolean(animal.pushed) || animal.alert > .03;
+      const herded = bolting || Boolean(animal.pushed) || animal.alert > AUDIO.livestock.alertThreshold;
       let schedule = this.livestockSchedules.get(animal);
       if (!schedule) {
-        schedule = {remaining: (8 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 32) * (animal.type==='sheep'?2:1), sequence: 0, bolting: false};
+        schedule = {remaining: (AUDIO.livestock.initialDelaySeconds + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * AUDIO.livestock.initialJitterSeconds) * (animal.type==='sheep'?AUDIO.livestock.sheepIntervalScale:1), sequence: 0, bolting: false};
         this.livestockSchedules.set(animal, schedule);
       }
       const immediate = bolting && !schedule.bolting;
@@ -232,21 +237,21 @@ export class FarmAudio {
       schedule.remaining -= step;
       if (!immediate && schedule.remaining > 0) continue;
       const roll = callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137) ^ Math.imul(++schedule.sequence, 7919));
-      schedule.remaining = (herded ? 60 + roll * 60 : 26 + roll * 24) * (animal.type==='sheep'?2:1);
+      schedule.remaining = (herded ? AUDIO.livestock.herdedDelaySeconds + roll * AUDIO.livestock.herdedJitterSeconds : AUDIO.livestock.calmDelaySeconds + roll * AUDIO.livestock.calmJitterSeconds) * (animal.type==='sheep'?AUDIO.livestock.sheepIntervalScale:1);
       // Observe calls while muted too: unmuting never replays a missed bolt.
-      if (!available || (!immediate && (emitted >= 2 || this.livestockSources.size >= 6))) continue;
+      if (!available || (!immediate && (emitted >= AUDIO.livestock.maxStartsPerFrame || this.livestockSources.size >= AUDIO.livestock.maxVoices))) continue;
       const distance = listener ? Math.hypot(animal.x - listener.x, animal.z - listener.z) : 0;
-      if (!Number.isFinite(distance) || distance > 38) continue;
+      if (!Number.isFinite(distance) || distance > AUDIO.livestock.maxDistance) continue;
       // A newly bolting animal takes a voice immediately, replacing the oldest
       // call when necessary rather than losing its one-shot state transition.
-      if (immediate && this.livestockSources.size >= 6) this._releaseAmbience(this.livestockSources.values().next().value);
-      const attenuation = 1 / (1 + (distance / 12) ** 2);
+      if (immediate && this.livestockSources.size >= AUDIO.livestock.maxVoices) this._releaseAmbience(this.livestockSources.values().next().value);
+      const attenuation = 1 / (1 + (distance / AUDIO.livestock.attenuationDistance) ** 2);
       const identity=(level?.seed||0)^Math.imul(animal.id+1,0x45d9f3b);
       const tone=callHash(identity^0x71c4),length=callHash(identity^0x16f3);
       const variation=callHash(identity^Math.imul(schedule.sequence,0x27d4eb2d));
-      const pitch=animal.type==='cow'?1.10+tone*.04+(variation-.5)*.008:.94+tone*.025+(variation-.5)*.006;
-      const durationScale=Math.max(.93,Math.min(1,.94+length*.06+(variation-.5)*.02));
-      this._voice(animal.type, .0462 * (herded ? 1.25 : 1) * attenuation, 0, pitch, true, durationScale);
+      const pitch=animal.type==='cow'?AUDIO.livestock.cowPitchBase+tone*AUDIO.livestock.cowPitchSpread+(variation-.5)*AUDIO.livestock.cowPitchVariation:AUDIO.livestock.sheepPitchBase+tone*AUDIO.livestock.sheepPitchSpread+(variation-.5)*AUDIO.livestock.sheepPitchVariation;
+      const durationScale=Math.max(AUDIO.livestock.durationMinScale,Math.min(AUDIO.livestock.durationMaxScale,AUDIO.livestock.durationBaseScale+length*AUDIO.livestock.durationSpread+(variation-.5)*AUDIO.livestock.durationVariation));
+      this._voice(animal.type, AUDIO.livestock.gain * (herded ? AUDIO.livestock.herdedGainScale : 1) * attenuation, 0, pitch, true, durationScale);
       emitted++;
     }
   }
@@ -255,7 +260,7 @@ export class FarmAudio {
     if(this.voiceLoad || !this.context?.decodeAudioData || typeof document==='undefined' || !document.baseURI || typeof fetch!=='function')return this.voiceLoad;
     const context=this.context,generation=this.voiceGeneration;
     this.voiceLoad=Promise.allSettled(['bark','sheep','cow'].map(async kind=>{
-      const response=await fetch(new URL(`audio/${kind}.mp3`,document.baseURI),{signal:AbortSignal.timeout(10000)});
+      const response=await fetch(new URL(`audio/${kind}.mp3`,document.baseURI),{signal:AbortSignal.timeout(AUDIO.voices.loadTimeoutMs)});
       if(!response.ok)throw Error('Animal recording unavailable');
       const buffer=await context.decodeAudioData(await response.arrayBuffer());
       if(!this.disposed && this.context===context && this.voiceGeneration===generation)this.recordedVoices.set(kind,buffer);
@@ -266,7 +271,7 @@ export class FarmAudio {
   _voiceBuffer(kind) {
     if (this.voiceBuffers.has(kind)) return this.voiceBuffers.get(kind);
     const rate = this.context.sampleRate;
-    const duration = kind === 'bark' ? .28 : kind === 'cow' ? 1.25 : .85;
+    const duration = kind === 'bark' ? AUDIO.voices.barkDurationSeconds : kind === 'cow' ? AUDIO.voices.cowDurationSeconds : AUDIO.voices.sheepDurationSeconds;
     const buffer = this.context.createBuffer(1, Math.ceil(rate * duration), rate);
     const samples = buffer.getChannelData(0);
     let phase = 0, peak = .001;
@@ -302,17 +307,17 @@ export class FarmAudio {
     if (livestock) this.livestockSources.add(source);
     const ended = source.onended;
     source.onended = () => { ended(); this.livestockSources.delete(source); };
-    const now = this.context.currentTime + .01 + offset;
-    const duration=(source.buffer.duration || (kind === 'bark' ? .28 : kind === 'cow' ? 1.25 : .85)) / pitch * durationScale;
+    const now = this.context.currentTime + AUDIO.voices.startLeadSeconds + offset;
+    const duration=(source.buffer.duration || (kind === 'bark' ? AUDIO.voices.barkDurationSeconds : kind === 'cow' ? AUDIO.voices.cowDurationSeconds : AUDIO.voices.sheepDurationSeconds)) / pitch * durationScale;
     if(livestock){
-      const fade=Math.min(.08,duration*.15);
+      const fade=Math.min(AUDIO.voices.livestockFadeSeconds,duration*AUDIO.voices.livestockFadeFraction);
       envelope.gain.setValueAtTime(.0001,now);
-      envelope.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),now+Math.min(.02,duration*.1));
+      envelope.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),now+Math.min(AUDIO.voices.livestockAttackSeconds,duration*AUDIO.voices.livestockAttackFraction));
       envelope.gain.setValueAtTime(volume,now+duration-fade);
       envelope.gain.exponentialRampToValueAtTime(.0001,now+duration);
     }
     source.start(now);
-    source.stop(now + duration + .02);
+    source.stop(now + duration + AUDIO.voices.stopPaddingSeconds);
     return source;
   }
 
@@ -327,12 +332,12 @@ export class FarmAudio {
     // Observe muted/paused events too, preventing delayed playback on unmute.
     this.thunderEvent = id;
     const age = weather.lightningAge, delay = weather.thunderDelay;
-    if (!available || !Number.isFinite(age) || !Number.isFinite(delay) || age < 0 || delay < 0 || age > delay + .2) return;
+    if (!available || !Number.isFinite(age) || !Number.isFinite(delay) || age < 0 || delay < 0 || age > delay + AUDIO.thunder.eventToleranceSeconds) return;
     if (this.thunderSource) this._releaseAmbience(this.thunderSource);
     const context = this.context, source = context.createBufferSource();
     const filter = context.createBiquadFilter(), gain = context.createGain();
-    const at = context.currentTime + Math.max(.01, delay - age);
-    const duration = 3 + Math.random() * 2;
+    const at = context.currentTime + Math.max(AUDIO.thunder.startLeadSeconds, delay - age);
+    const duration = AUDIO.thunder.durationSeconds + Math.random() * AUDIO.thunder.durationJitterSeconds;
     // Suppress the bright metallic crack; a soft onset and nonresonant lowpass
     // leave a deep rolling rumble. Each strike gets its own bounded decay.
     source.buffer = this._noise(); source.loop = true; filter.type = 'lowpass'; filter.Q.value = .35;
@@ -355,9 +360,9 @@ export class FarmAudio {
     }
     // Preserve the music, with brief room for thunder in the shared mix.
     this.music.gain.cancelScheduledValues(context.currentTime);
-    this.music.gain.setValueAtTime(.63, context.currentTime);
-    this.music.gain.setTargetAtTime(.24, at, .04);
-    this.music.gain.setTargetAtTime(.63, at + duration * .72, .35);
+    this.music.gain.setValueAtTime(AUDIO.mix.musicGain, context.currentTime);
+    this.music.gain.setTargetAtTime(AUDIO.thunder.duckMusicGain, at, AUDIO.thunder.duckSeconds);
+    this.music.gain.setTargetAtTime(AUDIO.mix.musicGain, at + duration * AUDIO.thunder.recoveryFraction, AUDIO.thunder.recoverySeconds);
     this._trackAmbience(source, [filter, gain, ...reflections]); this.thunderSource = source;
     const ended = source.onended;
     source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
@@ -411,7 +416,7 @@ export class FarmAudio {
         source.buffer = this.noiseBuffer;
         source.loop = true;
         filter.type = 'lowpass';
-        filter.frequency.value = kind === 'rain' ? 2200 : 500;
+        filter.frequency.value = kind === 'rain' ? AUDIO.weather.rainLowpassHz : AUDIO.weather.windLowpassHz;
         filter.Q.value = 0.3;
         gain.gain.value = 0.0001;
         source.connect(filter);
@@ -423,9 +428,9 @@ export class FarmAudio {
       }
     }
     if (this.weatherSource) {
-      const volume = (kind === 'rain' ? 0.032 * rainScale : 0.024) * intensity;
-      if (Math.abs(volume - this.weatherVolume) > 0.001) {
-        this.weatherSource.gain.gain.setTargetAtTime(volume, this.context.currentTime, 0.8);
+      const volume = (kind === 'rain' ? AUDIO.weather.rainGain * rainScale : AUDIO.weather.windGain) * intensity;
+      if (Math.abs(volume - this.weatherVolume) > AUDIO.weather.gainChangeThreshold) {
+        this.weatherSource.gain.gain.setTargetAtTime(volume, this.context.currentTime, AUDIO.weather.smoothingSeconds);
         this.weatherVolume = volume;
       }
     }
@@ -449,7 +454,7 @@ export class FarmAudio {
     if (!this.context || !this.music || this.context.state === 'closed') return;
     const now = this.context.currentTime;
     this.music.gain.cancelScheduledValues(now);
-    this.music.gain.setTargetAtTime(this.paused ? .0001 : .63, now, .025);
+    this.music.gain.setTargetAtTime(this.paused ? .0001 : AUDIO.mix.musicGain, now, AUDIO.mix.smoothingSeconds);
   }
 
   _stopAmbience() {
@@ -457,12 +462,12 @@ export class FarmAudio {
     this._stopWeather();
     this.thunderSource = null;
     for (const source of [...this.ambientSources]) this._releaseAmbience(source);
-    this.birdCountdown = 4 + Math.random() * 6;
+    this.birdCountdown = AUDIO.birds.clearDelaySeconds + Math.random() * AUDIO.birds.clearJitterSeconds;
     this.livestockSources.clear();
   }
 
   _note(midi, time, duration, volume, voice = 'marimba', destination = this.effects) {
-    if (!this.context || !destination || this.disposed || this.active.size>=128) return;
+    if (!this.context || !destination || this.disposed || this.active.size>=AUDIO.effects.maxVoices) return;
     const context = this.context;
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
@@ -492,7 +497,7 @@ export class FarmAudio {
     if (!this.context || this.context.state !== 'running' || this.muted || this.disposed) return;
     const now = this.context.currentTime + 0.01;
     if (name === 'bark') {
-      this._voice('bark', .2, 0, actor==='pip'?.78:1);
+      this._voice('bark', AUDIO.effects.barkGain, 0, actor==='pip'?AUDIO.effects.pipPitch:1);
       return;
     }
     const phrases = {
@@ -503,7 +508,7 @@ export class FarmAudio {
     };
     const phrase = phrases[name];
     if (!phrase) return;
-    phrase.forEach((note, i) => this._note(note, now + i * 0.115, 0.28, 0.16, 'marimba'));
+    phrase.forEach((note, i) => this._note(note, now + i * AUDIO.effects.phraseSpacingSeconds, AUDIO.effects.noteDurationSeconds, AUDIO.effects.noteGain, 'marimba'));
   }
 
   dispose() {

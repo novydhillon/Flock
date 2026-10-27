@@ -1,26 +1,37 @@
+import { CONFIG_CONTRACTS } from './config/contracts.js';
+import settings from './config/progression.json' with { type: 'json' };
+import { resolveConfig } from './config/resolve.js';
+import { MAX_LEVEL_INDEX, MAX_LEVEL_NUMBER } from './delivery.js';
+
+const CONFIG = resolveConfig(settings, 'progression', CONFIG_CONTRACTS.progression);
+for (const [id, policy] of Object.entries(CONFIG.upgrades)) {
+  if (policy.unlockLevels.some((level, index) => level > MAX_LEVEL_NUMBER || index > 0 && level < policy.unlockLevels[index - 1])) throw new RangeError(`progression.upgrades.${id}: tier unlock levels must be ordered within the campaign`);
+}
+
+
 /** Persisted tiers are numeric (1–3); old boolean unlocks migrate to tier 1. */
 const catalog = [
-  { id: 'speed', name: 'Turbo paws', icon: 'paw', costs: [80, 120, 200], unlockLevels: [2, 6, 11],
+  { id: 'speed', name: 'Turbo paws', icon: 'paw', ...CONFIG.upgrades.speed,
     description: 'Circle a roaming flock faster with upgraded paw motors.',
     tierNames: ['Quick paws', 'Trail runner', 'Meadow racer'],
     tierDescriptions: ['+1.8 m/s running speed', '+2.7 m/s running speed', '+3.5 m/s running speed'] },
-  { id: 'flock', name: 'Friendly signal', icon: 'signal', costs: [120, 180, 260], unlockLevels: [7, 10, 15],
+  { id: 'flock', name: 'Friendly signal', icon: 'signal', ...CONFIG.upgrades.flock,
     description: 'Reach more robots with a wider herding signal.',
     tierNames: ['Clear signal', 'Pasture beacon', 'Far-field beacon'],
     tierDescriptions: ['+2 m herding range', '+3 m herding range', '+4 m herding range'] },
-  { id: 'drone', name: 'Scout drone', icon: 'drone', costs: [200, 360, 540], unlockLevels: [10, 14, 18],
+  { id: 'drone', name: 'Scout drone', icon: 'drone', ...CONFIG.upgrades.drone,
     description: 'A hovering helper keeps the main herd together while you lead the way.',
     tierNames: ['Scout', 'Shepherd scout', 'Flock captain'],
     tierDescriptions: ['Keeps the main herd together; holds when you leave', '33% stronger drone support', '67% stronger drone support'] },
-  { id: 'helper', name: 'Buddy dog', icon: 'dog', costs: [600, 850, 1200], unlockLevels: [20, 24, 28],
+  { id: 'helper', name: 'Buddy dog', icon: 'dog', ...CONFIG.upgrades.helper,
     description: 'Herds from the rear, supports split flocks, and learns to retrieve strays.',
     tierNames: ['Farm friend', 'Trail partner', 'Senior shepherd'],
     tierDescriptions: ['Herds from behind in the flock’s direction of travel', 'Guides the smaller flock and passages; barks autonomously', 'Also retrieves wanderers and bolters to the nearest flock'] },
-  { id: 'bark', name: 'Happy bark', icon: 'bark', costs: [100, 160, 240], unlockLevels: [4, 8, 13],
+  { id: 'bark', name: 'Happy bark', icon: 'bark', ...CONFIG.upgrades.bark,
     description: 'A stronger bark gives wandering robots a cheerful nudge.',
     tierNames: ['Bright bark', 'Resonant bark', 'Meadow chorus'],
     tierDescriptions: ['Stronger bark · one bark before cooldown', '+33% strength versus level 1 · one bark before cooldown', '+33% strength versus level 1 · two barks before cooldown'] },
-  { id: 'cohesion', name: 'Flock harmony', icon: 'harmony', costs: [160, 220, 320], unlockLevels: [12, 14, 15],
+  { id: 'cohesion', name: 'Flock harmony', icon: 'harmony', ...CONFIG.upgrades.cohesion,
     description: 'Robots regroup more readily when the flock stretches across a meadow.',
     tierNames: ['Stay together', 'Close companions', 'Perfect formation'],
     tierDescriptions: ['12% stronger regrouping', '23% stronger regrouping', '35% stronger regrouping'] },
@@ -73,15 +84,15 @@ export function nextUnlockLevel(upgrades, id) {
 /** Saved level indexes are zero-based; public level numbers are one-based. */
 function progressionLevel(profileOrLevelNumber) {
   if (typeof profileOrLevelNumber === 'number') {
-    return Number.isInteger(profileOrLevelNumber) ? Math.max(1, Math.min(100, profileOrLevelNumber)) : 1;
+    return Number.isInteger(profileOrLevelNumber) ? Math.max(1, Math.min(MAX_LEVEL_NUMBER, profileOrLevelNumber)) : 1;
   }
   const profile = profileOrLevelNumber;
   if (!profile || typeof profile !== 'object') return 1;
   const highest = Number.isInteger(profile.highestLevel) && profile.highestLevel >= 0
-    ? Math.min(99, profile.highestLevel) : 0;
+    ? Math.min(MAX_LEVEL_INDEX, profile.highestLevel) : 0;
   const completed = Array.isArray(profile.completedLevels) ? profile.completedLevels : [];
   const completedLevel = completed.reduce((highestNumber, index) =>
-    Number.isInteger(index) && index >= 0 && index <= 99 ? Math.max(highestNumber, Math.min(100, index + 2)) : highestNumber, 1);
+    Number.isInteger(index) && index >= 0 && index <= MAX_LEVEL_INDEX ? Math.max(highestNumber, Math.min(MAX_LEVEL_NUMBER, index + 2)) : highestNumber, 1);
   return Math.max(highest + 1, completedLevel);
 }
 
@@ -133,15 +144,17 @@ export function purchaseUpgrade(profile, id, levelNumber = profile) {
 export function upgradeEffects(upgrades, levelNumber = 1) {
   const active = activeUpgrades(upgrades, levelNumber);
   const tier = id => upgradeLevel(active, id);
+  const bark = CONFIG.effects.bark;
+  const advancedBark = bark.tierOneMultiplier * bark.advancedMultiplier;
   const effects = {
-    speedBoost: [0, 1.8, 2.7, 3.5][tier('speed')],
-    signalBoost: [0, 2, 3, 4][tier('flock')],
-    barkBoost: [0, .25, 1.9 * 1.33 - 1.65, 1.9 * 1.33 - 1.65][tier('bark')],
-    barkMultiplier: [1.65, 1.9, 1.9 * 1.33, 1.9 * 1.33][tier('bark')],
-    barkCharges: tier('bark') >= 3 ? 2 : 1,
-    cohesionBoost: [0, 0.12, 0.23, 0.35][tier('cohesion')],
-    droneStrength: [0, 0.7, 0.93, 1.17][tier('drone')],
-    helperStrength: [0, 1, 1.3, 1.58][tier('helper')],
+    speedBoost: CONFIG.effects.speedBoost[tier('speed')],
+    signalBoost: CONFIG.effects.signalBoost[tier('flock')],
+    barkBoost: [0, bark.tierOneBoost, advancedBark - bark.baseMultiplier, advancedBark - bark.baseMultiplier][tier('bark')],
+    barkMultiplier: [bark.baseMultiplier, bark.tierOneMultiplier, advancedBark, advancedBark][tier('bark')],
+    barkCharges: bark.charges[tier('bark')],
+    cohesionBoost: CONFIG.effects.cohesionBoost[tier('cohesion')],
+    droneStrength: CONFIG.effects.droneStrength[tier('drone')],
+    helperStrength: CONFIG.effects.helperStrength[tier('helper')],
     drone: tier('drone') > 0,
     helper: tier('helper') > 0,
     helperTier: tier('helper'),

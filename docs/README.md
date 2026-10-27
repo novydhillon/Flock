@@ -8,6 +8,7 @@ This is the starting point for humans and agents working on the robotic-herding 
 |---|---|
 | [Requirements](REQUIREMENTS.md) | Product intent, implemented behavior, pending requirements and open decisions |
 | [Architecture](ARCHITECTURE.md) | Module ownership, shared contracts and safe change boundaries |
+| [Configuration editing](DEVELOPMENT.md#editing-area-configuration--27-october-2026) | Area ownership, validated values/bounds and the rebuild workflow |
 | [Gameplay](systems/GAMEPLAY.md) | Input, simulation, companions, rewards, profile and upgrades |
 | [World](systems/WORLD.md) | Procedural routes, barriers, footprints and navigation |
 | [Presentation](systems/PRESENTATION.md) | Rendering, animation, nature, weather and audio |

@@ -1,3 +1,4 @@
+import { maximumLevelReward, MAX_LEVEL_INDEX } from './delivery.js';
 import { animalRadius, COW_SCALES } from './animal-size.js';
 /** Deterministic meadow geometry. Rendering and every ground body share these
  * sampled river edges, fence segments, and circular tree footprints. */
@@ -196,7 +197,7 @@ function angularFields(index,seed,minU,endU,halfV){
   return {kind,side,corners,boundary:fieldOutline(rectangles),heading:Math.atan2(f.x,f.z),target:b,width};
 }
 export function createLevel(index=0,seed=index*7919+42) {
-  index=clamp(Math.floor(Number(index)||0),0,99);seed=Number(seed)>>>0;
+  index=clamp(Math.floor(Number(index)||0),0,MAX_LEVEL_INDEX);seed=Number(seed)>>>0;
   // A broad first crossing accepts the starter flock before later lessons
   // require collecting stragglers. Its road widens with the physical deck.
   const sizeRandom=rng(seed ^ 0x434f5753),layoutRandom=rng(seed ^ 0x4d415053);
@@ -304,7 +305,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   const roads=routes.map(route=>({routeId:route.id,points:route.points,width:roadWidth}));
   const level={index,seed,title:['First day on the farm','Over the babbling brook','Through the garden gate','A mixed-up meadow','The long way home'][index]||`Pasture patrol ${index+1}`,
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
-    bounds,boundary,spawn,dog,target,startHeading:heading,layoutKind:angular?.kind||'field',riverStyle:meandering?'meandering':'gentle',animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:80+index*25,sceneryHills:[]};
+    bounds,boundary,spawn,dog,target,startHeading:heading,layoutKind:angular?.kind||'field',riverStyle:meandering?'meandering':'gentle',animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:maximumLevelReward(index),sceneryHills:[]};
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
     const type=index>=3&&i%4===0?'cow':'sheep';

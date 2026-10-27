@@ -576,3 +576,10 @@ Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main a
 - F-TERRAIN-003 (P2): Make fences and stone walls follow the undulating ground instead of remaining on a flat plane. See [tracker criteria and photo references](ISSUES.md).
 - F-TERRAIN-004 (P2): Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades. See [tracker criteria and photo references](ISSUES.md).
 
+## Cohesive modules and validated area settings — 27 October 2026
+
+F-ARCH-001: reduce coupling by extracting profile persistence, delivery policy, companion herd grouping and saved-animal roaming from the simulation facade while preserving its existing public interfaces and behavior. Keep rendering independent from simulation policy and replace imports through the facade with focused policy dependencies where appropriate.
+
+Move owner-specific tunable literals into documented gameplay, delivery, progression, audio, music, weather, controls and presentation JSON areas. Every setting has a value and explanatory comment, with numeric bounds where applicable. Validate the required shape, types, array lengths, finite numeric values and inclusive bounds during initialization through a generic resolver and explicit area contracts; expose deeply frozen runtime values through static imports. Preserve existing defaults, random sequences, profile version/key/ledger semantics, campaign level limits, pause behavior and audio lifecycle. Mathematical and algorithm identities remain in code.
+
+Provide an ownership map and a concrete guide for editing values, changing bounds, adding a setting and rebuilding. Source implementation, automated verification, independent review, development publication and user acceptance remain separate milestones. F-AUDIO-003 stays Open; no audio launch fix or behavior tuning is implied by this refactor.

@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 26 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 27 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
 
@@ -20,6 +20,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-ARCH-001 | P2 | Architecture/configuration | Cohesive runtime owners and validated immutable area settings | Review | Existing simulation, profile and presentation contracts |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
@@ -509,3 +510,14 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
 
+## Architecture and configuration — 27 October 2026
+
+### F-ARCH-001 — Cohesive runtime modules and validated area configuration
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `refactor/validated-area-config`
+
+**Accept when:** profile persistence, delivery policy, companion herd grouping and saved-animal roaming have focused owners; the simulation facade retains its public interfaces; gameplay, delivery, progression, audio, music, weather, controls and presentation tunables live in documented bounded JSON areas with startup validation and immutable resolved values. Required keys, types and array lengths must be checked independently of editable bounds. Preserve existing defaults, seeded behavior, saved-profile version/key/reward-ledger semantics, campaign limits, lifecycle behavior and source build checks. Document ownership and the configuration editing/rebuild workflow. Obtain independent review, passing checked source CI and the requested development publication; user acceptance remains pending until explicit sign-off.
+
+**27 October 2026:** Prepared from main `80212d02412172dfe1dc5c04c08b0a475dd84c94` with the user-requested `gpt-6.1-sol` at extra-high effort. Existing simulation exports remain compatible while focused owners and eight explicit area contracts replace facade coupling and scattered tunables. The campaign remains 100 public levels; changing that limit requires coordinated migration. Automated candidate verification, blind review, development publication and physical-device checks are pending and must be recorded from observed results in the quality record. F-AUDIO-003 remains Open, with no claimed launch fix.

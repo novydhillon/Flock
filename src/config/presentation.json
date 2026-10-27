@@ -1,0 +1,316 @@
+{
+  "renderer": {
+    "pixelRatioCap": {
+      "value": 1.6,
+      "_comment": "Maximum device pixel ratio used by WebGL.",
+      "min": 0.5,
+      "max": 3
+    },
+    "exposure": {
+      "value": 1.05,
+      "_comment": "ACES tone-mapping exposure.",
+      "min": 0,
+      "max": 5
+    },
+    "shadowMapSize": {
+      "value": 1024,
+      "_comment": "Square sun-shadow map size in pixels; use a power of two.",
+      "min": 128,
+      "max": 4096
+    },
+    "fogNear": {
+      "value": 95,
+      "_comment": "World distance at which scene fog begins.",
+      "min": 0,
+      "max": 1000
+    },
+    "fogFar": {
+      "value": 195,
+      "_comment": "World distance at which scene fog is complete.",
+      "min": 1,
+      "max": 2000
+    }
+  },
+  "lighting": {
+    "skyDay": {
+      "value": "#bdd6df",
+      "_comment": "Clear-day scene and fog color."
+    },
+    "skyStorm": {
+      "value": "#899da7",
+      "_comment": "Storm sky color blended by cloud coverage."
+    },
+    "hemisphereSky": {
+      "value": "#eaf7ff",
+      "_comment": "Upper hemisphere-light color."
+    },
+    "hemisphereGround": {
+      "value": "#536747",
+      "_comment": "Lower hemisphere-light color."
+    },
+    "sunColor": {
+      "value": "#fff4dc",
+      "_comment": "Directional sunlight color."
+    },
+    "hemisphereIntensity": {
+      "value": 1.65,
+      "_comment": "Hemisphere intensity before daylight scaling.",
+      "min": 0,
+      "max": 10
+    },
+    "sunIntensity": {
+      "value": 2.05,
+      "_comment": "Sun intensity before daylight scaling.",
+      "min": 0,
+      "max": 10
+    },
+    "sunOffset": {
+      "value": [
+        -18,
+        35,
+        20
+      ],
+      "_comment": "Sun offset from the followed camera center, in world XYZ.",
+      "min": -100,
+      "max": 100
+    },
+    "hemisphereFlashScale": {
+      "value": 0.6,
+      "_comment": "Hemisphere contribution from the shared lightning flash.",
+      "min": 0,
+      "max": 5
+    },
+    "stormSkyBlend": {
+      "value": 0.5,
+      "_comment": "Sky-color interpolation amount per unit of cloud coverage.",
+      "min": 0,
+      "max": 1
+    },
+    "shadowBias": {
+      "value": -0.0007,
+      "_comment": "Directional shadow depth bias.",
+      "min": -0.1,
+      "max": 0.1
+    },
+    "shadowNormalBias": {
+      "value": 0.035,
+      "_comment": "Directional shadow normal bias.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "camera": {
+    "portraitAspect": {
+      "value": 0.8,
+      "_comment": "Aspect ratio below which portrait framing is selected.",
+      "min": 0.1,
+      "max": 2
+    },
+    "previewPortraitHeight": {
+      "value": 50,
+      "_comment": "Orthographic preview view height in portrait.",
+      "min": 1,
+      "max": 200
+    },
+    "previewLandscapeHeight": {
+      "value": 44,
+      "_comment": "Orthographic preview view height in landscape.",
+      "min": 1,
+      "max": 200
+    },
+    "playPortraitHeight": {
+      "value": 39,
+      "_comment": "Orthographic gameplay view height in portrait.",
+      "min": 1,
+      "max": 200
+    },
+    "playLandscapeHeight": {
+      "value": 36,
+      "_comment": "Orthographic gameplay view height in landscape.",
+      "min": 1,
+      "max": 200
+    },
+    "previewPortraitOffsetX": {
+      "value": 2,
+      "_comment": "Preview center X offset from spawn in portrait.",
+      "min": -100,
+      "max": 100
+    },
+    "previewLandscapeOffsetX": {
+      "value": 10,
+      "_comment": "Preview center X offset from spawn in landscape.",
+      "min": -100,
+      "max": 100
+    },
+    "previewOffsetZ": {
+      "value": 1,
+      "_comment": "Preview center Z offset from spawn.",
+      "min": -100,
+      "max": 100
+    },
+    "followOffsetZ": {
+      "value": 2,
+      "_comment": "Gameplay center Z offset that cancels the ground look-at offset.",
+      "min": -100,
+      "max": 100
+    },
+    "previewFollowRate": {
+      "value": 0.8,
+      "_comment": "Preview center interpolation rate per second.",
+      "min": 0.01,
+      "max": 30
+    },
+    "playFollowRate": {
+      "value": 3.5,
+      "_comment": "Gameplay center interpolation rate per second.",
+      "min": 0.01,
+      "max": 30
+    },
+    "lagFraction": {
+      "value": 0.12,
+      "_comment": "Maximum camera lag as a fraction of each half-view dimension.",
+      "min": 0,
+      "max": 0.5
+    },
+    "positionY": {
+      "value": 36,
+      "_comment": "Camera elevation above the followed center.",
+      "min": 1,
+      "max": 200
+    },
+    "positionOffsetZ": {
+      "value": 29,
+      "_comment": "Camera Z offset from the followed center.",
+      "min": 1,
+      "max": 200
+    },
+    "lookOffsetZ": {
+      "value": -2,
+      "_comment": "Ground look-at Z offset from the followed center.",
+      "min": -100,
+      "max": 100
+    },
+    "near": {
+      "value": 0.1,
+      "_comment": "Orthographic near clip distance.",
+      "min": 0.001,
+      "max": 10
+    },
+    "far": {
+      "value": 180,
+      "_comment": "Orthographic far clip distance.",
+      "min": 1,
+      "max": 2000
+    }
+  },
+  "culling": {
+    "sceneryMargin": {
+      "value": 2,
+      "_comment": "Extra sphere radius preserving scenery silhouettes and shadows.",
+      "min": 0,
+      "max": 20
+    },
+    "animalMargin": {
+      "value": 3,
+      "_comment": "Extra animal sphere radius preserving limbs and short shadows.",
+      "min": 0,
+      "max": 20
+    }
+  },
+  "introduction": {
+    "durationSeconds": {
+      "value": 3,
+      "_comment": "Gameplay level-title introduction duration.",
+      "min": 0.1,
+      "max": 30
+    },
+    "fadeInSeconds": {
+      "value": 0.65,
+      "_comment": "Level-title opacity fade-in duration.",
+      "min": 0.001,
+      "max": 10
+    },
+    "fadeOutSeconds": {
+      "value": 1.2,
+      "_comment": "Level-title opacity fade-out duration.",
+      "min": 0.001,
+      "max": 10
+    },
+    "initialScale": {
+      "value": 0.72,
+      "_comment": "Initial level-title scale.",
+      "min": 0.1,
+      "max": 3
+    },
+    "scaleGrowth": {
+      "value": 0.48,
+      "_comment": "Additional eased level-title scale during the introduction.",
+      "min": 0,
+      "max": 3
+    },
+    "signHoldSeconds": {
+      "value": 4,
+      "_comment": "How long the destination label remains fully visible during play.",
+      "min": 0,
+      "max": 60
+    },
+    "signFadeSeconds": {
+      "value": 1.2,
+      "_comment": "Destination label fade-out duration.",
+      "min": 0.001,
+      "max": 30
+    }
+  },
+  "effects": {
+    "celebrationParticles": {
+      "value": 36,
+      "_comment": "Particle count in one completion celebration.",
+      "min": 0,
+      "max": 500
+    },
+    "celebrationLifeSeconds": {
+      "value": 1.8,
+      "_comment": "Completion particle lifetime.",
+      "min": 0.1,
+      "max": 20
+    },
+    "particleGravity": {
+      "value": 6,
+      "_comment": "Completion particle downward acceleration.",
+      "min": 0,
+      "max": 100
+    },
+    "maxBarkRings": {
+      "value": 4,
+      "_comment": "Hard retained bark-ring cap for repeated input and QA.",
+      "min": 1,
+      "max": 64
+    },
+    "barkSeconds": {
+      "value": 0.6,
+      "_comment": "Bark-ring lifetime.",
+      "min": 0.01,
+      "max": 5
+    },
+    "barkExpansion": {
+      "value": 6,
+      "_comment": "Bark-ring radius growth over its lifetime.",
+      "min": 0,
+      "max": 30
+    },
+    "barkOpacity": {
+      "value": 0.8,
+      "_comment": "Initial bark-ring opacity.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "minimap": {
+    "viewDepth": {
+      "value": 120,
+      "_comment": "Maximum world depth represented by the scrolling minimap.",
+      "min": 1,
+      "max": 1000
+    }
+  }
+}
