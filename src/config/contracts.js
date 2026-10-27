@@ -522,7 +522,6 @@ export const CONFIG_CONTRACTS = freeze({
       ],
       "bark": {
         "baseMultiplier": "number",
-        "tierOneMultiplier": "number",
         "tierOneBoost": "number",
         "advancedMultiplier": "number",
         "charges": [

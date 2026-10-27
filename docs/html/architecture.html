@@ -321,7 +321,7 @@ console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.t
 </thead>
 <tbody><tr>
 <td><code>gameplay.json</code></td>
-<td>Simulation movement, companion grouping and saved-animal motion</td>
+<td>Simulation movement, bark/body values, companion grouping, saved-animal motion and wandering</td>
 </tr>
 <tr>
 <td><code>delivery.json</code></td>
@@ -333,25 +333,26 @@ console.log({ publicLevel: level.index + 1, saved: result.saved, total: result.t
 </tr>
 <tr>
 <td><code>audio.json</code></td>
-<td>Audio mix, voice limits, effects and livestock scheduling</td>
+<td>Audio bus mix, transport scheduling, voice limits, procedural effects and scene audio schedules</td>
 </tr>
 <tr>
 <td><code>music.json</code></td>
-<td>Music transport and instrument tuning</td>
+<td>Tempo, score timing, instrument envelopes and music voice limits</td>
 </tr>
 <tr>
 <td><code>weather.json</code></td>
-<td>Weather state, timing, lighting and visibility</td>
+<td>Seeded weather selection, fixed presets, ambience counts and lightning/thunder timing</td>
 </tr>
 <tr>
 <td><code>controls.json</code></td>
-<td>Input, camera and controller presentation tuning</td>
+<td>Pointer gestures, frame/UI update timing, input feedback and tips</td>
 </tr>
 <tr>
 <td><code>presentation.json</code></td>
-<td>Rendering, surface and water appearance</td>
+<td>Renderer quality, camera, lighting/fog, culling, introductions, visual effects and minimap framing</td>
 </tr>
 </tbody></table></div>
+<p>Weather state supplies daylight, severity and lightning to rendering. Presentation values determine the sky colors, light intensities and fog response; audio values determine the weather sound. Surface and water shader constants continue beside their algorithms.</p>
 <p>Area names describe ownership rather than a new layer of runtime state. Keep a setting with the policy that interprets it. Share that policy through its focused module instead of importing a higher-level facade just to obtain one number.</p>
 <h3 id="resolver-and-contract-responsibilities">Resolver and contract responsibilities<a class="heading-link" href="#resolver-and-contract-responsibilities" aria-label="Link to Resolver and contract responsibilities">#</a></h3>
 <p><code>src/config/resolve.js</code> is the generic descriptor validator and immutable resolver. It receives the document, an area label and an optional explicit shape contract. <code>src/config/contracts.js</code> supplies the required keys, primitive types and array lengths for the eight shipped areas. Production consumers supply the matching contract; a syntactically valid descriptor alone cannot establish that a required application setting exists.</p>

@@ -98,7 +98,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   };
   const playerSignals = new Map(snapshot.map(animal=>{
     const d=distance(animal,dog),active=d<radius&&hasClearPlayerSignal(level,animal,dog);
-    const urgency=active?Math.pow(1-d/radius,GAMEPLAY.simulation.pressureExponent)*(input.bark?1.65+effects.barkBoost:1):0;
+    const urgency=active?Math.pow(1-d/radius,GAMEPLAY.simulation.pressureExponent)*(input.bark?effects.barkMultiplier:1):0;
     const flee=d>.01?normal(animal.x-dog.x,animal.z-dog.z):normal(Math.sin(dog.heading||0),Math.cos(dog.heading||0));
     return [animal.id,{active,urgency,x:flee.x*urgency*GAMEPLAY.simulation.signalStrength,z:flee.z*urgency*GAMEPLAY.simulation.signalStrength}];
   }));

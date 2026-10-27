@@ -9,13 +9,14 @@ const resolve = (document, area = 'gameplay') => resolveConfig(document, area, C
 
 // Load the actual ES module with one JSON import replaced, retaining genuine
 // resolver, domain helpers and native JSON import-attribute behavior.
-async function configuredModule(file, document, area = 'gameplay') {
+function configuredModuleURL(file, document, area = 'gameplay', dependencies = {}) {
   const url = new URL(`../src/${file}.js`, import.meta.url);
-  const json = 'data:application/json,' + encodeURIComponent(JSON.stringify(document));
+  const json = 'data:application/json,' + encodeURIComponent(JSON.stringify(document)).replaceAll("'", '%27');
   const source = readFileSync(url, 'utf8').replace(/from (['"])(\.\.?\/[^'"]+)\1/g,
-    (_match, quote, relative) => `from ${quote}${relative === './config/' + area + '.json' ? json : new URL(relative, url).href}${quote}`);
-  return import('data:text/javascript,' + encodeURIComponent(source));
+    (_match, quote, relative) => `from ${quote}${dependencies[relative] || (relative === './config/' + area + '.json' ? json : new URL(relative, url).href)}${quote}`);
+  return 'data:text/javascript,' + encodeURIComponent(source).replaceAll("'", '%27');
 }
+const configuredModule = (...args) => import(configuredModuleURL(...args));
 
 test('every area resolves its documented defaults into deeply frozen values', () => {
   function frozen(value) {
@@ -97,4 +98,55 @@ test('weather cumulative probability and tier unlock ordering fail clearly', asy
   await assert.rejects(configuredModule('weather', weather, 'weather'), /cumulative cutoffs must be ordered/);
   const progression = documentFor('progression'); progression.upgrades.speed.unlockLevels.value = [6, 2, 11];
   await assert.rejects(configuredModule('progression', progression, 'progression'), /tier unlock levels must be ordered/);
+});
+
+test('configured bark pressure reaches the real simulation at every owned tier', async () => {
+  const progression = documentFor('progression');
+  progression.effects.bark.baseMultiplier.value = 2;
+  progression.effects.bark.tierOneBoost.value = .5;
+  progression.effects.bark.advancedMultiplier.value = 1.5;
+  const api = await configuredModule('simulation', documentFor('gameplay'), 'gameplay', {
+    './progression.js': configuredModuleURL('progression', progression, 'progression'),
+  });
+  const gameplay = resolve(documentFor('gameplay'));
+  const radius = gameplay.simulation.signalRadius + gameplay.simulation.barkRadiusBoost;
+  const falloff = (1 - 3 / radius) ** gameplay.simulation.pressureExponent;
+  for (const [tier, multiplier] of [2, 2.5, 3.75, 3.75].entries()) {
+    const level = {index: 16, seed: 48, time: 0, bounds: {minX:-100,maxX:100,minZ:-100,maxZ:100},
+      spawn:{x:0,z:0},target:{x:40,z:40,radius:8,heading:0},helpers:[],routes:[],
+      obstacles:[],rivers:[],gates:[],fenceSegments:[],
+      animals:[{id:0,type:'sheep',x:3,z:0,vx:0,vz:0,saved:false}]};
+    api.stepSimulation(level, {x:0,z:0}, {bark:true}, 1/60, {bark:tier});
+    assert.equal(level.animals[0].alert, falloff * multiplier, `owned bark tier ${tier}`);
+  }
+});
+
+test('configured progression charge capacity reaches the real bark state', async () => {
+  const progression = documentFor('progression');
+  progression.effects.bark.charges.value = [2, 2, 1, 2];
+  const policy = await configuredModule('progression', progression, 'progression');
+  const bark = await import('../src/bark.js');
+  for (const tier of [0, 1, 2, 3]) {
+    const effects = policy.upgradeEffects({bark:tier}, 100);
+    const state = bark.createBarkState(effects.barkCharges);
+    assert.equal(state.capacity, progression.effects.bark.charges.value[tier]);
+    assert.equal(bark.triggerBark(state), true);
+    assert.equal(bark.triggerBark(state), effects.barkCharges === 2);
+  }
+  progression.effects.bark.charges.value[3] = 3;
+  await assert.rejects(configuredModule('progression', progression, 'progression'), /charges\[3\].*exceeds max 2/);
+});
+
+test('crowded saved animals obey edited speed cap during overlap recovery', async () => {
+  const document = documentFor('gameplay'); document.saved.maximumSpeed.value = .1;
+  const roaming = await configuredModule('saved-roaming', document);
+  const level = {time:1,seed:48,bounds:{minX:-30,maxX:30,minZ:-30,maxZ:30},
+    target:{x:0,z:0,radius:8,heading:0},obstacles:[],rivers:[],gates:[],fenceSegments:[],
+    animals:Array.from({length:5},(_,id)=>({id,type:'sheep',saved:true,x:1+(id%2)*.01,z:1+Math.floor(id/2)*.01,vx:0,vz:0}))};
+  const before = level.animals.map(animal=>({x:animal.x,z:animal.z}));
+  roaming.roamSavedAnimals(level,.1,1);
+  assert.ok(level.animals.some((animal,id)=>Math.hypot(animal.x-before[id].x,animal.z-before[id].z)>0), 'crowding recovers through physical motion');
+  for (const [id,animal] of level.animals.entries()) {
+    assert.ok(Math.hypot(animal.x-before[id].x,animal.z-before[id].z)<=.1*.1+1e-12, `saved animal ${id} exceeded configured speed`);
+  }
 });

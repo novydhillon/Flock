@@ -145,12 +145,13 @@ export function upgradeEffects(upgrades, levelNumber = 1) {
   const active = activeUpgrades(upgrades, levelNumber);
   const tier = id => upgradeLevel(active, id);
   const bark = CONFIG.effects.bark;
-  const advancedBark = bark.tierOneMultiplier * bark.advancedMultiplier;
+  const firstTierBark = bark.baseMultiplier + bark.tierOneBoost;
+  const advancedBark = firstTierBark * bark.advancedMultiplier;
   const effects = {
     speedBoost: CONFIG.effects.speedBoost[tier('speed')],
     signalBoost: CONFIG.effects.signalBoost[tier('flock')],
     barkBoost: [0, bark.tierOneBoost, advancedBark - bark.baseMultiplier, advancedBark - bark.baseMultiplier][tier('bark')],
-    barkMultiplier: [bark.baseMultiplier, bark.tierOneMultiplier, advancedBark, advancedBark][tier('bark')],
+    barkMultiplier: [bark.baseMultiplier, firstTierBark, advancedBark, advancedBark][tier('bark')],
     barkCharges: bark.charges[tier('bark')],
     cohesionBoost: CONFIG.effects.cohesionBoost[tier('cohesion')],
     droneStrength: CONFIG.effects.droneStrength[tier('drone')],

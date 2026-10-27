@@ -184,14 +184,9 @@
         "_comment": "Unupgraded bark pressure multiplier; also the base used for additive bark boosts.",
         "min": 0
       },
-      "tierOneMultiplier": {
-        "value": 1.9,
-        "_comment": "First owned bark tier pressure multiplier.",
-        "min": 0
-      },
       "tierOneBoost": {
         "value": 0.25,
-        "_comment": "Additive pressure boost for the first bark tier; preserved independently for compatibility.",
+        "_comment": "Added to base pressure for the first bark tier; later tiers multiply that combined pressure.",
         "min": 0
       },
       "advancedMultiplier": {
@@ -206,8 +201,9 @@
           1,
           2
         ],
-        "_comment": "Available bark charges for unowned and tiers 1–3; tier 3 grants two before cooldown.",
-        "min": 1
+        "_comment": "Available bark charges for unowned and tiers 1–3; the supported player capacities are one or two.",
+        "min": 1,
+        "max": 2
       }
     }
   }

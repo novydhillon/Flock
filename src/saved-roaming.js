@@ -84,7 +84,8 @@ export function roamSavedAnimals(level, dt, phaseTime) {
       if(priorEnergy>1e-8){
         let best=before,energy=priorEnergy;
         for(let direction=0;direction<16;direction++){
-          const angle=direction*Math.PI/8,p={x:before.x+Math.sin(angle)*.45*dt,z:before.z+Math.cos(angle)*.45*dt};
+          const travel=Math.min(.45,GAMEPLAY.saved.maximumSpeed)*dt;
+          const angle=direction*Math.PI/8,p={x:before.x+Math.sin(angle)*travel,z:before.z+Math.cos(angle)*travel};
           if(!canOccupy(level,p.x,p.z,radius)||!containsTarget(level.target,p,radius)||!hasClearGroundPath(level,before,p,radius))continue;
           const candidate=crowdEnergy(p);
           if(candidate<energy-1e-10){best=p;energy=candidate;}

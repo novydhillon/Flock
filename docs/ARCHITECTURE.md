@@ -251,14 +251,16 @@ Each JSON file under `src/config/` contains documented setting descriptors. A co
 
 | Area file | Values owned |
 |---|---|
-| `gameplay.json` | Simulation movement, companion grouping and saved-animal motion |
+| `gameplay.json` | Simulation movement, bark/body values, companion grouping, saved-animal motion and wandering |
 | `delivery.json` | Countdown, scoring, reward and campaign limits |
 | `progression.json` | Upgrade costs, tiers and benefits |
-| `audio.json` | Audio mix, voice limits, effects and livestock scheduling |
-| `music.json` | Music transport and instrument tuning |
-| `weather.json` | Weather state, timing, lighting and visibility |
-| `controls.json` | Input, camera and controller presentation tuning |
-| `presentation.json` | Rendering, surface and water appearance |
+| `audio.json` | Audio bus mix, transport scheduling, voice limits, procedural effects and scene audio schedules |
+| `music.json` | Tempo, score timing, instrument envelopes and music voice limits |
+| `weather.json` | Seeded weather selection, fixed presets, ambience counts and lightning/thunder timing |
+| `controls.json` | Pointer gestures, frame/UI update timing, input feedback and tips |
+| `presentation.json` | Renderer quality, camera, lighting/fog, culling, introductions, visual effects and minimap framing |
+
+Weather state supplies daylight, severity and lightning to rendering. Presentation values determine the sky colors, light intensities and fog response; audio values determine the weather sound. Surface and water shader constants continue beside their algorithms.
 
 Area names describe ownership rather than a new layer of runtime state. Keep a setting with the policy that interprets it. Share that policy through its focused module instead of importing a higher-level facade just to obtain one number.
 
