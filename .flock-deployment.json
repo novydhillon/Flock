@@ -1,7 +1,7 @@
 {
   "environment": "production",
   "branch": "main",
-  "sourceSha": "2655525ed219f799ad0392a1e76bf94a3f0b4e04",
+  "sourceSha": "80212d02412172dfe1dc5c04c08b0a475dd84c94",
   "prefix": "",
   "url": "https://novydhillon.github.io/Flock/",
   "files": [
@@ -30,12 +30,12 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "assets/index-CTeL47d3.css",
-      "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503"
+      "path": "assets/index-BD11BteA.js",
+      "sha256": "f4c660bf103583310420e191f39744d91bd57ac8b23918c468f34c0a877da4c0"
     },
     {
-      "path": "assets/index-CVMkU_ID.js",
-      "sha256": "c17673742792e355d45aea84bb20e9c44ac5c9fcc1684c428c65b7ec766f17e4"
+      "path": "assets/index-CTeL47d3.css",
+      "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503"
     },
     {
       "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -60,6 +60,22 @@
     {
       "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0"
+    },
+    {
+      "path": "audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34"
+    },
+    {
+      "path": "audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b"
+    },
+    {
+      "path": "audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac"
     },
     {
       "path": "icons/pip-120.png",
@@ -107,7 +123,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "d64fc55045dca6bb862c84fb312c45eb9b0f5fbf76dd3a5d45ef3184e9ab0b85"
+      "sha256": "04f159f4f64645ea4e71a4b564a0d4535819b97da717237bec06e6e05f5d5c9d"
     },
     {
       "path": "site.webmanifest",
