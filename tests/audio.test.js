@@ -1,46 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FarmAudio } from '../src/audio.js';
+import { Context, DeferredContext, withAudio } from './audio-fixture.js';
+import { LoFiMusic, MUSIC_STEPS, MUSIC_TEMPO } from '../src/music.js';
 import { createWeatherState, stepWeather } from '../src/weather.js';
-
-class Param {
-  constructor() { this.value = 0; this.targets = []; this.events = []; }
-  setValueAtTime(value, time) { this.value = value; this.events.push(['set', value, time]); }
-  exponentialRampToValueAtTime(value, time) { this.value = value; this.events.push(['ramp', value, time]); }
-  setTargetAtTime(value, time) { this.value = value; this.targets.push(value); this.events.push(['target', value, time]); }
-  cancelScheduledValues(time) { this.events.push(['cancel', time]); }
-}
-class Node {
-  constructor() {
-    this.gain = new Param(); this.frequency = new Param(); this.Q = new Param(); this.playbackRate = new Param();
-    this.connections = []; this.started = false; this.stops = []; this.disconnected = false;
-  }
-  connect(node) { this.connections.push(node); }
-  disconnect() { this.disconnected = true; }
-  start(time = 0) { this.started = true; this.startTime = time; }
-  stop(time) { this.stops.push(time); }
-  end() { this.onended?.(); }
-}
-class Context {
-  constructor() { this.state = 'suspended'; this.currentTime = 0; this.sampleRate = 100; this.destination = new Node(); this.oscillators = []; this.buffers = []; this.sources = []; }
-  createGain() { return new Node(); }
-  createOscillator() { const node = new Node(); this.oscillators.push(node); return node; }
-  createBiquadFilter() { return new Node(); }
-  createDelay() { const node = new Node(); node.delayTime = new Param(); return node; }
-  createBuffer(channels, count) { const buffer = { getChannelData: () => new Float32Array(count) }; this.buffers.push(buffer); return buffer; }
-  createBufferSource() { const node = new Node(); this.sources.push(node); return node; }
-  async resume() { this.state = 'running'; }
-  async close() { this.state = 'closed'; }
-}
-class DeferredContext extends Context {
-  constructor() { super(); this.pendingResumes = []; }
-  resume() {
-    return new Promise((resolve) => this.pendingResumes.push(() => {
-      if (this.state !== 'closed') this.state = 'running';
-      resolve();
-    }));
-  }
-}
 
 test('livestock voices use independent clocks, state cadence and immediate bolt calls', async () => {
   await withAudio(async audio => {
@@ -123,17 +85,6 @@ test('shared storm lightning flashes before its paired reverberant thunder start
     assert.ok(delays.every(d => d.disconnected && d.connections[0].disconnected));
   });
 });
-
-async function withAudio(fn, AudioContext = Context) {
-  const originals = { AudioContext: globalThis.AudioContext, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval };
-  const timers = new Set();
-  globalThis.AudioContext = AudioContext;
-  globalThis.setInterval = (callback) => { const id = { callback }; timers.add(id); return id; };
-  globalThis.clearInterval = (id) => timers.delete(id);
-  const audio = new FarmAudio();
-  try { await fn(audio, timers); }
-  finally { audio.dispose(); Object.assign(globalThis, originals); }
-}
 
 test('a pause during pending start or resume remains paused after activation settles', async () => {
   for (const operation of ['start', 'resume']) {
@@ -452,8 +403,8 @@ test('thunder uses deep filtering, a tapered rumble and music duck that cancels 
     const peak = envelope.gain.events.find(([kind, value]) => kind === 'ramp' && value === .65);
     assert.ok(peak && peak[2] === 1.12, 'rumble has a softened attack');
     assert.ok(envelope.gain.events.every(([, value]) => value >= .0001 && value <= .65));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .16 && at === 1));
-    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .42 && Math.abs(at - (1 + duration * .72)) < 1e-9));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .24 && at === 1));
+    assert.ok(audio.music.gain.events.some(([kind, value, at]) => kind === 'target' && value === .63 && Math.abs(at - (1 + duration * .72)) < 1e-9));
     const reflections = envelope.connections.slice(1);
     assert.equal(reflections.length, 5);
     assert.ok(reflections.every(delay => delay.delayTime.value > 0 && delay.delayTime.value <= 1.1));
@@ -465,13 +416,13 @@ test('thunder uses deep filtering, a tapered rumble and music duck that cancels 
     audio.updateAmbience(.1, { weather: { type: 'sun' } });
     assert.equal(thunder.disconnected, true);
     assert.ok(reflections.every(delay => delay.disconnected && delay.connections[0].disconnected), 'cancel releases dry and reverberant paths');
-    assert.deepEqual(audio.music.gain.events.slice(-2), [['cancel', .5], ['target', .42, .5]]);
+    assert.deepEqual(audio.music.gain.events.slice(-2), [['cancel', .5], ['target', .63, .5]]);
     weather.lightningId = 'storm:next'; audio.updateAmbience(.1, { weather });
     audio.pause();
     assert.equal(audio.music.gain.value, .0001);
     assert.equal(audio.thunderSource, null);
     await audio.resume();
-    assert.equal(audio.music.gain.value, .42);
+    assert.equal(audio.music.gain.value, .63);
   });
 });
 
@@ -571,26 +522,30 @@ test('Pip lowers the recorded bark while Buddy and legacy callers retain the cur
  });
 });
 
-test('generated lo-fi keeps soft swung chords and bass without sharp noise percussion',async()=>{
+test('independent music score renders evolving diatonic phrases with swing and no noise attacks',async()=>{
  await withAudio(async audio=>{
-  await audio.start();assert.equal(audio.tempo,72);
+  await audio.start();assert.ok(audio.musicGenerator instanceof LoFiMusic);assert.equal(audio.tempo,MUSIC_TEMPO);
   audio._stopScheduler();for(const source of [...audio.active])source.end();
-  const initialOscillators=audio.context.oscillators.length,notes=[],eighth=60/72/2;
-  const note=audio._note.bind(audio);
-  audio._note=(...args)=>{notes.push(args);note(...args);};
-  for(let step=0;step<128;step++){
+  const initialOscillators=audio.context.oscillators.length,notes=[],eighth=60/audio.tempo/2;
+  const tone=audio.musicGenerator._tone.bind(audio.musicGenerator);
+  audio.musicGenerator._tone=(...args)=>{notes.push(args);tone(...args);};
+  for(let step=0;step<MUSIC_STEPS;step++){
    audio.context.currentTime=step*eighth;
    for(const source of [...audio.active])if(source.stops.some(time=>time<=audio.context.currentTime))source.end();
    audio._musicStep(step,step*eighth,eighth);
   }
-  assert.equal(audio.context.oscillators.length-initialOscillators,notes.length,'every requested phrase note is actually rendered below the voice cap');
-  const chords=notes.filter(n=>n[4]==='lofi');assert.ok(chords.length>30);assert.ok(new Set(chords.map(n=>n[0])).size>6);
-  const answer=notes.find(n=>n[0]===79&&Math.abs(n[1]-(3+.14)*eighth)<1e-8);assert.ok(answer,'odd eighth melody leans behind beat');
-  assert.ok(notes.some(n=>n[4]==='bass')&&notes.some(n=>n[4]==='kick'));
-  assert.ok(notes.every(n=>n[5]===audio.music));assert.ok(audio.active.size<=128);
-  const percussion=audio.context.sources.filter(s=>s.connections[0]?.type==='bandpass'||s.connections[0]?.type==='highpass');
-  assert.equal(percussion.length,0);assert.equal(audio.context.sources.length,0,'a complete music cycle produces no noise-buffer attacks');
-  for(const source of [...audio.active])source.end();assert.equal(audio.active.size,0,'all generated voices release their graph');
+  assert.equal(audio.context.oscillators.length-initialOscillators,notes.length,'no requested voice is dropped by the defensive cap');
+  const pitched=notes.filter(n=>!['kick','tap'].includes(n[4]));
+  assert.ok(pitched.every(n=>[0,2,4,5,7,9,11].includes(n[0]%12)),'chords and answers share one diatonic palette');
+  const melodies=notes.filter(n=>n[4]==='melody');
+  assert.ok(melodies.length>8&&melodies.length<24,'motifs leave space');
+  assert.ok(new Set(melodies.map(n=>n[0])).size>=6,'answers vary over the whole progression');
+  assert.ok(melodies.some(n=>Math.abs(n[1]/eighth-Math.round(n[1]/eighth)-.16)<1e-8),'offbeat melody swings late');
+  assert.ok(notes.some(n=>n[4]==='bass')&&notes.some(n=>n[4]==='kick')&&notes.some(n=>n[4]==='tap'));
+  assert.ok([...audio.musicGenerator.voices.values()].every(({release})=>release.connections[0]===audio.music));
+  assert.equal(audio.context.sources.length,0,'a complete music cycle produces no noise-buffer attacks');
+  for(const source of [...audio.active])source.end();assert.equal(audio.active.size,0);
+  assert.equal(audio.musicGenerator.voices.size,0,'ended voices release the complete graph');
  });
 });
 
@@ -614,17 +569,154 @@ test('lo-fi scheduling releases expired voices and maintains modest steady-state
 });
 
 
-test('music instruments start near zero and ramp gently while animal voices remain unchanged',async()=>{
- await withAudio(async audio=>{
-  await audio.start();
-  for(const [voice,attack]of [['lofi',.035],['bass',.025],['kick',.020]]){
-   audio._note(48,10,.5,.1,voice,audio.music);const osc=audio.context.oscillators.at(-1),gain=voice==='lofi'?osc.connections[0].connections[0]:osc.connections[0];
-   assert.deepEqual(gain.gain.events.slice(0,2),[['set',.0001,10],['ramp',.1,10+attack]]);
-   assert.equal(gain.connections[0],audio.music);
+test('music envelopes reach zero at both ends and pause cancels scheduled voices before rapid resume',async()=>{
+ await withAudio(async (audio,timers)=>{
+  await audio.start();const generator=audio.musicGenerator;
+  for(const voice of ['keys','melody','bass','kick','tap'])generator._tone(60,10,.5,.1,voice);
+  const records=[...generator.voices.entries()];
+  for(const [source,{envelope,filter}]of records){
+   const events=envelope.gain.events;
+   assert.deepEqual(events[0].slice(0,2),['set',0]);
+   assert.equal(events[1][0],'linear');assert.ok(events[1][2]-source.startTime>=.029);
+   assert.equal(events.at(-1)[0],'linear');assert.equal(events.at(-1)[1],0);
+   assert.ok(source.stops[0]>events.at(-1)[2],'stop occurs after the zero tail');
+   assert.equal(filter.type,'lowpass');assert.ok(filter.frequency.value<=1450);
   }
+  audio.pause();assert.equal(timers.size,0);
+  for(const [source,{envelope}]of records){
+   assert.equal(source.stops.at(-1),.08,'future voices are stopped before their attack');
+   assert.ok(envelope.gain.events.some(e=>e[0]==='cancel'&&e[1]===0));
+   assert.ok(envelope.gain.events.some(e=>e[0]==='set'&&e[1]===0&&e[2]===0));
+  }
+  await audio.resume();assert.equal(timers.size,1);assert.equal(audio.musicGenerator,generator);
+  for(const [source]of records)source.end();
+  assert.ok(records.every(([source,{envelope,filter,release}])=>source.disconnected&&envelope.disconnected&&filter.disconnected&&release.disconnected));
+  audio.dispose();assert.equal(generator.voices.size,0);assert.equal(audio.active.size,0);
+  assert.equal(audio.musicGenerator,null);assert.equal(timers.size,0);
+ });
+});
+
+test('music mute and thunder duck stay on their existing buses while effect voices remain independent',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();const generator=audio.musicGenerator;
+  assert.equal(audio.music.gain.value,.63,'music starts 50% above the previous .42 mix');
+  assert.equal(audio.effects.gain.value,.6);assert.equal(audio.ambience.gain.value,.38);
+  audio.context.currentTime=.2;
+  audio.pause();
+  assert.ok([...generator.voices.values()].some(({release})=>release.gain.events.some(e=>e[0]==='target'&&e[1]===0&&e[2]===.2)),'running notes fade through their independent release gate');
+  await audio.resume();assert.equal(audio.music.gain.value,.63,'resume retains the louder music mix');
+  audio.setMuted(true);assert.equal(audio.master.gain.value,0);
+  audio.setMuted(false);assert.equal(audio.master.gain.value,.975);assert.equal(audio.music.gain.value,.63,'unmute restores the louder music mix');
   audio.recordedVoices.set('bark',{duration:.8});audio.play('bark','pip');assert.equal(audio.context.sources.at(-1).playbackRate.value,.78);
   audio.play('bark','buddy');assert.equal(audio.context.sources.at(-1).playbackRate.value,1);
+  audio.play('click');const effect=audio.context.oscillators.at(-1);
+  assert.ok(!generator.voices.has(effect));assert.equal(effect.connections[0].connections[0],audio.effects);
  });
+});
+
+
+test('pause during attack or decay preserves the live envelope without cancelAndHoldAtTime',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();
+  for(const elapsed of [.025,.4]){
+   const start=audio.context.currentTime;
+   audio.musicGenerator._tone(60,start,2,.1,'keys');
+   const source=audio.context.oscillators.at(-1),{envelope,release}=audio.musicGenerator.voices.get(source);
+   assert.equal(envelope.gain.cancelAndHoldAtTime,undefined,'exercise the older WebAudio API');
+   const originalEnvelope=structuredClone(envelope.gain.events);
+   for(const offset of [elapsed,elapsed+.01,elapsed+.02]){
+    audio.context.currentTime=start+offset;audio.pause();
+    assert.deepEqual(envelope.gain.events,originalEnvelope,'do not remove the ramp endpoint and jump back to its start');
+    assert.deepEqual(release.gain.events.at(-1),['target',0,start+offset],'release targets zero from the continuously evolving gate value');
+   }
+   source.end();assert.ok(release.disconnected);
+   await audio.resume();
+  }
+ });
+});
+
+test('gameplay pause stops scene voices and freezes livestock clocks while music keeps advancing',async()=>{
+ await withAudio(async(audio,timers)=>{
+  await audio.start();const timer=audio.timer,level={seed:4},animal={id:0,type:'cow',x:0,z:0,wander:{bolting:true}};
+  audio.updateAmbience(.1,{weather:'rain'});audio.updateLivestock(.1,{level,animals:[animal]});
+  const scene=[...audio.ambientSources],music=[...audio.musicGenerator.voices.keys()];
+  const remaining=audio.livestockSchedules.get(animal).remaining;
+  audio.setGameplayPaused(true);
+  assert.equal(audio.timer,timer);assert.equal(timers.size,1);assert.equal(audio.paused,false);
+  assert.ok(scene.every(source=>source.disconnected));assert.ok(music.every(source=>source.stops.length===1));
+  audio.updateLivestock(.1,{level,animals:[animal]});audio.updateAmbience(.1,{weather:'rain'});
+  assert.equal(audio.livestockSchedules.get(animal).remaining,remaining);assert.equal(audio.ambientSources.size,0);
+  const step=audio.step;audio.context.currentTime=.3;timer.callback();assert.notEqual(audio.step,step);
+  audio.setGameplayPaused(false);audio.updateLivestock(.1,{level,animals:[animal]});
+  assert.ok(audio.livestockSchedules.get(animal).remaining<remaining);
+ });
+});
+
+test('repeated activation leaves the running music clock and thunder duck automation unchanged',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();audio.updateAmbience(.1,{weather:{type:'storm',lightningId:'same',lightningAge:0,thunderDelay:1}});
+  const events=structuredClone(audio.music.gain.events),step=audio.step,next=audio.nextNoteTime,timer=audio.timer;
+  for(let i=0;i<5;i++)assert.equal(await audio.start(),true);
+  assert.deepEqual(audio.music.gain.events,events);assert.equal(audio.step,step);assert.equal(audio.nextNoteTime,next);assert.equal(audio.timer,timer);
+ });
+});
+
+test('a fresh gesture unlocks synchronously while autoplay resume remains pending', async () => {
+ await withAudio(async(audio,timers)=>{
+  const autoplay=audio.start(),context=audio.context;
+  assert.equal(context.sources.length,0,'autoplay does not queue an unlock source');
+  const gesture=audio.start({gesture:true});
+  const unlock=context.sources[0];
+  assert.equal(context.pendingResumes.length,2,'gesture issues a new resume without awaiting autoplay');
+  assert.equal(unlock.started,true,'source starts inside the gesture stack');
+  assert.equal(unlock.connections[0],context.destination);
+  assert.ok(unlock.buffer.getChannelData(0).every(sample=>sample===0),'unlock is silent');
+  context.pendingResumes[1]();assert.equal(await gesture,true);
+  assert.equal(timers.size,1);const timer=audio.timer,step=audio.step;
+  context.pendingResumes[0]();assert.equal(await autoplay,false);
+  assert.equal(audio.timer,timer);assert.equal(audio.step,step);
+  unlock.end();assert.equal(unlock.disconnected,true);assert.ok(!audio.active.has(unlock));
+  const count=context.sources.length;await audio.start({gesture:true});
+  assert.equal(context.sources.length,count,'healthy playback never queues unlock sources');
+ },DeferredContext);
+});
+
+test('interrupted transport recovers on gesture with one scheduler and preserved mix', async () => {
+ await withAudio(async(audio,timers)=>{
+  await audio.start();const timer=audio.timer,context=audio.context;
+  context.state='interrupted';
+  await audio.start({gesture:true});
+  assert.equal(context.state,'running');assert.equal(audio.timer,timer);assert.equal(timers.size,1);
+  assert.equal(audio.music.gain.value,.63);assert.equal(audio.effects.gain.value,.6);
+  const unlock=context.sources.at(-1);audio.dispose();
+  assert.equal(unlock.disconnected,true);assert.equal(timers.size,0);
+ });
+});
+
+test('repeated denied and pending unlock attempts keep at most one connected silent source',async()=>{
+ class DeniedContext extends Context {async resume(){throw Error('NotAllowedError');}}
+ await withAudio(async audio=>{
+  for(let i=0;i<20;i++){
+   assert.equal(await audio.start({gesture:true}),false);
+   assert.equal(audio.active.size,0);assert.equal(audio.unlockSource,null);
+  }
+  assert.ok(audio.context.sources.every(source=>source.disconnected&&source.stops.length===1));
+ },DeniedContext);
+ await withAudio(async(audio,timers)=>{
+  const pending=[];
+  for(let i=0;i<20;i++){
+   pending.push(audio.start({gesture:true}));
+   assert.equal(audio.active.size,1);assert.equal(audio.unlockSource,audio.context.sources.at(-1));
+   assert.ok(audio.context.sources.slice(0,-1).every(source=>source.disconnected));
+  }
+  const context=audio.context,last=audio.unlockSource;
+  context.pendingResumes.at(-1)();assert.equal(await pending.at(-1),true);assert.equal(timers.size,1);
+  for(let i=0;i<19;i++)context.pendingResumes[i]();
+  assert.ok((await Promise.all(pending.slice(0,-1))).every(result=>result===false));
+  assert.equal(audio.unlockSource,last,'older promises cannot release the current unlock');
+  audio.pause();assert.equal(last.disconnected,true);assert.equal(audio.unlockSource,null);
+  assert.equal(timers.size,0);
+ },DeferredContext);
 });
 
 test('only sheep halve call frequency while cow clocks and relative state gains remain intact',async()=>{

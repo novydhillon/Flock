@@ -1,5 +1,26 @@
 # Presentation: renderer, nature and audio
 
+## Browser and iOS launch recovery — 26 October 2026
+
+Enabled landing autoplay remains the first attempt. Normal touchend/click/pointer/key handlers retry activation synchronously, with a silent one-sample WebAudio source before resume when the context is suspended or interrupted. New resume attempts do not wait for earlier pending promises; generation guards keep late startup from overriding pause/disposal/newer activation. Only one unlock source may remain pending: superseding gestures, denied activation, pause and disposal stop/disconnect it, and normal completion removes it from the shared active set. A visible interaction or foreground/page restoration recovers stale focus bookkeeping, while hidden pages stay silent and gameplay stays paused. Music/effect/ambience gains and thunder ducking are unchanged. These paths are tested with substitutes; actual browser and Home Screen listening remain pending.
+
+## Music across landing, gameplay and overlays — 25 October 2026
+
+Landing, gameplay, menus, workshop, reset confirmation, completion, QA and level/landing transitions share one music context, score position and scheduler. `FarmAudio.start()` returns without changing an already-running transport. `setGameplayPaused()` independently gates weather/birds and livestock clocks/voices, allowing music to continue while simulation is paused. Only page background/focus suspension uses full `pause()`; return activates music while leaving gameplay safely paused in its menu. Explicit mute remains global and retains the existing 0.63 music mix and proportional 0.24 thunder duck when re-enabled. Landing playback is attempted when ready; a browser that blocks autoplay waits for a normal user gesture, which retries safely without requiring a separate screen.
+
+
+## Music mix follow-up — 25 October 2026
+
+The requested 50% music-volume increase changes the music bus from 0.42 to 0.63 at initialization, activation and restoration. Thunder ducks it to 0.24 instead of 0.16, preserving the same relative duck depth before returning to 0.63. Pause still fades to near silence; master, effects, ambience and animal gains remain unchanged. The score and instrument envelopes are unchanged.
+
+
+## Chill lo-fi soundtrack — 25 October 2026
+
+The current `music.js` score is a 70 BPM, 16-bar cycle with extended Am/F/C/G/Dm voicings, soft electric-piano partials, restrained bass and sparse diatonic call/answer motifs. Alternate eighths lean late; rounded sine kick/taps avoid noise percussion and crackle. Voices use gradual attacks, filtered timbres and envelopes that reach zero before source stop. Quiet, slow pitch drift varies sustained keys without consuming any shared random sequence.
+
+FarmAudio retains transport and the existing music bus, including thunder ducking, master mute and activation race guards. `LoFiMusic.scheduleStep(step, time, eighth)` renders one future score step; `stop()` releases running notes and cancels future attacks; `dispose()` synchronously disconnects all owned nodes. Ended voices remove themselves from both the module and FarmAudio's bounded source set. The module creates neither context nor scheduler. Accepted animal recordings, gain, cadence, pitch and UI effects are unchanged. Source checks do not establish headphone/phone listening quality.
+
+
 ## Current sheep and cow call tuning — 25 October 2026
 
 F-AUDIO-001 on feature/flock-call-tuning doubles sheep-only initial/calm/herded schedules to16–80/52–100/120–240seconds. Cow schedules remain8–40/26–50/60–120seconds. Livestock gain .0462 is exactly80%of.05775, with1.25herdedratio/attenuation and immediatebolt retained. A separatehashdomain supplies stableindividualpitch plus tinypercalljitter (sheep.937–.968,cow1.096–1.144) and independentdurationScale.93–1. Recorded tails shorten by0–7%, with≤80mssoftfade and20msattack to avoid abruptcuts; actual sampleduration/pitch/scale owns stop timing. Cachedsamples/fallback and bark/music routes remain unchanged. Novy accepted the tuning and requested main merge on 25 October 2026; no new listening measurement is claimed.

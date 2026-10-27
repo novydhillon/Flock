@@ -1,3 +1,5 @@
+import { LoFiMusic, MUSIC_TEMPO, MUSIC_STEPS } from './music.js';
+
 const callHash = value => {
   let x = value >>> 0;
   x ^= x >>> 16; x = Math.imul(x, 0x7feb352d); x ^= x >>> 15;
@@ -23,13 +25,16 @@ export class FarmAudio {
     this.birdCountdown = 4 + Math.random() * 6;
     this.muted = false;
     this.paused = false;
+    this.gameplayPaused = false;
     this.timer = null;
     this.step = 0;
     this.nextNoteTime = 0;
     this.active = new Set();
     this.disposed = false;
     this.activationGeneration = 0;
-    this.tempo = 72;
+    this.unlockSource = null;
+    this.tempo = MUSIC_TEMPO;
+    this.musicGenerator = null;
     this.voiceBuffers = new Map();
     this.recordedVoices = new Map();this.voiceLoad = null;this.voiceGeneration = 0;
     this.livestockSchedules = new Map();
@@ -37,9 +42,12 @@ export class FarmAudio {
     this.livestockLevel = null;
   }
 
-  async start() {
+  async start({ gesture = false } = {}) {
     if (this.disposed) return false;
+    // UI transitions and user gestures reuse the same transport and ducking.
+    if (this.context?.state === 'running' && !this.paused && this.timer !== null) return true;
     const generation = ++this.activationGeneration;
+    let unlock;
     try {
       if (!this.context) {
         const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -50,28 +58,52 @@ export class FarmAudio {
         this.effects = this.context.createGain();
         this.ambience = this.context.createGain();
         this.master.gain.value = this.muted ? 0 : 0.975;
-        this.music.gain.value = 0.42;
+        this.music.gain.value = 0.63;
         this.effects.gain.value = 0.6;
         this.ambience.gain.value = 0.38;
         this.music.connect(this.master);
         this.effects.connect(this.master);
         this.ambience.connect(this.master);
         this.master.connect(this.context.destination);
+        this.musicGenerator = new LoFiMusic(this.context, this.music, this.active);
       }
       const context = this.context;
+      // WebKit can require a source to be started inside the touch/click stack.
+      // Do this before awaiting resume; an earlier autoplay resume may never settle.
+      if (gesture && context.state !== 'running') {
+        this._releaseUnlock();
+        unlock = context.createBufferSource();
+        this.unlockSource = unlock;
+        unlock.buffer = context.createBuffer(1, 1, context.sampleRate);
+        unlock.connect(context.destination);
+        unlock.onended = () => { unlock.disconnect(); this.active.delete(unlock); if(this.unlockSource===unlock)this.unlockSource=null; };
+        this.active.add(unlock);
+        unlock.start();
+      }
       await context.resume();
       // A later pause, activation, or disposal owns the playback intent.
-      if (this.disposed || generation !== this.activationGeneration || this.context !== context) return false;
+      if (this.disposed || generation !== this.activationGeneration || this.context !== context || context.state !== 'running') {
+        if(this.unlockSource===unlock)this._releaseUnlock();
+        return false;
+      }
       this.paused = false;
       this.music.gain.cancelScheduledValues(this.context.currentTime);
-      this.music.gain.setTargetAtTime(0.42, this.context.currentTime, 0.025);
+      this.music.gain.setTargetAtTime(0.63, this.context.currentTime, 0.025);
       this._begin();
       this._loadVoices();
       return true;
     } catch {
+      if(this.unlockSource===unlock)this._releaseUnlock();
       // Restricted browsers can still play the game silently.
       return false;
     }
+  }
+
+  _releaseUnlock() {
+    const source=this.unlockSource;
+    if(!source)return;
+    try { source.stop(); } catch { /* Already ended. */ }
+    source.onended=null;source.disconnect();this.active.delete(source);this.unlockSource=null;
   }
 
   setMuted(muted) {
@@ -83,9 +115,17 @@ export class FarmAudio {
     this.master.gain.setTargetAtTime(this.muted ? 0 : 0.975, now, 0.025);
   }
 
+  /** Pause scene sounds and clocks without interrupting the soundtrack. */
+  setGameplayPaused(paused) {
+    this.gameplayPaused = Boolean(paused);
+    if (this.gameplayPaused) this._stopAmbience();
+  }
+
+  /** Full page/background suspension; menus use setGameplayPaused instead. */
   pause() {
     this.activationGeneration++;
     this.paused = true;
+    this._releaseUnlock();
     this._stopScheduler();
     this._stopAmbience();
     if (this.context && this.context.state !== 'closed') this.music.gain.setTargetAtTime(0.0001, this.context.currentTime, 0.025);
@@ -105,6 +145,7 @@ export class FarmAudio {
   _stopScheduler() {
     if (this.timer !== null) globalThis.clearInterval(this.timer);
     this.timer = null;
+    this.musicGenerator?.stop();
   }
 
   _schedule() {
@@ -116,37 +157,24 @@ export class FarmAudio {
       // Hidden tabs can miss minutes of callbacks. Skip those beats without
       // creating overdue oscillators, keeping the phrase at its elapsed step.
       const skipped = Math.ceil((now - this.nextNoteTime) / eighth);
-      this.step = (this.step + skipped) % 128;
+      this.step = (this.step + skipped) % MUSIC_STEPS;
       this.nextNoteTime = Math.max(now, this.nextNoteTime + skipped * eighth);
     }
     for (let scheduled = 0; scheduled < 8 && this.nextNoteTime < now + 0.25; scheduled++) {
       this._musicStep(this.step, this.nextNoteTime, eighth);
-      this.step = (this.step + 1) % 128;
+      this.step = (this.step + 1) % MUSIC_STEPS;
       this.nextNoteTime += eighth;
     }
   }
 
   _musicStep(step, time, eighth) {
-    // Original eight-phrase lo-fi progression: Am9, Dm9, Gmaj9, Cmaj9.
-    // Odd eighths lean behind the beat; sparse answers leave room for the meadow.
-    const chords=[[45,52,55,59,62],[50,53,57,60,64],[43,50,54,57,62],[48,52,55,59,62]];
-    const phrase=Math.floor(step/16),pos=step%16,chord=chords[phrase%4];
-    const at=time+(pos%2?eighth*.14:0);
-    if(pos===0||pos===8){
-      for(const [i,note]of chord.slice(1).entries())this._note(note+12,at+i*.014,eighth*5.5,.035,'lofi',this.music);
-      this._note(chord[0]-12,at,eighth*2.8,.11,'bass',this.music);
-    }
-    if(pos===6||pos===14)this._note(chord[0]-12+(phrase%2?7:0),at,eighth*1.3,.065,'bass',this.music);
-    if(pos===3||pos===11||pos===15&&phrase%2)this._note(chord[2]+24+(pos===11?2:0),at,eighth*1.8,.025,'lofi',this.music);
-    if(pos===0||pos===7||pos===10)this._note(29,at,.13,.12,'kick',this.music);
-    // Keep the soundtrack free of short noise bursts: their sharp onsets
-    // match the beat-spaced transient pattern in the supplied recording.
+    this.musicGenerator?.scheduleStep(step, time, eighth);
   }
 
   /** Driven by gameplay frames: never starts audio without a user gesture. */
   updateAmbience(dt, state = {}) {
     const raw = state.weather || 'sun';
-    const available = this.context && this.context.state === 'running' && !this.paused && !this.muted && !this.disposed;
+    const available = this.context && this.context.state === 'running' && !this.paused && !this.gameplayPaused && !this.muted && !this.disposed;
     this._updateThunder(typeof raw === 'object' ? raw : null, available);
     if (!available) return;
     const type = typeof raw === 'string' ? raw : raw.type || 'sun';
@@ -184,9 +212,9 @@ export class FarmAudio {
   /** One independent clock per animal, driven by simulation frames, not timers. */
   updateLivestock(dt, {animals = [], listener, level = null} = {}) {
     if (level !== this.livestockLevel) this.resetLivestock(level);
-    const available = this.context && this.context.state === 'running' && !this.paused && !this.muted && !this.disposed;
+    const available = this.context && this.context.state === 'running' && !this.paused && !this.gameplayPaused && !this.muted && !this.disposed;
     const step = Number.isFinite(dt) ? Math.max(0, Math.min(.1, dt)) : 0;
-    if (!step || this.paused || this.disposed) return;
+    if (!step || this.paused || this.gameplayPaused || this.disposed) return;
     const present = new Set(animals);
     for (const animal of this.livestockSchedules.keys()) if (!present.has(animal)) this.livestockSchedules.delete(animal);
     let emitted = 0;
@@ -327,9 +355,9 @@ export class FarmAudio {
     }
     // Preserve the music, with brief room for thunder in the shared mix.
     this.music.gain.cancelScheduledValues(context.currentTime);
-    this.music.gain.setValueAtTime(.42, context.currentTime);
-    this.music.gain.setTargetAtTime(.16, at, .04);
-    this.music.gain.setTargetAtTime(.42, at + duration * .72, .35);
+    this.music.gain.setValueAtTime(.63, context.currentTime);
+    this.music.gain.setTargetAtTime(.24, at, .04);
+    this.music.gain.setTargetAtTime(.63, at + duration * .72, .35);
     this._trackAmbience(source, [filter, gain, ...reflections]); this.thunderSource = source;
     const ended = source.onended;
     source.onended = () => { ended(); if (this.thunderSource === source) this.thunderSource = null; };
@@ -421,7 +449,7 @@ export class FarmAudio {
     if (!this.context || !this.music || this.context.state === 'closed') return;
     const now = this.context.currentTime;
     this.music.gain.cancelScheduledValues(now);
-    this.music.gain.setTargetAtTime(this.paused ? .0001 : .42, now, .025);
+    this.music.gain.setTargetAtTime(this.paused ? .0001 : .63, now, .025);
   }
 
   _stopAmbience() {
@@ -441,17 +469,14 @@ export class FarmAudio {
     const frequency = 440 * 2 ** ((midi - 69) / 12);
     oscillator.type = voice === 'pluck' ? 'triangle' : 'sine';
     oscillator.frequency.setValueAtTime(frequency, time);
-    if(voice==='kick')oscillator.frequency.exponentialRampToValueAtTime(38,time+.10);
     envelope.gain.setValueAtTime(0.0001, time);
-    envelope.gain.exponentialRampToValueAtTime(Math.max(0.001, volume), time + (voice === 'lofi' || voice === 'flute' ? .035 : voice === 'bass' ? .025 : voice === 'kick' ? .020 : .009));
+    envelope.gain.exponentialRampToValueAtTime(Math.max(0.001, volume), time + (voice === 'flute' ? .035 : .009));
     envelope.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-    const filter=voice==='lofi'?context.createBiquadFilter():null;
-    if(filter){filter.type='lowpass';filter.frequency.value=1800;filter.Q.value=.5;oscillator.connect(filter);filter.connect(envelope);}else oscillator.connect(envelope);
+    oscillator.connect(envelope);
     envelope.connect(destination);
     this.active.add(oscillator);
     oscillator.onended = () => {
       oscillator.disconnect();
-      filter?.disconnect();
       envelope.disconnect();
       this.active.delete(oscillator);
     };
@@ -485,7 +510,10 @@ export class FarmAudio {
     if (this.disposed) return;
     this.activationGeneration++;
     this.disposed = true;
+    this._releaseUnlock();
     this._stopScheduler();
+    this.musicGenerator?.dispose();
+    this.musicGenerator = null;
     this._stopAmbience();
     for (const source of this.active) {
       try { source.stop(); } catch { /* Already ended. */ }

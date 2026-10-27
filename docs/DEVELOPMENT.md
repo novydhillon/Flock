@@ -1,5 +1,23 @@
 # Development, QA and release context
 
+## Persistent launch regression remains Open — 26 October 2026
+
+F-AUDIO-003 records Novy's current browser and iOS Home Screen observation: music stays silent on launch until audio is turned off and on. The earlier launch-recovery smoke steps below remain unmet device acceptance work; passing mock activation tests must not be described as a physical fix. The soundtrack feature is accepted for main merge independently of this defect. No production deployment is authorized by that merge request.
+
+## Browser and Home Screen launch smoke checks — 26 October 2026
+
+With sound enabled, cold-open the dev URL in Safari/iOS, an iOS Home Screen install and a normal browser. Record whether music begins without interaction (only where autoplay is permitted); otherwise make one ordinary landing touch/click and confirm music starts without toggling Sound. Repeat after a denied/pending autoplay request, background/foreground, screen lock, app switching, and back/forward navigation, including returns without a focus event. Gameplay must remain paused on return, music must use one transport, and saved mute must stay silent through all retries until explicitly enabled. Confirm touch controls/bark and settings still work, and the 50% music mix is retained. Physical-device/browser listening remains pending; lifecycle mocks do not prove iOS policy behavior.
+
+## Continuous soundtrack smoke checks — 25 October 2026
+
+With sound enabled, open the landing page: music should start where autoplay is allowed, or on the first pointer/keyboard interaction where the browser requires it. Confirm saved mute produces no sound and that enabling Sound starts music on landing. Listen through Let's Herd, pause, nested workshop, reset confirmation/cancel, result/reward screens, replay/next meadow, QA and Quit to landing: the same phrase must continue with no restart, beat gap or duplicate scheduler, while gameplay/animal ambience pauses appropriately. Hide the tab or change window focus, then return; music should resume safely while gameplay stays paused. Repeat with pending/rejected activation, mute toggles and quick transitions. Verify on Safari/iOS and Chrome/Android; mock WebAudio tests do not establish actual browser activation or gapless listening.
+
+
+## Independent soundtrack smoke checks — 25 October 2026
+
+F-MUSIC-001: compare the requested 50% music-gain increase against the earlier dev mix while checking that animal/effect/ambience levels remain unchanged; verify thunder retains its relative duck depth and returns to the louder music level. Listen for at least two 16-bar cycles on headphones and phone speakers. Check the 70 BPM chord changes, relaxed low taps, warm bass and sparse motifs for a calm unobtrusive mix, no sharp clicks, clipping or tiring repetition. Compare Pip/Buddy and sheep/cows with the accepted build; their pitch, cadence and gain must remain unchanged. Trigger storm thunder to check music duck/recovery. Repeatedly mute, pause/background/resume, restart, jump levels and quit/start, including rapid reactivation: no duplicate beat, stale queued attack, catch-up burst or stuck voice. Device listening and performance remain pending until actually observed.
+
+
 ## New flock call listening checks — 25 October 2026
 
 On the new featurebranch, listen long enough to compare rarer sheep calls with unchanged cow pacing,20%lower livestockgain, and gentle per-animal/per-call pitch/lengthvariation. Confirm varied sheep/cowtails end softly rather than sounding clipped. Trigger bolt, mute/pause/background/resume, restart/jump and pending sampledecode; no replaybursts/stalesources. Pip/Buddy bark and mellowmusic should retain their accepted sound. Novy accepted this tuning and requested main merge on 25 October 2026. These remain reusable smoke checks; no new listening measurement is claimed, and automated clocks/gain/envelope checks do not prove preference.
@@ -185,7 +203,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/map-generation.test.js` | Seeded gate distribution/alternatives, late-map growth/angular boundaries, largest-body route walks and stone-wall distribution |
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
 | `tests/progression.test.js` | Tier cost/unlock/activation and legacy data validation |
-| `tests/ui.test.js` | Production controller against DOM/audio substitutes; navigation, rewards, restart and input |
+| `tests/ui.test.js` | Production controller navigation, rewards, restart, input and continuous soundtrack using real FarmAudio with WebAudio substitutes |
 | `tests/delivery.test.js` | First-arrival timer, partial score, lifetime earned ledger and legacy migration |
 | `tests/goal-view.test.js` | Shared target highlight/border/floor and projected minimap corners |
 | `tests/world-geometry.test.js` | Perpendicular crossings, deck/path ratio and shared full-body target footprint |
@@ -201,7 +219,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/weather.test.js` | Seeded weather episodes, shared severity, lightning and atmosphere resources |
 | `tests/wandering.test.js` | Seeded straggler cohorts, five-second opportunities and conditional bolts |
 | `tests/water-effects.test.js` | Wetness/drying, pause/reset, safe puddles, bounded splashes and directional river flow |
-| `tests/audio.test.js` | Audio activation races, scheduling, ambience and disposal |
+| `tests/audio.test.js` | Audio activation races, idempotent soundtrack transport, scene-only pause, scheduling, ambience and disposal; shared WebAudio fixture in `tests/audio-fixture.js` |
 
 ```sh
 # Targeted examples; not a substitute for relevant integration checks.

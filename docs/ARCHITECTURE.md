@@ -1,5 +1,19 @@
 # Architecture and system contracts
 
+## Gesture and foreground audio recovery — 26 October 2026
+
+The controller retries enabled audio from touchend and capture-phase click as well as pointer/key gestures. A visible interaction establishes foreground intent even if an earlier blur lacked a matching focus event. A real hidden-to-visible transition and pageshow restore that intent; repeated visible notifications alone do not undo an unrelated blur. pagehide silences music and pauses gameplay, including back/forward-cache restoration. FarmAudio.start({gesture:true}) starts a silent one-sample source synchronously before calling resume, then uses the existing activation generation guard after awaiting it. Every gesture can issue a fresh resume even while an older autoplay resume remains pending. Healthy running playback returns without changing its score, timer or mix.
+
+## Continuous soundtrack lifecycle — 25 October 2026
+
+The controller attempts `FarmAudio.start()` once the landing scene is ready and retries from normal pointer/keyboard gestures when sound is enabled. Repeated calls on a running transport are idempotent: they do not touch its beat clock, active music voices, timer or thunder automation. `setGameplayPaused(true)` stops only scene ambience/animal voices and freezes livestock clocks; menus, results, landing and QA use this API. Starting/resuming gameplay clears that scene pause without restarting music. `pause()` remains a full soundtrack suspension for page visibility/focus loss and invalidates pending activation. A later visible/focused activation cannot be undone by an older resume promise. Saved mute gates autoplay/gesture attempts; the existing master gain still owns sound toggling. The score remains exclusively in `music.js`.
+
+
+## Music module boundary — 25 October 2026
+
+`audio.js` imports `LoFiMusic`, `MUSIC_TEMPO` and `MUSIC_STEPS` from `music.js`. FarmAudio owns the AudioContext, music/effect/ambience buses, activation-generation guard and bounded look-ahead transport. `music.js` owns the score, music instrument envelopes, filters and voice cleanup. It receives the music bus and shared active-source set; it never creates a context, timer, fetch or gameplay dependency. Pause stops scheduling and releases pending/running music voices; disposal disconnects every owned graph. UI effects and accepted livestock/dog tuning remain in FarmAudio.
+
+
 ## Explicit bark actor ownership — 24 October 2026
 
 Controller dispatches explicit pip/buddy identities to FarmAudio.play for bark events; voice pitch remains an audio concern and cannot alter gameplay pressure/charges or Buddy autonomy. FarmAudio owns procedural lo-fi scheduling/instrument nodes and the current livestock mix, preserving activation-generation guards, pause/mute/disposal and async sample cache ownership.

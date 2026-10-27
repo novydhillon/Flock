@@ -15,6 +15,10 @@ import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from './bark.js
 const $=id=>document.getElementById(id);
 let renderer,level,dog,profile=loadProfile(),mode='intro',previousMode='playing',last=performance.now(),elapsed=0,barkState=createBarkState(),lastTouchBark=-Infinity,tipStep=0,tipDismissed=false,tipChangedAt=0,tipManual=false,toastTimer,modalFocus=null;
 const audio=new FarmAudio(),input={x:0,z:0},keys=new Set();
+let pageFocused=true, pageWasHidden=document.hidden;
+audio.setMuted(!profile.music);audio.setGameplayPaused(true);
+function activateMusic(gesture=false){return profile.music&&!document.hidden&&pageFocused?audio.start({gesture}):Promise.resolve(false);}
+function activateFromGesture(event){if(document.hidden)return;pageFocused=true;if(!event.target?.closest?.('#sound, #menu-sound'))void activateMusic(true);}
 const visible=(id,show)=>$(id).classList.toggle('hidden',!show);
 let qaSession=false;
 const persist=()=>{if(qaSession)return;if(!saveProfile(profile))toast('Progress is kept for this session; browser storage is unavailable.');};
@@ -26,7 +30,7 @@ function updateWallet(){
 }
 async function toggleSound(){
   profile.music=!profile.music;audio.setMuted(!profile.music);persist();updateWallet();
-  if(profile.music){await audio.start();if(mode!=='playing'||!profile.music)audio.pause();}
+  if(profile.music)await activateMusic(true);
 }
 function updateBark(){
   const cooldown=barkState.remaining>0;$('bark').classList.toggle('cooldown',cooldown);$('bark').disabled=cooldown;
@@ -54,7 +58,7 @@ async function begin(index=profile.highestLevel){
   $('level-number').textContent=`Level ${index+1}`;updateLevelIntroduction();$('mission').setAttribute('aria-label',`Level ${index+1} · Livestock delivery status`);$('total').textContent=level.animals.length;$('saved').textContent=0;
   updateCountdown();
   tipManual=false;visible('toggle-tip',false);$('toggle-tip').setAttribute('aria-expanded','false');visible('tip',true);setTip(tipsFor(index)[0]);
-  audio.setMuted(!profile.music);await audio.start();if(mode!=='playing'||!profile.music)audio.pause();updateWallet();
+  audio.setGameplayPaused(false);audio.setMuted(!profile.music);await activateMusic();updateWallet();
 }
 const TIP_CYCLE=14;
 function tipsFor(index){return index===0?[
@@ -69,9 +73,9 @@ function bark(){
   updateBark();audio.play('bark','pip');renderer.bark();if(navigator.vibrate)navigator.vibrate(20);
 }
 function openModal(html,newMode='paused'){
-  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.pause();if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
+  previousMode=mode==='playing'?'playing':mode==='complete'?'complete':'intro';mode=newMode;updateLevelIntroduction();resetInput();audio.setGameplayPaused(true);if($('modal').classList.contains('hidden'))modalFocus=document.activeElement;$('modal-card').innerHTML=html;visible('modal',true);visible('controls',false);setTimeout(()=>$('modal-card').querySelector('button')?.focus(),30);
 }
-function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');if(mode==='playing')audio.resume();modalFocus?.focus();}updateLevelIntroduction();resetInput();}
+function closeModal(resume=true){visible('modal',false);if(resume){mode=previousMode;visible('controls',mode==='playing');audio.setGameplayPaused(mode!=='playing');void activateMusic();modalFocus?.focus();}updateLevelIntroduction();resetInput();}
 function menu(){
   if(mode==='reset-confirm'){$('cancel-reset').onclick();return;}
   if(mode==='shop'){$('shop-back').onclick();return;}
@@ -84,7 +88,7 @@ function quitToLanding(){
   // Discard this meadow's transient run; the campaign profile is unchanged.
   closeModal(false);mode=previousMode='intro';resetInput();lastTap=-Infinity;lastTapPosition=null;
   barkState=createBarkState();lastTouchBark=-Infinity;audio.resetLivestock?.(null);elapsed=0;tipStep=0;tipDismissed=false;tipManual=false;lastReward=0;
-  audio.pause();level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);
+  audio.setGameplayPaused(true);level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);
   document.body.classList.toggle('in-game',false);
   for(const id of ['mission','controls','map-box','tip','toggle-tip','countdown','level-introduction'])visible(id,false);
   for(const id of ['intro','scene-tag'])visible(id,true);
@@ -124,22 +128,26 @@ function complete(award=true){
 
 // Pointer capture means a single thumb can roam without lifting off the glass.
 let pointer=null,origin={x:0,y:0},lastTap=-Infinity,lastTapPosition=null,moved=false;
-function pointerStart(e){if(mode!=='playing'||pointer!==null||e.isPrimary===false||e.target.closest('button,header,.map-box,.tip'))return;if(e.target!==$('world')&&!e.target.closest('#joystick'))return;e.preventDefault();pointer=e.pointerId;origin={x:e.clientX,y:e.clientY};moved=false;e.target.setPointerCapture?.(pointer);}
+function pointerStart(e){activateFromGesture(e);if(mode!=='playing'||pointer!==null||e.isPrimary===false||e.target.closest('button,header,.map-box,.tip'))return;if(e.target!==$('world')&&!e.target.closest('#joystick'))return;e.preventDefault();pointer=e.pointerId;origin={x:e.clientX,y:e.clientY};moved=false;e.target.setPointerCapture?.(pointer);}
 function pointerMove(e){if(e.pointerId!==pointer)return;const dx=e.clientX-origin.x,dy=e.clientY-origin.y,len=Math.hypot(dx,dy),range=42;moved ||= len>9;input.x=dx/Math.max(range,len);input.z=dy/Math.max(range,len);$('stick').style.transform=`translate(${input.x*range}px,${input.z*range}px)`;}
-function pointerEnd(e){if(e.pointerId!==pointer)return;e.preventDefault();if(e.type==='pointerup'&&!moved){const now=performance.now(),near=lastTapPosition&&Math.hypot(e.clientX-lastTapPosition.x,e.clientY-lastTapPosition.y)<42;if(near&&now-lastTap<330){bark();lastTap=-Infinity;lastTapPosition=null;}else{lastTap=now;lastTapPosition={x:e.clientX,y:e.clientY};}}else{lastTap=-Infinity;lastTapPosition=null;}pointer=null;input.x=input.z=0;$('stick').style.transform='translate(0,0)';}
+function pointerEnd(e){if(e.type==='pointerup')activateFromGesture(e);if(e.pointerId!==pointer)return;e.preventDefault();if(e.type==='pointerup'&&!moved){const now=performance.now(),near=lastTapPosition&&Math.hypot(e.clientX-lastTapPosition.x,e.clientY-lastTapPosition.y)<42;if(near&&now-lastTap<330){bark();lastTap=-Infinity;lastTapPosition=null;}else{lastTap=now;lastTapPosition={x:e.clientX,y:e.clientY};}}else{lastTap=-Infinity;lastTapPosition=null;}pointer=null;input.x=input.z=0;$('stick').style.transform='translate(0,0)';}
 document.addEventListener('pointerdown',pointerStart,{passive:false});document.addEventListener('pointermove',pointerMove,{passive:false});document.addEventListener('pointerup',pointerEnd,{passive:false});document.addEventListener('pointercancel',pointerEnd,{passive:false});document.addEventListener('lostpointercapture',pointerEnd,{passive:false});
 // Safari can turn a double tap into page zoom even when Pointer Events are
 // captured. Block native gestures only on the play surface; menus stay scrollable.
 const gameSurface=target=>target===$('world')||Boolean(target.closest('#controls'));
 document.addEventListener('touchstart',e=>{if(mode==='playing'&&gameSurface(e.target))e.preventDefault();},{passive:false});
-document.addEventListener('touchend',e=>{if(mode==='playing'&&gameSurface(e.target)){e.preventDefault();if(e.target.closest('#bark')){lastTouchBark=performance.now();bark();}}},{passive:false});
+document.addEventListener('touchend',e=>{activateFromGesture(e);if(mode==='playing'&&gameSurface(e.target)){e.preventDefault();if(e.target.closest('#bark')){lastTouchBark=performance.now();bark();}}},{passive:false});
 document.addEventListener('gesturestart',e=>{if(mode==='playing')e.preventDefault();},{passive:false});
 document.addEventListener('gesturechange',e=>{if(mode==='playing')e.preventDefault();},{passive:false});
 document.addEventListener('dblclick',e=>{if(mode==='playing'&&gameSurface(e.target))e.preventDefault();},{passive:false});
-document.addEventListener('keydown',e=>{if(mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)&&!e.target.closest('input,textarea,[contenteditable="true"]')&&!(e.key===' '&&e.target.closest('button'))){e.preventDefault();keys.add(e.key.toLowerCase());if(e.key===' '&&!e.repeat)bark();}if(e.key==='Escape'){e.preventDefault();menu();}if(e.key==='Tab'&&!$('modal').classList.contains('hidden')){const focusable=[...$('modal-card').querySelectorAll('button:not([disabled])')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+document.addEventListener('keydown',e=>{activateFromGesture(e);if(mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)&&!e.target.closest('input,textarea,[contenteditable="true"]')&&!(e.key===' '&&e.target.closest('button'))){e.preventDefault();keys.add(e.key.toLowerCase());if(e.key===' '&&!e.repeat)bark();}if(e.key==='Escape'){e.preventDefault();menu();}if(e.key==='Tab'&&!$('modal').classList.contains('hidden')){const focusable=[...$('modal-card').querySelectorAll('button:not([disabled])')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-window.addEventListener('blur',()=>{resetInput();pointer=null;if(mode==='playing')menu();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')menu();});
+document.addEventListener('click',activateFromGesture,{capture:true});
+window.addEventListener('blur',()=>{pageFocused=false;resetInput();pointer=null;if(mode==='playing')menu();audio.pause();});
+window.addEventListener('focus',()=>{pageFocused=true;void activateMusic();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pageWasHidden=true;if(mode==='playing')menu();audio.pause();}else{if(pageWasHidden)pageFocused=true;pageWasHidden=false;void activateMusic();}});
+window.addEventListener('pagehide',()=>{pageWasHidden=true;pageFocused=false;resetInput();pointer=null;if(mode==='playing')menu();audio.pause();});
+window.addEventListener('pageshow',()=>{if(!document.hidden){pageFocused=true;pageWasHidden=false;void activateMusic();}});
 window.addEventListener('resize',()=>renderer?.resize());
 $('play').onclick=()=>begin();$('restart-game-main').onclick=confirmRestart;$('bark').onclick=()=>{if(performance.now()-lastTouchBark>500)bark();};$('pause').onclick=menu;$('home').onclick=e=>{e.preventDefault();menu();};$('wallet').onclick=shop;
 $('sound').onclick=toggleSound;
@@ -178,20 +186,20 @@ function frame(now){
   mapTick+=dt;if(mapTick>.1){mapTick=0;renderer.drawMap($('map'),level,dog);}
 }
 try{
-  renderer=new MeadowRenderer($('world'));level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);updateWallet();visible('loading',false);requestAnimationFrame(frame);
+  renderer=new MeadowRenderer($('world'));level=createLevel(0);dog={...level.dog,heading:Math.PI/2};renderer.setLevel(level);updateWallet();visible('loading',false);requestAnimationFrame(frame);void activateMusic();
 }catch(error){visible('loading',false);visible('error',true);$('error-message').textContent=`This meadow needs WebGL 2. Try Safari, Chrome or Firefox with graphics enabled. ${error.message}`;console.error(error);}
 
 // Vite removes this entire branch and its module from production builds.
 if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__){
   import('./qa.js').then(({installQA})=>{
-    const pause=()=>{mode='qa';resetInput();audio.pause();closeModal(false);visible('controls',false);};
+    const pause=()=>{mode='qa';resetInput();audio.setGameplayPaused(true);closeModal(false);visible('controls',false);};
     const jump=async index=>{const pending=begin(index);pause();await pending;pause();};
     const qa=installQA({
       getRenderer:()=>renderer,getMode:()=>mode,
       getState:()=>({level,dog,profile,elapsed}),
       enterSession:async()=>{if(!qaSession){qaSession=true;profile=defaultProfile();await jump(0);}},
       pause,isPaused:()=>mode==='qa',
-      resume:()=>{if(level.completed){complete(false);return;}mode='playing';resetInput();visible('controls',true);audio.resume();},
+      resume:()=>{if(level.completed){complete(false);return;}mode='playing';resetInput();visible('controls',true);audio.setGameplayPaused(false);void activateMusic();},
       jump,resetSession:async()=>{profile=defaultProfile();lastReward=0;await jump(0);},
       canOccupy,updateWallet
     });

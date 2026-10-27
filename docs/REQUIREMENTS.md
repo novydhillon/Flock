@@ -1,5 +1,28 @@
 # Flock product requirements
 
+## Soundtrack acceptance and persistent launch regression — 26 October 2026
+
+Novy accepts the soundtrack feature for main merge as F-MUSIC-001. This music work was called F-AUDIO-001 on the feature branch; the renamed ID preserves main's separate accepted livestock-tuning F-AUDIO-001. F-AUDIO-003 remains Open: music does not start automatically on browser or iOS Home Screen app launch, and the user must turn audio off and on to start it. Prior activation attempts and mock tests did not establish physical resolution. Investigate actual device/browser behavior and eliminate the settings-toggle requirement at the earliest browser-permitted activation while respecting saved mute. No new runtime fix or production publication is included in this merge.
+
+## Browser and Home Screen audio launch — 26 October 2026
+
+F-MUSIC-001: attempt enabled music as soon as landing is ready. If autoplay is restricted, the first normal touch, click, pointer or keyboard interaction must retry directly without toggling Sound. Foreground return and visible user interaction must recover from a missing focus event; hidden pages remain silent and gameplay remains paused on return. Preserve saved mute, one scheduler and the existing 50% music-gain increase. Browser policy may require interaction; no-touch audible launch cannot be guaranteed.
+
+## Continuous landing and menu soundtrack — 25 October 2026
+
+F-MUSIC-001: music starts on the landing page when browser autoplay permits it, with normal pointer/keyboard gestures retrying restricted activation. The same soundtrack continues without restarting or releasing music voices when Let's Herd begins a meadow, menus/popups/workshop/results/QA open, levels restart/change or the player returns to landing. Gameplay ambience and livestock clocks still pause with gameplay. Preserve saved mute and the 50% louder mix; hidden/unfocused pages silence the soundtrack and resume safely on return. Browser restrictions may require the first user interaction before any audible landing music. This supersedes earlier guidance that gameplay menus pause the entire soundtrack.
+
+
+## Music volume follow-up — 25 October 2026
+
+F-MUSIC-001: increase music gain by 50% from the reviewed lo-fi mix, including proportional thunder duck/recovery. Preserve effects, ambience, livestock and dog levels, composition and playback lifecycle. Update the development build; user listening acceptance remains separate.
+
+
+## Independent chill soundtrack — 25 October 2026
+
+F-MUSIC-001 reworks the background music into a mellow, gently evolving lo-fi ambient score. Music composition and instrument synthesis belong in a dedicated JavaScript module imported by `audio.js`. Preserve the accepted livestock calls and Pip/Buddy voices, weather mix, mute, pause/resume, async activation guards and bounded resources. No sharp noise percussion or abrupt note endpoints. Listening acceptance remains a separate check. Development publication is authorized; production and merge are not.
+
+
 ## Existing saturated voice-steal investigation — 25 October 2026
 
 F-AUDIO-002 is separately queued: investigate a gentle release for an existing livestock call replaced at the six-call cap, preserving immediate bolt onset and bounded ownership. This source-level discontinuity risk predates F-AUDIO-001 and has not been confirmed by listening; it is not part of the current tuning implementation.
