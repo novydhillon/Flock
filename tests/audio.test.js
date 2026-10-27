@@ -15,14 +15,14 @@ test('livestock voices use independent clocks, state cadence and immediate bolt 
     audio.livestockSchedules.get(sheep).remaining = 0;
     audio.updateLivestock(.01,{level,animals,listener});
     const ordinary = [...audio.livestockSources].at(-1);
-    assert.equal(ordinary.connections[0].gain.value, .05775);
-    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 26 && audio.livestockSchedules.get(sheep).remaining <= 50);
+    assert.equal(ordinary.connections[0].gain.events.find(([kind])=>kind==='ramp')[1], .0462);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 52 && audio.livestockSchedules.get(sheep).remaining <= 100);
     sheep.wander = {bolting:true};
     audio.updateLivestock(.01,{level,animals,listener});
     const bolt = [...audio.livestockSources].at(-1);
     assert.notEqual(ordinary, bolt);
-    assert.equal(bolt.connections[0].gain.value, .05775 * 1.25);
-    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 60);
+    assert.equal(bolt.connections[0].gain.events.find(([kind])=>kind==='ramp')[1], .0462 * 1.25);
+    assert.ok(audio.livestockSchedules.get(sheep).remaining >= 120);
     audio.updateLivestock(.01,{level,animals,listener});
     assert.equal(audio.livestockSources.size, 2, 'held bolt state does not retrigger each frame');
     assert.notEqual(audio._voiceBuffer('cow'), audio._voiceBuffer('sheep'));
@@ -36,7 +36,7 @@ test('livestock calls are bounded, attenuated and canceled on pause or level rep
     const level = {}, animals = Array.from({length:100},(_,id)=>({id,type:'cow',x:12,z:0,wander:{bolting:true}}));
     audio.updateLivestock(.01,{level,animals,listener:{x:0,z:0}});
     assert.equal(audio.livestockSources.size, 6, 'bolt transitions replace old voices rather than exceeding the voice cap');
-    assert.equal([...audio.livestockSources][0].connections[0].gain.value,.05775 * 1.25 / 2);
+    assert.equal([...audio.livestockSources][0].connections[0].gain.events.find(([kind])=>kind==='ramp')[1],.0462 * 1.25 / 2);
     for(const animal of animals)audio.livestockSchedules.get(animal).remaining=0;
     for(let i=0;i<10;i++)audio.updateLivestock(.1,{level,animals});
     assert.ok(audio.livestockSources.size<=6);
@@ -478,14 +478,15 @@ for(const prefix of ['/Flock/','/Flock/dev/'])test(`recordings load once from ${
    await audio.resume();assert.equal(requests.length,3,'resume reuses sample loading');
    audio.play('bark');const source=audio.context.sources.at(-1);
    assert.equal(source.buffer,recordings[0]);assert.ok(Math.abs(source.stops[0]-source.startTime-.62)<1e-8,'sample duration controls stop, not old generated duration');
-   for(const [type,recording,low,high] of [['sheep',recordings[1],.94,.965],['cow',recordings[2],1.10,1.14]]){
+   for(const [type,recording,low,high] of [['sheep',recordings[1],.937,.968],['cow',recordings[2],1.096,1.144]]){
     const level={seed:34};
     for(let id=0;id<8;id++){
      const animal={id,type,x:0,z:0,wander:{bolting:true}};
      audio.updateLivestock(.01,{level,animals:[animal],listener:{x:0,z:0}});
      const call=audio.context.sources.at(-1),rate=call.playbackRate.value;
      assert.equal(call.buffer,recording);assert.ok(rate>=low&&rate<=high,`${type} rate ${rate} stays within its species bounds`);
-     assert.ok(Math.abs(call.stops[0]-call.startTime-recording.duration/rate-.02)<1e-8,'sample stop follows actual assigned playback rate');
+     const audible=call.stops[0]-call.startTime-.02;assert.ok(audible>=recording.duration/rate*.93-1e-9&&audible<=recording.duration/rate+1e-9,'sample duration is subtly varied independently of pitch');
+     const tail=call.connections[0].gain.events.at(-1);assert.equal(tail[0],'ramp');assert.equal(tail[1],.0001);assert.ok(Math.abs(tail[2]-call.startTime-audible)<1e-8,'trim fades completely before stop');
     }
    }
 
@@ -716,4 +717,70 @@ test('repeated denied and pending unlock attempts keep at most one connected sil
   audio.pause();assert.equal(last.disconnected,true);assert.equal(audio.unlockSource,null);
   assert.equal(timers.size,0);
  },DeferredContext);
+});
+
+test('only sheep halve call frequency while cow clocks and relative state gains remain intact',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();const level={seed:37},sheep={id:3,type:'sheep',x:0,z:0},cow={id:3,type:'cow',x:0,z:0},animals=[sheep,cow];
+  audio.updateLivestock(.01,{level,animals});
+  const clocks=()=>animals.map(a=>audio.livestockSchedules.get(a));
+  assert.ok(Math.abs(clocks()[0].remaining+.01-2*(clocks()[1].remaining+.01))<1e-9,'sheep first-call spacing doubles the otherwise identical cow clock');
+  assert.ok(clocks()[0].remaining+.01>=16&&clocks()[0].remaining+.01<=80,'sheep initial delay stays16–80seconds');
+  assert.ok(clocks()[1].remaining+.01>=8&&clocks()[1].remaining+.01<=40,'cow initial delay stays8–40seconds');
+  for(const herded of [false,true]){
+   for(const animal of animals){animal.pushed=herded;audio.livestockSchedules.get(animal).remaining=0;}
+   const before=audio.context.sources.length;audio.updateLivestock(.01,{level,animals});
+   const [s,c]=clocks();assert.equal(s.remaining,2*c.remaining);
+   assert.ok(c.remaining>=(herded?60:26)&&c.remaining<=(herded?120:50),'cows retain previously accepted cadence');
+   const voices=audio.context.sources.slice(before);assert.equal(voices.length,2);
+   for(const source of voices){
+    const peak=source.connections[0].gain.events.find(([kind])=>kind==='ramp')[1];
+    assert.ok(Math.abs(peak/(herded?.05775*1.25:.05775)-.8)<1e-12,'all flock voices lose exactly another20percent peakgain');
+   }
+  }
+  sheep.wander={bolting:true};const before=audio.context.sources.length;audio.updateLivestock(.01,{level,animals});
+  assert.equal(audio.context.sources.length,before+1,'sheep bolt onset remains immediate despite longer ordinary clock');
+ });
+});
+
+test('individual sheep and cow calls vary pitch and gently faded duration independently',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();const level={seed:73},sample={duration:2};
+  for(const type of ['sheep','cow']){
+   audio.recordedVoices.set(type,sample);const pitches=new Set(),lengths=new Set();
+   for(let id=0;id<16;id++){
+    const animal={id,type,x:0,z:0,wander:{bolting:true}};audio.updateLivestock(.01,{level,animals:[animal]});
+    const source=audio.context.sources.at(-1),pitch=source.playbackRate.value,audible=source.stops[0]-source.startTime-.02;
+    pitches.add(pitch);lengths.add(audible*pitch/sample.duration);
+    assert.ok(pitch>=(type==='sheep'?.937:1.096)&&pitch<=(type==='sheep'?.968:1.144));
+    const events=source.connections[0].gain.events,tail=events.at(-1),hold=events.at(-2);
+    assert.equal(tail[0],'ramp');assert.equal(tail[1],.0001);assert.equal(hold[0],'set');
+    assert.ok(tail[2]>hold[2]&&tail[2]-hold[2]<=.080000001,'short gentle tail fade avoids a hard trim');
+    assert.ok(Math.abs(tail[2]-(source.stops[0]-.02))<1e-9);assert.equal(source.buffer,sample);
+    source.end();
+   }
+   assert.ok(pitches.size>12&&lengths.size>10,'voice identity and length differ across individuals independently of playback rate');
+  }
+ });
+});
+
+
+test('repeated calls from the same sheep and cow retain subtle per-call pitch and length variation',async()=>{
+ await withAudio(async audio=>{
+  await audio.start();const level={seed:73},sample={duration:2};
+  for(const type of ['sheep','cow']){
+   audio.recordedVoices.set(type,sample);const animal={id:4,type,x:0,z:0},pitches=new Set(),lengths=new Set();
+   audio.updateLivestock(.01,{level,animals:[animal]});
+   const schedule=audio.livestockSchedules.get(animal);
+   for(let sequence=1;sequence<=16;sequence++){
+    schedule.remaining=0;audio.updateLivestock(.01,{level,animals:[animal]});
+    assert.equal(audio.livestockSchedules.get(animal),schedule,'same animal keeps its own schedule');assert.equal(schedule.sequence,sequence);
+    const source=audio.context.sources.at(-1),rate=source.playbackRate.value;
+    pitches.add(rate);lengths.add((source.stops[0]-source.startTime-.02)*rate/sample.duration);
+    assert.ok(rate>=(type==='sheep'?.937:1.096)&&rate<=(type==='sheep'?.968:1.144));source.end();
+   }
+   assert.ok(pitches.size>5,`${type} repeated calls vary pitch within one voice identity`);
+   assert.ok(lengths.size>5,`${type} repeated calls vary duration independently of pitch`);
+  }
+ });
 });

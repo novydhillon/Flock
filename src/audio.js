@@ -224,7 +224,7 @@ export class FarmAudio {
       const herded = bolting || Boolean(animal.pushed) || animal.alert > .03;
       let schedule = this.livestockSchedules.get(animal);
       if (!schedule) {
-        schedule = {remaining: 8 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 32, sequence: 0, bolting: false};
+        schedule = {remaining: (8 + callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137)) * 32) * (animal.type==='sheep'?2:1), sequence: 0, bolting: false};
         this.livestockSchedules.set(animal, schedule);
       }
       const immediate = bolting && !schedule.bolting;
@@ -232,7 +232,7 @@ export class FarmAudio {
       schedule.remaining -= step;
       if (!immediate && schedule.remaining > 0) continue;
       const roll = callHash((level?.seed || 0) ^ Math.imul(animal.id + 1, 137) ^ Math.imul(++schedule.sequence, 7919));
-      schedule.remaining = herded ? 60 + roll * 60 : 26 + roll * 24;
+      schedule.remaining = (herded ? 60 + roll * 60 : 26 + roll * 24) * (animal.type==='sheep'?2:1);
       // Observe calls while muted too: unmuting never replays a missed bolt.
       if (!available || (!immediate && (emitted >= 2 || this.livestockSources.size >= 6))) continue;
       const distance = listener ? Math.hypot(animal.x - listener.x, animal.z - listener.z) : 0;
@@ -241,7 +241,12 @@ export class FarmAudio {
       // call when necessary rather than losing its one-shot state transition.
       if (immediate && this.livestockSources.size >= 6) this._releaseAmbience(this.livestockSources.values().next().value);
       const attenuation = 1 / (1 + (distance / 12) ** 2);
-      this._voice(animal.type, .05775 * (herded ? 1.25 : 1) * attenuation, 0, animal.type==='cow'?1.10+roll*.04:.94+roll*.025, true);
+      const identity=(level?.seed||0)^Math.imul(animal.id+1,0x45d9f3b);
+      const tone=callHash(identity^0x71c4),length=callHash(identity^0x16f3);
+      const variation=callHash(identity^Math.imul(schedule.sequence,0x27d4eb2d));
+      const pitch=animal.type==='cow'?1.10+tone*.04+(variation-.5)*.008:.94+tone*.025+(variation-.5)*.006;
+      const durationScale=Math.max(.93,Math.min(1,.94+length*.06+(variation-.5)*.02));
+      this._voice(animal.type, .0462 * (herded ? 1.25 : 1) * attenuation, 0, pitch, true, durationScale);
       emitted++;
     }
   }
@@ -287,7 +292,7 @@ export class FarmAudio {
     return buffer;
   }
 
-  _voice(kind, volume, offset = 0, pitch = 1, livestock = false) {
+  _voice(kind, volume, offset = 0, pitch = 1, livestock = false, durationScale = 1) {
     const source = this.context.createBufferSource(), envelope = this.context.createGain();
     source.buffer = this.recordedVoices.get(kind) || this._voiceBuffer(kind);
     if (source.playbackRate) source.playbackRate.value = pitch;
@@ -298,8 +303,16 @@ export class FarmAudio {
     const ended = source.onended;
     source.onended = () => { ended(); this.livestockSources.delete(source); };
     const now = this.context.currentTime + .01 + offset;
+    const duration=(source.buffer.duration || (kind === 'bark' ? .28 : kind === 'cow' ? 1.25 : .85)) / pitch * durationScale;
+    if(livestock){
+      const fade=Math.min(.08,duration*.15);
+      envelope.gain.setValueAtTime(.0001,now);
+      envelope.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),now+Math.min(.02,duration*.1));
+      envelope.gain.setValueAtTime(volume,now+duration-fade);
+      envelope.gain.exponentialRampToValueAtTime(.0001,now+duration);
+    }
     source.start(now);
-    source.stop(now + (source.buffer.duration || (kind === 'bark' ? .28 : kind === 'cow' ? 1.25 : .85)) / pitch + .02);
+    source.stop(now + duration + .02);
     return source;
   }
 

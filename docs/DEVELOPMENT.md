@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Persistent launch regression remains Open — 26 October 2026
+
+F-AUDIO-003 records Novy's current browser and iOS Home Screen observation: music stays silent on launch until audio is turned off and on. The earlier launch-recovery smoke steps below remain unmet device acceptance work; passing mock activation tests must not be described as a physical fix. The soundtrack feature is accepted for main merge independently of this defect. No production deployment is authorized by that merge request.
+
 ## Browser and Home Screen launch smoke checks — 26 October 2026
 
 With sound enabled, cold-open the dev URL in Safari/iOS, an iOS Home Screen install and a normal browser. Record whether music begins without interaction (only where autoplay is permitted); otherwise make one ordinary landing touch/click and confirm music starts without toggling Sound. Repeat after a denied/pending autoplay request, background/foreground, screen lock, app switching, and back/forward navigation, including returns without a focus event. Gameplay must remain paused on return, music must use one transport, and saved mute must stay silent through all retries until explicitly enabled. Confirm touch controls/bark and settings still work, and the 50% music mix is retained. Physical-device/browser listening remains pending; lifecycle mocks do not prove iOS policy behavior.
@@ -11,8 +15,12 @@ With sound enabled, open the landing page: music should start where autoplay is 
 
 ## Independent soundtrack smoke checks — 25 October 2026
 
-F-AUDIO-001: compare the requested 50% music-gain increase against the earlier dev mix while checking that animal/effect/ambience levels remain unchanged; verify thunder retains its relative duck depth and returns to the louder music level. Listen for at least two 16-bar cycles on headphones and phone speakers. Check the 70 BPM chord changes, relaxed low taps, warm bass and sparse motifs for a calm unobtrusive mix, no sharp clicks, clipping or tiring repetition. Compare Pip/Buddy and sheep/cows with the accepted build; their pitch, cadence and gain must remain unchanged. Trigger storm thunder to check music duck/recovery. Repeatedly mute, pause/background/resume, restart, jump levels and quit/start, including rapid reactivation: no duplicate beat, stale queued attack, catch-up burst or stuck voice. Device listening and performance remain pending until actually observed.
+F-MUSIC-001: compare the requested 50% music-gain increase against the earlier dev mix while checking that animal/effect/ambience levels remain unchanged; verify thunder retains its relative duck depth and returns to the louder music level. Listen for at least two 16-bar cycles on headphones and phone speakers. Check the 70 BPM chord changes, relaxed low taps, warm bass and sparse motifs for a calm unobtrusive mix, no sharp clicks, clipping or tiring repetition. Compare Pip/Buddy and sheep/cows with the accepted build; their pitch, cadence and gain must remain unchanged. Trigger storm thunder to check music duck/recovery. Repeatedly mute, pause/background/resume, restart, jump levels and quit/start, including rapid reactivation: no duplicate beat, stale queued attack, catch-up burst or stuck voice. Device listening and performance remain pending until actually observed.
 
+
+## New flock call listening checks — 25 October 2026
+
+On the new featurebranch, listen long enough to compare rarer sheep calls with unchanged cow pacing,20%lower livestockgain, and gentle per-animal/per-call pitch/lengthvariation. Confirm varied sheep/cowtails end softly rather than sounding clipped. Trigger bolt, mute/pause/background/resume, restart/jump and pending sampledecode; no replaybursts/stalesources. Pip/Buddy bark and mellowmusic should retain their accepted sound. Novy accepted this tuning and requested main merge on 25 October 2026. These remain reusable smoke checks; no new listening measurement is claimed, and automated clocks/gain/envelope checks do not prove preference.
 
 ## Sharp click listening check — 24 October 2026
 

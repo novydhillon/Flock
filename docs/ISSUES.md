@@ -20,7 +20,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-AUDIO-001 | P2 | Audio | Independent chill lo-fi ambient soundtrack | Review | Accepted animal mix and click removal |
+| F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
+| F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
 | F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
 | F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
@@ -58,29 +59,24 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
+| F-TERRAIN-001 | P3 | Environment/art | Rough pasture appearance on selected levels | Open | Existing clay grass and ground presentation |
+| F-TERRAIN-002 | P2 | Terrain/navigation | Navigable undulating fields | Open | Existing world generation, navigation and actor presentation |
+| F-TERRAIN-003 | P2 | World/structures | Fences and stone walls follow terrain undulations | Open | F-TERRAIN-002; existing fences, stone walls and gates |
+| F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
+
 ## Acceptance criteria and planned work
 
-### F-AUDIO-001 — Independent chill lo-fi ambient soundtrack
+### F-AUDIO-003 — Music requires audio off/on after browser or app launch
 
-**Status:** Review. Owner: Codex implementation agent (`gpt-6.1-sol`, medium effort, explicitly requested for browser/iOS launch recovery).
+**Status:** Open. Owner: Unassigned.
 
-**Branch:** `feature/chill-lofi-music`
+**Branch:** `unassigned`
 
-**Accept when:** music generation lives in its own JavaScript module imported by `audio.js`; the generated soundtrack has warm mellow chords, relaxed soft rhythm, restrained evolving motifs and no sharp noise clicks. Preserve mute, pause/resume, async activation guards, bounded scheduling, disposal, weather ducking and the accepted livestock/Pip/Buddy tuning. Focused/full checks, both build modes, independent blind review and separate device listening evidence are recorded. Source and development publication are authorized; PR and main merge are not requested. User listening sign-off remains separate.
+**User report — 26 October 2026:** Music does not start automatically on app launch. The user must toggle audio off and on to start it. This persists in the browser and an iOS Home Screen launch after the attempted launch-recovery build. Workaround: turn audio off, then on.
 
-**25 October 2026:** Open → In progress on current main `1386c7a40880ebcdf4cbe20b812ccd67cb868985`. Implementation completed; own music module and preserved controls/animal mix are covered by focused checks. Initial checked dev/production builds pass 463 regressions. Blind first pass 8.5/10 identified a compatibility release-envelope jump, now corrected with independent gain gates and a no-cancelAndHoldAtTime regression (31/31 focused audio checks). Follow-up review passes 9.3/10 with no material blockers. The final checked dev build passes all 464 regressions, docs checks and both artifact modes. Source `8b19c916db30aa28054d4374bae21e30dfbd40e2` is published and source CI passes. Authorized dev publication is verified: Pages `f49f3b1f067325d35c96e00e314856a271fec3fd`, native run [40278459790](https://github.com/novydhillon/Flock/actions/runs/40278459790) successful and all 33 live file hashes match. [Publication evidence](validation/F-AUDIO-001-dev-publication.json). User listening acceptance remains pending; keep Review.
+**Accept when:** reproduce and diagnose the remaining launch failure on the affected browser and iOS Home Screen path; enabled music begins at the earliest browser-permitted activation without requiring an off/on toggle; saved mute, foreground/background handling, existing playback and bounded resources remain intact. Record the actual browser/device and audible result. Browser autoplay policy may require interaction, but neither that policy nor passing mock tests establishes the cause or resolution of this reported defect.
 
-
-**Continuous music follow-up — 25 October 2026:** Novy requests music on the landing page and uninterrupted playback through Let's Herd, level changes, menus, popups, results and returning to landing. Attempt landing playback where browser autoplay permits it; retry from normal user gestures when restricted, always respecting saved mute. Separate paused gameplay ambience from the music transport; hidden/background pages still silence sound safely. Preserve the 50% louder mix, generation guards, single scheduler and existing campaign behavior. Implementation is complete and focused audio/UI/QA validation passes 82/82, including real FarmAudio transport integration. Fresh independent review passes 9.2/10 with no material blockers; the optional Next meadow/confirmed Restart Game coverage is added without runtime changes. The checked dev build passes all 470 regressions, docs and both artifact modes; final controller coverage passes 46/46. Verified on dev on 26 October: source `cf0258012790f8beec142e64be0dd1b8ddea1413` passed source CI; Pages `dcb6fc08aa50f760a29b310619136fca1b8cea44` passed native deployment and all 33 live hashes match. [Continuous music publication evidence](validation/F-AUDIO-001-continuous-dev-publication.json). User listening acceptance remains pending.
-
-**Browser/iOS launch recovery — 26 October 2026:** Implementation, review and development publication verified; user listening acceptance pending. Owner: Codex (`gpt-6.1-sol`, medium effort, explicitly requested; no Astra). Investigate reported silent launch until Sound is toggled off/on in browser and iOS Home Screen. Accept when permitted autoplay starts promptly, restricted autoplay recovers on the first normal touch/click/key without a settings toggle, pending resumes cannot block a fresh gesture, foreground recovery handles missing focus events, saved mute and the 50% music mix remain intact, and focused/full/build checks plus fresh blind review are recorded. Fresh blind first pass scored 9.0/10 with no material blockers and one minor pending-source cleanup finding. The fix bounds pending unlocks to one source and adds repeated denied/pending regression coverage; same-critic follow-up passes 9.5/10. Focused checks pass 85/85. Final checked dev build passes 476 regressions, docs and release/development artifact-mode checks. Source `7d411fe5ffa8836423d8d3736f7521300c10caff` passed source CI; Pages `6220d1411f4f37e76096a50c3d05b5c76d859d28` passed native deployment and all 33 live file hashes match. [Launch recovery publication evidence](validation/F-AUDIO-001-launch-dev-publication.json). Device listening remains pending.
-
-**Volume follow-up — 25 October 2026:** Novy requested 50% more music volume. Raising the music bus from 0.42 to 0.63 and proportional thunder duck from 0.16 to 0.24; effects, ambience, animal voices and the composition remain unchanged. Focused audio passes 31/31 and the checked dev build passes 464 regressions, docs and release/development artifact checks. The update is verified on dev: source `61bab017bdc0970d9bd1dfc1f865e96531f063e8` passed source CI; Pages `ed7fb9e75d42daa35c1c4c12937162b22921add2` passed native deployment and all 33 live file hashes match. [Volume publication evidence](validation/F-AUDIO-001-volume-dev-publication.json). Keep Review pending listening sign-off.
-
-
-
-
-
+**26 October 2026:** Logged at Novy's explicit request while accepting the soundtrack feature for main merge. Prior automated activation tests, 9.5/10 source review, CI and live asset hashes did not establish physical launch resolution. This issue stays Open independently of F-MUSIC-001 acceptance. No new runtime fix is included in the merge/logging task.
 
 
 ### F-008 — Clouds temporarily deferred
@@ -449,3 +445,67 @@ Novy accepted the development build with “Looks good. Merge to main and close 
 ## Accepted P1 branch — 25 October 2026
 
 The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archived in [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). All other Open/Deferred work retains its state. This updates source acceptance and authorizes main merge only, with no production deployment.
+
+### F-AUDIO-002 — Existing bolt voice-steal hard-cut risk
+
+**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+
+**Accept when:** Investigate a short release for a livestock voice replaced at the six-call cap, avoiding potential discontinuity while retaining immediate bolt onset, bounded audible/resource ownership, mute/pause/dispose cleanup and no delayed catch-up. Source inspection identifies possible risk, not an observed/listening-confirmed defect.
+
+**25 October provenance:** Independent F-AUDIO-001 review observed existing immediate `_releaseAmbience` stop/disconnect during saturated bolt replacement. Verified unchanged in approved main `1386c7a` and the new patch. Root explicitly keeps this outside current tuning scope and tracks it separately; no implementation or audible click claim.
+
+
+## Rough pasture and rolling terrain — 25 October 2026
+
+Reference photos supplied by Novy: picture 1 `IMG_8450.webp` and picture 2 `IMG_8451.jpeg` guide rough tufted pasture; `IMG_8454.jpeg`, `IMG_8453.jpeg` and `IMG_8452.webp` guide rolling fields, low valleys and terrain-following boundaries. Translate these landscape references into the existing claymation style. References are visual direction, not a request to reproduce photographic textures or watermarks.
+
+All four items are Open and unassigned. Rough-ground appearance is P3 polish; navigable relief, aligned boundaries and terrain-aware water are linked P2 features that must be coordinated before a rolling-terrain release. This adds planned work only; no terrain, physics, water or game deployment changes are implemented.
+
+### F-TERRAIN-001 — Rough pasture appearance on selected levels (P3)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
+
+**Depends on / preserve:** Existing clay grass and ground presentation.
+
+**Accept when:** Selected levels visibly differ from smoother meadows through bounded tufts, patchiness and ground variation, without obscuring animals or routes. Preserve navigable clearance, collision and mobile performance. Do not apply the rough look to every level or invent a user-approved frequency. Coordinate physical height variation with F-TERRAIN-002; visual roughness alone must not silently add blockers.
+
+### F-TERRAIN-002 — Navigable undulating fields (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
+
+**Depends on / preserve:** Existing world generation, navigation and actor presentation.
+
+**Accept when:** Generate continuous terrain heights with traversable rolling slopes, safe spawn/goal areas and connected routes. Keep simulation, rendering and navigation consistent about surface elevation; livestock stay grounded and Pip/Buddy retain appropriate hover clearance without clipping, floating or becoming stuck. Paths, bridge landings and goal approaches join the terrain cleanly. Verify sheep, all cow sizes, helpers, split herds and terrain edges across seeds. Agree on height, slope limits and which levels use relief before implementation; do not require jumping or change controls.
+
+### F-TERRAIN-003 — Fences and stone walls follow terrain undulations (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
+
+**Depends on / preserve:** F-TERRAIN-002; existing fences, stone walls and gates.
+
+**Accept when:** Fence posts, rails, stone-wall bases and associated collision follow local terrain with no floating spans, buried sections or unintended gaps. Gates, switch panels, openings and traversable clearances remain usable from both sides on slopes. Preserve the accepted wall appearance, gate states and navigation connectivity. Test changing grades, corners, boundaries and crossings rather than only one straight slope.
+
+### F-TERRAIN-004 — Lowland rivers and slope-aware rain pooling (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
+
+**Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
+
+**Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
+

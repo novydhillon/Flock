@@ -1,23 +1,35 @@
 # Flock product requirements
 
+## Soundtrack acceptance and persistent launch regression — 26 October 2026
+
+Novy accepts the soundtrack feature for main merge as F-MUSIC-001. This music work was called F-AUDIO-001 on the feature branch; the renamed ID preserves main's separate accepted livestock-tuning F-AUDIO-001. F-AUDIO-003 remains Open: music does not start automatically on browser or iOS Home Screen app launch, and the user must turn audio off and on to start it. Prior activation attempts and mock tests did not establish physical resolution. Investigate actual device/browser behavior and eliminate the settings-toggle requirement at the earliest browser-permitted activation while respecting saved mute. No new runtime fix or production publication is included in this merge.
+
 ## Browser and Home Screen audio launch — 26 October 2026
 
-F-AUDIO-001: attempt enabled music as soon as landing is ready. If autoplay is restricted, the first normal touch, click, pointer or keyboard interaction must retry directly without toggling Sound. Foreground return and visible user interaction must recover from a missing focus event; hidden pages remain silent and gameplay remains paused on return. Preserve saved mute, one scheduler and the existing 50% music-gain increase. Browser policy may require interaction; no-touch audible launch cannot be guaranteed.
+F-MUSIC-001: attempt enabled music as soon as landing is ready. If autoplay is restricted, the first normal touch, click, pointer or keyboard interaction must retry directly without toggling Sound. Foreground return and visible user interaction must recover from a missing focus event; hidden pages remain silent and gameplay remains paused on return. Preserve saved mute, one scheduler and the existing 50% music-gain increase. Browser policy may require interaction; no-touch audible launch cannot be guaranteed.
 
 ## Continuous landing and menu soundtrack — 25 October 2026
 
-F-AUDIO-001: music starts on the landing page when browser autoplay permits it, with normal pointer/keyboard gestures retrying restricted activation. The same soundtrack continues without restarting or releasing music voices when Let's Herd begins a meadow, menus/popups/workshop/results/QA open, levels restart/change or the player returns to landing. Gameplay ambience and livestock clocks still pause with gameplay. Preserve saved mute and the 50% louder mix; hidden/unfocused pages silence the soundtrack and resume safely on return. Browser restrictions may require the first user interaction before any audible landing music. This supersedes earlier guidance that gameplay menus pause the entire soundtrack.
+F-MUSIC-001: music starts on the landing page when browser autoplay permits it, with normal pointer/keyboard gestures retrying restricted activation. The same soundtrack continues without restarting or releasing music voices when Let's Herd begins a meadow, menus/popups/workshop/results/QA open, levels restart/change or the player returns to landing. Gameplay ambience and livestock clocks still pause with gameplay. Preserve saved mute and the 50% louder mix; hidden/unfocused pages silence the soundtrack and resume safely on return. Browser restrictions may require the first user interaction before any audible landing music. This supersedes earlier guidance that gameplay menus pause the entire soundtrack.
 
 
 ## Music volume follow-up — 25 October 2026
 
-F-AUDIO-001: increase music gain by 50% from the reviewed lo-fi mix, including proportional thunder duck/recovery. Preserve effects, ambience, livestock and dog levels, composition and playback lifecycle. Update the development build; user listening acceptance remains separate.
+F-MUSIC-001: increase music gain by 50% from the reviewed lo-fi mix, including proportional thunder duck/recovery. Preserve effects, ambience, livestock and dog levels, composition and playback lifecycle. Update the development build; user listening acceptance remains separate.
 
 
 ## Independent chill soundtrack — 25 October 2026
 
-F-AUDIO-001 reworks the background music into a mellow, gently evolving lo-fi ambient score. Music composition and instrument synthesis belong in a dedicated JavaScript module imported by `audio.js`. Preserve the accepted livestock calls and Pip/Buddy voices, weather mix, mute, pause/resume, async activation guards and bounded resources. No sharp noise percussion or abrupt note endpoints. Listening acceptance remains a separate check. Development publication is authorized; production and merge are not.
+F-MUSIC-001 reworks the background music into a mellow, gently evolving lo-fi ambient score. Music composition and instrument synthesis belong in a dedicated JavaScript module imported by `audio.js`. Preserve the accepted livestock calls and Pip/Buddy voices, weather mix, mute, pause/resume, async activation guards and bounded resources. No sharp noise percussion or abrupt note endpoints. Listening acceptance remains a separate check. Development publication is authorized; production and merge are not.
 
+
+## Existing saturated voice-steal investigation — 25 October 2026
+
+F-AUDIO-002 is separately queued: investigate a gentle release for an existing livestock call replaced at the six-call cap, preserving immediate bolt onset and bounded ownership. This source-level discontinuity risk predates F-AUDIO-001 and has not been confirmed by listening; it is not part of the current tuning implementation.
+
+## Livestock call tuning — 25 October 2026
+
+F-AUDIO-001 applies to a new feature branch after the approved P1 merge. Sheep-only scheduled intervals double; cow intervals stay at the accepted baseline. All flockcalls become exactly20%quieter with subtle pitch/durationvariation. Preserve real recordedassets, lifecycle/statevolume/boltcontracts and Pip/Buddy bark/music. Novy accepted F-AUDIO-001 and requested main merge on 25 October 2026; its complete record is archived. Production publication remains separate.
 
 ## P1 branch acceptance — 25 October 2026
 
@@ -554,4 +566,13 @@ Prefer the standard Deploy Flock workflow where connector dispatch is available.
 ## Buddy behaviour acceptance — 22 October 2026
 
 Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main and close the tickets” after reviewing the dev build. These six requirements are Done on `buddy_behaviour`, with complete requirements, acceptance criteria, historical implementation/publication evidence and closure records in [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes the older Review/pending acceptance descriptions for these six items elsewhere in this document; F-COMP-004/005/006/008 remain Open and F-OPS-004 is unchanged. Main source merge is authorized; production publication is not requested. Acceptance is user gameplay sign-off, not an independent native-phone FPS/audio/touch measurement.
+
+
+
+## Rough pasture and rolling terrain requests — 25 October 2026
+
+- F-TERRAIN-001 (P3): Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style. See [tracker criteria and photo references](ISSUES.md).
+- F-TERRAIN-002 (P2): Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over. See [tracker criteria and photo references](ISSUES.md).
+- F-TERRAIN-003 (P2): Make fences and stone walls follow the undulating ground instead of remaining on a flat plane. See [tracker criteria and photo references](ISSUES.md).
+- F-TERRAIN-004 (P2): Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades. See [tracker criteria and photo references](ISSUES.md).
 
