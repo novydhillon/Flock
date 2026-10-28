@@ -60,7 +60,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
-
 | F-TERRAIN-001 | P3 | Environment/art | Rough pasture appearance on selected levels | Open | Existing clay grass and ground presentation |
 | F-TERRAIN-002 | P2 | Terrain/navigation | Navigable undulating fields | Open | Existing world generation, navigation and actor presentation |
 | F-TERRAIN-003 | P2 | World/structures | Fences and stone walls follow terrain undulations | Open | F-TERRAIN-002; existing fences, stone walls and gates |
