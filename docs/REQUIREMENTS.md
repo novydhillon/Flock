@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## F-013 closed for now — 28 October 2026
+
+F-013 is Closed for now at Novy's request. This administrative decision supersedes historical Open-status wording for F-013; it does not establish a pacing fix or a human difficulty verdict. The original simulated timings and investigation criteria are preserved in [Closed issues](ISSUES_CLOSED.md#level-5-pacing-concern-closed-for-now--28-october-2026), and the concern can be reopened with new pacing feedback. Other open work retains its current status.
+
 ## Configuration refactor accepted — 28 October 2026
 
 F-ARCH-001 is Done by Novy's explicit “looks good. merge to main and close tickets.” acceptance after the dev2 playtest publication. The complete requirement, acceptance criteria, implementation/review records and publication evidence are preserved in [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). This supersedes earlier pending-acceptance wording for this refactor. The user authorizes main source merge; production deployment was not requested. The requirements below remain the behavior contract, and F-AUDIO-003 remains Open independently of this acceptance.
@@ -282,7 +286,7 @@ Status: the original P0/P1 batch and F-028 remain accepted for their deployed bu
 | F-010 | P1 | Highlight, delivery region, minimap and rotated pen/field/barn enclosure share the same shape. | Done: user signed off 14 October 2026. shared rotated footprint drives enclosure, highlight, minimap and full-body admission. |
 | F-011 | P2 | Pip tail light normally blue, flashes red on bark then restores reliably. | Done: accepted 15 October 2026 at approximately 10:56 America/Vancouver for Pages `cc13865`, source `b1fdac3`. | `tail-light.js` colors Pip's dedicated light blue at rest and red during the bounded bark effect; restore behavior is covered by source tests. |
 | F-012 | P2 | From **level 8**, up to **15%** eligible animals have **33%** chance to wander away while not actively herded. From **level 17**, up to **10%** chance to bolt for **1–3 s**. | Done: accepted 15 October 2026 at approximately 10:56 America/Vancouver for Pages `cc13865`, source `b1fdac3`. | `wandering.js` selects `floor(15% × flock)` by seeded rank and evaluates one 33% opportunity every five simulation seconds; bolts use a conditional 10% roll from public level 17 for 1–3 seconds. Saved and actively herded animals are excluded; confirm the chosen integer rounding and player-facing pacing. |
-| F-013 | P2 | Investigate level-5 pacing with humans, retrieval/chokepoint evidence and unchanged ordinary-input regressions. | **Open** | Simulated level-5 time spike known; no confirmed human difficulty verdict. World/journey balance. |
+| F-013 | P2 | Investigate level-5 pacing with humans, retrieval/chokepoint evidence and unchanged ordinary-input regressions. | **Closed for now** | Simulated level-5 time spike known; no confirmed human difficulty verdict. World/journey balance. |
 | F-014 | P1 | Real-phone controls, portrait readability, gestures, modals, sound and restart verified with device/revision evidence. | Done: user confirmed real-phone QA on 14 October 2026; device/browser details not supplied. |
 | F-015 | P3 | Measure mobile GPU and repeated transition stability on normal, large/split herds and weather scenes. | **Open** | Submission/resource checks exist; phone frame times unmeasured. Set device targets before verdict. |
 | F-016 | P1 | Any dog/flock animal under cover fades the entire roof and full camera-facing wall side(s) to 30% transparency (opacity 0.70); restore when empty; retain collision. | Done: Novy accepted the deployed barn follow-up on 14 October 2026 (Vancouver), Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. |

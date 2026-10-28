@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## F-013 administrative closure — 28 October 2026
+
+Novy requested “Close F-013 for now and merge to main”. F-013 moves with its complete overview row, original simulated level timings and investigation criteria to [Closed issues](ISSUES_CLOSED.md#level-5-pacing-concern-closed-for-now--28-october-2026). The status is Closed for now at user request, with reopening available if new pacing feedback warrants investigation. No gameplay or pacing fix is included, and no human playtest pass is claimed.
+
+This documentation-only closure is prepared on `docs/close-f-013` from main `0b08ef6d160fc5ff5aa254d0f3f3b624a4b7f62e`, using the requested `gpt-6.1-sol` at extra-high effort. The user authorizes main source merge; this preparation record does not claim an actual merge or deployment. Application code, tests, gameplay, historical publication evidence and unrelated ticket statuses remain unchanged.
+
 ## Configuration refactor acceptance and main merge authorization — 28 October 2026
 
 Novy's “looks good. merge to main and close tickets.” accepts F-ARCH-001 after the dev2 playtest publication. The complete overview row, requirements, branch ownership, review/build records and publication evidence move to [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026); F-ARCH-001 is Done. Earlier Review/pending-user-sign-off statements below are historical and superseded for this ticket. F-AUDIO-003 remains Open.
