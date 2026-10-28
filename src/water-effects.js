@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { canOccupy, terrainHeight } from './world.js';
-import { deliveryCountdownSeconds } from './simulation.js';
+import { deliveryCountdownSeconds } from './delivery.js';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 // Travel at 2m/s allows for herding below the cow/sheep maximum speeds, then

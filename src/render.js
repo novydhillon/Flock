@@ -1,3 +1,11 @@
+import { CONFIG_CONTRACTS } from './config/contracts.js';
+import settings from './config/presentation.json' with { type: 'json' };
+import { resolveConfig } from './config/resolve.js';
+const PRESENTATION=resolveConfig(settings, 'presentation', CONFIG_CONTRACTS.presentation);
+if (PRESENTATION.camera.near >= PRESENTATION.camera.far) throw new RangeError('presentation.camera: near must be below far');
+if (PRESENTATION.renderer.fogNear >= PRESENTATION.renderer.fogFar) throw new RangeError('presentation.renderer: fogNear must be below fogFar');
+
+
 import { updateAnimalTurn, animalGaitSpeed } from './animal-turn.js';
 import { updateGrazing, grazingAngle } from './grazing.js';
 import * as THREE from 'three';
@@ -45,13 +53,13 @@ function label(text,color='#45684d'){
 export class MeadowRenderer{
   constructor(canvas){
     this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05;
-    this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#bdd6df');this.scene.fog=new THREE.Fog('#bdd6df',95,195);
-    this.hemisphere=new THREE.HemisphereLight('#eaf7ff','#536747',1.65);this.scene.add(this.hemisphere);this.skyDay=new THREE.Color('#bdd6df');this.skyStorm=new THREE.Color('#899da7');
-    this.sun=new THREE.DirectionalLight('#fff4dc',2.05);this.sun.position.set(-18,35,20);this.sun.castShadow=true;
-    this.sun.shadow.mapSize.set(1024,1024);Object.assign(this.sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:100});this.sun.shadow.camera.updateProjectionMatrix();this.sun.shadow.bias=-.0007;this.sun.shadow.normalBias=.035;this.scene.add(this.sun,this.sun.target);
-    this.camera=new THREE.OrthographicCamera(-30,30,20,-20,.1,180);this.center=new THREE.Vector3(-7,0,0);this.targetCenter=this.center.clone();
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio,PRESENTATION.renderer.pixelRatioCap));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=PRESENTATION.renderer.exposure;
+    this.scene=new THREE.Scene();this.scene.background=new THREE.Color(PRESENTATION.lighting.skyDay);this.scene.fog=new THREE.Fog(PRESENTATION.lighting.skyDay,PRESENTATION.renderer.fogNear,PRESENTATION.renderer.fogFar);
+    this.hemisphere=new THREE.HemisphereLight(PRESENTATION.lighting.hemisphereSky,PRESENTATION.lighting.hemisphereGround,PRESENTATION.lighting.hemisphereIntensity);this.scene.add(this.hemisphere);this.skyDay=new THREE.Color(PRESENTATION.lighting.skyDay);this.skyStorm=new THREE.Color(PRESENTATION.lighting.skyStorm);
+    this.sun=new THREE.DirectionalLight(PRESENTATION.lighting.sunColor,PRESENTATION.lighting.sunIntensity);this.sun.position.set(...PRESENTATION.lighting.sunOffset);this.sun.castShadow=true;
+    this.sun.shadow.mapSize.set(PRESENTATION.renderer.shadowMapSize,PRESENTATION.renderer.shadowMapSize);Object.assign(this.sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:100});this.sun.shadow.camera.updateProjectionMatrix();this.sun.shadow.bias=PRESENTATION.lighting.shadowBias;this.sun.shadow.normalBias=PRESENTATION.lighting.shadowNormalBias;this.scene.add(this.sun,this.sun.target);
+    this.camera=new THREE.OrthographicCamera(-30,30,20,-20,PRESENTATION.camera.near,PRESENTATION.camera.far);this.center=new THREE.Vector3(-7,0,0);this.targetCenter=this.center.clone();
     this.terrain=new THREE.Group();this.actors=new THREE.Group();this.scene.add(this.terrain,this.actors);this.materials=createMaterials();
     this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
     this.path=new THREE.MeshStandardMaterial({color:'#fff1d3',roughness:.95,map:texture('path'),bumpMap:texture('path',true),bumpScale:.08,side:THREE.DoubleSide});this.pathShoulder=new THREE.MeshStandardMaterial({color:'#a99261',roughness:1,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});
@@ -76,7 +84,8 @@ export class MeadowRenderer{
     this.waterEffects.restoreMaterials();
     this.cutaway?.dispose();this.cutaway=null;
     this.gateView?.dispose();this.gateView?.removeFromParent();this.stoneView?.dispose();this.stoneView?.removeFromParent();this.gateView=this.stoneView=null;
-    // Dispose world-owned geometry; model geometry/materials are cached across levels.
+    // Level replacement disposes only tagged, level-owned resources. Shared
+    // cached model geometry/materials remain valid for the next meadow.
     const geometries=new Set(),materials=new Set();
     for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)materials.add(o.material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
     geometries.forEach(g=>g?.dispose());materials.forEach(m=>m?.dispose());
@@ -250,7 +259,7 @@ export class MeadowRenderer{
       }
       this.animalBatches.push({indices,meshes,radius,visibleIndices:[]},...coats.map(batch=>({...batch,radius})));
     }
-    this.center.set(level.spawn.x+(this.aspect<.8?2:10),0,level.spawn.z+1);this.time=0;this.update(level,level.dog,0,true);
+    this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),0,level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
   }
   placeFence(a,b){
     const length=Math.hypot(b.x-a.x,b.z-a.z),sections=Math.max(1,Math.ceil(length/1.8)),group=new THREE.Group();
@@ -297,8 +306,8 @@ export class MeadowRenderer{
     for(const {batch,matrices,bounds,widths} of this.sceneryBatches){
       let count=0;
       for(let i=0;i<bounds.length;i+=4){
-        // Two world units retain edge silhouettes and short fence shadows.
-        const radius=bounds[i+3]+2;
+        // Configured margin retains edge silhouettes and short fence shadows.
+        const radius=bounds[i+3]+PRESENTATION.culling.sceneryMargin;
         if(planes.some(p=>p.normal.x*bounds[i]+p.normal.y*bounds[i+1]+p.normal.z*bounds[i+2]+p.constant < -radius))continue;
         batch.instanceMatrix.array.set(matrices.subarray(i*4,i*4+16),count*16);
         if(widths)batch.geometry.attributes.treeInstanceWidth.array[count]=widths[i/4];
@@ -313,10 +322,10 @@ export class MeadowRenderer{
     const planes=this.sceneryFrustum.planes,limbTransform=new THREE.Matrix4(),limbRotation=new THREE.Matrix4(),worldTransform=new THREE.Matrix4();
     for(const batch of this.animalBatches){
       const visible=batch.visibleIndices;visible.length=0;
-      // The extra three units keep offscreen bodies whose short sun shadows
+      // The configured margin keeps offscreen bodies whose short sun shadows
       // can still land in view, and avoid edge popping during a walking pose.
       for(const index of batch.indices){
-        const pose=this.animalMeshes[index],position=pose.position,radius=batch.radius*Math.max(Math.abs(pose.scale.x),Math.abs(pose.scale.y),Math.abs(pose.scale.z))+3;
+        const pose=this.animalMeshes[index],position=pose.position,radius=batch.radius*Math.max(Math.abs(pose.scale.x),Math.abs(pose.scale.y),Math.abs(pose.scale.z))+PRESENTATION.culling.animalMargin;
         if(!planes.some(p=>p.normal.x*position.x+p.normal.y*position.y+p.normal.z*position.z+p.constant < -radius))visible.push(index);
       }
       // All body and limb materials share one compacted ordering. Gait phases
@@ -341,22 +350,22 @@ export class MeadowRenderer{
   update(level,dog,dt,preview=false){
     this.time+=dt;this.preview=preview;
     // Simulation time advances only during play, so menus freeze this introduction.
-    this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-4)/1.2));
+    this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-PRESENTATION.introduction.signHoldSeconds)/PRESENTATION.introduction.signFadeSeconds));
     this.destinationSign.visible=this.destinationSign.material.opacity>0;
-    const viewHeight=preview?(this.aspect<.8?50:44):(this.aspect<.8?39:36);const half=viewHeight/2,halfWidth=half*this.aspect;
-    // Center on Pip independently of distant livestock or the goal. The +2
-    // cancels the camera's ground look-at offset in every travel direction.
-    const desiredX=preview?level.spawn.x+(this.aspect<.8?2:10):dog.x;
-    const desiredZ=preview?level.spawn.z+1:dog.z+2;
-    const lerp=preview?Math.min(1,dt*.8):Math.min(1,dt*3.5);this.center.x+=(desiredX-this.center.x)*lerp;this.center.z+=(desiredZ-this.center.z)*lerp;
+    const viewHeight=preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
+    // Center on Pip independently of distant livestock or the goal. The follow
+    // offset cancels the camera ground look-at offset in every travel direction.
+    const desiredX=preview?level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX):dog.x;
+    const desiredZ=preview?level.spawn.z+PRESENTATION.camera.previewOffsetZ:dog.z+PRESENTATION.camera.followOffsetZ;
+    const lerp=preview?Math.min(1,dt*PRESENTATION.camera.previewFollowRate):Math.min(1,dt*PRESENTATION.camera.playFollowRate);this.center.x+=(desiredX-this.center.x)*lerp;this.center.z+=(desiredZ-this.center.z)*lerp;
     if(!preview){
-      const marginX=halfWidth*.12,marginZ=half*.12;
+      const marginX=halfWidth*PRESENTATION.camera.lagFraction,marginZ=half*PRESENTATION.camera.lagFraction;
       this.center.x=Math.max(desiredX-marginX,Math.min(desiredX+marginX,this.center.x));
       this.center.z=Math.max(desiredZ-marginZ,Math.min(desiredZ+marginZ,this.center.z));
     }
     this.camera.left=-halfWidth;this.camera.right=halfWidth;this.camera.top=half;this.camera.bottom=-half;this.camera.updateProjectionMatrix();
-    this.camera.position.set(this.center.x,36,this.center.z+29);this.camera.lookAt(this.center.x,0,this.center.z-2);
-    this.sun.position.set(this.center.x-18,35,this.center.z+20);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();
+    this.camera.position.set(this.center.x,PRESENTATION.camera.positionY,this.center.z+PRESENTATION.camera.positionOffsetZ);this.camera.lookAt(this.center.x,0,this.center.z+PRESENTATION.camera.lookOffsetZ);
+    this.sun.position.set(this.center.x+PRESENTATION.lighting.sunOffset[0],PRESENTATION.lighting.sunOffset[1],this.center.z+PRESENTATION.lighting.sunOffset[2]);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();
     this.dog.position.set(dog.x,terrainHeight(level,dog.x,dog.z),dog.z);this.dog.rotation.y=dog.heading??Math.PI/2;
     // Cancel the dog's heading so the triangle always faces the goal in world space.
     this.goalPointer.rotation.set(Math.PI/2,0,0);
@@ -395,31 +404,31 @@ export class MeadowRenderer{
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
     const weather=this.nature.weather;
     this.waterEffects.update(dt,{weather,movers:[{...dog,id:'pip'},...level.animals.map(a=>({...a,id:`flock-${a.id}`})),...(level.helpers||[]).filter(h=>h.type!=='drone').map(h=>({...h,id:`helper-${h.type}`}))],paused:dt<=0});
-    this.sun.intensity=2.05*weather.daylight+weather.lightningFlash;this.hemisphere.intensity=1.65*weather.daylight+weather.lightningFlash*.6;this.scene.background.copy(this.skyDay).lerp(this.skyStorm,weather.cloudCoverage*.5);this.scene.fog.color.copy(this.scene.background);
-    for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*6;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}
+    this.sun.intensity=PRESENTATION.lighting.sunIntensity*weather.daylight+weather.lightningFlash;this.hemisphere.intensity=PRESENTATION.lighting.hemisphereIntensity*weather.daylight+weather.lightningFlash*PRESENTATION.lighting.hemisphereFlashScale;this.scene.background.copy(this.skyDay).lerp(this.skyStorm,weather.cloudCoverage*PRESENTATION.lighting.stormSkyBlend);this.scene.fog.color.copy(this.scene.background);
+    for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*PRESENTATION.effects.particleGravity;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}
     this.particles=this.particles.filter(p=>p.life>0);this.cullScenery();this.updateAnimalBatches(level,poseTime);this.renderer.render(this.scene,this.camera);
   }
-  celebrate(x,z){for(let i=0;i<36;i++){const mesh=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.05),new THREE.MeshBasicMaterial({color:['#f0b65c','#f8e8ad','#e99585','#80b398'][i%4]}));mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;mesh.position.set(x,1.5,z);this.actors.add(mesh);this.particles.push({mesh,velocity:new THREE.Vector3(Math.sin(i*2.4)*3,2+(i%5),Math.cos(i*2.4)*3),life:1.8});}}
+  celebrate(x,z){for(let i=0;i<PRESENTATION.effects.celebrationParticles;i++){const mesh=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.05),new THREE.MeshBasicMaterial({color:['#f0b65c','#f8e8ad','#e99585','#80b398'][i%4]}));mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;mesh.position.set(x,1.5,z);this.actors.add(mesh);this.particles.push({mesh,velocity:new THREE.Vector3(Math.sin(i*2.4)*3,2+(i%5),Math.cos(i*2.4)*3),life:PRESENTATION.effects.celebrationLifeSeconds});}}
   bark(source){
     if(!source)setTailLightBarking(this.dog,true);
     const origin=source?{x:source.x,z:source.z}:{x:this.dog.position.x,z:this.dog.position.z};
-    const mesh=new THREE.Mesh(barkSurface(this.level,origin),new THREE.MeshBasicMaterial({color:'#fff6d8',side:THREE.DoubleSide,transparent:true,opacity:.8,depthTest:true,depthWrite:false}));
+    const mesh=new THREE.Mesh(barkSurface(this.level,origin),new THREE.MeshBasicMaterial({color:'#fff6d8',side:THREE.DoubleSide,transparent:true,opacity:PRESENTATION.effects.barkOpacity,depthTest:true,depthWrite:false}));
     mesh.renderOrder=1;mesh.userData.ownedGeometry=mesh.userData.ownedMaterial=true;this.actors.add(mesh);
     this.barkEffects??=[];this.barkEffects.push({mesh,origin,age:0,buddy:Boolean(source)});
     // Cooldowns normally limit this to one; retain a hard cap for QA/repeated input.
-    while(this.barkEffects.length>4){const old=this.barkEffects.shift();this.actors.remove(old.mesh);old.mesh.geometry.dispose();old.mesh.material.dispose();}
+    while(this.barkEffects.length>PRESENTATION.effects.maxBarkRings){const old=this.barkEffects.shift();this.actors.remove(old.mesh);old.mesh.geometry.dispose();old.mesh.material.dispose();}
   }
   updateBarks(dt){
     for(const effect of this.barkEffects||[]){
       if(dt<=0)continue;effect.age+=dt;
-      if(effect.age>=.6){this.actors.remove(effect.mesh);effect.mesh.geometry.dispose();effect.mesh.material.dispose();continue;}
-      barkSurface(this.level,effect.origin,1+effect.age/.6*6,effect.mesh.geometry);effect.mesh.material.opacity=.8*(1-effect.age/.6);
+      if(effect.age>=PRESENTATION.effects.barkSeconds){this.actors.remove(effect.mesh);effect.mesh.geometry.dispose();effect.mesh.material.dispose();continue;}
+      barkSurface(this.level,effect.origin,1+effect.age/PRESENTATION.effects.barkSeconds*PRESENTATION.effects.barkExpansion,effect.mesh.geometry);effect.mesh.material.opacity=PRESENTATION.effects.barkOpacity*(1-effect.age/PRESENTATION.effects.barkSeconds);
     }
-    this.barkEffects=(this.barkEffects||[]).filter(effect=>effect.age<.6);
+    this.barkEffects=(this.barkEffects||[]).filter(effect=>effect.age<PRESENTATION.effects.barkSeconds);
   }
   drawMap(canvas,level,dog){
     const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,world=level.bounds;
-    const viewWidth=Math.min(world.maxX-world.minX,120*(w-16)/(h-16)),viewDepth=Math.min(world.maxZ-world.minZ,120);
+    const viewWidth=Math.min(world.maxX-world.minX,PRESENTATION.minimap.viewDepth*(w-16)/(h-16)),viewDepth=Math.min(world.maxZ-world.minZ,PRESENTATION.minimap.viewDepth);
     const scrolling=viewWidth<world.maxX-world.minX||viewDepth<world.maxZ-world.minZ;
     const start=(p,min,max,size)=>Math.max(min,Math.min(max-size,p-size/2));
     const left=start(dog.x,world.minX,world.maxX,viewWidth),top=start(dog.z,world.minZ,world.maxZ,viewDepth);

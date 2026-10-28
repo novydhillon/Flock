@@ -1,8 +1,10 @@
 # FLOCK — Active issue tracker
 
-Updated 26 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+Updated 28 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
+
+F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). The user authorized its main source merge; F-AUDIO-003 remains Open.
 
 ## Tracker lifecycle and ownership
 
@@ -508,4 +510,3 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 **Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
 
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
-

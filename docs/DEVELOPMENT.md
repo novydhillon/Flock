@@ -408,3 +408,48 @@ Assess later pacing with no helper and active Buddy tiers, including split-flock
 ### P1 test map — 24 October 2026
 
 `tests/herd-personality.test.js` covers deterministic traits, unattended spread/barriers/control, relaxation and saved mixed-herd arrival. `tests/herd-pose.test.js` covers gesture timing, threat/grazing priority and owned instance resources. `tests/bark.test.js` covers charges and pause/recovery state; audio/progression/UI/QA integration tests cover actual wiring. `tests/river-contrast.test.js` and `tests/wildlife-legs.test.js` cover flow data and live limb instances.
+
+## Editing area configuration — 27 October 2026
+
+F-ARCH-001 introduces the eight documented area files in `src/config/`. Read the [ownership and resolver contracts](ARCHITECTURE.md#module-ownership-and-validated-area-configuration--27-october-2026) before changing a setting. JSON is imported and validated when its owner initializes; the application does not watch or fetch settings at runtime.
+
+### Change a value
+
+Find the setting in the area owned by the behavior you intend to change. Keep its `_comment` useful: state the unit, meaning and any relevant invariant. Edit `value` within its documented inclusive bounds, preserving the primitive type and array length. For example, `gameplay.json` contains:
+
+```json
+{
+  "simulation": {
+    "dogSpeed": {
+      "value": 7.8,
+      "_comment": "Base Pip running speed in world units per second before upgrades.",
+      "min": 0,
+      "max": 30
+    }
+  }
+}
+```
+
+This is an excerpt, not a replacement document. Preserve all other keys. JSON does not permit trailing commas or source comments; `_comment` is the setting documentation.
+
+A consuming module uses the same explicit contract every time:
+
+```js
+import settings from './config/gameplay.json' with { type: 'json' };
+import { resolveConfig } from './config/resolve.js';
+import { CONFIG_CONTRACTS } from './config/contracts.js';
+
+const GAMEPLAY = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
+```
+
+### Change a bound or add a setting
+
+Change `min` or `max` only after checking every calculation that consumes the value and testing the new supported range. Widening a bound is an application change. Do not remove validation to accept a value. Required keys, primitive types and array lengths live in `contracts.js` and stay independent of editable JSON bounds.
+
+To add a setting, give it a documented descriptor in the owning area, add its explicit contract entry, and replace the owner-local literal with the resolved value. Keep defaults identical when extracting a constant. Leave mathematical, hash, epsilon and geometry identities beside their algorithms. A fixed campaign limit of 100 cannot be extended safely by editing JSON alone; coordinate profile migration, level selection and rewards.
+
+### Rebuild and verify
+
+Install dependencies with `npm ci` in a fresh checkout using Node.js 22 or newer. Run focused tests for the changed owner and configuration validation, then `npm run build:checked:dev`. That shared command checks documentation, the full test suite, release QA exclusion and development QA inclusion. After editing this guide or another generated-page Markdown file, run `npm run docs:build` before the checked build; commit the regenerated HTML and search index with the Markdown.
+
+Reload the rebuilt application to use the new immutable values. A startup error names the invalid area and path; repair that descriptor or its intentionally changed contract before proceeding. Preserve pause, resume, restart, persisted progress and seeded behavior when extracting or moving configuration. Record actual browser, phone, rendering and listening checks separately from automated results. F-AUDIO-003 remains Open; this refactor does not establish audio launch recovery.

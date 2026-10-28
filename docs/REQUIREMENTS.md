@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Configuration refactor accepted — 28 October 2026
+
+F-ARCH-001 is Done by Novy's explicit “looks good. merge to main and close tickets.” acceptance after the dev2 playtest publication. The complete requirement, acceptance criteria, implementation/review records and publication evidence are preserved in [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). This supersedes earlier pending-acceptance wording for this refactor. The user authorizes main source merge; production deployment was not requested. The requirements below remain the behavior contract, and F-AUDIO-003 remains Open independently of this acceptance.
+
 ## Soundtrack acceptance and persistent launch regression — 26 October 2026
 
 Novy accepts the soundtrack feature for main merge as F-MUSIC-001. This music work was called F-AUDIO-001 on the feature branch; the renamed ID preserves main's separate accepted livestock-tuning F-AUDIO-001. F-AUDIO-003 remains Open: music does not start automatically on browser or iOS Home Screen app launch, and the user must turn audio off and on to start it. Prior activation attempts and mock tests did not establish physical resolution. Investigate actual device/browser behavior and eliminate the settings-toggle requirement at the earliest browser-permitted activation while respecting saved mute. No new runtime fix or production publication is included in this merge.
@@ -576,3 +580,10 @@ Novy accepted F-COMP-001/002/003/007/009/010 with “Looks good. Merge to main a
 - F-TERRAIN-003 (P2): Make fences and stone walls follow the undulating ground instead of remaining on a flat plane. See [tracker criteria and photo references](ISSUES.md).
 - F-TERRAIN-004 (P2): Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades. See [tracker criteria and photo references](ISSUES.md).
 
+## Cohesive modules and validated area settings — 27 October 2026
+
+F-ARCH-001: reduce coupling by extracting profile persistence, delivery policy, companion herd grouping and saved-animal roaming from the simulation facade while preserving its existing public interfaces and behavior. Keep rendering independent from simulation policy and replace imports through the facade with focused policy dependencies where appropriate.
+
+Move owner-specific tunable literals into documented gameplay, delivery, progression, audio, music, weather, controls and presentation JSON areas. Every setting has a value and explanatory comment, with numeric bounds where applicable. Validate the required shape, types, array lengths, finite numeric values and inclusive bounds during initialization through a generic resolver and explicit area contracts; expose deeply frozen runtime values through static imports. Preserve existing defaults, random sequences, profile version/key/ledger semantics, campaign level limits, pause behavior and audio lifecycle. Mathematical and algorithm identities remain in code.
+
+Provide an ownership map and a concrete guide for editing values, changing bounds, adding a setting and rebuilding. Source implementation, automated verification, independent review, development publication and user acceptance remain separate milestones. F-AUDIO-003 stays Open; no audio launch fix or behavior tuning is implied by this refactor.

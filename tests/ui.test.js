@@ -1,3 +1,7 @@
+import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
+import controlsSettings from '../src/config/controls.json' with { type: 'json' };
+import presentationSettings from '../src/config/presentation.json' with { type: 'json' };
+import { resolveConfig } from '../src/config/resolve.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -15,7 +19,7 @@ const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', impo
 
 // Run the production controller and simulation together. Rendering, browser DOM,
 // and WebAudio are the only substitutes; navigation and rewards are real code.
-function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades = {}, completedLevels = [], music = true, deferAudioStart = false, audioInstance = null } = {}) {
+function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades = {}, completedLevels = [], music = true, deferAudioStart = false, audioInstance = null, settings = controlsSettings } = {}) {
   const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '');
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
@@ -96,6 +100,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     resetLivestock(level) { audioFrames.push({kind:'reset',level}); }
   }
   const context = {
+    settings,presentationSettings,resolveConfig,CONFIG_CONTRACTS,
     ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,...barkAPI,
     document, window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
     navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio: audioInstance ? class {constructor(){return audioInstance;}} : FarmAudio,
@@ -882,4 +887,16 @@ test('foreground visibility and pageshow restore music without focus while gamep
   assert.equal(timers.size,1);assert.equal(ui.app.state().mode,'paused');
   const timer=audio.timer;ui.windowEvents.get('pageshow')();await settleAudio();assert.equal(audio.timer,timer);
  });
+});
+
+test('control settings change joystick movement and cap the live controller frame',async()=>{
+  const settings=structuredClone(controlsSettings);
+  settings.pointer.joystickRangePixels.value=84;
+  settings.frame.maxDeltaSeconds.value=.01;
+  const ui=launch({settings});await ui.click('play');
+  ui.emit('pointerdown',{pointerId:1,clientX:100,clientY:100});
+  ui.emit('pointermove',{pointerId:1,clientX:142,clientY:100});
+  assert.equal(ui.app.state().input.x,.5);
+  ui.tick();
+  assert.equal(ui.app.state().renderer.lastDt,.01);
 });

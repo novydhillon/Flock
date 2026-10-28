@@ -1,0 +1,88 @@
+{
+  "pointer": {
+    "joystickRangePixels": {
+      "value": 42,
+      "_comment": "Thumb displacement that reaches full movement input.",
+      "min": 1,
+      "max": 200
+    },
+    "tapMovementPixels": {
+      "value": 9,
+      "_comment": "Movement beyond this distance cancels tap recognition; movement input itself has no dead zone.",
+      "min": 0,
+      "max": 100
+    },
+    "doubleTapDistancePixels": {
+      "value": 42,
+      "_comment": "Maximum distance between the two taps of a bark gesture.",
+      "min": 1,
+      "max": 200
+    },
+    "doubleTapMs": {
+      "value": 330,
+      "_comment": "Maximum elapsed time between taps of a bark gesture.",
+      "min": 50,
+      "max": 1000
+    },
+    "compatibilityClickMs": {
+      "value": 500,
+      "_comment": "Suppress the click generated after a touch bark for this interval.",
+      "min": 0,
+      "max": 2000
+    }
+  },
+  "frame": {
+    "maxDeltaSeconds": {
+      "value": 0.05,
+      "_comment": "Variable simulation frame-step cap; keep physics-sensitive changes under regression review.",
+      "min": 0.001,
+      "max": 0.1
+    },
+    "mapIntervalSeconds": {
+      "value": 0.1,
+      "_comment": "Minimum time between minimap redraws.",
+      "min": 0.01,
+      "max": 2
+    }
+  },
+  "feedback": {
+    "barkVibrationMs": {
+      "value": 20,
+      "_comment": "Device vibration duration when Pip barks.",
+      "min": 0,
+      "max": 1000
+    },
+    "toastMs": {
+      "value": 2800,
+      "_comment": "Toast visibility duration.",
+      "min": 100,
+      "max": 30000
+    },
+    "modalFocusDelayMs": {
+      "value": 30,
+      "_comment": "Delay before focusing the first button in an opened modal.",
+      "min": 0,
+      "max": 1000
+    },
+    "urgentCountdownSeconds": {
+      "value": 10,
+      "_comment": "Delivery time remaining at which the countdown becomes urgent.",
+      "min": 0,
+      "max": 120
+    }
+  },
+  "tips": {
+    "cycleSeconds": {
+      "value": 14,
+      "_comment": "Dwell time for manually shown or later automatic tips.",
+      "min": 0.1,
+      "max": 120
+    },
+    "initialSeconds": {
+      "value": 5,
+      "_comment": "Dwell time of the first automatic tutorial tip.",
+      "min": 0.1,
+      "max": 120
+    }
+  }
+}

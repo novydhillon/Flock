@@ -1,0 +1,300 @@
+{
+  "simulation": {
+    "maximumStepSeconds": {
+      "value": 0.1,
+      "_comment": "Maximum accepted simulation or saved-roaming step in seconds.",
+      "min": 0.001,
+      "max": 0.25
+    },
+    "dogSpeed": {
+      "value": 7.8,
+      "_comment": "Base Pip running speed in world units per second before upgrades.",
+      "min": 0,
+      "max": 30
+    },
+    "dogRadius": {
+      "value": 0.62,
+      "_comment": "Pip collision radius in world units; preserve generated passage clearance.",
+      "min": 0.1,
+      "max": 1
+    },
+    "signalRadius": {
+      "value": 7.6,
+      "_comment": "Base player herding signal radius in world units.",
+      "min": 0,
+      "max": 30
+    },
+    "barkRadiusBoost": {
+      "value": 3.3,
+      "_comment": "Additional herding radius during an active Pip bark in world units.",
+      "min": 0,
+      "max": 20
+    },
+    "pressureExponent": {
+      "value": 0.65,
+      "_comment": "Falloff exponent on normalized player signal proximity.",
+      "min": 0.01,
+      "max": 4
+    },
+    "signalStrength": {
+      "value": 5.2,
+      "_comment": "Outward herd velocity contribution at full player pressure.",
+      "min": 0,
+      "max": 20
+    },
+    "sheepSpeed": {
+      "value": 4.2,
+      "_comment": "Maximum ordinary sheep speed in world units per second.",
+      "min": 0,
+      "max": 20
+    },
+    "cowSpeed": {
+      "value": 3.3,
+      "_comment": "Maximum ordinary cow speed in world units per second.",
+      "min": 0,
+      "max": 20
+    },
+    "boltSpeed": {
+      "value": 6,
+      "_comment": "Maximum bolting speed and safe bolt target reach basis.",
+      "min": 0,
+      "max": 30
+    },
+    "homeSpeed": {
+      "value": 0.75,
+      "_comment": "Maximum settled wandering-home speed in world units per second.",
+      "min": 0,
+      "max": 5
+    },
+    "sheepResponse": {
+      "value": 5.5,
+      "_comment": "Sheep velocity smoothing response per second.",
+      "min": 0.01,
+      "max": 30
+    },
+    "cowResponse": {
+      "value": 3.5,
+      "_comment": "Cow velocity smoothing response per second.",
+      "min": 0.01,
+      "max": 30
+    },
+    "holdResponse": {
+      "value": 12,
+      "_comment": "Velocity smoothing response while held by a companion per second.",
+      "min": 0.01,
+      "max": 50
+    },
+    "neighborRadius": {
+      "value": 18,
+      "_comment": "Visible neighbor search radius within one connected flock.",
+      "min": 0,
+      "max": 50
+    },
+    "cohesionDistance": {
+      "value": 2.6,
+      "_comment": "Neighbor-center distance in world units before cohesion begins.",
+      "min": 0,
+      "max": 10
+    },
+    "cohesionStrength": {
+      "value": 0.7,
+      "_comment": "Multiplier on connected-flock cohesion force.",
+      "min": 0,
+      "max": 3
+    },
+    "alignmentStrength": {
+      "value": 0.45,
+      "_comment": "Visible neighbors average velocity fraction applied as alignment.",
+      "min": 0,
+      "max": 2
+    },
+    "admissionAttendance": {
+      "value": 12,
+      "_comment": "Player attendance distance beyond destination radius in world units.",
+      "min": 0,
+      "max": 30
+    }
+  },
+  "bark": {
+    "cooldownSeconds": {
+      "value": 2.1,
+      "_comment": "Gameplay seconds to refill all charges after the final bark charge.",
+      "min": 0.01,
+      "max": 30
+    },
+    "durationSeconds": {
+      "value": 0.65,
+      "_comment": "Gameplay seconds of sustained pressure for each accepted bark.",
+      "min": 0.01,
+      "max": 5
+    }
+  },
+  "body": {
+    "sheepRadius": {
+      "value": 0.55,
+      "_comment": "Sheep physical clearance radius in world units.",
+      "min": 0.1,
+      "max": 1
+    },
+    "cowRadius": {
+      "value": 0.78,
+      "_comment": "Base cow clearance radius before its discrete size multiplier.",
+      "min": 0.1,
+      "max": 1.2
+    }
+  },
+  "companions": {
+    "clusterSeconds": {
+      "value": 0.25,
+      "_comment": "Seconds between main-herd reclustering with unchanged membership.",
+      "min": 0.01,
+      "max": 2
+    },
+    "attendanceRadius": {
+      "value": 18,
+      "_comment": "Maximum clear Pip distance sustaining companion assistance.",
+      "min": 0,
+      "max": 50
+    },
+    "resumeRadius": {
+      "value": 12,
+      "_comment": "Pip distance below which a holding companion assists again.",
+      "min": 0,
+      "max": 50
+    },
+    "initialRadius": {
+      "value": 14,
+      "_comment": "Initial distance threshold for assistance versus holding.",
+      "min": 0,
+      "max": 50
+    },
+    "droneSpeed": {
+      "value": 6,
+      "_comment": "Airborne helper centroid travel speed in world units per second.",
+      "min": 0,
+      "max": 30
+    }
+  },
+  "saved": {
+    "reservationSeconds": {
+      "value": 32,
+      "_comment": "Saved-animal interior patch reservation duration in seconds.",
+      "min": 1,
+      "max": 120
+    },
+    "patchSpacing": {
+      "value": 2.3,
+      "_comment": "Interior resting patch candidate grid spacing in world units.",
+      "min": 0.1,
+      "max": 10
+    },
+    "maximumSpeed": {
+      "value": 0.65,
+      "_comment": "Maximum saved-animal drift speed in world units per second.",
+      "min": 0,
+      "max": 5
+    }
+  },
+  "wander": {
+    "checkRange": {
+      "value": [
+        5,
+        8
+      ],
+      "_comment": "Minimum/maximum independent wander opportunity interval in seconds.",
+      "min": 0.01,
+      "max": 60
+    },
+    "cohortFraction": {
+      "value": 0.2,
+      "_comment": "Eligible fraction of unsaved animals rounded down.",
+      "min": 0,
+      "max": 1
+    },
+    "unlockIndex": {
+      "value": 7,
+      "_comment": "Zero-based index at which ordinary wandering starts.",
+      "min": 0,
+      "max": 99
+    },
+    "boltUnlockIndex": {
+      "value": 16,
+      "_comment": "Zero-based index at which eligible wandering may bolt.",
+      "min": 0,
+      "max": 99
+    },
+    "middleLevel": {
+      "value": 40,
+      "_comment": "Public-level boundary used by middle wandering tuning.",
+      "min": 1,
+      "max": 100
+    },
+    "lateLevel": {
+      "value": 70,
+      "_comment": "Public-level boundary used by late wandering tuning.",
+      "min": 1,
+      "max": 100
+    },
+    "wanderChance": {
+      "value": [
+        0.33,
+        0.2,
+        0.25
+      ],
+      "_comment": "Early/middle/late success chance preserving existing strict comparisons.",
+      "min": 0,
+      "max": 1
+    },
+    "boltChance": {
+      "value": [
+        0.1,
+        0.2
+      ],
+      "_comment": "Early/late conditional bolt chance for a successful opportunity.",
+      "min": 0,
+      "max": 1
+    },
+    "boltDurationEarly": {
+      "value": [
+        3,
+        5
+      ],
+      "_comment": "Early minimum/maximum bolt duration in seconds.",
+      "min": 0.01,
+      "max": 60
+    },
+    "boltDurationMiddle": {
+      "value": [
+        4,
+        6
+      ],
+      "_comment": "Middle minimum/maximum bolt duration in seconds.",
+      "min": 0.01,
+      "max": 60
+    },
+    "boltDurationLate": {
+      "value": [
+        5,
+        10
+      ],
+      "_comment": "Late minimum/maximum bolt duration in seconds.",
+      "min": 0.01,
+      "max": 60
+    },
+    "ordinarySeconds": {
+      "value": 2.5,
+      "_comment": "Ordinary non-bolting wandering duration in seconds.",
+      "min": 0.01,
+      "max": 60
+    },
+    "ordinaryDistance": {
+      "value": [
+        4,
+        7
+      ],
+      "_comment": "Minimum/maximum ordinary target reach in world units.",
+      "min": 0.01,
+      "max": 50
+    }
+  }
+}

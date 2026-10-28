@@ -1,6 +1,10 @@
+import { CONFIG_CONTRACTS } from './config/contracts.js';
+import settings from './config/gameplay.json' with { type: 'json' };
+import { resolveConfig } from './config/resolve.js';
+const GAMEPLAY = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
 /** Transient player bark state. Advance with gameplay time so modals freeze it. */
-export const BARK_COOLDOWN = 2.1;
-export const BARK_DURATION = .65;
+export const BARK_COOLDOWN = GAMEPLAY.bark.cooldownSeconds;
+export const BARK_DURATION = GAMEPLAY.bark.durationSeconds;
 const capacityOf = value => value === 2 ? 2 : 1;
 export function createBarkState(capacity = 1) {
   return {capacity: capacityOf(capacity), charges: capacityOf(capacity), remaining: 0, burstRemaining: 0};

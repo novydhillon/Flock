@@ -216,3 +216,60 @@ The `map_generation_improvements` candidate keeps `world.js` authoritative for t
 
 `gates.js` owns two-sided pad coordinates, Pip-only fresh-contact activation, release hysteresis and occupied-panel closing refusal. `stepSimulation` invokes it only during active simulation; `main.js` announces toggle/refusal events through the existing status toast. `gate-view.js` displays both pads from the shared open state. Successful toggles increment geometry revision and clear visibility caches; world queries and minimap read that same state. Gate contact remains transient level data, and no DOM control or helper independently owns panel state. See the [current world contract](systems/WORLD.md#map-generation-candidate--22-october-2026).
 
+## Module ownership and validated area configuration — 27 October 2026
+
+F-ARCH-001 keeps the simulation facade stable while moving cohesive policies into focused modules. Callers can continue importing the existing simulation exports; the controller imports profile operations directly. Runtime state stays with its current owner, and rendering reads that state.
+
+```mermaid
+flowchart TD
+  C["main.js"] --> S["simulation.js facade"]
+  C --> P["profile.js"]
+  S --> P
+  S --> H["companion-herd.js"]
+  S --> R["saved-roaming.js"]
+  S --> D["delivery.js"]
+  W["world.js"] --> D
+  E["water-effects.js"] --> D
+```
+
+### Stateful interfaces and policy boundaries
+
+| Module | Owns | Boundary |
+|---|---|---|
+| `simulation.js` | Simulation creation and update orchestration | Preserves public exports and update ordering; delegates focused policies |
+| `companion-herd.js` | Companion flock grouping, attendance and lateral balance | Uses existing simulation state; does not create a second flock model |
+| `saved-roaming.js` | Saved-animal pen reservations, containment and roaming motion | Preserves arrival state and the `stepSavedRoaming` interface |
+| `delivery.js` | Delivery countdown, score, completion and campaign reward policy | Shared by simulation, world and water effects without importing the simulation facade |
+| `profile.js` | Profile defaults, validation, migration, persistence and lifetime reward ledger | Preserves version 2, `flock-foundry-v1`, and existing reward-ledger semantics |
+| `progression.js` | Upgrade definitions, eligibility, costs and benefits | Consumes progression values without owning browser storage or simulation state |
+
+Extracting a module must preserve its state transitions, seeded random call order and pause behavior. A tuning refactor is not permission to change delivery eligibility, score, campaign rewards, upgrade effects, saved-profile interpretation or audio lifecycle. The open F-AUDIO-003 browser and iOS Home Screen launch defect remains separate.
+
+### Area ownership
+
+Each JSON file under `src/config/` contains documented setting descriptors. A consumer statically imports its area, resolves it once with the matching contract, then reads plain frozen values. There is no runtime fetch or mutable global settings service.
+
+| Area file | Values owned |
+|---|---|
+| `gameplay.json` | Simulation movement, bark/body values, companion grouping, saved-animal motion and wandering |
+| `delivery.json` | Countdown, scoring, reward and campaign limits |
+| `progression.json` | Upgrade costs, tiers and benefits |
+| `audio.json` | Audio bus mix, transport scheduling, voice limits, procedural effects and scene audio schedules |
+| `music.json` | Tempo, score timing, instrument envelopes and music voice limits |
+| `weather.json` | Seeded weather selection, fixed presets, ambience counts and lightning/thunder timing |
+| `controls.json` | Pointer gestures, frame/UI update timing, input feedback and tips |
+| `presentation.json` | Renderer quality, camera, lighting/fog, culling, introductions, visual effects and minimap framing |
+
+Weather state supplies daylight, severity and lightning to rendering. Presentation values determine the sky colors, light intensities and fog response; audio values determine the weather sound. Surface and water shader constants continue beside their algorithms.
+
+Area names describe ownership rather than a new layer of runtime state. Keep a setting with the policy that interprets it. Share that policy through its focused module instead of importing a higher-level facade just to obtain one number.
+
+### Resolver and contract responsibilities
+
+`src/config/resolve.js` is the generic descriptor validator and immutable resolver. It receives the document, an area label and an optional explicit shape contract. `src/config/contracts.js` supplies the required keys, primitive types and array lengths for the eight shipped areas. Production consumers supply the matching contract; a syntactically valid descriptor alone cannot establish that a required application setting exists.
+
+Every descriptor has `value` and a nonempty `_comment`; numeric settings also carry applicable inclusive `min` and `max` bounds. The resolver rejects invalid shapes, unknown descriptor fields, missing or extra contracted keys, wrong primitive types, wrong array lengths, fractional values for integer-constrained settings, non-finite numbers and invalid bounds. Numeric bounds apply to every numeric element of an array; booleans and strings cannot carry numeric bounds. Area owners also check relationships such as ordered countdown limits and companion hysteresis radii. Errors identify the area and field path. Resolved namespaces and arrays are deeply frozen; descriptor metadata does not leak into runtime policy.
+
+JSON bounds express the supported tuning envelope. The explicit code contract expresses the application shape, so editing a bound cannot make a missing key or a differently sized tuple valid. Adding or renaming a setting requires updating its owner, contract and focused tests together. Mathematical identities, hash coefficients, numerical tolerances and geometry construction constants remain in code where they explain an algorithm.
+
+The campaign limit remains 100 public levels, indexed 0–99 internally. Its descriptor is constrained to 100 because the profile and interface assume that limit. Extending it requires a coordinated profile migration and interface change. See the [configuration editing guide](DEVELOPMENT.md#editing-area-configuration--27-october-2026).

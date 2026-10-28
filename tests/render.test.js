@@ -1,3 +1,6 @@
+import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
+import presentationSettings from '../src/config/presentation.json' with { type: 'json' };
+import { resolveConfig } from '../src/config/resolve.js';
 import {updateAnimalTurn,animalGaitSpeed} from '../src/animal-turn.js';
 import {updateGrazing,grazingAngle} from '../src/grazing.js';
 import test from 'node:test';
@@ -22,13 +25,13 @@ import {gateButtons,updateGateContacts} from '../src/gates.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
-function setup({width=390,height=844,treeYaw=true}={}){
+function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}={}){
   const draw=new Proxy({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(t,k)=>t[k]||(()=>{})});
   const document={createElement:()=>({width:0,height:0,getContext:()=>draw})};
   globalThis.document=document;
-  class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(){}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
+  class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -1041,3 +1044,15 @@ test('both species lower complete instanced heads near grass, freeze, lift on pa
   renderer.setLevel(level);assert.ok(renderer.animalMeshes.every(m=>m.userData.graze===undefined));
 });
 
+
+test('presentation settings reach the real renderer budget, exposure and camera projection',()=>{
+  const settings=structuredClone(presentationSettings);
+  settings.renderer.pixelRatioCap.value=.9;
+  settings.renderer.exposure.value=1.3;
+  settings.camera.playLandscapeHeight.value=40;
+  const renderer=setup({width:844,height:390,settings}),level=createLevel(0);
+  renderer.setLevel(level);renderer.update(level,level.dog,0,false);
+  assert.equal(renderer.renderer.pixelRatio,.9);
+  assert.equal(renderer.renderer.toneMappingExposure,1.3);
+  assert.equal(renderer.camera.top-renderer.camera.bottom,40);
+});
