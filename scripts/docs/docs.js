@@ -19,6 +19,31 @@
     const code=button.closest('.code-block').querySelector('code').textContent;
     let area;try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);else{area=document.createElement('textarea');area.value=code;area.className='clipboard-helper';area.setAttribute('aria-label','Temporary clipboard helper');document.body.append(area);area.select();if(!document.execCommand('copy'))throw Error('Clipboard unavailable');}button.textContent='Copied';document.getElementById('copy-status').textContent='Code copied to clipboard.';}catch{button.textContent='Select code to copy';document.getElementById('copy-status').textContent='Clipboard unavailable. Select the code and copy it manually.';}finally{area?.remove();button.focus();}setTimeout(()=>button.textContent='Copy code',2400);
   });
+  // Enhance only tracker overview tables; other reference tables retain source order.
+  const collator=new Intl.Collator('en',{numeric:true,sensitivity:'base'});
+  for(const table of document.querySelectorAll('main table')){
+    const headers=[...table.querySelectorAll('thead th')];
+    if(headers.map(h=>h.textContent.trim()).join('|')!=='ID|Priority|Type|Item|Status|Depends on')continue;
+    const body=table.tBodies[0];
+    if(!body)continue;
+    const rows=[...body.rows];
+    let active=-1,descending=false;
+    for(const index of [0,1,2,4]){
+      const header=headers[index],label=header.textContent.trim(),button=document.createElement('button');
+      button.type='button';button.className='sort-column';button.textContent=label;
+      button.setAttribute('aria-label',`Sort by ${label}`);
+      header.replaceChildren(button);header.setAttribute('aria-sort','none');
+      button.addEventListener('click',()=>{
+        descending=active===index?!descending:false;active=index;
+        for(const i of [0,1,2,4])headers[i].setAttribute('aria-sort',i===index?(descending?'descending':'ascending'):'none');
+        const ordered=rows.map((row,original)=>({row,original})).sort((a,b)=>{
+          const comparison=collator.compare(a.row.cells[index].textContent.trim(),b.row.cells[index].textContent.trim());
+          return (descending?-comparison:comparison)||a.original-b.original;
+        });
+        body.append(...ordered.map(entry=>entry.row));
+      });
+    }
+  }
   const diagrams=[...document.querySelectorAll('.mermaid')].map(node=>({node,source:node.textContent}));
   let diagramWork=Promise.resolve();
   function paintDiagrams(){

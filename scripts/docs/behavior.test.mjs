@@ -61,3 +61,40 @@ test('all generated diagram sources parse with the pinned Mermaid version',async
     assert.ok(diagrams>=9);console.log(`Parsed ${diagrams} real Mermaid sources; no SVG layout claim.`);
   }finally{globalThis.window=previousWindow;globalThis.document=previousDocument;dom.window.close();}
 });
+
+for(const page of ['issues.html','issues-closed.html'])test(`${page} sorts every supported column both ways with stable ties and intact rows`,()=>{
+  const dom=new JSDOM(read(`docs/html/${page}`),{url:`file:///flock/docs/html/${page}`,runScripts:'outside-only'});
+  try{
+    const d=dom.window.document;
+    dom.window.eval(read('docs/html/assets/docs.js'));
+    const table=[...d.querySelectorAll('main table')].find(t=>t.querySelector('.sort-column'));
+    assert.ok(table);assert.equal(d.querySelectorAll('.sort-column').length,4);
+    const original=[...table.tBodies[0].rows],markup=new Map(original.map(r=>[r,r.innerHTML]));
+    const compare=new Intl.Collator('en',{numeric:true,sensitivity:'base'}).compare;
+    for(const index of [0,1,2,4]){
+      const header=table.tHead.rows[0].cells[index],button=header.querySelector('button');
+      button.focus();
+      for(const direction of [1,-1]){
+        button.click();assert.equal(d.activeElement,button);
+        assert.equal(header.getAttribute('aria-sort'),direction===1?'ascending':'descending');
+        const expected=original.map((row,order)=>({row,order})).sort((a,b)=>direction*compare(a.row.cells[index].textContent.trim(),b.row.cells[index].textContent.trim())||a.order-b.order).map(x=>x.row);
+        assert.deepEqual([...table.tBodies[0].rows],expected);
+        for(const row of expected)assert.equal(row.innerHTML,markup.get(row));
+        for(const other of table.querySelectorAll('th[aria-sort]'))if(other!==header)assert.equal(other.getAttribute('aria-sort'),'none');
+      }
+    }
+    for(const other of d.querySelectorAll('main table'))if(other!==table)assert.equal(other.querySelectorAll('.sort-column').length,0);
+  }finally{dom.window.close();}
+});
+
+test('ID sorting compares numeric segments rather than lexical digit order',()=>{
+  const dom=new JSDOM(read('docs/html/issues.html'),{url:'file:///flock/docs/html/issues.html',runScripts:'outside-only'});
+  try{
+    const d=dom.window.document,table=[...d.querySelectorAll('main table')].find(t=>t.tHead?.textContent.includes('Depends on'));
+    table.tBodies[0].innerHTML=['F-10','F-2','F-1'].map(id=>`<tr><td>${id}</td><td>P2</td><td>UI</td><td>Item</td><td>Open</td><td>None</td></tr>`).join('');
+    dom.window.eval(read('docs/html/assets/docs.js'));
+    const button=table.querySelector('.sort-column');
+    button.click();assert.deepEqual([...table.tBodies[0].rows].map(r=>r.cells[0].textContent),['F-1','F-2','F-10']);
+    button.click();assert.deepEqual([...table.tBodies[0].rows].map(r=>r.cells[0].textContent),['F-10','F-2','F-1']);
+  }finally{dom.window.close();}
+});

@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## Issue table sorting — 28 October 2026
+
+F-DOCS-001: active and closed generated documentation overview tables support ascending/descending sorting by ID, Priority, Type and Status using keyboard-accessible column buttons, numeric ID ordering and accessible direction indicators. Preserve links, archived formatting and original tie order. Other reference tables retain source order.
+
+
 ## Configuration refactor accepted — 28 October 2026
 
 F-ARCH-001 is Done by Novy's explicit “looks good. merge to main and close tickets.” acceptance after the dev2 playtest publication. The complete requirement, acceptance criteria, implementation/review records and publication evidence are preserved in [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). This supersedes earlier pending-acceptance wording for this refactor. The user authorizes main source merge; production deployment was not requested. The requirements below remain the behavior contract, and F-AUDIO-003 remains Open independently of this acceptance.
