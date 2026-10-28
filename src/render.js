@@ -19,6 +19,7 @@ import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
 import { terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
+import { minimapProjection, clipMinimap, minimapLivestockStates, drawLivestockMarker, drawGoalDirection } from './minimap-markers.js';
 import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from './surfaces.js';
 import { createAnimalGestureGeometry, createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
@@ -428,34 +429,31 @@ export class MeadowRenderer{
   }
   drawMap(canvas,level,dog){
     const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,world=level.bounds;
-    const viewWidth=Math.min(world.maxX-world.minX,PRESENTATION.minimap.viewDepth*(w-16)/(h-16)),viewDepth=Math.min(world.maxZ-world.minZ,PRESENTATION.minimap.viewDepth);
-    const scrolling=viewWidth<world.maxX-world.minX||viewDepth<world.maxZ-world.minZ;
-    const start=(p,min,max,size)=>Math.max(min,Math.min(max-size,p-size/2));
-    const left=start(dog.x,world.minX,world.maxX,viewWidth),top=start(dog.z,world.minZ,world.maxZ,viewDepth);
-    const b={minX:left,maxX:left+viewWidth,minZ:top,maxZ:top+viewDepth};
-    const px=x=>8+(x-b.minX)/(b.maxX-b.minX)*(w-16),pz=z=>8+(z-b.minZ)/(b.maxZ-b.minZ)*(h-16);
+    const view=minimapProjection(world,dog,w,h,PRESENTATION.minimap.viewDepth),{scale,project}=view;
+    const px=x=>project({x,z:0}).x,pz=z=>project({x:0,z}).y;
+    clipMinimap(ctx,w,h);
     const shaped=level.boundary?.length>4;
     ctx.fillStyle=shaped?'#172e25':'#29483a';ctx.fillRect(0,0,w,h);
-    if(scrolling){ctx.save();ctx.beginPath();ctx.rect(8,8,w-16,h-16);ctx.clip();}
     if(shaped){
       ctx.save();ctx.beginPath();
       level.boundary.forEach((p,i)=>i?ctx.lineTo(px(p.x),pz(p.z)):ctx.moveTo(px(p.x),pz(p.z)));
       ctx.closePath();ctx.fillStyle='#29483a';ctx.fill();ctx.clip();
     }
     const line=(points,width,color)=>{ctx.lineWidth=width;ctx.strokeStyle=color;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(px(p.x),pz(p.z)):ctx.moveTo(px(p.x),pz(p.z)));ctx.stroke();};
-    const scale=Math.min((w-16)/(b.maxX-b.minX),(h-16)/(b.maxZ-b.minZ));
     for(const river of level.rivers){line(river.points,river.width*scale,'#35b9ed');for(const bridge of river.bridges){const vx=Math.sin(bridge.heading)*bridge.length/2,vz=Math.cos(bridge.heading)*bridge.length/2;line([{x:bridge.x-vx,z:bridge.z-vz},{x:bridge.x+vx,z:bridge.z+vz}],Math.max(3,bridge.width*scale),'#dfbd8c');}}
     for(const road of level.roads)line(road.points,Math.max(1.5,road.width*scale),'#f0c777');
     drawGoalMap(ctx,level.target,p=>({x:px(p.x),y:pz(p.z)}));
     for(const fence of level.fenceSegments||[])line([fence.a,fence.b],fence.material==='stone'?2:fence.kind==='boundary'?1:1.5,fence.material==='stone'?'#d5d9c9':'#c0a67b');
     for(const gate of level.gates||[])if(gate.operable&&!gate.open){const segment=gateSegment(gate);line([segment.a,segment.b],2.5,'#ffad45');}
     const dot=(x,z,r,c,outline='#183027')=>{ctx.fillStyle=c;ctx.strokeStyle=outline;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(px(x),pz(z),r,0,Math.PI*2);ctx.fill();ctx.stroke();};
-    for(const a of level.animals)dot(a.x,a.z,a.type==='cow'?3:2.3,a.saved?'#8be0b4':'#fff8e7');
+    const states=minimapLivestockStates(level);
+    for(const a of level.animals)drawLivestockMarker(ctx,project(a),a,states.get(a));
     // Pip's larger gold marker and separate outer ring distinguish the player from helpers.
     dot(dog.x,dog.z,4.8,'#ffd166');ctx.strokeStyle='#ffe6a3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),7,0,Math.PI*2);ctx.stroke();
     for(const helper of level.helpers||[])dot(helper.x,helper.z,3,'#45d9ef','#102c39');
     if(shaped)ctx.restore();
-    if(scrolling)ctx.restore();
+    drawGoalDirection(ctx,level.target,view);
+    ctx.restore();
   }
 }
 

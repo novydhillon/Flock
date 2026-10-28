@@ -13,6 +13,8 @@ import * as progressionAPI from '../src/progression.js';
 import * as gatesAPI from '../src/gates.js';
 import * as worldAPI from '../src/world.js';
 import * as barkAPI from '../src/bark.js';
+import * as landingUI from '../src/landing-ui.js';
+import * as profileAPI from '../src/profile.js';
 import { Context, DeferredContext, withAudio } from './audio-fixture.js';
 
 const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', import.meta.url));
@@ -20,7 +22,7 @@ const root = process.env.FLOCK_UI_TEST_ROOT || fileURLToPath(new URL('../', impo
 // Run the production controller and simulation together. Rendering, browser DOM,
 // and WebAudio are the only substitutes; navigation and rewards are real code.
 function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades = {}, completedLevels = [], music = true, deferAudioStart = false, audioInstance = null, settings = controlsSettings } = {}) {
-  const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '');
+  const main = readFileSync(path.join(root, 'src/main.js'), 'utf8').replace(/^import .*;\s*$/gm, '').replace('export async function initializeMeadow', 'async function initializeMeadow');
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
   const documentEvents = new Map(), windowEvents = new Map();
@@ -73,6 +75,9 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
     querySelectorAll(selector) {
       if (selector === '[data-buy]') return this.children.filter(e => e.dataset.buy);
       if (selector === '[data-level]') return this.children.filter(e => e.dataset.level !== undefined);
+      if (selector === '[data-level]:not([disabled])') return this.children.filter(e => e.dataset.level !== undefined&&!e.disabled);
+      if (selector === '[data-preview]') return this.children.filter(e => e.dataset.preview);
+      if (selector === '.preview-playing') return [];
       if (selector === 'button:not([disabled])') return this.children.filter(e => !e.disabled);
       return this.children;
     }
@@ -101,7 +106,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   }
   const context = {
     settings,presentationSettings,resolveConfig,CONFIG_CONTRACTS,
-    ...simulationAPI,...progressionAPI,...worldAPI,...gatesAPI,...barkAPI,
+    ...simulationAPI,...profileAPI,...progressionAPI,...worldAPI,...gatesAPI,...barkAPI,...landingUI,
     document, window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
     navigator: {}, performance: { now: () => clock }, MeadowRenderer, FarmAudio: audioInstance ? class {constructor(){return audioInstance;}} : FarmAudio,
     setTimeout: () => 1, clearTimeout() {}, requestAnimationFrame() {},
@@ -115,7 +120,7 @@ function launch({ deniedStorage = false, points = 0, highestLevel = 0, upgrades 
   };
   Object.defineProperty(context,'localStorage',storageDescriptor);
   Object.defineProperty(globalThis,'localStorage',storageDescriptor);
-  vm.runInNewContext(`${main}\nglobalThis.app = {
+  vm.runInNewContext(`${main}\nrenderer=new MeadowRenderer();setupShowcase();updateWallet();void activateMusic();\nglobalThis.app = {
     begin, menu, shop, complete, frame,
     state: () => ({ mode, previousMode, input, pointer, keyCount: keys.size, level, dog, profile, renderer }),
   };`, context, { filename: 'flock-ui-integration.js' });
@@ -345,7 +350,7 @@ test('the workshop hides the drone and labels other level locks',async()=>{
   assert.equal(buttons.some(b=>b.dataset.buy==='drone'),false);
   assert.doesNotMatch(ui.el('modal-card').innerHTML,/Scout drone/);
   const buddy=buttons.find(b=>b.dataset.buy==='helper');
-  assert.equal(buddy.disabled,true);assert.match(ui.el('modal-card').innerHTML,/Level 20/);
+  assert.equal(buddy.disabled,true);assert.match(ui.el('modal-card').innerHTML,/level 20/i);
   const before=ui.app.state().profile.points;buddy.onclick?.();assert.equal(ui.app.state().profile.points,before);
 });
 
@@ -371,8 +376,9 @@ for (const origin of ['main', 'pause']) {
   test(`Restart Game from ${origin} clears persisted progress, money and every upgrade`, async () => {
     const ui = launch({ points: 1250, highestLevel: 20, completedLevels: [0, 1, 19], music: false,
       upgrades: { speed: 3, flock: 3, drone: 3, helper: 1, bark: 3, cohesion: 3 } });
-    if (origin === 'pause') { await ui.click('play'); await ui.click('pause'); }
-    await ui.click(`restart-game-${origin === 'main' ? 'main' : 'menu'}`);
+    if (origin === 'pause') await ui.click('play');
+    await ui.click('pause');
+    await ui.click('restart-game-menu');
     assert.equal(ui.app.state().mode, 'reset-confirm');
     assert.equal(ui.app.state().profile.points, 1250, 'Opening confirmation does not erase progress');
     assert.match(ui.el('modal-card').innerHTML, /cannot be undone/);
@@ -391,8 +397,9 @@ for (const origin of ['main', 'pause']) {
     const reloaded = simulationAPI.loadProfile({ getItem: key => ui.storage.get(key) });
     assert.deepEqual(reloaded, { ...simulationAPI.defaultProfile(), music: false });
     await ui.click('pause');
-    assert.equal(ui.el('modal-card').querySelectorAll('[data-level]').length, 1);
-    await ui.click('resume'); ui.completeFlock();
+    await ui.click('choose-meadow-menu');
+    assert.equal(ui.el('modal-card').querySelectorAll('[data-level]:not([disabled])').length,1);
+    await ui.click('meadows-back'); ui.completeFlock();
     assert.equal(ui.app.state().profile.points, 80, 'Fresh tutorial can earn its reward again');
   });
 }
@@ -401,23 +408,24 @@ test('canceling Restart Game restores the main screen or pause menu without eras
   for (const origin of ['main', 'pause']) {
     for (const exit of ['cancel-reset', 'close', 'Escape']) {
       const ui = launch({ points: 600, highestLevel: 9, completedLevels: [0, 8], upgrades: { speed: 2, drone: 1 } });
-      if (origin === 'pause') { await ui.click('play'); await ui.click('pause'); }
+      if (origin === 'pause') await ui.click('play');
+      await ui.click('pause');
       const before = JSON.stringify(ui.app.state().profile), level = ui.app.state().level;
       const stored = ui.storage.get('flock-foundry-v1');
-      await ui.click(`restart-game-${origin === 'main' ? 'main' : 'menu'}`);
+      await ui.click('restart-game-menu');
       ui.tick();
       if (exit === 'Escape') ui.emit('keydown', { key: 'Escape' });
       else await ui.click(exit);
       assert.equal(JSON.stringify(ui.app.state().profile), before);
       assert.equal(ui.storage.get('flock-foundry-v1'), stored);
       assert.equal(ui.app.state().level, level);
-      assert.equal(ui.app.state().mode, origin === 'main' ? 'intro' : 'paused');
+      assert.equal(ui.app.state().mode,'paused');
       if (origin === 'pause') {
         assert.ok(ui.el('restart-game-menu'));
         await ui.click('resume'); assert.equal(ui.app.state().mode, 'playing');
       } else {
-        assert.ok(ui.el('modal').classList.contains('hidden'));
-        assert.equal(ui.document.activeElement, ui.el('restart-game-main'));
+        assert.ok(!ui.el('modal').classList.contains('hidden'));
+        await ui.click('resume');assert.equal(ui.app.state().mode,'intro');
       }
     }
   }
@@ -444,7 +452,7 @@ test('Restart Game still clears session progress when storage is unavailable', a
 
 test('delayed Restart Game audio does not move focus out of a newly opened pause menu', async () => {
   const ui = launch({ points: 600, highestLevel: 9, deferAudioStart: true });
-  await ui.click('restart-game-main'); const restarting = ui.click('confirm-reset');
+  await ui.click('pause');await ui.click('restart-game-menu'); const restarting = ui.click('confirm-reset');
   await ui.click('pause'); ui.el('resume').focus();
   ui.settleAudioStart(); await restarting;
   assert.equal(ui.app.state().mode, 'paused');
@@ -719,7 +727,7 @@ test('Quit discards only the current meadow, stops input and preserves the campa
   assert.equal(ui.storage.get('flock-foundry-v1'),saved);
   for(const id of ['mission','controls','map-box','tip','countdown'])assert.ok(ui.el(id).classList.contains('hidden'),id);
   assert.ok(!ui.el('intro').classList.contains('hidden'));assert.equal(ui.document.activeElement,ui.el('play'));
-  ui.advance(3);assert.equal(state.level.time??0,0);assert.equal(ui.audioEvents.at(-1),'gameplay-paused:true');
+  ui.advance(3);assert.equal(state.level.time??0,0);assert.equal(ui.audioEvents.filter(event=>event.startsWith('gameplay-paused:')).at(-1),'gameplay-paused:true');
   await ui.click('play');assert.equal(ui.app.state().level.index,4);assert.notEqual(ui.app.state().level,oldLevel);
 });
 
@@ -778,7 +786,7 @@ test('real soundtrack keeps one transport from landing through play, overlays, r
    assert.ok(voices.every(source=>source.stops.length===1&&!source.disconnected),'navigation never releases the sounding music voices');
   };
   await ui.click('wallet');continuous();await ui.click('shop-back');continuous();
-  await ui.click('restart-game-main');continuous();await ui.click('cancel-reset');continuous();
+  await ui.click('pause');await ui.click('restart-game-menu');continuous();await ui.click('cancel-reset');continuous();await ui.click('resume');continuous();
   await ui.click('play');continuous();assert.equal(audio.gameplayPaused,false);
   await ui.click('pause');continuous();assert.equal(audio.gameplayPaused,true);
   await ui.click('upgrades-menu');continuous();await ui.click('shop-back');continuous();
@@ -787,7 +795,7 @@ test('real soundtrack keeps one transport from landing through play, overlays, r
   await ui.click('next');continuous();ui.completeFlock();assert.equal(ui.app.state().mode,'complete');continuous();
   await ui.click('replay');continuous();await ui.click('pause');await ui.click('restart');continuous();
   await ui.click('pause');await ui.click('quit');continuous();assert.equal(ui.app.state().mode,'intro');
-  await ui.click('restart-game-main');continuous();await ui.click('confirm-reset');continuous();
+  await ui.click('pause');await ui.click('restart-game-menu');continuous();await ui.click('confirm-reset');continuous();
   await ui.click('pause');await ui.click('quit');continuous();
   context.currentTime=.3;timer.callback();assert.notEqual(audio.step,step,'the same score advances while landing is visible');
   await ui.click('wallet');const before=audio.step;context.currentTime=.8;timer.callback();
@@ -899,4 +907,22 @@ test('control settings change joystick movement and cap the live controller fram
   assert.equal(ui.app.state().input.x,.5);
   ui.tick();
   assert.equal(ui.app.state().renderer.lastDt,.01);
+});
+
+
+test('floating joystick follows the movement touch, retains its origin, and resets on every cancellation path', async()=>{
+ for(const end of ['pointerup','pointercancel','lostpointercapture','pause','resize','hidden']){
+  const ui=launch();await ui.click('play');const gesture={pointerId:7,clientX:202,clientY:440};
+  ui.emit('pointerdown',gesture);assert.equal(ui.el('joystick').style.left,'202px');assert.equal(ui.el('joystick').style.top,'440px');
+  ui.emit('pointermove',{...gesture,clientX:244});assert.equal(ui.app.state().input.x,1);assert.equal(ui.el('joystick').style.left,'202px');
+  ui.emit('pointerup',{...gesture,pointerId:8});assert.equal(ui.app.state().pointer,7,'unrelated finger cannot end movement');
+  if(end==='pause')await ui.click('pause');else if(end==='resize')ui.windowEvents.get('resize')();else if(end==='hidden'){ui.document.hidden=true;ui.emit('visibilitychange');}else ui.emit(end,gesture);
+  assert.equal(ui.app.state().pointer,null);assert.equal(ui.app.state().input.x,0);assert.equal(ui.el('joystick').style.left,'');assert.equal(ui.el('joystick').style.top,'');
+ }
+});
+test('bark readiness accent matches restored charges, expires and stays quiet across restart and pause', async()=>{
+ const ui=launch();await ui.click('play');assert.equal(ui.el('bark').classList.contains('ready-accent'),false);await ui.click('bark');ui.advance(barkAPI.BARK_COOLDOWN+.1);
+ assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').classList.contains('ready-accent'),true);assert.equal(ui.el('bark-ready').textContent,'Woof ready');
+ ui.advance(1);assert.equal(ui.el('bark').classList.contains('ready-accent'),false);await ui.click('bark');await ui.click('pause');ui.advance(10);assert.equal(ui.el('bark').classList.contains('ready-accent'),false);
+ await ui.click('restart');assert.equal(ui.el('bark').classList.contains('ready-accent'),false);
 });

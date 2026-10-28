@@ -1,3 +1,4 @@
+import * as minimap from '../src/minimap-markers.js';
 import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
 import presentationSettings from '../src/config/presentation.json' with { type: 'json' };
 import { resolveConfig } from '../src/config/resolve.js';
@@ -31,7 +32,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={...minimap,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -106,12 +107,14 @@ test('minimap clips features to the shared concave playable boundary and restore
   level.boundary=[{x:-32,z:-24},{x:30,z:-24},{x:30,z:4},{x:6,z:4},{x:6,z:24},{x:-32,z:24}];
   const operations=[];let path=[];
   const ctx={save(){operations.push('save');},restore(){operations.push('restore');},
-    fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},
+    clearRect(){},rect(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},
     closePath(){path.push('close');},fill(){},stroke(){},arc(){},clip(){operations.push([...path]);}};
   renderer.drawMap({width:240,height:160,getContext:()=>ctx},level,level.dog);
   assert.equal(operations[0],'save');assert.equal(operations.at(-1),'restore');
-  const clipped=operations[1];assert.equal(clipped.length,7);assert.equal(clipped.at(-1),'close');
-  level.boundary.forEach((p,i)=>assert.deepEqual(clipped[i],[8+(p.x+32)/62*224,8+(p.z+24)/48*144]));
+  assert.deepEqual(operations[1],[]);
+  const clipped=operations[3];assert.equal(clipped.length,7);assert.equal(clipped.at(-1),'close');
+  const view=minimap.minimapProjection(level.bounds,level.dog,240,160,120);
+  level.boundary.forEach((p,i)=>assert.deepEqual(clipped[i],[view.project(p).x,view.project(p).y]));
 });
 
 test('large minimaps follow Pip at stable local scale and clamp the viewport at the world edge',()=>{
@@ -119,7 +122,7 @@ test('large minimaps follow Pip at stable local scale and clamp the viewport at 
   level.bounds={minX:-200,maxX:200,minZ:-200,maxZ:200};level.boundary=null;
   level.animals=[{x:0,z:0,type:'sheep'}];level.rivers=[];level.roads=[];level.fenceSegments=[];
   const dots=[];let circle;let saved=0,restored=0,clips=0;
-  const ctx={save(){saved++;},restore(){restored++;},rect(){},clip(){clips++;},fillRect(){},beginPath(){},
+  const ctx={clearRect(){},save(){saved++;},restore(){restored++;},rect(){},clip(){clips++;},fillRect(){},beginPath(){},
     moveTo(){},lineTo(){},closePath(){},stroke(){},arc(x,y,r){circle={x,y,r};},
     fill(){if(circle)dots.push({...circle,color:this.fillStyle});circle=null;}};
   const draw=dog=>{dots.length=0;renderer.drawMap({width:240,height:160,getContext:()=>ctx},level,dog);return dots.map(d=>({...d}));};
@@ -702,15 +705,13 @@ test('actual target meshes and map show the shared rectangle across every enclos
     const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,2,admitted.z),new THREE.Vector3(0,-1,0));
     assert.ok(ray.intersectObject(renderer.goal).length,'admitted cow corner is visibly inside goal');
     let path=[],fills=[];
-    const ctx={save(){},restore(){},rect(){},clip(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
+    const ctx={clearRect(){},save(){},restore(){},rect(){},clip(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
     const canvas={width:240,height:160,getContext:()=>ctx};renderer.drawMap(canvas,level,level.dog);
     const mapGoal=fills.find(p=>p.color==='#f9e7a2');
     assert.ok(mapGoal,'minimap draws target');assert.equal(mapGoal.path.length,5);assert.equal(mapGoal.path[4],'close');
-    const viewW=Math.min(level.bounds.maxX-level.bounds.minX,120*224/144),viewD=Math.min(level.bounds.maxZ-level.bounds.minZ,120);
-    const left=Math.max(level.bounds.minX,Math.min(level.bounds.maxX-viewW,level.dog.x-viewW/2));
-    const top=Math.max(level.bounds.minZ,Math.min(level.bounds.maxZ-viewD,level.dog.z-viewD/2));
+    const view=minimap.minimapProjection(level.bounds,level.dog,240,160,120);
     shape.corners.forEach((corner,i)=>{
-      const expected=[8+(corner.x-left)/viewW*224,8+(corner.z-top)/viewD*144];
+      const projected=view.project(corner),expected=[projected.x,projected.y];
       assert.ok(mapGoal.path[i].every((n,j)=>Math.abs(n-expected[j])<1e-8),'minimap uses exact projected physical corners');
     });
     if(target.type==='barn')assert.ok(renderer.cutaway?.parts.length>12,'barn cutaway remains installed');
@@ -725,7 +726,7 @@ test('minimap palette separates terrain features and outlines every animal marke
   level.gates=[{x:3,z:0,heading:0,width:4,operable:true,open:false}];
   const operations=[];let path=[];
   const ctx={
-    save(){},restore(){},rect(){},clip(){},
+    clearRect(){},save(){},restore(){},rect(x,y,w,h){path.push({rect:true,x,y,w,h});},clip(){},
     fillRect(...args){operations.push({type:'background',color:this.fillStyle,args});},
     beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},
     arc(x,y,r){path.push({arc:true,x,y,r});},
@@ -741,16 +742,16 @@ test('minimap palette separates terrain features and outlines every animal marke
   };
   const contrast=(first,second)=>{const values=[luminance(first),luminance(second)].sort((a,b)=>b-a);return (values[0]+.05)/(values[1]+.05);};
   assert.ok(background,'minimap paints a base field');
-  const lineFeatures=operations.filter(op=>op.type==='stroke'&&!op.path.some(point=>point?.arc));
+  const lineFeatures=operations.filter(op=>op.type==='stroke'&&op.color!=='#183027'&&!op.path.some(point=>point?.arc||point?.rect));
   assert.ok(lineFeatures.length>0,'map includes rivers, routes, barriers and the closed gate');
   for(const feature of lineFeatures)assert.ok(contrast(feature.color,background)>=3,`line feature ${feature.color} reaches 3:1 against the map field`);
-  const actorOutlines=operations.filter(op=>op.type==='stroke'&&op.width===1.5&&op.path.some(point=>point?.arc));
+  const actorOutlines=operations.filter(op=>op.type==='stroke'&&op.width===1.5&&op.path.some(point=>point?.arc||point?.rect));
   assert.ok(actorOutlines.length>=4,'each animal, Pip and helper gets a dark outline');
-  const actorFills=operations.filter(op=>op.type==='fill'&&op.path.some(point=>point?.arc));
+  const actorFills=operations.filter(op=>op.type==='fill'&&op.path.some(point=>point?.arc||point?.rect));
   assert.equal(actorFills.length,4,'two livestock, Pip and the helper have individual map markers');
   assert.ok(new Set(actorFills.map(op=>op.color)).size>=3,'livestock status and actor roles use distinguishable marker colors');
   for(const fill of actorFills){
-    const fillArc=fill.path.find(point=>point?.arc),outline=actorOutlines.find(op=>op.path.some(point=>point?.arc&&point.x===fillArc.x&&point.y===fillArc.y&&point.r===fillArc.r));
+    const fillArc=fill.path.find(point=>point?.arc||point?.rect),outline=actorOutlines.find(op=>op.path.some(point=>(point?.arc||point?.rect)&&point.x===fillArc.x&&point.y===fillArc.y&&point.r===fillArc.r));
     assert.ok(outline,`marker at ${fillArc.x}, ${fillArc.y} has a recorded outline`);
     assert.ok(contrast(fill.color,outline.color)>=3,'each bright actor marker contrasts at least 3:1 with its dark outline');
   }

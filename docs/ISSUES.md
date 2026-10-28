@@ -25,18 +25,19 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-RENDER-001 | P2 | Rendering defect | Missing wildlife and environment shadows | Open | Existing lighting; F-015 |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
-| F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
-| F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
-| F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
-| F-UI-004 | P2 | Loading | Clay meadow loading vignette | Open | Current loading overlay; F-UI-005/006 |
-| F-UI-005 | P2 | Loading | Honest initialization progress | Open | Actual asset/renderer initialization tasks |
-| F-UI-006 | P2 | Loading | Smooth reveal of the ready meadow | Open | F-UI-005; existing scene initialization |
-| F-UI-007 | P2 | Loading/recovery | Retry and clear loading-error recovery | Open | Initialization/error handling; F-UI-005 |
-| F-UI-008 | P2 | Landing | Progress-aware Start or Continue action | Open | Saved campaign progression; existing begin/resume behavior |
-| F-UI-009 | P2 | Landing | Living showcase meadow | Open | Existing intro simulation; bird/herd/companion future features when available |
-| F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
-| F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
-| F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
+| F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Review | Existing Woof/cooldown UI; coordinate F-050 |
+| F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Review | Accepted top-center minimap; existing delivery/flock state |
+| F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Review | Existing tier availability/costs; F-050 descriptions |
+| F-UI-004 | P2 | Loading | Clay meadow loading vignette | Review | Current loading overlay; F-UI-005/006 |
+| F-UI-005 | P2 | Loading | Honest initialization progress | Review | Actual asset/renderer initialization tasks |
+| F-UI-006 | P2 | Loading | Smooth reveal of the ready meadow | Review | F-UI-005; existing scene initialization |
+| F-UI-007 | P2 | Loading/recovery | Retry and clear loading-error recovery | Review | Initialization/error handling; F-UI-005 |
+| F-UI-008 | P2 | Landing | Progress-aware Start or Continue action | Review | Saved campaign progression; existing begin/resume behavior |
+| F-UI-009 | P2 | Landing | Living showcase meadow | Review | Existing intro simulation; bird/herd/companion future features when available |
+| F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Review | Existing reset confirmation; F-UI-011 |
+| F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Review | Existing unlocked-level picker and saved progress |
+| F-UI-014 | P2 | Controls/layout | Top tips, floating centered joystick, bottom-left QA and circular borderless minimap | Review | Existing controls and minimap |
+| F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Review | Current landing copy; Buddy ownership/unlock context |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
@@ -200,7 +201,7 @@ Planning requested by Novy; **all F-BIRD items are Open, unassigned and not impl
 
 ## Bird feature additions — 18 October 2026, 21:47 America/Creston
 
-Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2, Open, unassigned and not implemented. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
+Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
 
 ### F-BIRD-009 — Small social foraging groups (P2)
 
@@ -257,7 +258,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 **Historical planning record:** the Open/unimplemented status statements in this planning introduction are superseded by the 19 October execution records, current overview and individual issue details. F-COMP-001/002/003/007/009/010 are now Done in [Closed issues](ISSUES_CLOSED.md), accepted 22 October 2026; F-COMP-004/005/006/008 remain Open.
 
-Novy requested tracking all eight suggested improvements. **F-COMP-001–008 are P2, Open, unassigned and not implemented.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).
+Novy requested tracking all eight suggested improvements. **F-COMP-001–008 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).
 
 Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reopening completed fixes. No second Buddy, upgrade pricing, new control scheme, automated Pip navigation or new gameplay resource is included. This request adds tracker scope only; runtime implementation, review and publication remain future work.
 
@@ -300,13 +301,17 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ## Gameplay, loading and landing UI plan — 18 October 2026, 21:57 America/Creston
 
-Novy requested tracking the twelve remaining suggestions and explicitly skipped **contextual gate controls, cleaner results and control preferences**. Those three suggestions are not new work items in this batch; this exclusion does not close or cancel unrelated existing tracker issues. **F-UI-001–012 are P2, Open, unassigned and not implemented.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`; runtime owner/feature branch to be claimed from current main when scheduled. UI-scoped IDs avoid concurrent numeric-ID collisions.
+Novy requested tracking the twelve remaining suggestions and explicitly skipped **contextual gate controls, cleaner results and control preferences**. Those three suggestions are not new work items in this batch; this exclusion does not close or cancel unrelated existing tracker issues. **F-UI-001–012 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026.** UI-scoped IDs avoid concurrent numeric-ID collisions; the layout item uses F-UI-014 to preserve the historical F-UI-013 camera record.
 
 Prioritize progress-aware Continue (008), moving full-game reset (010), loading recovery (007) and workshop clarity (003). Retain the approved cream/green/clay visual language, minimal weather/livestock HUD, Level # introduction, top-center minimap, numbered tips, circular Woof and production QA exclusion. Respect existing reduced-motion behavior when animating; this is not authorization to add the skipped control-preference/settings feature. Optional bark haptics remain within the explicitly retained bark-feedback suggestion.
 
 ### F-UI-001 — Clear bark cooldown-to-ready feedback (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Existing Woof/cooldown UI; coordinate F-050.
 
@@ -314,7 +319,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-002 — Distinct livestock states on the minimap (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Accepted top-center minimap; existing delivery/flock state.
 
@@ -322,7 +331,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-003 — Current-to-next upgrade benefits and previews (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Existing tier availability/costs; F-050 descriptions.
 
@@ -330,7 +343,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-004 — Clay meadow loading vignette (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Current loading overlay; F-UI-005/006.
 
@@ -338,7 +355,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-005 — Honest initialization progress (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Actual asset/renderer initialization tasks.
 
@@ -346,7 +367,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-006 — Smooth reveal of the ready meadow (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** F-UI-005; existing scene initialization.
 
@@ -354,7 +379,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-007 — Retry and clear loading-error recovery (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Initialization/error handling; F-UI-005.
 
@@ -362,7 +391,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-008 — Progress-aware Start or Continue action (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Saved campaign progression; existing begin/resume behavior.
 
@@ -370,7 +403,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-009 — Living showcase meadow (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Existing intro simulation; bird/herd/companion future features when available.
 
@@ -378,7 +415,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-010 — Move full-game reset out of the Play area (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Existing reset confirmation; F-UI-011.
 
@@ -386,7 +427,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-011 — Clear meadow selector with remembered browsing position (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Existing unlocked-level picker and saved progress.
 
@@ -394,7 +439,11 @@ Prioritize progress-aware Continue (008), moving full-game reset (010), loading 
 
 ### F-UI-012 — Introduction copy for sheep, cows, Pip and Buddy (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
 
 **Depends on / preserve:** Current landing copy; Buddy ownership/unlock context.
 
@@ -514,3 +563,24 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 **Reported — 28 October 2026:** Rabbits, squirrels, birds on the ground, trees, bushes and other environment objects do not cast shadows.
 
 **Accept when:** Investigate and fix missing cast shadows for the reported wildlife and environment objects. Shadows follow scene lighting and ground height, remain visible at normal phone zoom, and move with wildlife. Preserve the claymation style and mobile performance; do not re-enable intentionally disabled cloud shadows. Confirm visually on a real renderer/device. This is a queued defect, not a claim of reproduction or repair.
+
+
+### F-UI-014 - Touch controls and map layout
+
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Tips retain numbered badges at the top of the screen; idle joystick is horizontally centered with its center at the vertical center of the bottom third, then relocates under the initial movement touch. Drag displacement continues relative to that touch. Release, cancel, lost capture, resize, pause and backgrounding neutralize input and restore its idle position. QA button is bottom left and remains development-only. Minimap is circular, has no white border, and uses only a drop shadow; maintain safe-area spacing and readable map actors. Preserve bark/double-tap, keyboard, multi-touch and profile behavior.
+
+**28 October 2026:** User requested with the P2 UI batch. Native phone appearance/touch acceptance remains pending.
+
+## P2 UI batch implementation record - 28 October 2026
+
+F-UI-001–012 and F-UI-014 (thirteen scoped items) are source candidates in Review on `feat/p2-ui`, based on main `0011f9e`. Work used an isolated source snapshot with disjoint implementation ownership. Focused checks passed: loading 5, landing 5, minimap 6, and UI plus QA 55. Full checks are being run by the integrating owner; no full-suite/build outcome, review score or publication is recorded here. A local native-browser preview timed out. Rendered appearance, touch usability, listening and phone FPS have not been observed; user sign-off remains pending.
+
+Implemented contracts: loading is bootstrapped before the renderer and dynamically imports the game; initialization labels reflect stages (indeterminate, without a percentage); a 12-second slow-work prompt offers retry; retry reloads; WebGL2 failures have a specific message and other initialization failures preserve progress; ready overlay uses a 0.3-second CSS transition with a 320 ms cleanup timer and reduced-motion immediate cleanup. The CSS vignette is standalone and pauses while hidden/failing. Landing utilities label Start/Continue from saved highest-level progression, paginate 100 levels by 20 while locking unavailable levels, render current/next workshop benefits and illustrative Buddy/bark motion previews, and build a separate eight-animal showcase with Buddy only when eligible. Full reset is in settings. F-UI-014 moves numbered tips to the top, positions the idle joystick at viewport center/83.333% height and relocates it with movement touch, moves QA to lower left, and styles the minimap as a circular borderless shadowed map. F-UI-001 adds ready feedback; F-UI-002 marks delivered, primary flock and separated animals using distinct shapes as well as colors.
+
+## P2 UI integration checkpoint - 28 October 2026
+
+F-UI-001-012 and F-UI-014 remain Review pending user acceptance. Independent blind source review scored 7.5/10 initially; all four confirmed findings were repaired and the same critic's follow-up scored 9.2/10 with no remaining blocker. Full source checks: 527 passed, one host-permission symlink skip, zero failed. QA installation now waits for the renderer; leaving QA restores campaign continuation and sound preferences without persisting test settings. Novy authorized commit and development deployment after the environment interruption. Final checked-build, source CI and live publication evidence are recorded separately; this checkpoint does not claim deployment or phone acceptance.

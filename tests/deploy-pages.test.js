@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { deploymentPlan } from '../scripts/deploy-pages.mjs';
 function fixture(t) {
-  const dir = mkdtempSync(join(tmpdir(), 'flock-deploy-'));
-  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const cwd=process.cwd(),dir = mkdtempSync(join(tmpdir(), 'flock-deploy-'));
+  t.after(() => {process.chdir(cwd);rmSync(dir, { recursive: true, force: true });});
   mkdirSync(join(dir, 'assets'));
   const put = (name, text) => writeFileSync(join(dir, name), text);
   put('index.html', '<script src="./assets/game.js"></script><link href="./assets/game.css" rel="stylesheet">');
@@ -29,7 +29,7 @@ for (const [name,mutate] of [
  ['lazy CSS dependency', f=>f.put('assets/lazy.css','body{background:url(./missing.png)}')],
  ['symlink', f=>symlinkSync(join(f.dir,'index.html'),join(f.dir,'assets/link.html'))],
  ['protected tracker', f=>{mkdirSync(join(f.dir,'tracker'));f.put('tracker/index.html','unrelated');}],
-]) test(`rejects ${name}`,t=>{const f=fixture(t);mutate(f);assert.throws(()=>f.plan());});
+]) test(`rejects ${name}`,t=>{const f=fixture(t);try{mutate(f);}catch(error){if(name==='symlink'&&['EPERM','EACCES'].includes(error.code)){t.skip('Host does not permit creating symlinks');return;}throw error;}assert.throws(()=>f.plan());});
 test('syntax validator ignores import words in strings',t=>{const f=fixture(t);f.put('assets/game.js','export const a = "import missing";');assert.equal(f.plan().files.length,4);});
 
 test('publisher preserves unrelated tree entries and refuses a changed Pages head', async t => {
