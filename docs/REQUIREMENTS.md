@@ -609,3 +609,8 @@ F-UI-001–012 and F-UI-014 are implemented source candidates on `feat/p2-ui`, b
 
 
 F-RENDER-001 remains Open for the separately queued investigation of missing wildlife and environment shadows. It is outside this UI batch; preserve the dormant cloud decision and verify any future shadow repair in a real renderer.
+
+
+## F-UI-015 - Landing and presentation follow-up - 28 October 2026
+
+Numbered tips belong directly beneath the minimap, superseding the uppermost tips row in the first P2 UI candidate. Remove the upper-screen color fade. The landing screen uses a randomized field size and its appropriate complete flock, safely spread out on grass, grazing with varied headings. Pip wanders calmly without herding or disturbing livestock. Increase environment vibrancy by 25% while retaining weather, actor and HUD readability. Decorative motion never changes campaign progress, rewards or delivery timers. See the active tracker for acceptance and evidence; this is not user sign-off on the prior UI batch.

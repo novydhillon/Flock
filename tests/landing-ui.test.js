@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { continuation, meadowPage, meadowSelectorHTML, workshopUpgrades, workshopHTML, createShowcase } from '../src/landing-ui.js';
+import { continuation, meadowPage, meadowSelectorHTML, workshopUpgrades, workshopHTML, createShowcase, stepShowcase } from '../src/landing-ui.js';
 import { defaultProfile, applyLevelReward } from '../src/profile.js';
 import { UPGRADE_CATALOG, purchaseUpgrade } from '../src/progression.js';
 import { updateGrazing, canGrazeAt } from '../src/grazing.js';
@@ -46,12 +46,57 @@ test('preview markup is inert and real atomic purchasing remains the only profil
 });
 test('showcase is a small separate mixed meadow with owned eligible Buddy and no reward/timer changes',()=>{
   const profile={...defaultProfile(),points:100,highestLevel:19,upgrades:{helper:1}},before=JSON.stringify(profile);
-  const {level,dog}=createShowcase(profile);
-  assert.ok(level.animals.length<=8);assert.ok(level.animals.some(a=>a.type==='cow'));assert.ok(level.animals.some(a=>a.type==='sheep'));
+  const {level,dog}=createShowcase(profile,1);
+  assert.equal(level.animals.length,Math.min(5+level.index*3,65));if(level.index>=3)assert.ok(level.animals.some(a=>a.type==='cow'));assert.ok(level.animals.some(a=>a.type==='sheep'));
   assert.equal(level.helpers.length,1);assert.equal(canOccupy(level,level.helpers[0].x,level.helpers[0].z,.5),true);
   assert.equal(createShowcase(defaultProfile()).level.helpers.length,0);
   assert.equal(createShowcase({...profile,highestLevel:0}).level.helpers.length,0);
   const timer=JSON.stringify(level.delivery),time=level.time;
   for(const animal of level.animals){const pose={userData:{},rotation:{y:0}};for(let i=0;i<600;i++)updateGrazing(pose,animal,level,1/60);assert.equal(animal.saved,false);if(!canGrazeAt(level,animal))assert.equal(pose.userData.graze,0);}
   assert.equal(applyLevelReward(profile,level),0);assert.equal(JSON.stringify(profile),before);assert.equal(JSON.stringify(level.delivery),timer);assert.equal(level.time,time);assert.ok(Number.isFinite(dog.x));
+});
+
+
+test('randomized showcases keep the generated flock and spread grass-safe actors without changing progress', () => {
+  const profile = defaultProfile(), before = JSON.stringify(profile);
+  const sizes = new Set(), counts = new Set();
+  for (let seed = 1; seed <= 200; seed++) {
+    const {level} = createShowcase(profile, seed);
+    sizes.add(JSON.stringify(level.bounds)); counts.add(level.animals.length);
+    assert.equal(level.animals.length, Math.min(5 + level.index * 3, 65));
+    const headings = new Set(level.animals.map(a => a.heading));
+    assert.equal(headings.size, level.animals.length);
+    for (const animal of level.animals) {
+      assert.ok(canGrazeAt(level, animal));
+      assert.ok(canOccupy(level, animal.x, animal.z, .5));
+      assert.equal(animal.saved, false);
+      const pose = {userData: {graze: 1, grazeWait: 12, grazeAnchor: {x: animal.x, z: animal.z}}, rotation: {y: animal.heading}};
+      updateGrazing(pose, animal, level, 1/60);
+      assert.equal(pose.userData.graze, 1, 'the actual muzzle and hoof envelope remains edible');
+    }
+    const xs = level.animals.map(a => a.x), zs = level.animals.map(a => a.z);
+    assert.ok(Math.hypot(Math.max(...xs)-Math.min(...xs),Math.max(...zs)-Math.min(...zs)) > 15);
+  }
+  assert.ok(sizes.size >= 3); assert.ok(counts.size >= 3);
+  assert.equal(JSON.stringify(profile), before);
+});
+
+test('resting Pip wanders gently without stepping the flock, delivery, or campaign clocks', () => {
+  const profile = defaultProfile(), before = JSON.stringify(profile);
+  const {level, dog} = createShowcase(profile, 725);
+  const animals = JSON.stringify(level.animals), delivery = JSON.stringify(level.delivery), time = level.time;
+  const start = {x: dog.x, z: dog.z}; let traveled = 0;
+  for (let i = 0; i < 7200; i++) {
+    const previous = {x: dog.x, z: dog.z};
+    stepShowcase(level, dog, 1/60);
+    const distance = Math.hypot(dog.x-previous.x,dog.z-previous.z);
+    assert.ok(distance <= .8/60 + 1e-8);
+    assert.ok(canOccupy(level,dog.x,dog.z,.5));
+    traveled += distance;
+  }
+  assert.ok(traveled > 1);
+  assert.equal(JSON.stringify(level.animals), animals);
+  assert.equal(JSON.stringify(level.delivery), delivery); assert.equal(level.time,time);
+  assert.equal(JSON.stringify(profile),before);
+  const frozen = {...dog}; stepShowcase(level,dog,0); assert.deepEqual(dog,frozen);
 });

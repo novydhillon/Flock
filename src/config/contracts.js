@@ -224,6 +224,7 @@ export const CONFIG_CONTRACTS = freeze({
     "renderer": {
       "pixelRatioCap": "number",
       "exposure": "number",
+      "environmentSaturation": "number",
       "shadowMapSize": "integer",
       "fogNear": "number",
       "fogFar": "number"

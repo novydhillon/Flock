@@ -170,7 +170,7 @@ test('portrait scene builds articulated instance poses and finite camera matrice
     assert.equal(renderer.dog.rotation.y,0,'north heading remains valid');
     assert.ok(renderer.camera.projectionMatrix.elements.every(Number.isFinite));
     assert.ok(Number.isFinite(renderer.sun.intensity)&&Number.isFinite(renderer.hemisphere.intensity));
-    for(const color of [renderer.scene.background,renderer.scene.fog.color])assert.ok([color.r,color.g,color.b].every(Number.isFinite));
+    for(const color of [renderer.scene.background])assert.ok([color.r,color.g,color.b].every(Number.isFinite));
     assert.ok(renderer.camera.matrixWorld.elements.every(Number.isFinite));
     const limbs=renderer.animalBatches.flatMap(batch=>batch.meshes).filter(m=>m.userData.limbIndex!==undefined);
     assert.equal(limbs.length,index>=3?16:8);
@@ -1056,4 +1056,81 @@ test('presentation settings reach the real renderer budget, exposure and camera 
   assert.equal(renderer.renderer.pixelRatio,.9);
   assert.equal(renderer.renderer.toneMappingExposure,1.3);
   assert.equal(renderer.camera.top-renderer.camera.bottom,40);
+});
+
+test('environment saturation preserves actor materials and existing surface hooks', () => {
+  const renderer = setup();
+  renderer.setLevel(createLevel(3, 201));
+  assert.equal(renderer.scene.fog, null, 'distance haze must not wash out the upper field');
+  assert.equal(renderer.grass.userData.environmentVibrancy, 1.25);
+  const shader = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <emissivemap_fragment>\n#include <tonemapping_fragment>' };
+  renderer.grass.onBeforeCompile(shader);
+  assert.match(shader.fragmentShader, /mix\(vec3\(environmentLuma\), gl_FragColor.rgb, 1.25\)/);
+  assert.ok(shader.uniforms.pipGlowCenters, 'existing ground glow hook survives');
+  const actorMaterials = new Set();
+  renderer.actors.traverse(object => { for (const material of Array.isArray(object.material) ? object.material : [object.material]) if (material) actorMaterials.add(material); });
+  for (const material of actorMaterials) assert.equal(material.userData.environmentVibrancy, undefined);
+  renderer.setLevel(createLevel(4, 202));
+  const next = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <emissivemap_fragment>\n#include <tonemapping_fragment>' };
+  renderer.grass.onBeforeCompile(next);
+  assert.equal((next.fragmentShader.match(/float environmentLuma/g) || []).length, 1, 'level changes never stack the saturation adjustment');
+});
+
+test('shared actor materials get one owned environment clone with their shader behavior retained', () => {
+  const source = readFileSync(new URL('../src/render.js', import.meta.url), 'utf8');
+  const start = source.indexOf('function boostEnvironmentVibrancy(');
+  const end = source.indexOf('function label(', start);
+  const context = {};
+  vm.runInNewContext(source.slice(start, end) + ';this.boost=boostEnvironmentVibrancy;', context);
+  const material = new THREE.MeshStandardMaterial({color:'#79a551'});
+  material.onBeforeCompile = shader => {shader.uniforms.originalSurface = {value:7};};
+  const terrain = new THREE.Group(), actors = new THREE.Group();
+  const a = new THREE.Mesh(new THREE.BoxGeometry(), material);
+  const b = new THREE.Mesh(a.geometry, material);
+  terrain.add(a,b);actors.add(new THREE.Mesh(a.geometry, material));
+  context.boost(terrain, actors, 1.25);
+  assert.notEqual(a.material, material);
+  assert.equal(a.material,b.material,'environment reuse keeps a single cloned material');
+  assert.equal(a.userData.ownedMaterial,true);
+  assert.equal(material.userData.environmentVibrancy,undefined);
+  const shader={uniforms:{},fragmentShader:'#include <tonemapping_fragment>'};
+  a.material.onBeforeCompile(shader);
+  assert.equal(shader.uniforms.originalSurface.value,7);
+  assert.match(shader.fragmentShader,/environmentLuma/);
+  const clone = a.material;
+  context.boost(terrain,actors,1.25);
+  assert.equal(a.material,clone,'install is idempotent');
+});
+
+test('zero environment saturation remains idempotent across reused surfaces and level replacement', () => {
+  const settings = structuredClone(presentationSettings);
+  settings.renderer.environmentSaturation.value = 0;
+  const renderer = setup({settings});
+  const source = readFileSync(new URL('../src/render.js', import.meta.url), 'utf8');
+  const start = source.indexOf('function boostEnvironmentVibrancy(');
+  const context = {};
+  vm.runInNewContext(source.slice(start, source.indexOf('function label(', start)) + ';this.boost=boostEnvironmentVibrancy;', context);
+  for (const index of [2, 3, 2]) {
+    const level = createLevel(index, 401);
+    renderer.setLevel(level);
+    const sharedSurfaces = [];
+    renderer.terrain.traverse(object => {
+      if (object.material === renderer.grass) sharedSurfaces.push(object);
+    });
+    assert.ok(sharedSurfaces.length > 0);
+    renderer.terrain.add(new THREE.Mesh(sharedSurfaces[0].geometry, renderer.grass));
+    context.boost(renderer.terrain, renderer.actors, 0);
+    context.boost(renderer.terrain, renderer.actors, 0);
+    const shader = {
+      uniforms: {},
+      vertexShader: '#include <begin_vertex>',
+      fragmentShader: '#include <emissivemap_fragment>\n#include <tonemapping_fragment>',
+    };
+    renderer.grass.onBeforeCompile(shader);
+    assert.equal(renderer.grass.userData.environmentVibrancy, 0);
+    assert.equal((shader.fragmentShader.match(/float environmentLuma/g) || []).length, 1,
+      'zero gain must not install duplicate declarations per surface or level');
+    assert.match(shader.fragmentShader, /mix\(vec3\(environmentLuma\), gl_FragColor.rgb, 0\.0\)/);
+    assert.ok(shader.uniforms.pipGlowCenters, 'the original surface hook remains installed');
+  }
 });

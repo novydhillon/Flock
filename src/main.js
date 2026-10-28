@@ -8,7 +8,7 @@ const PRESENTATION=resolveConfig(presentationSettings, 'presentation', CONFIG_CO
 
 import './style.css';
 import './landing-ui.css';
-import { continuation, meadowSelectorHTML, workshopHTML, createShowcase } from './landing-ui.js';
+import { continuation, meadowSelectorHTML, workshopHTML, createShowcase, stepShowcase } from './landing-ui.js';
 import '@fontsource/outfit/latin-600.css';
 import '@fontsource/outfit/latin-700.css';
 import '@fontsource/outfit/latin-900.css';
@@ -222,6 +222,7 @@ function frame(now){
     }
     if(result.justCompleted)complete();
   } else if(mode==='complete'&&!document.hidden) stepSavedRoaming(level,dt);
+  if(mode==='intro'&&!document.hidden&&pageFocused) stepShowcase(level,dog,dt);
   updateLevelIntroduction();
   renderer.update(level,dog,!document.hidden&&(mode==='playing'||mode==='intro'&&pageFocused||mode==='complete')?dt:0,mode==='intro');
   if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__)qaFrame?.();

@@ -36,6 +36,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-009 | P2 | Landing | Living showcase meadow | Review | Existing intro simulation; bird/herd/companion future features when available |
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Review | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Review | Existing unlocked-level picker and saved progress |
+| F-UI-015 | P2 | Landing and presentation | Tips beneath minimap, clear upper screen, randomized restful landing meadow and richer environment color | Review | F-UI-009; F-UI-014 |
 | F-UI-014 | P2 | Controls/layout | Top tips, floating centered joystick, bottom-left QA and circular borderless minimap | Review | Existing controls and minimap |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Review | Current landing copy; Buddy ownership/unlock context |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
@@ -584,3 +585,21 @@ Implemented contracts: loading is bootstrapped before the renderer and dynamical
 ## P2 UI integration checkpoint - 28 October 2026
 
 F-UI-001-012 and F-UI-014 remain Review pending user acceptance. Independent blind source review scored 7.5/10 initially; all four confirmed findings were repaired and the same critic's follow-up scored 9.2/10 with no remaining blocker. Full source checks: 527 passed, one host-permission symlink skip, zero failed. QA installation now waits for the renderer; leaving QA restores campaign continuation and sound preferences without persisting test settings. Novy authorized commit and development deployment after the environment interruption. Final checked-build, source CI and live publication evidence are recorded separately; this checkpoint does not claim deployment or phone acceptance.
+
+
+### F-UI-015 - Restful landing meadow and presentation follow-up
+
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Place numbered tips beneath the minimap rather than above it, with safe-area spacing and no portrait/landscape overlap. Remove the upper-screen color fade identified in the reference screenshot. Generate a random-sized landing field with the full flock appropriate to that field; spread the animals safely across grass, grazing immediately with varied headings. Pip wanders slowly as if taking a break, without applying herding pressure or disturbing the flock. Increase environment vibrancy by 25% while preserving readable HUD, actor contrast, weather behavior and bounded resources. Decorative landing activity must never advance campaign progress, delivery rewards or gameplay timers. Preserve Start/Continue, QA isolation, pause/background behavior and saved profiles.
+
+**28 October 2026:** Follow-up requested after the first P2 UI development publication. This supersedes the uppermost tips placement and fixed eight-animal landing showcase for the new candidate. Prior F-UI items remain Review; no user acceptance is inferred. Implementation, tests and independent review are in progress; no new deployment or rendered-device result is claimed.
+
+**Implementation checkpoint:** The source candidate places tips below the minimap, removes renderer distance fog, applies environment-only 1.25 shader saturation without altering shared actor materials, and uses generated field indexes 2-4 with their full 11, 14 or 17 animals for the landing scene. Independent decorative randomness, safe grass placement, immediate renderer grazing and Pip-only slow wandering preserve campaign and delivery state. Final landing, controller and grazing focused checks passed 64 tests; renderer and configuration checks passed 53 tests. Integrated checks and independent review remain with the integrating owner; no new publication or device acceptance is recorded here.
+
+
+**Focused source checks:** Landing, controller and grazing suites passed 64 tests, including 200 seeded randomized fields and a 120-second decorative wandering check with unchanged flock, delivery, profile and gameplay clock. Renderer and configuration checks passed 53 tests. These support source behavior only; the broader actual-pose seed sweep remains with integration. The candidate is Review pending integration, independent review and user appearance/usability acceptance; source completion is not publication or sign-off.
+
+**Integrated validation:** Final standard checked dev build passes532 tests with one host symlink-permission skip and zero failures; both artifact modes pass. Independent blind source review7.5/10 led to three repairs (exact grazing contacts, compact field range, zero-saturation shader idempotence); same-critic follow-up9/10 has no remaining confirmed material blocker. Independent2000-seed contact checks pass. Native appearance/touch/color/FPS and user acceptance remain pending. Publication evidence is recorded separately; see QUALITY.md for scope and verification limits.

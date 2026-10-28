@@ -45,6 +45,50 @@ function texture(kind,bump=false){
 function segmentDistanceSquared(x,z,a,b){const dx=b.x-a.x,dz=b.z-a.z,t=Math.max(0,Math.min(1,((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz||1))),px=x-a.x-t*dx,pz=z-a.z-t*dz;return px*px+pz*pz;}
 function segmentDistance(x,z,a,b){return Math.sqrt(segmentDistanceSquared(x,z,a,b));}
 function lineDistance(x,z,points){let d=Infinity;for(let i=1;i<points.length;i++)d=Math.min(d,segmentDistanceSquared(x,z,points[i-1],points[i]));return Math.sqrt(d);}
+// Install once on environment-only materials. Saturation is applied after surface
+// lighting, so textures, instance colors and wet-weather colors share the gain.
+function boostEnvironmentVibrancy(terrain, actors, saturation = PRESENTATION.renderer.environmentSaturation) {
+  const shaderGain = Number.isInteger(saturation) ? saturation.toFixed(1) : String(saturation);
+  const actorMaterials = new Set();
+  actors.traverse(object => {
+    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+      if (material) actorMaterials.add(material);
+    }
+  });
+  const environmentClones = new Map();
+  terrain.traverse(object => {
+    const sourceMaterials = Array.isArray(object.material) ? object.material : [object.material];
+    const materials = sourceMaterials.map(source => {
+      if (!source || !actorMaterials.has(source)) return source;
+      if (!environmentClones.has(source)) {
+        const clone = source.clone();
+        clone.onBeforeCompile = source.onBeforeCompile;
+        const sourceKey = source.customProgramCacheKey();
+        clone.customProgramCacheKey = () => sourceKey;
+        environmentClones.set(source, clone);
+      }
+      object.userData.ownedMaterial = true;
+      return environmentClones.get(source);
+    });
+    if (object.material) object.material = Array.isArray(object.material) ? materials : materials[0];
+    for (const material of materials) {
+      if (!material || material.userData.environmentVibrancy !== undefined) continue;
+      const originalCompile = material.onBeforeCompile;
+      const originalKey = material.customProgramCacheKey();
+      material.onBeforeCompile = function(shader, renderer) {
+        originalCompile.call(this, shader, renderer);
+        shader.fragmentShader = shader.fragmentShader.replace('#include <tonemapping_fragment>', 
+          'float environmentLuma = dot(gl_FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n' +
+          'gl_FragColor.rgb = max(vec3(0.0), mix(vec3(environmentLuma), gl_FragColor.rgb, ' + shaderGain + '));\n' +
+          '#include <tonemapping_fragment>');
+      };
+      material.customProgramCacheKey = () => originalKey + ':environment-vibrancy-' + saturation;
+      material.userData.environmentVibrancy = saturation;
+      material.needsUpdate = true;
+    }
+  });
+}
+
 function label(text,color='#45684d'){
   const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');
   x.fillStyle='#faf6e9';x.beginPath();x.roundRect(8,12,496,98,35);x.fill();x.fillStyle=color;x.font='bold 34px sans-serif';x.textAlign='center';x.fillText(text,256,76);
@@ -56,7 +100,7 @@ export class MeadowRenderer{
     this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,PRESENTATION.renderer.pixelRatioCap));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=PRESENTATION.renderer.exposure;
-    this.scene=new THREE.Scene();this.scene.background=new THREE.Color(PRESENTATION.lighting.skyDay);this.scene.fog=new THREE.Fog(PRESENTATION.lighting.skyDay,PRESENTATION.renderer.fogNear,PRESENTATION.renderer.fogFar);
+    this.scene=new THREE.Scene();this.scene.background=new THREE.Color(PRESENTATION.lighting.skyDay);this.scene.fog=null;
     this.hemisphere=new THREE.HemisphereLight(PRESENTATION.lighting.hemisphereSky,PRESENTATION.lighting.hemisphereGround,PRESENTATION.lighting.hemisphereIntensity);this.scene.add(this.hemisphere);this.skyDay=new THREE.Color(PRESENTATION.lighting.skyDay);this.skyStorm=new THREE.Color(PRESENTATION.lighting.skyStorm);
     this.sun=new THREE.DirectionalLight(PRESENTATION.lighting.sunColor,PRESENTATION.lighting.sunIntensity);this.sun.position.set(...PRESENTATION.lighting.sunOffset);this.sun.castShadow=true;
     this.sun.shadow.mapSize.set(PRESENTATION.renderer.shadowMapSize,PRESENTATION.renderer.shadowMapSize);Object.assign(this.sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:100});this.sun.shadow.camera.updateProjectionMatrix();this.sun.shadow.bias=PRESENTATION.lighting.shadowBias;this.sun.shadow.normalBias=PRESENTATION.lighting.shadowNormalBias;this.scene.add(this.sun,this.sun.target);
@@ -88,7 +132,7 @@ export class MeadowRenderer{
     // Level replacement disposes only tagged, level-owned resources. Shared
     // cached model geometry/materials remain valid for the next meadow.
     const geometries=new Set(),materials=new Set();
-    for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)materials.add(o.material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
+    for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)for(const material of Array.isArray(o.material)?o.material:[o.material])materials.add(material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
     geometries.forEach(g=>g?.dispose());materials.forEach(m=>m?.dispose());
     this.terrain.clear();this.actors.clear();this.sceneryBatches=[];this.helperMeshes.clear();this.animalMeshes=[];this.animalBatches=[];this.particles=[];
     // Orientation has its own stream so scenery positions and palette draws stay stable.
@@ -260,6 +304,7 @@ export class MeadowRenderer{
       }
       this.animalBatches.push({indices,meshes,radius,visibleIndices:[]},...coats.map(batch=>({...batch,radius})));
     }
+    boostEnvironmentVibrancy(this.terrain, this.actors);
     this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),0,level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
   }
   placeFence(a,b){
@@ -353,11 +398,15 @@ export class MeadowRenderer{
     // Simulation time advances only during play, so menus freeze this introduction.
     this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-PRESENTATION.introduction.signHoldSeconds)/PRESENTATION.introduction.signFadeSeconds));
     this.destinationSign.visible=this.destinationSign.material.opacity>0;
-    const viewHeight=preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
+    const showcase = preview && level.showcase;
+    const bounds = level.bounds;
+    const showcaseHeight = showcase ? Math.max((bounds.maxX-bounds.minX)/this.aspect, bounds.maxZ-bounds.minZ) * 1.2 : 0;
+    const viewHeight=showcase?showcaseHeight:preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
     // Center on Pip independently of distant livestock or the goal. The follow
     // offset cancels the camera ground look-at offset in every travel direction.
-    const desiredX=preview?level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX):dog.x;
-    const desiredZ=preview?level.spawn.z+PRESENTATION.camera.previewOffsetZ:dog.z+PRESENTATION.camera.followOffsetZ;
+    const desiredX=showcase?(bounds.minX+bounds.maxX)/2:preview?level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX):dog.x;
+    const desiredZ=showcase?(bounds.minZ+bounds.maxZ)/2-PRESENTATION.camera.lookOffsetZ:preview?level.spawn.z+PRESENTATION.camera.previewOffsetZ:dog.z+PRESENTATION.camera.followOffsetZ;
+    if(showcase){this.center.x=desiredX;this.center.z=desiredZ;}
     const lerp=preview?Math.min(1,dt*PRESENTATION.camera.previewFollowRate):Math.min(1,dt*PRESENTATION.camera.playFollowRate);this.center.x+=(desiredX-this.center.x)*lerp;this.center.z+=(desiredZ-this.center.z)*lerp;
     if(!preview){
       const marginX=halfWidth*PRESENTATION.camera.lagFraction,marginZ=half*PRESENTATION.camera.lagFraction;
@@ -377,7 +426,16 @@ export class MeadowRenderer{
     const poseTime=Math.floor(this.time*12)/12;
     updatePipPose(this.dog,dog,dt);updatePipHover(this.dog,dt);parts.tail.rotation.z=Math.sin(poseTime*7)*.3;
     this.thrusterGlow.update(this.dog,(x,z)=>terrainHeight(level,x,z));
-    level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.scale.setScalar(animalScale(a));m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);updateAnimalTurn(m,a,dt);updateGrazing(m,a,level,dt);m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.rotation.x=m.userData.herdPose?.weightShift||0;m.updateMatrix();});
+    level.animals.forEach((a,i)=>{const m=this.animalMeshes[i];m.scale.setScalar(animalScale(a));m.position.set(a.x,terrainHeight(level,a.x,a.z)+Math.sin(poseTime*12+i)*Math.min(.07,Math.hypot(a.vx,a.vz)*.025),a.z);if(showcase && !m.userData.showcaseGrazing){
+      m.rotation.y=a.heading||0;
+      m.userData.grazeAnchor={x:a.x,z:a.z};
+      m.userData.grazeWait=20;
+      m.userData.graze=1;
+      m.userData.showcaseGrazing=true;
+      // A tiny first step runs the normal surface/hoof checks before drawing.
+      updateGrazing(m,a,level,Math.max(dt,.001));
+    }
+    updateAnimalTurn(m,a,dt);updateGrazing(m,a,level,dt);m.rotation.z=Math.sin(poseTime*9+i)*Math.min(.055,Math.hypot(a.vx,a.vz)*.02);m.rotation.x=m.userData.herdPose?.weightShift||0;m.updateMatrix();});
     this.updateBarks(dt);
     for(const m of this.helperMeshes.values())m.visible=false;
     for(const h of level.helpers||[]){
@@ -405,7 +463,7 @@ export class MeadowRenderer{
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
     const weather=this.nature.weather;
     this.waterEffects.update(dt,{weather,movers:[{...dog,id:'pip'},...level.animals.map(a=>({...a,id:`flock-${a.id}`})),...(level.helpers||[]).filter(h=>h.type!=='drone').map(h=>({...h,id:`helper-${h.type}`}))],paused:dt<=0});
-    this.sun.intensity=PRESENTATION.lighting.sunIntensity*weather.daylight+weather.lightningFlash;this.hemisphere.intensity=PRESENTATION.lighting.hemisphereIntensity*weather.daylight+weather.lightningFlash*PRESENTATION.lighting.hemisphereFlashScale;this.scene.background.copy(this.skyDay).lerp(this.skyStorm,weather.cloudCoverage*PRESENTATION.lighting.stormSkyBlend);this.scene.fog.color.copy(this.scene.background);
+    this.sun.intensity=PRESENTATION.lighting.sunIntensity*weather.daylight+weather.lightningFlash;this.hemisphere.intensity=PRESENTATION.lighting.hemisphereIntensity*weather.daylight+weather.lightningFlash*PRESENTATION.lighting.hemisphereFlashScale;this.scene.background.copy(this.skyDay).lerp(this.skyStorm,weather.cloudCoverage*PRESENTATION.lighting.stormSkyBlend);this.scene.fog?.color.copy(this.scene.background);
     for(const p of this.particles){p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=dt*PRESENTATION.effects.particleGravity;p.mesh.rotation.x+=dt*2;p.mesh.scale.setScalar(Math.max(0,p.life));if(p.life<=0){this.actors.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}}
     this.particles=this.particles.filter(p=>p.life>0);this.cullScenery();this.updateAnimalBatches(level,poseTime);this.renderer.render(this.scene,this.camera);
   }

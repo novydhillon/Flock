@@ -37,6 +37,22 @@ export function canGrazeAt(level, point) {
   return canOccupy(level, point.x, point.z, 0);
 }
 
+/** Shared edible footprint: placement and animation use identical muzzle and hoof points. */
+export function grazingFootprint(animal, heading = animal.heading ?? Math.PI / 2) {
+  const reach = (animal.type === 'cow' ? 1.05 : .65) * animalScale(animal);
+  const mouth = { x: animal.x + Math.sin(heading)*reach,
+    z: animal.z + Math.cos(heading)*reach };
+  const s = Math.sin(heading), c = Math.cos(heading), scale = animalScale(animal);
+  // Check the outer hoof envelope as well as the center and muzzle. Large
+  // cows can straddle a barn/deck boundary while their center is still grass.
+  const cow = animal.type === 'cow', side = (cow ? .45 : .3)*scale;
+  const front = (cow ? .56 : .36)*scale, back = (cow ? -.59 : -.36)*scale;
+  const feet = [-side, side].flatMap(x => [back, front].map(z => ({
+    x: animal.x + c*x + s*z, z: animal.z - s*x + c*z
+  })));
+  return [animal, mouth, ...feet];
+}
+
 export function updateGrazing(pose, animal, level, dt) {
   if (!(dt > 0) || !Number.isFinite(dt)) return;
   const state = pose.userData;
@@ -54,18 +70,7 @@ export function updateGrazing(pose, animal, level, dt) {
   if (!quiet && !(state.graze > 0)) {
     state.grazeWait=0;state.graze=0;state.grazeTime=(state.grazeTime||0)+dt;return;
   }
-  const reach = (animal.type === 'cow' ? 1.05 : .65) * animalScale(animal);
-  const mouth = { x: animal.x + Math.sin(pose.rotation.y)*reach,
-    z: animal.z + Math.cos(pose.rotation.y)*reach };
-  const s = Math.sin(pose.rotation.y), c = Math.cos(pose.rotation.y), scale = animalScale(animal);
-  // Check the outer hoof envelope as well as the center and muzzle. Large
-  // cows can straddle a barn/deck boundary while their center is still grass.
-  const cow = animal.type === 'cow', side = (cow ? .45 : .3)*scale;
-  const front = (cow ? .56 : .36)*scale, back = (cow ? -.59 : -.36)*scale;
-  const feet = [-side, side].flatMap(x => [back, front].map(z => ({
-    x: animal.x + c*x + s*z, z: animal.z - s*x + c*z
-  })));
-  const edible = [animal, mouth, ...feet].every(point => canGrazeAt(level, point));
+  const edible = grazingFootprint(animal, pose.rotation.y).every(point => canGrazeAt(level, point));
   state.grazeWait = edible && quiet ? (state.grazeWait || 0) + dt : 0;
   const settleTime = 7 + ((animal.temperament?.confidence ?? 1) - 1) * 4;
   const target = state.grazeWait + 1e-9 >= settleTime && (animal.relaxation ?? 1) > .85 && Math.hypot(animal.vx, animal.vz) < .1 ? 1 : 0;

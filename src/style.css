@@ -33,7 +33,9 @@
 @media(max-height:480px) and (min-width:480px){:root{--map-diameter:104px;--tip-top:var(--hud-top)}.tip{left:var(--hud-left);transform:none;width:calc(50% - var(--hud-left) - 64px);top:calc(var(--hud-top) + 62px);padding-left:6px}.tip-number{width:26px;height:26px;font-size:12px}.tip p{font-size:10px}.toast{bottom:calc(var(--control-bottom) + 105px)}}
 @media(prefers-reduced-motion:reduce){.bark.ready-accent{transition:none}}
 
-/* Tips occupy the uppermost safe row; active HUD shifts down while guidance is shown. */
-body:has(#tip:not(.hidden)){--hud-top:calc(max(12px,env(safe-area-inset-top)) + 64px)}
-.tip{top:max(8px,env(safe-area-inset-top));bottom:auto;width:min(370px,calc(100% - 32px));left:50%;transform:translateX(-50%)}
-@media(max-height:480px) and (min-width:480px){body:has(#tip:not(.hidden)){--hud-top:calc(max(8px,env(safe-area-inset-top)) + 58px)}.tip{top:max(4px,env(safe-area-inset-top));left:50%;width:min(370px,calc(100% - 32px));transform:translateX(-50%)}}
+/* Keep guidance below the map without moving the rest of the HUD. */
+.tip { top: var(--tip-top); bottom: auto; width: min(370px, calc(100% - 32px)); left: 50%; transform: translateX(-50%); }
+@media(max-height:480px) and (min-width:480px) {
+  :root { --tip-top: calc(var(--hud-top) + var(--map-diameter) + 10px); }
+  .tip { top: var(--tip-top); left: 50%; width: min(340px, calc(100% - 32px)); transform: translateX(-50%); }
+}
