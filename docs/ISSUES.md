@@ -22,6 +22,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-RENDER-001 | P2 | Rendering defect | Missing wildlife and environment shadows | Open | Existing lighting; F-015 |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
@@ -502,3 +503,14 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 **Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
 
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
+
+
+### F-RENDER-001 — Missing wildlife and environment shadows (P2)
+
+**Status:** Open. Owner: unassigned.
+
+**Branch:** not yet claimed.
+
+**Reported — 28 October 2026:** Rabbits, squirrels, birds on the ground, trees, bushes and other environment objects do not cast shadows.
+
+**Accept when:** Investigate and fix missing cast shadows for the reported wildlife and environment objects. Shadows follow scene lighting and ground height, remain visible at normal phone zoom, and move with wildlife. Preserve the claymation style and mobile performance; do not re-enable intentionally disabled cloud shadows. Confirm visually on a real renderer/device. This is a queued defect, not a claim of reproduction or repair.
