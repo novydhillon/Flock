@@ -1,5 +1,15 @@
 # Flock revision quality record
 
+## Configuration refactor acceptance and main merge authorization — 28 October 2026
+
+Novy's “looks good. merge to main and close tickets.” accepts F-ARCH-001 after the dev2 playtest publication. The complete overview row, requirements, branch ownership, review/build records and publication evidence move to [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026); F-ARCH-001 is Done. Earlier Review/pending-user-sign-off statements below are historical and superseded for this ticket. F-AUDIO-003 remains Open.
+
+The approved feature head `e9759c5a3790dde86ad4cf59fc9c3aed6f019898` passed source CI [40605309216](https://github.com/novydhillon/Flock/actions/runs/40605309216). Main was `80212d02412172dfe1dc5c04c08b0a475dd84c94` at closure preparation, with the feature four commits ahead and none behind. The user authorizes main source merge; no merge SHA or completed merge is claimed by this pre-merge record. This administrative closure uses the requested `gpt-6.1-sol` at extra-high effort and changes documentation only; the existing 9/10 approved runtime review, 508-test evidence and source-build checks retain their recorded scope.
+
+Closure documentation validation passes 13 deterministic/offline pages, 2,012 local links/anchors, 10 real Mermaid parses and all four documentation DOM tests. The archived overview and detail match, every closed overview cell and the archived title are struck through, and unrelated active items remain unchanged.
+
+Accepted runtime `b11d3efe47edff533a709516dacfeb0893e980c5` remains the verified [dev2 playtest](https://novydhillon.github.io/Flock/dev2/) artifact at Pages `ab24daf4746601c8c9d897db5c1436c2f7f4438b`. Native Pages [40604898716](https://github.com/novydhillon/Flock/actions/runs/40604898716) succeeded and all 33 live file hashes matched the checked QA-enabled build; [publication evidence](validation/F-ARCH-001-dev2-publication.json) remains unchanged. User acceptance is not a new independent WebGL, physical-phone/touch, listening or FPS measurement. Production deployment was not requested.
+
 ## Configuration refactor dev2 playtest publication — 27 October 2026
 
 Novy subsequently requested deploying F-ARCH-001 to [dev2 for playtesting](https://novydhillon.github.io/Flock/dev2/). This explicitly authorizes `dev2/` for this publication only; the standing non-main `dev/` destination policy remains unchanged. Publication and evidence work continue with the requested `gpt-6.1-sol` at extra-high effort. The deployed artifact is pinned to source `b11d3efe47edff533a709516dacfeb0893e980c5` on `refactor/validated-area-config`, whose source CI [40454026992](https://github.com/novydhillon/Flock/actions/runs/40454026992) succeeded. This later request supersedes the earlier source-only scope for this playtest publication.

@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-ARCH-001~~ | ~~P2~~ | ~~Architecture/configuration~~ | ~~Cohesive runtime owners and validated immutable area settings~~ | ~~Done~~ | ~~Existing simulation, profile and presentation contracts~~ |
 | ~~F-MUSIC-001~~ | ~~P2~~ | ~~Audio~~ | ~~Independent chill lo-fi ambient soundtrack~~ | ~~Done~~ | ~~Accepted animal mix and click removal~~ |
 | ~~F-AUDIO-001~~ | ~~P1~~ | ~~Audio~~ | ~~Rarer sheep calls, subtle flock pitch/duration variation and quieter livestock~~ | ~~Done~~ | ~~Accepted recorded animal audio~~ |
 | ~~F-026~~ | ~~P1~~ | ~~UI~~ | ~~Pause-menu Quit returns to landing page~~ | ~~Done~~ | ~~—~~ |
@@ -100,6 +101,26 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 | ~~F-WORLD-001~~ | ~~P2~~ | ~~World generation~~ | ~~Room to breathe between the last bridge and the gate for large herds~~ | ~~Done~~ | ~~F-HERD-005 findings; F-038~~ |
 
 ## Preserved acceptance and execution records
+
+## Configuration refactor user acceptance — 28 October 2026
+
+Novy accepted F-ARCH-001 after the verified dev2 playtest publication and explicitly requested its main merge and ticket closure. This is the only active ticket on `refactor/validated-area-config`; unrelated queued work, including F-AUDIO-003, remains active. Source head `e9759c5a3790dde86ad4cf59fc9c3aed6f019898` passed CI [40605309216](https://github.com/novydhillon/Flock/actions/runs/40605309216). Accepted runtime `b11d3efe47edff533a709516dacfeb0893e980c5` remains published on dev2 at Pages `ab24daf4746601c8c9d897db5c1436c2f7f4438b`, with native Pages [40604898716](https://github.com/novydhillon/Flock/actions/runs/40604898716) and all 33 live SHA-256 hashes verified. The complete requirements, 508-test/build evidence, 8/10 initial review and 9/10 approved follow-up, publication records and validation limits follow unchanged. User acceptance does not supply a new independent WebGL, physical-device, listening or FPS measurement.
+
+### F-ARCH-001 — ~~Cohesive runtime modules and validated area configuration~~
+
+**Status:** Done. Owner: Codex.
+
+**Closed:** 28 October 2026 (America/Vancouver), by Novy's explicit acceptance: “looks good. merge to main and close tickets.” This sign-off supersedes the dated Review/pending-acceptance statements preserved below. Main source merge is authorized; its completion will be verified separately. Production deployment was not requested. F-AUDIO-003 remains Open.
+
+**Branch:** `refactor/validated-area-config`
+
+**Accept when:** profile persistence, delivery policy, companion herd grouping and saved-animal roaming have focused owners; the simulation facade retains its public interfaces; gameplay, delivery, progression, audio, music, weather, controls and presentation tunables live in documented bounded JSON areas with startup validation and immutable resolved values. Required keys, types and array lengths must be checked independently of editable bounds. Preserve existing defaults, seeded behavior, saved-profile version/key/reward-ledger semantics, campaign limits, lifecycle behavior and source build checks. Document ownership and the configuration editing/rebuild workflow. Obtain independent review, passing checked source CI and source publication on the new feature branch; user acceptance remains pending until explicit sign-off.
+
+**27 October 2026:** Prepared from main `80212d02412172dfe1dc5c04c08b0a475dd84c94` with the user-requested `gpt-6.1-sol` at extra-high effort. Existing simulation exports remain compatible while focused owners and eight explicit area contracts replace facade coupling and scattered tunables. The campaign remains 100 public levels; changing that limit requires coordinated migration. At preparation, candidate verification and blind review were pending. Source publication and observed validation are recorded below; no game deployment was requested. F-AUDIO-003 remains Open, with no claimed launch fix.
+
+**Verification update — 27 October 2026:** Published source `6ed406f4cd90cfbde83cc00898309d091ac3f177` passes native checked dev and production builds: each passes 508 application tests, four documentation DOM tests, 13 deterministic pages, 1,996 links/anchors, 10 Mermaid sources and the applicable release/development QA artifact checks. The initial blind review scored 8/10 and requested changes; three P2 configuration findings, the P3 ownership-table finding and the multi-diagram DOM assumption were corrected. Same-critic follow-up scores 9/10 with no material blockers and confirms all ten corrected file blobs match its frozen candidate. All engineering and review used `gpt-6.1-sol` at extra-high effort. Remote corrected-source CI [40453590642](https://github.com/novydhillon/Flock/actions/runs/40453590642) completed successfully. Physical-device, WebGL, listening and phone FPS checks remain unmeasured. This batch publishes feature-branch source; no game deployment was requested. See the [quality record](QUALITY.md#cohesive-modules-and-validated-area-configuration--27-october-2026). F-ARCH-001 stays Review and F-AUDIO-003 stays Open.
+
+**Playtest publication — 27 October 2026:** Novy subsequently requested [dev2 deployment for playtesting](https://novydhillon.github.io/Flock/dev2/), authorizing that destination for this publication only while preserving the standing `dev/` policy. Pinned source `b11d3efe47edff533a709516dacfeb0893e980c5` passed source CI [40454026992](https://github.com/novydhillon/Flock/actions/runs/40454026992) and a fresh checked dev build (508 application tests, four documentation DOM tests and both QA artifact-mode checks). The documented connector fallback published Pages `ab24daf4746601c8c9d897db5c1436c2f7f4438b`; native Pages [40604898716](https://github.com/novydhillon/Flock/actions/runs/40604898716) succeeded and all 33 live file hashes match the checked QA-enabled artifact. All writes are within dev2, unrelated Pages entries and old assets are preserved, and no files were deleted. See [publication evidence](validation/F-ARCH-001-dev2-publication.json) and the [quality record](QUALITY.md#configuration-refactor-dev2-playtest-publication--27-october-2026). F-ARCH-001 remains Review pending user playtest sign-off; physical-device, WebGL, listening and phone FPS checks remain unvalidated. F-AUDIO-003 remains Open.
 
 ## Map-generation user sign-off — 24 October 2026
 

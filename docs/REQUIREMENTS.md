@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Configuration refactor accepted — 28 October 2026
+
+F-ARCH-001 is Done by Novy's explicit “looks good. merge to main and close tickets.” acceptance after the dev2 playtest publication. The complete requirement, acceptance criteria, implementation/review records and publication evidence are preserved in [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). This supersedes earlier pending-acceptance wording for this refactor. The user authorizes main source merge; production deployment was not requested. The requirements below remain the behavior contract, and F-AUDIO-003 remains Open independently of this acceptance.
+
 ## Soundtrack acceptance and persistent launch regression — 26 October 2026
 
 Novy accepts the soundtrack feature for main merge as F-MUSIC-001. This music work was called F-AUDIO-001 on the feature branch; the renamed ID preserves main's separate accepted livestock-tuning F-AUDIO-001. F-AUDIO-003 remains Open: music does not start automatically on browser or iOS Home Screen app launch, and the user must turn audio off and on to start it. Prior activation attempts and mock tests did not establish physical resolution. Investigate actual device/browser behavior and eliminate the settings-toggle requirement at the earliest browser-permitted activation while respecting saved mute. No new runtime fix or production publication is included in this merge.
