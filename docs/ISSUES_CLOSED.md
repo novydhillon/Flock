@@ -9,6 +9,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
 | ~~F-DOCS-001~~ | ~~P3~~ | ~~Documentation UI~~ | ~~Sort issue tables by ID, Priority, Type and Status~~ | ~~Done~~ | ~~—~~ |
+| ~~F-013~~ | ~~P2~~ | ~~Known review concern~~ | ~~Level-5 pacing spike~~ | ~~Closed~~ | ~~F-005; retest after F-009/F-012~~ |
 | ~~F-ARCH-001~~ | ~~P2~~ | ~~Architecture/configuration~~ | ~~Cohesive runtime owners and validated immutable area settings~~ | ~~Done~~ | ~~Existing simulation, profile and presentation contracts~~ |
 | ~~F-MUSIC-001~~ | ~~P2~~ | ~~Audio~~ | ~~Independent chill lo-fi ambient soundtrack~~ | ~~Done~~ | ~~Accepted animal mix and click removal~~ |
 | ~~F-AUDIO-001~~ | ~~P1~~ | ~~Audio~~ | ~~Rarer sheep calls, subtle flock pitch/duration variation and quieter livestock~~ | ~~Done~~ | ~~Accepted recorded animal audio~~ |
@@ -102,6 +103,21 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 | ~~F-WORLD-001~~ | ~~P2~~ | ~~World generation~~ | ~~Room to breathe between the last bridge and the gate for large herds~~ | ~~Done~~ | ~~F-HERD-005 findings; F-038~~ |
 
 ## Preserved acceptance and execution records
+
+## Level-5 pacing concern closed for now — 28 October 2026
+
+### F-013 — ~~Known level-5 pacing concern~~
+
+**Status:** Closed for now at user request.
+
+**Closed:** 28 October 2026 (America/Vancouver). Novy requested “Close F-013 for now and merge to main”. This is an administrative closure; the pacing concern is not claimed fixed, and no human playtest result is claimed. Reopen if new pacing feedback warrants investigation.
+
+**Branch:** `docs/close-f-013`
+
+
+The fresh gameplay critic's unchanged input controller completed default levels 1–5 in **18.2, 17.2, 28.7, 38.7 and 208.0 simulated seconds**. Level 5's jump warrants human playtesting; it is not proof of an impossible level or a measured human time.
+
+**Accept when:** document human attempts, retrieval/chokepoint behavior and difficulty progression; adjust only where evidence supports it. Re-run the existing ordinary-input journey policies after crossing/countdown/wandering changes. Avoid solving pacing by weakening collision or allowing autonomous completion.
 
 ## Configuration refactor user acceptance — 28 October 2026
 
