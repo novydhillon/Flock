@@ -2,6 +2,8 @@
 
 ## Issue table sorting — 28 October 2026
 
+Novy accepted F-DOCS-001 and authorized main source merge on 28 October 2026. Its complete record is preserved in [Closed issues](ISSUES_CLOSED.md#f-docs-001--sort-issue-overview-tables). No deployment was requested.
+
 F-DOCS-001: active and closed generated documentation overview tables support ascending/descending sorting by ID, Priority, Type and Status using keyboard-accessible column buttons, numeric ID ordering and accessible direction indicators. Preserve links, archived formatting and original tie order. Other reference tables retain source order.
 
 

@@ -22,7 +22,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-DOCS-001 | P3 | Documentation UI | Sort issue tables by ID, Priority, Type and Status | Review | — |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
@@ -67,17 +66,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
 
 ## Acceptance criteria and planned work
-
-### F-DOCS-001 — Sort issue overview tables
-
-**Status:** Review. Owner: Codex, 28 October 2026.
-
-**Branch:** `feature/docs-issue-sorting`
-
-**Accept when:** both generated issue overview tables support keyboard-accessible ascending/descending ID, Priority, Type and Status sorting, numeric IDs, visible/accessibility direction indicators, stable ties and preserved archived formatting. Other reference tables retain source order. Regeneration and documentation checks pass. User acceptance remains pending.
-
-**28 October evidence:** source implementation and generated assets complete; independent blind review found no material blockers (9/10). See [documentation review](REVIEW.md#issue-table-sorting--28-october-2026). No deployment requested.
-
 
 ### F-AUDIO-003 — Music requires audio off/on after browser or app launch
 
