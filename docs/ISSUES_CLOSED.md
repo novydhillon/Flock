@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-DOCS-001~~ | ~~P3~~ | ~~Documentation UI~~ | ~~Sort issue tables by ID, Priority, Type and Status~~ | ~~Done~~ | ~~—~~ |
 | ~~F-013~~ | ~~P2~~ | ~~Known review concern~~ | ~~Level-5 pacing spike~~ | ~~Closed~~ | ~~F-005; retest after F-009/F-012~~ |
 | ~~F-ARCH-001~~ | ~~P2~~ | ~~Architecture/configuration~~ | ~~Cohesive runtime owners and validated immutable area settings~~ | ~~Done~~ | ~~Existing simulation, profile and presentation contracts~~ |
 | ~~F-MUSIC-001~~ | ~~P2~~ | ~~Audio~~ | ~~Independent chill lo-fi ambient soundtrack~~ | ~~Done~~ | ~~Accepted animal mix and click removal~~ |
@@ -1597,3 +1598,15 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 
 **Closure — 26 October 2026:** Novy explicitly authorized merging this soundtrack feature to main while reporting the launch defect remains. This acceptance closes the feature scope only; the persistent silent-launch/off-on workaround is separately Open as [F-AUDIO-003](ISSUES.md#f-audio-003--music-requires-audio-offon-after-browser-or-app-launch). The feature branch previously called this music work F-AUDIO-001, which collides with main's different accepted livestock-tuning issue. Its canonical ID is now F-MUSIC-001; historical publication filenames/JSON retain the original identifier. Preserve both issue histories. Previous pending-acceptance wording above is historical; source/test/deployment evidence does not assert a physical launch fix. Main merge is authorized; production publication is not.
 
+
+### F-DOCS-001 — ~~Sort issue overview tables~~
+
+**Status:** Done. Owner: Codex, 28 October 2026.
+
+**Branch:** `feature/docs-issue-sorting`
+
+**Accept when:** both generated issue overview tables support keyboard-accessible ascending/descending ID, Priority, Type and Status sorting, numeric IDs, visible/accessibility direction indicators, stable ties and preserved archived formatting. Other reference tables retain source order. Regeneration and documentation checks pass. User acceptance remains pending.
+
+**28 October evidence:** source implementation and generated assets complete; independent blind review found no material blockers (9/10). See [documentation review](REVIEW.md#issue-table-sorting--28-october-2026). No deployment requested.
+
+**Closure — 28 October 2026:** Novy explicitly signed off and requested merge to main. Acceptance supersedes the pending wording above. Independent follow-up review: 9.5/10, no remaining findings; all seven DOM tests and documentation checks passed. No rendered-browser, screen-reader or physical-device verification is claimed. Main source merge authorized; deployment not requested.

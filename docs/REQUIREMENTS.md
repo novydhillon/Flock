@@ -1,5 +1,11 @@
 # Flock product requirements
 
+## Issue table sorting — 28 October 2026
+
+Novy accepted F-DOCS-001 and authorized main source merge on 28 October 2026. Its complete record is preserved in [Closed issues](ISSUES_CLOSED.md#f-docs-001--sort-issue-overview-tables). No deployment was requested.
+
+F-DOCS-001: active and closed generated documentation overview tables support ascending/descending sorting by ID, Priority, Type and Status using keyboard-accessible column buttons, numeric ID ordering and accessible direction indicators. Preserve links, archived formatting and original tie order. Other reference tables retain source order.
+
 ## F-013 closed for now — 28 October 2026
 
 F-013 is Closed for now at Novy's request. This administrative decision supersedes historical Open-status wording for F-013; it does not establish a pacing fix or a human difficulty verdict. The original simulated timings and investigation criteria are preserved in [Closed issues](ISSUES_CLOSED.md#level-5-pacing-concern-closed-for-now--28-october-2026), and the concern can be reopened with new pacing feedback. Other open work retains its current status.
