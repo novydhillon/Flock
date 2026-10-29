@@ -155,11 +155,16 @@ export class WaterEffects {
     this.waterActivity+=(waterWeatherActivity(weather)-this.waterActivity)*(1-Math.exp(-dt*2));
     // Snap only the invisible tail so returning sun restores the exact baseline.
     if(this.waterActivity<1e-7)this.waterActivity=0;
-    for(const detail of this.riverDetails)detail.update(dt,this.waterActivity);
+    // Each wake advances with its own river's current, including the weather multiplier.
+    const flowMultiplier = 0.7 + this.waterActivity * 3.2;
+    for (let i = 0; i < this.riverDetails.length; i++) {
+      const river = this.rivers[i];
+      this.riverDetails[i].update(dt, this.waterActivity, (river.flowSpeed ?? 0.12) * flowMultiplier);
+    }
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
     this.applySurfaceWeather(weather);
-    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*f.speed*(0.7+this.waterActivity*3.2);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.195+this.waterActivity*.23+(weather.lightningFlash||0)*.04;}
+    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*f.speed*flowMultiplier;map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.195+this.waterActivity*.23+(weather.lightningFlash||0)*.04;}
     // Any fixed rainy tier reaches full size within the expected level duration.
     // Intensity changes atmosphere density; it must not hide light-rain accumulation.
     if(rain>0)this.rainElapsed+=dt;
