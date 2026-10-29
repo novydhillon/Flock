@@ -1,3 +1,5 @@
+import { pastureGrassSites } from './pasture.js';
+import { pastureClumpGeometry, pastureRockGeometry } from './pasture-view.js';
 import { plantClumpGeometry, bankClumpSites } from './plant-clumps.js';
 import { CONFIG_CONTRACTS } from './config/contracts.js';
 import settings from './config/presentation.json' with { type: 'json' };
@@ -109,7 +111,7 @@ export class MeadowRenderer{
     this.sun.shadow.mapSize.set(PRESENTATION.renderer.shadowMapSize,PRESENTATION.renderer.shadowMapSize);this.viewShadows=new ViewShadows();this.sun.shadow.bias=PRESENTATION.lighting.shadowBias;this.sun.shadow.normalBias=PRESENTATION.lighting.shadowNormalBias;this.scene.add(this.sun,this.sun.target);
     this.camera=new THREE.OrthographicCamera(-30,30,20,-20,PRESENTATION.camera.near,PRESENTATION.camera.far);this.center=new THREE.Vector3(-7,0,0);this.targetCenter=this.center.clone();
     this.terrain=new THREE.Group();this.actors=new THREE.Group();this.scene.add(this.terrain,this.actors);this.materials=createMaterials();
-    this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
+    this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',vertexColors:true,roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
     this.path=new THREE.MeshStandardMaterial({color:'#fff1d3',roughness:.95,map:texture('path'),bumpMap:texture('path',true),bumpScale:.08,side:THREE.DoubleSide});this.pathShoulder=new THREE.MeshStandardMaterial({color:'#a99261',roughness:1,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});
     this.thrusterGlow=new ThrusterGroundGlow();
     for(const material of [this.grass,this.path,this.pathShoulder])this.thrusterGlow.install(material);
@@ -262,7 +264,9 @@ export class MeadowRenderer{
       this.cutaway=new StructureCutaway(t,structure,{halfExtent:s+.3});
     }
     const sign=label(t.type==='pen'?'SUNNY PEN':t.type==='barn'?'HOME BARN':'CLOVER FIELD');sign.scale.set(4.5,1.125,1);sign.position.set(t.x-Math.sin(t.heading||0)*(s+1),3,t.z-Math.cos(t.heading||0)*(s+1));sign.position.y+=groundAt(sign.position.x,sign.position.z);sign.name='Destination introduction';sign.userData.ownedLabel=true;this.destinationSign=sign;this.terrain.add(sign);
+    this.addPastureRocks(groundAt);
     for(const obstacle of level.obstacles){
+      if(obstacle.kind==='rock')continue;
       const treeScale=obstacle.radius*1.45;const tree=createTree(Math.floor(r()*3),treeScale<1.7?0:treeScale<2.4?1:2);tree.rotation.y=treeRotation()*Math.PI*2;this.place(tree,obstacle.x,obstacle.z,treeScale);
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.place(createBush(i),obstacle.x+Math.cos(angle)*obstacle.radius*.48,obstacle.z+Math.sin(angle)*obstacle.radius*.48,obstacle.radius*.7);}
@@ -287,21 +291,16 @@ export class MeadowRenderer{
     };
     this.meadowDetails=[];
     this.roughPasture = roughPastureEnabled(level);
-    const roughSites = this.roughPasture ? this.addPasturePatches(r, meadowClear, groundAt) : [];
+    this.addPastureGrass(meadowClear, groundAt);
     const patches=Math.min(190,Math.ceil(w*d/130));
     for(let i=0;i<patches;i++){const {x,z}=candidate(i,patches);if(meadowClear(x,z,1)){const patch=this.place(createFlowerPatch(i,3),x,z,.85+r()*.6);
       if(level.terrain?.enabled)alignGroundProp(patch,groundAt,x,z);
       this.meadowDetails.push({x,z,kind:'flower'});}}
-    const tufts=[],tuftBudget=Math.min(650,Math.ceil(w*d/35)) + (this.roughPasture ? PRESENTATION.terrain.roughClumps : 0);
+    const tufts=[],tuftBudget=Math.min(650,Math.ceil(w*d/35));
     for(let i=0;i<tuftBudget;i++){
-      const clump = roughSites[i % Math.max(1, roughSites.length)];
-      const angle = clump ? r() * Math.PI * 2 : 0, reach = clump ? Math.sqrt(r()) * clump.radius : 0;
-      const {x,z} = clump && i >= tuftBudget - PRESENTATION.terrain.roughClumps
-        ? {x: clump.x + Math.cos(angle) * reach, z: clump.z + Math.sin(angle) * reach * .65}
-        : candidate(i,tuftBudget);if(meadowClear(x,z,.4)){tufts.push({x,z});this.meadowDetails.push({x,z,kind:'tuft'});}}
-    // Decorative blades draw over opaque ground without claiming its depth.
-    // Bark draws after them, while fences/rails retain ordinary depth occlusion.
-    if(tufts.length){const blade=plantClumpGeometry(.024,.55),bladeMat=new THREE.MeshStandardMaterial({color:'#648844',roughness:1,transparent:true,opacity:1,depthWrite:false}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,groundAt(p.x,p.z),p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);if(this.roughPasture)grass.setColorAt(i,new THREE.Color(['#879551','#b1ab70','#5b783f'][i%3]));});grass.castShadow=grass.receiveShadow=false;grass.userData.decorativeGrass=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
+      const {x,z}=candidate(i,tuftBudget);if(meadowClear(x,z,.4)){tufts.push({x,z});this.meadowDetails.push({x,z,kind:'tuft'});}}
+    // Use a white material: vertex/instance colors already supply the green.
+    if(tufts.length){const blade=plantClumpGeometry(.024,.55),bladeMat=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:1,transparent:true,opacity:1,depthWrite:false}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,groundAt(p.x,p.z),p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);grass.setColorAt(i,new THREE.Color('#839c61'));});grass.castShadow=grass.receiveShadow=false;grass.userData.decorativeGrass=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
 
     // Thin reeds follow the exact banks and leave crossing entrances clear.
     const reeds = level.rivers.flatMap(river => bankClumpSites(river, r, b));
@@ -386,36 +385,38 @@ export class MeadowRenderer{
     }
     this.terrain.add(group);
   }
-  addPasturePatches(random, clear, groundAt) {
-    const bounds = this.level.bounds;
-    const sites = [];
-    const palette = ['#809250', '#829b55', '#a59f67', '#71904d'];
-    for (let i = 0; i < PRESENTATION.terrain.roughPatches; i++) {
-      const radius = 1.1 + random() * 1.7;
-      const x = bounds.minX + random() * (bounds.maxX - bounds.minX);
-      const z = bounds.minZ + random() * (bounds.maxZ - bounds.minZ);
-      if (!clear(x, z, radius + .15)) continue;
-      const shape = new THREE.Shape();
-      for (let j = 0; j < 14; j++) {
-        const angle = j / 14 * Math.PI * 2, reach = radius * (.8 + random() * .2);
-        const px = x + Math.cos(angle) * reach, pz = z + Math.sin(angle) * reach * .65;
-        if (j) shape.lineTo(px, -pz); else shape.moveTo(px, -pz);
-      }
-      shape.closePath();
-      const source = new THREE.ShapeGeometry(shape);
-      source.rotateX(-Math.PI / 2);
-      const geometry = conformSurface(source, groundAt, {offset: -.023});
-      const material = new THREE.MeshStandardMaterial({color: palette[i % palette.length],
-        roughness: 1, side: THREE.DoubleSide});
-      this.thrusterGlow.install(material);
-      const patch = new THREE.Mesh(geometry, material);
-      sites.push({x, z, radius});
-      patch.name = 'Rough pasture patch';
-      patch.receiveShadow = true;
-      patch.userData.ownedGeometry = patch.userData.ownedMaterial = true;
-      this.terrain.add(patch);
-    }
-    return sites;
+  addPastureGrass(clear, groundAt) {
+    const sites = pastureGrassSites(this.level, clear);
+    if (!sites.length) return;
+    const geometry = pastureClumpGeometry();
+    const material = new THREE.MeshStandardMaterial({color:'#ffffff', vertexColors:true, roughness:1, side:THREE.DoubleSide});
+    const grass = new THREE.InstancedMesh(geometry, material, sites.length), pose = new THREE.Object3D();
+    sites.forEach((site, i) => {
+      pose.position.set(site.x, groundAt(site.x, site.z) - .018, site.z);
+      pose.scale.setScalar(site.scale);pose.rotation.y=site.heading;pose.updateMatrix();
+      grass.setMatrixAt(i, pose.matrix);
+      this.meadowDetails.push({...site, kind:'overgrowth', padding:.65*site.scale});
+    });
+    grass.name='Overgrown pasture grass';
+    grass.castShadow=grass.receiveShadow=false;
+    grass.userData.decorativeGrass=grass.userData.pastureGrass=true;
+    grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;
+    this.terrain.add(grass);this.trackScenery(grass);
+  }
+  addPastureRocks(groundAt) {
+    const rocks=this.level.obstacles.filter(obstacle=>obstacle.kind==='rock');
+    if (!rocks.length) return;
+    const geometry=pastureRockGeometry(),material=new THREE.MeshStandardMaterial({color:'#ffffff',vertexColors:true,roughness:1});
+    const batch=new THREE.InstancedMesh(geometry,material,rocks.length),pose=new THREE.Object3D();
+    rocks.forEach((rock,i)=>{
+      let base=groundAt(rock.x,rock.z);
+      for(let j=0;j<12;j++){const angle=j*Math.PI/6;base=Math.min(base,groundAt(rock.x+Math.cos(angle)*rock.radius,rock.z+Math.sin(angle)*rock.radius));}
+      pose.position.set(rock.x,base-.035,rock.z);pose.scale.set(rock.radius,rock.height,rock.radius*(.8+rock.variant*.1));pose.rotation.y=rock.heading;pose.updateMatrix();
+      batch.setMatrixAt(i,pose.matrix);
+    });
+    batch.name='Pasture boulders';batch.castShadow=batch.receiveShadow=true;
+    batch.userData.pastureRocks=batch.userData.ownedGeometry=batch.userData.ownedMaterial=true;
+    this.terrain.add(batch);this.trackScenery(batch);
   }
   trackScenery(batch){
     // Three.js culls an InstancedMesh as one sphere. Keep immutable poses and

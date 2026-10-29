@@ -369,24 +369,6 @@
       "_comment": "Maximum horizontal edge for terrain-following roads, goal decals and river surfaces.",
       "min": 0.4,
       "max": 2
-    },
-    "roughChance": {
-      "value": 0.48,
-      "_comment": "Independent seeded rough-pasture chance on public level 6 onward; implementation frequency, not a user-approved cadence.",
-      "min": 0,
-      "max": 1
-    },
-    "roughClumps": {
-      "value": 280,
-      "_comment": "Additional bounded short grass clumps on rough pasture levels.",
-      "min": 0,
-      "max": 500
-    },
-    "roughPatches": {
-      "value": 42,
-      "_comment": "Maximum irregular muted pasture and earth patches on a rough level.",
-      "min": 0,
-      "max": 70
     }
   }
 }

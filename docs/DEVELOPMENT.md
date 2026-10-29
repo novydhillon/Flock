@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Terrain correction playtest — 29 October 2026
+
+Start public level 6 (20 animals), then a selected rough later meadow. At normal phone zoom, inspect hills as Pip crosses them and compare fence grades, livestock support and ground shading. Rough growth must have broad bent dimensional leaves and soft uneven cluster edges, not flat colored discs or sparse dark needles. Check large pasture rocks/outcrops against visible geometry: Pip/Buddy/sheep/cows must go around them, while roads, bridge turning areas, gate switches and goals remain clear. Compare rainy pools against actual terrain and verify no new road-ground seams. These are pending visual/user checks until observed; earlier source scores did not validate the screenshot appearance.
+
 ## Rolling terrain smoke checks — 29 October 2026
 
 On `feat/rolling-terrain`, inspect selected public levels after 5 in phone portrait/landscape and at normal gameplay zoom. Move the camera over hills and valleys: transitions and shading must remain smooth, with no visible triangle facets, cracks, z-fighting or floating road/goal surfaces. Spawn locations may slope; goals and bridge approaches may have gentle grades. Compare a smooth meadow with a separately selected rough pasture; tufts and patchiness must not obscure animals or crossings.
@@ -515,3 +519,7 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 ## Terrain test ownership — 29 October 2026
 
 `tests/terrain.test.js` checks independent seeded terrain, the first-five-level flat boundary, configured cap rejection, continuous analytic gradients/relief, full-width submerged river beds and downhill surfaces, smooth graded deck landings, all cow-size route/crossing clearance, and lowland/slope pool eligibility. It samples all 100 campaign indexes with default and four compass-oriented custom seeds; it does not prove every possible 32-bit seed or rendered smoothness. `tests/terrain-view.test.js` covers presentation geometry and support when present; rendering integration remains covered by `tests/render.test.js` and weather by `tests/water-effects.test.js`.
+
+## Pasture correction test map — 29 October 2026
+
+`tests/pasture.test.js` owns shared rough-selection, physical rock bounds/blocking, route/spawn/goal/water clearance and dimensional grass/rock geometry budgets. `tests/render.test.js` verifies the public-level-6 scene has overgrowth instances without flat discs, single tint, grounded rock geometry and replacement cleanup. `tests/terrain-view.test.js` verifies the exact rendered-grid height sampler used by shallow pools. Full-world/cow journey tests remain integration gates.

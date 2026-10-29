@@ -173,3 +173,7 @@ Stone walls changed physical thickness and player-signal visibility, exposing la
 ## Room between crossings — 20 October 2026
 
 From public level 6, levels with more than 30 animals gain extra trail before the gate: 0.4 m per animal above 30, capped at 14 m. The river positions relative to the spawn are unchanged, so the space is added between the last bridge and the gate. For 65-animal levels the trail from the last bridge exit to the gate grows from about 22 m to 30–37 m. Levels 1–5 are unchanged. `tests/chokepoints.test.js` checks the gap on sampled large-herd levels.
+
+## Physical pasture rocks — 29 October 2026
+
+Shared seeded pasture selection and placement live in `pasture.js`, with a dedicated `config/pasture.json` area for selection/detail budgets. Rough rocks are ordinary authoritative circular obstacles marked `kind: rock`, sharing occupancy, movement, line clearance and navigation with other solid obstacles. Generation uses an independent stream and rejects routes, spawn/animals, destinations, water, walls and gate space before adding rocks. Rendered horizontal rock bounds must fit those disks. The existing total obstacle ceiling remains enforced. Dense grass is decorative and cannot invent collision.

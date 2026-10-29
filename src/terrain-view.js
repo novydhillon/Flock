@@ -126,23 +126,46 @@ export function meadowGeometry(level, width, depth, centerX, centerZ) {
   geometry.translate(centerX, GROUND_SURFACE_OFFSET, centerZ);
   if (rolling) {
     const position = geometry.attributes.position, normal = geometry.attributes.normal;
+    const colors = new Float32Array(position.count * 3);
     const height = (x, z) => groundHeight(level, x, z);
     for (let i = 0; i < position.count; i++) {
       const x = position.getX(i), z = position.getZ(i);
       position.setY(i, height(x, z) + GROUND_SURFACE_OFFSET);
       const n = surfaceNormal(height, x, z);
       normal.setXYZ(i, n.x, n.y, n.z);
+      // A continuous, restrained height tint complements actual slopes. The
+      // shared ground keeps its texture; there are no separate color polygons.
+      const high = Math.max(0, Math.min(1, (height(x, z) + .4) / 1.2));
+      colors.set([.9 + high * .14, .94 + high * .09, .88 + high * .1], i * 3);
     }
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   }
   return geometry;
 }
 
-export function roughPastureEnabled(level) {
-  if (level.index < 5 || level.showcase) return false;
-  let value = ((level.seed ?? 0) ^ Math.imul(level.index + 1, 0x9e3779b9) ^ 0x70617374) >>> 0;
-  value = Math.imul(value ^ (value >>> 16), 0x21f0aaad) >>> 0;
-  return value / 4294967296 < SETTINGS.roughChance;
+/** Exact piecewise-planar height of the rendered ground, including clearance.
+ * Shallow standing water needs this instead of the smooth support field: two
+ * metre triangle interpolation can differ by more than its eight mm depth.
+ * Dimensions and triangle diagonal match the renderer's meadowGeometry call.
+ */
+export function meadowSurfaceHeight(level, x, z) {
+  if (!level.terrain?.enabled) return GROUND_SURFACE_OFFSET;
+  const b=level.bounds, width=b.maxX-b.minX+90, depth=b.maxZ-b.minZ+90;
+  const nx=Math.ceil(width/SETTINGS.groundSpacing), nz=Math.ceil(depth/SETTINGS.groundSpacing);
+  const cx=(b.minX+b.maxX)/2, cz=(b.minZ+b.maxZ)/2;
+  const ix=Math.max(0,Math.min(nx-1,Math.floor((x-b.minX+45)*nx/width)));
+  const iz=Math.max(0,Math.min(nz-1,Math.floor((z-b.minZ+45)*nz/depth)));
+  const px=i=>Math.fround(Math.fround(-width/2+i*width/nx)+cx);
+  const pz=i=>Math.fround(Math.fround(-depth/2+i*depth/nz)+cz);
+  const x0=px(ix),x1=px(ix+1),z0=pz(iz),z1=pz(iz+1);
+  const tx=(x-x0)/(x1-x0),tz=(z-z0)/(z1-z0);
+  const height=(xx,zz)=>Math.fround(groundHeight(level,xx,zz)+GROUND_SURFACE_OFFSET);
+  return tx+tz<=1
+    ? height(x0,z0)*(1-tx-tz)+height(x1,z0)*tx+height(x0,z1)*tz
+    : height(x1,z1)*(tx+tz-1)+height(x1,z0)*(1-tz)+height(x0,z1)*(1-tx);
 }
+
+export { roughPastureEnabled } from './pasture.js';
 
 /** Support plane follows the actual hoof span, including each cow's size. */
 export function alignAnimalToTerrain(pose, animal, level) {

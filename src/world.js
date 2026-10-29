@@ -1,3 +1,4 @@
+import { addPastureRocks } from './pasture.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from './delivery.js';
 import { animalRadius, COW_SCALES } from './animal-size.js';
 import { createTerrain, groundHeight, bridgeSurfaceHeight } from './terrain.js';
@@ -370,6 +371,7 @@ export function createLevel(index=0,seed=index*7919+42) {
       if(trees)level.groves.push({...anchor,id:group,trees});
     }
   }
+  addPastureRocks(level, (x, z, radius) => canOccupy(level, x, z, radius));
   for(let i=0;i<14;i++) {
     const radius=7+random()*8,height=3+random()*5;
     const side=i%4,p=side===0?{x:bounds.minX-radius-3,z:bounds.minZ+random()*(bounds.maxZ-bounds.minZ)}:side===1?{x:bounds.maxX+radius+3,z:bounds.minZ+random()*(bounds.maxZ-bounds.minZ)}:side===2?{x:bounds.minX+random()*(bounds.maxX-bounds.minX),z:bounds.minZ-radius-3}:{x:bounds.minX+random()*(bounds.maxX-bounds.minX),z:bounds.maxZ+radius+3};

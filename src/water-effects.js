@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { meadowSurfaceHeight } from './terrain-view.js';
 import { canOccupy, terrainHeight, groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from './world.js';
 import { deliveryCountdownSeconds } from './delivery.js';
 import { RiverDetails } from './river-details.js';
@@ -105,7 +106,7 @@ export class WaterEffects {
     const puddleGeometry=new THREE.CircleGeometry(1,20);this.puddleResources={geometry:puddleGeometry};
     const seed=level.seed??level.index??0,initialCount=puddleRoll(seed,71)<.5?0:1+Math.floor(puddleRoll(seed,72)*3);
     for(const site of this.findPuddleSites()) {
-      const pool=level.terrain?.enabled?new HorizontalPoolGeometry({...site,groundHeight:(x,z)=>groundHeight(level,x,z)+GROUND_SURFACE_OFFSET}):null;
+      const pool=level.terrain?.enabled?new HorizontalPoolGeometry({...site,groundHeight:(x,z)=>meadowSurfaceHeight(level,x,z)}):null;
       if(pool){pool.setGrowth(1);if(!pool.drawRange.count){pool.dispose();continue;}}
       const material=new THREE.MeshBasicMaterial({color:0x456a69,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});
       const mesh=new THREE.Mesh(pool||puddleGeometry,material);if(!pool)mesh.rotation.x=-Math.PI/2;
@@ -125,9 +126,15 @@ export class WaterEffects {
       // interior obstacles, before any growing mesh becomes visible.
       const footprint=Array.from({length:48},(_,j)=>{const ring=1+Math.floor(j/16),angle=(j%16)*Math.PI/8;return{x:x+Math.cos(angle)*radius*ring/3,z:z+Math.sin(angle)*radius*.62*ring/3};});
       if(!safePuddleSite(level,p)||footprint.some(edge=>!safePuddleSite(level,edge))||sites.some(s=>Math.hypot(s.x-x,s.z-z)<s.radius+radius+.3))return false;
-      // The field query describes bare ground; the visible grass mesh shares
-      // this offset. Its .008 shallow water cap must not become a floating sheet.
-      sites.push({...p,radius,...(level.terrain?.enabled ? {height:pooling.height+GROUND_SURFACE_OFFSET} : {})});return true;
+      // Eligibility remains physical. Set the shallow horizontal water plane
+      // from the actual receiving mesh inside the pool ellipse, rather than a
+      // smooth-field minimum that can sit beneath its two-metre triangles.
+      let minimum=meadowSurfaceHeight(level,x,z);
+      if(level.terrain?.enabled)for(let ring=1;ring<=8;ring++)for(let sector=0;sector<32;sector++){
+        const angle=sector*Math.PI/16,distance=radius*ring/8;
+        minimum=Math.min(minimum,meadowSurfaceHeight(level,x+Math.cos(angle)*distance,z+Math.sin(angle)*distance*.62));
+      }
+      sites.push({...p,radius,...(level.terrain?.enabled ? {height:minimum+.008} : {})});return true;
     };
     const routes=(level.routes||[]).filter(r=>r.points?.length>1);
     // Allocate sites along the journey before filling unused space. A uniform
@@ -138,13 +145,23 @@ export class WaterEffects {
       const route=routes[slot%routes.length],points=route.points;
       const lengths=points.slice(1).map((p,i)=>Math.hypot(p.x-points[i].x,p.z-points[i].z)),total=lengths.reduce((a,v)=>a+v,0);
       const radius=1.35+puddleRoll(seed,150+slot)*.69,progress=slot/Math.max(1,this.maxPuddles-1);
-      for(let attempt=0;attempt<35;attempt++){
+      for(let attempt=0;attempt<(level.terrain?.enabled?196:35);attempt++){
         let remaining=clamp(progress+(attempt<7?0:(Math.ceil((attempt-6)/7)%2?1:-1)*.035))*total,index=0;
         while(index<lengths.length-1&&remaining>lengths[index])remaining-=lengths[index++];
         const a=points[index],next=points[index+1],length=lengths[index]||1,t=clamp(remaining/length);
-        const lateral=[0,2.5,-2.5,4,-4,6,-6][attempt%7]*(puddleRoll(seed,200+slot)<.5?-1:1);
+        const lateral=(level.terrain?.enabled?[0,5.5,-5.5,6.5,-6.5,8,-8]:[0,2.5,-2.5,4,-4,6,-6])[attempt%7]*(puddleRoll(seed,200+slot)<.5?-1:1);
         const p={x:a.x+(next.x-a.x)*t-(next.z-a.z)/length*lateral,z:a.z+(next.z-a.z)*t+(next.x-a.x)/length*lateral};
         if(add(p,radius))break;
+      }
+    }
+    // Stronger relief narrows the flat lowlands. A dense deterministic verge
+    // pass fills the remaining journey slots before spending them off camera.
+    if(level.terrain?.enabled)for(const route of routes)for(let segment=1;segment<route.points.length&&sites.length<this.maxPuddles;segment++){
+      const a=route.points[segment-1],b=route.points[segment],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);
+      if(!length)continue;
+      for(let along=0;along<length&&sites.length<this.maxPuddles;along+=1.5)for(const lateral of [5.5,-5.5,6.5,-6.5,8,-8]){
+        if(sites.length>=this.maxPuddles)break;
+        add({x:a.x+dx*along/length-dz*lateral/length,z:a.z+dz*along/length+dx*lateral/length},1.35);
       }
     }
     for(let i=1;i<Math.max(100,this.maxPuddles*80)&&sites.length<this.maxPuddles;i++){

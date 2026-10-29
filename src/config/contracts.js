@@ -2,6 +2,12 @@
 // These contracts contain no tuning values; update them when adding a setting.
 const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 export const CONFIG_CONTRACTS = freeze({
+  "pasture": {
+    "roughChance": "number",
+    "roughClumps": "integer",
+    "roughPatches": "integer",
+    "roughRocks": "integer"
+  },
   "terrain": {
     "unlockIndex": "integer",
     "selectionProbability": "number",
@@ -239,10 +245,7 @@ export const CONFIG_CONTRACTS = freeze({
   "presentation": {
     "terrain": {
       "groundSpacing": "number",
-      "surfaceSpacing": "number",
-      "roughChance": "number",
-      "roughClumps": "integer",
-      "roughPatches": "integer"
+      "surfaceSpacing": "number"
     },
     "waterVegetation": {
       "bodyChance": "number",

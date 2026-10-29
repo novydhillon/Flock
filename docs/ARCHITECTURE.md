@@ -281,3 +281,7 @@ The campaign limit remains 100 public levels, indexed 0–99 internally. Its des
 ## Terrain elevation ownership — 29 October 2026
 
 The rolling-terrain batch keeps authoritative elevation in the renderer-independent world layer. Planar x/z positions, route footprints, body-clear widths, gate states, delivery and saved progress retain their existing owners. Height queries attach a continuous support surface to those positions rather than introducing a second physics controller. Rendering samples the shared support for ground, actors, scenery and structures; presentation geometry and rough pasture decoration never decide navigation or rewards. River and bridge surface queries must be used by overlays, wakes and plants as well as base meshes. Documented area configuration bounds relief, grade and pooling placement. See [world contracts](systems/WORLD.md) and [terrain tracker](ISSUES.md).
+
+## Pasture world/presentation boundary — 29 October 2026
+
+`pasture.js` owns shared seeded rough selection, decorative grass-site generation and authoritative rock placement. `pasture-view.js` owns reusable volumetric clump and rock geometry. `config/pasture.json` is shared configuration with an explicit shape contract; simulation does not read renderer-only settings for physical rock budgets. World generation adds validated rock disks; rendering reads those exact descriptors and keeps owned instance resources/disposal.

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { createLevel, groundHeight, terrainHeight, terrainNormal, GROUND_SURFACE_OFFSET } from '../src/world.js';
-import { conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from '../src/terrain-view.js';
+import { conformSurface, meadowGeometry, meadowSurfaceHeight, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from '../src/terrain-view.js';
 import { roadNetwork } from '../src/surfaces.js';
 import { createFlowerPatch } from '../src/models.js';
 import { createGateView, createStoneWallView } from '../src/gate-view.js';
@@ -153,4 +153,24 @@ test('small flower roots follow the ground tangent while retaining shared cached
     assert.ok(Math.abs(root.y - height(root.x, root.z)) < 1e-8, 'every stem root lies on its support plane');
   }
   assert.deepEqual(second.quaternion.toArray(), [0, 0, 0, 1], 'cached prototype remains upright for the next placement');
+});
+
+
+test('pool support matches actual ground triangles at their vertices and interiors', () => {
+  for(const index of [5,19,49,94,99]) {
+    const level=createLevel(index), b=level.bounds;
+    if(!level.terrain.enabled)continue;
+    const geometry=meadowGeometry(level,b.maxX-b.minX+90,b.maxZ-b.minZ+90,(b.minX+b.maxX)/2,(b.minZ+b.maxZ)/2);
+    const positions=geometry.attributes.position, indices=geometry.index;
+    for(let i=0;i<indices.count;i+=Math.max(3,Math.floor(indices.count/500/3)*3)) {
+      const a=new THREE.Vector3().fromBufferAttribute(positions,indices.getX(i));
+      const c=new THREE.Vector3().fromBufferAttribute(positions,indices.getX(i+1));
+      const d=new THREE.Vector3().fromBufferAttribute(positions,indices.getX(i+2));
+      for(const weights of [[1,0,0],[.2,.3,.5],[.6,.2,.2]]) {
+        const point=a.clone().multiplyScalar(weights[0]).addScaledVector(c,weights[1]).addScaledVector(d,weights[2]);
+        assert.ok(Math.abs(meadowSurfaceHeight(level,point.x,point.z)-point.y)<2e-7,'pool clipping samples the exact receiving ground triangle');
+      }
+    }
+    geometry.dispose();
+  }
 });

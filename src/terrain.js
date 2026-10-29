@@ -44,7 +44,7 @@ export function createTerrain(level, { angle, halfV, channels }) {
   // These are construction limits, not a height clamp: clamping a finished
   // surface would introduce precisely the abrupt grade changes we avoid.
   const reliefBound = TERRAIN.valleyLift + TERRAIN.waveAmplitude + 2 * TERRAIN.downstreamDrop + TERRAIN.bridgeLift;
-  if (reliefBound > TERRAIN.maximumRelief) throw new RangeError('terrain: configured relief exceeds maximumRelief');
+  if (reliefBound > TERRAIN.maximumRelief + 1e-12) throw new RangeError('terrain: configured relief exceeds maximumRelief');
   if (TERRAIN.poolMaximumSlopeDegrees >= TERRAIN.maximumSlopeDegrees) throw new RangeError('terrain: pool grade must be below traversable grade');
   return terrain;
 }
@@ -63,10 +63,10 @@ function groundSample(level, x, z) {
   const terrain = level?.terrain;
   if (!terrain?.enabled) return { height: 0, dx: 0, dz: 0 };
   const { u, v } = coordinates(terrain, x, z), phases = terrain.phases;
-  const a = u / 18 + phases[0], b = v / 26 + phases[1], c = (u + v) / 30 + phases[2];
+  const a = u / 6 + phases[0], b = v / 8 + phases[1], c = (u + v) / 10 + phases[2];
   const lift = TERRAIN.valleyLift + TERRAIN.waveAmplitude * (.5 * Math.sin(a) + .3 * Math.sin(b) + .2 * Math.sin(c));
-  const liftU = TERRAIN.waveAmplitude * (.5 * Math.cos(a) / 18 + .2 * Math.cos(c) / 30);
-  const liftV = TERRAIN.waveAmplitude * (.3 * Math.cos(b) / 26 + .2 * Math.cos(c) / 30);
+  const liftU = TERRAIN.waveAmplitude * (.5 * Math.cos(a) / 6 + .2 * Math.cos(c) / 10);
+  const liftV = TERRAIN.waveAmplitude * (.3 * Math.cos(b) / 8 + .2 * Math.cos(c) / 10);
   let mask = 1, maskU = 0, maskV = 0;
   for (const channel of terrain.channels) {
     const a = v / channel.primaryScale + channel.phase, b = v / channel.secondaryScale + channel.phase;

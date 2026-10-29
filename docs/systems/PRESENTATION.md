@@ -443,3 +443,7 @@ The renderer samples shared bare/support heights for roads, vegetation, props, g
 Rough pasture uses a separate seeded selection after the first five lessons, with bounded short clumps and muted irregular patches in the existing clay style. The provisional frequency, clump and patch budgets live in `presentation.json`; they are implementation settings, not user-approved cadence. Grass/reeds remain shadow-free. Water rocks and wakes use the same river height callback as their base surface, preserving seeded placement and current direction.
 
 Rolling rain pools use `pool-geometry.js` horizontal geometry clipped against the rendered ground surface. Their fixed buffers and quantized growth bound updates; visible footprint checks also control splashes. `GROUND_SURFACE_OFFSET` is the shared existing mesh clearance below bare support, preventing a second hard-coded ground-height contract. Flat-level water retains legacy geometry. Per-level geometry/material ownership and replacement cleanup remain mandatory.
+
+## Overgrown pasture visual revision — 29 October 2026
+
+The first terrain candidate was rejected on device: solid color polygons and sparse dark blades did not establish rough overgrowth. The correction uses dense three-dimensional tuft structure with soft spatial edges, avoids multiplying two dark green tints, and makes actual terrain contours more apparent at ordinary camera scale. Hills remain shared physical elevations with smooth support; color/lighting cues complement that geometry. User appearance acceptance remains pending.

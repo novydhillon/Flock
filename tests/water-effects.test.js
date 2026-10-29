@@ -1,3 +1,4 @@
+import { meadowSurfaceHeight } from '../src/terrain-view.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
@@ -68,7 +69,12 @@ test('river flow follows heading in world-coordinate ribbon UVs',()=>{
 test('persistent puddles still splash after rainfall stops',()=>{
   const effects=new WaterEffects(new THREE.Scene()),level=createLevel(7);effects.setLevel(level);
   for(let i=0;i<800;i++)effects.update(.1,{weather:{type:'rain',rainIntensity:1}});
-  const p=effects.puddles[0];effects.update(.016,{weather:{type:'sun'},movers:[{id:'dry-sky',x:p.site.x,z:p.site.z,previousX:p.site.x-.025,previousZ:p.site.z}]});
+  const p=effects.puddles.find(p=>p.mesh.visible&&p.pool?.drawRange.count);
+  assert.ok(p,'rain produces a visible persistent pool');
+  const vertices=p.pool.attributes.position;
+  const x=p.site.x+(vertices.getX(0)+vertices.getX(1)+vertices.getX(2))/3;
+  const z=p.site.z+(vertices.getZ(0)+vertices.getZ(1)+vertices.getZ(2))/3;
+  effects.update(.016,{weather:{type:'sun'},movers:[{id:'dry-sky',x,z,previousX:x-.025,previousZ:z}]});
   assert.ok(effects.lastSplashAt.has('dry-sky'));effects.dispose();
 });
 
@@ -194,9 +200,9 @@ test('rolling pools occupy eligible lowlands, meet terrain shorelines and dispos
       const position=p.pool.attributes.position;
       for(let i=0;i<p.pool.drawRange.count;i++){
         const x=position.getX(i)+p.site.x,z=position.getZ(i)+p.site.z;
-        const clearance=p.mesh.position.y-(groundHeight(level,x,z)+GROUND_SURFACE_OFFSET);
+        const clearance=p.mesh.position.y-meadowSurfaceHeight(level,x,z);
         assert.equal(position.getY(i),0);
-        assert.ok(clearance>=-2e-7&&clearance<.0085,'water is a shallow level layer over the visible ground');
+        assert.ok(clearance>=-2e-7&&clearance<.0085,'water is shallow and above the actual rendered triangle surface');
         for(const road of level.roads)for(let j=1;j<road.points.length;j++){
           const a=road.points[j-1],b=road.points[j],dx=b.x-a.x,dz=b.z-a.z;
           const t=Math.max(0,Math.min(1,((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz||1)));

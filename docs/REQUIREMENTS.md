@@ -657,3 +657,7 @@ F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about t
 ## Rolling terrain design agreement — 29 October 2026
 
 F-TERRAIN-001–004: implement selected rough pastures and continuous rolling fields after public level 5, capped at 1.5 world units relief and 12-degree slopes. Smooth slope transitions and smoothly shaded ground must avoid visible triangulation. Use a shared authoritative elevation contract for navigable ground, actors, terrain-following boundaries, roads, bridges and goals. Spawns may be on any traversable grade; goals and bridge landings may slope gently rather than being perfectly flat. Rivers occupy low downhill channels; standing water remains level and large rain pools require low areas with less than 3-degree grade. Keep existing controls, planar route connectivity, cow-size clearances and saved progression. Source implementation/review does not establish visual/device acceptance.
+
+## Terrain appearance correction — 29 October 2026
+
+F-TERRAIN-001/002: the first dev candidate visually failed user review. Rolling play space must visibly read as hills/undulations at normal phone zoom while keeping smooth gradients and agreed safety limits. Rough pasture must have tangible dense overgrown grass/clumps and can include large rocks/boulders/outcroppings; flat color spots with sparse needle blades are insufficient. Preserve navigable routes, body clearance, coherent water and resource bounds.

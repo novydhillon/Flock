@@ -1,3 +1,5 @@
+import { pastureGrassSites, PASTURE } from '../src/pasture.js';
+import { pastureClumpGeometry, pastureRockGeometry } from '../src/pasture-view.js';
 import {conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp} from '../src/terrain-view.js';
 import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
 import {createShowcase} from '../src/landing-ui.js';
@@ -88,7 +90,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={pastureGrassSites,pastureClumpGeometry,pastureRockGeometry,alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -650,9 +652,9 @@ test('wide maps allocate a bounded detail budget beside winding routes with clea
   for(const index of [5,49,99]){
     const level=createLevel(index);renderer.setLevel(level);let besideRoute=0;
     assert.ok(renderer.meadowDetails.filter(p=>p.kind==='flower').length<=190);
-    assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650+(renderer.roughPasture?presentationSettings.terrain.roughClumps.value:0));
+    assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650+(renderer.roughPasture?PASTURE.roughClumps:0));
     for(const p of renderer.meadowDetails){
-      const padding=p.kind==='flower'?1:.4;
+      const padding=p.padding??(p.kind==='flower'?1:.4);
       assert.ok(canOccupy(level,p.x,p.z,padding),'detail footprint stays inside the playable polygon');
       for(const river of level.rivers)assert.ok(lineDistance(p,river.points)>=river.width/2+padding+.5);
       for(const road of level.roads)assert.ok(lineDistance(p,road.points)>=road.width/2+padding+.35);
@@ -1234,4 +1236,29 @@ test('grass and bank reeds remain shadow-free through camera travel and level re
       renderer.scene.traverse(mesh => assert.equal(Boolean(mesh.userData.bakedVegetationShadow), false));
     }
   }
+});
+
+test('public level six builds dense dimensional overgrowth and physical boulders without pasture discs',()=>{
+  const renderer=setup(),level=createLevel(5);renderer.setLevel(level);
+  assert.ok(level.terrain.enabled&&renderer.roughPasture,'the default first eligible meadow exercises both improvements');
+  const grass=renderer.sceneryBatches.find(({batch})=>batch.userData.pastureGrass);
+  const rocks=renderer.sceneryBatches.find(({batch})=>batch.userData.pastureRocks);
+  assert.ok(grass&&grass.matrices.length/16>1500,'full dense overgrowth is actually installed in the live scene');
+  assert.ok(rocks&&rocks.matrices.length/16===level.obstacles.filter(o=>o.kind==='rock').length);
+  assert.equal(grass.batch.material.color.getHex(),0xffffff,'leaf vertex colors are not multiplied by a second dark green');
+  assert.equal(grass.batch.castShadow,false);assert.equal(grass.batch.receiveShadow,false);
+  renderer.terrain.traverse(object=>assert.notEqual(object.name,'Rough pasture patch','solid-colored polygon patches are removed'));
+  const matrix=new THREE.Matrix4(),vertex=new THREE.Vector3();
+  for(const owner of [grass,rocks])for(let i=0;i<owner.matrices.length/16;i++){
+    matrix.fromArray(owner.matrices,i*16);
+    const bound=owner.bounds.subarray(i*4,i*4+4),position=owner.batch.geometry.attributes.position;
+    for(let j=0;j<position.count;j++){
+      vertex.fromBufferAttribute(position,j).applyMatrix4(matrix);
+      assert.ok(Math.hypot(vertex.x-bound[0],vertex.y-bound[1],vertex.z-bound[2])<=bound[3]+1e-5,'actual dimensions fit immutable culling bounds');
+      if(owner===rocks){const rock=level.obstacles.filter(o=>o.kind==='rock')[i];assert.ok(Math.hypot(vertex.x-rock.x,vertex.z-rock.z)<=rock.radius+1e-5,'visible rock fits its authoritative circle');}
+    }
+  }
+  const resources=[grass.batch.geometry,grass.batch.material,rocks.batch.geometry,rocks.batch.material];let disposed=0;
+  for(const resource of resources)resource.addEventListener('dispose',()=>disposed++);
+  renderer.setLevel(createLevel(0));assert.equal(disposed,resources.length,'level replacement releases owned grass and rock resources');
 });
