@@ -180,6 +180,23 @@ test('storm current and obstacle wakes strengthen together while pause freezes b
   const clock=u.time.value,frozen=flow.material.map.offset.y;effects.update(.1,{weather:{type:'sun'},paused:true});assert.equal(u.time.value,clock);assert.equal(flow.material.map.offset.y,frozen);effects.dispose();
 });
 
+test('obstacle wake phase tracks each river current without jumping when weather changes',()=>{
+  const level=createLevel(23),river=riverFixture(level),effects=new WaterEffects(new THREE.Scene());
+  river.flowSpeed=.24;
+  effects.setLevel(level,{rivers:[river]});
+  const detail=effects.riverDetails[0],u=detail.wakes.material.uniforms;
+  effects.update(.1,{weather:{type:'sun'}});
+  assert.ok(Math.abs(u.time.value-.14)<1e-6);
+  const before=u.time.value;
+  effects.update(.1,{weather:{type:'sun'}});
+  assert.ok(Math.abs(u.time.value-before-.14)<1e-6);
+  const steady=u.time.value;
+  effects.update(.1,{weather:{type:'rain',rainIntensity:1,cloudCoverage:1,severity:1}});
+  assert.ok(u.time.value>steady+.14);
+  assert.equal(u.speed.value,1);
+  effects.dispose();
+});
+
 test('seeded rocks and clipped wakes use actual curved river banks and bridge crossings',()=>{
   for(const index of [1,23,47,99]){
     const level=createLevel(index),river=riverFixture(level),effects=new WaterEffects(new THREE.Scene()),original=JSON.stringify(level.rivers);
