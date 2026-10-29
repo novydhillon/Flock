@@ -1116,10 +1116,10 @@ test('environment saturation preserves actor materials and existing surface hook
   const renderer = setup();
   renderer.setLevel(createLevel(3, 201));
   assert.equal(renderer.scene.fog, null, 'distance haze must not wash out the upper field');
-  assert.equal(renderer.grass.userData.environmentVibrancy, 1.25);
+  assert.equal(renderer.grass.userData.environmentVibrancy, 1.125);
   const shader = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <emissivemap_fragment>\n#include <tonemapping_fragment>' };
   renderer.grass.onBeforeCompile(shader);
-  assert.match(shader.fragmentShader, /mix\(vec3\(environmentLuma\), gl_FragColor.rgb, 1.25\)/);
+  assert.match(shader.fragmentShader, /mix\(vec3\(environmentLuma\), gl_FragColor.rgb, 1\.125\)/);
   assert.ok(shader.uniforms.pipGlowCenters, 'existing ground glow hook survives');
   const actorMaterials = new Set();
   renderer.actors.traverse(object => { for (const material of Array.isArray(object.material) ? object.material : [object.material]) if (material) actorMaterials.add(material); });
