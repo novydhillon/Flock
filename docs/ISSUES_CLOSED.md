@@ -8,6 +8,8 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-WATER-002~~ | ~~P2~~ | ~~Environment~~ | ~~Seeded in-water grass and reed clumps on 20% of water bodies~~ | ~~Done~~ | ~~Existing rendered water surfaces~~ |
+| ~~F-WATER-003~~ | ~~P2~~ | ~~Environment~~ | ~~Slender vegetation clumps and natural bank/rock distribution~~ | ~~Done~~ | ~~F-WATER-002; accepted water obstacles~~ |
 | ~~F-UI-017~~ | ~~P2~~ | ~~Minimap~~ | ~~Exterior goal pointer matching Pip~~ | ~~Done~~ | ~~F-UI-014~~ |
 | ~~F-WATER-001~~ | ~~P2~~ | ~~Environment~~ | ~~Weather-driven running water, rocks and obstacle wakes~~ | ~~Done~~ | ~~Existing river effects~~ |
 | ~~F-RENDER-001~~ | ~~P2~~ | ~~Rendering defect~~ | ~~Missing wildlife and environment shadows~~ | ~~Done~~ | ~~Existing lighting; F-015~~ |
@@ -1923,3 +1925,49 @@ Novy requested tracking the twelve remaining suggestions and explicitly skipped 
 
 Prioritize progress-aware Continue (008), moving full-game reset (010), loading recovery (007) and workshop clarity (003). Retain the approved cream/green/clay visual language, minimal weather/livestock HUD, Level # introduction, top-center minimap, numbered tips, circular Woof and production QA exclusion. Respect existing reduced-motion behavior when animating; this is not authorization to add the skipped control-preference/settings feature. Optional bark haptics remain within the explicitly retained bark-feedback suggestion.
 
+
+
+## Water vegetation user acceptance — 29 October 2026
+
+Closed F-WATER-002 and F-WATER-003 following Novy’s explicit acceptance and request to merge to main and close tickets. Accepted branch `feat/water-vegetation`, source `d2bae96da0ed1b59f1d389616b64a0b53e45842c`. This acceptance supersedes historical pending/Review statements below; automated checks do not establish measured phone FPS. Final reed review 9/10, no blockers; 560 regressions, 7 documentation DOM checks and release/development artifact guards passed. Earlier development publication records remain in `docs/validation/F-WATER-002-shadow-removal-dev-publication.json` and `docs/validation/F-WATER-003-dev-publication.json`; no new production publication is included.
+
+### F-WATER-002 - ~~Standing in-water grass and reed clumps~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/water-vegetation`.
+
+**Accept when:** Each water body independently has a seeded 20% chance of containing standing grass/reed clumps. Eligible bodies receive randomized in-water placements biased toward their edges, with occasional central placements. Keep complete clump footprints inside water and clear of bridge crossings; preserve physical navigation, saved progression and existing bank vegetation. Use bounded instanced geometry with correct shadows and per-level cleanup. Rebuilding the same level must retain placements. Current generated water consists of rivers; the placement contract should operate on water surface geometry for future ponds without claiming pond generation.
+
+**28 October 2026:** Requested by Novy after the P2 UI main merge. Implementation and validation underway; appearance and phone performance require separate device observation. No deployment or main merge requested.
+
+
+**F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.
+
+
+**F-WATER-002 validation — 28 October 2026:** Implemented bounded seeded edge-biased grass/reed clumps, configured 20% per-body eligibility and obstacle wakes sharing current/weather response. Focused implementation checks 38/38 passed; fresh blind critic 9.2/10 with no findings, 57 relevant checks passed. Standard checked dev build passes full regressions and release/development artifact guards. Exact counts and limits are in QUALITY.md. User appearance acceptance remains pending; no deployment requested.
+
+
+**F-WATER-002 shadow correction — 28 October 2026:** Novy reports grass/reed shadow flicker while the camera moves (supplied screen recording). Replace realtime shadow participation for static in-water plants and existing grass/bank reeds with camera-independent per-level baked projected shadows. Water shadows must remain clipped to the water and clear of bridge decks. Preserve obstacle wakes, vegetation placement, other scenery and moving animal shadows. Revalidate stability/resources and record actual device checks separately.
+
+
+**F-WATER-002 baked-shadow validation — 28 October 2026:** Static field grass, bank reeds and water clumps now use once-baked fixed-sun silhouettes and neither cast nor receive realtime shadows. Water/deck clipping, camera invariance, owned cleanup and retained wildlife shadows pass focused geometry and actual-renderer lifecycle checks. Blind review and recheck 9/10, no findings. Full checked dev: 556/556 tests, 7 docs DOM checks and both artifact modes pass. User camera-pan appearance/FPS acceptance remains pending; source only, no deployment.
+
+
+## F-WATER-002 - ~~grass/reed shadows removed — 28 October 2026~~
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+
+### F-WATER-003 - ~~Slender clumps and natural bank/rock distribution~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/water-vegetation`.
+
+**Accept when:** Grass and reeds always form multi-blade clumps, with slender grass profiles. Randomize bank clump spacing and offsets instead of paired fixed centerline samples. Preserve 20% water-body eligibility, in-water edge preference and all shadow-free plant behavior. Distribute rocks randomly along water length and across usable wet width rather than regularly spaced center-biased sites; retain full wet footprints, bridge clearance, bounded resources, stable seeded restart and current/weather-responsive wakes. Inspect actual renderer clumps/budgets and disposal. Prior blind-review waiver covered shadow removal only; this substantial presentation follow-up receives independent review. Development publication authorization continues for the same branch; no main/production merge.
+
+
+## F-WATER-003 - ~~downstream reed curvature — 29 October 2026~~
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.

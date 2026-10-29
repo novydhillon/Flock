@@ -1238,3 +1238,51 @@ Fresh isolated blind source review:9/10, no material blockers.52focused tests pa
 ## P2 UI acceptance and main merge — 28 October 2026
 
 Novy explicitly accepted the implemented `feat/p2-ui` batch and requested main merge and sign-off. Eighteen Review items move in full to [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8` is ahead of main with no divergence; exact source CI 40820686979 succeeded. Runtime is unchanged by closure. Earlier pending acceptance wording is historical; no new physical device or FPS result is claimed. Terrain and unrelated open defects remain active. This merge does not publish production. Closure uses the session model and inherited effort; fresh documentation review and regenerated documentation validation follow.
+
+
+## F-WATER-002 in-water vegetation and wakes — 28 October 2026
+
+Branch `feat/water-vegetation`, base main `fb0d3864ab91eaf5c39dc0969498d14b1cdd7425`. Implementation and independent blind review used the session model with inherited effort; exact model/effort identifiers are not exposed. Implementation agent owned six runtime/config/test files; root owned docs/integration. Fresh critic received only task/criteria and a history-free isolated candidate, with no prior scores or writer rationale.
+
+One seeded 20% roll per body gates standing grass/reed clumps. Triangulated surface sampling with exponential boundary bias retains occasional interior growth; full wet footprints, bridge clearance, spacing and bounded rejection attempts constrain placement. Up to 18 clumps and three instanced batches per body own shadows/resources. Current-generated rivers and point-free pond geometry are supported by the surface/wake contracts without adding pond generation. Existing rock and footing wakes remain intact; every plant clump contributes to the same water-clipped current/weather-responsive wake mesh. Tunables remain in validated presentation JSON. Simulation/progression/bank plants are unchanged.
+
+Implementation focused checks 38/38 passed. Fresh blind review 9.2/10, no material blockers or minor defects; critic ran 57 relevant vegetation/water/config/world/bridge/progression tests and inspected curved-ribbon bank extraction. Standard checked dev build exits 0: 552/552 regression tests, zero skips/failures, 7/7 docs DOM tests, release guard 20 files/zero QA, development guard 22 files/two QA. Existing Vite chunk-size advisory remains.
+
+Local checks reused installed locked-version dependencies from the existing workspace; absent unchanged binary audio/icons make this compile snapshot unsuitable for publication. Connector source commit preserves all original binary blobs; exact remote CI performs npm ci and complete source validation after push. No development or production publication, PR or main merge requested. User appearance acceptance remains pending; no rendered WebGL, listening, physical touch or phone FPS result is claimed.
+
+
+## F-WATER-002 baked grass/reed shadow correction — 28 October 2026
+
+Novy supplied a screen recording reporting camera-motion grass/reed shadow flicker and explicitly requested baked shadows. Follow-up on `feat/water-vegetation`, base `7d8b5ba0487b99c5ef9ee2b6db317f07f6cb4c49`. A reusable vegetation-shadows helper projects static geometry along configured world sun direction once per level. One convex silhouette per in-water clump/ground instance avoids internal blade stacking; water silhouettes clip to actual water triangles and exclude bridge rectangles. Receiver offset and polygon offset prevent coplanar conflict; unlit materials test depth without writing it. Field grass, bank reeds and water plants now opt out of realtime casting and receiving. Other scenery/animals retain existing shadows, and current/weather-driven wakes remain animated. Opacity, tint and receiver offset are documented validated presentation settings. Owned resources dispose on level replacement; camera culling cannot rebake or move silhouettes.
+
+Implementation/critics used the session model and inherited effort (exact identifiers not exposed). Fresh blind isolated critic scored 9/10 with no confirmed blockers/minors, passing 10 geometry/water checks, 2 actual renderer camera/culling/lifecycle and wildlife preservation checks, and 4 vegetation regressions. Focused implementation checks 22/22 plus 2 renderer checks passed.
+
+Initial full renderer runs were SIGKILLed: the existing deferred-cloud assertion matched new meshes named shadows, then attempted to format entire cyclic scene objects as a deep-equality failure. Bisection identified that test; it now explicitly excludes tagged baked vegetation shadows while preserving cloud/atmosphere/shadow detection and collecting bounded type:name strings for diagnostics. Portrait fixture across seven levels passed; critic recheck 9/10 confirmed the correction with no findings. Final full checked-dev build passes all regression tests and both release/dev artifact guards; exact counts recorded below. Existing chunk-size advisory remains.
+
+Local validation reused existing dependency installation and preserves the earlier missing-binary snapshot limitation; source commits preserve unchanged remote binary assets and clean remote CI validates npm ci. No WebGL/device elimination-of-flicker, phone FPS or rendered appearance is claimed. Recording inspected for context only. Native camera-pan smoke acceptance remains pending, as does deployment; no main merge or publication requested.
+
+**Final local validation:** 556/556 regressions, zero failures/skips; 7/7 docs DOM checks; release 20 files/zero QA and development 22 files/two QA.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+**Shadow removal validation:** Standard checked dev build passed 553/553 regressions and 7/7 documentation DOM checks, both release/development artifact modes. Blind review explicitly waived by Novy. Exact source CI and dev publication evidence follow separately.
+
+
+## F-WATER-003 clumps and randomized rocks — 29 October 2026
+
+Branch feat/water-vegetation, base 51e5bec. Replaced single ground cones with merged five-blade slender clump geometry, preserving one instance per site. Bank sites now independently sample arc length, side and variable landward offsets with spacing and bridge rejection. In-water grass blades are narrower; its 20% body eligibility, edge bias, shadows disabled and obstacle wakes remain. Rock longitudinal positions are independently random and span full water width subject to wet footprints, overlap and bridge clearance. No simulation/progression changes.
+
+Session model/inherited effort used; exact identifiers unavailable. Fresh isolated blind source critic 8.5/10 found off-center bridge overlaps and a within-body spacing-test gap. Both repaired: oriented bridge rectangle expanded by radius+.5, 100-seed bridge regression and single-river irregular-gap regression. Recheck 9.5/10 has no remaining findings; 31 focused checks pass, initial broader review80/80. Full checked dev build validates regression and both artifact modes. No rendered WebGL, phone appearance or FPS evidence claimed. Dev deployment continues under existing authorization, separate from main/production. Earlier shadow-removal review waiver did not cover this batch.
+
+
+## F-WATER-003 downstream reed curves — 29 October 2026
+
+Added a fixed gentle quadratic bend to one third of in-water reed stems, aligned to the shared nearest-segment current direction used by wakes. Other stems stay upright; reed heads follow curved tips using local tilt and downstream yaw. One additional owned instanced batch, no per-frame geometry, shadows remain disabled. Session model/inherited effort, identifier unavailable. Independent isolated review initially8/10 found head rotation order mismatch; repaired with YXZ composition and downstream tilt. Added four-cardinal head-axis tests;9/9 vegetation checks pass. Full regression/build and review follow-up recorded separately. No device appearance or FPS claim.
+
+
+### Reed curve completion checks — 29 October 2026
+
+Confirmed committed runtime revision `498e6a3cf27405e808d708b472217ed8593d4141` on `feat/water-vegetation` matches the saved isolated candidate. Fresh independent source review: 9/10, no blockers. Reviewer reran all 9 vegetation checks; implementation session also reran 9/9. Minor coverage suggestion: assert head attachment positions explicitly and add a curved-centerline fixture. Existing checked-dev log `bend-final2.log` records 560/560 regressions, 7/7 docs DOM tests, release 20 files/zero QA and development 22 files/two QA. No runtime changes during this continuation. Review used the session model/inherited effort; exact model identifier not exposed. Phone appearance and FPS remain unverified. F-WATER-003 stays in Review awaiting user acceptance. Source completion is separate from development publication; this continuation has not published a new dev build.

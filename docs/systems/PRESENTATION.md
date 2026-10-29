@@ -408,3 +408,28 @@ The follow-up placement and animation now share `grazingFootprint` from `src/gra
 Landing restores configured view heights50portrait/44landscape and scans occupied Pip/Buddy/flock waypoints slowly (0.65m/s, short rests), without fitting map bounds. Field designs may contain multiple fields and all generated livestock stay spread on safe grazing ground. Both dogs use independent decorative rest/wander state; guest Buddy is visible on landing without granting campaign ownership. No herding simulation or delivery/progression step runs there.
 
 The reported remaining fade is specifically the iOS clock/signal/battery area, not renderer fog. Entry HTML now explicitly requests web-app capability and default (non-translucent) status-bar style; theme/manifest/page backgrounds match flat grass. Safe-area HUD spacing remains. This changes supported presentation configuration, not the iOS system compositor; actual iPhone appearance and installed-app configuration caching remain pending device verification. Relaunch, and only if configuration demonstrably remains stale, re-add the Home Screen app for a fresh-install comparison. No native fix is claimed from metadata tests.
+
+
+## In-water vegetation ownership — 28 October 2026
+
+`water-vegetation.js` samples the triangulated water surface with presentation-only seeded randomness. One independent 20% eligibility roll gates each body. Area sampling with distance-to-boundary rejection favors edges, while a complete wet footprint, bridge clearance and bounded spacing constrain placement. Standing grass, reed stems and brown heads use up to three owned instanced batches per body. `WaterEffects` creates/disposes each body owner; `RiverDetails` adds one current-aligned clipped obstacle wake per clump alongside existing rock/footing wakes. Plants never affect navigation or simulation. Tunable presence, density, clump cap, edge falloff and heights live in presentation JSON with validated contracts. Current water generation supplies rivers, and the surface sampler also accepts pond geometry; no new pond generation is added.
+
+
+## Static grass/reed shadow correction — 28 October 2026
+
+Grass/reed shadows are baked into fixed projected geometry when each level is built, using the configured sun direction. Thin plant meshes opt out of casting and receiving realtime shadow maps; moving actors and other scenery retain existing shadow behavior. Static water silhouettes are clipped to the water surface and exclude bridge decks. Owned unlit shadow materials use depth testing and coplanar offset; no per-frame baking or camera-dependent shadow updates are permitted. Plant wakes retain existing current/weather-driven animation. Device checks must confirm the reported camera-motion flicker is gone; source geometry and flag assertions are separate evidence.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+
+## F-WATER-003 natural vegetation and rocks — 28 October 2026
+
+Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank spacing/offsets and randomly placed rocks across more of the water width. This supersedes fixed paired bank reeds and single broad ground cones. Preserve 20% per-water-body plant eligibility, in-water edge bias, no plant shadows, bridge/body-clear geometry, seeded restart and current/weather-responsive obstacle wakes. Validate distribution and actual rendered-scene instance contracts without claiming device appearance/FPS; phone portrait/landscape pan in sun/rain, restart and bridge approaches remain manual smoke checks.
+
+
+## F-WATER-003 downstream reed curvature — 29 October 2026
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.

@@ -401,4 +401,6 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
 
+## Water vegetation acceptance — 29 October 2026
 
+Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.

@@ -221,6 +221,14 @@ export const CONFIG_CONTRACTS = freeze({
     }
   },
   "presentation": {
+    "waterVegetation": {
+      "bodyChance": "number",
+      "maximumClumps": "integer",
+      "areaPerClump": "number",
+      "edgeFalloffMeters": "number",
+      "grassHeight": "number",
+      "reedHeight": "number"
+    },
     "renderer": {
       "pixelRatioCap": "number",
       "exposure": "number",

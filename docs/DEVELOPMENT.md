@@ -480,3 +480,28 @@ Verify original-scale landing framing in both orientations; watch camera move sl
 ## P2 UI acceptance and main merge — 28 October 2026
 
 Novy explicitly accepted the implemented `feat/p2-ui` batch and requested main merge and sign-off. Eighteen Review items move in full to [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8` is ahead of main with no divergence; exact source CI 40820686979 succeeded. Runtime is unchanged by closure. Earlier pending acceptance wording is historical; no new physical device or FPS result is claimed. Terrain and unrelated open defects remain active. This merge does not publish production. Closure uses the session model and inherited effort; fresh documentation review and regenerated documentation validation follow.
+
+
+## In-water vegetation smoke checks — 28 October 2026
+
+F-WATER-002: compare many seeded levels and restart each to confirm stable presence/placement. Most water bodies should have no new in-water plants; eligible bodies show varied standing clumps concentrated toward their edges. Inspect bends, both banks and bridges in sun/rain/storm: entire clumps remain in water and crossing entrances/decks stay clear. Check shadows, legibility and pause/restart/level changes with no accumulation. Check portrait/landscape on a phone and measure performance separately; source tests cannot establish appearance or FPS.
+
+
+## Grass/reed baked-shadow smoke check — 28 October 2026
+
+Compare the supplied recording with the corrected branch on the same phone. Slowly pan/turn the camera around in-water reeds and bank/field grass in portrait and landscape; static silhouettes must stay fixed without shadow-map shimmer. Inspect both banks, curved water edges and bridges: water shadows stay inside water and off decks. Confirm obstacle wakes continue moving with current/weather, plant placement remains seeded and animal shadows remain dynamic. Restart/jump levels and check resource stability. Automated geometry/flags checks do not establish observed elimination of flicker; native WebGL/device verification remains pending.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+
+## F-WATER-003 natural vegetation and rocks — 28 October 2026
+
+Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank spacing/offsets and randomly placed rocks across more of the water width. This supersedes fixed paired bank reeds and single broad ground cones. Preserve 20% per-water-body plant eligibility, in-water edge bias, no plant shadows, bridge/body-clear geometry, seeded restart and current/weather-responsive obstacle wakes. Validate distribution and actual rendered-scene instance contracts without claiming device appearance/FPS; phone portrait/landscape pan in sun/rain, restart and bridge approaches remain manual smoke checks.
+
+
+## F-WATER-003 downstream reed curvature — 29 October 2026
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.

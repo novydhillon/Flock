@@ -622,3 +622,34 @@ Restore the original landing camera scale (50 portrait/44 landscape), drifting o
 ## River, shadows and minimap follow-up - 28 October 2026
 
 F-UI-017 places the goal guidance arrow outside the circular minimap, following its perimeter and matching Pip's goal arrow color. F-WATER-001 preserves sunny water color, darkens water with weather severity and adjusts running ripples to weather. Seeded decorative river rocks and bridge footings at bank intersections create water wakes without changing physical routes. F-RENDER-001 restores environmental and animal shadows; static shadows may be baked. Preserve clay style, bounded mobile resources, weather/lifecycle ownership and intentionally absent cloud shadows. Source validation is separate from rendered/device acceptance.
+
+
+## In-water vegetation — 28 October 2026
+
+F-WATER-002: independently enable standing grass/reed clumps on 20% of water bodies, using seeded presentation randomness. On eligible bodies distribute randomized clumps within water, preferentially near edges while allowing occasional interior growth. Preserve water crossings, simulation/navigation and existing bank vegetation; bound rendering resources and dispose per level. Current generator supplies rivers; future ponds may reuse the surface placement contract.
+
+
+**F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.
+
+
+**F-WATER-002 static shadows — 28 October 2026:** Grass and reeds must use baked shadows rather than realtime shadow maps, avoiding camera-motion flicker. Bake static projected silhouettes once per level, retaining consistent sun direction and water/deck clipping. Thin plant meshes must not cast or receive realtime shadow-map sampling. Preserve current-responsive wakes.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+
+## F-WATER-003 natural vegetation and rocks — 28 October 2026
+
+Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank spacing/offsets and randomly placed rocks across more of the water width. This supersedes fixed paired bank reeds and single broad ground cones. Preserve 20% per-water-body plant eligibility, in-water edge bias, no plant shadows, bridge/body-clear geometry, seeded restart and current/weather-responsive obstacle wakes. Validate distribution and actual rendered-scene instance contracts without claiming device appearance/FPS; phone portrait/landscape pan in sun/rain, restart and bridge approaches remain manual smoke checks.
+
+
+## F-WATER-003 downstream reed curvature — 29 October 2026
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+
+## Butterfly wing motion — 29 October 2026
+
+F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about their body attachments rather than continuously spin. Preserve flight and pause/resume; rendered verification remains pending. This records the existing main tracker requirement without implementing the fix.

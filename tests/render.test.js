@@ -1,3 +1,4 @@
+import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
 import {createShowcase} from '../src/landing-ui.js';
 import {defaultProfile} from '../src/profile.js';
 import * as minimap from '../src/minimap-markers.js';
@@ -86,7 +87,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -209,7 +210,7 @@ test('portrait scene builds articulated instance poses and finite camera matrice
   for(const index of [0,1,3,8,20,23,99]){
     const level=createLevel(index),dog={...level.dog,heading:0};renderer.setLevel(level);
     assert.equal(renderer.atmosphere,undefined,'deferred cloud atmosphere is not part of the runtime renderer');
-    const weatherObjects=[];renderer.scene.traverse(o=>{if(/cloud|atmosphere|shadow/i.test(`${o.name} ${o.type}`)&&o!==renderer.sun.shadow.camera&&o!==renderer.sun.shadow)weatherObjects.push(o);});
+    const weatherObjects=[];renderer.scene.traverse(o=>{if(/cloud|atmosphere|shadow/i.test(`${o.name} ${o.type}`)&&o!==renderer.sun.shadow.camera&&o!==renderer.sun.shadow&&!o.userData.bakedVegetationShadow)weatherObjects.push(`${o.type}:${o.name}`);});
     assert.deepEqual(weatherObjects,[],'level rebuilds do not add visible cloud or cloud-shadow objects');
     renderer.update(level,dog,1/60,false);
     if(index===8||index===23){
@@ -1206,5 +1207,26 @@ test('landing camera retains original scale and scans occupied points slowly wit
     }
     assert.ok(renderer.center.distanceTo(start)>1);
     const frozen=renderer.center.clone();renderer.update(level,dog,0,true);assert.ok(renderer.center.equals(frozen));
+  }
+});
+
+
+test('grass and bank reeds remain shadow-free through camera travel and level replacement', () => {
+  const renderer = setup();
+  for (const index of [23, 0]) {
+    renderer.setLevel(createLevel(index, 201));
+    for (const x of [-30, 0, 30]) {
+      renderer.camera.position.x = x;
+      renderer.camera.lookAt(x, 0, 0);
+      renderer.camera.updateMatrixWorld(true);
+      renderer.cullScenery();
+      const plants = renderer.sceneryBatches.filter(({ batch }) => batch.userData.decorativeGrass || batch.userData.bankReeds);
+      assert.ok(plants.length > 0);
+      for (const { batch } of plants) {
+        assert.equal(batch.castShadow, false);
+        assert.equal(batch.receiveShadow, false);
+      }
+      renderer.scene.traverse(mesh => assert.equal(Boolean(mesh.userData.bakedVegetationShadow), false));
+    }
   }
 });
