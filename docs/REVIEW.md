@@ -197,3 +197,8 @@ A fresh independent `gpt-6.1-sol` critic at medium effort reviewed the isolated 
 Fresh isolated documentation critic used the session model and inherited effort under AGENTS.md. Initial score 9/10, no material blockers; one minor stale UI-only planning section remained in the active tracker. Moved the complete section, including skipped-scope decisions, into the archive. All 18 accepted items retain complete archived rows/details/evidence; unrelated and terrain states are preserved. Docs checks pass 13 pages, 2098 links/anchors, 10 diagrams and 7 DOM checks; tracker checks 12/12. Review covers documentation/source only, not rendered/device/listening/FPS behavior or deployment. Follow-up verification is recorded separately.
 
 **Follow-up:** 9.5/10, no blockers or remaining minor findings. Critic confirmed complete plan migration with exclusions preserved. Regenerated docs recheck: 13 pages, 2100 links/anchors, 10 diagrams and 7 DOM tests passed.
+
+
+## Water vegetation closure and main integration — 29 October 2026
+
+Novy explicitly accepted the water-vegetation batch and requested main merge/ticket closure. Archive full F-WATER-002/003 rows and details, retaining acceptance criteria, shadow correction history, reed curves, source validation and publication limits. Preserve main-only F-BUTTERFLY-001 as Open. Runtime unchanged by closure; regenerate documentation and run documentation checks. No production publication. Session model and inherited effort; exact identifier unavailable.

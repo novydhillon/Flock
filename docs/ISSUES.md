@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 28 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`.
+Updated 29 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
 
@@ -26,8 +26,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-WATER-003 | P2 | Environment | Slender vegetation clumps and natural bank/rock distribution | Review | F-WATER-002; accepted water obstacles |
-| F-WATER-002 | P2 | Environment | Seeded in-water grass and reed clumps on 20% of water bodies | Review | Existing rendered water surfaces |
+| F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
@@ -59,6 +58,19 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
 
 ## Acceptance criteria and planned work
+
+### F-BUTTERFLY-001 — Butterfly wings should flap instead of spinning
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
+
+**Accept when:** Wings visibly flap back and forth around their attachment to the body, with bounded alternating motion rather than continuous full rotation. Verify at normal gameplay zoom and during butterfly flight, preserving existing movement and pause/resume behavior.
+
+**Scope:** Tracker addition only; animation fix and rendered verification remain pending.
+
 
 ### F-AUDIO-003 — Music requires audio off/on after browser or app launch
 
@@ -389,46 +401,6 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
 
+## Water vegetation acceptance — 29 October 2026
 
-
-
-### F-WATER-002 — Standing in-water grass and reed clumps
-
-**Status:** Review. Owner: Codex.
-
-**Branch:** `feat/water-vegetation`.
-
-**Accept when:** Each water body independently has a seeded 20% chance of containing standing grass/reed clumps. Eligible bodies receive randomized in-water placements biased toward their edges, with occasional central placements. Keep complete clump footprints inside water and clear of bridge crossings; preserve physical navigation, saved progression and existing bank vegetation. Use bounded instanced geometry with correct shadows and per-level cleanup. Rebuilding the same level must retain placements. Current generated water consists of rivers; the placement contract should operate on water surface geometry for future ponds without claiming pond generation.
-
-**28 October 2026:** Requested by Novy after the P2 UI main merge. Implementation and validation underway; appearance and phone performance require separate device observation. No deployment or main merge requested.
-
-
-**F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.
-
-
-**F-WATER-002 validation — 28 October 2026:** Implemented bounded seeded edge-biased grass/reed clumps, configured 20% per-body eligibility and obstacle wakes sharing current/weather response. Focused implementation checks 38/38 passed; fresh blind critic 9.2/10 with no findings, 57 relevant checks passed. Standard checked dev build passes full regressions and release/development artifact guards. Exact counts and limits are in QUALITY.md. User appearance acceptance remains pending; no deployment requested.
-
-
-**F-WATER-002 shadow correction — 28 October 2026:** Novy reports grass/reed shadow flicker while the camera moves (supplied screen recording). Replace realtime shadow participation for static in-water plants and existing grass/bank reeds with camera-independent per-level baked projected shadows. Water shadows must remain clipped to the water and clear of bridge decks. Preserve obstacle wakes, vegetation placement, other scenery and moving animal shadows. Revalidate stability/resources and record actual device checks separately.
-
-
-**F-WATER-002 baked-shadow validation — 28 October 2026:** Static field grass, bank reeds and water clumps now use once-baked fixed-sun silhouettes and neither cast nor receive realtime shadows. Water/deck clipping, camera invariance, owned cleanup and retained wildlife shadows pass focused geometry and actual-renderer lifecycle checks. Blind review and recheck 9/10, no findings. Full checked dev: 556/556 tests, 7 docs DOM checks and both artifact modes pass. User camera-pan appearance/FPS acceptance remains pending; source only, no deployment.
-
-
-## F-WATER-002 grass/reed shadows removed — 28 October 2026
-
-Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
-
-
-### F-WATER-003 — Slender clumps and natural bank/rock distribution
-
-**Status:** Review. Owner: Codex.
-
-**Branch:** `feat/water-vegetation`.
-
-**Accept when:** Grass and reeds always form multi-blade clumps, with slender grass profiles. Randomize bank clump spacing and offsets instead of paired fixed centerline samples. Preserve 20% water-body eligibility, in-water edge preference and all shadow-free plant behavior. Distribute rocks randomly along water length and across usable wet width rather than regularly spaced center-biased sites; retain full wet footprints, bridge clearance, bounded resources, stable seeded restart and current/weather-responsive wakes. Inspect actual renderer clumps/budgets and disposal. Prior blind-review waiver covered shadow removal only; this substantial presentation follow-up receives independent review. Development publication authorization continues for the same branch; no main/production merge.
-
-
-## F-WATER-003 downstream reed curvature — 29 October 2026
-
-Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.
