@@ -1,5 +1,15 @@
 # World generation, collision, and navigation
 
+## Continuous terrain and water support — 29 October 2026
+
+`terrain.js` owns the renderer-independent analytic height field; `world.js` re-exports `groundHeight`, `terrainNormal`, `terrainSlope`, `riverSurfaceHeight`, `bridgeSurfaceHeight` and `poolingSite`. Existing `terrainHeight` (also exported as `surfaceHeight`) returns ground or bridge support inside the shared rotated deck footprint. Planar occupancy, collision, route/gate geometry and body widths remain authoritative; no separate 3D movement engine or controls are introduced.
+
+`createLevel` attaches a deterministic `level.terrain` descriptor using its own seed stream, without consuming layout RNG. The first five public levels remain flat. The default rolling selection probability is 65% thereafter; this is provisional implementation tuning, not a user-approved frequency. Spawn and goal locations are not flattened. Fields use broad smooth waves multiplied by analytic channel valleys; exact normals/grades have no height-sample seams. `src/config/terrain.json` documents relief, cap, water and pooling settings with comments/bounds. The 12-degree cap is deliberately fixed; lowering it requires deriving a new terrain/bridge construction.
+
+Rivers share a bounded smooth downstream reference along canonical lateral coordinates, descending toward their first sampled centerline point to match the existing animated current. Normalized valley shoulders keep the entire physical water strip submerged despite hill-wave variation. `groundHeight` includes the submerged bed; `riverSurfaceHeight` returns the separate downhill water plane. Rolling bridge support adds a smooth quartic lift over ground, with both lift and its first derivative vanishing at each dry end. Goals and bridge landings may gently slope.
+
+`poolingSite` screens the center and two footprint rings for grades below 3 degrees, height range no more than .035 units and lowland elevation relative to the local downstream reference. It returns eligibility plus a horizontal pool plane and footprint bounds for weather presentation; weather never rotates standing water onto a hillside. Selection/sampling limits are separate from rendered/device appearance, which remains pending playtest.
+
 ## Bird landing contract — 24 October 2026
 
 birdLandingPositionSafe vetoes the full river footprint even where bridges are playable. Landing searches validate ground endpoints and the approach in bounded samples; failed searches leave birds airborne and defer retry. Hops validate their short dry-ground path. This is ambient wildlife movement only and does not change physical game collision or navigation.

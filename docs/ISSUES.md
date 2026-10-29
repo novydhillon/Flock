@@ -52,10 +52,10 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
-| F-TERRAIN-001 | P3 | Environment/art | Rough pasture appearance on selected levels | Open | Existing clay grass and ground presentation |
-| F-TERRAIN-002 | P2 | Terrain/navigation | Navigable undulating fields | Open | Existing world generation, navigation and actor presentation |
-| F-TERRAIN-003 | P2 | World/structures | Fences and stone walls follow terrain undulations | Open | F-TERRAIN-002; existing fences, stone walls and gates |
-| F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
+| F-TERRAIN-001 | P3 | Environment/art | Rough pasture appearance on selected levels | Review | Existing clay grass and ground presentation |
+| F-TERRAIN-002 | P2 | Terrain/navigation | Navigable undulating fields | Review | Existing world generation, navigation and actor presentation |
+| F-TERRAIN-003 | P2 | World/structures | Fences and stone walls follow terrain undulations | Review | F-TERRAIN-002; existing fences, stone walls and gates |
+| F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Review | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
 
 ## Acceptance criteria and planned work
 
@@ -355,9 +355,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-001 — Rough pasture appearance on selected levels (P3)
 
-**Status:** In progress. Owner: Codex rendering team.
+**Status:** Review. Owner: Codex terrain team.
 
-**Branch:** `feat/p2-ui`.
+**Branch:** `feat/rolling-terrain`.
 
 **Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
 
@@ -367,9 +367,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-002 — Navigable undulating fields (P2)
 
-**Status:** In progress. Owner: Codex rendering team.
+**Status:** Review. Owner: Codex terrain team.
 
-**Branch:** `feat/p2-ui`.
+**Branch:** `feat/rolling-terrain`.
 
 **Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
 
@@ -379,9 +379,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-003 — Fences and stone walls follow terrain undulations (P2)
 
-**Status:** In progress. Owner: Codex rendering team.
+**Status:** Review. Owner: Codex terrain team.
 
-**Branch:** `feat/p2-ui`.
+**Branch:** `feat/rolling-terrain`.
 
 **Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
 
@@ -391,9 +391,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-004 — Lowland rivers and slope-aware rain pooling (P2)
 
-**Status:** In progress. Owner: Codex rendering team.
+**Status:** Review. Owner: Codex terrain team.
 
-**Branch:** `feat/p2-ui`.
+**Branch:** `feat/rolling-terrain`.
 
 **Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
 
@@ -404,3 +404,19 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 ## Water vegetation acceptance — 29 October 2026
 
 Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.
+
+## Rolling terrain execution — 29 October 2026
+
+F-TERRAIN-001–004 are claimed on `feat/rolling-terrain`, based on main `3c656ac2d590e0fea58cc02cc47a5963d0cfe0e4`. This supersedes the older unassigned and `feat/p2-ui` ownership statements for terrain only. Implementation uses the session model at high reasoning; independent review uses medium reasoning as explicitly requested.
+
+**Agreed design:** up to 1.5 world units of relief with slopes capped at 12 degrees, on a seeded selection of public levels after level 5. Terrain transitions must be smooth, with no visible triangulation. Spawn areas may lie on any traversable grade. Goals and bridges may have slight slopes; neither requires a perfectly flat pad. Large rain pools require low terrain and grades below 3 degrees; rivers follow coherent downhill channels. Rough pasture uses a separate seeded selection and retains navigable clearance. Frequency and detailed visual tuning are provisional implementation settings, not a user-approved percentage.
+
+**State:** implementation in progress. Source review, automated checks and rendered/device acceptance remain separate; no deployment or main merge requested.
+
+## Rolling terrain source completion — 29 October 2026
+
+F-TERRAIN-001–004 are implemented on `feat/rolling-terrain` and move to Review, awaiting Novy's rendered/playtest sign-off. This supersedes earlier implementation-in-progress and unassigned terrain statements. Smooth analytic rolling support, independently selected rough pasture, graded barriers/structures/actors, downhill channels and horizontal terrain-clipped lowland pools are implemented with documented bounds. Spawn areas retain their terrain grade; goals and bridges may slope gently. Bark feedback, flowers, water rocks/wakes, guidance and hover clearance share elevation contracts.
+
+High-effort implementation; medium independent source reviews scored 9/10 and then 9.2/10, with no outstanding blocker after corrections. Final full regression: 579/579; 113 focused review checks; 8/8 targeted terrain-view checks after the final behavior-preserving cleanup. Release/development artifact checks and documentation checks are recorded in [QUALITY.md](QUALITY.md). Source publication is separate from deployment and user acceptance. No Pages publication or main merge requested.
+
+**Remaining checks:** actual WebGL smooth appearance/no visible triangulation, clay pasture legibility, phone touch/gameplay and native FPS remain unverified because local Chromium startup was blocked. F-015 remains Open: public-level-100 mocked setup measured roughly 2.4 seconds slower with rolling terrain after optimization, and submitted geometry increased. This is a known setup/workload increase, not a measured phone-FPS verdict.

@@ -1,0 +1,86 @@
+{
+  "unlockIndex": {
+    "value": 5,
+    "_comment": "First zero-based campaign index eligible for rolling terrain; public levels 1\u20135 stay flat.",
+    "min": 5,
+    "max": 99
+  },
+  "selectionProbability": {
+    "value": 0.65,
+    "_comment": "Seeded rolling-meadow probability after unlock; an implementation tuning choice.",
+    "min": 0,
+    "max": 1
+  },
+  "maximumRelief": {
+    "value": 1.5,
+    "_comment": "Hard ceiling on total playable terrain relief, including support surfaces.",
+    "min": 0.1,
+    "max": 1.5
+  },
+  "maximumSlopeDegrees": {
+    "value": 12,
+    "_comment": "Fixed agreed hard cap on traversable terrain/support grades. Lower caps require re-deriving the analytic field and bridge parameters; this is not an independent tuning knob.",
+    "min": 12,
+    "max": 12
+  },
+  "waveAmplitude": {
+    "value": 0.14,
+    "_comment": "Amplitude of broad smooth pasture waves; reduced values soften hill variation.",
+    "min": 0,
+    "max": 0.14
+  },
+  "valleyLift": {
+    "value": 0.64,
+    "_comment": "Height above the channel floor approached by distant pasture.",
+    "min": 0.6,
+    "max": 0.64
+  },
+  "channelDepth": {
+    "value": 0.3,
+    "_comment": "Channel floor below the smooth downstream reference plane.",
+    "min": 0.3,
+    "max": 0.3
+  },
+  "waterDepth": {
+    "value": 0.075,
+    "_comment": "River surface above its channel floor.",
+    "min": 0.06,
+    "max": 0.075
+  },
+  "downstreamDrop": {
+    "value": 0.12,
+    "_comment": "Half of the bounded smooth downhill river elevation range.",
+    "min": 0,
+    "max": 0.12
+  },
+  "bridgeLift": {
+    "value": 0.32,
+    "_comment": "Maximum smooth deck lift above channel terrain; joins with zero end derivative.",
+    "min": 0.3,
+    "max": 0.32
+  },
+  "poolMaximumSlopeDegrees": {
+    "value": 3,
+    "_comment": "Large rain pools require grades strictly below this threshold across their footprint.",
+    "min": 0.1,
+    "max": 3
+  },
+  "poolMaximumHeightRange": {
+    "value": 0.035,
+    "_comment": "Maximum ground height variation across one standing-water footprint.",
+    "min": 0.005,
+    "max": 0.035
+  },
+  "poolLowlandHeight": {
+    "value": 0.31,
+    "_comment": "Maximum pool ground elevation above the local downstream reference.",
+    "min": 0,
+    "max": 0.31
+  },
+  "waterEdgeInset": {
+    "value": 0.2,
+    "_comment": "Extra channel-bed width beyond the physical water ribbon; retains full-width water through sampled bends.",
+    "min": 0.2,
+    "max": 0.25
+  }
+}

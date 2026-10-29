@@ -13,7 +13,7 @@ function ownedGroup(){
 }
 /** Panels slide along the existing barrier: an open passage has no leaf
  * projecting into its ground corridor. All resources belong to this group. */
-export function createGateView(gates=[]){
+export function createGateView(gates=[], groundHeight=()=>0){
   const group=ownedGroup(),wood=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#a97640',roughness:.9})),metal=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#4e594b',roughness:.7}));
   const cube=group.ownGeometry(new THREE.BoxGeometry(1,1,1)),panels=[];
   const lightGeometry=group.ownGeometry(new THREE.CylinderGeometry(.21,.21,.09,16)),dome=group.ownGeometry(new THREE.SphereGeometry(.25,16,10));
@@ -30,14 +30,19 @@ export function createGateView(gates=[]){
   const pending=new Map();
   const box=(parent,x,y,w,h,d,material)=>{let byMaterial=pending.get(parent);if(!byMaterial)pending.set(parent,byMaterial=new Map());let parts=byMaterial.get(material);if(!parts)byMaterial.set(material,parts=[]);parts.push({x,y,w,h,d});};
   for(const gate of gates.filter(g=>g.operable)){
-    const local=new THREE.Group();local.position.set(gate.x,0,gate.z);local.rotation.y=gate.heading;group.add(local);
+    const local=new THREE.Group();local.position.set(gate.x,groundHeight(gate.x,gate.z),gate.z);local.rotation.y=gate.heading;
+    const groundAt = x => groundHeight(gate.x + Math.cos(gate.heading) * x, gate.z - Math.sin(gate.heading) * x);
+    const grade = Math.atan2(groundAt(gate.width / 2) - groundAt(-gate.width / 2), gate.width);
+    local.userData.groundAt = groundAt;
+    local.userData.baseHeight = local.position.y;
+    local.userData.grade = grade;group.add(local);
     for(const x of [-gate.width/2,gate.width/2])box(local,x,.85,.22,1.7,.3,metal);
-    const panel=new THREE.Group();panel.name='gate-panel';local.add(panel);
+    const panel=new THREE.Group();panel.name='gate-panel';panel.userData = {...local.userData};local.add(panel);
     for(const y of [.45,1.2])box(panel,0,y,gate.width,.15,.22,wood);
     for(let i=0;i<=Math.ceil(gate.width/1.2);i++)box(panel,-gate.width/2+gate.width*i/Math.ceil(gate.width/1.2),.82,.14,1.05,.19,wood);
     box(panel,gate.width/2-.35,.85,.24,.28,.3,metal);
     const buttons=gateSwitchPanels(gate).map(point=>{
-      const housing=new THREE.Group();housing.name='gate-switch-panel';housing.position.set(point.x,point.y,point.z);housing.rotation.y=point.heading;group.add(housing);
+      const housing=new THREE.Group();housing.name='gate-switch-panel';housing.position.set(point.x,point.y+groundHeight(point.x,point.z),point.z);housing.rotation.y=point.heading;group.add(housing);
       const plate=new THREE.Mesh(cube,metal);plate.scale.set(.64,.78,.14);plate.castShadow=plate.receiveShadow=true;housing.add(plate);
       const ring=new THREE.Mesh(lightGeometry,bezel);ring.rotation.x=Math.PI/2;ring.scale.set(1.34,1,1.34);ring.position.set(0,.12,.10);housing.add(ring);
       const button=new THREE.Mesh(dome,red);button.name='gate-button';button.userData.dynamicScenery=true;button.scale.set(1,1,.8);button.position.set(0,.12,.20);housing.add(button);
@@ -49,10 +54,17 @@ export function createGateView(gates=[]){
   const matrix=new THREE.Matrix4();
   for(const [parent,byMaterial] of pending)for(const [material,parts] of byMaterial){
     const mesh=new THREE.InstancedMesh(cube,material,parts.length);
-    parts.forEach((part,i)=>{matrix.makeScale(part.w,part.h,part.d);matrix.setPosition(part.x,part.y,0);mesh.setMatrixAt(i,matrix);});
+    parts.forEach((part,i)=>{
+      const y = part.y + (parent.userData.groundAt?.(part.x) ?? 0) - (parent.userData.baseHeight ?? 0);
+      matrix.makeRotationZ(part.w > part.h ? parent.userData.grade || 0 : 0);
+      matrix.scale(new THREE.Vector3(part.w, part.h, part.d));
+      matrix.setPosition(part.x,y,0);mesh.setMatrixAt(i,matrix);
+    });
     mesh.castShadow=mesh.receiveShadow=true;parent.add(mesh);
   }
-  group.update=()=>{for(const {gate,panel,buttons} of panels){panel.position.x=gate.open?-gate.width:0;for(const {button,halo} of buttons){button.material=gate.open?green:red;halo.material=gate.open?greenHalo:redHalo;}}};
+  group.update=()=>{for(const {gate,panel,buttons} of panels){panel.position.x=gate.open?-gate.width:0;
+    panel.position.y = panel.userData.groundAt(panel.position.x) - panel.userData.baseHeight;
+    for(const {button,halo} of buttons){button.material=gate.open?green:red;halo.material=gate.open?greenHalo:redHalo;}}};
   group.update();return group;
 }
 
@@ -100,7 +112,7 @@ function clayStone(variant){
 /** Hand-laid dry stone, wholly inside the existing .6-unit collision strip.
  * Broad lower stones, staggered smaller infill and upright coping have no mortar.
  * Three shared low-poly clay shapes keep draw calls independent of wall length. */
-export function createStoneWallView(segments=[]){
+export function createStoneWallView(segments=[], groundHeight=()=>0){
   const group=ownedGroup(),material=group.ownMaterial(new THREE.MeshStandardMaterial({color:'#ffffff',roughness:1,vertexColors:true}));
   const batches=[[],[],[]],palette=['#aba595','#c2b59d','#8b9189','#c5bfac','#969d97','#aaa99b','#858c7d','#b4a28d'];
   for(const segment of segments.filter(s=>s.material==='stone')){
@@ -114,15 +126,19 @@ export function createStoneWallView(segments=[]){
         const span=length*weight/sum,end=start+span,mid=(start+end)/2;
         const width=Math.max(.0001,span-Math.min(.018,span*.08));
         const height=coping?.19+random()*.20:.29+random()*.105;
-        const tilt=(random()-.5)*2*Math.min(.065,width/(height*2));
+        const startHeight = groundHeight(a.x + (b.x-a.x)*start/length, a.z + (b.z-a.z)*start/length);
+        const endHeight = groundHeight(a.x + (b.x-a.x)*end/length, a.z + (b.z-a.z)*end/length);
+        const grade = Math.atan2(endHeight - startHeight, span);
+        const tilt=grade+(random()-.5)*2*Math.min(.065,width/(height*2));
         const sine=Math.abs(Math.sin(tilt)),cosine=Math.cos(tilt);
         // Fit the rolled box to its original slot, including very short ends.
         const fittedWidth=Math.max(.00001,(width-height*sine)/cosine);
         const rise=(fittedWidth*sine+height*cosine)/2;
         const contour=Math.sin(mid*.79+a.x*.13+a.z*.17)*.035;
+        const reverse = random() < .5;
         batches[Math.floor(random()*3)].push({
-          x:a.x+(b.x-a.x)*mid/length,z:a.z+(b.z-a.z)*mid/length,yaw:yaw+(random()<.5?Math.PI:0),tilt,
-          y:row===0?rise+.005:coping?1.10+contour+(random()-.5)*.055:.175+row*.325+contour+(random()-.5)*.04,
+          x:a.x+(b.x-a.x)*mid/length,z:a.z+(b.z-a.z)*mid/length,yaw:yaw+(reverse?Math.PI:0),tilt:reverse?-tilt:tilt,
+          y:groundHeight(a.x+(b.x-a.x)*mid/length,a.z+(b.z-a.z)*mid/length)+(row===0?height/2+.005:coping?1.10+contour+(random()-.5)*.055:.175+row*.325+contour+(random()-.5)*.04),
           width:fittedWidth,height,
           depth:(coping?.43:.59-row*.055)*( .94+random()*.06),
           color:palette[Math.floor(random()*palette.length)],

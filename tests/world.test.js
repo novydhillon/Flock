@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createLevel,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,separatedByBank,terrainHeight,routeProgress,nextNavigationPoint,navigationTarget,openingSteer,distance,segmentDistance} from '../src/world.js';
+import {createLevel,canOccupy,moveBody,hasClearGroundPath,hasClearPlayerSignal,separatedByBank,terrainHeight,groundHeight,bridgeSurfaceHeight,routeProgress,nextNavigationPoint,navigationTarget,openingSteer,distance,segmentDistance} from '../src/world.js';
 
 test('ground helper navigation walks around dry bridge ends instead of pushing through rails',()=>{
   for(const seed of [200,201,202,203])for(const side of [-1,1])for(const end of [-1,1]){
@@ -104,7 +104,9 @@ test('all visible fence segments block bodies and destination entrances fit cows
 test('bridge decks and terrain height share the same rotated physical footprint',()=>{
   for(const seed of [200,201,202,203]){
     const l=createLevel(23,seed),bridge=l.rivers[0].bridges[0],f={x:Math.sin(bridge.heading),z:Math.cos(bridge.heading)},side={x:f.z,z:-f.x};
-    assert.ok(canOccupy(l,bridge.x,bridge.z,.8));assert.ok(Math.abs(terrainHeight(l,bridge.x,bridge.z)-.3)<1e-8);
+    assert.ok(canOccupy(l,bridge.x,bridge.z,.8));
+    assert.equal(terrainHeight(l,bridge.x,bridge.z),bridgeSurfaceHeight(l,bridge,bridge.x,bridge.z));
+    assert.ok(Math.abs(terrainHeight(l,bridge.x,bridge.z)-(l.terrain.enabled?groundHeight(l,bridge.x,bridge.z)+.32:.3))<1e-8);
     const bank={x:bridge.x+side.x*(bridge.width/2+2),z:bridge.z+side.z*(bridge.width/2+2)};
     assert.equal(canOccupy(l,bank.x,bank.z,.6),false);
     const body={x:bridge.x-f.x*(bridge.length/2+1),z:bridge.z-f.z*(bridge.length/2+1)};
@@ -112,11 +114,12 @@ test('bridge decks and terrain height share the same rotated physical footprint'
     assert.ok(distance(body,{x:bridge.x+f.x*(bridge.length/2+1),z:bridge.z+f.z*(bridge.length/2+1)})<.001);
   }
 });
-test('scenery hills stay outside the entire playable area and grass remains flat',()=>{
+test('scenery hills stay outside the entire playable area and spawn support matches bare pasture',()=>{
   for(let i=0;i<100;i++){
     const l=createLevel(i),b=l.bounds;
     for(const hill of l.sceneryHills)assert.ok(hill.x+hill.radius<b.minX||hill.x-hill.radius>b.maxX||hill.z+hill.radius<b.minZ||hill.z-hill.radius>b.maxZ);
-    assert.equal(terrainHeight(l,l.spawn.x,l.spawn.z),0);
+    assert.equal(terrainHeight(l,l.spawn.x,l.spawn.z),groundHeight(l,l.spawn.x,l.spawn.z));
+    if(i<5||!l.terrain.enabled)assert.equal(groundHeight(l,l.spawn.x,l.spawn.z),0);
   }
 });
 test('later organic trails visibly reverse their lateral travel and navigation follows the route',()=>{

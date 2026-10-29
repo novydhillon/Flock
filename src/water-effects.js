@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import { canOccupy, terrainHeight } from './world.js';
+import { canOccupy, terrainHeight, groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from './world.js';
 import { deliveryCountdownSeconds } from './delivery.js';
 import { RiverDetails } from './river-details.js';
 import { WaterVegetation } from './water-vegetation.js';
+import { HorizontalPoolGeometry } from './pool-geometry.js';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 // Sun's small baseline cloud/wind values preserve the accepted water color.
@@ -21,6 +22,9 @@ const GRASS_WET=new THREE.Color(0x42634a),PATH_WET=new THREE.Color(0x58432f);
 function segmentDistance(p,a,b){const dx=b.x-a.x,dz=b.z-a.z,t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/(dx*dx+dz*dz||1));return Math.hypot(p.x-a.x-dx*t,p.z-a.z-dz*t);}
 function safePuddleSite(level,p){
   if(!canOccupy(level,p.x,p.z,.4))return false;
+  // Rolling puddles sit at the bare-ground waterline, below road overlays.
+  // Reject the shoulder as well so covered geometry cannot trigger splashes.
+  if(level.terrain?.enabled&&(level.roads||[]).some(road=>road.points.some((a,i)=>i&&segmentDistance(p,road.points[i-1],a)<road.width/2+.7)))return false;
   for(const river of level.rivers||[]){
     if(river.points.some((a,i)=>i&&segmentDistance(p,river.points[i-1],a)<river.width/2+.8))return false;
     for(const b of river.bridges||[]){const dx=p.x-b.x,dz=p.z-b.z,along=dx*Math.sin(b.heading)+dz*Math.cos(b.heading),across=dx*Math.cos(b.heading)-dz*Math.sin(b.heading);if(Math.abs(along)<b.length/2+.45&&Math.abs(across)<b.width/2+.45)return false;}
@@ -61,7 +65,10 @@ function flowGeometry(river,source){
     const p=points[i],a=normals[Math.max(0,i-1)],b=normals[Math.min(normals.length-1,i)];
     if(i)along+=Math.hypot(p.x-points[i-1].x,p.z-points[i-1].z);
     const nx=(a.x+b.x)*.5,nz=(a.z+b.z)*.5;
-    for(const side of [-1,0,1]){positions.push(p.x+nx*half*side,y,p.z+nz*half*side);uvs.push(side*.5,along/4);}
+    for(const side of [-1,0,1]){
+      const x=p.x+nx*half*side,z=p.z+nz*half*side;
+      positions.push(x,river.heightAt?.(x,z)??y,z);uvs.push(side*.5,along/4);
+    }
     if(i){const j=(i-1)*3,k=i*3;indices.push(j,j+1,k+1,j,k+1,k,j+1,j+2,k+2,j+1,k+2,k+1);}
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geometry.setIndex(indices);return geometry;
@@ -97,23 +104,36 @@ export class WaterEffects {
     for(let i=0;i<this.maxSplashes;i++){const material=new THREE.MeshBasicMaterial({color:0xc9eef0,transparent:true,opacity:.78,depthWrite:false});const mesh=new THREE.Mesh(this.splashGeometry,material);mesh.visible=false;mesh.rotation.x=-Math.PI/2;this.root.add(mesh);this.splashes.push({mesh,material,age:1});}
     const puddleGeometry=new THREE.CircleGeometry(1,20);this.puddleResources={geometry:puddleGeometry};
     const seed=level.seed??level.index??0,initialCount=puddleRoll(seed,71)<.5?0:1+Math.floor(puddleRoll(seed,72)*3);
-    for(const site of this.findPuddleSites()) {const material=new THREE.MeshBasicMaterial({color:0x456a69,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});const mesh=new THREE.Mesh(puddleGeometry,material);mesh.rotation.x=-Math.PI/2;mesh.visible=false;mesh.position.set(site.x,terrainHeight(level,site.x,site.z)+.024,site.z);mesh.scale.set(site.radius,site.radius*.62,1);this.root.add(mesh);this.puddles.push({mesh,material,depth:0,site,initialDepth:this.puddles.length<initialCount?.1+puddleRoll(seed,80+this.puddles.length)*.1:0});}
+    for(const site of this.findPuddleSites()) {
+      const pool=level.terrain?.enabled?new HorizontalPoolGeometry({...site,groundHeight:(x,z)=>groundHeight(level,x,z)+GROUND_SURFACE_OFFSET}):null;
+      if(pool){pool.setGrowth(1);if(!pool.drawRange.count){pool.dispose();continue;}}
+      const material=new THREE.MeshBasicMaterial({color:0x456a69,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});
+      const mesh=new THREE.Mesh(pool||puddleGeometry,material);if(!pool)mesh.rotation.x=-Math.PI/2;
+      mesh.visible=false;mesh.position.set(site.x,site.height??terrainHeight(level,site.x,site.z)+.024,site.z);
+      this.root.add(mesh);const puddle={mesh,material,pool,depth:0,site,initialDepth:this.puddles.length<initialCount?.1+puddleRoll(seed,80+this.puddles.length)*.1:0};
+      this.puddles.push(puddle);this.applyPuddleAppearance(puddle);
+    }
     if(weather){this.wetness=weather.kind==='storm'?.60:weather.kind==='heavy-rain'?.35:weather.type==='rain'?.03:0;for(const p of this.puddles){p.depth=weather.type==='rain'?p.initialDepth:0;this.applyPuddleAppearance(p);}this.applySurfaceWeather(weather);}
   }
   findPuddleSites(){
     const level=this.level,b=level.bounds,sites=[],w=b.maxX-b.minX,d=b.maxZ-b.minZ,seed=level.seed??level.index??0;
     const add=(p,radius)=>{
       const {x,z}=p;
+      const pooling = poolingSite(level, x, z, radius);
+      if (!pooling.eligible) return false;
       // Overlapping safety probes cover the whole final footprint, including
       // interior obstacles, before any growing mesh becomes visible.
       const footprint=Array.from({length:48},(_,j)=>{const ring=1+Math.floor(j/16),angle=(j%16)*Math.PI/8;return{x:x+Math.cos(angle)*radius*ring/3,z:z+Math.sin(angle)*radius*.62*ring/3};});
       if(!safePuddleSite(level,p)||footprint.some(edge=>!safePuddleSite(level,edge))||sites.some(s=>Math.hypot(s.x-x,s.z-z)<s.radius+radius+.3))return false;
-      sites.push({...p,radius});return true;
+      // The field query describes bare ground; the visible grass mesh shares
+      // this offset. Its .008 shallow water cap must not become a floating sheet.
+      sites.push({...p,radius,...(level.terrain?.enabled ? {height:pooling.height+GROUND_SURFACE_OFFSET} : {})});return true;
     };
     const routes=(level.routes||[]).filter(r=>r.points?.length>1);
     // Allocate sites along the journey before filling unused space. A uniform
     // field distribution becomes invisible on large maps, especially in portrait.
-    // The first slot stays near spawn so any seeded small puddle is observable.
+    // Flat levels keep a first slot near spawn. Rolling spawns can be on hills;
+    // the same eligibility rule applies there, with lowland fallback sites.
     for(let slot=0;slot<this.maxPuddles&&routes.length;slot++){
       const route=routes[slot%routes.length],points=route.points;
       const lengths=points.slice(1).map((p,i)=>Math.hypot(p.x-points[i].x,p.z-points[i].z)),total=lengths.reduce((a,v)=>a+v,0);
@@ -135,15 +155,16 @@ export class WaterEffects {
   }
   applyPuddleAppearance(p){
     // Area and opacity grow together; geometry never exceeds the validated footprint.
-    const size=Math.sqrt(p.depth);p.mesh.scale.set(p.site.radius*size,p.site.radius*.62*size,1);
-    p.mesh.visible=p.depth>.008;p.material.opacity=p.mesh.visible?.18+p.depth*.24:0;
+    const size=Math.sqrt(p.depth);
+    if(p.pool)p.pool.setGrowth(p.depth);else p.mesh.scale.set(p.site.radius*size,p.site.radius*.62*size,1);
+    p.mesh.visible=p.depth>.008&&(!p.pool||p.pool.drawRange.count>0);p.material.opacity=p.mesh.visible?.18+p.depth*.24:0;
   }
   restoreMaterials(){
     for(const s of this.materialSnapshots){s.material.color.copy(s.color);if(s.roughness!==undefined)s.material.roughness=s.roughness;s.color.dispose?.();}
     this.materialSnapshots=[];
     if(this.waterSnapshot){const s=this.waterSnapshot;if(s.color&&s.material.color)s.material.color.copy(s.color);if(s.roughness!==undefined)s.material.roughness=s.roughness;s.color?.dispose?.();this.waterSnapshot=null;}
   }
-  clearEffects(){for(const vegetation of this.waterVegetation)vegetation.dispose();this.waterVegetation=[];for(const detail of this.riverDetails)detail.dispose();this.riverDetails=[];for(const e of this.splashes){this.root.remove(e.mesh);e.material.dispose();}for(const e of this.puddles){this.root.remove(e.mesh);e.material.dispose();}this.splashes=[];this.puddles=[];
+  clearEffects(){for(const vegetation of this.waterVegetation)vegetation.dispose();this.waterVegetation=[];for(const detail of this.riverDetails)detail.dispose();this.riverDetails=[];for(const e of this.splashes){this.root.remove(e.mesh);e.material.dispose();}for(const e of this.puddles){this.root.remove(e.mesh);e.material.dispose();e.pool?.dispose();}this.splashes=[];this.puddles=[];
     if(this.puddleResources){this.puddleResources.geometry.dispose();this.puddleResources=null;}
     for(const child of [...this.root.children])if(child.name==='River flow'){this.root.remove(child);child.material.userData.ownedFlowMap?.dispose();child.material.dispose();child.geometry.dispose();}
   }
@@ -174,13 +195,13 @@ export class WaterEffects {
     for(const p of this.puddles){p.depth=rain>0?clamp(p.initialDepth+(1-p.initialDepth)*this.rainElapsed/this.puddleGrowthDuration):clamp(p.depth-dt*(weather.type==='sun'?.006:.0008));this.applyPuddleAppearance(p);}
     for(const mover of movers){const pos=flat(mover);if(!pos||!Number.isFinite(pos.x)||!Number.isFinite(pos.z))continue;const id=mover.id??mover.kind??'mover',prev=flat(mover.previousPosition)||((Number.isFinite(mover.previousX))?{x:mover.previousX,z:mover.previousZ}:this.lastMoverPositions.get(id));
       const moved=prev&&Math.hypot(pos.x-prev.x,pos.z-prev.z)>.008;
-      const puddle=this.puddles.find(p=>p.mesh.visible&&((pos.x-p.site.x)**2/(p.site.radius**2)+(pos.z-p.site.z)**2/(p.site.radius*.62)**2)<p.depth);
-      if(moved&&puddle&&safePuddleSite(this.level,pos)&&this.elapsed-(this.lastSplashAt.get(id)||-10)>.22){this.spawnSplash(pos);this.lastSplashAt.set(id,this.elapsed);}
+      const puddle=this.puddles.find(p=>p.mesh.visible&&((pos.x-p.site.x)**2/(p.site.radius**2)+(pos.z-p.site.z)**2/(p.site.radius*.62)**2)<p.depth&&(!p.pool||p.pool.contains(pos.x-p.site.x,pos.z-p.site.z)));
+      if(moved&&puddle&&safePuddleSite(this.level,pos)&&this.elapsed-(this.lastSplashAt.get(id)||-10)>.22){this.spawnSplash(pos,puddle.pool?puddle.site.height:undefined);this.lastSplashAt.set(id,this.elapsed);}
       this.lastMoverPositions.set(id,{x:pos.x,z:pos.z});
     }
-    for(const s of this.splashes){if(s.age>=1)continue;s.age=Math.min(1,s.age+dt*2.4);s.mesh.scale.setScalar(.4+s.age*2.3);s.mesh.position.y=.06+terrainHeight(this.level,s.mesh.position.x,s.mesh.position.z)+s.age*.06;s.material.opacity=.78*(1-s.age);if(s.age>=1)s.mesh.visible=false;}
+    for(const s of this.splashes){if(s.age>=1)continue;s.age=Math.min(1,s.age+dt*2.4);s.mesh.scale.setScalar(.4+s.age*2.3);s.mesh.position.y=(s.waterHeight??terrainHeight(this.level,s.mesh.position.x,s.mesh.position.z))+.06+s.age*.06;s.material.opacity=.78*(1-s.age);if(s.age>=1)s.mesh.visible=false;}
   }
-  spawnSplash(pos){const s=this.splashes.find(v=>v.age>=1);if(!s)return;s.age=0;s.mesh.position.set(pos.x,terrainHeight(this.level,pos.x,pos.z)+.08,pos.z);s.mesh.scale.setScalar(.35);s.mesh.visible=true;}
+  spawnSplash(pos,waterHeight){const s=this.splashes.find(v=>v.age>=1);if(!s)return;s.age=0;s.waterHeight=waterHeight;s.mesh.position.set(pos.x,(waterHeight??terrainHeight(this.level,pos.x,pos.z))+.08,pos.z);s.mesh.scale.setScalar(.35);s.mesh.visible=true;}
   dispose(){this.restoreMaterials();this.clearEffects();this.root.removeFromParent();this.flowMap.dispose();this.flowMaterial.dispose();this.splashGeometry.dispose();this.level=null;this.scene=null;}
 }
 

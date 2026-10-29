@@ -1,5 +1,7 @@
 import { maximumLevelReward, MAX_LEVEL_INDEX } from './delivery.js';
 import { animalRadius, COW_SCALES } from './animal-size.js';
+import { createTerrain, groundHeight, bridgeSurfaceHeight } from './terrain.js';
+export { GROUND_SURFACE_OFFSET, groundHeight, terrainNormal, terrainSlope, riverSurfaceHeight, bridgeSurfaceHeight, poolingSite } from './terrain.js';
 /** Deterministic meadow geometry. Rendering and every ground body share these
  * sampled river edges, fence segments, and circular tree footprints. */
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -148,10 +150,11 @@ export function hasClearGroundPath(level,a,b,radius=.55){return clearPath(level,
 export function hasClearPlayerSignal(level,a,b){return clearPath(level,a,b,.15,false,true);}
 export function terrainHeight(level,x,z){
   for(const river of level?.rivers||[])for(const bridge of river.bridges){
-    if(withinBridge(bridge,{x,z},0)){const f=yawVector(bridge.heading),along=(x-bridge.x)*f.x+(z-bridge.z)*f.z;return .18+.12*Math.sin(Math.PI*(along/bridge.length+.5));}
+    if(withinBridge(bridge,{x,z},0))return bridgeSurfaceHeight(level,bridge,x,z);
   }
-  return 0;
+  return groundHeight(level,x,z);
 }
+export const surfaceHeight=terrainHeight;
 function perimeter(b) { const nw={x:b.minX,z:b.minZ},ne={x:b.maxX,z:b.minZ},se={x:b.maxX,z:b.maxZ},sw={x:b.minX,z:b.maxZ};
   return [[nw,ne],[ne,se],[se,sw],[sw,nw]].map(([a,b])=>({a,b,kind:'boundary'})); }
 /** Roads have gentle, sampled meanders. Crossing decks remain straight. */
@@ -226,7 +229,11 @@ export function createLevel(index=0,seed=index*7919+42) {
   const riverBases=index===0?[]:early?[index===1?-10:-12]:index>=15?[gateU-breathing-48,gateU-breathing-23]:[gateU-breathing-23];
   const meandering=index>=19&&rng(seed^0x4d45414e)()<.55;
   if(meandering&&riverBases.length>1)riverBases[0]-=15;
-  const riverFunctions=riverBases.map(base=>{const phase=random()*Math.PI*2;return {width:early?3.1:3.7+Math.min(index*.025,1.8),at:v=>base+Math.sin(v/(meandering?32:21)+phase)*(meandering?6:2.4)+Math.sin(v/(meandering?12:8)+phase)*(meandering?1:.65)};});
+  const riverFunctions=riverBases.map(base=>{
+    const phase=random()*Math.PI*2;
+    const channel={base,phase,width:early?3.1:3.7+Math.min(index*.025,1.8),primaryScale:meandering?32:21,secondaryScale:meandering?12:8,primaryAmplitude:meandering?6:2.4,secondaryAmplitude:meandering?1:.65};
+    return {...channel,at:v=>base+Math.sin(v/channel.primaryScale+phase)*channel.primaryAmplitude+Math.sin(v/channel.secondaryScale+phase)*channel.secondaryAmplitude};
+  });
   const canonicalRivers=riverFunctions.map(r=>({width:r.width,points:Array.from({length:Math.ceil((halfV*2+64)/2)+1},(_,i)=>{const z=-halfV-32+i*2;return{x:r.at(z),z};}),bridges:[]}));
   const canonicalGates=[],canonicalRoutes=[];
   const sign=random()>.5?1:-1;
@@ -306,6 +313,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   const level={index,seed,title:['First day on the farm','Over the babbling brook','Through the garden gate','A mixed-up meadow','The long way home'][index]||`Pasture patrol ${index+1}`,
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
     bounds,boundary,spawn,dog,target,startHeading:heading,layoutKind:angular?.kind||'field',riverStyle:meandering?'meandering':'gentle',animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:maximumLevelReward(index),sceneryHills:[]};
+  level.terrain=createTerrain(level,{angle,halfV,channels:riverFunctions});
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
     const type=index>=3&&i%4===0?'cow':'sheep';

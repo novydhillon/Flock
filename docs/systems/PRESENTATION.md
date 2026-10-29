@@ -433,3 +433,13 @@ Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank 
 ## F-WATER-003 downstream reed curvature — 29 October 2026
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+## Rolling terrain presentation — 29 October 2026
+
+`terrain-view.js` builds a dense indexed ground grid and assigns smooth support-gradient normals; `conformSurface` clips roads/goals to shared world-grid lines while interpolating UV and road-fade attributes. This avoids triangle-face lighting and the excessive geometry of recursive subdivision on thin road-union triangles. River water retains its existing lightweight centerline tessellation because its separate downhill height varies smoothly without pasture hills. These construction choices do not establish visible smoothness until rendered playtest.
+
+The renderer samples shared bare/support heights for roads, vegetation, props, goals and actors. Livestock use a support plane sampled across actual scaled hoof spans, retaining authoritative yaw/scale. Pip/Buddy retain hover/pose ownership and shared support for glow anchors; wildlife height follows terrain. Fence rails, stone courses, gate posts/panels and switch mounts follow grades. Graded bridge construction places planks against support and uses short graded rail spans/posts rather than lifting an unchanged flat model. No new collision blockers or progression effects come from decoration.
+
+Rough pasture uses a separate seeded selection after the first five lessons, with bounded short clumps and muted irregular patches in the existing clay style. The provisional frequency, clump and patch budgets live in `presentation.json`; they are implementation settings, not user-approved cadence. Grass/reeds remain shadow-free. Water rocks and wakes use the same river height callback as their base surface, preserving seeded placement and current direction.
+
+Rolling rain pools use `pool-geometry.js` horizontal geometry clipped against the rendered ground surface. Their fixed buffers and quantized growth bound updates; visible footprint checks also control splashes. `GROUND_SURFACE_OFFSET` is the shared existing mesh clearance below bare support, preventing a second hard-coded ground-height contract. Flat-level water retains legacy geometry. Per-level geometry/material ownership and replacement cleanup remain mandatory.

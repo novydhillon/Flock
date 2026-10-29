@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { terrainHeight } from './world.js';
+import { terrainHeight, terrainNormal } from './world.js';
 import { createWeatherState, stepWeather, weatherForLevel } from './weather.js';
 import { wildlifePopulation, wildlifePositionSafe, stepWildlife } from './wildlife.js';
 import { wildlifeParts, wildlifeBodyGeometry, birdWingGeometry } from './wildlife-models.js';
@@ -35,7 +35,17 @@ export class MeadowNature {
   const state=a.birdState||'forage',visibility=Math.max(.06,1-(a.shelter||0)*.94),landing=state==='landing'?clamp((a.birdStateTime||0)/a.landingDuration,0,1):0;
   const flight=state==='forage'?0:state==='takeoff'?clamp((a.birdStateTime||0)/.18,0,1):state==='landing'?clamp((1-landing)*4,0,1):1;
   const y=terrainHeight(this.level,a.x,a.z)+(a.altitude||0)+(a.hopHeight||0),pitch=state==='forage'?(a.peck||0)*.76:state==='takeoff'?-.18*flight:state==='landing'?-.12*flight:-.035;
-  const t=this.transform;t.position.set(a.x,y,a.z);t.rotation.set(0,a.heading||0,0);t.scale.setScalar(visibility);t.updateMatrix();this.birdFeetRoot.copy(t.matrix);
+  const t=this.transform;t.position.set(a.x,y,a.z);t.rotation.set(0,a.heading||0,0);
+  if (this.level.terrain?.enabled && flight === 0) {
+    const normal = terrainNormal(this.level, a.x, a.z);
+    const sine = Math.sin(a.heading || 0), cosine = Math.cos(a.heading || 0);
+    const rightGrade = -(normal.x * cosine - normal.z * sine) / normal.y;
+    const forwardGrade = -(normal.x * sine + normal.z * cosine) / normal.y;
+    t.rotation.order = 'YXZ';
+    t.rotation.x = -Math.atan(forwardGrade);
+    t.rotation.z = Math.atan(rightGrade);
+  }
+  t.scale.setScalar(visibility);t.updateMatrix();this.birdFeetRoot.copy(t.matrix);
   // Local pitch follows heading; feet keep their support while the body pecks.
   t.position.set(0,0,0);t.rotation.set(pitch,0,0);t.scale.setScalar(1);t.updateMatrix();this.birdRoot.multiplyMatrices(this.birdFeetRoot,t.matrix);
   const parts=wildlifeParts.bird;
@@ -54,7 +64,7 @@ export class MeadowNature {
     const bodyRoll=squirrel&&a.moving?Math.sin(gaitPhase*Math.PI*2)*.06:0;
     this.pose(this.batches[`${a.kind}Body`],a.slot,a.x,y,a.z,visibility,visibility*crouch,visibility,a.heading,bodyRoll,hopPitch);
     const paws=wildlifeParts[a.kind].filter(part=>part.part==='paw');
-    for(let j=0;j<paws.length;j++){const p=paws[j],gait=a.moving?(rabbit&&airborne?Math.sin(gaitPhase/.54*Math.PI)*.08:Math.sin(gaitPhase*Math.PI*2+([0,Math.PI,Math.PI,0][j]))*.07):0,localX=p.at[0]*visibility,localZ=p.at[2]*visibility,x=a.x+Math.cos(a.heading)*localX+Math.sin(a.heading)*localZ,z=a.z-Math.sin(a.heading)*localX+Math.cos(a.heading)*localZ;this.pose(this.batches[`${a.kind}Paw`],a.slot*paws.length+j,x,y+p.at[1]*visibility+gait,z,p.scale[0]*visibility,p.scale[1]*visibility,p.scale[2]*visibility,a.heading);}
+    for(let j=0;j<paws.length;j++){const p=paws[j],gait=a.moving?(rabbit&&airborne?Math.sin(gaitPhase/.54*Math.PI)*.08:Math.sin(gaitPhase*Math.PI*2+([0,Math.PI,Math.PI,0][j]))*.07):0,localX=p.at[0]*visibility,localZ=p.at[2]*visibility,x=a.x+Math.cos(a.heading)*localX+Math.sin(a.heading)*localZ,z=a.z-Math.sin(a.heading)*localX+Math.cos(a.heading)*localZ;this.pose(this.batches[`${a.kind}Paw`],a.slot*paws.length+j,x,y+p.at[1]*visibility+gait+terrainHeight(this.level,x,z)-terrainHeight(this.level,a.x,a.z),z,p.scale[0]*visibility,p.scale[1]*visibility,p.scale[2]*visibility,a.heading);}
    }
    else{this.pose(this.batches[`${a.kind}Body`],a.slot,a.x,y,a.z,.075*visibility,.06*visibility,.12*visibility,a.heading);for(let side=0;side<2;side++){const flap=Math.sin(now*18+a.phase)*.85;this.pose(this.batches[`${a.kind}Wing`],a.slot*2+side,a.x+(side?1:-1)*.15,y+.04,a.z,.22*visibility,.025*visibility,.16*visibility,a.heading,(side?1:-1)*flap);}}
   }

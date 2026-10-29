@@ -1,5 +1,11 @@
 # Development, QA and release context
 
+## Rolling terrain smoke checks — 29 October 2026
+
+On `feat/rolling-terrain`, inspect selected public levels after 5 in phone portrait/landscape and at normal gameplay zoom. Move the camera over hills and valleys: transitions and shading must remain smooth, with no visible triangle facets, cracks, z-fighting or floating road/goal surfaces. Spawn locations may slope; goals and bridge approaches may have gentle grades. Compare a smooth meadow with a separately selected rough pasture; tufts and patchiness must not obscure animals or crossings.
+
+Walk Pip and each Buddy tier up/down/across grades, guide split sheep/cow herds including all cow sizes through open wood/stone gates and both directions of rotated bridges, and finish at pen, field and barn goals. Check hoof contact, hover/glow clearance, terrain-following posts/rails/stone bases, switches, barn surfaces, vegetation and scenery. Inspect water at bends and crossings for coherent downhill flow, low channels, joined banks and wakes. In rain/storm, large pools must remain in flat low areas with level surfaces rather than running across hillsides. Pause, resume, restart, jump levels and return to landing; preserve saved progress and bounded resource use. These rendered, touch and FPS checks remain pending until observed on a device.
+
 ## Minimap, river and shadow smoke checks - 28 October 2026
 
 For F-UI-017, inspect the goal pointer at all bearings, including map corners and near-cardinal angles, at the smallest supported viewport and in phone portrait/landscape. Confirm the pointer stays fully outside the circular map, tracks the goal direction, matches Pip's brown, and is not clipped by the canvas or card. Check resizing and level changes.
@@ -505,3 +511,7 @@ Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank 
 ## F-WATER-003 downstream reed curvature — 29 October 2026
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+## Terrain test ownership — 29 October 2026
+
+`tests/terrain.test.js` checks independent seeded terrain, the first-five-level flat boundary, configured cap rejection, continuous analytic gradients/relief, full-width submerged river beds and downhill surfaces, smooth graded deck landings, all cow-size route/crossing clearance, and lowland/slope pool eligibility. It samples all 100 campaign indexes with default and four compass-oriented custom seeds; it does not prove every possible 32-bit seed or rendered smoothness. `tests/terrain-view.test.js` covers presentation geometry and support when present; rendering integration remains covered by `tests/render.test.js` and weather by `tests/water-effects.test.js`.

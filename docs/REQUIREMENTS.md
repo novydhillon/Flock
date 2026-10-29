@@ -653,3 +653,7 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 ## Butterfly wing motion — 29 October 2026
 
 F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about their body attachments rather than continuously spin. Preserve flight and pause/resume; rendered verification remains pending. This records the existing main tracker requirement without implementing the fix.
+
+## Rolling terrain design agreement — 29 October 2026
+
+F-TERRAIN-001–004: implement selected rough pastures and continuous rolling fields after public level 5, capped at 1.5 world units relief and 12-degree slopes. Smooth slope transitions and smoothly shaded ground must avoid visible triangulation. Use a shared authoritative elevation contract for navigable ground, actors, terrain-following boundaries, roads, bridges and goals. Spawns may be on any traversable grade; goals and bridge landings may slope gently rather than being perfectly flat. Rivers occupy low downhill channels; standing water remains level and large rain pools require low areas with less than 3-degree grade. Keep existing controls, planar route connectivity, cow-size clearances and saved progression. Source implementation/review does not establish visual/device acceptance.

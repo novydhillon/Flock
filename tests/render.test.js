@@ -1,3 +1,4 @@
+import {conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp} from '../src/terrain-view.js';
 import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
 import {createShowcase} from '../src/landing-ui.js';
 import {defaultProfile} from '../src/profile.js';
@@ -15,7 +16,7 @@ import * as THREE from 'three';
 import * as models from '../src/models.js';
 import {animalScale} from '../src/animal-size.js';
 import {createLevel} from '../src/simulation.js';
-import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment,canOccupy} from '../src/world.js';
+import {groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment,canOccupy} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
 import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
@@ -87,7 +88,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -138,15 +139,15 @@ test('road fade clones preserve glow, weather baselines and once-only replacemen
   for(const count of counts.values())assert.equal(count,1);
 });
 // Object count includes hidden pool slots; submitted draw budget remains 170.
-test('angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
-  const renderer=setup(),level=createLevel(69,201);renderer.setLevel(level);
+test('flat angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
+  const renderer=setup(),level=createLevel(69,201);level.terrain.enabled=false;renderer.setLevel(level);
   const meadow=renderer.terrain.getObjectByName('playable-meadow');assert.ok(meadow);
   const ground=renderer.terrain.children.find(o=>o.isMesh&&o.geometry.type==='PlaneGeometry'&&o.material===renderer.grass);assert.ok(ground);
   assert.equal(meadow.material,ground.material,'field and surrounding grass share color, wetness and glow');
   const uv=meadow.geometry.attributes.uv,mp=meadow.geometry.attributes.position;
   for(let i=0;i<mp.count;i++){
-    assert.ok(Math.abs(uv.getX(i)-((mp.getX(i)-ground.position.x)/ground.geometry.parameters.width+.5))<1e-6);
-    assert.ok(Math.abs(uv.getY(i)-(.5-(mp.getZ(i)-ground.position.z)/ground.geometry.parameters.height))<1e-6);
+    assert.ok(Math.abs(uv.getX(i)-((mp.getX(i)-(level.bounds.minX+level.bounds.maxX)/2)/ground.geometry.parameters.width+.5))<1e-6);
+    assert.ok(Math.abs(uv.getY(i)-(.5-(mp.getZ(i)-(level.bounds.minZ+level.bounds.maxZ)/2)/ground.geometry.parameters.height))<1e-6);
   }
   const shader={uniforms:{},vertexShader:'#include <project_vertex>',fragmentShader:'#include <emissivemap_fragment>'};ground.material.onBeforeCompile(shader);assert.ok(shader.uniforms.pipGlowCenters);
   const polygonArea=Math.abs(level.boundary.reduce((sum,p,i)=>{const q=level.boundary[(i+1)%level.boundary.length];return sum+p.x*q.z-q.x*p.z;},0))/2;
@@ -649,7 +650,7 @@ test('wide maps allocate a bounded detail budget beside winding routes with clea
   for(const index of [5,49,99]){
     const level=createLevel(index);renderer.setLevel(level);let besideRoute=0;
     assert.ok(renderer.meadowDetails.filter(p=>p.kind==='flower').length<=190);
-    assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650);
+    assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650+(renderer.roughPasture?presentationSettings.terrain.roughClumps.value:0));
     for(const p of renderer.meadowDetails){
       const padding=p.kind==='flower'?1:.4;
       assert.ok(canOccupy(level,p.x,p.z,padding),'detail footprint stays inside the playable polygon');
@@ -751,8 +752,12 @@ test('actual target meshes and map show the shared rectangle across every enclos
       mesh.updateWorldMatrix(true,false);
       const positions=mesh.geometry.attributes.position;
       for(let i=0;i<4;i++){
-        const actual=new THREE.Vector3().fromBufferAttribute(positions,i).applyMatrix4(mesh.matrixWorld),expected=shape.corners[i];
-        assert.ok(Math.hypot(actual.x-expected.x,actual.z-expected.z)<.00001,`${target.type} geometry reaches physical corner ${i}`);
+        const expected=shape.corners[i];
+        const reachesCorner = Array.from({length: positions.count}, (_, vertex) => {
+          const actual = new THREE.Vector3().fromBufferAttribute(positions,vertex).applyMatrix4(mesh.matrixWorld);
+          return Math.hypot(actual.x-expected.x,actual.z-expected.z)<.00001;
+        }).some(Boolean);
+        assert.ok(reachesCorner,`${target.type} terrain-following geometry reaches physical corner ${i}`);
       }
     }
     const admitted=targetWorldPoint(target,shape.halfLength-.98,shape.halfWidth-.98);

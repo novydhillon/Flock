@@ -2,6 +2,22 @@
 // These contracts contain no tuning values; update them when adding a setting.
 const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 export const CONFIG_CONTRACTS = freeze({
+  "terrain": {
+    "unlockIndex": "integer",
+    "selectionProbability": "number",
+    "maximumRelief": "number",
+    "maximumSlopeDegrees": "number",
+    "waveAmplitude": "number",
+    "valleyLift": "number",
+    "channelDepth": "number",
+    "waterDepth": "number",
+    "downstreamDrop": "number",
+    "waterEdgeInset": "number",
+    "bridgeLift": "number",
+    "poolMaximumSlopeDegrees": "number",
+    "poolMaximumHeightRange": "number",
+    "poolLowlandHeight": "number"
+  },
   "gameplay": {
     "simulation": {
       "maximumStepSeconds": "number",
@@ -221,6 +237,13 @@ export const CONFIG_CONTRACTS = freeze({
     }
   },
   "presentation": {
+    "terrain": {
+      "groundSpacing": "number",
+      "surfaceSpacing": "number",
+      "roughChance": "number",
+      "roughClumps": "integer",
+      "roughPatches": "integer"
+    },
     "waterVegetation": {
       "bodyChance": "number",
       "maximumClumps": "integer",
