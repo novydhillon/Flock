@@ -43,6 +43,6 @@ export class RiverDetails {
     const geometry=wakeGeometry(this.sites,tris,y+.006),material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,uniforms:{time:{value:0},strength:{value:.22},speed:{value:1}},vertexShader:'varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'varying vec2 vUv; uniform float time; uniform float strength; uniform float speed; void main(){float edge=abs(vUv.x-.5)*2.; float phase=vUv.y*25.-edge*4.-time*speed*4.; float crest=pow(max(0.,sin(phase)),7.); float alpha=crest*(1.-vUv.y)*(1.-smoothstep(.62,1.,edge))*smoothstep(0.,.08,vUv.y)*strength; gl_FragColor=vec4(.77,.9,.91,alpha); }'});
     this.wakes=new THREE.Mesh(geometry,material);this.wakes.name='Rock and footing wakes';this.root.add(this.wakes);this.resources.push(geometry,material);
   }
-  update(dt,activity){if(!this.wakes)return;const u=this.wakes.material.uniforms;u.time.value+=dt;u.strength.value=.22+activity*.3;u.speed.value=1+activity*1.7;}
+  update(dt,activity){if(!this.wakes)return;const u=this.wakes.material.uniforms;u.time.value+=dt;u.strength.value=.22+activity*.3;u.speed.value=.7+activity*2.1;}
   dispose(){this.root.traverse(o=>{if(o.isInstancedMesh)o.dispose();});this.root.removeFromParent();for(const r of this.resources)r.dispose();this.resources.length=0;}
 }
