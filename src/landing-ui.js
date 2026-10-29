@@ -60,7 +60,7 @@ function grazingSpot(level, point, radius, animal) {
 /** A complete generated flock, independent of campaign state and rewards. */
 export function createShowcase(profile, seed = Math.floor(Math.random() * 0x100000000)) {
   const random = showcaseRandom(seed);
-  const index = 2 + Math.floor(random() * 3);
+  const index = 3 + Math.floor(random() * 10);
   const level = createLevel(index, seed);
   const bounds = level.bounds;
   const placed = [];
@@ -98,19 +98,37 @@ export function createShowcase(profile, seed = Math.floor(Math.random() * 0x1000
     placed.push(animal);
   }
   const dog = {...level.dog, heading: random() * Math.PI * 2, vx: 0, vz: 0};
-  level.showcase = {random, rest: 1 + random() * 2, target: null};
+  level.showcase = {random, wanderers: new Map()};
   level.helpers = [];
-  if (upgradeLevel(activeUpgrades(profile.upgrades, continuation(profile).index + 1), 'helper')) {
-    const point = {x: dog.x, z: dog.z + 2.3};
-    if (canOccupy(level, point.x, point.z, .5)) level.helpers.push({type: 'helper', ...point, heading: dog.heading, vx: 0, vz: 0, mode: 'standby'});
+  // Buddy is a decorative guest here, never an owned gameplay upgrade.
+  for (let ring = 2; ring <= 5 && !level.helpers.length; ring++) {
+    for (let i = 0; i < 16; i++) {
+      const angle = i * Math.PI / 8;
+      const point = {x: dog.x + Math.sin(angle) * ring, z: dog.z + Math.cos(angle) * ring};
+      if (canOccupy(level, point.x, point.z, .65) && level.animals.every(a => Math.hypot(a.x-point.x,a.z-point.z)>3)) {
+        level.helpers.push({type: 'helper', ...point, heading: random()*Math.PI*2, vx: 0, vz: 0, mode: 'standby'});
+        break;
+      }
+    }
   }
+  if (!level.helpers.length) throw new Error('No resting space for the showcase companion.');
   return {level, dog};
 }
 
-/** Move only the decorative Pip; grazing livestock never receive herding pressure. */
+/** Both decorative dogs wander independently; livestock never receive pressure. */
 export function stepShowcase(level, dog, dt) {
   if (!(dt > 0) || !Number.isFinite(dt) || !level.showcase) return;
-  const state = level.showcase;
+  for (const actor of [dog, ...(level.helpers || [])]) {
+    let state = level.showcase.wanderers.get(actor);
+    if (!state) {
+      state = {random: level.showcase.random, rest: 1 + level.showcase.random() * 3, target: null};
+      level.showcase.wanderers.set(actor, state);
+    }
+    stepRestingActor(level, actor, state, dt, [dog, ...(level.helpers || [])]);
+  }
+}
+
+function stepRestingActor(level, dog, state, dt, companions) {
   dog.vx = dog.vz = 0;
   if (state.rest > 0) {
     state.rest = Math.max(0, state.rest - dt);
@@ -137,7 +155,7 @@ export function stepShowcase(level, dog, dt) {
   if (Math.abs(turn) > .35) return;
   const step = Math.min(distance, .8 * Math.min(dt, .05));
   const next = {x: dog.x + dx / Math.max(distance, .001) * step, z: dog.z + dz / Math.max(distance, .001) * step};
-  if (!canOccupy(level, next.x, next.z, .65) || level.animals.some(a => Math.hypot(a.x - next.x, a.z - next.z) < 3)) {
+  if (companions.some(other => other !== dog && Math.hypot(other.x-next.x, other.z-next.z) < 1.6) || !canOccupy(level, next.x, next.z, .65) || level.animals.some(a => Math.hypot(a.x - next.x, a.z - next.z) < 3)) {
     state.target = null; state.rest = 2; return;
   }
   dog.vx = (next.x - dog.x) / dt; dog.vz = (next.z - dog.z) / dt;

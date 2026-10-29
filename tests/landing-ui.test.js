@@ -49,8 +49,8 @@ test('showcase is a small separate mixed meadow with owned eligible Buddy and no
   const {level,dog}=createShowcase(profile,1);
   assert.equal(level.animals.length,Math.min(5+level.index*3,65));if(level.index>=3)assert.ok(level.animals.some(a=>a.type==='cow'));assert.ok(level.animals.some(a=>a.type==='sheep'));
   assert.equal(level.helpers.length,1);assert.equal(canOccupy(level,level.helpers[0].x,level.helpers[0].z,.5),true);
-  assert.equal(createShowcase(defaultProfile()).level.helpers.length,0);
-  assert.equal(createShowcase({...profile,highestLevel:0}).level.helpers.length,0);
+  assert.equal(createShowcase(defaultProfile()).level.helpers.length,1);
+  assert.equal(createShowcase({...profile,highestLevel:0}).level.helpers.length,1);
   const timer=JSON.stringify(level.delivery),time=level.time;
   for(const animal of level.animals){const pose={userData:{},rotation:{y:0}};for(let i=0;i<600;i++)updateGrazing(pose,animal,level,1/60);assert.equal(animal.saved,false);if(!canGrazeAt(level,animal))assert.equal(pose.userData.graze,0);}
   assert.equal(applyLevelReward(profile,level),0);assert.equal(JSON.stringify(profile),before);assert.equal(JSON.stringify(level.delivery),timer);assert.equal(level.time,time);assert.ok(Number.isFinite(dog.x));
@@ -99,4 +99,18 @@ test('resting Pip wanders gently without stepping the flock, delivery, or campai
   assert.equal(JSON.stringify(level.delivery), delivery); assert.equal(level.time,time);
   assert.equal(JSON.stringify(profile),before);
   const frozen = {...dog}; stepShowcase(level,dog,0); assert.deepEqual(dog,frozen);
+});
+
+
+test('Pip and guest Buddy both wander/rest without granting ownership or moving the flock', () => {
+  const profile=defaultProfile(), before=JSON.stringify(profile);
+  const {level,dog}=createShowcase(profile,725), buddy=level.helpers[0];
+  const flock=JSON.stringify(level.animals), totals=[0,0], rests=[0,0];
+  for(let i=0;i<7200;i++) {
+    const actors=[dog,buddy], previous=actors.map(a=>({x:a.x,z:a.z}));
+    stepShowcase(level,dog,1/60);
+    actors.forEach((a,j)=>{const distance=Math.hypot(a.x-previous[j].x,a.z-previous[j].z);totals[j]+=distance;if(distance===0)rests[j]++;assert.ok(canOccupy(level,a.x,a.z,.65));});
+  }
+  assert.ok(totals.every(d=>d>1));assert.ok(rests.every(n=>n>60));
+  assert.equal(JSON.stringify(level.animals),flock);assert.equal(JSON.stringify(profile),before);
 });

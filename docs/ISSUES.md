@@ -36,6 +36,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-UI-009 | P2 | Landing | Living showcase meadow | Review | Existing intro simulation; bird/herd/companion future features when available |
 | F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Review | Existing reset confirmation; F-UI-011 |
 | F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Review | Existing unlocked-level picker and saved progress |
+| F-UI-016 | P2 | Landing/iOS | Original-scale drifting showcase, both relaxed dogs and flat iOS status bar | Review | F-UI-015 |
 | F-UI-015 | P2 | Landing and presentation | Tips beneath minimap, clear upper screen, randomized restful landing meadow and richer environment color | Review | F-UI-009; F-UI-014 |
 | F-UI-014 | P2 | Controls/layout | Top tips, floating centered joystick, bottom-left QA and circular borderless minimap | Review | Existing controls and minimap |
 | F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Review | Current landing copy; Buddy ownership/unlock context |
@@ -603,3 +604,13 @@ F-UI-001-012 and F-UI-014 remain Review pending user acceptance. Independent bli
 **Focused source checks:** Landing, controller and grazing suites passed 64 tests, including 200 seeded randomized fields and a 120-second decorative wandering check with unchanged flock, delivery, profile and gameplay clock. Renderer and configuration checks passed 53 tests. These support source behavior only; the broader actual-pose seed sweep remains with integration. The candidate is Review pending integration, independent review and user appearance/usability acceptance; source completion is not publication or sign-off.
 
 **Integrated validation:** Final standard checked dev build passes532 tests with one host symlink-permission skip and zero failures; both artifact modes pass. Independent blind source review7.5/10 led to three repairs (exact grazing contacts, compact field range, zero-saturation shader idempotence); same-critic follow-up9/10 has no remaining confirmed material blocker. Independent2000-seed contact checks pass. Native appearance/touch/color/FPS and user acceptance remain pending. Publication evidence is recorded separately; see QUALITY.md for scope and verification limits.
+
+### F-UI-016 - Landing camera and iOS status-bar correction
+
+**Status:** Review. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Retain original 50m portrait/44m landscape orthographic landing view heights instead of fitting the entire map. Drift slowly over the area occupied by grazing livestock, Pip and Buddy, including multiple fields when present. Both dogs wander/rest independently without herding or moving the flock. Buddy on landing is decorative and does not unlock gameplay ownership. Keep safe grazing, saved progression and background/menu freezing. Address the user-identified fade behind iOS system clock/signal/battery through explicit non-translucent status-bar configuration, not 3D fog. Preserve safe-area HUD spacing. Native iPhone status-bar appearance remains pending physical verification.
+
+**28 October 2026:** User clarified that whole-map framing is incorrect and that the remaining fade is in the iOS system-bar area. This supersedes whole-bounds landing framing and the previous source-only identification of distance fog as the reported fade. Prior items remain Review; no acceptance inferred.

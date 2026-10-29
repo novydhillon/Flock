@@ -400,13 +400,38 @@ export class MeadowRenderer{
     this.destinationSign.visible=this.destinationSign.material.opacity>0;
     const showcase = preview && level.showcase;
     const bounds = level.bounds;
-    const showcaseHeight = showcase ? Math.max((bounds.maxX-bounds.minX)/this.aspect, bounds.maxZ-bounds.minZ) * 1.2 : 0;
-    const viewHeight=showcase?showcaseHeight:preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
+    const viewHeight=preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
     // Center on Pip independently of distant livestock or the goal. The follow
     // offset cancels the camera ground look-at offset in every travel direction.
-    const desiredX=showcase?(bounds.minX+bounds.maxX)/2:preview?level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX):dog.x;
-    const desiredZ=showcase?(bounds.minZ+bounds.maxZ)/2-PRESENTATION.camera.lookOffsetZ:preview?level.spawn.z+PRESENTATION.camera.previewOffsetZ:dog.z+PRESENTATION.camera.followOffsetZ;
-    if(showcase){this.center.x=desiredX;this.center.z=desiredZ;}
+    let desiredX=preview?level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX):dog.x;
+    let desiredZ=preview?level.spawn.z+PRESENTATION.camera.previewOffsetZ:dog.z+PRESENTATION.camera.followOffsetZ;
+    if (showcase) {
+      if (this.showcaseCamera?.level !== level) {
+        this.showcaseCamera = {level, index: 0, rest: 3};
+        this.center.x = dog.x;
+        this.center.z = dog.z - PRESENTATION.camera.lookOffsetZ;
+      }
+      const scan = this.showcaseCamera;
+      const occupied = [dog, ...(level.helpers || []), ...level.animals];
+      const target = scan.point ||= {...occupied[scan.index % occupied.length]};
+      const targetZ = target.z - PRESENTATION.camera.lookOffsetZ;
+      const dx = target.x - this.center.x, dz = targetZ - this.center.z;
+      const distance = Math.hypot(dx, dz);
+      if (dt > 0) {
+        if (scan.rest > 0) scan.rest = Math.max(0, scan.rest - dt);
+        else if (distance < .5) {
+          scan.index = (scan.index + 1) % occupied.length;
+          scan.point = null;
+          scan.rest = 3;
+        } else {
+          const step = Math.min(distance, dt * .65);
+          this.center.x += dx / distance * step;
+          this.center.z += dz / distance * step;
+        }
+      }
+      desiredX = this.center.x;
+      desiredZ = this.center.z;
+    }
     const lerp=preview?Math.min(1,dt*PRESENTATION.camera.previewFollowRate):Math.min(1,dt*PRESENTATION.camera.playFollowRate);this.center.x+=(desiredX-this.center.x)*lerp;this.center.z+=(desiredZ-this.center.z)*lerp;
     if(!preview){
       const marginX=halfWidth*PRESENTATION.camera.lagFraction,marginZ=half*PRESENTATION.camera.lagFraction;

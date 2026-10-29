@@ -614,3 +614,7 @@ F-RENDER-001 remains Open for the separately queued investigation of missing wil
 ## F-UI-015 - Landing and presentation follow-up - 28 October 2026
 
 Numbered tips belong directly beneath the minimap, superseding the uppermost tips row in the first P2 UI candidate. Remove the upper-screen color fade. The landing screen uses a randomized field size and its appropriate complete flock, safely spread out on grass, grazing with varied headings. Pip wanders calmly without herding or disturbing livestock. Increase environment vibrancy by 25% while retaining weather, actor and HUD readability. Decorative motion never changes campaign progress, rewards or delivery timers. See the active tracker for acceptance and evidence; this is not user sign-off on the prior UI batch.
+
+## F-UI-016 camera and iOS correction - 28 October 2026
+
+Restore the original landing camera scale (50 portrait/44 landscape), drifting over occupied livestock/dog areas rather than fitting the full map. Pip and decorative Buddy both relax and wander without herding; no gameplay Buddy unlock is granted. Flocks may span multiple generated fields. The user clarified the remaining fade is under iOS clock/signal/battery icons, so address status-bar presentation separately from scene fog, preserving safe-area controls and recording native-device verification limits.

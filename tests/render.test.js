@@ -1,3 +1,5 @@
+import {createShowcase} from '../src/landing-ui.js';
+import {defaultProfile} from '../src/profile.js';
 import * as minimap from '../src/minimap-markers.js';
 import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
 import presentationSettings from '../src/config/presentation.json' with { type: 'json' };
@@ -1132,5 +1134,25 @@ test('zero environment saturation remains idempotent across reused surfaces and 
       'zero gain must not install duplicate declarations per surface or level');
     assert.match(shader.fragmentShader, /mix\(vec3\(environmentLuma\), gl_FragColor.rgb, 0\.0\)/);
     assert.ok(shader.uniforms.pipGlowCenters, 'the original surface hook remains installed');
+  }
+});
+
+
+test('landing camera retains original scale and scans occupied points slowly without zooming to map bounds', () => {
+  for(const viewport of [{width:390,height:844},{width:844,height:390}]) {
+    const renderer=setup(viewport), {level,dog}=createShowcase(defaultProfile(),725);
+    renderer.setLevel(level);
+    const height=viewport.width/viewport.height < presentationSettings.camera.portraitAspect.value ? presentationSettings.camera.previewPortraitHeight.value : presentationSettings.camera.previewLandscapeHeight.value;
+    assert.equal(height, viewport.width < viewport.height ? 50 : 44);
+    assert.equal(renderer.camera.top-renderer.camera.bottom,height);
+    const start=renderer.center.clone();
+    for(let i=0;i<600;i++) {
+      const before=renderer.center.clone();renderer.update(level,dog,.1,true);
+      assert.ok(renderer.center.distanceTo(before)<=.065+1e-8);
+      assert.equal(height, viewport.width < viewport.height ? 50 : 44);
+    assert.equal(renderer.camera.top-renderer.camera.bottom,height);
+    }
+    assert.ok(renderer.center.distanceTo(start)>1);
+    const frozen=renderer.center.clone();renderer.update(level,dog,0,true);assert.ok(renderer.center.equals(frozen));
   }
 });
