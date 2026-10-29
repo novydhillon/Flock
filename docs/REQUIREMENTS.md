@@ -622,3 +622,11 @@ Restore the original landing camera scale (50 portrait/44 landscape), drifting o
 ## River, shadows and minimap follow-up - 28 October 2026
 
 F-UI-017 places the goal guidance arrow outside the circular minimap, following its perimeter and matching Pip's goal arrow color. F-WATER-001 preserves sunny water color, darkens water with weather severity and adjusts running ripples to weather. Seeded decorative river rocks and bridge footings at bank intersections create water wakes without changing physical routes. F-RENDER-001 restores environmental and animal shadows; static shadows may be baked. Preserve clay style, bounded mobile resources, weather/lifecycle ownership and intentionally absent cloud shadows. Source validation is separate from rendered/device acceptance.
+
+
+## In-water vegetation — 28 October 2026
+
+F-WATER-002: independently enable standing grass/reed clumps on 20% of water bodies, using seeded presentation randomness. On eligible bodies distribute randomized clumps within water, preferentially near edges while allowing occasional interior growth. Preserve water crossings, simulation/navigation and existing bank vegetation; bound rendering resources and dispose per level. Current generator supplies rivers; future ponds may reuse the surface placement contract.
+
+
+**F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.

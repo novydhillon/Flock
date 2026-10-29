@@ -26,6 +26,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-WATER-002 | P2 | Environment | Seeded in-water grass and reed clumps on 20% of water bodies | Review | Existing rendered water surfaces |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
@@ -388,3 +389,20 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
 
 
+
+
+### F-WATER-002 — Standing in-water grass and reed clumps
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feat/water-vegetation`.
+
+**Accept when:** Each water body independently has a seeded 20% chance of containing standing grass/reed clumps. Eligible bodies receive randomized in-water placements biased toward their edges, with occasional central placements. Keep complete clump footprints inside water and clear of bridge crossings; preserve physical navigation, saved progression and existing bank vegetation. Use bounded instanced geometry with correct shadows and per-level cleanup. Rebuilding the same level must retain placements. Current generated water consists of rivers; the placement contract should operate on water surface geometry for future ponds without claiming pond generation.
+
+**28 October 2026:** Requested by Novy after the P2 UI main merge. Implementation and validation underway; appearance and phone performance require separate device observation. No deployment or main merge requested.
+
+
+**F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.
+
+
+**F-WATER-002 validation — 28 October 2026:** Implemented bounded seeded edge-biased grass/reed clumps, configured 20% per-body eligibility and obstacle wakes sharing current/weather response. Focused implementation checks 38/38 passed; fresh blind critic 9.2/10 with no findings, 57 relevant checks passed. Standard checked dev build passes full regressions and release/development artifact guards. Exact counts and limits are in QUALITY.md. User appearance acceptance remains pending; no deployment requested.

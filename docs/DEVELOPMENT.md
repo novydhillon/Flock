@@ -480,3 +480,8 @@ Verify original-scale landing framing in both orientations; watch camera move sl
 ## P2 UI acceptance and main merge — 28 October 2026
 
 Novy explicitly accepted the implemented `feat/p2-ui` batch and requested main merge and sign-off. Eighteen Review items move in full to [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8` is ahead of main with no divergence; exact source CI 40820686979 succeeded. Runtime is unchanged by closure. Earlier pending acceptance wording is historical; no new physical device or FPS result is claimed. Terrain and unrelated open defects remain active. This merge does not publish production. Closure uses the session model and inherited effort; fresh documentation review and regenerated documentation validation follow.
+
+
+## In-water vegetation smoke checks — 28 October 2026
+
+F-WATER-002: compare many seeded levels and restart each to confirm stable presence/placement. Most water bodies should have no new in-water plants; eligible bodies show varied standing clumps concentrated toward their edges. Inspect bends, both banks and bridges in sun/rain/storm: entire clumps remain in water and crossing entrances/decks stay clear. Check shadows, legibility and pause/restart/level changes with no accumulation. Check portrait/landscape on a phone and measure performance separately; source tests cannot establish appearance or FPS.

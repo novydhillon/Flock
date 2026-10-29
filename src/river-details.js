@@ -7,7 +7,7 @@ function triangles(geometry){const p=geometry.attributes.position,index=geometry
 function contains(tris,x,z){const p={x,z};return tris.some(t=>{const a=cross(t[0],t[1],p),b=cross(t[1],t[2],p),c=cross(t[2],t[0],p),epsilon=2e-5*Math.max(1,Math.hypot(t[1].x-t[0].x,t[1].z-t[0].z),Math.hypot(t[2].x-t[1].x,t[2].z-t[1].z),Math.hypot(t[0].x-t[2].x,t[0].z-t[2].z));return a>=-epsilon&&b>=-epsilon&&c>=-epsilon||a<=epsilon&&b<=epsilon&&c<=epsilon;});}
 export function riverSurfaceContains(geometry,x,z){return contains(triangles(geometry),x,z);}
 // Positive texture V offsets move crests toward the first centerline point.
-function tangent(river,p){let best=Infinity,result={x:0,z:1};for(let i=1;i<river.points.length;i++){const a=river.points[i-1],b=river.points[i],dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz);if(l<1e-8)continue;const t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/(l*l)),d=Math.hypot(p.x-a.x-dx*t,p.z-a.z-dz*t);if(d<best){best=d;result={x:-dx/l,z:-dz/l};}}return result;}
+function tangent(river,p){const points=river.points||[];let best=Infinity,result={x:-Math.sin(river.heading||0),z:-Math.cos(river.heading||0)};for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz);if(l<1e-8)continue;const t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/(l*l)),d=Math.hypot(p.x-a.x-dx*t,p.z-a.z-dz*t);if(d<best){best=d;result={x:-dx/l,z:-dz/l};}}return result;}
 // Intersect each bridge rail with the rendered ribbon triangles, then union the
 // covered intervals. Their outer endpoints are the real bank intersections.
 function bankSites(river,tris){const sites=[];for(const bridge of river.bridges||[])for(const side of [-1,1]){
@@ -25,10 +25,10 @@ function wakeGeometry(sites,tris,y){const positions=[],uv=[];for(const s of site
 
 /** Presentation-only rocks and clipped, current-aligned wakes. Built once per level. */
 export class RiverDetails {
-  constructor(root,river,seed=0){
+  constructor(root,river,seed=0,vegetationSites=[]){
     this.root=new THREE.Group();this.root.name='River rocks and wakes';this.root.position.copy(river.mesh.position);this.root.rotation.copy(river.mesh.rotation);this.root.scale.copy(river.mesh.scale);root.add(this.root);
-    const tris=triangles(river.mesh.geometry),points=river.points;this.sites=[];this.resources=[];
-    if(!points?.length||!tris.length)return;
+    const tris=triangles(river.mesh.geometry),points=river.points||[];this.sites=[];this.resources=[];
+    if(!tris.length)return;
     const segments=[];let total=0;for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.z-a.z);if(length>1e-6){segments.push({a,b,length,start:total});total+=length;}}
     const count=Math.min(18,Math.max(1,Math.floor(total/18)));
     for(let i=0;i<count;i++){
@@ -40,6 +40,8 @@ export class RiverDetails {
     const y=river.mesh.geometry.attributes.position.getY(0),rocks=this.sites.length;
     if(rocks){const geometry=new THREE.IcosahedronGeometry(1,0),material=new THREE.MeshStandardMaterial({color:0x797c72,roughness:.96}),mesh=new THREE.InstancedMesh(geometry,material,rocks),pose=new THREE.Object3D();mesh.name='Seeded river rocks';for(let i=0;i<rocks;i++){const p=this.sites[i];pose.position.set(p.x,y+.02,p.z);pose.rotation.set(.15,p.rotation,.1);pose.scale.set(p.radius,p.radius*.72,p.radius*.85);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);}mesh.castShadow=true;mesh.receiveShadow=true;this.root.add(mesh);this.resources.push(geometry,material);}
     this.sites.push(...bankSites(river,tris));
+    // Plant clumps share the clipped, current-responsive obstacle wake surface.
+    this.sites.push(...vegetationSites.map(site => ({ ...site, kind: 'vegetation', direction: tangent(river, site) })));
     const geometry=wakeGeometry(this.sites,tris,y+.006),material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,uniforms:{time:{value:0},strength:{value:.22},speed:{value:1}},vertexShader:'varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'varying vec2 vUv; uniform float time; uniform float strength; uniform float speed; void main(){float edge=abs(vUv.x-.5)*2.; float phase=vUv.y*25.-edge*4.-time*speed*4.; float crest=pow(max(0.,sin(phase)),7.); float alpha=crest*(1.-vUv.y)*(1.-smoothstep(.62,1.,edge))*smoothstep(0.,.08,vUv.y)*strength; gl_FragColor=vec4(.77,.9,.91,alpha); }'});
     this.wakes=new THREE.Mesh(geometry,material);this.wakes.name='Rock and footing wakes';this.root.add(this.wakes);this.resources.push(geometry,material);
   }

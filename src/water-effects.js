@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { canOccupy, terrainHeight } from './world.js';
 import { deliveryCountdownSeconds } from './delivery.js';
 import { RiverDetails } from './river-details.js';
+import { WaterVegetation } from './water-vegetation.js';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 // Sun's small baseline cloud/wind values preserve the accepted water color.
@@ -73,7 +74,7 @@ export class WaterEffects {
     this.maxSplashes=Math.max(0,maxSplashes|0);this.maxPuddles=Math.max(0,maxPuddles|0);this.elapsed=0;this.wetness=0;this.level=null;
     this.flowMap=flowTexture();this.flowMaterial=new THREE.MeshBasicMaterial({map:this.flowMap,color:0xffffff,transparent:true,opacity:.20,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
     this.splashGeometry=new THREE.TorusGeometry(.2,.025,4,12);
-    this.riverDetails=[];this.waterActivity=0;this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
+    this.waterVegetation=[];this.riverDetails=[];this.waterActivity=0;this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
   }
   setLevel(level,{grassMaterials=[],pathMaterials=[],waterMaterial=null,terrain=null,rivers=[],weather=null}={}){
     this.restoreMaterials();this.clearEffects();this.level=level;this.terrain=terrain;this.rivers=rivers;this.wetness=0;this.elapsed=0;this.puddleGrowthDuration=puddleGrowthSeconds(level);this.rainElapsed=0;this.waterActivity=waterWeatherActivity(weather||{});this.lastMoverPositions.clear();this.lastSplashAt.clear();
@@ -82,7 +83,9 @@ export class WaterEffects {
     }
     this.waterSnapshot=waterMaterial?{material:waterMaterial,color:waterMaterial.color?.clone(),roughness:waterMaterial.roughness}:null;
     for(let riverIndex=0;riverIndex<rivers.length;riverIndex++){const river=rivers[riverIndex];if(!river?.mesh)continue;const mesh=river.mesh;
-      this.riverDetails.push(new RiverDetails(this.root,river,(level.seed??level.index??0)^Math.imul(riverIndex+1,7919)));
+      const vegetation = new WaterVegetation(this.root, river, (level.seed ?? level.index ?? 0) ^ Math.imul(riverIndex + 1, 7919));
+      this.waterVegetation.push(vegetation);
+      this.riverDetails.push(new RiverDetails(this.root,river,(level.seed??level.index??0)^Math.imul(riverIndex+1,7919),vegetation.sites));
       // The lightweight overlay has its own material and texture; it never replaces or disposes the game's source material.
       // Real rivers use local arc-length V; legacy point-free fixtures retain
       // source world UVs and advance their matching heading components.
@@ -140,7 +143,7 @@ export class WaterEffects {
     this.materialSnapshots=[];
     if(this.waterSnapshot){const s=this.waterSnapshot;if(s.color&&s.material.color)s.material.color.copy(s.color);if(s.roughness!==undefined)s.material.roughness=s.roughness;s.color?.dispose?.();this.waterSnapshot=null;}
   }
-  clearEffects(){for(const detail of this.riverDetails)detail.dispose();this.riverDetails=[];for(const e of this.splashes){this.root.remove(e.mesh);e.material.dispose();}for(const e of this.puddles){this.root.remove(e.mesh);e.material.dispose();}this.splashes=[];this.puddles=[];
+  clearEffects(){for(const vegetation of this.waterVegetation)vegetation.dispose();this.waterVegetation=[];for(const detail of this.riverDetails)detail.dispose();this.riverDetails=[];for(const e of this.splashes){this.root.remove(e.mesh);e.material.dispose();}for(const e of this.puddles){this.root.remove(e.mesh);e.material.dispose();}this.splashes=[];this.puddles=[];
     if(this.puddleResources){this.puddleResources.geometry.dispose();this.puddleResources=null;}
     for(const child of [...this.root.children])if(child.name==='River flow'){this.root.remove(child);child.material.userData.ownedFlowMap?.dispose();child.material.dispose();child.geometry.dispose();}
   }
