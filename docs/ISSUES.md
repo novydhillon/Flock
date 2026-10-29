@@ -26,6 +26,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
@@ -58,6 +59,19 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
 
 ## Acceptance criteria and planned work
+
+### F-QA-CAMERA-001 — QA camera orbit controls
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**User request — 29 October 2026:** Add a QA toggle that enables camera modification. When enabled, show a camera icon at the bottom left next to the gear button. Activating the icon pauses gameplay and allows touch dragging to orbit the camera around its existing target while maintaining a constant distance.
+
+**Accept when:** Vertical dragging moves the camera smoothly along an arc from a 90-degree top-down view to a 0-degree view parallel to the ground, clamped to that range. Horizontal dragging rotates around the target continuously through 360 degrees in either direction. Horizontal rotation speed increases with finger distance from the center on a logarithmic scale, reaching a maximum of 60 degrees per second at the screen edge. The direction follows the drag direction. Confirm the toggle and icon work on supported screen sizes, gameplay stays paused during camera modification, and normal controls and pause/resume behavior work when leaving the mode.
+
+**Scope:** Tracker addition only; implementation and device validation remain pending.
+
 
 ### F-BUTTERFLY-001 — Butterfly wings should flap instead of spinning
 
