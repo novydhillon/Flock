@@ -31,10 +31,19 @@ export class RiverDetails {
     if(!tris.length)return;
     const segments=[];let total=0;for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.z-a.z);if(length>1e-6){segments.push({a,b,length,start:total});total+=length;}}
     const count=Math.min(18,Math.max(1,Math.floor(total/18)));
-    for(let i=0;i<count;i++){
-      const distance=(i+.2+roll(seed,i*7+1)*.6)/count*total,segment=segments.find(s=>distance<=s.start+s.length);if(!segment)continue;const {a,b,length}=segment,t=(distance-segment.start)/length,dx=(b.x-a.x)/length,dz=(b.z-a.z)/length,lateral=(roll(seed,i*7+2)-.5)*river.width*.62,radius=.23+roll(seed,i*7+3)*.23,x=a.x+(b.x-a.x)*t-dz*lateral,z=a.z+(b.z-a.z)*t+dx*lateral;
-      if((river.bridges||[]).some(v=>Math.hypot(v.x-x,v.z-z)<v.width/2+radius+1))continue;
+    for(let attempt=0;attempt<count*12 && this.sites.length<count;attempt++){
+      const i=attempt;
+      const distance=roll(seed,i*7+1)*total,segment=segments.find(s=>distance<=s.start+s.length);if(!segment)continue;const {a,b,length}=segment,t=(distance-segment.start)/length,dx=(b.x-a.x)/length,dz=(b.z-a.z)/length,lateral=(roll(seed,i*7+2)-.5)*river.width,radius=.23+roll(seed,i*7+3)*.23,x=a.x+(b.x-a.x)*t-dz*lateral,z=a.z+(b.z-a.z)*t+dx*lateral;
+      if ((river.bridges || []).some(bridge => {
+        const heading = bridge.heading ?? 0;
+        const px = x - bridge.x, pz = z - bridge.z;
+        const along = px * Math.sin(heading) + pz * Math.cos(heading);
+        const across = px * Math.cos(heading) - pz * Math.sin(heading);
+        return Math.abs(along) < bridge.length / 2 + radius + 0.5 &&
+          Math.abs(across) < bridge.width / 2 + radius + 0.5;
+      })) continue;
       if(!Array.from({length:12},(_,k)=>contains(tris,x+Math.cos(k*Math.PI/6)*radius,z+Math.sin(k*Math.PI/6)*radius)).every(Boolean))continue;
+      if(this.sites.some(p=>Math.hypot(p.x-x,p.z-z)<p.radius+radius+.25))continue;
       this.sites.push({x,z,radius,direction:{x:-dx,z:-dz},kind:'rock',rotation:roll(seed,i*7+4)*Math.PI*2});
     }
     const y=river.mesh.geometry.attributes.position.getY(0),rocks=this.sites.length;

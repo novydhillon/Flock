@@ -26,6 +26,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-WATER-003 | P2 | Environment | Slender vegetation clumps and natural bank/rock distribution | Review | F-WATER-002; accepted water obstacles |
 | F-WATER-002 | P2 | Environment | Seeded in-water grass and reed clumps on 20% of water bodies | Review | Existing rendered water surfaces |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
@@ -417,3 +418,12 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 ## F-WATER-002 grass/reed shadows removed — 28 October 2026
 
 Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+
+### F-WATER-003 — Slender clumps and natural bank/rock distribution
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feat/water-vegetation`.
+
+**Accept when:** Grass and reeds always form multi-blade clumps, with slender grass profiles. Randomize bank clump spacing and offsets instead of paired fixed centerline samples. Preserve 20% water-body eligibility, in-water edge preference and all shadow-free plant behavior. Distribute rocks randomly along water length and across usable wet width rather than regularly spaced center-biased sites; retain full wet footprints, bridge clearance, bounded resources, stable seeded restart and current/weather-responsive wakes. Inspect actual renderer clumps/budgets and disposal. Prior blind-review waiver covered shadow removal only; this substantial presentation follow-up receives independent review. Development publication authorization continues for the same branch; no main/production merge.

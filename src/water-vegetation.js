@@ -117,7 +117,7 @@ export class WaterVegetation {
         } else grass.push(pose);
       }
     }
-    this.addBatch(grass, new THREE.ConeGeometry(0.055, 1, 4), 0x66864b);
+    this.addBatch(grass, new THREE.ConeGeometry(0.024, 1, 4), 0x66864b);
     this.addBatch(stems, new THREE.CylinderGeometry(0.018, 0.025, 1, 4), 0x627b43);
     this.addBatch(heads, new THREE.CylinderGeometry(0.045, 0.045, 1, 5), 0x72513a);
   }
