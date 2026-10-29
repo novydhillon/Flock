@@ -69,18 +69,19 @@ test('curved stream and closed pond surfaces both accept seeded standing clumps'
   }
 });
 
-test('owned instanced plants stand above water, cast shadows and dispose once', () => {
+test('owned instanced plants stand above water, avoid realtime shadows and dispose once', () => {
   const geometry = rectangle(), parent = new THREE.Group(), mesh = new THREE.Mesh(geometry);
   mesh.position.set(3, 2, 4);
   const plants = new WaterVegetation(parent, { mesh }, eligibleSeed(geometry));
   assert.ok(plants.meshes.length > 0 && plants.meshes.length <= 3);
   assert.deepEqual(plants.root.position, mesh.position);
   let disposed = 0;
-  const resources = plants.meshes.flatMap(batch => [batch, batch.geometry, batch.material]);
+  const resources = [...plants.meshes.flatMap(batch => [batch, batch.geometry, batch.material]), plants.shadow.geometry, plants.shadow.material];
   for (const resource of resources) resource.addEventListener('dispose', () => disposed++);
   const matrix = new THREE.Matrix4();
   for (const batch of plants.meshes) {
-    assert.ok(batch.castShadow && batch.receiveShadow);
+    assert.equal(batch.castShadow, false);
+    assert.equal(batch.receiveShadow, false);
     for (let i = 0; i < batch.count; i++) {
       batch.getMatrixAt(i, matrix);
       assert.ok(new THREE.Vector3().setFromMatrixPosition(matrix).y > 0);

@@ -485,3 +485,8 @@ Novy explicitly accepted the implemented `feat/p2-ui` batch and requested main m
 ## In-water vegetation smoke checks — 28 October 2026
 
 F-WATER-002: compare many seeded levels and restart each to confirm stable presence/placement. Most water bodies should have no new in-water plants; eligible bodies show varied standing clumps concentrated toward their edges. Inspect bends, both banks and bridges in sun/rain/storm: entire clumps remain in water and crossing entrances/decks stay clear. Check shadows, legibility and pause/restart/level changes with no accumulation. Check portrait/landscape on a phone and measure performance separately; source tests cannot establish appearance or FPS.
+
+
+## Grass/reed baked-shadow smoke check — 28 October 2026
+
+Compare the supplied recording with the corrected branch on the same phone. Slowly pan/turn the camera around in-water reeds and bank/field grass in portrait and landscape; static silhouettes must stay fixed without shadow-map shimmer. Inspect both banks, curved water edges and bridges: water shadows stay inside water and off decks. Confirm obstacle wakes continue moving with current/weather, plant placement remains seeded and animal shadows remain dynamic. Restart/jump levels and check resource stability. Automated geometry/flags checks do not establish observed elimination of flicker; native WebGL/device verification remains pending.

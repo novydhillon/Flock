@@ -406,3 +406,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 
 **F-WATER-002 validation — 28 October 2026:** Implemented bounded seeded edge-biased grass/reed clumps, configured 20% per-body eligibility and obstacle wakes sharing current/weather response. Focused implementation checks 38/38 passed; fresh blind critic 9.2/10 with no findings, 57 relevant checks passed. Standard checked dev build passes full regressions and release/development artifact guards. Exact counts and limits are in QUALITY.md. User appearance acceptance remains pending; no deployment requested.
+
+
+**F-WATER-002 shadow correction — 28 October 2026:** Novy reports grass/reed shadow flicker while the camera moves (supplied screen recording). Replace realtime shadow participation for static in-water plants and existing grass/bank reeds with camera-independent per-level baked projected shadows. Water shadows must remain clipped to the water and clear of bridge decks. Preserve obstacle wakes, vegetation placement, other scenery and moving animal shadows. Revalidate stability/resources and record actual device checks separately.
+
+
+**F-WATER-002 baked-shadow validation — 28 October 2026:** Static field grass, bank reeds and water clumps now use once-baked fixed-sun silhouettes and neither cast nor receive realtime shadows. Water/deck clipping, camera invariance, owned cleanup and retained wildlife shadows pass focused geometry and actual-renderer lifecycle checks. Blind review and recheck 9/10, no findings. Full checked dev: 556/556 tests, 7 docs DOM checks and both artifact modes pass. User camera-pan appearance/FPS acceptance remains pending; source only, no deployment.

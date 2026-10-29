@@ -630,3 +630,6 @@ F-WATER-002: independently enable standing grass/reed clumps on 20% of water bod
 
 
 **F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.
+
+
+**F-WATER-002 static shadows — 28 October 2026:** Grass and reeds must use baked shadows rather than realtime shadow maps, avoiding camera-motion flicker. Bake static projected silhouettes once per level, retaining consistent sun direction and water/deck clipping. Thin plant meshes must not cast or receive realtime shadow-map sampling. Preserve current-responsive wakes.

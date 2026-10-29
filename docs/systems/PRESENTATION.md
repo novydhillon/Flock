@@ -413,3 +413,8 @@ The reported remaining fade is specifically the iOS clock/signal/battery area, n
 ## In-water vegetation ownership — 28 October 2026
 
 `water-vegetation.js` samples the triangulated water surface with presentation-only seeded randomness. One independent 20% eligibility roll gates each body. Area sampling with distance-to-boundary rejection favors edges, while a complete wet footprint, bridge clearance and bounded spacing constrain placement. Standing grass, reed stems and brown heads use up to three owned instanced batches per body. `WaterEffects` creates/disposes each body owner; `RiverDetails` adds one current-aligned clipped obstacle wake per clump alongside existing rock/footing wakes. Plants never affect navigation or simulation. Tunable presence, density, clump cap, edge falloff and heights live in presentation JSON with validated contracts. Current water generation supplies rivers, and the surface sampler also accepts pond geometry; no new pond generation is added.
+
+
+## Static grass/reed shadow correction — 28 October 2026
+
+Grass/reed shadows are baked into fixed projected geometry when each level is built, using the configured sun direction. Thin plant meshes opt out of casting and receiving realtime shadow maps; moving actors and other scenery retain existing shadow behavior. Static water silhouettes are clipped to the water surface and exclude bridge decks. Owned unlit shadow materials use depth testing and coplanar offset; no per-frame baking or camera-dependent shadow updates are permitted. Plant wakes retain existing current/weather-driven animation. Device checks must confirm the reported camera-motion flicker is gone; source geometry and flag assertions are separate evidence.

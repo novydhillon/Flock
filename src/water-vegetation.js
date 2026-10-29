@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { bakeVegetationShadow } from './vegetation-shadows.js';
 import presentationSettings from './config/presentation.json' with { type: 'json' };
 import { resolveConfig } from './config/resolve.js';
 import { CONFIG_CONTRACTS } from './config/contracts.js';
@@ -104,13 +105,13 @@ export class WaterVegetation {
     this.meshes = [];
     if (!this.sites.length) return;
     const grass = [], stems = [], heads = [];
-    for (const site of this.sites) {
+    for (const [clump, site] of this.sites.entries()) {
       for (let blade = 0; blade < 5; blade++) {
         const angle = site.rotation + blade * Math.PI * 2 / 5;
         const spread = blade === 0 ? 0 : 0.12;
         const height = (site.reed ? SETTINGS.reedHeight : SETTINGS.grassHeight) * site.scale * (0.8 + blade * 0.06);
         const x = site.x + Math.cos(angle) * spread, z = site.z + Math.sin(angle) * spread;
-        const pose = { x, z, y: site.y - 0.06 + height / 2, height, angle };
+        const pose = { clump, x, z, y: site.y - 0.06 + height / 2, height, angle };
         if (site.reed) {
           stems.push(pose);
           if (blade % 2 === 0) heads.push({ ...pose, y: site.y - 0.06 + height, height: 0.19 * site.scale });
@@ -120,6 +121,11 @@ export class WaterVegetation {
     this.addBatch(grass, new THREE.ConeGeometry(0.055, 1, 4), 0x66864b);
     this.addBatch(stems, new THREE.CylinderGeometry(0.018, 0.025, 1, 4), 0x627b43);
     this.addBatch(heads, new THREE.CylinderGeometry(0.045, 0.045, 1, 5), 0x72513a);
+    this.shadow = bakeVegetationShadow(this.root, this.meshes, {
+      receiverY: water.mesh.geometry.attributes.position.getY(0),
+      receiverGeometry: water.mesh.geometry,
+      bridges: water.bridges ?? [],
+    });
   }
 
   addBatch(poses, geometry, color) {
@@ -127,6 +133,7 @@ export class WaterVegetation {
     const material = new THREE.MeshStandardMaterial({ color, roughness: 1 });
     const mesh = new THREE.InstancedMesh(geometry, material, poses.length);
     const transform = new THREE.Object3D();
+    mesh.userData.shadowGroups = poses.map(pose => pose.clump);
     poses.forEach((pose, index) => {
       transform.position.set(pose.x, pose.y, pose.z);
       transform.rotation.set(0, pose.angle, 0);
@@ -134,7 +141,7 @@ export class WaterVegetation {
       transform.updateMatrix();
       mesh.setMatrixAt(index, transform.matrix);
     });
-    mesh.castShadow = mesh.receiveShadow = true;
+    mesh.castShadow = mesh.receiveShadow = false;
     mesh.computeBoundingSphere();
     this.root.add(mesh);
     this.meshes.push(mesh);
@@ -148,6 +155,11 @@ export class WaterVegetation {
       mesh.material.dispose();
     }
     this.meshes.length = 0;
+    if (this.shadow) {
+      this.shadow.geometry.dispose();
+      this.shadow.material.dispose();
+      this.shadow = null;
+    }
     this.root.clear();
   }
 }
