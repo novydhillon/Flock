@@ -73,7 +73,7 @@ test('owned instanced plants stand above water, avoid realtime shadows and dispo
   const geometry = rectangle(), parent = new THREE.Group(), mesh = new THREE.Mesh(geometry);
   mesh.position.set(3, 2, 4);
   const plants = new WaterVegetation(parent, { mesh }, eligibleSeed(geometry));
-  assert.ok(plants.meshes.length > 0 && plants.meshes.length <= 3);
+  assert.ok(plants.meshes.length > 0 && plants.meshes.length <= 4);
   assert.equal(plants.root.children.length, plants.meshes.length, 'no baked shadow meshes');
   assert.deepEqual(plants.root.position, mesh.position);
   let disposed = 0;
@@ -144,4 +144,50 @@ test('point-free pond bodies retain standing plants and obstacle wakes', () => {
   assert.equal(details.sites.filter(site => site.kind === 'vegetation').length, plants.sites.length);
   assert.ok(details.wakes.geometry.attributes.position.count > 0);
   plants.dispose(); details.dispose(); geometry.dispose();
+});
+
+test('some reed stems curve downstream while others remain upright with attached heads', () => {
+  const geometry = rectangle();
+  const water = { mesh: new THREE.Mesh(geometry), points: [{x:-20,z:0},{x:20,z:0}] };
+  let plants;
+  for(let seed=0;seed<100;seed++) {
+    const candidate=new WaterVegetation(new THREE.Group(),water,seed);
+    if(candidate.meshes.some(m=>m.geometry.parameters.heightSegments===6)){plants=candidate;break;}
+    candidate.dispose();
+  }
+  assert.ok(plants);
+  const bent=plants.meshes.find(m=>m.geometry.parameters.heightSegments===6);
+  const straight=plants.meshes.find(m=>m.geometry.type==='CylinderGeometry'&&m.geometry.parameters.radiusTop===.018&&m.geometry.parameters.heightSegments===1);
+  assert.ok(straight && straight.count>0 && bent.count>0);
+  const matrix=new THREE.Matrix4(),vertex=new THREE.Vector3();
+  bent.getMatrixAt(0,matrix);
+  const base=new THREE.Vector3(0,-.5,0).applyMatrix4(matrix);
+  const tip=new THREE.Vector3(0,.5,.1).applyMatrix4(matrix);
+  assert.ok(tip.x<base.x-.09,'current travels toward first centerline point');
+  assert.ok(Math.abs(tip.z-base.z)<1e-6);
+  const p=bent.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){vertex.fromBufferAttribute(p,i);assert.ok(Number.isFinite(vertex.z));}
+  plants.dispose();geometry.dispose();water.mesh.material.dispose();
+});
+
+test('bent reed head axes align with the current on all cardinal headings', () => {
+  for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+    const geometry=rectangle();
+    const water={mesh:new THREE.Mesh(geometry),points:[{x:dx*10,z:dz*10},{x:-dx*10,z:-dz*10}]};
+    let checked=false;
+    for(let seed=0;seed<100&&!checked;seed++) {
+      const plants=new WaterVegetation(new THREE.Group(),water,seed);
+      const heads=plants.meshes.find(m=>m.geometry.parameters.radiusTop===.045);
+      if(heads) for(let i=0;i<heads.count;i++) {
+        const matrix=new THREE.Matrix4();heads.getMatrixAt(i,matrix);
+        const axis=new THREE.Vector3().setFromMatrixColumn(matrix,1).normalize();
+        if(Math.hypot(axis.x,axis.z)<.01)continue;
+        assert.ok(axis.x*dx+axis.z*dz>.01);
+        assert.ok(Math.abs(axis.x*dz-axis.z*dx)<1e-6);
+        checked=true;
+      }
+      plants.dispose();
+    }
+    assert.ok(checked);geometry.dispose();water.mesh.material.dispose();
+  }
 });

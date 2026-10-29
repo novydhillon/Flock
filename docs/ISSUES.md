@@ -427,3 +427,8 @@ Novy explicitly requested removing grass/reed shadows and deploying to dev, with
 **Branch:** `feat/water-vegetation`.
 
 **Accept when:** Grass and reeds always form multi-blade clumps, with slender grass profiles. Randomize bank clump spacing and offsets instead of paired fixed centerline samples. Preserve 20% water-body eligibility, in-water edge preference and all shadow-free plant behavior. Distribute rocks randomly along water length and across usable wet width rather than regularly spaced center-biased sites; retain full wet footprints, bridge clearance, bounded resources, stable seeded restart and current/weather-responsive wakes. Inspect actual renderer clumps/budgets and disposal. Prior blind-review waiver covered shadow removal only; this substantial presentation follow-up receives independent review. Development publication authorization continues for the same branch; no main/production merge.
+
+
+## F-WATER-003 downstream reed curvature — 29 October 2026
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.

@@ -1,3 +1,4 @@
+import { waterCurrentDirection } from './river-details.js';
 import * as THREE from 'three';
 import presentationSettings from './config/presentation.json' with { type: 'json' };
 import { resolveConfig } from './config/resolve.js';
@@ -103,7 +104,7 @@ export class WaterVegetation {
     this.sites = waterVegetationSites(water.mesh.geometry, seed, water.bridges);
     this.meshes = [];
     if (!this.sites.length) return;
-    const grass = [], stems = [], heads = [];
+    const grass = [], stems = [], bentStems = [], heads = [];
     for (const [clump, site] of this.sites.entries()) {
       for (let blade = 0; blade < 5; blade++) {
         const angle = site.rotation + blade * Math.PI * 2 / 5;
@@ -112,13 +113,34 @@ export class WaterVegetation {
         const x = site.x + Math.cos(angle) * spread, z = site.z + Math.sin(angle) * spread;
         const pose = { clump, x, z, y: site.y - 0.06 + height / 2, height, angle };
         if (site.reed) {
-          stems.push(pose);
-          if (blade % 2 === 0) heads.push({ ...pose, y: site.y - 0.06 + height, height: 0.19 * site.scale });
+          const bent = (clump + blade) % 3 === 0;
+          const direction = waterCurrentDirection(water, site);
+          const flowAngle = Math.atan2(direction.x, direction.z);
+          if (bent) bentStems.push({ ...pose, angle: flowAngle });
+          else stems.push(pose);
+          if (blade % 2 === 0) heads.push({
+            ...pose,
+            x: x + (bent ? direction.x * 0.10 : 0),
+            z: z + (bent ? direction.z * 0.10 : 0),
+            y: site.y - 0.06 + height,
+            height: 0.19 * site.scale,
+            angle: bent ? flowAngle : angle,
+            tilt: bent ? Math.atan(0.20 / height) : 0,
+          });
         } else grass.push(pose);
       }
     }
     this.addBatch(grass, new THREE.ConeGeometry(0.024, 1, 4), 0x66864b);
     this.addBatch(stems, new THREE.CylinderGeometry(0.018, 0.025, 1, 4), 0x627b43);
+    // Quadratic displacement fixes the base while gently bending the upper stem.
+    const curved = new THREE.CylinderGeometry(0.018, 0.025, 1, 4, 6);
+    const positions = curved.attributes.position;
+    for (let i = 0; i < positions.count; i++) {
+      const t = positions.getY(i) + 0.5;
+      positions.setZ(i, positions.getZ(i) + 0.10 * t * t);
+    }
+    curved.computeVertexNormals();
+    this.addBatch(bentStems, curved, 0x627b43);
     this.addBatch(heads, new THREE.CylinderGeometry(0.045, 0.045, 1, 5), 0x72513a);
   }
 
@@ -130,7 +152,7 @@ export class WaterVegetation {
     mesh.userData.shadowGroups = poses.map(pose => pose.clump);
     poses.forEach((pose, index) => {
       transform.position.set(pose.x, pose.y, pose.z);
-      transform.rotation.set(0, pose.angle, 0);
+      transform.rotation.set(pose.tilt || 0, pose.angle, 0, 'YXZ');
       transform.scale.set(1, pose.height, 1);
       transform.updateMatrix();
       mesh.setMatrixAt(index, transform.matrix);

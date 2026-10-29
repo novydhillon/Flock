@@ -500,3 +500,8 @@ Novy explicitly requested removing grass/reed shadows and deploying to dev, with
 ## F-WATER-003 natural vegetation and rocks — 28 October 2026
 
 Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank spacing/offsets and randomly placed rocks across more of the water width. This supersedes fixed paired bank reeds and single broad ground cones. Preserve 20% per-water-body plant eligibility, in-water edge bias, no plant shadows, bridge/body-clear geometry, seeded restart and current/weather-responsive obstacle wakes. Validate distribution and actual rendered-scene instance contracts without claiming device appearance/FPS; phone portrait/landscape pan in sun/rain, restart and bridge approaches remain manual smoke checks.
+
+
+## F-WATER-003 downstream reed curvature — 29 October 2026
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.

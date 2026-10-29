@@ -65,3 +65,5 @@ export class RiverDetails {
   }
   dispose(){this.root.traverse(o=>{if(o.isInstancedMesh)o.dispose();});this.root.removeFromParent();for(const r of this.resources)r.dispose();this.resources.length=0;}
 }
+
+export { tangent as waterCurrentDirection };
