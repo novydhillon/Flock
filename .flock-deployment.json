@@ -1,7 +1,7 @@
 {
   "environment": "production",
   "branch": "main",
-  "sourceSha": "80212d02412172dfe1dc5c04c08b0a475dd84c94",
+  "sourceSha": "3c656ac2d590e0fea58cc02cc47a5963d0cfe0e4",
   "prefix": "",
   "url": "https://novydhillon.github.io/Flock/",
   "files": [
@@ -30,12 +30,20 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "assets/index-BD11BteA.js",
-      "sha256": "f4c660bf103583310420e191f39744d91bd57ac8b23918c468f34c0a877da4c0"
+      "path": "assets/index-BbvYtrrJ.js",
+      "sha256": "a76f5219329088c58d4633cb10027eca57341c334f09bebc3458b2475f57f813"
     },
     {
-      "path": "assets/index-CTeL47d3.css",
-      "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503"
+      "path": "assets/index-CSqPztdu.css",
+      "sha256": "6ff49017d2d9472d347430bccdaa2df20b183baf8482d4f8d31d3ac45ca243c6"
+    },
+    {
+      "path": "assets/main-BGhMkNxr.js",
+      "sha256": "de5c8ed4a963dbb4f0b5b6ce988fd397cead486901979adede1f8851e90ca200"
+    },
+    {
+      "path": "assets/main-iOClVWT8.css",
+      "sha256": "b5fc27d8bdf302a285659548c4d9d940ec4530182da94fd520adf8bc6a0b0d0c"
     },
     {
       "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -123,11 +131,11 @@
     },
     {
       "path": "index.html",
-      "sha256": "04f159f4f64645ea4e71a4b564a0d4535819b97da717237bec06e6e05f5d5c9d"
+      "sha256": "f681da9ba91bc796ae5741bc7c42e80a75223afc8f3bfc101f8300126cdf8771"
     },
     {
       "path": "site.webmanifest",
-      "sha256": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4"
+      "sha256": "be872bcbd1266c7d27b08e4d12059e7893c4c05ac9262ea85c418b0312bc348a"
     }
   ]
 }
