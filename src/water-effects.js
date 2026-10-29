@@ -1,8 +1,13 @@
 import * as THREE from 'three';
 import { canOccupy, terrainHeight } from './world.js';
 import { deliveryCountdownSeconds } from './delivery.js';
+import { RiverDetails } from './river-details.js';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+// Sun's small baseline cloud/wind values preserve the accepted water color.
+export function waterWeatherActivity(weather={}){
+  return clamp(clamp((weather.cloudCoverage??.22)-.22)/.63*.3+clamp(1-(weather.daylight??1))*.2+(weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0)*.35+clamp(weather.severity??0)*.4+clamp((weather.windIntensity??.12)-.12)*.05);
+}
 // Travel at 2m/s allows for herding below the cow/sheep maximum speeds, then
 // includes the actual arrival countdown. This is a visual pacing estimate, not a timer.
 export function puddleGrowthSeconds(level){
@@ -11,7 +16,7 @@ export function puddleGrowthSeconds(level){
 }
 function puddleRoll(seed,salt){let n=((seed||0)^Math.imul(salt,0x9e3779b9))>>>0;n=Math.imul(n^(n>>>16),0x21f0aaad);n=Math.imul(n^(n>>>15),0x735a2d97);return ((n^(n>>>15))>>>0)/4294967296;}
 const flat=(p)=>p?.position?{x:p.position.x,z:p.position.z}:p;
-const GRASS_WET=new THREE.Color(0x42634a),PATH_WET=new THREE.Color(0x58432f),WATER_RAIN=new THREE.Color(0x75b5c3);
+const GRASS_WET=new THREE.Color(0x42634a),PATH_WET=new THREE.Color(0x58432f);
 function segmentDistance(p,a,b){const dx=b.x-a.x,dz=b.z-a.z,t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/(dx*dx+dz*dz||1));return Math.hypot(p.x-a.x-dx*t,p.z-a.z-dz*t);}
 function safePuddleSite(level,p){
   if(!canOccupy(level,p.x,p.z,.4))return false;
@@ -28,10 +33,13 @@ function flowTexture(){
     const i=(y*n+x)*4,u=x/(n-1),v=y/(n-1),tau=Math.PI*2;
     // Integer periods tile without a flashing seam. Narrow pale crests leave
     // the river base visible between waves instead of tinting the entire ribbon.
-    const bend=.15*Math.sin(u*tau)+.07*Math.sin((u+v)*tau*2);
-    const wave=Math.sin(tau*(v*3+bend)),secondary=Math.sin(tau*(v*5-u*2+.08*Math.sin(v*tau)));
-    const gaps=.48+.52*(.5+.5*Math.sin(tau*(u*2+v)));
-    const crest=clamp((Math.pow(Math.max(0,wave),5)*gaps+Math.pow(Math.max(0,secondary),9)*.25)*(.7+.3*Math.cos(u*tau*3)));
+    // Short, interleaved ripples bend and break across the current. All
+    // frequencies are integer periods, including the moving gap modulation.
+    const bend=.22*Math.sin(u*tau*2)+.09*Math.sin((u*3+v*2)*tau);
+    const wave=Math.sin(tau*(v*8+bend)),secondary=Math.sin(tau*(v*13-u*3+.12*Math.sin((u+v)*tau*2)));
+    const gaps=Math.pow(.5+.5*Math.sin(tau*(u*5+v*3)),2);
+    const fineGaps=.5+.5*Math.sin(tau*(u*7-v*2));
+    const crest=clamp(Math.pow(Math.max(0,wave),7)*(.12+.88*gaps)*.78+Math.pow(Math.max(0,secondary),10)*fineGaps*.4);
     const edge=Math.abs(u<=.5?u:u-1),bank=1-clamp((edge-.36)/.14);
     data[i]=185;data[i+1]=218;data[i+2]=224;data[i+3]=Math.round(255*crest*bank);
   }
@@ -65,15 +73,16 @@ export class WaterEffects {
     this.maxSplashes=Math.max(0,maxSplashes|0);this.maxPuddles=Math.max(0,maxPuddles|0);this.elapsed=0;this.wetness=0;this.level=null;
     this.flowMap=flowTexture();this.flowMaterial=new THREE.MeshBasicMaterial({map:this.flowMap,color:0xffffff,transparent:true,opacity:.20,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
     this.splashGeometry=new THREE.TorusGeometry(.2,.025,4,12);
-    this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
+    this.riverDetails=[];this.waterActivity=0;this.splashes=[];this.puddles=[];this.materialSnapshots=[];this.riverSnapshots=[];this.lastMoverPositions=new Map();this.lastSplashAt=new Map();
   }
   setLevel(level,{grassMaterials=[],pathMaterials=[],waterMaterial=null,terrain=null,rivers=[],weather=null}={}){
-    this.restoreMaterials();this.clearEffects();this.level=level;this.terrain=terrain;this.rivers=rivers;this.wetness=0;this.elapsed=0;this.puddleGrowthDuration=puddleGrowthSeconds(level);this.rainElapsed=0;this.lastMoverPositions.clear();this.lastSplashAt.clear();
+    this.restoreMaterials();this.clearEffects();this.level=level;this.terrain=terrain;this.rivers=rivers;this.wetness=0;this.elapsed=0;this.puddleGrowthDuration=puddleGrowthSeconds(level);this.rainElapsed=0;this.waterActivity=waterWeatherActivity(weather||{});this.lastMoverPositions.clear();this.lastSplashAt.clear();
     for(const [kind,materials] of [['grass',grassMaterials],['path',pathMaterials]])for(const material of Array.isArray(materials)?materials:[materials])if(material?.color){
       this.materialSnapshots.push({material,kind,color:material.color.clone(),roughness:material.roughness});
     }
     this.waterSnapshot=waterMaterial?{material:waterMaterial,color:waterMaterial.color?.clone(),roughness:waterMaterial.roughness}:null;
-    for(const river of rivers){if(!river?.mesh)continue;const mesh=river.mesh;
+    for(let riverIndex=0;riverIndex<rivers.length;riverIndex++){const river=rivers[riverIndex];if(!river?.mesh)continue;const mesh=river.mesh;
+      this.riverDetails.push(new RiverDetails(this.root,river,(level.seed??level.index??0)^Math.imul(riverIndex+1,7919)));
       // The lightweight overlay has its own material and texture; it never replaces or disposes the game's source material.
       // Real rivers use local arc-length V; legacy point-free fixtures retain
       // source world UVs and advance their matching heading components.
@@ -131,22 +140,26 @@ export class WaterEffects {
     this.materialSnapshots=[];
     if(this.waterSnapshot){const s=this.waterSnapshot;if(s.color&&s.material.color)s.material.color.copy(s.color);if(s.roughness!==undefined)s.material.roughness=s.roughness;s.color?.dispose?.();this.waterSnapshot=null;}
   }
-  clearEffects(){for(const e of this.splashes){this.root.remove(e.mesh);e.material.dispose();}for(const e of this.puddles){this.root.remove(e.mesh);e.material.dispose();}this.splashes=[];this.puddles=[];
+  clearEffects(){for(const detail of this.riverDetails)detail.dispose();this.riverDetails=[];for(const e of this.splashes){this.root.remove(e.mesh);e.material.dispose();}for(const e of this.puddles){this.root.remove(e.mesh);e.material.dispose();}this.splashes=[];this.puddles=[];
     if(this.puddleResources){this.puddleResources.geometry.dispose();this.puddleResources=null;}
     for(const child of [...this.root.children])if(child.name==='River flow'){this.root.remove(child);child.material.userData.ownedFlowMap?.dispose();child.material.dispose();child.geometry.dispose();}
   }
   applySurfaceWeather(weather={}){
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     for(const s of this.materialSnapshots){const amount=this.wetness*(s.kind==='grass'?.62:.85);s.material.color.copy(s.color).lerp(s.kind==='grass'?GRASS_WET:PATH_WET,amount);if(s.roughness!==undefined)s.material.roughness=Math.max(.28,s.roughness-this.wetness*.22);}
-    if(this.waterSnapshot){const s=this.waterSnapshot,cloud=clamp(weather.cloudCoverage??0);if(s.material.color&&s.color)s.material.color.copy(s.color).lerp(WATER_RAIN,clamp((weather.rainIntensity??rain)*.11+cloud*.035+(weather.severity||0)*.025+(weather.lightningFlash||0)*.09));if(s.roughness!==undefined)s.material.roughness=clamp(s.roughness-(weather.rainIntensity??rain)*.16,.12,1);}
+    if(this.waterSnapshot){const s=this.waterSnapshot;if(s.material.color&&s.color)s.material.color.copy(s.color).multiplyScalar(1-this.waterActivity*.48);if(s.roughness!==undefined)s.material.roughness=clamp(s.roughness-this.waterActivity*.16,.12,1);}
   }
   update(dt,{weather={},movers=[],paused=false}={}){
     if(!this.level||paused||!(dt>0))return;
     dt=Math.min(dt,.1);this.elapsed+=dt;
+    this.waterActivity+=(waterWeatherActivity(weather)-this.waterActivity)*(1-Math.exp(-dt*2));
+    // Snap only the invisible tail so returning sun restores the exact baseline.
+    if(this.waterActivity<1e-7)this.waterActivity=0;
+    for(const detail of this.riverDetails)detail.update(dt,this.waterActivity);
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
     this.applySurfaceWeather(weather);
-    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*(f.speed+(weather.windIntensity||0)*.025);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.18+rain*.06+(weather.daylight??.7)*.015+(weather.lightningFlash||0)*.04;}
+    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*f.speed*(1+this.waterActivity*2.6);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.195+this.waterActivity*.23+(weather.lightningFlash||0)*.04;}
     // Any fixed rainy tier reaches full size within the expected level duration.
     // Intensity changes atmosphere density; it must not hide light-rain accumulation.
     if(rain>0)this.rainElapsed+=dt;

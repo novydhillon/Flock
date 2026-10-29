@@ -618,3 +618,7 @@ Numbered tips belong directly beneath the minimap, superseding the uppermost tip
 ## F-UI-016 camera and iOS correction - 28 October 2026
 
 Restore the original landing camera scale (50 portrait/44 landscape), drifting over occupied livestock/dog areas rather than fitting the full map. Pip and decorative Buddy both relax and wander without herding; no gameplay Buddy unlock is granted. Flocks may span multiple generated fields. The user clarified the remaining fade is under iOS clock/signal/battery icons, so address status-bar presentation separately from scene fog, preserving safe-area controls and recording native-device verification limits.
+
+## River, shadows and minimap follow-up - 28 October 2026
+
+F-UI-017 places the goal guidance arrow outside the circular minimap, following its perimeter and matching Pip's goal arrow color. F-WATER-001 preserves sunny water color, darkens water with weather severity and adjusts running ripples to weather. Seeded decorative river rocks and bridge footings at bank intersections create water wakes without changing physical routes. F-RENDER-001 restores environmental and animal shadows; static shadows may be baked. Preserve clay style, bounded mobile resources, weather/lifecycle ownership and intentionally absent cloud shadows. Source validation is separate from rendered/device acceptance.

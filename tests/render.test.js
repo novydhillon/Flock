@@ -24,6 +24,58 @@ import {ribbon,roadNetwork,createRoadMaterial,barkSurface} from '../src/surfaces
 import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
+import {ViewShadows,treeDepthMaterial} from '../src/view-shadows.js';
+
+test('fitted sun map contains ground receivers and upstream casters across aspect, zoom and distant travel',()=>{
+  const sun=new THREE.DirectionalLight(),fit=new ViewShadows(),point=new THREE.Vector3(),ray=new THREE.Vector3();
+  sun.shadow.mapSize.set(1024,1024);
+  for(const aspect of [.46,1,2.2])for(const zoom of [.7,1.4])for(const center of [new THREE.Vector3(),new THREE.Vector3(530,0,-410)]){
+    const camera=new THREE.OrthographicCamera(-24*aspect,24*aspect,24,-24,.1,300);camera.zoom=zoom;camera.updateProjectionMatrix();
+    camera.position.copy(center).add(new THREE.Vector3(0,36,29));camera.lookAt(center);camera.updateMatrixWorld(true);
+    sun.target.position.copy(center);sun.position.copy(center).add(new THREE.Vector3(-18,35,20));fit.maxHeight=18;fit.fit(camera,sun);sun.shadow.updateMatrices(sun);
+    const frustum=sun.shadow.getFrustum();ray.setFromMatrixColumn(camera.matrixWorld,2).negate();
+    for(const y of [-1,0,18])for(const x of [-1,0,1])for(const z of [-1,0,1]){
+      point.set(x,z,0).unproject(camera);point.addScaledVector(ray,(y-point.y)/ray.y);
+      assert.ok(frustum.containsPoint(point),'visible receivers and raised geometry stay inside the shadow camera');
+      if(y===0){point.addScaledVector(new THREE.Vector3(-18/35,1,20/35),18);assert.ok(frustum.containsPoint(point),'offscreen tall caster above a visible ground shadow stays inside depth range');}
+    }
+    assert.equal(sun.shadow.mapSize.x,1024,'fitting never allocates a map scaled to world size');
+  }
+});
+
+test('small elevated crown is retained when only its directional ground shadow is visible',()=>{
+  const camera=new THREE.OrthographicCamera(-5,5,5,-5,.1,200),sun=new THREE.DirectionalLight(),fit=new ViewShadows();
+  camera.position.set(0,30,25);camera.lookAt(0,0,0);sun.position.set(-18,35,20);fit.maxHeight=20;fit.fit(camera,sun);
+  const frustum=new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse)),crown=new THREE.Vector3(-18/35*18,18,20/35*18);
+  assert.equal(frustum.intersectsSphere(new THREE.Sphere(crown,.2)),false,'the small crown itself is offscreen');
+  assert.equal(frustum.containsPoint(new THREE.Vector3()),true,'its sun-projected ground contact is visible');
+  assert.ok(fit.intersects(frustum.planes,crown.x,crown.y,crown.z,.2),'caster culling includes vertical drop as well as horizontal shadow reach');
+  assert.equal(fit.intersects(frustum.planes,crown.x+100,crown.y,crown.z,.2),false,'distant unrelated casters stay culled');
+});
+
+test('scene wildlife and immutable scenery retain directional shadows and owned depth resources across restart',()=>{
+  const renderer=setup(),level=createLevel(19,201);renderer.setLevel(level);
+  const wood=renderer.sceneryBatches.filter(({batch})=>batch.userData.treeWood);assert.ok(wood.length);
+  for(const {batch}of wood){assert.ok(batch.castShadow&&batch.receiveShadow);assert.ok(batch.customDepthMaterial);assert.equal(batch.geometry.attributes.treeInstanceWidth.count,batch.instanceMatrix.count);}
+  const fauna=Object.entries(renderer.nature.batches).filter(([name])=>/rabbit|squirrel|bird/.test(name));assert.ok(fauna.length>=4);
+  for(const [,mesh]of fauna)assert.ok(mesh.castShadow&&mesh.receiveShadow,'live anatomical wildlife batches cast and receive the sun');
+  const before=fauna.map(([,mesh])=>mesh.instanceMatrix.array.slice());renderer.update(level,level.dog,0);
+  fauna.forEach(([,mesh],i)=>assert.deepEqual(mesh.instanceMatrix.array,before[i],'paused wildlife and its shadow matrices freeze together'));
+  const moving=renderer.nature.batches.butterflyWing,old=moving.instanceMatrix.array.slice();renderer.update(level,level.dog,.05);assert.notDeepEqual(moving.instanceMatrix.array,old,'wildlife animation updates the actual shadow-casting instance matrices');
+  const gestured=renderer.animalBatches.flatMap(b=>b.meshes).filter(m=>m.geometry.attributes.animalGesture);assert.ok(gestured.length);
+  const depth=gestured[0].customDepthMaterial;assert.ok(depth);assert.ok(gestured.every(m=>m.customDepthMaterial===depth),'one owned depth material serves all animated herd parts');
+  const materialDisposals=new Map([...wood.map(v=>v.batch.customDepthMaterial),depth].map(m=>[m,0]));for(const m of materialDisposals.keys())m.addEventListener('dispose',()=>materialDisposals.set(m,materialDisposals.get(m)+1));
+  const source=gestured[0].material,makeShader=()=>({uniforms:{},vertexShader:'#include <beginnormal_vertex>\n#include <begin_vertex>',fragmentShader:''}),surfaceShader=makeShader(),depthShader=makeShader();source.onBeforeCompile(surfaceShader);depth.onBeforeCompile(depthShader);
+  assert.equal(depthShader.vertexShader,surfaceShader.vertexShader,'ear, tail, blink and chew deformation uses the identical visible/depth vertex program');
+  renderer.setLevel(createLevel(0,201));for(const count of materialDisposals.values())assert.equal(count,1,'restart disposes each owned depth material exactly once');
+});
+
+test('scenery batching separates identical geometry with different cast or receive flags',()=>{
+  const renderer=setup(),geometry=new THREE.BoxGeometry(1,1,1),material=new THREE.MeshStandardMaterial();renderer.terrain.clear();
+  for(const cast of [false,true])for(const receive of [false,true])for(let i=0;i<2;i++){const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=cast;mesh.receiveShadow=receive;mesh.position.set(i,1,0);renderer.terrain.add(mesh);}
+  renderer.batchScenery();assert.equal(renderer.sceneryBatches.length,4);
+  const flags=new Set(renderer.sceneryBatches.map(({batch})=>`${batch.castShadow}:${batch.receiveShadow}`));assert.equal(flags.size,4,'batching cannot silently inherit another piece shadow policy');
+});
 import {gateButtons,updateGateContacts} from '../src/gates.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
@@ -34,7 +86,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={...minimap,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -131,7 +183,7 @@ test('large minimaps follow Pip at stable local scale and clamp the viewport at 
   const first=draw({x:0,z:0}),next=draw({x:20,z:0}),edge=draw({x:195,z:195});
   const pip=points=>points.find(p=>p.color==='#ffd166'),sheep=points=>points.find(p=>p.color==='#fff8e7');
   assert.equal(pip(first).x,pip(next).x);assert.equal(pip(next).x,120);
-  assert.ok(Math.abs(sheep(first).x-sheep(next).x-24)<1e-8,'fixed world marker scrolls at 1.2 pixels per metre');
+  assert.ok(Math.abs(sheep(first).x-sheep(next).x-20*minimap.minimapProjection(level.bounds,{x:0,z:0},240,160,120).scale)<1e-8,'fixed world marker scrolls at the circular map metric scale');
   assert.ok(pip(edge).x>120&&pip(edge).x<232);assert.ok(pip(edge).y>80&&pip(edge).y<152);
   assert.equal(saved,3);assert.equal(restored,3);assert.equal(clips,3);
 });

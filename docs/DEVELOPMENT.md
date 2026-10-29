@@ -1,5 +1,11 @@
 # Development, QA and release context
 
+## Minimap, river and shadow smoke checks - 28 October 2026
+
+For F-UI-017, inspect the goal pointer at all bearings, including map corners and near-cardinal angles, at the smallest supported viewport and in phone portrait/landscape. Confirm the pointer stays fully outside the circular map, tracks the goal direction, matches Pip's brown, and is not clipped by the canvas or card. Check resizing and level changes.
+
+For F-WATER-001, compare the same seeded level in clear sun, cloud, rain and storm: sunny river color should retain the accepted baseline, while worsening weather visibly darkens water and strengthens/faster-running ripples. Inspect bends, seeded rocks, each bridge and both bank footings: rocks sit within water and wakes follow the current, clipped to the river surface without spilling across banks/bridge decks. Pause/resume and jump/restart levels to check stable scenery and bounded resources; confirm existing crossing/collision behavior. For F-RENDER-001, inspect rabbits, squirrels, flying and grounded birds, trees, bushes and other reported props in varied sun/weather and at normal phone zoom; shadows should align with lighting/ground and move with wildlife without adding cloud shadows. These rendered, touch and phone-performance checks remain pending; source tests and shader/resource checks are not visual or device evidence.
+
 ## Persistent launch regression remains Open — 26 October 2026
 
 F-AUDIO-003 records Novy's current browser and iOS Home Screen observation: music stays silent on launch until audio is turned off and on. The earlier launch-recovery smoke steps below remain unmet device acceptance work; passing mock activation tests must not be described as a physical fix. The soundtrack feature is accepted for main merge independently of this defect. No production deployment is authorized by that merge request.
@@ -214,11 +220,11 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/chokepoints.test.js` | Mixed-crowd deck crossing without surging, lanes, open gate and entrance queues, opposing groups, early commit rules, player turn-back inside and outside the commit zone, bounded yielding, state cleanup and large-herd spacing |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
 | `tests/deploy-pages.test.js` | Validated relative assets, destination guards, byte-preserving plans and concurrent-publication rejection |
-| `tests/render.test.js` | Geometry, camera matrices, culling, batches and disposal |
+| `tests/render.test.js` | Geometry, camera matrices, culling, batches, fitted sun shadows, animated shadow-depth poses and disposal |
 | `tests/nature.test.js` | Wildlife, weather, resource budgets and cleanup |
 | `tests/weather.test.js` | Seeded weather episodes, shared severity, lightning and atmosphere resources |
 | `tests/wandering.test.js` | Seeded straggler cohorts, five-second opportunities and conditional bolts |
-| `tests/water-effects.test.js` | Wetness/drying, pause/reset, safe puddles, bounded splashes and directional river flow |
+| `tests/water-effects.test.js` | Wetness/drying, pause/reset, safe puddles, bounded splashes, weather-driven ripple flow and clipped rock/footing wakes |
 | `tests/audio.test.js` | Audio activation races, idempotent soundtrack transport, scene-only pause, scheduling, ambience and disposal; shared WebAudio fixture in `tests/audio-fixture.js` |
 
 ```sh

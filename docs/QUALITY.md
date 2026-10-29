@@ -1,5 +1,19 @@
 # Flock revision quality record
 
+## F-UI-017, F-WATER-001 and F-RENDER-001 - 28 October 2026
+
+This batch on `feat/p2-ui` starts at `4fd06b7a07e480a3ae8b3a1461384b2bbd321a92`. Independent implementation agents owned water and shadows, with root handling minimap/integration. Implementation used `gpt-6.1-sol`, medium effort; documentation used `gpt-6-luna`, medium effort. Integration uses the session model, identifier/effort not recorded. The isolated history-free candidate received fresh independent blind review using `gpt-6.1-sol`, medium effort.
+
+The minimap goal pointer orbits outside the borderless circle, shares Pip's brown pointer constant, preserves the original circle's displayed diameter and reserves10px below the safe-area anchor for its orbit. Sunny water retains its original color; worsening weather smoothly darkens it and strengthens shorter broken running ripples. Seeded instanced river rocks and bridge-bank intersections have current-aligned wakes clipped to the rendered river triangles. Physical navigation and world state are unchanged.
+
+Scenery batching retains shadow flags; trees, wildlife, grass/reeds, hills, rocks and livestock cast shadows. One fixed-size directional map fits the current view, while swept body-to-ground culling retains offscreen canopy shadows. Tree-width and animal-gesture depth programs match visible deformations; owned depth resources release on level change. Realtime shadows retain existing instancing rather than introducing a static bake system.
+
+Initial blind review scored8/10 and confirmed missing rock instance-buffer disposal and grass/reed shadow flags. Continued review found the north-facing arrow could overlap the iOS safe area. Repairs add explicit InstancedMesh disposal with a replacement regression, vegetation flags and a shared10px orbit allowance for the map/tips. Follow-up scored **9.2/10**, with no remaining confirmed material blocker or minor defect. Reviewer checks: initial70/70, refreshed71/71 minimap/water/renderer tests and4/4 UI-layout/iOS metadata checks. Conventional target bearing remains relative to map center; matching Pip refers to the requested color.
+
+The standard `npm run build:checked:dev` passes543 tests with one Windows host symlink-permission skip and zero failures (544 total), plus seven documentation DOM tests, release33files/zeroQA and dev35files/twoQA. An interim build during concurrent source saves imported an old shadow helper with a newly read renderer; the complete checked build was rerun after writers stopped and passed. Native clean-install CI and publication/live-hash evidence are recorded separately.
+
+Source/matrix/shader/resource tests do not establish rendered appearance, native iPhone system chrome, shadow legibility, subjective ripple quality, physical touch or phone FPS. These remain pending observed user/device acceptance; implemented items stay Review. Existing dev publication authorization continues; production is not authorized.
+
 ## F-013 administrative closure — 28 October 2026
 
 Novy requested “Close F-013 for now and merge to main”. F-013 moves with its complete overview row, original simulated level timings and investigation criteria to [Closed issues](ISSUES_CLOSED.md#level-5-pacing-concern-closed-for-now--28-october-2026). The status is Closed for now at user request, with reopening available if new pacing feedback warrants investigation. No gameplay or pacing fix is included, and no human playtest pass is claimed.

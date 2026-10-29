@@ -17,11 +17,12 @@ import { MeadowNature } from './nature.js';
 import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
+import { ViewShadows, treeDepthMaterial } from './view-shadows.js';
 import { terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
-import { minimapProjection, clipMinimap, minimapLivestockStates, drawLivestockMarker, drawGoalDirection } from './minimap-markers.js';
+import { minimapProjection, clipMinimap, minimapLivestockStates, drawLivestockMarker, drawGoalDirection, GOAL_POINTER_COLOR } from './minimap-markers.js';
 import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from './surfaces.js';
-import { createAnimalGestureGeometry, createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
+import { createAnimalGestureDepthMaterial, createAnimalGestureGeometry, createPip, updatePipPose, updatePipHover, createBuddy, createAnimal, createCowCoatMaterial, cowCoatVariant, createDrone, createTree, treeTrunkFactor, createBush, createBridge, createFlowerPatch, createMaterials } from './models.js';
 
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 // Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
@@ -103,7 +104,7 @@ export class MeadowRenderer{
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(PRESENTATION.lighting.skyDay);this.scene.fog=null;
     this.hemisphere=new THREE.HemisphereLight(PRESENTATION.lighting.hemisphereSky,PRESENTATION.lighting.hemisphereGround,PRESENTATION.lighting.hemisphereIntensity);this.scene.add(this.hemisphere);this.skyDay=new THREE.Color(PRESENTATION.lighting.skyDay);this.skyStorm=new THREE.Color(PRESENTATION.lighting.skyStorm);
     this.sun=new THREE.DirectionalLight(PRESENTATION.lighting.sunColor,PRESENTATION.lighting.sunIntensity);this.sun.position.set(...PRESENTATION.lighting.sunOffset);this.sun.castShadow=true;
-    this.sun.shadow.mapSize.set(PRESENTATION.renderer.shadowMapSize,PRESENTATION.renderer.shadowMapSize);Object.assign(this.sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:100});this.sun.shadow.camera.updateProjectionMatrix();this.sun.shadow.bias=PRESENTATION.lighting.shadowBias;this.sun.shadow.normalBias=PRESENTATION.lighting.shadowNormalBias;this.scene.add(this.sun,this.sun.target);
+    this.sun.shadow.mapSize.set(PRESENTATION.renderer.shadowMapSize,PRESENTATION.renderer.shadowMapSize);this.viewShadows=new ViewShadows();this.sun.shadow.bias=PRESENTATION.lighting.shadowBias;this.sun.shadow.normalBias=PRESENTATION.lighting.shadowNormalBias;this.scene.add(this.sun,this.sun.target);
     this.camera=new THREE.OrthographicCamera(-30,30,20,-20,PRESENTATION.camera.near,PRESENTATION.camera.far);this.center=new THREE.Vector3(-7,0,0);this.targetCenter=this.center.clone();
     this.terrain=new THREE.Group();this.actors=new THREE.Group();this.scene.add(this.terrain,this.actors);this.materials=createMaterials();
     this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
@@ -132,7 +133,7 @@ export class MeadowRenderer{
     // Level replacement disposes only tagged, level-owned resources. Shared
     // cached model geometry/materials remain valid for the next meadow.
     const geometries=new Set(),materials=new Set();
-    for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)for(const material of Array.isArray(o.material)?o.material:[o.material])materials.add(material);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
+    for(const parent of [this.terrain,this.actors])parent.traverse(o=>{if(o.userData.ownedGeometry)geometries.add(o.geometry);if(o.userData.ownedMaterial)for(const material of Array.isArray(o.material)?o.material:[o.material])materials.add(material);if(o.userData.ownedDepthMaterial)materials.add(o.customDepthMaterial);if(o.userData.ownedLabel){o.material.map.dispose();materials.add(o.material);}if(o.isInstancedMesh)o.dispose();});
     geometries.forEach(g=>g?.dispose());materials.forEach(m=>m?.dispose());
     this.terrain.clear();this.actors.clear();this.sceneryBatches=[];this.helperMeshes.clear();this.animalMeshes=[];this.animalBatches=[];this.particles=[];
     // Orientation has its own stream so scenery positions and palette draws stay stable.
@@ -150,7 +151,7 @@ export class MeadowRenderer{
     }
     for(const spec of level.sceneryHills||[]){
       const hill=new THREE.Mesh(new THREE.SphereGeometry(1,20,12),new THREE.MeshStandardMaterial({color:['#799552','#6f914e','#93a75d'][Math.floor(r()*3)],roughness:1}));
-      hill.position.set(spec.x,-.3,spec.z);hill.scale.set(spec.radius,spec.height,spec.radius);hill.userData.ownedGeometry=hill.userData.ownedMaterial=true;this.terrain.add(hill);
+      hill.position.set(spec.x,-.3,spec.z);hill.scale.set(spec.radius,spec.height,spec.radius);hill.castShadow=hill.receiveShadow=true;hill.userData.ownedGeometry=hill.userData.ownedMaterial=true;this.terrain.add(hill);
     }
     const surface=(g,m)=>{const mesh=new THREE.Mesh(g,m);mesh.receiveShadow=true;mesh.userData.ownedGeometry=true;this.terrain.add(mesh);return mesh;};
     const roadCore=level.roads.length?createRoadMaterial(this.path):null,roadShoulder=level.roads.length?createRoadMaterial(this.pathShoulder):null;
@@ -164,7 +165,7 @@ export class MeadowRenderer{
       this.thrusterGlow.install(bankMat);
       const bank=surface(ribbon(river.points,river.width+.8,{y:.002}),bankMat);bank.userData.ownedMaterial=true;
       const mesh=surface(ribbon(river.points,river.width,{y:.018}),this.water);
-      const a=river.points[0],b=river.points.at(-1);riverViews.push({mesh,points:river.points,width:river.width,heading:Math.atan2(b.x-a.x,b.z-a.z)});
+      const a=river.points[0],b=river.points.at(-1);riverViews.push({mesh,points:river.points,width:river.width,bridges:river.bridges,heading:Math.atan2(b.x-a.x,b.z-a.z)});
       for(const bridge of river.bridges){
         const g=createBridge(bridge.width,bridge.length),glowMaterials=new Map();
         // Bridge wood is shared with fences: keep this surface effect local.
@@ -260,10 +261,10 @@ export class MeadowRenderer{
     for(let i=0;i<tuftBudget;i++){const {x,z}=candidate(i,tuftBudget);if(meadowClear(x,z,.4)){tufts.push({x,z});this.meadowDetails.push({x,z,kind:'tuft'});}}
     // Decorative blades draw over opaque ground without claiming its depth.
     // Bark draws after them, while fences/rails retain ordinary depth occlusion.
-    if(tufts.length){const blade=new THREE.ConeGeometry(.12,.55,3),bladeMat=new THREE.MeshStandardMaterial({color:'#648844',roughness:1,transparent:true,opacity:1,depthWrite:false}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,.18,p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);});grass.receiveShadow=true;grass.userData.decorativeGrass=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
+    if(tufts.length){const blade=new THREE.ConeGeometry(.12,.55,3),bladeMat=new THREE.MeshStandardMaterial({color:'#648844',roughness:1,transparent:true,opacity:1,depthWrite:false}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,.18,p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);});grass.castShadow=grass.receiveShadow=true;grass.userData.decorativeGrass=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
     // Thin reeds follow the exact banks and leave crossing entrances clear.
     const reeds=[];for(const river of level.rivers)for(let i=2;i<river.points.length-2;i+=5){const p=river.points[i],next=river.points[i+1],dx=next.x-p.x,dz=next.z-p.z,l=Math.hypot(dx,dz)||1;for(const side of [-1,1]){const x=p.x-dz/l*(river.width/2+.65)*side,z=p.z+dx/l*(river.width/2+.65)*side;if(x>b.minX&&x<b.maxX&&z>b.minZ&&z<b.maxZ&&!river.bridges.some(v=>Math.hypot(x-v.x,z-v.z)<v.length/2+v.width))reeds.push({x,z});}}
-    if(reeds.length){const geo=new THREE.ConeGeometry(.18,.95,4),mat=new THREE.MeshStandardMaterial({color:'#5b7951',roughness:1}),batch=new THREE.InstancedMesh(geo,mat,reeds.length),pose=new THREE.Object3D();reeds.forEach((p,i)=>{pose.position.set(p.x,.4,p.z);pose.rotation.z=(r()-.5)*.25;pose.updateMatrix();batch.setMatrixAt(i,pose.matrix);});batch.userData.ownedGeometry=batch.userData.ownedMaterial=true;this.terrain.add(batch);this.trackScenery(batch);}
+    if(reeds.length){const geo=new THREE.ConeGeometry(.18,.95,4),mat=new THREE.MeshStandardMaterial({color:'#5b7951',roughness:1}),batch=new THREE.InstancedMesh(geo,mat,reeds.length),pose=new THREE.Object3D();reeds.forEach((p,i)=>{pose.position.set(p.x,.4,p.z);pose.rotation.z=(r()-.5)*.25;pose.updateMatrix();batch.setMatrixAt(i,pose.matrix);});batch.castShadow=batch.receiveShadow=true;batch.userData.ownedGeometry=batch.userData.ownedMaterial=true;this.terrain.add(batch);this.trackScenery(batch);}
     const sceneryCount=Math.min(62,28+Math.floor(level.index/3));for(let i=0;i<sceneryCount;i++){
       let x,z;const side=i%4;
       if(side<2){x=b.minX-12+r()*(w+24);z=side===0?b.minZ-4-r()*17:b.maxZ+4+r()*17;}else{x=side===2?b.minX-5-r()*18:b.maxX+5+r()*18;z=b.minZ+r()*d;}
@@ -272,11 +273,12 @@ export class MeadowRenderer{
     this.bushPlacements=generateBushClusters(level);for(const b of this.bushPlacements)this.place(createBush(b.variant),b.x,b.z,b.scale);
     this.nature.setLevel(level);
     this.waterEffects.setLevel(level,{grassMaterials:[this.grass],pathMaterials:[this.path,roadCore],waterMaterial:this.water,terrain:this.terrain,rivers:riverViews,weather:this.nature.weather});
+    this.terrain.updateMatrixWorld(true);this.viewShadows.maxHeight=Math.max(12,new THREE.Box3().setFromObject(this.terrain).max.y+1);
     this.batchScenery();
     this.dog=createPip();this.dog.scale.setScalar(1.35*.75);this.actors.add(this.dog);
     const halo=new THREE.Mesh(new THREE.RingGeometry(.82,.95,40),new THREE.MeshBasicMaterial({color:'#fff0bb',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));halo.scale.setScalar(1/.75);halo.rotation.x=-Math.PI/2;halo.position.y=.03/.75;halo.userData.ownedGeometry=halo.userData.ownedMaterial=true;this.dog.add(halo);
     const arrowShape=new THREE.Shape();arrowShape.moveTo(0,1.45);arrowShape.lineTo(-.19,1.05);arrowShape.lineTo(.19,1.05);arrowShape.closePath();
-    this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:'#be8652',side:THREE.DoubleSide,depthWrite:false}));
+    this.goalPointer=new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),new THREE.MeshBasicMaterial({color:GOAL_POINTER_COLOR,side:THREE.DoubleSide,depthWrite:false}));
     this.goalPointer.scale.setScalar(1/.75);this.goalPointer.rotation.x=Math.PI/2;this.goalPointer.userData.ownedGeometry=this.goalPointer.userData.ownedMaterial=true;this.dog.add(this.goalPointer);
     for(const a of level.animals){const pose=new THREE.Object3D();pose.position.set(a.x,0,a.z);pose.rotation.y=a.heading??Math.PI/2;pose.scale.setScalar(animalScale(a));this.animalMeshes.push(pose);}
     for(const type of ['sheep','cow']){
@@ -304,6 +306,8 @@ export class MeadowRenderer{
       }
       this.animalBatches.push({indices,meshes,radius,visibleIndices:[]},...coats.map(batch=>({...batch,radius})));
     }
+    let animalDepth=null;
+    for(const batch of this.animalBatches)for(const mesh of batch.meshes)if(mesh.geometry.attributes.animalGesture){mesh.customDepthMaterial=animalDepth||=createAnimalGestureDepthMaterial();mesh.userData.ownedDepthMaterial=true;}
     boostEnvironmentVibrancy(this.terrain, this.actors);
     this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),0,level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
   }
@@ -333,15 +337,15 @@ export class MeadowRenderer{
     this.terrain.updateMatrixWorld(true);const groups=new Map();
     // Stateful meshes must remain attached to their owner; static batches
     // cannot follow later material swaps such as red/green gate indicators.
-    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.dynamicScenery||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.userData.treeWidth!==undefined?'treeWood':o.material.id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
+    this.terrain.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.dynamicScenery||o.userData.ownedGeometry||o.material.transparent)return;const key=`${o.geometry.id}:${o.userData.treeWidth!==undefined?'treeWood':o.material.id}:${!!(o.castShadow||o.userData.fencePart)}:${o.receiveShadow}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);});
     for(const pieces of groups.values()){
       if(pieces.length<2&&pieces[0].userData.treeWidth===undefined)continue;const first=pieces[0],wood=first.userData.treeWidth!==undefined;
       const geometry=wood?first.geometry.clone():first.geometry;
       if(wood)geometry.setAttribute('treeInstanceWidth',new THREE.InstancedBufferAttribute(new Float32Array(pieces.map(piece=>piece.userData.treeWidth)),1).setUsage(THREE.DynamicDrawUsage));
       const batch=new THREE.InstancedMesh(geometry,wood?createMaterials().treeWood:first.material,pieces.length);
-      if(wood){batch.userData.ownedGeometry=true;batch.userData.treeWood=true;}
+      if(wood){batch.userData.ownedGeometry=true;batch.userData.treeWood=true;batch.customDepthMaterial=treeDepthMaterial();batch.userData.ownedDepthMaterial=true;}
       pieces.forEach((piece,i)=>{batch.setMatrixAt(i,piece.matrixWorld);if(wood&&piece.userData.ownedMaterial)piece.material.dispose();piece.parent.remove(piece);});
-      batch.castShadow=!!first.userData.fencePart;batch.receiveShadow=true;this.terrain.add(batch);this.trackScenery(batch);
+      batch.castShadow=!!(first.castShadow||first.userData.fencePart);batch.receiveShadow=first.receiveShadow||!!first.userData.fencePart;this.terrain.add(batch);this.trackScenery(batch);
     }
     // Empty model wrappers no longer need a matrix traversal every frame.
     const empty=[];this.terrain.traverse(o=>{if(o.isGroup&&!o.children.length)empty.push(o);});empty.forEach(o=>o.parent.remove(o));
@@ -352,9 +356,9 @@ export class MeadowRenderer{
     for(const {batch,matrices,bounds,widths} of this.sceneryBatches){
       let count=0;
       for(let i=0;i<bounds.length;i+=4){
-        // Configured margin retains edge silhouettes and short fence shadows.
+        // Retain offscreen trees whose directional ground shadows remain in view.
         const radius=bounds[i+3]+PRESENTATION.culling.sceneryMargin;
-        if(planes.some(p=>p.normal.x*bounds[i]+p.normal.y*bounds[i+1]+p.normal.z*bounds[i+2]+p.constant < -radius))continue;
+        if(batch.castShadow?!this.viewShadows.intersects(planes,bounds[i],bounds[i+1],bounds[i+2],radius):planes.some(p=>p.normal.x*bounds[i]+p.normal.y*bounds[i+1]+p.normal.z*bounds[i+2]+p.constant < -radius))continue;
         batch.instanceMatrix.array.set(matrices.subarray(i*4,i*4+16),count*16);
         if(widths)batch.geometry.attributes.treeInstanceWidth.array[count]=widths[i/4];
         count++;
@@ -371,7 +375,7 @@ export class MeadowRenderer{
       // The configured margin keeps offscreen bodies whose short sun shadows
       // can still land in view, and avoid edge popping during a walking pose.
       for(const index of batch.indices){
-        const pose=this.animalMeshes[index],position=pose.position,radius=batch.radius*Math.max(Math.abs(pose.scale.x),Math.abs(pose.scale.y),Math.abs(pose.scale.z))+PRESENTATION.culling.animalMargin;
+        const pose=this.animalMeshes[index],position=pose.position,bodyRadius=batch.radius*Math.max(Math.abs(pose.scale.x),Math.abs(pose.scale.y),Math.abs(pose.scale.z)),radius=bodyRadius+Math.max(PRESENTATION.culling.animalMargin,this.viewShadows.margin(position.y,bodyRadius));
         if(!planes.some(p=>p.normal.x*position.x+p.normal.y*position.y+p.normal.z*position.z+p.constant < -radius))visible.push(index);
       }
       // All body and limb materials share one compacted ordering. Gait phases
@@ -441,6 +445,7 @@ export class MeadowRenderer{
     this.camera.left=-halfWidth;this.camera.right=halfWidth;this.camera.top=half;this.camera.bottom=-half;this.camera.updateProjectionMatrix();
     this.camera.position.set(this.center.x,PRESENTATION.camera.positionY,this.center.z+PRESENTATION.camera.positionOffsetZ);this.camera.lookAt(this.center.x,0,this.center.z+PRESENTATION.camera.lookOffsetZ);
     this.sun.position.set(this.center.x+PRESENTATION.lighting.sunOffset[0],PRESENTATION.lighting.sunOffset[1],this.center.z+PRESENTATION.lighting.sunOffset[2]);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();
+    this.viewShadows.fit(this.camera,this.sun);
     this.dog.position.set(dog.x,terrainHeight(level,dog.x,dog.z),dog.z);this.dog.rotation.y=dog.heading??Math.PI/2;
     // Cancel the dog's heading so the triangle always faces the goal in world space.
     this.goalPointer.rotation.set(Math.PI/2,0,0);
@@ -535,8 +540,8 @@ export class MeadowRenderer{
     dot(dog.x,dog.z,4.8,'#ffd166');ctx.strokeStyle='#ffe6a3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(dog.x),pz(dog.z),7,0,Math.PI*2);ctx.stroke();
     for(const helper of level.helpers||[])dot(helper.x,helper.z,3,'#45d9ef','#102c39');
     if(shaped)ctx.restore();
-    drawGoalDirection(ctx,level.target,view);
     ctx.restore();
+    drawGoalDirection(ctx,level.target,view);
   }
 }
 

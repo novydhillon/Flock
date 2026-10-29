@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { minimapLivestockStates, minimapProjection, clipMinimap, drawLivestockMarker, drawGoalDirection } from '../src/minimap-markers.js';
+import { minimapLivestockStates, minimapProjection, clipMinimap, drawLivestockMarker, drawGoalDirection, GOAL_POINTER_COLOR } from '../src/minimap-markers.js';
 import { flockGroups } from '../src/buddy.js';
 
 const animal=(id,x,z=0,saved=false)=>({id,x,z,saved,type:'sheep'});
@@ -34,7 +34,7 @@ test('circular map projection preserves metric scale while scrolling and retains
   for(const [width,height] of [[240,240],[240,160]]){
     const a=minimapProjection(bounds,{x:0,z:0},width,height,120),b=minimapProjection(bounds,{x:20,z:0},width,height,120);
     const origin=a.project({x:0,z:0}),east=a.project({x:10,z:0}),south=a.project({x:0,z:10});
-    assert.equal(east.x-origin.x,south.y-origin.y,'equal world distances remain equal pixels on both axes');
+    assert.ok(Math.abs((east.x-origin.x)-(south.y-origin.y))<1e-8,'equal world distances remain equal pixels on both axes');
     assert.deepEqual(b.project({x:20,z:0}),a.center);
     assert.ok(Math.abs(origin.x-b.project({x:0,z:0}).x-20*a.scale)<1e-8);
     for(const dog of [{x:195,z:195},{x:-195,z:-195}]){
@@ -55,7 +55,7 @@ function recorder(){
 test('circle clipping clears stale corners, clips a true circle, and draws no frame stroke',()=>{
   const ctx=recorder();clipMinimap(ctx,240,160);
   assert.deepEqual(ctx.calls.map(c=>c.method),['clearRect','save','beginPath','arc','clip']);
-  assert.deepEqual(ctx.calls[3].args,[120,80,80,0,Math.PI*2]);
+  assert.deepEqual(ctx.calls[3].args,[120,80,64,0,Math.PI*2]);
 });
 
 test('livestock states have different visible silhouettes independent of their color',()=>{
@@ -68,10 +68,16 @@ test('livestock states have different visible silhouettes independent of their c
   assert.deepEqual(paths,[['arc'],['rect'],['lineTo','lineTo','lineTo']]);
 });
 
-test('off-circle goal retains directional guidance inside the frame',()=>{
-  const view=minimapProjection({minX:-200,maxX:200,minZ:-200,maxZ:200},{x:0,z:0},240,240,120);
-  const ctx=recorder();drawGoalDirection(ctx,{x:0,z:0},view);assert.equal(ctx.calls.length,0);
-  drawGoalDirection(ctx,{x:200,z:200},view);
-  const vertices=ctx.calls.filter(c=>c.method==='moveTo'||c.method==='lineTo');assert.equal(vertices.length,3);
-  for(const {args:[x,y]} of vertices){assert.ok(x>120&&y>120);assert.ok(Math.hypot(x-120,y-120)<view.radius);}
+test('off-circle goal orbits wholly outside the circle and shares Pip pointer color',()=>{
+  for(const [width,height] of [[240,240],[240,160]])for(let angle=0;angle<Math.PI*2;angle+=Math.PI/16){
+    const view=minimapProjection({minX:-200,maxX:200,minZ:-200,maxZ:200},{x:0,z:0},width,height,120);
+    const ctx=recorder();drawGoalDirection(ctx,{x:0,z:0},view);assert.equal(ctx.calls.length,0);
+    drawGoalDirection(ctx,{x:200*Math.cos(angle),z:200*Math.sin(angle)},view);
+    const vertices=ctx.calls.filter(c=>c.method==='moveTo'||c.method==='lineTo');assert.equal(vertices.length,3);
+    for(const {args:[x,y]} of vertices){assert.ok(Math.hypot(x-view.center.x,y-view.center.y)>view.radius);assert.ok(x>=0&&x<=width&&y>=0&&y<=height,'gutter retains complete arrow at every bearing');}
+    assert.equal(ctx.calls.find(c=>c.method==='fill').color,GOAL_POINTER_COLOR);
+    const [x,y]=vertices[0].args,dx=x-view.center.x,dy=y-view.center.y;
+    assert.ok(Math.abs(dx*Math.sin(angle)-dy*Math.cos(angle))<1e-8,'tip follows target bearing');
+    assert.ok(dx*Math.cos(angle)+dy*Math.sin(angle)>0,'tip faces outward');
+  }
 });

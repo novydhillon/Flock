@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { WaterEffects, puddleGrowthSeconds } from '../src/water-effects.js';
+import { ribbon } from '../src/surfaces.js';
+import { riverSurfaceContains } from '../src/river-details.js';
+import { createWeatherState } from '../src/weather.js';
 import { createLevel } from '../src/simulation.js';
 
 test('rain accumulates wetness gradually, dries in sun, and ignores zero-dt and pause',()=>{
@@ -146,3 +149,60 @@ test('portrait players see accumulating puddles along large level routes, includ
   effects.dispose();
 });
 
+
+function riverFixture(level){
+  const river=level.rivers[0],mesh=new THREE.Mesh(ribbon(river.points,river.width,{y:.018}),new THREE.MeshStandardMaterial());
+  return {...river,mesh};
+}
+
+test('water preserves sunny color, darkens across real weather tiers and transitions smoothly',()=>{
+  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(23),water=new THREE.MeshStandardMaterial({color:0x43adc4,roughness:.45}),original=water.color.clone();
+  const weather=kind=>createWeatherState({...level,weather:kind});
+  effects.setLevel(level,{waterMaterial:water,weather:weather('sun')});
+  advance(effects,2,weather('sun'));assert.ok(water.color.equals(original));
+  let previous=original.r;
+  for(const kind of ['wind','rain','heavy-rain','storm']){
+    effects.setLevel(level,{waterMaterial:water,weather:weather(kind)});
+    assert.ok(water.color.r<previous,kind);previous=water.color.r;
+  }
+  effects.setLevel(level,{waterMaterial:water,weather:weather('sun')});effects.update(.05,{weather:weather('storm')});
+  assert.ok(water.color.r<original.r&&water.color.r>previous);
+  const activity=effects.waterActivity,color=water.color.clone();effects.update(.1,{weather:weather('sun'),paused:true});assert.equal(effects.waterActivity,activity);assert.ok(water.color.equals(color));
+  advance(effects,12,weather('sun'));assert.ok(water.color.equals(original));effects.dispose();assert.ok(water.color.equals(original));
+});
+
+test('storm current and obstacle wakes strengthen together while pause freezes both clocks',()=>{
+  const level=createLevel(23),river=riverFixture(level),effects=new WaterEffects(new THREE.Scene());effects.setLevel(level,{rivers:[river]});
+  const flow=effects.root.children.find(c=>c.name==='River flow'),detail=effects.riverDetails[0],u=detail.wakes.material.uniforms;
+  const offset=flow.material.map.offset.y;effects.update(.1,{weather:{type:'sun'}});const sunnyStep=flow.material.map.offset.y-offset,sunnyStrength=u.strength.value,sunnyOpacity=flow.material.opacity;
+  advance(effects,4,createWeatherState({...level,weather:'storm'}));const before=flow.material.map.offset.y;effects.update(.1,{weather:createWeatherState({...level,weather:'storm'})});
+  assert.ok((flow.material.map.offset.y-before+1)%1>sunnyStep*2);assert.ok(u.strength.value>sunnyStrength);assert.ok(flow.material.opacity>sunnyOpacity);
+  const clock=u.time.value,frozen=flow.material.map.offset.y;effects.update(.1,{weather:{type:'sun'},paused:true});assert.equal(u.time.value,clock);assert.equal(flow.material.map.offset.y,frozen);effects.dispose();
+});
+
+test('seeded rocks and clipped wakes use actual curved river banks and bridge crossings',()=>{
+  for(const index of [1,23,47,99]){
+    const level=createLevel(index),river=riverFixture(level),effects=new WaterEffects(new THREE.Scene()),original=JSON.stringify(level.rivers);
+    effects.setLevel(level,{rivers:[river]});const detail=effects.riverDetails[0],sites=JSON.stringify(detail.sites),rocks=detail.sites.filter(p=>p.kind==='rock'),footings=detail.sites.filter(p=>p.kind==='footing');
+    assert.ok(rocks.length>0);assert.equal(footings.length,river.bridges.length*4);
+    for(const p of rocks)assert.ok(riverSurfaceContains(river.mesh.geometry,p.x,p.z));
+    for(const p of footings){assert.ok(riverSurfaceContains(river.mesh.geometry,p.x,p.z));assert.ok(!riverSurfaceContains(river.mesh.geometry,p.x+p.direction.z*.03,p.z-p.direction.x*.03)||!riverSurfaceContains(river.mesh.geometry,p.x-p.direction.z*.03,p.z+p.direction.x*.03));}
+    const positions=detail.wakes.geometry.attributes.position;
+    assert.ok(positions.count>0);for(let i=0;i<positions.count;i++)assert.ok(riverSurfaceContains(river.mesh.geometry,positions.getX(i),positions.getZ(i)),`level ${index}: wake vertex ${i}`);
+    assert.equal(JSON.stringify(level.rivers),original);
+    const rockMesh=detail.root.children.find(o=>o.isInstancedMesh);assert.ok(rockMesh.castShadow&&rockMesh.receiveShadow);let instanceDisposals=0;rockMesh.addEventListener('dispose',()=>instanceDisposals++);
+    const resources=detail.resources.slice();let disposed=0;for(const r of resources)r.addEventListener('dispose',()=>disposed++);
+    effects.setLevel(level,{rivers:[river]});assert.equal(disposed,resources.length);assert.equal(instanceDisposals,1,'rock instance buffers release on level replacement');assert.equal(JSON.stringify(effects.riverDetails[0].sites),sites);effects.dispose();
+  }
+});
+
+
+test('running-water ripple texture tiles seamlessly with short broken cross-current crests',()=>{
+  const effects=new WaterEffects(new THREE.Scene()),{data,width,height}=effects.flowMap.image;
+  const alpha=(x,y)=>data[(y*width+x)*4+3];
+  for(let i=0;i<width;i++){assert.equal(alpha(i,0),alpha(i,height-1));assert.equal(alpha(0,i),alpha(width-1,i));}
+  let crossings=0;for(let y=1;y<height;y++)if(alpha(0,y)>30&&alpha(0,y-1)<=30)crossings++;
+  assert.ok(crossings>=7,'short repeated ripples remain visible in the current');
+  let broken=0;for(let y=0;y<height;y++)if(Math.abs(alpha(0,y)-alpha(16,y))>35)broken++;
+  assert.ok(broken>10,'crests vary across the river rather than forming uniform parallel bars');effects.dispose();
+});

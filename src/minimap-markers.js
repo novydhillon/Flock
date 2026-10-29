@@ -1,5 +1,8 @@
 import { flockGroups } from './buddy.js';
 
+export const GOAL_POINTER_COLOR='#be8652';
+const markerGutter=16;
+
 // Equal-size components keep a deterministic primary flock, regardless of array order.
 export function minimapLivestockStates(level){
   const groups=flockGroups(level,level.animals.filter(a=>!a.saved));
@@ -10,7 +13,7 @@ export function minimapLivestockStates(level){
 }
 
 export function minimapProjection(bounds,dog,width,height,viewDepth){
-  const radius=Math.min(width,height)/2,innerRadius=radius-8;
+  const radius=Math.min(width,height)/2-markerGutter,innerRadius=radius-8;
   const span=Math.min(viewDepth,Math.max(bounds.maxX-bounds.minX,bounds.maxZ-bounds.minZ));
   const center=(p,min,max)=>max-min<=span?(min+max)/2:Math.max(min+span/2,Math.min(max-span/2,p));
   let x=center(dog.x,bounds.minX,bounds.maxX),z=center(dog.z,bounds.minZ,bounds.maxZ);
@@ -23,7 +26,7 @@ export function minimapProjection(bounds,dog,width,height,viewDepth){
 
 export function clipMinimap(ctx,width,height){
   ctx.clearRect(0,0,width,height);ctx.save();ctx.beginPath();
-  ctx.arc(width/2,height/2,Math.min(width,height)/2,0,Math.PI*2);ctx.clip();
+  ctx.arc(width/2,height/2,Math.min(width,height)/2-markerGutter,0,Math.PI*2);ctx.clip();
 }
 
 export function drawLivestockMarker(ctx,point,animal,state){
@@ -41,8 +44,8 @@ export function drawLivestockMarker(ctx,point,animal,state){
 export function drawGoalDirection(ctx,target,view){
   const p=view.project(target),dx=p.x-view.center.x,dy=p.y-view.center.y,d=Math.hypot(dx,dy);
   if(d<=view.innerRadius)return;
-  const ux=dx/d,uy=dy/d,x=view.center.x+ux*(view.innerRadius-1),y=view.center.y+uy*(view.innerRadius-1);
+  const ux=dx/d,uy=dy/d,x=view.center.x+ux*(view.radius+7),y=view.center.y+uy*(view.radius+7);
   ctx.beginPath();ctx.moveTo(x+ux*4,y+uy*4);
   ctx.lineTo(x-ux*4-uy*4,y-uy*4+ux*4);ctx.lineTo(x-ux*4+uy*4,y-uy*4-ux*4);ctx.closePath();
-  ctx.fillStyle='#b1ffbb';ctx.strokeStyle='#183027';ctx.lineWidth=1.5;ctx.fill();ctx.stroke();
+  ctx.fillStyle=GOAL_POINTER_COLOR;ctx.strokeStyle='#183027';ctx.lineWidth=1.5;ctx.fill();ctx.stroke();
 }

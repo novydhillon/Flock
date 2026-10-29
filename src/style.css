@@ -39,3 +39,10 @@
   :root { --tip-top: calc(var(--hud-top) + var(--map-diameter) + 10px); }
   .tip { top: var(--tip-top); left: 50%; width: min(340px, calc(100% - 32px)); transform: translateX(-50%); }
 }
+
+/* Transparent marker gutter lets the goal arrow orbit outside the round map. */
+:root{--map-orbit-gap:10px}
+.map-box{margin-top:var(--map-orbit-gap);box-shadow:none;filter:drop-shadow(0 4px 7px #142e3a55)}
+.map-box canvas{position:absolute;left:calc(var(--map-diameter) * -.07692308);top:calc(var(--map-diameter) * -.07692308);width:calc(var(--map-diameter) * 1.15384616);height:calc(var(--map-diameter) * 1.15384616);border-radius:0;background:transparent}
+
+.tip{margin-top:var(--map-orbit-gap)}

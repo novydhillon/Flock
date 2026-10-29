@@ -607,6 +607,10 @@ function animalGestureMaterial(source){
 }
 // Only the instance gesture buffer belongs to the level. Cached static buffers
 // remain shared; no geometry or material is created while a frame is updated.
+export function createAnimalGestureDepthMaterial(){
+  const source=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking}),material=animalGestureMaterial(source);
+  source.dispose();return material;
+}
 export function createAnimalGestureGeometry(source,count){
   const geometry=new THREE.BufferGeometry();geometry.index=source.index;
   for(const [name,attribute]of Object.entries(source.attributes))geometry.setAttribute(name,attribute);
@@ -735,7 +739,7 @@ export function createTree(variant = 0, maturity = 0) {
   wood.name = 'tree-wood';
   wood.userData.treeWidth = 1;
 
-  wood.castShadow = false; wood.receiveShadow = true;
+  wood.castShadow = wood.receiveShadow = true;
   tree.add(wood);
   tree.userData.forks = wood.geometry.userData.forks;
   const tips = wood.geometry.userData.tips, up = new THREE.Vector3(0, 1, 0);
