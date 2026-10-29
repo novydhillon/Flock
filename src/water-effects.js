@@ -159,7 +159,7 @@ export class WaterEffects {
     const rain=weather.type==='rain'?clamp(weather.rainIntensity??weather.intensity??0):0;
     this.wetness=clamp(this.wetness+rain*dt*.012-dt*(weather.type==='sun'?.004:.0012));
     this.applySurfaceWeather(weather);
-    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*f.speed*(1+this.waterActivity*2.6);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.195+this.waterActivity*.23+(weather.lightningFlash||0)*.04;}
+    for(const overlay of this.root.children)if(overlay.userData.flow){const f=overlay.userData.flow,map=overlay.material.map,speed=dt*f.speed*(0.7+this.waterActivity*3.2);map.offset.x=(map.offset.x+(f.localUV?0:Math.sin(f.heading))*speed)%1;map.offset.y=(map.offset.y+(f.localUV?1:Math.cos(f.heading))*speed)%1;overlay.material.opacity=.195+this.waterActivity*.23+(weather.lightningFlash||0)*.04;}
     // Any fixed rainy tier reaches full size within the expected level duration.
     // Intensity changes atmosphere density; it must not hide light-rain accumulation.
     if(rain>0)this.rainElapsed+=dt;
