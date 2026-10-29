@@ -221,11 +221,6 @@ export const CONFIG_CONTRACTS = freeze({
     }
   },
   "presentation": {
-    "vegetationShadows": {
-      "opacity": "number",
-      "color": "string",
-      "surfaceOffset": "number"
-    },
     "waterVegetation": {
       "bodyChance": "number",
       "maximumClumps": "integer",

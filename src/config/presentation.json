@@ -356,23 +356,5 @@
       "min": 0.1,
       "max": 4
     }
-  },
-  "vegetationShadows": {
-    "opacity": {
-      "value": 0.19,
-      "_comment": "Opacity of fixed baked grass and reed silhouettes; no realtime shadow map is used.",
-      "min": 0,
-      "max": 0.5
-    },
-    "color": {
-      "value": "#26392b",
-      "_comment": "Unlit tint of baked grass and reed shadows."
-    },
-    "surfaceOffset": {
-      "value": 0.0015,
-      "_comment": "World-space receiver offset in metres preventing ground/water depth fighting while remaining below water flow and wake overlays.",
-      "min": 0.0005,
-      "max": 0.002
-    }
   }
 }

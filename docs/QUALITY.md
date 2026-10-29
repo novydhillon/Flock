@@ -1262,3 +1262,10 @@ Initial full renderer runs were SIGKILLed: the existing deferred-cloud assertion
 Local validation reused existing dependency installation and preserves the earlier missing-binary snapshot limitation; source commits preserve unchanged remote binary assets and clean remote CI validates npm ci. No WebGL/device elimination-of-flicker, phone FPS or rendered appearance is claimed. Recording inspected for context only. Native camera-pan smoke acceptance remains pending, as does deployment; no main merge or publication requested.
 
 **Final local validation:** 556/556 regressions, zero failures/skips; 7/7 docs DOM checks; release 20 files/zero QA and development 22 files/two QA.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+**Shadow removal validation:** Standard checked dev build passed 553/553 regressions and 7/7 documentation DOM checks, both release/development artifact modes. Blind review explicitly waived by Novy. Exact source CI and dev publication evidence follow separately.

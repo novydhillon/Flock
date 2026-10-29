@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { bakeVegetationShadow } from './vegetation-shadows.js';
 import presentationSettings from './config/presentation.json' with { type: 'json' };
 import { resolveConfig } from './config/resolve.js';
 import { CONFIG_CONTRACTS } from './config/contracts.js';
@@ -121,11 +120,6 @@ export class WaterVegetation {
     this.addBatch(grass, new THREE.ConeGeometry(0.055, 1, 4), 0x66864b);
     this.addBatch(stems, new THREE.CylinderGeometry(0.018, 0.025, 1, 4), 0x627b43);
     this.addBatch(heads, new THREE.CylinderGeometry(0.045, 0.045, 1, 5), 0x72513a);
-    this.shadow = bakeVegetationShadow(this.root, this.meshes, {
-      receiverY: water.mesh.geometry.attributes.position.getY(0),
-      receiverGeometry: water.mesh.geometry,
-      bridges: water.bridges ?? [],
-    });
   }
 
   addBatch(poses, geometry, color) {
@@ -155,11 +149,6 @@ export class WaterVegetation {
       mesh.material.dispose();
     }
     this.meshes.length = 0;
-    if (this.shadow) {
-      this.shadow.geometry.dispose();
-      this.shadow.material.dispose();
-      this.shadow = null;
-    }
     this.root.clear();
   }
 }

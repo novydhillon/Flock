@@ -490,3 +490,8 @@ F-WATER-002: compare many seeded levels and restart each to confirm stable prese
 ## Grass/reed baked-shadow smoke check — 28 October 2026
 
 Compare the supplied recording with the corrected branch on the same phone. Slowly pan/turn the camera around in-water reeds and bank/field grass in portrait and landscape; static silhouettes must stay fixed without shadow-map shimmer. Inspect both banks, curved water edges and bridges: water shadows stay inside water and off decks. Confirm obstacle wakes continue moving with current/weather, plant placement remains seeded and animal shadows remain dynamic. Restart/jump levels and check resource stability. Automated geometry/flags checks do not establish observed elimination of flicker; native WebGL/device verification remains pending.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.

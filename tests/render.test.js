@@ -25,7 +25,6 @@ import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
 import {ViewShadows,treeDepthMaterial} from '../src/view-shadows.js';
-import {bakeVegetationShadow} from '../src/vegetation-shadows.js';
 
 test('fitted sun map contains ground receivers and upstream casters across aspect, zoom and distant travel',()=>{
   const sun=new THREE.DirectionalLight(),fit=new ViewShadows(),point=new THREE.Vector3(),ray=new THREE.Vector3();
@@ -87,7 +86,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={bakeVegetationShadow,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -1211,33 +1210,22 @@ test('landing camera retains original scale and scans occupied points slowly wit
 });
 
 
-test('grass and bank reeds use owned baked shadows through actual scenery batching and camera travel', () => {
-  const renderer = setup(), level = createLevel(23, 201);
-  renderer.setLevel(level);
-  const plants = renderer.sceneryBatches.filter(({ batch }) => batch.userData.decorativeGrass || batch.userData.bankReeds);
-  assert.ok(plants.some(({ batch }) => batch.userData.decorativeGrass));
-  assert.ok(plants.some(({ batch }) => batch.userData.bankReeds));
-  for (const { batch } of plants) {
-    assert.equal(batch.castShadow, false);
-    assert.equal(batch.receiveShadow, false);
+test('grass and bank reeds remain shadow-free through camera travel and level replacement', () => {
+  const renderer = setup();
+  for (const index of [23, 0]) {
+    renderer.setLevel(createLevel(index, 201));
+    for (const x of [-30, 0, 30]) {
+      renderer.camera.position.x = x;
+      renderer.camera.lookAt(x, 0, 0);
+      renderer.camera.updateMatrixWorld(true);
+      renderer.cullScenery();
+      const plants = renderer.sceneryBatches.filter(({ batch }) => batch.userData.decorativeGrass || batch.userData.bankReeds);
+      assert.ok(plants.length > 0);
+      for (const { batch } of plants) {
+        assert.equal(batch.castShadow, false);
+        assert.equal(batch.receiveShadow, false);
+      }
+      renderer.scene.traverse(mesh => assert.equal(Boolean(mesh.userData.bakedVegetationShadow), false));
+    }
   }
-  const shadows = renderer.terrain.children.filter(mesh => mesh.userData.bakedVegetationShadow);
-  assert.equal(shadows.length, plants.length);
-  const snapshots = shadows.map(mesh => mesh.geometry.attributes.position.array.slice());
-  const resources = shadows.flatMap(mesh => [mesh.geometry, mesh.material]);
-  let disposed = 0;
-  resources.forEach(resource => resource.addEventListener('dispose', () => disposed++));
-  for (const x of [-30, 0, 30]) {
-    renderer.camera.position.x = x;
-    renderer.camera.lookAt(x, 0, 0);
-    renderer.camera.updateMatrixWorld(true);
-    renderer.cullScenery();
-    shadows.forEach((mesh, i) => {
-      assert.equal(mesh.castShadow, false); assert.equal(mesh.receiveShadow, false);
-      assert.ok(mesh.userData.ownedGeometry && mesh.userData.ownedMaterial);
-      assert.deepEqual(mesh.geometry.attributes.position.array, snapshots[i]);
-    });
-  }
-  renderer.setLevel(createLevel(0, 201));
-  assert.equal(disposed, resources.length, 'level replacement disposes every owned baked geometry and material once');
 });

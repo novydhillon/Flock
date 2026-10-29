@@ -74,9 +74,10 @@ test('owned instanced plants stand above water, avoid realtime shadows and dispo
   mesh.position.set(3, 2, 4);
   const plants = new WaterVegetation(parent, { mesh }, eligibleSeed(geometry));
   assert.ok(plants.meshes.length > 0 && plants.meshes.length <= 3);
+  assert.equal(plants.root.children.length, plants.meshes.length, 'no baked shadow meshes');
   assert.deepEqual(plants.root.position, mesh.position);
   let disposed = 0;
-  const resources = [...plants.meshes.flatMap(batch => [batch, batch.geometry, batch.material]), plants.shadow.geometry, plants.shadow.material];
+  const resources = plants.meshes.flatMap(batch => [batch, batch.geometry, batch.material]);
   for (const resource of resources) resource.addEventListener('dispose', () => disposed++);
   const matrix = new THREE.Matrix4();
   for (const batch of plants.meshes) {

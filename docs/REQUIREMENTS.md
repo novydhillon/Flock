@@ -633,3 +633,8 @@ F-WATER-002: independently enable standing grass/reed clumps on 20% of water bod
 
 
 **F-WATER-002 static shadows — 28 October 2026:** Grass and reeds must use baked shadows rather than realtime shadow maps, avoiding camera-motion flicker. Bake static projected silhouettes once per level, retaining consistent sun direction and water/deck clipping. Thin plant meshes must not cast or receive realtime shadow-map sampling. Preserve current-responsive wakes.
+
+
+## F-WATER-002 grass/reed shadows removed — 28 October 2026
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
