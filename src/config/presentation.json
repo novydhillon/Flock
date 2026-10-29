@@ -20,21 +20,27 @@
     },
     "fogNear": {
       "value": 95,
-      "_comment": "World distance at which scene fog begins.",
+      "_comment": "Retained legacy fog near distance; distance fog is currently disabled.",
       "min": 0,
       "max": 1000
     },
     "fogFar": {
       "value": 195,
-      "_comment": "World distance at which scene fog is complete.",
+      "_comment": "Retained legacy fog far distance; distance fog is currently disabled.",
       "min": 1,
       "max": 2000
+    },
+    "environmentSaturation": {
+      "value": 1.125,
+      "_comment": "Environment-only saturation multiplier before tone mapping; actors and UI retain their original colors.",
+      "min": 0,
+      "max": 2
     }
   },
   "lighting": {
     "skyDay": {
       "value": "#bdd6df",
-      "_comment": "Clear-day scene and fog color."
+      "_comment": "Clear-day scene background color."
     },
     "skyStorm": {
       "value": "#899da7",

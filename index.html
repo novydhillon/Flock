@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f1e4"><meta name="description" content="A cheerful 3D herding adventure. One little robot dog. A whole meadow of mischief."><title>FLOCK · Meadow machines</title><link rel="icon" type="image/svg+xml" href="./icons/pip.svg?v=2">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#779c4d"><meta name="description" content="A cheerful 3D herding adventure. One little robot dog. A whole meadow of mischief."><title>FLOCK · Meadow machines</title><link rel="icon" type="image/svg+xml" href="./icons/pip.svg?v=2">
 <link rel="icon" type="image/png" sizes="32x32" href="./icons/pip-32.png?v=2">
 <link rel="icon" type="image/png" sizes="16x16" href="./icons/pip-16.png?v=2">
 <link rel="icon" type="image/png" sizes="48x48" href="./icons/pip-48.png?v=2">
@@ -10,21 +10,32 @@
 <link rel="apple-touch-icon" sizes="167x167" href="./icons/pip-167.png?v=2">
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/pip-180.png?v=2">
 <meta name="apple-mobile-web-app-title" content="Flock">
+<!-- Keep system status-bar chrome opaque instead of overlaying a translucent fade on play. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="./site.webmanifest"></head>
 <body>
 <canvas id="world" aria-label="3D robotic animal herding meadow"></canvas>
-<div id="loading"><div class="brand">FLOCK<span>MEADOW MACHINES</span></div><p>Waking up the meadow…</p></div>
+<div id="loading" role="region" aria-label="Loading the meadow" aria-busy="true" style="position:fixed;inset:0;z-index:100;background:#f5f1e4;display:flex;align-items:center;justify-content:safe center;flex-direction:column;text-align:center">
+<div class="brand">FLOCK<span>MEADOW MACHINES</span></div>
+<svg class="loading-vignette" viewBox="0 0 290 145" width="290" height="145" aria-hidden="true">
+<defs><linearGradient id="loading-clay" x2="0" y2="1"><stop stop-color="#fffdf1"/><stop offset="1" stop-color="#d5d8bd"/></linearGradient><linearGradient id="loading-metal" x2="0" y2="1"><stop stop-color="#e3e7db"/><stop offset="1" stop-color="#9cac9e"/></linearGradient></defs>
+<ellipse cx="145" cy="116" rx="130" ry="25" fill="#a5bb78"/><ellipse cx="79" cy="110" rx="33" ry="7" fill="#58784d" opacity=".2"/>
+<g class="loading-pip"><rect x="52" y="74" width="48" height="25" rx="12" fill="url(#loading-metal)"/><path d="M57 83L46 73" stroke="#9cac9e" stroke-width="8" stroke-linecap="round"/><rect x="82" y="53" width="39" height="34" rx="12" fill="url(#loading-metal)"/><path d="M87 56L85 43M111 55L117 44" stroke="#95a596" stroke-width="9" stroke-linecap="round"/><rect x="91" y="63" width="25" height="13" rx="6" fill="#35584b"/><circle cx="98" cy="69" r="2" fill="#bcddbc"/><circle cx="109" cy="69" r="2" fill="#bcddbc"/><path d="M63 98L60 104M91 98L94 104" stroke="#e4bd6c" stroke-width="5" stroke-linecap="round"/></g>
+<g class="loading-sheep"><path d="M151 106v9m25-9v9" stroke="#89937c" stroke-width="5" stroke-linecap="round"/><rect x="137" y="79" width="49" height="30" rx="15" fill="url(#loading-clay)"/><circle cx="146" cy="83" r="10" fill="#eeefdd"/><circle cx="163" cy="80" r="11" fill="#f8f7e9"/><rect x="176" y="87" width="21" height="22" rx="8" fill="#a1ad91"/><circle cx="190" cy="94" r="2" fill="#35584b"/></g>
+<g class="loading-sheep"><path d="M216 111v9m24-9v9" stroke="#89937c" stroke-width="5" stroke-linecap="round"/><rect x="203" y="85" width="47" height="28" rx="14" fill="url(#loading-clay)"/><circle cx="212" cy="88" r="9" fill="#f8f7e9"/><circle cx="229" cy="85" r="10" fill="#eeefdd"/><rect x="239" y="94" width="20" height="21" rx="8" fill="#a1ad91"/><circle cx="252" cy="101" r="2" fill="#35584b"/></g></svg>
+<p id="loading-status" role="status" aria-live="polite" aria-atomic="true">Waking up the meadow...</p><p id="loading-detail"></p><button id="loading-retry" type="button" hidden>Retry</button></div>
 <header class="topbar"><a class="brand" href="#" id="home">FLOCK<span>MEADOW MACHINES</span></a><div class="top-actions"><button id="wallet" aria-label="Open upgrades"><span class="coin">✦</span> <span id="points">0</span><span class="desktop-label"> bolts</span></button><button class="icon-button" id="sound" aria-label="Mute music">♫</button><button class="icon-button" id="pause" aria-label="Pause game">Ⅱ</button><button class="icon-button hidden" id="toggle-tip" aria-label="Show tips" aria-expanded="false">?</button></div></header>
 <section id="mission" class="mission hidden" aria-label="Mission status"><div class="mission-heading"><span id="weather-status" class="weather-status" role="img" title="Clear skies" aria-label="Clear skies">☀</span><span class="counter" role="group" aria-label="Livestock delivered"><span id="saved">0</span>/<span id="total">5</span></span></div><span id="countdown" class="hidden" role="timer" aria-label="Delivery countdown"></span></section>
 <section id="level-introduction" class="level-introduction hidden" aria-live="polite"><h1 id="level-number">Level 1</h1></section>
 <div class="scene-tag" id="scene-tag"><span class="live-dot"></span> A little countryside. A lot of personality.</div>
-<aside id="map-box" class="map-box hidden"><canvas id="map" width="240" height="160" aria-label="Meadow map with dog, flock, crossings and destination"></canvas></aside>
-<section id="intro" class="intro"><div class="intro-copy"><div class="eyebrow">SMALL DOG. BIG DAY.</div><h1>Home is where<br>the <em>flock</em> is.</h1><p>Meet Pip. Part sheepdog, part machine.<br>Round up your woolly robots and bring<br class="desktop-label"> a little order to the countryside.</p><div class="intro-actions"><button id="play" class="primary">Let’s herd <span>➜</span></button><button id="restart-game-main" class="secondary danger">Restart Game</button></div><div class="intro-meta"><span>3D meadow adventures</span><span>Made for one thumb</span></div></div><div class="intro-note"><span class="note-icon">☀</span><div>Take the scenic route.<small>First arrival starts the final roundup.</small></div></div></section>
+<aside id="map-box" class="map-box hidden"><canvas id="map" width="240" height="240" aria-label="Meadow map with dog, flock, crossings and destination"></canvas></aside>
+<section id="intro" class="intro"><div class="intro-copy"><div class="eyebrow">SMALL DOG. BIG DAY.</div><h1>Home is where<br>the <em>flock</em> is.</h1><p>Guide robot sheep and cows home with Pip,<br class="desktop-label"> your little machine sheepdog. Unlock Buddy<br class="desktop-label"> along the way for a helping paw.</p><div class="intro-actions"><button id="play" class="primary">Let’s herd <span>➜</span></button><button id="choose-meadow" class="secondary">Choose meadow</button></div><div class="intro-meta"><span>3D meadow adventures</span><span>Made for one thumb</span></div></div><div class="intro-note"><span class="note-icon">☀</span><div>Take the scenic route.<small>First arrival starts the final roundup.</small></div></div></section>
 <div id="tip" class="tip hidden"><span class="tip-number">01</span><p id="tip-text">Drag with your thumb to move Pip.</p><button id="dismiss-tip" aria-label="Dismiss tip">×</button></div>
-<div id="controls" class="controls hidden"><div id="joystick" role="application" aria-label="Drag to move Pip"><div class="joystick-ring"><i id="stick"></i></div></div><div class="control-right"><button id="bark" class="bark" aria-label="Bark to gather the flock"><strong>Woof!</strong><span aria-hidden="true">⌁</span></button></div></div>
+<div id="controls" class="controls hidden"><div id="joystick" role="application" aria-label="Drag to move Pip"><div class="joystick-ring"><i id="stick"></i></div></div><div class="control-right"><span id="bark-ready" class="sr-only" role="status" aria-live="polite"></span><button id="bark" class="bark" aria-label="Bark to gather the flock"><strong>Woof!</strong><span aria-hidden="true">⌁</span></button></div></div>
 <div id="toast" role="status" class="toast hidden"></div>
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Game menu"><section class="modal-card" id="modal-card"></section></div>
 <div id="error" class="modal hidden"><section class="modal-card"><div class="eyebrow">THE MEADOW NEEDS A HAND</div><h2>Couldn’t start the 3D world.</h2><p id="error-message">Please use a browser with WebGL 2 enabled.</p><button onclick="location.reload()" class="primary">Try again</button></section></div>
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="/src/bootstrap.js"></script>
 </body></html>
 

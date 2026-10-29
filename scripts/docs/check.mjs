@@ -43,7 +43,7 @@ for(const id of issueIds)if(!req.includes(id))errors.push(`Missing requirement t
 const closedIssue=readFileSync(resolve(root,'docs/ISSUES_CLOSED.md'),'utf8');
 const overviewRows=text=>[...text.matchAll(/^\| ((?:~~)?F-(?:[A-Z]+-)?\d{3}(?:~~)?) \|(.+)$/gm)]
   .map(m=>({id:m[1].replaceAll('~~',''),cells:[m[1],...m[2].split('|').slice(0,-1)].map(c=>c.trim())}));
-const overviewSection=(text,heading)=>text.split(heading+'\n')[1]?.split(/^## /m)[0]||'';
+const overviewSection=(text,heading)=>text.replaceAll('\r\n','\n').split(heading+'\n')[1]?.split(/^## /m)[0]||'';
 const activeRows=overviewRows(overviewSection(issue,'## Work overview'));
 const closedRows=overviewRows(overviewSection(closedIssue,'## Closed work overview'));
 for(const [label,rows] of [['active',activeRows],['closed',closedRows]]){

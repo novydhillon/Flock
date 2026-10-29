@@ -14,7 +14,7 @@ export class MeadowNature {
  constructor(scene){this.scene=scene;this.root=new THREE.Group();this.root.name='Meadow nature';scene.add(this.root);this.resources=new Set();this.time=0;this.wildlife=[];this.batches={};this.transform=new THREE.Object3D();this.birdRoot=new THREE.Matrix4();this.birdFeetRoot=new THREE.Matrix4();this.partMatrix=new THREE.Matrix4();}
  own(r){this.resources.add(r);return r;}
  clear(){this.root.traverse(o=>{if(o.isInstancedMesh)o.dispose();});this.root.clear();this.resources.forEach(r=>r.dispose());this.resources.clear();this.rainView?.dispose();this.rainView=null;this.wildlife=[];this.batches={};this.precipitation=null;}
- batch(name,geo,mat,count){const m=new THREE.InstancedMesh(geo,mat,count);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;this.root.add(m);this.batches[name]=m;return m;}
+ batch(name,geo,mat,count){const m=new THREE.InstancedMesh(geo,mat,count);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;m.castShadow=m.receiveShadow=true;this.root.add(m);this.batches[name]=m;return m;}
  setLevel(level){this.clear();this.level=level;this.time=0;this.weather=createWeatherState(level);const rand=seeded((level.seed||42)+71053),b=level.bounds,w=b.maxX-b.minX,d=b.maxZ-b.minZ,threats=[level.dog||level.spawn,...(level.animals||[])].filter(Boolean);
   const sphere=this.own(new THREE.SphereGeometry(1,10,8));
   const counts=wildlifePopulation(level);

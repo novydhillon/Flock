@@ -1,5 +1,11 @@
 # Development, QA and release context
 
+## Minimap, river and shadow smoke checks - 28 October 2026
+
+For F-UI-017, inspect the goal pointer at all bearings, including map corners and near-cardinal angles, at the smallest supported viewport and in phone portrait/landscape. Confirm the pointer stays fully outside the circular map, tracks the goal direction, matches Pip's brown, and is not clipped by the canvas or card. Check resizing and level changes.
+
+For F-WATER-001, compare the same seeded level in clear sun, cloud, rain and storm: sunny river color should retain the accepted baseline, while worsening weather visibly darkens water and strengthens/faster-running ripples. Inspect bends, seeded rocks, each bridge and both bank footings: rocks sit within water and wakes follow the current, clipped to the river surface without spilling across banks/bridge decks. Pause/resume and jump/restart levels to check stable scenery and bounded resources; confirm existing crossing/collision behavior. For F-RENDER-001, inspect rabbits, squirrels, flying and grounded birds, trees, bushes and other reported props in varied sun/weather and at normal phone zoom; shadows should align with lighting/ground and move with wildlife without adding cloud shadows. These rendered, touch and phone-performance checks remain pending; source tests and shader/resource checks are not visual or device evidence.
+
 ## Persistent launch regression remains Open — 26 October 2026
 
 F-AUDIO-003 records Novy's current browser and iOS Home Screen observation: music stays silent on launch until audio is turned off and on. The earlier launch-recovery smoke steps below remain unmet device acceptance work; passing mock activation tests must not be described as a physical fix. The soundtrack feature is accepted for main merge independently of this defect. No production deployment is authorized by that merge request.
@@ -214,11 +220,11 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/chokepoints.test.js` | Mixed-crowd deck crossing without surging, lanes, open gate and entrance queues, opposing groups, early commit rules, player turn-back inside and outside the commit zone, bounded yielding, state cleanup and large-herd spacing |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
 | `tests/deploy-pages.test.js` | Validated relative assets, destination guards, byte-preserving plans and concurrent-publication rejection |
-| `tests/render.test.js` | Geometry, camera matrices, culling, batches and disposal |
+| `tests/render.test.js` | Geometry, camera matrices, culling, batches, fitted sun shadows, animated shadow-depth poses and disposal |
 | `tests/nature.test.js` | Wildlife, weather, resource budgets and cleanup |
 | `tests/weather.test.js` | Seeded weather episodes, shared severity, lightning and atmosphere resources |
 | `tests/wandering.test.js` | Seeded straggler cohorts, five-second opportunities and conditional bolts |
-| `tests/water-effects.test.js` | Wetness/drying, pause/reset, safe puddles, bounded splashes and directional river flow |
+| `tests/water-effects.test.js` | Wetness/drying, pause/reset, safe puddles, bounded splashes, weather-driven ripple flow and clipped rock/footing wakes |
 | `tests/audio.test.js` | Audio activation races, idempotent soundtrack transport, scene-only pause, scheduling, ambience and disposal; shared WebAudio fixture in `tests/audio-fixture.js` |
 
 ```sh
@@ -453,3 +459,24 @@ To add a setting, give it a documented descriptor in the owning area, add its ex
 Install dependencies with `npm ci` in a fresh checkout using Node.js 22 or newer. Run focused tests for the changed owner and configuration validation, then `npm run build:checked:dev`. That shared command checks documentation, the full test suite, release QA exclusion and development QA inclusion. After editing this guide or another generated-page Markdown file, run `npm run docs:build` before the checked build; commit the regenerated HTML and search index with the Markdown.
 
 Reload the rebuilt application to use the new immutable values. A startup error names the invalid area and path; repair that descriptor or its intentionally changed contract before proceeding. Preserve pause, resume, restart, persisted progress and seeded behavior when extracting or moving configuration. Record actual browser, phone, rendering and listening checks separately from automated results. F-AUDIO-003 remains Open; this refactor does not establish audio launch recovery.
+
+## P2 UI candidate device smoke checks - 28 October 2026
+
+On a phone, test fresh, returning, completed and reset profiles: Start/Continue destination, 20-level selector paging, locked/completed/current states and preserved browsing page. Verify reset remains in settings and still confirms before clearing. Compare current/next costs, unlock labels, inactive-owned messaging and Buddy/bark illustrative previews; ensure preview motion does not trigger real bark or purchases. Observe initial load, slow-load prompt, retry and WebGL2 failure surface; check safe areas, short landscape, reduced motion, focus and that input cannot pass through loading. Confirm the showcase does not change campaign timer/rewards and Buddy appears only when eligible. During play, test bark ready feedback and minimap state shapes/colors while animals split and deliver. Check numbered tips at top, joystick idle at viewport center/bottom-third and relocation/restore after touch release, cancel, lost capture, resize, pause and background; verify QA control is bottom-left and absent in release. Confirm circular map edge clipping and actor readability. Record rendered appearance, touch feel and FPS only after native observation. Source candidate focused checks passed (loading 5, landing 5, minimap 6, UI/QA 55); local native-browser preview timed out, so these device checks remain pending.
+
+On Windows, invoke the checked build through `npm run build:checked:dev` or `npm run build:checked:production`, which supplies `npm_execpath` for the Node-based npm invocation. The direct `node scripts/build-checked.mjs` form is used by Linux CI; it is not the Windows entry point.
+
+## F-UI-015 landing and presentation smoke checks - 28 October 2026
+
+Compare the follow-up with the supplied screenshots in phone portrait and landscape. Numbered tips must sit immediately below the circular minimap without covering mission status, Pause or movement controls; dismiss/reopen tips and rotate the screen. Check that the previous upper-screen color fade is absent and that the 25% vibrancy increase keeps weather, paths, rivers, actors and HUD readable.
+
+Reload or quit to landing repeatedly: field size and flock presentation should vary, with the complete appropriate flock spread safely over grass. Animals should graze immediately with varied headings rather than line up or face one direction. Watch Pip wander slowly without moving the livestock, crossing barriers or walking through them. Background/pause and return, then Start/Continue, replay and quit; saved progression, bolts, upgrades and delivery timers must remain correct. Confirm reduced-motion handling and no accumulating renderer/audio loops. These are pending observed-device checks, not claims derived from source tests.
+
+## F-UI-016 phone smoke checks - 28 October 2026
+
+Verify original-scale landing framing in both orientations; watch camera move slowly between occupied areas, never zooming to encompass the map. Observe both Pip and decorative Buddy moving and resting while livestock remain calmly grazing across fields. Pause/background and resume without camera jumps, accumulated movement or progress/reward changes. Compare Safari and Home Screen launch status-bar region behind clock/signal/battery. Confirm a flat system-bar presentation, legible icons and safe-area controls; test existing installation and fresh installation only if cached configuration persists. Record device/OS and actual result; metadata tests do not establish native status-bar behavior.
+
+
+## P2 UI acceptance and main merge — 28 October 2026
+
+Novy explicitly accepted the implemented `feat/p2-ui` batch and requested main merge and sign-off. Eighteen Review items move in full to [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8` is ahead of main with no divergence; exact source CI 40820686979 succeeded. Runtime is unchanged by closure. Earlier pending acceptance wording is historical; no new physical device or FPS result is claimed. Terrain and unrelated open defects remain active. This merge does not publish production. Closure uses the session model and inherited effort; fresh documentation review and regenerated documentation validation follow.

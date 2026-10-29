@@ -6,6 +6,10 @@ This file contains active work only. The fourteen P1 items and three follow-ups 
 
 F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). The user authorized its main source merge; F-AUDIO-003 remains Open.
 
+## P2 UI acceptance — 28 October 2026
+
+The 18 implemented UI, water and shadow items on `feat/p2-ui` are accepted and archived in [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Historical Review/pending acceptance statements are superseded for this batch. Terrain work and unrelated open items retain their states.
+
 ## Tracker lifecycle and ownership
 
 1. Read [AGENTS.md](../AGENTS.md), [development rules](DEVELOPMENT.md), current requirements and this tracker before implementation. Public level numbers are one-based.
@@ -22,21 +26,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-RENDER-001 | P2 | Rendering defect | Missing wildlife and environment shadows | Open | Existing lighting; F-015 |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
-| F-UI-001 | P2 | Gameplay UI | Clear bark cooldown-to-ready feedback | Open | Existing Woof/cooldown UI; coordinate F-050 |
-| F-UI-002 | P2 | Gameplay UI | Distinct livestock states on the minimap | Open | Accepted top-center minimap; existing delivery/flock state |
-| F-UI-003 | P2 | Workshop UI | Current-to-next upgrade benefits and previews | Open | Existing tier availability/costs; F-050 descriptions |
-| F-UI-004 | P2 | Loading | Clay meadow loading vignette | Open | Current loading overlay; F-UI-005/006 |
-| F-UI-005 | P2 | Loading | Honest initialization progress | Open | Actual asset/renderer initialization tasks |
-| F-UI-006 | P2 | Loading | Smooth reveal of the ready meadow | Open | F-UI-005; existing scene initialization |
-| F-UI-007 | P2 | Loading/recovery | Retry and clear loading-error recovery | Open | Initialization/error handling; F-UI-005 |
-| F-UI-008 | P2 | Landing | Progress-aware Start or Continue action | Open | Saved campaign progression; existing begin/resume behavior |
-| F-UI-009 | P2 | Landing | Living showcase meadow | Open | Existing intro simulation; bird/herd/companion future features when available |
-| F-UI-010 | P2 | Landing/settings | Move full-game reset out of the Play area | Open | Existing reset confirmation; F-UI-011 |
-| F-UI-011 | P2 | Landing/navigation | Clear meadow selector with remembered browsing position | Open | Existing unlocked-level picker and saved progress |
-| F-UI-012 | P2 | Landing/content | Introduction copy for sheep, cows, Pip and Buddy | Open | Current landing copy; Buddy ownership/unlock context |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
@@ -149,49 +140,49 @@ Planning requested by Novy; **all F-BIRD items are Open, unassigned and not impl
 
 ### F-BIRD-001 — Bird states and seeded population (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** one authoritative bird state machine supports flight, approach/landing, ground idle/pecking, perched quiet/chirp and takeoff/flee. States have bounded randomized dwell times and legal transitions, with interrupted landing safely returning to flight. Population and behavior RNG are reproducible without changing existing level/herd streams; no duplicate legacy bird population remains. Threats take precedence over ground pecking. State must be testable separately from rendering and audio.
 
 ### F-BIRD-002 — Clay birds and animated transitions (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** birds match the current handmade clay style and remain legible at normal gameplay zoom. Flight has visible wing beats; takeoff gains height and landing decelerates to the actual surface, with wings settling when grounded/perched. Ground pecking visibly lowers the head/beak toward food with pauses. Feet align with the support surface, and silhouettes do not hover, sink or snap between flight and rest. Pause freezes animation. Ordinary phone-scale appearance requires rendered user review.
 
 ### F-BIRD-003 — Safe ground and elevated landing sites (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** birds find reachable dry ground for pecking, usable tree branches, fence tops and explicitly supported structure tops (initially stone-wall tops and barn roof edges where present). Support positions use actual world transforms/heights, including rotated/scaled trees and fences. Birds do not land in water, inside trunks/foliage/solid structures, on unsupported air, or through roofs. Air trajectories clear obstacles; invalid/occupied anchors are skipped with bounded search and a safe continue-flying fallback. Reserve elevated anchors to prevent overlapping perched birds. Opening a supporting gate or otherwise losing a support causes safe takeoff rather than floating. Ground birds do not block gameplay actors.
 
 ### F-BIRD-004 — Conditional ground-bird fleeing (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** nearby Pip or active Buddy triggers ground-bird takeoff and flight away from the threat, including during pecking/ground landing. Nearby livestock trigger takeoff only when moving quickly toward the bird; grazing or slow movement alone leaves the bird grounded. Use actual velocity and closing direction/proximity so distant, stationary or fast-moving-away livestock do not falsely startle birds. Dog threats override calm livestock; multiple threats produce a safe escape direction. Cooldown/hysteresis prevents immediate relanding beside a threat or repeated takeoff/landing flicker. Verify sheep and all four cow sizes; preserve existing livestock/companion behavior. Elevated birds also respond to barking under F-BIRD-011; other elevated-perch proximity reactions remain unspecified.
 
 ### F-BIRD-005 — Perched chirping and quiet sitting (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** tree-perched birds chirp intermittently with natural quiet gaps. Fence/structure birds can chirp or sit quietly. Schedule calls from actual visible, eligible perched birds, with distance-aware audibility and bounded concurrent voices; reconcile the existing generic ambient bird loop to avoid duplicate/orphan calls. Honor sound settings, pause/backgrounding, weather shelter and restart/level disposal. Enabling audio after interaction must not replay a backlog. Source scheduling checks and a listening check are separate evidence.
 
 ### F-BIRD-006 — Rare tree nest (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** a dedicated per-level seeded roll succeeds with probability 0.10 and selects exactly one eligible tree; failure or no trees yields zero nests. The rule is independent of tree count and does not make a roll for every tree. Restarting the same level preserves nest presence/location. A nest fits the clay style, rests in a supported branch fork, respects tree size/rotation and can be seen from a useful camera angle without changing the tree mesh or route clearance. Tests cover roll boundaries, zero/one/many trees, restart stability and unchanged original world/herd generation. A random sample is not expected to contain exactly 10% nests.
 
 ### F-BIRD-007 — Weather, lifecycle and resource integration (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** fixed storms contain no birds and no bird calls; current light-rain activity/heavy-weather shelter is preserved. All bird states freeze on pause and reset cleanly on restart, level jump, results and disposal, with no stale perch reservations/audio. Shared geometry/materials, capped actors/voices, bounded landing searches and sensible culling keep cost measurable. Offscreen birds and nests do not leak resources. Confirm wildlife additions do not change gameplay collisions, saved progress, delivery or other fauna. Record source resource checks separately from measured phone FPS.
 
 ### F-BIRD-008 — Validation, blind review and dev sign-off (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** meaningful state/trajectory/perch/threat/nest/audio/weather tests pass along with full regressions, both build/artifact modes and generated documentation checks. Exercise Pip and Buddy separately, grazing/slow/fast approaching livestock, fast receding livestock, interrupted landings, multiple threats, no valid perch, varied trees/fences/structures, weather and pause/restart. Use independent implementation ownership for substantial work and a fresh blind reviewer under AGENTS.md; resolve blockers and meet the standing 9/10 threshold. Record actual models/effort and validation limits. After development publication is authorized, publish only to `/Flock/dev/` and verify CI, native Pages and live asset hashes. Leave implemented issues in Review for Novy's phone appearance/motion/listening sign-off; only then mark Done and strike through closed rows/headings. Production merge/publication requires separate user authorization.
 
@@ -200,11 +191,11 @@ Planning requested by Novy; **all F-BIRD items are Open, unassigned and not impl
 
 ## Bird feature additions — 18 October 2026, 21:47 America/Creston
 
-Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2, Open, unassigned and not implemented. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
+Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
 
 ### F-BIRD-009 — Small social foraging groups (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on:** F-BIRD-001; F-BIRD-004.
 
@@ -212,7 +203,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 ### F-BIRD-010 — Ground hops and perched idle gestures (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on:** F-BIRD-002; F-BIRD-003.
 
@@ -220,7 +211,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 ### F-BIRD-011 — React to Pip and Buddy barking (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on:** F-BIRD-004; F-BIRD-005.
 
@@ -228,7 +219,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 ### F-BIRD-012 — Occasional visits to the nest (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on:** F-BIRD-003; F-BIRD-006.
 
@@ -236,7 +227,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 ### F-BIRD-013 — Two or three recognizable bird varieties (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on:** F-BIRD-002; F-BIRD-005.
 
@@ -244,7 +235,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 ### F-BIRD-014 — Gradual return after the meadow settles (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on:** F-BIRD-003; F-BIRD-004; F-BIRD-009; F-BIRD-011.
 
@@ -257,13 +248,13 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 **Historical planning record:** the Open/unimplemented status statements in this planning introduction are superseded by the 19 October execution records, current overview and individual issue details. F-COMP-001/002/003/007/009/010 are now Done in [Closed issues](ISSUES_CLOSED.md), accepted 22 October 2026; F-COMP-004/005/006/008 remain Open.
 
-Novy requested tracking all eight suggested improvements. **F-COMP-001–008 are P2, Open, unassigned and not implemented.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).
+Novy requested tracking all eight suggested improvements. **F-COMP-001–008 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).
 
 Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reopening completed fixes. No second Buddy, upgrade pricing, new control scheme, automated Pip navigation or new gameplay resource is included. This request adds tracker scope only; runtime implementation, review and publication remain future work.
 
 ### F-COMP-004 — Clear attention and working intent (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on / preserve:** F-061 accepted head/body motion; F-COMP-002.
 
@@ -271,7 +262,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-005 — Bark pose and recovery gesture (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on / preserve:** Existing actual Pip/Buddy bark events and feedback.
 
@@ -279,7 +270,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-006 — Distinct Pip and Buddy personalities (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on / preserve:** F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004.
 
@@ -287,7 +278,7 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 
 ### F-COMP-008 — Brief shared arrival celebration (P2)
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Depends on / preserve:** F-COMP-006; existing full-completion/results flow.
 
@@ -296,114 +287,6 @@ Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reop
 **Shared validation and acceptance:** test all Buddy tiers, absent/inactive Buddy, split/merged/stopped/reversing flocks, all cow sizes, tree detours, narrow gates, rotated bridges, last-animal passage, stray retrieval, simultaneous barks and transitions among work/standby/results. Verify controller responsiveness, low-speed continuity, physical collisions, Pip-at-goal scoring, bark event ownership, pause/background/resume/restart and clean task/animation state. Resolve pose priorities across attention, idle, bark and celebration before integration. Follow AGENTS.md independent ownership/blind gauntlet for substantial runtime work, meaningful focused/full regressions and both artifact-mode checks. Record source evidence separately from phone motion, touch usability, listening and FPS. Leave implementations in Review until Novy's sign-off. Authorized non-main publication targets `/Flock/dev/`; production merge/publication requires separate authorization.
 
 **Planning handoff:** routine documentation-only additions with generated documentation/link/behavior checks; no runtime implementation, performance claim or runtime blind review. Remote publication remains blocked by the previously reported automatic approval rejection requiring explicit push authorization for `novydhillon/Flock`; no new push is attempted for this local commit.
-
-
-## Gameplay, loading and landing UI plan — 18 October 2026, 21:57 America/Creston
-
-Novy requested tracking the twelve remaining suggestions and explicitly skipped **contextual gate controls, cleaner results and control preferences**. Those three suggestions are not new work items in this batch; this exclusion does not close or cancel unrelated existing tracker issues. **F-UI-001–012 are P2, Open, unassigned and not implemented.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`; runtime owner/feature branch to be claimed from current main when scheduled. UI-scoped IDs avoid concurrent numeric-ID collisions.
-
-Prioritize progress-aware Continue (008), moving full-game reset (010), loading recovery (007) and workshop clarity (003). Retain the approved cream/green/clay visual language, minimal weather/livestock HUD, Level # introduction, top-center minimap, numbered tips, circular Woof and production QA exclusion. Respect existing reduced-motion behavior when animating; this is not authorization to add the skipped control-preference/settings feature. Optional bark haptics remain within the explicitly retained bark-feedback suggestion.
-
-### F-UI-001 — Clear bark cooldown-to-ready feedback (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing Woof/cooldown UI; coordinate F-050.
-
-**Accept when:** Make the transition from cooldown to ready unmistakable through a brief restrained visual accent; optional light haptics may supplement it where supported. Preserve the circular Woof button, readable cooldown, existing input/cooldown behavior and independent Buddy bark. Readiness must match actual ability to bark, including any future F-050 multi-bark tier. Unsupported haptics must be harmless and never required; no automatic sound or vibration during loading, pause or backgrounding. Do not change bark balance or add control-preference scope.
-
-### F-UI-002 — Distinct livestock states on the minimap (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Accepted top-center minimap; existing delivery/flock state.
-
-**Accept when:** Distinguish undelivered, delivered and separated livestock using shape or outline as well as color, readable at normal phone size. Derive separation from actual flock grouping rather than a contradictory UI-only grouping rule. Preserve map size/position, routes, goal and actor contrast, with no extra permanent HUD panel or overlap in narrow portrait/landscape. Delivered counts and markers reflect actual simulation state; do not modify flock behavior.
-
-### F-UI-003 — Current-to-next upgrade benefits and previews (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing tier availability/costs; F-050 descriptions.
-
-**Accept when:** Show current and next-tier benefits, cost and unlock requirements together with clear maxed/unaffordable/locked states. Add small visual previews for Buddy and bark upgrades without implying ownership or changing gameplay. Keep purchased-but-inactive tier messaging accurate on earlier levels and isolated QA sessions. Values come from actual upgrade definitions; retain hidden drone, existing prices/progression and safe purchase behavior. Previews stop/reset appropriately and do not activate real barks or persist a purchase.
-
-### F-UI-004 — Clay meadow loading vignette (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Current loading overlay; F-UI-005/006.
-
-**Accept when:** Show a small clay-style vignette of hovering Pip beside a few subtly moving sheep. Display it promptly without depending on the full game renderer or adding a substantial new blocking asset download. A static fallback remains readable if animation/graphics are unavailable. Honor existing reduced-motion preferences, pause animation when hidden and dispose it after load; keep loading status and recovery controls clear.
-
-### F-UI-005 — Honest initialization progress (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Actual asset/renderer initialization tasks.
-
-**Accept when:** Show meaningful loading stages based on real initialization events. Use a percentage only for a measurable known workload; otherwise show a clear indeterminate state without fake progress or a stalled 99% counter. Announce stage changes accessibly without excessive repetition. Distinguish slow work from failure and do not claim readiness until essential assets, renderer and initial scene are usable.
-
-### F-UI-006 — Smooth reveal of the ready meadow (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** F-UI-005; existing scene initialization.
-
-**Accept when:** Transition smoothly from loading into the ready landing meadow with no unnecessary minimum wait, blank flash or visibly uninitialized scene. Release the overlay after a usable frame is ready, and prevent clicks passing through it during the transition. Honor reduced motion and work on fast cached loads, slow first loads and narrow/rotated screens. Do not start gameplay or audio without the intended user action.
-
-### F-UI-007 — Retry and clear loading-error recovery (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Initialization/error handling; F-UI-005.
-
-**Accept when:** Provide a usable Retry action and concise understandable failure explanation. Distinguish unsupported graphics from recoverable loading/initialization failures where evidence allows, avoiding a generic WebGL claim for every error. Retry safely cancels/disposes prior work, avoids duplicate loops/audio/listeners and preserves all saved progress, currency and upgrades. Failure UI works even if the 3D renderer cannot initialize; do not require clearing saves to recover.
-
-### F-UI-008 — Progress-aware Start or Continue action (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Saved campaign progression; existing begin/resume behavior.
-
-**Accept when:** Show Start herding for a new player and Continue · Level # for a returning player. Label and destination agree with the existing intended campaign continuation rule, not the decorative landing scene or transient QA state. Retain replay/highest-unlocked distinctions and avoid silently promising mid-level resume when no such save exists. Verify fresh, returning, completed-campaign and reset profiles without changing unlocks or saves.
-
-### F-UI-009 — Living showcase meadow (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing intro simulation; bird/herd/companion future features when available.
-
-**Accept when:** Present a calm showcase of Pip, appropriate grazing livestock, owned/active Buddy where eligible and occasional weather-appropriate wildlife. Do not reveal an unowned Buddy or require unfinished bird/herd features to ship the landing work. Use current systems and integrate later features when available. Maintain text/Play legibility and mobile resource limits; no gameplay timer, delivery rewards, currency or progress advances during the showcase. Keep wildlife storm exclusion and surface-aware grazing restrictions.
-
-### F-UI-010 — Move full-game reset out of the Play area (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing reset confirmation; F-UI-011.
-
-**Accept when:** Remove Restart Game from directly beneath Play and put it in the settings/menu area while preserving the explicit destructive-action confirmation and cancel path. Use the freed landing space for Choose meadow or workshop access as fits the selected design; no duplicate/confusing primary action. Existing in-menu reset remains discoverable, keyboard accessible and distinct from restarting only the current meadow. Opening settings or browsing never clears progress.
-
-### F-UI-011 — Clear meadow selector with remembered browsing position (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Existing unlocked-level picker and saved progress.
-
-**Accept when:** Provide a simple selector that clearly distinguishes completed, current and locked meadows using existing recorded progress and accessible labels. Locked levels remain nonplayable in normal play. Remember browsing position when returning from a selection/menu during the session; keep this browsing state separate from campaign continuation and QA state. Support up to 100 levels without clipping, excessive scrolling friction or focus loss on small screens; preserve replay and unlock behavior.
-
-### F-UI-012 — Introduction copy for sheep, cows, Pip and Buddy (P2)
-
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
-
-**Depends on / preserve:** Current landing copy; Buddy ownership/unlock context.
-
-**Accept when:** Refresh concise landing copy to include both sheep and cows and explain guiding the herd home with Pip and Buddy. Keep an inviting plain tone, acknowledge Buddy as a companion to unlock rather than imply every new player already owns him, and fit existing phone/desktop layouts without crowding Play. Preserve current branding and visual hierarchy; no new tutorial modal or long instructions.
-
-**Shared validation and acceptance:** verify smallest supported phone portrait/landscape, safe areas, long labels, keyboard/focus, touch targets and screen-reader names; fresh/returning/max-progress profiles; workshop purchases/locks; fast/slow/failed loading, retry and unsupported graphics; pause/background/restart and menu transitions. Record actual native-browser/device evidence separately from DOM/source substitutes. Preserve current saved progress keys and state, avoid duplicate renderer/audio loops, and measure loading/resource impact. Follow AGENTS.md independent implementation ownership/blind review for substantial runtime batches, meaningful focused/full regressions, release/development artifact checks and generated documentation validation. Keep implemented items in Review until Novy's appearance/usability sign-off; future authorized non-main publications target `/Flock/dev/`, with production merge/publication separately authorized.
-
-**Planning handoff:** documentation-only scope, no runtime implementation, loading measurements, blind-review score or device-validation claim. Generated documentation/link/behavior checks cover this update. The earlier automatic approval rejection still requires explicit push authorization for `novydhillon/Flock`; commit locally without retrying the blocked publication.
-
 
 
 ## Tracker archive maintenance — 18 October 2026, 22:04 America/Creston
@@ -443,7 +326,7 @@ The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archive
 
 ### F-AUDIO-002 — Existing bolt voice-steal hard-cut risk
 
-**Status:** Open. Owner: unassigned. Branch: not yet claimed.
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
 
 **Accept when:** Investigate a short release for a livestock voice replaced at the six-call cap, avoiding potential discontinuity while retaining immediate bolt onset, bounded audible/resource ownership, mute/pause/dispose cleanup and no delayed catch-up. Source inspection identifies possible risk, not an observed/listening-confirmed defect.
 
@@ -458,9 +341,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-001 — Rough pasture appearance on selected levels (P3)
 
-**Status:** Open. Owner: unassigned.
+**Status:** In progress. Owner: Codex rendering team.
 
-**Branch:** not yet claimed.
+**Branch:** `feat/p2-ui`.
 
 **Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
 
@@ -470,9 +353,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-002 — Navigable undulating fields (P2)
 
-**Status:** Open. Owner: unassigned.
+**Status:** In progress. Owner: Codex rendering team.
 
-**Branch:** not yet claimed.
+**Branch:** `feat/p2-ui`.
 
 **Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
 
@@ -482,9 +365,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-003 — Fences and stone walls follow terrain undulations (P2)
 
-**Status:** Open. Owner: unassigned.
+**Status:** In progress. Owner: Codex rendering team.
 
-**Branch:** not yet claimed.
+**Branch:** `feat/p2-ui`.
 
 **Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
 
@@ -494,9 +377,9 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 
 ### F-TERRAIN-004 — Lowland rivers and slope-aware rain pooling (P2)
 
-**Status:** Open. Owner: unassigned.
+**Status:** In progress. Owner: Codex rendering team.
 
-**Branch:** not yet claimed.
+**Branch:** `feat/p2-ui`.
 
 **Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
 
@@ -505,12 +388,3 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 **Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
 
 
-### F-RENDER-001 — Missing wildlife and environment shadows (P2)
-
-**Status:** Open. Owner: unassigned.
-
-**Branch:** not yet claimed.
-
-**Reported — 28 October 2026:** Rabbits, squirrels, birds on the ground, trees, bushes and other environment objects do not cast shadows.
-
-**Accept when:** Investigate and fix missing cast shadows for the reported wildlife and environment objects. Shadows follow scene lighting and ground height, remain visible at normal phone zoom, and move with wildlife. Preserve the claymation style and mobile performance; do not re-enable intentionally disabled cloud shadows. Confirm visually on a real renderer/device. This is a queued defect, not a claim of reproduction or repair.

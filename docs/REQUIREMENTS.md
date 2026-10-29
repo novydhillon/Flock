@@ -545,7 +545,7 @@ Requested; not implemented. See [bird feature plan and acceptance criteria](ISSU
 
 ## Planned herd life and readability enhancements — 18 October 2026
 
-Requested for tracking, not implemented. F-HERD-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: bounded individual temperaments, movement anticipation, resting gestures, gentle preferred-neighbor relationships, gate/bridge yielding, gradual relaxation, sheep/cow character differences and entrance-clearing arrival behavior. Prioritize yielding, anticipation and arrival behavior. Preserve accepted physical navigation, weak cohesion/forward flow, turn caps, local settling and delivered-animal containment; integrate the separate grass/bush-only grazing request without allowing grazing on paths, bridges or inside barns. Threat response remains immediate and progression/scoring unchanged. See each tracker item's dependencies and shared validation/user-acceptance gate before implementation.
+Historical planning entry, superseded by the 28 October implementation record below. F-HERD-001–008 in [the issue tracker](ISSUES.md) are P2 and Open: bounded individual temperaments, movement anticipation, resting gestures, gentle preferred-neighbor relationships, gate/bridge yielding, gradual relaxation, sheep/cow character differences and entrance-clearing arrival behavior. Prioritize yielding, anticipation and arrival behavior. Preserve accepted physical navigation, weak cohesion/forward flow, turn caps, local settling and delivered-animal containment; integrate the separate grass/bush-only grazing request without allowing grazing on paths, bridges or inside barns. Threat response remains immediate and progression/scoring unchanged. See each tracker item's dependencies and shared validation/user-acceptance gate before implementation.
 
 
 ## Planned Pip and Buddy improvements — 18 October 2026
@@ -555,7 +555,7 @@ F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are implemented in Review on `
 
 ## Planned gameplay, loading and landing UI improvements — 18 October 2026
 
-Requested for tracking, not implemented. F-UI-001–012 in [the tracker](ISSUES.md) are P2 and Open: bark-ready feedback, distinguishable livestock minimap markers, clearer workshop benefits/previews, loading vignette, honest loading stages, smooth ready-scene reveal, loading-error Retry, progress-aware Start/Continue, a living landing meadow, moving full-game reset into settings/menu, a clear meadow selector with remembered browsing position, and refreshed sheep/cow/Pip/Buddy copy. Prioritize Continue, reset placement, loading recovery and workshop clarity. Explicitly excluded from this new batch: contextual gate controls, cleaner results and control preferences. Preserve accepted minimal gameplay chrome, existing gameplay/progression and production QA exclusion. See the tracker for individual acceptance criteria, dependencies and review/device-validation requirements.
+Historical planning entry, superseded by the 28 October implementation record below. F-UI-001–012 in [the tracker](ISSUES.md) are P2 and Review: bark-ready feedback, distinguishable livestock minimap markers, clearer workshop benefits/previews, loading vignette, honest loading stages, smooth ready-scene reveal, loading-error Retry, progress-aware Start/Continue, a living landing meadow, moving full-game reset into settings/menu, a clear meadow selector with remembered browsing position, and refreshed sheep/cow/Pip/Buddy copy. Prioritize Continue, reset placement, loading recovery and workshop clarity. Explicitly excluded from this new batch: contextual gate controls, cleaner results and control preferences. Preserve accepted minimal gameplay chrome, existing gameplay/progression and production QA exclusion. See the tracker for current individual acceptance criteria, dependencies and review/device-validation requirements.
 
 
 ## Pip app identity (F-067)
@@ -597,3 +597,28 @@ F-ARCH-001: reduce coupling by extracting profile persistence, delivery policy, 
 Move owner-specific tunable literals into documented gameplay, delivery, progression, audio, music, weather, controls and presentation JSON areas. Every setting has a value and explanatory comment, with numeric bounds where applicable. Validate the required shape, types, array lengths, finite numeric values and inclusive bounds during initialization through a generic resolver and explicit area contracts; expose deeply frozen runtime values through static imports. Preserve existing defaults, random sequences, profile version/key/ledger semantics, campaign level limits, pause behavior and audio lifecycle. Mathematical and algorithm identities remain in code.
 
 Provide an ownership map and a concrete guide for editing values, changing bounds, adding a setting and rebuilding. Source implementation, automated verification, independent review, development publication and user acceptance remain separate milestones. F-AUDIO-003 stays Open; no audio launch fix or behavior tuning is implied by this refactor.
+
+
+## P2 UI implementation and control layout - 28 October 2026
+
+Implement F-UI-001 through F-UI-012 and F-UI-014 under their active tracker acceptance criteria. F-UI-014 moves numbered tips to the top; centers the idle joystick at 50% viewport width and five-sixths viewport height, relocates it under the initial movement touch and restores it on input cancellation; moves development QA to bottom left; and makes the minimap circular without a white border, using a drop shadow. Preserve progression, QA isolation, controls, accessible feedback and reduced-motion support. Source review and native-device/user acceptance are separate.
+
+## P2 UI implementation - 28 October 2026
+
+F-UI-001–012 and F-UI-014 are implemented source candidates on `feat/p2-ui`, based on main `0011f9e`; see current acceptance details in [ISSUES.md](ISSUES.md). Loading stages remain indeterminate, retry reloads, failure copy distinguishes unavailable WebGL2, and the ready overlay uses a 0.3-second CSS transition with a 320 ms cleanup timer (immediate cleanup with reduced motion). Landing continuation derives from highest unlocked campaign level, selector paging covers 100 levels, workshop benefits use catalog definitions, showcase state is separate from campaign progression, and reset is in settings. Gameplay UI exposes bark readiness and distinct minimap marker shapes. F-UI-014 sets the top-tip, centered floating joystick, bottom-left development QA and circular borderless minimap layout. Focused test counts are 5 loading, 5 landing, 6 minimap and 55 UI/QA; broader checks remain with integration. Review and user/device acceptance remain pending; no rendered/touch/audio/FPS claims.
+
+
+F-RENDER-001 remains Open for the separately queued investigation of missing wildlife and environment shadows. It is outside this UI batch; preserve the dormant cloud decision and verify any future shadow repair in a real renderer.
+
+
+## F-UI-015 - Landing and presentation follow-up - 28 October 2026
+
+Numbered tips belong directly beneath the minimap, superseding the uppermost tips row in the first P2 UI candidate. Remove the upper-screen color fade. The landing screen uses a randomized field size and its appropriate complete flock, safely spread out on grass, grazing with varied headings. Pip wanders calmly without herding or disturbing livestock. Increase environment vibrancy by 25% while retaining weather, actor and HUD readability. Decorative motion never changes campaign progress, rewards or delivery timers. See the active tracker for acceptance and evidence; this is not user sign-off on the prior UI batch.
+
+## F-UI-016 camera and iOS correction - 28 October 2026
+
+Restore the original landing camera scale (50 portrait/44 landscape), drifting over occupied livestock/dog areas rather than fitting the full map. Pip and decorative Buddy both relax and wander without herding; no gameplay Buddy unlock is granted. Flocks may span multiple generated fields. The user clarified the remaining fade is under iOS clock/signal/battery icons, so address status-bar presentation separately from scene fog, preserving safe-area controls and recording native-device verification limits.
+
+## River, shadows and minimap follow-up - 28 October 2026
+
+F-UI-017 places the goal guidance arrow outside the circular minimap, following its perimeter and matching Pip's goal arrow color. F-WATER-001 preserves sunny water color, darkens water with weather severity and adjusts running ripples to weather. Seeded decorative river rocks and bridge footings at bank intersections create water wakes without changing physical routes. F-RENDER-001 restores environmental and animal shadows; static shadows may be baked. Preserve clay style, bounded mobile resources, weather/lifecycle ownership and intentionally absent cloud shadows. Source validation is separate from rendered/device acceptance.

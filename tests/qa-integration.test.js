@@ -12,24 +12,26 @@ import * as progression from '../src/progression.js';
 import * as world from '../src/world.js';
 import * as gates from '../src/gates.js';
 import * as barkAPI from '../src/bark.js';
+import * as landingUI from '../src/landing-ui.js';
+import * as profileAPI from '../src/profile.js';
 import { animalRadius } from '../src/animal-size.js';
 
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
-function launch(){
+function launch({music=false}={}){
   const dom=new JSDOM(readFileSync(new URL('../index.html',import.meta.url),'utf8'),{url:'https://example.test/Flock/dev2/'}),document=dom.window.document;
-  const initial=JSON.stringify({version:1,points:315,highestLevel:7,completedLevels:[0,1],upgrades:{speed:1},music:false}),saved=new Map([['flock-foundry-v1',initial]]);
+  const initial=JSON.stringify({version:1,points:315,highestLevel:7,completedLevels:[0,1],upgrades:{speed:1},music}),saved=new Map([['flock-foundry-v1',initial]]);
   const storage={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value)};
   const descriptor=Object.getOwnPropertyDescriptor(globalThis,'localStorage');Object.defineProperty(globalThis,'localStorage',{configurable:true,value:storage});
-  let now=1000;
-  class MeadowRenderer {setLevel(){} update(){} drawMap(){} bark(){} celebrate(){}}
-  class FarmAudio {async start(){} pause(){} setGameplayPaused(){} resume(){} play(){} setMuted(){}}
-  const context=vm.createContext({settings:controlsSettings,presentationSettings,resolveConfig,CONFIG_CONTRACTS,animalRadius,...simulation,...progression,...world,...gates,...barkAPI,document,window:dom.window,navigator:dom.window.navigator,MeadowRenderer,FarmAudio,__FLOCK_QA__:true,
+  let now=1000;const muteEvents=[];
+  class MeadowRenderer {updateAnimalBatches(){} setLevel(){} update(){} drawMap(){} bark(){} celebrate(){}}
+  class FarmAudio {async start(){} pause(){} setGameplayPaused(){} resume(){} play(){} setMuted(value){muteEvents.push(value);}}
+  const context=vm.createContext({settings:controlsSettings,presentationSettings,resolveConfig,CONFIG_CONTRACTS,animalRadius,...simulation,...profileAPI,...progression,...world,...gates,...barkAPI,...landingUI,document,window:dom.window,navigator:dom.window.navigator,MeadowRenderer,FarmAudio,__FLOCK_QA__:true,
     localStorage:storage,performance:{now:()=>now},requestAnimationFrame(){},setTimeout:()=>1,clearTimeout(){},Blob:dom.window.Blob,URL:dom.window.URL,console});
   const qa=readFileSync(new URL('../src/qa.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
   vm.runInContext(qa,context);
-  const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace("import('./qa.js')","Promise.resolve({installQA})");
-  vm.runInContext(main+'\nglobalThis.app={frame,state:()=>({mode,level,dog,profile,elapsed,qaSession})};',context);
-  return {dom,document,saved,initial,app:context.app,tick:()=>{now+=16;context.app.frame(now);},close(){if(descriptor)Object.defineProperty(globalThis,'localStorage',descriptor);else delete globalThis.localStorage;dom.window.close();}};
+  const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace("import('./qa.js')","Promise.resolve({installQA})");
+  vm.runInContext(main+'\nrenderer=new MeadowRenderer();setupShowcase();updateWallet();void activateMusic();void initializeDevelopmentQA();\nglobalThis.app={frame,state:()=>({mode,level,dog,profile,elapsed,qaSession,renderer})};',context);
+  return {dom,document,saved,initial,muteEvents,app:context.app,tick:()=>{now+=16;context.app.frame(now);},close(){if(descriptor)Object.defineProperty(globalThis,'localStorage',descriptor);else delete globalThis.localStorage;dom.window.close();}};
 }
 function submit(ui,id,submitter){const event=new ui.dom.window.Event('submit',{bubbles:true,cancelable:true});if(submitter)Object.defineProperty(event,'submitter',{value:submitter});ui.document.getElementById(id).dispatchEvent(event);}
 
@@ -57,12 +59,12 @@ test('QA workshop uses tested level and test wallet for unlocks, purchases and b
     // Even test completions at a later meadow cannot unlock early-level purchases.
     Object.assign(ui.app.state().profile,{highestLevel:99,completedLevels:[98],points:10000});
     await jump(1);
-    assert.equal(buy('speed').disabled,true);assert.match(buy('speed').textContent,/Level 6/);
-    assert.equal(buy('helper').disabled,true);assert.match(buy('helper').textContent,/Level 24/);
+    assert.equal(buy('speed').disabled,true);assert.match(doc.getElementById('modal-card').textContent,/level 6/i);
+    assert.equal(buy('helper').disabled,true);assert.match(doc.getElementById('modal-card').textContent,/level 24/i);
     await jump(24);
     assert.equal(buy('helper').disabled,false);buy('helper').click();
     assert.equal(ui.app.state().profile.upgrades.helper,2);assert.equal(ui.app.state().profile.points,9150);
-    assert.equal(buy('helper').disabled,true);assert.match(buy('helper').textContent,/Level 28/);
+    assert.equal(buy('helper').disabled,true);assert.match(doc.getElementById('modal-card').textContent,/level 28/i);
     assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial,'QA purchases never alter the normal save');
   }finally{ui.close();}
 });
@@ -112,3 +114,12 @@ test('QA public-level jump remains paused through controller startup and cannot 
   }finally{ui.close();}
 });
 
+
+
+test('quitting QA restores campaign continuation and sound without saving test settings',async()=>{
+ for(const music of [false,true]){const ui=launch({music});try{await settle();const doc=ui.document;doc.getElementById('qa-toggle').click();await settle();doc.getElementById('qa-close').click();doc.getElementById('pause').click();if(music)doc.getElementById('menu-sound').click();doc.getElementById('quit').click();
+ assert.equal(ui.app.state().qaSession,false);assert.equal(ui.app.state().profile.music,music);assert.equal(ui.muteEvents.at(-1),!music);assert.match(doc.getElementById('play').textContent,/Continue.*8/);assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial);
+ }finally{ui.close();}}
+});
+
+test('development QA attaches its tint wrapper to the initialized renderer',async()=>{const ui=launch();try{await settle();const renderer=ui.app.state().renderer;assert.notEqual(renderer.updateAnimalBatches,Object.getPrototypeOf(renderer).updateAnimalBatches);}finally{ui.close();}});
