@@ -190,3 +190,10 @@ User explicitly requested main merge for the accepted livestock tuning. A fresh 
 ## P2 UI documentation review - 28 October 2026
 
 A fresh independent `gpt-6.1-sol` critic at medium effort reviewed the isolated current UI documentation against source and F-UI-001-012/F-UI-014 without reading prior quality/review scores or writer rationale. Result: **9.3/10**, no material blockers. Two minor findings were addressed: presentation now distinguishes the 300 ms CSS fade from the 320 ms cleanup timer, and development instructions explicitly use npm-run entry points on Windows (direct Node invocation remains the Linux CI form). The tiny checked-build portability change passed syntax inspection. Deterministic documentation output and seven behavior tests passed; isolated link checks initially lacked three workflow/critic files, subsequently supplied. Root checks cover the complete file set. No rendered-device, touch, listening or performance result is claimed.
+
+
+## P2 UI closure review — 28 October 2026
+
+Fresh isolated documentation critic used the session model and inherited effort under AGENTS.md. Initial score 9/10, no material blockers; one minor stale UI-only planning section remained in the active tracker. Moved the complete section, including skipped-scope decisions, into the archive. All 18 accepted items retain complete archived rows/details/evidence; unrelated and terrain states are preserved. Docs checks pass 13 pages, 2098 links/anchors, 10 diagrams and 7 DOM checks; tracker checks 12/12. Review covers documentation/source only, not rendered/device/listening/FPS behavior or deployment. Follow-up verification is recorded separately.
+
+**Follow-up:** 9.5/10, no blockers or remaining minor findings. Critic confirmed complete plan migration with exclusions preserved. Regenerated docs recheck: 13 pages, 2100 links/anchors, 10 diagrams and 7 DOM tests passed.

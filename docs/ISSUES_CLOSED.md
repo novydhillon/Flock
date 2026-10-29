@@ -8,6 +8,24 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-UI-017~~ | ~~P2~~ | ~~Minimap~~ | ~~Exterior goal pointer matching Pip~~ | ~~Done~~ | ~~F-UI-014~~ |
+| ~~F-WATER-001~~ | ~~P2~~ | ~~Environment~~ | ~~Weather-driven running water, rocks and obstacle wakes~~ | ~~Done~~ | ~~Existing river effects~~ |
+| ~~F-RENDER-001~~ | ~~P2~~ | ~~Rendering defect~~ | ~~Missing wildlife and environment shadows~~ | ~~Done~~ | ~~Existing lighting; F-015~~ |
+| ~~F-UI-001~~ | ~~P2~~ | ~~Gameplay UI~~ | ~~Clear bark cooldown-to-ready feedback~~ | ~~Done~~ | ~~Existing Woof/cooldown UI; coordinate F-050~~ |
+| ~~F-UI-002~~ | ~~P2~~ | ~~Gameplay UI~~ | ~~Distinct livestock states on the minimap~~ | ~~Done~~ | ~~Accepted top-center minimap; existing delivery/flock state~~ |
+| ~~F-UI-003~~ | ~~P2~~ | ~~Workshop UI~~ | ~~Current-to-next upgrade benefits and previews~~ | ~~Done~~ | ~~Existing tier availability/costs; F-050 descriptions~~ |
+| ~~F-UI-004~~ | ~~P2~~ | ~~Loading~~ | ~~Clay meadow loading vignette~~ | ~~Done~~ | ~~Current loading overlay; F-UI-005/006~~ |
+| ~~F-UI-005~~ | ~~P2~~ | ~~Loading~~ | ~~Honest initialization progress~~ | ~~Done~~ | ~~Actual asset/renderer initialization tasks~~ |
+| ~~F-UI-006~~ | ~~P2~~ | ~~Loading~~ | ~~Smooth reveal of the ready meadow~~ | ~~Done~~ | ~~F-UI-005; existing scene initialization~~ |
+| ~~F-UI-007~~ | ~~P2~~ | ~~Loading/recovery~~ | ~~Retry and clear loading-error recovery~~ | ~~Done~~ | ~~Initialization/error handling; F-UI-005~~ |
+| ~~F-UI-008~~ | ~~P2~~ | ~~Landing~~ | ~~Progress-aware Start or Continue action~~ | ~~Done~~ | ~~Saved campaign progression; existing begin/resume behavior~~ |
+| ~~F-UI-009~~ | ~~P2~~ | ~~Landing~~ | ~~Living showcase meadow~~ | ~~Done~~ | ~~Existing intro simulation; bird/herd/companion future features when available~~ |
+| ~~F-UI-010~~ | ~~P2~~ | ~~Landing/settings~~ | ~~Move full-game reset out of the Play area~~ | ~~Done~~ | ~~Existing reset confirmation; F-UI-011~~ |
+| ~~F-UI-011~~ | ~~P2~~ | ~~Landing/navigation~~ | ~~Clear meadow selector with remembered browsing position~~ | ~~Done~~ | ~~Existing unlocked-level picker and saved progress~~ |
+| ~~F-UI-016~~ | ~~P2~~ | ~~Landing/iOS~~ | ~~Original-scale drifting showcase, both relaxed dogs and flat iOS status bar~~ | ~~Done~~ | ~~F-UI-015~~ |
+| ~~F-UI-015~~ | ~~P2~~ | ~~Landing and presentation~~ | ~~Tips beneath minimap, clear upper screen, randomized restful landing meadow and richer environment color~~ | ~~Done~~ | ~~F-UI-009; F-UI-014~~ |
+| ~~F-UI-014~~ | ~~P2~~ | ~~Controls/layout~~ | ~~Top tips, floating centered joystick, bottom-left QA and circular borderless minimap~~ | ~~Done~~ | ~~Existing controls and minimap~~ |
+| ~~F-UI-012~~ | ~~P2~~ | ~~Landing/content~~ | ~~Introduction copy for sheep, cows, Pip and Buddy~~ | ~~Done~~ | ~~Current landing copy; Buddy ownership/unlock context~~ |
 | ~~F-DOCS-001~~ | ~~P3~~ | ~~Documentation UI~~ | ~~Sort issue tables by ID, Priority, Type and Status~~ | ~~Done~~ | ~~—~~ |
 | ~~F-013~~ | ~~P2~~ | ~~Known review concern~~ | ~~Level-5 pacing spike~~ | ~~Closed~~ | ~~F-005; retest after F-009/F-012~~ |
 | ~~F-ARCH-001~~ | ~~P2~~ | ~~Architecture/configuration~~ | ~~Cohesive runtime owners and validated immutable area settings~~ | ~~Done~~ | ~~Existing simulation, profile and presentation contracts~~ |
@@ -1610,3 +1628,298 @@ These extend accepted behavior rather than reopen signed-off issues. Preserve cu
 **28 October evidence:** source implementation and generated assets complete; independent blind review found no material blockers (9/10). See [documentation review](REVIEW.md#issue-table-sorting--28-october-2026). No deployment requested.
 
 **Closure — 28 October 2026:** Novy explicitly signed off and requested merge to main. Acceptance supersedes the pending wording above. Independent follow-up review: 9.5/10, no remaining findings; all seven DOM tests and documentation checks passed. No rendered-browser, screen-reader or physical-device verification is claimed. Main source merge authorized; deployment not requested.
+
+
+## P2 UI user acceptance — 28 October 2026
+
+Novy requested “Merge changes in the feat/p2-ui branch to main and sign off on the work.” All 18 implemented Review items in this batch are accepted. Unfinished terrain items and unrelated defects remain active. Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8`; source CI [40820686979](https://github.com/novydhillon/Flock/actions/runs/40820686979) passed. Existing validation manifests and quality records preserve review and dev-publication evidence. This authorizes main source merge; no production publication is included.
+
+### F-UI-001 — ~~Clear bark cooldown-to-ready feedback (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing Woof/cooldown UI; coordinate F-050.
+
+**Accept when:** Make the transition from cooldown to ready unmistakable through a brief restrained visual accent; optional light haptics may supplement it where supported. Preserve the circular Woof button, readable cooldown, existing input/cooldown behavior and independent Buddy bark. Readiness must match actual ability to bark, including any future F-050 multi-bark tier. Unsupported haptics must be harmless and never required; no automatic sound or vibration during loading, pause or backgrounding. Do not change bark balance or add control-preference scope.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-002 — ~~Distinct livestock states on the minimap (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Accepted top-center minimap; existing delivery/flock state.
+
+**Accept when:** Distinguish undelivered, delivered and separated livestock using shape or outline as well as color, readable at normal phone size. Derive separation from actual flock grouping rather than a contradictory UI-only grouping rule. Preserve map size/position, routes, goal and actor contrast, with no extra permanent HUD panel or overlap in narrow portrait/landscape. Delivered counts and markers reflect actual simulation state; do not modify flock behavior.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-003 — ~~Current-to-next upgrade benefits and previews (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing tier availability/costs; F-050 descriptions.
+
+**Accept when:** Show current and next-tier benefits, cost and unlock requirements together with clear maxed/unaffordable/locked states. Add small visual previews for Buddy and bark upgrades without implying ownership or changing gameplay. Keep purchased-but-inactive tier messaging accurate on earlier levels and isolated QA sessions. Values come from actual upgrade definitions; retain hidden drone, existing prices/progression and safe purchase behavior. Previews stop/reset appropriately and do not activate real barks or persist a purchase.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-004 — ~~Clay meadow loading vignette (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Current loading overlay; F-UI-005/006.
+
+**Accept when:** Show a small clay-style vignette of hovering Pip beside a few subtly moving sheep. Display it promptly without depending on the full game renderer or adding a substantial new blocking asset download. A static fallback remains readable if animation/graphics are unavailable. Honor existing reduced-motion preferences, pause animation when hidden and dispose it after load; keep loading status and recovery controls clear.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-005 — ~~Honest initialization progress (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Actual asset/renderer initialization tasks.
+
+**Accept when:** Show meaningful loading stages based on real initialization events. Use a percentage only for a measurable known workload; otherwise show a clear indeterminate state without fake progress or a stalled 99% counter. Announce stage changes accessibly without excessive repetition. Distinguish slow work from failure and do not claim readiness until essential assets, renderer and initial scene are usable.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-006 — ~~Smooth reveal of the ready meadow (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** F-UI-005; existing scene initialization.
+
+**Accept when:** Transition smoothly from loading into the ready landing meadow with no unnecessary minimum wait, blank flash or visibly uninitialized scene. Release the overlay after a usable frame is ready, and prevent clicks passing through it during the transition. Honor reduced motion and work on fast cached loads, slow first loads and narrow/rotated screens. Do not start gameplay or audio without the intended user action.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-007 — ~~Retry and clear loading-error recovery (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Initialization/error handling; F-UI-005.
+
+**Accept when:** Provide a usable Retry action and concise understandable failure explanation. Distinguish unsupported graphics from recoverable loading/initialization failures where evidence allows, avoiding a generic WebGL claim for every error. Retry safely cancels/disposes prior work, avoids duplicate loops/audio/listeners and preserves all saved progress, currency and upgrades. Failure UI works even if the 3D renderer cannot initialize; do not require clearing saves to recover.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-008 — ~~Progress-aware Start or Continue action (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Saved campaign progression; existing begin/resume behavior.
+
+**Accept when:** Show Start herding for a new player and Continue · Level # for a returning player. Label and destination agree with the existing intended campaign continuation rule, not the decorative landing scene or transient QA state. Retain replay/highest-unlocked distinctions and avoid silently promising mid-level resume when no such save exists. Verify fresh, returning, completed-campaign and reset profiles without changing unlocks or saves.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-009 — ~~Living showcase meadow (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing intro simulation; bird/herd/companion future features when available.
+
+**Accept when:** Present a calm showcase of Pip, appropriate grazing livestock, owned/active Buddy where eligible and occasional weather-appropriate wildlife. Do not reveal an unowned Buddy or require unfinished bird/herd features to ship the landing work. Use current systems and integrate later features when available. Maintain text/Play legibility and mobile resource limits; no gameplay timer, delivery rewards, currency or progress advances during the showcase. Keep wildlife storm exclusion and surface-aware grazing restrictions.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-010 — ~~Move full-game reset out of the Play area (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing reset confirmation; F-UI-011.
+
+**Accept when:** Remove Restart Game from directly beneath Play and put it in the settings/menu area while preserving the explicit destructive-action confirmation and cancel path. Use the freed landing space for Choose meadow or workshop access as fits the selected design; no duplicate/confusing primary action. Existing in-menu reset remains discoverable, keyboard accessible and distinct from restarting only the current meadow. Opening settings or browsing never clears progress.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-011 — ~~Clear meadow selector with remembered browsing position (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing unlocked-level picker and saved progress.
+
+**Accept when:** Provide a simple selector that clearly distinguishes completed, current and locked meadows using existing recorded progress and accessible labels. Locked levels remain nonplayable in normal play. Remember browsing position when returning from a selection/menu during the session; keep this browsing state separate from campaign continuation and QA state. Support up to 100 levels without clipping, excessive scrolling friction or focus loss on small screens; preserve replay and unlock behavior.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-012 — ~~Introduction copy for sheep, cows, Pip and Buddy (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Current landing copy; Buddy ownership/unlock context.
+
+**Accept when:** Refresh concise landing copy to include both sheep and cows and explain guiding the herd home with Pip and Buddy. Keep an inviting plain tone, acknowledge Buddy as a companion to unlock rather than imply every new player already owns him, and fit existing phone/desktop layouts without crowding Play. Preserve current branding and visual hierarchy; no new tutorial modal or long instructions.
+
+**Shared validation and acceptance:** verify smallest supported phone portrait/landscape, safe areas, long labels, keyboard/focus, touch targets and screen-reader names; fresh/returning/max-progress profiles; workshop purchases/locks; fast/slow/failed loading, retry and unsupported graphics; pause/background/restart and menu transitions. Record actual native-browser/device evidence separately from DOM/source substitutes. Preserve current saved progress keys and state, avoid duplicate renderer/audio loops, and measure loading/resource impact. Follow AGENTS.md independent implementation ownership/blind review for substantial runtime batches, meaningful focused/full regressions, release/development artifact checks and generated documentation validation. Keep implemented items in Review until Novy's appearance/usability sign-off; future authorized non-main publications target `/Flock/dev/`, with production merge/publication separately authorized.
+
+**Planning handoff:** documentation-only scope, no runtime implementation, loading measurements, blind-review score or device-validation claim. Generated documentation/link/behavior checks cover this update. The earlier automatic approval rejection still requires explicit push authorization for `novydhillon/Flock`; commit locally without retrying the blocked publication.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-RENDER-001 — ~~Missing wildlife and environment shadows (P2)~~
+
+**Status:** Done. Owner: Codex rendering team.
+
+**Branch:** `feat/p2-ui`.
+
+**Reported — 28 October 2026:** Rabbits, squirrels, birds on the ground, trees, bushes and other environment objects do not cast shadows.
+
+**Accept when:** Investigate and fix missing cast shadows for the reported wildlife and environment objects. Shadows follow scene lighting and ground height, remain visible at normal phone zoom, and move with wildlife. Preserve the claymation style and mobile performance; do not re-enable intentionally disabled cloud shadows. Confirm visually on a real renderer/device. This is a queued defect, not a claim of reproduction or repair.
+
+
+**28 October 2026:** Standard checked dev build complete: 543 passed, one Windows host symlink-permission skip, zero failures (544 total); release QA exclusion and dev QA inclusion passed. Independent blind review8/10 led to fixes for rock instance-buffer disposal, grass/reed shadow flags and safe-area orbit clearance; follow-up9.2/10 has no material blockers. Source/matrix/resource checks do not establish rendered appearance or phone FPS. Publication evidence is separate; user acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-014 - ~~Touch controls and map layout~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Tips retain numbered badges at the top of the screen; idle joystick is horizontally centered with its center at the vertical center of the bottom third, then relocates under the initial movement touch. Drag displacement continues relative to that touch. Release, cancel, lost capture, resize, pause and backgrounding neutralize input and restore its idle position. QA button is bottom left and remains development-only. Minimap is circular, has no white border, and uses only a drop shadow; maintain safe-area spacing and readable map actors. Preserve bark/double-tap, keyboard, multi-touch and profile behavior.
+
+**28 October 2026:** User requested with the P2 UI batch. Native phone appearance/touch acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-015 - ~~Restful landing meadow and presentation follow-up~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Place numbered tips beneath the minimap rather than above it, with safe-area spacing and no portrait/landscape overlap. Remove the upper-screen color fade identified in the reference screenshot. Generate a random-sized landing field with the full flock appropriate to that field; spread the animals safely across grass, grazing immediately with varied headings. Pip wanders slowly as if taking a break, without applying herding pressure or disturbing the flock. Increase environment vibrancy by 25% while preserving readable HUD, actor contrast, weather behavior and bounded resources. Decorative landing activity must never advance campaign progress, delivery rewards or gameplay timers. Preserve Start/Continue, QA isolation, pause/background behavior and saved profiles.
+
+**28 October 2026:** Follow-up requested after the first P2 UI development publication. This supersedes the uppermost tips placement and fixed eight-animal landing showcase for the new candidate. Prior F-UI items remain Review; no user acceptance is inferred. Implementation, tests and independent review are in progress; no new deployment or rendered-device result is claimed.
+
+**Implementation checkpoint:** The source candidate places tips below the minimap, removes renderer distance fog, applies environment-only 1.25 shader saturation without altering shared actor materials, and uses generated field indexes 2-4 with their full 11, 14 or 17 animals for the landing scene. Independent decorative randomness, safe grass placement, immediate renderer grazing and Pip-only slow wandering preserve campaign and delivery state. Final landing, controller and grazing focused checks passed 64 tests; renderer and configuration checks passed 53 tests. Integrated checks and independent review remain with the integrating owner; no new publication or device acceptance is recorded here.
+
+
+**Focused source checks:** Landing, controller and grazing suites passed 64 tests, including 200 seeded randomized fields and a 120-second decorative wandering check with unchanged flock, delivery, profile and gameplay clock. Renderer and configuration checks passed 53 tests. These support source behavior only; the broader actual-pose seed sweep remains with integration. The candidate is Review pending integration, independent review and user appearance/usability acceptance; source completion is not publication or sign-off.
+
+**Integrated validation:** Final standard checked dev build passes532 tests with one host symlink-permission skip and zero failures; both artifact modes pass. Independent blind source review7.5/10 led to three repairs (exact grazing contacts, compact field range, zero-saturation shader idempotence); same-critic follow-up9/10 has no remaining confirmed material blocker. Independent2000-seed contact checks pass. Native appearance/touch/color/FPS and user acceptance remain pending. Publication evidence is recorded separately; see QUALITY.md for scope and verification limits.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-016 - ~~Landing camera and iOS status-bar correction~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Retain original 50m portrait/44m landscape orthographic landing view heights instead of fitting the entire map. Drift slowly over the area occupied by grazing livestock, Pip and Buddy, including multiple fields when present. Both dogs wander/rest independently without herding or moving the flock. Buddy on landing is decorative and does not unlock gameplay ownership. Keep safe grazing, saved progression and background/menu freezing. Address the user-identified fade behind iOS system clock/signal/battery through explicit non-translucent status-bar configuration, not 3D fog. Preserve safe-area HUD spacing. Native iPhone status-bar appearance remains pending physical verification.
+
+**28 October 2026:** User clarified that whole-map framing is incorrect and that the remaining fade is in the iOS system-bar area. This supersedes whole-bounds landing framing and the previous source-only identification of distance fog as the reported fade. Prior items remain Review; no acceptance inferred.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-017 - ~~Exterior minimap goal pointer~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Goal direction arrow tracks the circular minimap perimeter outside its edge, remains unclipped at every bearing and matches the arrow on Pip. Preserve circular borderless map and drop shadow.
+
+**28 October 2026:** Standard checked dev build complete: 543 passed, one Windows host symlink-permission skip, zero failures (544 total); release QA exclusion and dev QA inclusion passed. Independent blind review8/10 led to fixes for rock instance-buffer disposal, grass/reed shadow flags and safe-area orbit clearance; follow-up9.2/10 has no material blockers. Source/matrix/resource checks do not establish rendered appearance or phone FPS. Publication evidence is separate; user acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-WATER-001 - ~~Weather-driven river presentation~~
+
+**Status:** Done. Owner: Codex rendering team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Sunny water retains its current color; increasing weather severity darkens water and strengthens running ripples. Seeded decorative rocks sit in water; rocks and bridge footings at the ground/water boundary have wakes. Preserve river collision/navigation, pause and bounded per-level resource ownership. Rendered appearance and phone performance require separate observation.
+
+**28 October 2026:** Standard checked dev build complete: 543 passed, one Windows host symlink-permission skip, zero failures (544 total); release QA exclusion and dev QA inclusion passed. Independent blind review8/10 led to fixes for rock instance-buffer disposal, grass/reed shadow flags and safe-area orbit clearance; follow-up9.2/10 has no material blockers. Source/matrix/resource checks do not establish rendered appearance or phone FPS. Publication evidence is separate; user acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+## P2 UI batch implementation record - 28 October 2026
+
+F-UI-001–012 and F-UI-014 (thirteen scoped items) are source candidates in Review on `feat/p2-ui`, based on main `0011f9e`. Work used an isolated source snapshot with disjoint implementation ownership. Focused checks passed: loading 5, landing 5, minimap 6, and UI plus QA 55. Full checks are being run by the integrating owner; no full-suite/build outcome, review score or publication is recorded here. A local native-browser preview timed out. Rendered appearance, touch usability, listening and phone FPS have not been observed; user sign-off remains pending.
+
+Implemented contracts: loading is bootstrapped before the renderer and dynamically imports the game; initialization labels reflect stages (indeterminate, without a percentage); a 12-second slow-work prompt offers retry; retry reloads; WebGL2 failures have a specific message and other initialization failures preserve progress; ready overlay uses a 0.3-second CSS transition with a 320 ms cleanup timer and reduced-motion immediate cleanup. The CSS vignette is standalone and pauses while hidden/failing. Landing utilities label Start/Continue from saved highest-level progression, paginate 100 levels by 20 while locking unavailable levels, render current/next workshop benefits and illustrative Buddy/bark motion previews, and build a separate eight-animal showcase with Buddy only when eligible. Full reset is in settings. F-UI-014 moves numbered tips to the top, positions the idle joystick at viewport center/83.333% height and relocates it with movement touch, moves QA to lower left, and styles the minimap as a circular borderless shadowed map. F-UI-001 adds ready feedback; F-UI-002 marks delivered, primary flock and separated animals using distinct shapes as well as colors.
+
+## P2 UI integration checkpoint - 28 October 2026
+
+F-UI-001-012 and F-UI-014 remain Review pending user acceptance. Independent blind source review scored 7.5/10 initially; all four confirmed findings were repaired and the same critic's follow-up scored 9.2/10 with no remaining blocker. Full source checks: 527 passed, one host-permission symlink skip, zero failed. QA installation now waits for the renderer; leaving QA restores campaign continuation and sound preferences without persisting test settings. Novy authorized commit and development deployment after the environment interruption. Final checked-build, source CI and live publication evidence are recorded separately; this checkpoint does not claim deployment or phone acceptance.
+
+
+## Gameplay, loading and landing UI plan — 18 October 2026, 21:57 America/Creston
+
+Novy requested tracking the twelve remaining suggestions and explicitly skipped **contextual gate controls, cleaner results and control preferences**. Those three suggestions are not new work items in this batch; this exclusion does not close or cancel unrelated existing tracker issues. **F-UI-001–012 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026.** UI-scoped IDs avoid concurrent numeric-ID collisions; the layout item uses F-UI-014 to preserve the historical F-UI-013 camera record.
+
+Prioritize progress-aware Continue (008), moving full-game reset (010), loading recovery (007) and workshop clarity (003). Retain the approved cream/green/clay visual language, minimal weather/livestock HUD, Level # introduction, top-center minimap, numbered tips, circular Woof and production QA exclusion. Respect existing reduced-motion behavior when animating; this is not authorization to add the skipped control-preference/settings feature. Optional bark haptics remain within the explicitly retained bark-feedback suggestion.
+

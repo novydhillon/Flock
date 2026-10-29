@@ -475,3 +475,8 @@ Reload or quit to landing repeatedly: field size and flock presentation should v
 ## F-UI-016 phone smoke checks - 28 October 2026
 
 Verify original-scale landing framing in both orientations; watch camera move slowly between occupied areas, never zooming to encompass the map. Observe both Pip and decorative Buddy moving and resting while livestock remain calmly grazing across fields. Pause/background and resume without camera jumps, accumulated movement or progress/reward changes. Compare Safari and Home Screen launch status-bar region behind clock/signal/battery. Confirm a flat system-bar presentation, legible icons and safe-area controls; test existing installation and fresh installation only if cached configuration persists. Record device/OS and actual result; metadata tests do not establish native status-bar behavior.
+
+
+## P2 UI acceptance and main merge — 28 October 2026
+
+Novy explicitly accepted the implemented `feat/p2-ui` batch and requested main merge and sign-off. Eighteen Review items move in full to [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8` is ahead of main with no divergence; exact source CI 40820686979 succeeded. Runtime is unchanged by closure. Earlier pending acceptance wording is historical; no new physical device or FPS result is claimed. Terrain and unrelated open defects remain active. This merge does not publish production. Closure uses the session model and inherited effort; fresh documentation review and regenerated documentation validation follow.
