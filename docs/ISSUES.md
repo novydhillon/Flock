@@ -1,6 +1,6 @@
 # FLOCK — Active issue tracker
 
-Updated 28 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`.
+Updated 29 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
 
@@ -26,6 +26,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
@@ -57,6 +58,19 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
 
 ## Acceptance criteria and planned work
+
+### F-BUTTERFLY-001 — Butterfly wings should flap instead of spinning
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
+
+**Accept when:** Wings visibly flap back and forth around their attachment to the body, with bounded alternating motion rather than continuous full rotation. Verify at normal gameplay zoom and during butterfly flight, preserving existing movement and pause/resume behavior.
+
+**Scope:** Tracker addition only; animation fix and rendered verification remain pending.
+
 
 ### F-AUDIO-003 — Music requires audio off/on after browser or app launch
 
