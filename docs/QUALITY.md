@@ -1281,3 +1281,8 @@ Session model/inherited effort used; exact identifiers unavailable. Fresh isolat
 ## F-WATER-003 downstream reed curves — 29 October 2026
 
 Added a fixed gentle quadratic bend to one third of in-water reed stems, aligned to the shared nearest-segment current direction used by wakes. Other stems stay upright; reed heads follow curved tips using local tilt and downstream yaw. One additional owned instanced batch, no per-frame geometry, shadows remain disabled. Session model/inherited effort, identifier unavailable. Independent isolated review initially8/10 found head rotation order mismatch; repaired with YXZ composition and downstream tilt. Added four-cardinal head-axis tests;9/9 vegetation checks pass. Full regression/build and review follow-up recorded separately. No device appearance or FPS claim.
+
+
+### Reed curve completion checks — 29 October 2026
+
+Confirmed committed runtime revision `498e6a3cf27405e808d708b472217ed8593d4141` on `feat/water-vegetation` matches the saved isolated candidate. Fresh independent source review: 9/10, no blockers. Reviewer reran all 9 vegetation checks; implementation session also reran 9/9. Minor coverage suggestion: assert head attachment positions explicitly and add a curved-centerline fixture. Existing checked-dev log `bend-final2.log` records 560/560 regressions, 7/7 docs DOM tests, release 20 files/zero QA and development 22 files/two QA. No runtime changes during this continuation. Review used the session model/inherited effort; exact model identifier not exposed. Phone appearance and FPS remain unverified. F-WATER-003 stays in Review awaiting user acceptance. Source completion is separate from development publication; this continuation has not published a new dev build.
