@@ -31,7 +31,7 @@
       "max": 2000
     },
     "environmentSaturation": {
-      "value": 1.25,
+      "value": 1.125,
       "_comment": "Environment-only saturation multiplier before tone mapping; actors and UI retain their original colors.",
       "min": 0,
       "max": 2
