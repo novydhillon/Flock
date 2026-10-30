@@ -433,3 +433,9 @@ Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank 
 ## F-WATER-003 downstream reed curvature — 29 October 2026
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+
+
+## Joystick response — 29 October 2026
+
+F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, distance / (radius * fullSpeedFraction))) / log1p(k), with controls.json defaults radius 84 CSS pixels, fraction 0.85 and strength 9. Direction stays normalized separately; the thumb tracks physical travel clamped to the radius, independent of speed shaping. Visible rings double to 220/212/192 pixels diameter for desktop/phone/short landscape. Idle ring placement keeps the bottom-third preference but clamps above the bottom safe area for short screens. Keyboard input and pointer lifecycle are unchanged.

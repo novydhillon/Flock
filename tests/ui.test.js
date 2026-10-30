@@ -277,7 +277,7 @@ test('lost pointer capture stops Pip without a woof and ignores unrelated pointe
   const ui=launch();await ui.click('play');
   const drag={pointerId:7,clientX:100,clientY:100};
   ui.emit('pointerdown',drag);
-  ui.emit('pointermove',{...drag,clientX:142});ui.tick();
+  ui.emit('pointermove',{...drag,clientX:184});ui.tick();
   const moved=ui.app.state().dog.x;
   ui.emit('lostpointercapture',{pointerId:8});
   assert.equal(ui.app.state().pointer,7);
@@ -292,7 +292,7 @@ test('lost pointer capture stops Pip without a woof and ignores unrelated pointe
   ui.emit('pointerdown',{...drag,pointerId:9});ui.emit('pointerup',{...drag,pointerId:9});
   assert.equal(ui.audioEvents.filter(event=>event==='bark').length,0);
   ui.emit('pointerdown',{...drag,pointerId:10});
-  ui.emit('pointermove',{...drag,pointerId:10,clientY:142});
+  ui.emit('pointermove',{...drag,pointerId:10,clientY:184});
   assert.equal(ui.app.state().input.z,1);
   ui.emit('pointerup',{pointerId:10});
   assert.equal(ui.app.state().input.z,0);
@@ -899,12 +899,13 @@ test('foreground visibility and pageshow restore music without focus while gamep
 
 test('control settings change joystick movement and cap the live controller frame',async()=>{
   const settings=structuredClone(controlsSettings);
-  settings.pointer.joystickRangePixels.value=84;
+  settings.pointer.joystickRangePixels.value=168;
   settings.frame.maxDeltaSeconds.value=.01;
   const ui=launch({settings});await ui.click('play');
   ui.emit('pointerdown',{pointerId:1,clientX:100,clientY:100});
-  ui.emit('pointermove',{pointerId:1,clientX:142,clientY:100});
-  assert.equal(ui.app.state().input.x,.5);
+  ui.emit('pointermove',{pointerId:1,clientX:184,clientY:100});
+  assert.ok(ui.app.state().input.x > .5 && ui.app.state().input.x < 1);
+  assert.equal(ui.el('stick').style.transform,'translate(84px,0px)');
   ui.tick();
   assert.equal(ui.app.state().renderer.lastDt,.01);
 });
@@ -914,7 +915,7 @@ test('floating joystick follows the movement touch, retains its origin, and rese
  for(const end of ['pointerup','pointercancel','lostpointercapture','pause','resize','hidden']){
   const ui=launch();await ui.click('play');const gesture={pointerId:7,clientX:202,clientY:440};
   ui.emit('pointerdown',gesture);assert.equal(ui.el('joystick').style.left,'202px');assert.equal(ui.el('joystick').style.top,'440px');
-  ui.emit('pointermove',{...gesture,clientX:244});assert.equal(ui.app.state().input.x,1);assert.equal(ui.el('joystick').style.left,'202px');
+  ui.emit('pointermove',{...gesture,clientX:286});assert.equal(ui.app.state().input.x,1);assert.equal(ui.el('joystick').style.left,'202px');
   ui.emit('pointerup',{...gesture,pointerId:8});assert.equal(ui.app.state().pointer,7,'unrelated finger cannot end movement');
   if(end==='pause')await ui.click('pause');else if(end==='resize')ui.windowEvents.get('resize')();else if(end==='hidden'){ui.document.hidden=true;ui.emit('visibilitychange');}else ui.emit(end,gesture);
   assert.equal(ui.app.state().pointer,null);assert.equal(ui.app.state().input.x,0);assert.equal(ui.el('joystick').style.left,'');assert.equal(ui.el('joystick').style.top,'');
@@ -925,4 +926,35 @@ test('bark readiness accent matches restored charges, expires and stays quiet ac
  assert.equal(ui.el('bark').disabled,false);assert.equal(ui.el('bark').classList.contains('ready-accent'),true);assert.equal(ui.el('bark-ready').textContent,'Woof ready');
  ui.advance(1);assert.equal(ui.el('bark').classList.contains('ready-accent'),false);await ui.click('bark');await ui.click('pause');ui.advance(10);assert.equal(ui.el('bark').classList.contains('ready-accent'),false);
  await ui.click('restart');assert.equal(ui.el('bark').classList.contains('ready-accent'),false);
+});
+
+
+
+test('joystick radial speed is logarithmic, continuous, and saturated over the outer 15 percent', async () => {
+  const ui = launch();
+  await ui.click('play');
+  const gesture = { pointerId: 1, clientX: 100, clientY: 100 };
+  ui.emit('pointerdown', gesture);
+  let previous = 0;
+  for (const fraction of [0, .01, .1, .3, .5, .7, .849, .85, .9, 1, 2]) {
+    ui.emit('pointermove', { ...gesture, clientX: 100 + 84 * fraction });
+    const speed = ui.app.state().input.x;
+    assert.ok(Number.isFinite(speed) && speed >= previous && speed <= 1);
+    if (fraction === 0) assert.equal(speed, 0);
+    else if (fraction < .85) assert.ok(speed > fraction / .85 && speed < 1);
+    else assert.ok(Math.abs(speed - 1) < 1e-12);
+    previous = speed;
+  }
+  // A half-threshold drag yields log10(5.5), independent of heading.
+  for (const angle of [0, Math.PI / 4, Math.PI, -Math.PI / 2]) {
+    const distance = 84 * .85 * .5;
+    ui.emit('pointermove', { ...gesture, clientX: 100 + distance * Math.cos(angle), clientY: 100 + distance * Math.sin(angle) });
+    const input = ui.app.state().input;
+    assert.ok(Math.abs(Math.hypot(input.x, input.z) - Math.log10(5.5)) < 1e-12);
+    assert.ok(Math.abs(input.x - Math.cos(angle) * Math.log10(5.5)) < 1e-12);
+    assert.ok(Math.abs(input.z - Math.sin(angle) * Math.log10(5.5)) < 1e-12);
+  }
+  ui.emit('pointerup', gesture);
+  assert.equal(ui.app.state().input.x, 0);
+  assert.equal(ui.app.state().input.z, 0);
 });

@@ -174,7 +174,25 @@ function releaseMovementCapture(id){try{pointerSurface?.releasePointerCapture?.(
 let pointerSurface=null;
 let pointer=null,origin={x:0,y:0},lastTap=-Infinity,lastTapPosition=null,moved=false;
 function pointerStart(e){activateFromGesture(e);if(mode!=='playing'||pointer!==null||e.isPrimary===false||(e.button!==undefined&&e.button!==0)||e.target.closest('button,header,.map-box,.tip'))return;if(e.target!==$('world')&&!e.target.closest('#joystick'))return;e.preventDefault();pointer=e.pointerId;origin={x:e.clientX,y:e.clientY};moved=false;pointerSurface=e.target;$('joystick').style.left=`${e.clientX}px`;$('joystick').style.top=`${e.clientY}px`;e.target.setPointerCapture?.(pointer);}
-function pointerMove(e){if(e.pointerId!==pointer)return;const dx=e.clientX-origin.x,dy=e.clientY-origin.y,len=Math.hypot(dx,dy),range=CONTROLS.pointer.joystickRangePixels;moved ||= len>CONTROLS.pointer.tapMovementPixels;input.x=dx/Math.max(range,len);input.z=dy/Math.max(range,len);$('stick').style.transform=`translate(${input.x*range}px,${input.z*range}px)`;}
+function pointerMove(e) {
+  if (e.pointerId !== pointer) return;
+  const dx = e.clientX - origin.x;
+  const dy = e.clientY - origin.y;
+  const distance = Math.hypot(dx, dy);
+  const { joystickRangePixels: radius, joystickFullSpeedFraction, joystickLogStrength } = CONTROLS.pointer;
+  moved ||= distance > CONTROLS.pointer.tapMovementPixels;
+
+  // Shape radial speed only, preserving direction and a finger-tracking thumb.
+  // Saturating at 85% leaves the outer 15% at maximum speed in every direction.
+  const travel = Math.min(1, distance / (radius * joystickFullSpeedFraction));
+  const speed = Math.log1p(joystickLogStrength * travel) / Math.log1p(joystickLogStrength);
+  const directionX = distance > 0 ? dx / distance : 0;
+  const directionZ = distance > 0 ? dy / distance : 0;
+  input.x = directionX * speed;
+  input.z = directionZ * speed;
+  const thumbDistance = Math.min(radius, distance);
+  $('stick').style.transform = `translate(${directionX * thumbDistance}px,${directionZ * thumbDistance}px)`;
+}
 function pointerEnd(e){if(e.type==='pointerup')activateFromGesture(e);if(e.pointerId!==pointer)return;e.preventDefault();if(e.type==='pointerup'&&!moved){const now=performance.now(),near=lastTapPosition&&Math.hypot(e.clientX-lastTapPosition.x,e.clientY-lastTapPosition.y)<CONTROLS.pointer.doubleTapDistancePixels;if(near&&now-lastTap<CONTROLS.pointer.doubleTapMs){bark();lastTap=-Infinity;lastTapPosition=null;}else{lastTap=now;lastTapPosition={x:e.clientX,y:e.clientY};}}else{lastTap=-Infinity;lastTapPosition=null;}const capture=pointer;pointer=null;releaseMovementCapture(capture);pointerSurface=null;input.x=input.z=0;$('stick').style.transform='translate(0,0)';$('joystick').style.left='';$('joystick').style.top='';}
 document.addEventListener('pointerdown',pointerStart,{passive:false});document.addEventListener('pointermove',pointerMove,{passive:false});document.addEventListener('pointerup',pointerEnd,{passive:false});document.addEventListener('pointercancel',pointerEnd,{passive:false});document.addEventListener('lostpointercapture',pointerEnd,{passive:false});
 // Safari can turn a double tap into page zoom even when Pointer Events are
@@ -264,3 +282,4 @@ if(typeof __FLOCK_QA__!=='undefined'&&__FLOCK_QA__){
   });
 }
 }
+

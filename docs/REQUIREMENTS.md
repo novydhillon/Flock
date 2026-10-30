@@ -653,3 +653,9 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 ## Butterfly wing motion — 29 October 2026
 
 F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about their body attachments rather than continuously spin. Preserve flight and pause/resume; rendered verification remains pending. This records the existing main tracker requirement without implementing the fix.
+
+
+
+## F-INPUT-001 — Larger logarithmic joystick — 29 October 2026
+
+Double joystick travel radius to 84 CSS pixels and visible ring radius at every responsive size. Apply a normalized radial logarithm with configurable strength 9; reach full speed at 85% travel and hold full speed through the outer 15%. Preserve thumb tracking, heading, keyboard input and stop/cancel behavior.

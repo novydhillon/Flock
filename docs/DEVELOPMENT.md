@@ -505,3 +505,9 @@ Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank 
 ## F-WATER-003 downstream reed curvature — 29 October 2026
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+
+
+## F-INPUT-001 phone smoke checks — 29 October 2026
+
+In phone portrait/landscape and the smallest supported viewport, compare the doubled ring and 84-pixel travel with the previous joystick. Slowly drag from center through 85%, then to/beyond the rim: speed should increase logarithmically and stay maximum over the last 15%; thumb remains under the drag until clamped. Check all directions, nearby bark/QA controls, safe areas, floating touch origins near screen edges, pointer release/cancel/lost capture, pause/background, resize, restart and keyboard controls. Device layout and touch feel remain pending; automated controller tests do not establish those results.

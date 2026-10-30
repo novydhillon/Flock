@@ -1,8 +1,8 @@
 {
   "pointer": {
     "joystickRangePixels": {
-      "value": 42,
-      "_comment": "Thumb displacement that reaches full movement input.",
+      "value": 84,
+      "_comment": "Maximum visual thumb displacement in CSS pixels; full speed begins at joystickFullSpeedFraction of this radius.",
       "min": 1,
       "max": 200
     },
@@ -29,6 +29,18 @@
       "_comment": "Suppress the click generated after a touch bark for this interval.",
       "min": 0,
       "max": 2000
+    },
+    "joystickFullSpeedFraction": {
+      "value": 0.85,
+      "_comment": "Fraction of joystick radius at which movement reaches maximum speed; outer 15% remains at maximum.",
+      "min": 0.01,
+      "max": 1
+    },
+    "joystickLogStrength": {
+      "value": 9,
+      "_comment": "Positive logarithmic speed curvature: log1p(strength * normalized travel) / log1p(strength).",
+      "min": 0.01,
+      "max": 100
     }
   },
   "frame": {

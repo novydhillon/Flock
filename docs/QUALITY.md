@@ -1286,3 +1286,15 @@ Added a fixed gentle quadratic bend to one third of in-water reed stems, aligned
 ### Reed curve completion checks — 29 October 2026
 
 Confirmed committed runtime revision `498e6a3cf27405e808d708b472217ed8593d4141` on `feat/water-vegetation` matches the saved isolated candidate. Fresh independent source review: 9/10, no blockers. Reviewer reran all 9 vegetation checks; implementation session also reran 9/9. Minor coverage suggestion: assert head attachment positions explicitly and add a curved-centerline fixture. Existing checked-dev log `bend-final2.log` records 560/560 regressions, 7/7 docs DOM tests, release 20 files/zero QA and development 22 files/two QA. No runtime changes during this continuation. Review used the session model/inherited effort; exact model identifier not exposed. Phone appearance and FPS remain unverified. F-WATER-003 stays in Review awaiting user acceptance. Source completion is separate from development publication; this continuation has not published a new dev build.
+
+
+
+## F-INPUT-001 — Larger logarithmic joystick — 29 October 2026
+
+Branch `feat/logarithmic-joystick`, base main `41f3a05eb5c3a917e364b1781c949171c28ef675`. Implementation: session model, identifier not recorded because the runtime does not expose an authoritative model identifier; inherited effort. Independent critic: fresh subagent context using inherited session model/effort, task/acceptance/files only; source read-only with no history.
+
+Radius increases 42 to 84 CSS pixels. Ring diameters double for desktop/mobile/short landscape and idle placement clamps above the bottom safe area. Configured logarithmic radial speed reaches maximum at 85% travel; thumb remains physical and direction is preserved. Keyboard/profile/lifecycle contracts remain unchanged.
+
+Validation: 65/65 focused controller/configuration tests, 561/561 full regression tests, documentation freshness/link/lifecycle and 7/7 documentation behavior tests; `npm run build:checked:dev` passed release build (33 files, no QA assets) and dev build (35 files, two QA assets). Existing large-chunk advisory remains. Initial local docs check exposed a missing downloaded workflow file; restoring the unchanged connector-fetched source resolved it. Initial exact numeric test used strict equality at a floating-point threshold; tolerance was corrected to 1e-12.
+
+Blind review pass 1: 9/10, no blockers. Optional minor coverage suggestions: thumb transforms at diagonal/over-range and CSS dimensions could receive additional assertions. Follow-up reviewed safe-area idle clamp: no blockers. Critic ran 53/53 UI tests. Device rendering, physical touch feel, edge-origin clipping and phone FPS remain unverified. Item remains Review pending Novy's acceptance. No deployment, PR or main merge requested or performed.
