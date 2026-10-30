@@ -1,0 +1,232 @@
+{
+  "environment": "dev",
+  "branch": "feat/rolling-terrain",
+  "sourceSha": "30daabc622c7107ad5a2a65e953886b9e39b11c2",
+  "prefix": "dev/",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "files": [
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "dev/assets/index-CSqPztdu.css",
+      "sha256": "6ff49017d2d9472d347430bccdaa2df20b183baf8482d4f8d31d3ac45ca243c6"
+    },
+    {
+      "path": "dev/assets/index-KhpFFrCM.js",
+      "sha256": "9d6827fc7877f00274c970c070c8b82081ca815ea32e5d1e24c153c2fa1dfe10"
+    },
+    {
+      "path": "dev/assets/main-CBBHaTuw.js",
+      "sha256": "eeea3775e624529a16f2aea4d8deafb3f9fc6c32175836489eed18442fea425e"
+    },
+    {
+      "path": "dev/assets/main-iOClVWT8.css",
+      "sha256": "b5fc27d8bdf302a285659548c4d9d940ec4530182da94fd520adf8bc6a0b0d0c"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "dev/assets/qa-BoAV0MQV.js",
+      "sha256": "148aa148f8b5f92cf9f32a41924a18cffbb941cd26d07c57c6a96ed60d05f674"
+    },
+    {
+      "path": "dev/assets/qa-Bz571FEl.css",
+      "sha256": "a9f42849e9cd5f890318ac84b7601f02b26b1f4d3fe75e308ca8e17d086c631e"
+    },
+    {
+      "path": "dev/audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0"
+    },
+    {
+      "path": "dev/audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34"
+    },
+    {
+      "path": "dev/audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b"
+    },
+    {
+      "path": "dev/audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac"
+    },
+    {
+      "path": "dev/icons/pip-120.png",
+      "sha256": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7"
+    },
+    {
+      "path": "dev/icons/pip-152.png",
+      "sha256": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec"
+    },
+    {
+      "path": "dev/icons/pip-16.png",
+      "sha256": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182"
+    },
+    {
+      "path": "dev/icons/pip-167.png",
+      "sha256": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662"
+    },
+    {
+      "path": "dev/icons/pip-180.png",
+      "sha256": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107"
+    },
+    {
+      "path": "dev/icons/pip-192.png",
+      "sha256": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e"
+    },
+    {
+      "path": "dev/icons/pip-32.png",
+      "sha256": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76"
+    },
+    {
+      "path": "dev/icons/pip-48.png",
+      "sha256": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e"
+    },
+    {
+      "path": "dev/icons/pip-512.png",
+      "sha256": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841"
+    },
+    {
+      "path": "dev/icons/pip-96.png",
+      "sha256": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758"
+    },
+    {
+      "path": "dev/icons/pip.svg",
+      "sha256": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6"
+    },
+    {
+      "path": "dev/index.html",
+      "sha256": "ec106849241e1186ec4dd4392686b93f70f28e9b1f259b8e80ccc2c9602612ee"
+    },
+    {
+      "path": "dev/site.webmanifest",
+      "sha256": "be872bcbd1266c7d27b08e4d12059e7893c4c05ac9262ea85c418b0312bc348a"
+    }
+  ],
+  "publishedAt": "2026-10-30T06:04:43.636Z",
+  "pagesParentSha": "a137281234c24276eeea0b5c3627f836ade9876c",
+  "pagesSha": "15ec7e75ac1b503dba998ede148cc356bdae62fa",
+  "publicationRoute": "Connector-only gh-pages fallback: workflow dispatch unavailable; all source CI, native Pages and live-hash gates retained.",
+  "sourceCI": {
+    "id": 41011227263,
+    "url": "https://github.com/novydhillon/Flock/actions/runs/41011227263",
+    "conclusion": "success",
+    "sha": "30daabc622c7107ad5a2a65e953886b9e39b11c2"
+  },
+  "nativePages": {
+    "id": 41011719313,
+    "url": "https://github.com/novydhillon/Flock/actions/runs/41011719313",
+    "conclusion": "success",
+    "sha": "15ec7e75ac1b503dba998ede148cc356bdae62fa"
+  },
+  "liveVerification": {
+    "result": "success",
+    "filesVerified": 35,
+    "command": "node scripts/verify-deployment.mjs deployment.json"
+  },
+  "checks": {
+    "regressions": {
+      "passed": 593,
+      "total": 593,
+      "durationSeconds": 193.99
+    },
+    "documentationDOM": {
+      "passed": 7,
+      "total": 7
+    },
+    "release": {
+      "files": 33,
+      "qaAssets": 0
+    },
+    "development": {
+      "files": 35,
+      "qaAssets": 2
+    },
+    "independentReview": {
+      "model": "gpt-6.1-sol",
+      "reasoningEffort": "medium",
+      "score": 9.2,
+      "materialBlockers": 0,
+      "confirmedMinorDefects": 0,
+      "focusedPassed": 73,
+      "focusedTotal": 73
+    },
+    "implementation": {
+      "model": "Session model, implementation identifier not independently recorded",
+      "reasoningEffort": "high"
+    }
+  },
+  "terrain": {
+    "maximumAllowedSlopeDegrees": 30,
+    "maximumAllowedHeightDifferenceMetres": 4.5,
+    "defaultLevel6SampledDryReliefMetres": 3.946833,
+    "largestDefaultSampledDryReliefMetres": 4.088603,
+    "defaultMaximumSampledDryGradeDegrees": 18.421842,
+    "variantMaximumSampledSupportReliefMetres": 4.101412,
+    "elevatedMaximumSampledDeckGradeDegrees": 12.07891,
+    "elevatedMinimumSampledWaterClearanceMetres": 0.231737,
+    "elevatedDemonstrationPublicLevels": [
+      6,
+      100
+    ]
+  },
+  "features": [
+    "Flat grass explicit neutral RGB shader input",
+    "Stronger smooth rolling terrain and higher banks",
+    "Elevated bank-to-bank crossings with full-width height/normal joins",
+    "Vertically conformed bridge boards retaining physical footprint",
+    "Terrain-following camera and steep open/closed gate support",
+    "Large pools restricted to eligible flat lowlands"
+  ],
+  "scopeVerification": "Only dev/ changed; all other gh-pages root entries retained identical SHAs; old hashed assets retained.",
+  "limits": [
+    "Source and headless geometry tests do not establish rendered grass appearance or absence of visible triangulation.",
+    "No phone FPS, touch or actual WebGL visual acceptance observed.",
+    "Public level100 headless total scene workload is approximately833k triangles.",
+    "Finite terrain probes approximate extrema; no all-seed continuous-extrema claim.",
+    "F-TERRAIN items remain Review pending user acceptance."
+  ]
+}
