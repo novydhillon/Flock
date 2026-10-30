@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Static world-height camera — 29 October 2026
+
+The current camera contract uses a zero-height look-target plane and the configured fixed camera positionY above that plane. Terrain and deck support heights do not contribute to initialization, following, showcase scanning, light-target height or level replacement. Keep horizontal following, orthographic projection/view angle, slow landing scans and pause behavior. Actor roots and hover illumination remain terrain/deck-following. This supersedes the expanded-terrain elevation-following camera sections below.
+
 ## Expanded terrain presentation — 29 October 2026
 
 Rolling ground uses exact analytic normals and a relief-normalized continuous tint. Terrain elevation contributes to camera height while preserving the existing orthographic scale and viewing angle; showcase travel limits include the vertical component and paused updates retain camera height. Sliding gates resample their contour at the current open position and rails preserve projected endpoints on slopes. Triangle-interior clearance and resource-budget checks are required for the expanded bank field; vertex samples alone do not establish surface agreement. Phone appearance and frame rate remain separate pending checks.

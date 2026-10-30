@@ -1201,17 +1201,25 @@ test('zero environment saturation remains idempotent across reused surfaces and 
 test('landing camera retains original scale and scans occupied points slowly without zooming to map bounds', () => {
   for(const viewport of [{width:390,height:844},{width:844,height:390}]) {
     const renderer=setup(viewport), {level,dog}=createShowcase(defaultProfile(),725);
+    assert.ok(level.terrain.enabled,'landing fixture scans real rolling ground');
     renderer.setLevel(level);
     const height=viewport.width/viewport.height < presentationSettings.camera.portraitAspect.value ? presentationSettings.camera.previewPortraitHeight.value : presentationSettings.camera.previewLandscapeHeight.value;
     assert.equal(height, viewport.width < viewport.height ? 50 : 44);
     assert.equal(renderer.camera.top-renderer.camera.bottom,height);
-    const start=renderer.center.clone();
+    const start=renderer.center.clone(),direction=renderer.camera.getWorldDirection(new THREE.Vector3()),supportHeights=[];
     for(let i=0;i<600;i++) {
       const before=renderer.center.clone();renderer.update(level,dog,.1,true);
-      assert.ok(renderer.center.distanceTo(before)<=.065+1e-8);
-      assert.equal(height, viewport.width < viewport.height ? 50 : 44);
-    assert.equal(renderer.camera.top-renderer.camera.bottom,height);
+      const distance=renderer.center.distanceTo(before);
+      assert.ok(distance<=.065+1e-8);
+      if(distance>1e-8)assert.ok(Math.abs(distance-.065)<1e-8,'active scans retain the original .65 world-units-per-second travel');
+      assert.equal(renderer.camera.top-renderer.camera.bottom,height);
+      assert.equal(renderer.camera.position.y,presentationSettings.camera.positionY.value,'landing height is fixed in world space');
+      assert.equal(renderer.center.y,0,'the scan look target stays on the original zero-height plane');
+      assert.ok(renderer.camera.getWorldDirection(new THREE.Vector3()).distanceTo(direction)<1e-9,'scanning never tilts the view');
+      supportHeights.push(terrainHeight(level,renderer.center.x,renderer.center.z+presentationSettings.camera.lookOffsetZ.value));
+      if(i<29)assert.ok(renderer.center.equals(start),'the initial three-second scan rest is retained');
     }
+    assert.ok(Math.max(...supportHeights)-Math.min(...supportHeights)>.1,'scan crosses actual changing terrain height');
     assert.ok(renderer.center.distanceTo(start)>1);
     const frozen=renderer.center.clone();renderer.update(level,dog,0,true);assert.ok(renderer.center.equals(frozen));
   }
@@ -1291,31 +1299,51 @@ test('shared grass shader receives complete neutral colors on the first five and
   for(const flat of [createLevel(0),angular,createLevel(4)]){check(rolling);check(flat);}
 });
 
-test('rolling camera follows support elevation while preserving original projection and view angle',()=>{
+test('camera stays at a fixed world height over hills and elevated bridges through preview, restart and level changes',()=>{
   const level=createLevel(5);assert.ok(level.terrain.enabled);
   const sites=[];
   for(let x=level.bounds.minX;x<=level.bounds.maxX;x+=3)for(let z=level.bounds.minZ;z<=level.bounds.maxZ;z+=3){
     if(canOccupy(level,x,z,.62))sites.push({x,z,y:terrainHeight(level,x,z)});
   }
-  sites.sort((a,b)=>a.y-b.y);const route=[sites[0],sites.at(-1),sites[0]];
-  assert.ok(route[1].y-route[0].y>2.5,'fixture exercises actual expanded hill relief');
+  sites.sort((a,b)=>a.y-b.y);const low=sites[0],high=sites.at(-1);
+  assert.ok(high.y-low.y>2.5,'fixture exercises actual expanded hill relief');
+  const bridge=level.rivers.flatMap(r=>r.bridges).find(b=>b.elevated);assert.ok(bridge,'fixture includes a real elevated bank-to-bank crossing');
+  const crossing=[-bridge.length/2-1,-bridge.length/2,0,bridge.length/2,bridge.length/2+1].map(along=>{
+    const x=bridge.x+Math.sin(bridge.heading)*along,z=bridge.z+Math.cos(bridge.heading)*along;
+    return {x,z,y:terrainHeight(level,x,z)};
+  });
+  const route=[low,high,...crossing,low];
   for(const viewport of [{width:390,height:844},{width:844,height:390}]){
     const renderer=setup(viewport),dog={...level.dog};renderer.setLevel(level);
     const settings=resolveConfig(presentationSettings,'presentation',CONFIG_CONTRACTS.presentation).camera;
-    const viewHeight=viewport.width/viewport.height<settings.portraitAspect?settings.playPortraitHeight:settings.playLandscapeHeight;
-    let direction;
-    for(const site of route){
-      Object.assign(dog,site);renderer.update(level,dog,1,false);
-      assert.equal(renderer.camera.top-renderer.camera.bottom,viewHeight,'elevation never changes gameplay scale');
-      assert.ok(Math.abs(renderer.camera.position.y-site.y-settings.positionY)<1e-9,'camera retains configured height over actor support');
-      const current=renderer.camera.getWorldDirection(new THREE.Vector3());
-      if(direction)assert.ok(current.distanceTo(direction)<1e-9,'elevation never tilts the original view angle');
-      direction=current;
-      const center=new THREE.Vector3(dog.x,site.y,dog.z).project(renderer.camera);
-      assert.ok(Math.abs(center.x)<.13&&Math.abs(center.y)<.16,'high and low support stay near screen center');
-      const cameraHeight=renderer.center.y;renderer.update(level,dog,1/60,false);
-      assert.ok(Math.abs(renderer.center.y-cameraHeight)<1e-9,'stationary follow does not drift away from support');
-      const frozen=renderer.center.clone();renderer.update(level,dog,0,false);assert.ok(renderer.center.equals(frozen),'paused camera freezes all three follow axes');
+    const portrait=viewport.width/viewport.height<settings.portraitAspect;
+    const direction=new THREE.Vector3(0,-settings.positionY,settings.lookOffsetZ-settings.positionOffsetZ).normalize();
+    const check=(preview=false)=>{
+      const height=preview?(portrait?settings.previewPortraitHeight:settings.previewLandscapeHeight):(portrait?settings.playPortraitHeight:settings.playLandscapeHeight);
+      assert.equal(renderer.camera.top-renderer.camera.bottom,height,'terrain never changes the existing orthographic scale');
+      assert.equal(renderer.camera.position.y,settings.positionY,'camera retains its configured absolute world height');
+      assert.equal(renderer.center.y,0,'the look target never rises or bounces with terrain');
+      assert.ok(renderer.camera.getWorldDirection(new THREE.Vector3()).distanceTo(direction)<1e-9,'terrain never tilts the original view angle');
+      assert.equal(renderer.dog.position.y,terrainHeight(renderer.level,dog.x,dog.z),'Pip still follows the actual terrain/deck support');
+    };
+    for(const preview of [false,true])for(const site of route){
+      const from={x:dog.x,z:dog.z};
+      for(let step=1;step<=4;step++){
+        dog.x=from.x+(site.x-from.x)*step/4;dog.z=from.z+(site.z-from.z)*step/4;
+        renderer.update(level,dog,1/60,preview);check(preview);
+        if(!preview){
+          const half=(portrait?settings.playPortraitHeight:settings.playLandscapeHeight)/2;
+          assert.ok(Math.abs(renderer.center.x-dog.x)<=half*renderer.aspect*settings.lagFraction+1e-9,'horizontal follow keeps its bounded lag');
+          assert.ok(Math.abs(renderer.center.z-dog.z-settings.followOffsetZ)<=half*settings.lagFraction+1e-9,'planar forward follow keeps its bounded lag');
+        }
+      }
+      const frozen=renderer.center.clone(),camera=renderer.camera.position.clone();renderer.update(level,dog,0,preview);check(preview);
+      assert.ok(renderer.center.equals(frozen)&&renderer.camera.position.equals(camera),'paused camera position freezes');
+    }
+    for(const replacement of [createLevel(0),createLevel(19),level,level]){
+      Object.assign(dog,replacement===level?high:replacement.dog);Object.assign(replacement.dog,dog);
+      renderer.setLevel(replacement);check(true);
+      renderer.update(replacement,dog,1/60,false);check();
     }
   }
 });

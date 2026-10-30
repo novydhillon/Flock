@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Fixed camera height — 29 October 2026
+
+F-TERRAIN-002: the camera stays at a static world height as Pip crosses hills, valleys and elevated bridges. Terrain elevation must not lift/lower the camera or its look target. Preserve original viewing angle, field of view and horizontal following/landing scan behavior. Actors and their illumination still follow the physical support surface. This supersedes the terrain-height-following camera behavior in the previous terrain candidate.
+
 ## Elevated river crossings — 29 October 2026
 
 F-TERRAIN-002/003/004: bridges may connect elevated positions on opposite riverbanks. Match the actual elevation on both sides, allowing a smooth graded deck between them instead of forcing every crossing down to the low channel. Keep ground/deck transitions smooth and crossable, preserve shared physical/rendered footprints and navigation, and remain within 4.5m total playable height difference and 30-degree maximum grade. A bounded subset of rolling crossings may use this form; existing low crossings may remain.

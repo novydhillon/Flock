@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## Static camera correction — 29 October 2026
+
+On feat/rolling-terrain, base968d7a2cccf3250526d484515e121231c0b798e7, Novy requests a static-height camera instead of elevation following. High-effort implementation removes terrain/deck elevation from camera initialization and vertical following, retaining the original view angle/orthographic scale, horizontal movement, landing scan and pause contract. The previous elevation-following assertions are superseded; regression coverage must check unchanged world height over different terrain/deck elevations and level replacement. Existing terrain generation/actor support is outside this correction. Fresh medium blind review, final checked build and source/native/live deployment gates remain pending. Native device appearance/FPS is unverified.
+
 ## Elevated bridge scope added — 29 October 2026
 
 Novy requests bridges that span the river from elevated positions and match both bank elevations. The high-effort implementation is reopened for shared extended spans and continuous bank-to-bank support on selected rolling crossings. The existing core30/30, presentation geometry10/10, camera/goal3/3 and steep-gate17/17 passes establish a baseline, not validation of the new elevated crossing scope. Before this addition,1.2m ground spacing was required to satisfy35mm triangle-interior/edge-midpoint support error;2m road spacing retains the original road budget. Largest measured baseline ground:131,904 vertices/262,318 triangles/8.95MB buffers versus84,546/167,900/5.73MB at1.5m spacing; median construction343ms versus241ms. Phone frame rate remains unmeasured. Fresh medium review and full checked build are still required after integration.
@@ -1392,3 +1396,11 @@ Fresh independent blind review by gpt-6.1-sol at medium reasoning passed9.2/10, 
 
 
 Final `npm run build:checked:dev` passed593/593 regressions in193.99seconds and7/7 documentation DOM checks, then release33files/zeroQAassets and development35files/twoQAassets. No runtime edit followed this build. Final review/status/evidence prose and generated HTML are regenerated and checked separately afterward. Source CI, dev Pages publication and live-hash verification are still separate gates; implementation remains Review pending user sign-off and physical-device checks.
+
+
+Static camera focused validation:6/6 renderer cases passed in36.20seconds, covering Pip/Buddy support/glow, destination geometry, landing scan, fixed-height camera lifecycle and elevated deck support. High-effort implementation was prepared by the session-model agent; its capacity failure interrupted handoff, so the root completed validation. The implementation identifier is not independently recorded.
+
+Fresh isolated blind review by gpt-6-luna at medium reasoning (bounded camera correction, economy tier) scored9/10 with no confirmed blocker. Both independent focused camera tests passed. Its attempted full renderer run had no usable summary and is not counted as a pass. The reviewer verified fixed-height initialization/update/showcase paths and retained actor/glow support. Native appearance, touch and FPS were not observed. Full checked build and publication remain separate gates.
+
+
+Final static-camera `npm run build:checked:dev` passed593/593 regressions,7/7 documentation DOM checks, release33files/zeroQAassets and development35files/twoQAassets. No runtime edit followed this checked build. Final evidence prose/generated HTML is regenerated and checked afterward. The correction remains Review pending user sign-off; source CI, native Pages and all emitted live hashes are required before reporting dev publication.

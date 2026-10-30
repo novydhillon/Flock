@@ -351,7 +351,7 @@ export class MeadowRenderer{
     let animalDepth=null;
     for(const batch of this.animalBatches)for(const mesh of batch.meshes)if(mesh.geometry.attributes.animalGesture){mesh.customDepthMaterial=animalDepth||=createAnimalGestureDepthMaterial();mesh.userData.ownedDepthMaterial=true;}
     boostEnvironmentVibrancy(this.terrain, this.actors);
-    this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),terrainHeight(level,level.dog.x,level.dog.z),level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
+    this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),0,level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
   }
   placeFence(a, b) {
     const length = Math.hypot(b.x - a.x, b.z - a.z);
@@ -503,7 +503,6 @@ export class MeadowRenderer{
     this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-PRESENTATION.introduction.signHoldSeconds)/PRESENTATION.introduction.signFadeSeconds));
     this.destinationSign.visible=this.destinationSign.material.opacity>0;
     const showcase = preview && level.showcase;
-    const previousX=this.center.x,previousY=this.center.y,previousZ=this.center.z;
     const bounds = level.bounds;
     const viewHeight=preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
     // Center on Pip independently of distant livestock or the goal. The follow
@@ -544,16 +543,7 @@ export class MeadowRenderer{
       this.center.z=Math.max(desiredZ-marginZ,Math.min(desiredZ+marginZ,this.center.z));
     }
     this.camera.left=-halfWidth;this.camera.right=halfWidth;this.camera.top=half;this.camera.bottom=-half;this.camera.updateProjectionMatrix();
-    const desiredY=showcase?terrainHeight(level,this.center.x,this.center.z+PRESENTATION.camera.lookOffsetZ):terrainHeight(level,dog.x,dog.z);
-    if(dt>0)this.center.y+=(desiredY-this.center.y)*lerp;
-    if(showcase&&dt>0){
-      // Terrain elevation contributes to visible scan speed too. Keep the
-      // complete camera travel bounded, rather than adding vertical motion
-      // after an already maximum-speed horizontal step.
-      const dx=this.center.x-previousX,dy=this.center.y-previousY,dz=this.center.z-previousZ;
-      const distance=Math.hypot(dx,dy,dz),limit=dt*.65;
-      if(distance>limit){const fraction=limit/distance;this.center.set(previousX+dx*fraction,previousY+dy*fraction,previousZ+dz*fraction);}
-    }
+    // Terrain moves actors and receiving surfaces, never the camera's world height.
     this.camera.position.set(this.center.x,this.center.y+PRESENTATION.camera.positionY,this.center.z+PRESENTATION.camera.positionOffsetZ);this.camera.lookAt(this.center.x,this.center.y,this.center.z+PRESENTATION.camera.lookOffsetZ);
     this.sun.position.set(this.center.x+PRESENTATION.lighting.sunOffset[0],this.center.y+PRESENTATION.lighting.sunOffset[1],this.center.z+PRESENTATION.lighting.sunOffset[2]);this.sun.target.position.set(this.center.x,this.center.y,this.center.z);this.sun.target.updateMatrixWorld();
     this.viewShadows.fit(this.camera,this.sun);

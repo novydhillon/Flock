@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Static-height camera smoke checks — 29 October 2026
+
+At normal phone zoom traverse low/high ground and elevated bridges on public6, then compare public100 and a flat lesson in portrait/landscape. The camera must keep the same world height and viewing angle while terrain and actors change elevation beneath it. Confirm unchanged horizontal following, landing scan pace/FOV, pause/resume/restart and level jumps. Rendered framing and phone performance remain pending until observed.
+
 ## Elevated bridge smoke checks — 29 October 2026
 
 Compare selected elevated and ordinary river crossings. On each elevated bridge, inspect the visible gap above the low river, bank/deck height and slope joins at both ends and both edges, and rails/planks/glow/actor support. Cross with Pip, Buddy and every cow size in both directions; inspect nearby road turns, gates and riverbank access for unintended rail collisions or floating surfaces. These rendered/device checks remain pending.

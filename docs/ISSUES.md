@@ -1,5 +1,9 @@
 # FLOCK — Active issue tracker
 
+## Static camera correction — 29 October 2026
+
+F-TERRAIN-002 correction on feat/rolling-terrain: remove automatic vertical camera movement with terrain elevation. Accept when gameplay and landing cameras keep the same world height/view angle over hills and raised bridges, through pause and level replacement, while horizontal tracking and original scale remain coherent. Actor/deck/terrain heights are unchanged. High implementation, fresh medium review, focused/full checked builds and replacement dev verification are required; user sign-off remains pending.
+
 ## Elevated bridge scope — 29 October 2026
 
 Novy additionally permits river bridges from elevated positions that match the bank elevation on both sides. F-TERRAIN-002–004 remain In progress while elevated crossings are integrated and validated. Where needed, extend the shared bridge span to reach raised banks and keep deck, rails, collision, navigation, routes and approach clearances coherent. Earlier field/grid checks describe the pre-elevated-bridge candidate and must be supplemented; no new source or dev publication is claimed.
@@ -452,3 +456,8 @@ F-TERRAIN-002–004 are In progress for expanded terrain integration on `feat/ro
 ## Expanded terrain source review — 29 October 2026
 
 F-TERRAIN-002–004 return to Review after higher relief/banks, elevated crossings, full-width plank correction and black-flat-grass regression integration. Public6 demonstrates rolling hills and elevated crossings; public100 is a later example. Fresh independent medium review9.2/10 has no confirmed defect and73/73 focused checks. Full checked build passes; exact counts and deployment evidence are recorded in QUALITY and the publication manifest. This supersedes earlier In-progress scope notes without implying user/device acceptance. New dev publication remains a separate gate until its pinned source CI, native Pages run and live emitted-file hashes pass.
+
+
+## Fixed-height camera correction reviewed — 29 October 2026
+
+F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elevation from camera initialization/following. Fixed world-height and look-target behavior cover gameplay, preview, rolling showcase, restart and level replacement; original scale, angle and horizontal movement are retained. Actor and hover-glow support remain terrain-following.6/6 focused renderer cases and593/593 full regressions pass; fresh medium blind review9/10 has no confirmed blocker. This supersedes the previous elevation-following camera implementation. Dev publication and physical-device acceptance are separate milestones.
