@@ -682,3 +682,10 @@ F-TERRAIN-002: restore visible grass on public levels 1–5 and later flat meado
 ## Expanded rolling-terrain limits — 29 October 2026
 
 Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+
+
+## F-INPUT-001 — Larger logarithmic joystick — 29 October 2026
+
+Double joystick travel radius to 84 CSS pixels and visible ring radius at every responsive size. Apply a normalized radial logarithm with configurable strength 9; reach full speed at 85% travel and hold full speed through the outer 15%. Preserve thumb tracking, heading, keyboard input and stop/cancel behavior.
+

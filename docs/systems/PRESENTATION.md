@@ -468,3 +468,10 @@ Novy explicitly authorizes up to30-degree slopes and4.5m total height difference
 ## Elevated bridge presentation — 29 October 2026
 
 Terrain-following bridge boards deform vertically while retaining their authored horizontal footprint, avoiding the width loss of tilting a rigid box across a slope. Bounded cross-width subdivisions and analytic support-gradient normals retain the complete visible deck; temporary construction geometry is disposed after baking. Planks, rails, nails, posts, actor roots and hover illumination use the shared elevated support. Actual merged-model/scene ray tests cover both landing ends, lateral deck edges, rotated normals and rail clearance. These source/geometry checks do not establish rendered phone appearance.
+
+
+
+## Joystick response — 29 October 2026
+
+F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, distance / (radius * fullSpeedFraction))) / log1p(k), with controls.json defaults radius 84 CSS pixels, fraction 0.85 and strength 9. Direction stays normalized separately; the thumb tracks physical travel clamped to the radius, independent of speed shaping. Visible rings double to 220/212/192 pixels diameter for desktop/phone/short landscape. Idle ring placement keeps the bottom-third preference but clamps above the bottom safe area for short screens. Keyboard input and pointer lifecycle are unchanged.
+

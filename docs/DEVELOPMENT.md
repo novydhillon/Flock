@@ -543,3 +543,10 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 ## Expanded rolling-terrain limits — 29 October 2026
 
 Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+
+
+## F-INPUT-001 phone smoke checks — 29 October 2026
+
+In phone portrait/landscape and the smallest supported viewport, compare the doubled ring and 84-pixel travel with the previous joystick. Slowly drag from center through 85%, then to/beyond the rim: speed should increase logarithmically and stay maximum over the last 15%; thumb remains under the drag until clamped. Check all directions, nearby bark/QA controls, safe areas, floating touch origins near screen edges, pointer release/cancel/lost capture, pause/background, resize, restart and keyboard controls. Device layout and touch feel remain pending; automated controller tests do not establish those results.
+
