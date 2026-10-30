@@ -106,7 +106,8 @@ test('bridge decks and terrain height share the same rotated physical footprint'
     const l=createLevel(23,seed),bridge=l.rivers[0].bridges[0],f={x:Math.sin(bridge.heading),z:Math.cos(bridge.heading)},side={x:f.z,z:-f.x};
     assert.ok(canOccupy(l,bridge.x,bridge.z,.8));
     assert.equal(terrainHeight(l,bridge.x,bridge.z),bridgeSurfaceHeight(l,bridge,bridge.x,bridge.z));
-    assert.ok(Math.abs(terrainHeight(l,bridge.x,bridge.z)-(l.terrain.enabled?groundHeight(l,bridge.x,bridge.z)+.32:.3))<1e-8);
+    if(!bridge.elevated)assert.ok(Math.abs(terrainHeight(l,bridge.x,bridge.z)-(l.terrain.enabled?groundHeight(l,bridge.x,bridge.z)+.32:.3))<1e-8);
+    else assert.ok(terrainHeight(l,bridge.x,bridge.z)>groundHeight(l,bridge.x,bridge.z)+.3,'the elevated support remains above the channel bed');
     const bank={x:bridge.x+side.x*(bridge.width/2+2),z:bridge.z+side.z*(bridge.width/2+2)};
     assert.equal(canOccupy(l,bank.x,bank.z,.6),false);
     const body={x:bridge.x-f.x*(bridge.length/2+1),z:bridge.z-f.z*(bridge.length/2+1)};

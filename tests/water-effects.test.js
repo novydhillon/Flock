@@ -7,7 +7,7 @@ import { ribbon } from '../src/surfaces.js';
 import { riverSurfaceContains } from '../src/river-details.js';
 import { createWeatherState } from '../src/weather.js';
 import { createLevel } from '../src/simulation.js';
-import { groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from '../src/world.js';
+import { canOccupy, groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from '../src/world.js';
 import { HorizontalPoolGeometry } from '../src/pool-geometry.js';
 
 test('rain accumulates wetness gradually, dries in sun, and ignores zero-dt and pause',()=>{
@@ -67,7 +67,7 @@ test('river flow follows heading in world-coordinate ribbon UVs',()=>{
 });
 
 test('persistent puddles still splash after rainfall stops',()=>{
-  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(7);effects.setLevel(level);
+  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(15);effects.setLevel(level);
   for(let i=0;i<800;i++)effects.update(.1,{weather:{type:'rain',rainIntensity:1}});
   const p=effects.puddles.find(p=>p.mesh.visible&&p.pool?.drawRange.count);
   assert.ok(p,'rain produces a visible persistent pool');
@@ -140,15 +140,37 @@ function portraitSeesPuddle(p,point){
   return Math.abs(center.x)<.95&&Math.abs(center.y)<.95&&Math.abs(center.z)<1;
 }
 
-test('portrait routes retain visible lowland puddles and flat levels retain seeded spawn puddles',()=>{
-  const effects=new WaterEffects(new THREE.Scene());
-  // These six levels previously placed every puddle outside every route camera.
+test('portrait routes retain eligible lowland puddles and flat levels retain seeded spawn puddles',()=>{
+  const effects=new WaterEffects(new THREE.Scene());let rollingJourneyPools=0;
+  // Flat routes retain their four-pool visibility regression. Higher rolling
+  // banks may legitimately have fewer eligible standing-water footprints.
   for(const index of [47,67,71,83,87,99]){
     const level=createLevel(index);effects.setLevel(level,{weather:rainWeather});advance(effects,puddleGrowthSeconds(level));
     const routePoints=level.routes.flatMap(r=>r.points);
-    assert.ok(effects.puddles.filter(p=>p.mesh.visible&&routePoints.some(point=>portraitSeesPuddle(p,point))).length>=4,`level ${index+1}: visible journey puddles`);
-    if(!level.terrain.enabled)assert.ok(effects.puddles.some(p=>portraitSeesPuddle(p,level.spawn)),`level ${index+1}: near spawn`);
+    const visible=effects.puddles.filter(p=>p.mesh.visible&&routePoints.some(point=>portraitSeesPuddle(p,point)));
+    if(level.terrain.enabled){
+      rollingJourneyPools+=visible.length;
+      for(const p of effects.puddles)assert.ok(poolingSite(level,p.site.x,p.site.z,p.site.radius).eligible);
+      if(!visible.length){
+        // Independently probe dry lowland footprints near the journey. No
+        // eligible probe means an empty camera is a valid terrain outcome.
+        const distance=(p,a,b)=>{const dx=b.x-a.x,dz=b.z-a.z,t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.z-a.z)*dz)/(dx*dx+dz*dz||1)));return Math.hypot(p.x-a.x-dx*t,p.z-a.z-dz*t);};
+        let eligible=false;
+        for(let x=level.bounds.minX+3;x<level.bounds.maxX-3&&!eligible;x+=3)for(let z=level.bounds.minZ+3;z<level.bounds.maxZ-3&&!eligible;z+=3){
+          const p={x,z};
+          if(!poolingSite(level,x,z,1.35).eligible||!canOccupy(level,x,z,1.8))continue;
+          if(level.roads.some(r=>r.points.some((b,i)=>i&&distance(p,r.points[i-1],b)<r.width/2+2.5)))continue;
+          if(level.rivers.some(r=>r.points.some((b,i)=>i&&distance(p,r.points[i-1],b)<r.width/2+2.5)))continue;
+          eligible=routePoints.some(point=>portraitSeesPuddle({site:p},point));
+        }
+        assert.equal(eligible,false,`level ${index+1}: eligible journey lowlands receive visible puddles`);
+      }
+    }else{
+      assert.ok(visible.length>=4,`level ${index+1}: visible journey puddles`);
+      assert.ok(effects.puddles.some(p=>portraitSeesPuddle(p,level.spawn)),`level ${index+1}: near spawn`);
+    }
   }
+  assert.ok(rollingJourneyPools>=4,'rolling fixtures retain real positive journey-pool coverage');
   for(let index=0;index<100;index++){
     const level=createLevel(index);effects.setLevel(level,{weather:rainWeather});
     if(level.terrain.enabled)continue;
@@ -191,7 +213,7 @@ test('horizontal pool geometry intersects curved terrain and grows using the sam
 
 test('rolling pools occupy eligible lowlands, meet terrain shorelines and dispose each owned geometry once',()=>{
   const effects=new WaterEffects(new THREE.Scene());let pools=0,clipped=0;
-  for(const index of [7,23,47,71,87,99]){
+  for(const index of [15,18,43,64,71,99]){
     const level=createLevel(index);assert.ok(level.terrain.enabled);effects.setLevel(level,{weather:rainWeather});
     advance(effects,puddleGrowthSeconds(level));
     for(const p of effects.puddles){
@@ -219,7 +241,7 @@ test('rolling pools occupy eligible lowlands, meet terrain shorelines and dispos
 });
 
 test('rolling pool splashes use drawn wet triangles and ignore dry portions of the ellipse',()=>{
-  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(7);effects.setLevel(level,{weather:rainWeather});advance(effects,puddleGrowthSeconds(level));
+  const effects=new WaterEffects(new THREE.Scene()),level=createLevel(15);effects.setLevel(level,{weather:rainWeather});advance(effects,puddleGrowthSeconds(level));
   let wet,dry,puddle;
   for(const p of effects.puddles){
     const positions=p.pool.attributes.position;

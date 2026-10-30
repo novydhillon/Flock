@@ -12,28 +12,28 @@
     "max": 1
   },
   "maximumRelief": {
-    "value": 1.5,
+    "value": 4.5,
     "_comment": "Hard ceiling on total playable terrain relief, including support surfaces.",
     "min": 0.1,
-    "max": 1.5
+    "max": 4.5
   },
   "maximumSlopeDegrees": {
-    "value": 12,
+    "value": 30,
     "_comment": "Fixed agreed hard cap on traversable terrain/support grades. Lower caps require re-deriving the analytic field and bridge parameters; this is not an independent tuning knob.",
-    "min": 12,
-    "max": 12
+    "min": 30,
+    "max": 30
   },
   "waveAmplitude": {
-    "value": 0.4,
+    "value": 1.9,
     "_comment": "Broad pasture-wave amplitude; paired with valleyLift to use the agreed relief budget without flattening distant fields.",
     "min": 0,
-    "max": 0.4
+    "max": 1.9
   },
   "valleyLift": {
-    "value": 0.54,
+    "value": 2,
     "_comment": "Mean pasture lift above the channel floor; the independent waves continue across outer pasture.",
-    "min": 0.54,
-    "max": 0.54
+    "min": 2,
+    "max": 2
   },
   "channelDepth": {
     "value": 0.3,
@@ -82,5 +82,83 @@
     "_comment": "Extra channel-bed width beyond the physical water ribbon; retains full-width water through sampled bends.",
     "min": 0.2,
     "max": 0.25
+  },
+  "lowlandBlendWidth": {
+    "value": 2.5,
+    "_comment": "Smooth analytic transition from low channel verge to stronger banks; broad enough for continuous shared ground and road sampling.",
+    "min": 2.5,
+    "max": 2.5
+  },
+  "bankShelfWidth": {
+    "value": 2,
+    "_comment": "Narrow lowland verge away from bridges; hill waves can rise close to ordinary riverbanks.",
+    "min": 2,
+    "max": 2
+  },
+  "bridgeShelfWidth": {
+    "value": 9,
+    "_comment": "Local low-gradient landing corridor beside each bridge; fades along the river rather than flattening every bank.",
+    "min": 9,
+    "max": 9
+  },
+  "bridgeBlendLength": {
+    "value": 10,
+    "_comment": "Gaussian length along each river for smooth transitions between gentle bridge approaches and higher banks.",
+    "min": 10,
+    "max": 10
+  },
+  "bankRiseScale": {
+    "value": 2,
+    "_comment": "Smooth bank-distance expansion beyond the low verge: permits larger riverbank relief while broad bridge verges keep crossings gentle.",
+    "min": 2,
+    "max": 2
+  },
+  "elevatedBridgeChance": {
+    "value": 0.35,
+    "_comment": "Independent seeded chance for a rolling meadow to offer higher-bank crossings on its first river.",
+    "min": 0,
+    "max": 1
+  },
+  "elevatedBridgeBankSetback": {
+    "value": 7,
+    "_comment": "Long elevated spans reach dry banks this far beyond each physical water edge.",
+    "min": 7,
+    "max": 7
+  },
+  "elevatedBridgeMinimumClearance": {
+    "value": 0.25,
+    "_comment": "Both full-width landing banks must stand at least this far above local water to select an elevated crossing.",
+    "min": 0.25,
+    "max": 0.25
+  },
+  "elevatedBridgeCrown": {
+    "value": 0.08,
+    "_comment": "Gentle smooth crown above the bank-to-bank deck chord; zero height and grade offset at landings.",
+    "min": 0.08,
+    "max": 0.08
+  },
+  "elevatedBridgeTangentPower": {
+    "value": 8,
+    "_comment": "Smoothly localizes exact bank tangent matching near each landing while the main span follows the high-bank chord.",
+    "min": 8,
+    "max": 8
+  },
+  "elevatedBridgeMaximumLandingSlopeDegrees": {
+    "value": 20,
+    "_comment": "Candidate bank footprints must have gentler grades than the hard30-degree traversable cap.",
+    "min": 20,
+    "max": 20
+  },
+  "elevatedBridgeRiverSeparation": {
+    "value": 5,
+    "_comment": "Extra separation before the first river when elevated bridges share a meadow with a second crossing, retaining room around extended rails.",
+    "min": 5,
+    "max": 5
+  },
+  "elevatedBridgeApproachPadding": {
+    "value": 3,
+    "_comment": "Extra common dry turning-plane clearance beyond first-river approaches on elevated-crossing candidates.",
+    "min": 3,
+    "max": 3
   }
 }

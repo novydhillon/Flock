@@ -839,15 +839,27 @@ export function createFence(length = 4) {
 export function createBridge(width = 2.2, length = 4.5, supportHeight = null) {
   const m = createMaterials();
   const bridge = new THREE.Group();
-  const planks = Math.ceil(length / 0.3);
+  const planks = Math.ceil(length / 0.3), ownedPlanks=[];
   for (let i = 0; i < planks; i++) {
     const z = -length / 2 + (i + 0.5) * length / planks;
     const y = supportHeight ? supportHeight(0, z) - .18 : Math.sin((i + 0.5) / planks * Math.PI) * 0.12;
     const plank = box(bridge, i % 3 ? m.paleWood : m.wood, [0, y + 0.09, z], [width, 0.18, length / planks - 0.025]);
     if (supportHeight) {
-      const step = .025;
-      plank.rotation.x = -Math.atan2(supportHeight(0, z + step) - supportHeight(0, z - step), step * 2);
-      plank.rotation.z = Math.atan2(supportHeight(step, z) - supportHeight(-step, z), step * 2);
+      // Rolling a box narrows its horizontal footprint and pulls its upper
+      // corners away from support. Drape only elevation, retaining the shared
+      // physical deck width and each board's original UVs/thickness.
+      const geometry=new THREE.BoxGeometry(width,.18,length/planks-.025,Math.ceil(width/.6),1,1);
+      const position=geometry.attributes.position,normal=geometry.attributes.normal,step=.025;
+      for(let vertex=0;vertex<position.count;vertex++){
+        const x=position.getX(vertex),along=z+position.getZ(vertex),side=normal.getY(vertex);
+        position.setY(vertex,supportHeight(x,along)+position.getY(vertex)-.09);
+        if(side){
+          const dx=(supportHeight(x+step,along)-supportHeight(x-step,along))/(step*2);
+          const dz=(supportHeight(x,along+step)-supportHeight(x,along-step))/(step*2);
+          const size=Math.hypot(dx,1,dz);normal.setXYZ(vertex,-side*dx/size,side/size,-side*dz/size);
+        }
+      }
+      ownedPlanks.push(geometry);plank.geometry=geometry;plank.position.set(0,0,z);plank.scale.setScalar(1);
     }
     [-1, 1].forEach((s) => sphere(bridge, m.brass, [s * (width / 2 - 0.16), supportHeight ? supportHeight(s * (width / 2 - .16), z) + .004 : y + 0.184, z], [0.025, 0.01, 0.025], 6));
   }
@@ -873,7 +885,9 @@ export function createBridge(width = 2.2, length = 4.5, supportHeight = null) {
       rail.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), delta.normalize());
     }
   });
-  return bakeModel(bridge);
+  const baked=bakeModel(bridge);
+  ownedPlanks.forEach(geometry=>geometry.dispose());
+  return baked;
 }
 
 export function createFlowerPatch(seed = 0, count = 5) {

@@ -25,7 +25,7 @@ const finiteGradient = (sample, x, z, step = .001) => ({
 test('terrain configuration rejects a lowered independent grade cap before gameplay', () => {
   const document = structuredClone(terrainSettings);
   document.maximumSlopeDegrees.value = 5;
-  assert.throws(() => resolveConfig(document, 'terrain', CONFIG_CONTRACTS.terrain), /terrain.maximumSlopeDegrees: value is below min 12/);
+  assert.throws(() => resolveConfig(document, 'terrain', CONFIG_CONTRACTS.terrain), /terrain.maximumSlopeDegrees: value is below min 30/);
 });
 
 test('terrain is repeatable, leaves layout state untouched, and selects a subset after the first five lessons', () => {
@@ -56,12 +56,36 @@ test('every campaign seed and compass orientation keeps continuous relief and gr
       const label = `${index}/${seed}/${point.x}/${point.z}`;
       const height = groundHeight(level, point.x, point.z), normal = terrainNormal(level, point.x, point.z);
       minimum = Math.min(minimum, height); maximum = Math.max(maximum, height);
-      assert.ok(degrees(terrainSlope(level, point.x, point.z)) <= 12, `ground grade: ${label}`);
+      assert.ok(degrees(terrainSlope(level, point.x, point.z)) <= TERRAIN.maximumSlopeDegrees, `ground grade: ${label}`);
       assert.ok(Math.abs(Math.hypot(normal.x, normal.y, normal.z) - 1) < 1e-12, `unit normal: ${label}`);
       const gradient = finiteGradient((x, z) => groundHeight(level, x, z), point.x, point.z);
       assert.ok(Math.abs(gradient.dx + normal.x / normal.y) < 1e-7 && Math.abs(gradient.dz + normal.z / normal.y) < 1e-7, `smooth shared gradient: ${label}`);
     }
-    assert.ok(maximum - minimum <= 1.5, `relief ${index}/${seed}`);
+    assert.ok(maximum - minimum <= TERRAIN.maximumRelief, `relief ${index}/${seed}`);
+  }
+});
+
+test('higher riverbanks return between smooth low-gradient bridge approaches', () => {
+  for (const angle of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
+    const level = { index: 5, seed: 202, rivers: [{ bridges: [{ x: 0, z: 0 }] }] };
+    level.terrain = createTerrain(level, {
+      angle, halfV: 80,
+      channels: [{ base: 0, phase: 0, width: 5, primaryScale: 21, secondaryScale: 8, primaryAmplitude: 0, secondaryAmplitude: 0 }],
+    });
+    const point = (u, v) => ({ x: u * Math.cos(angle) - v * Math.sin(angle), z: u * Math.sin(angle) + v * Math.cos(angle) });
+    // Compare the same six-metre dry-bank setback, beside and away from the
+    // crossing. Water elevation is local so downstream fall cannot fake relief.
+    const landing = point(8.5, 0), bank = point(8.5, 40);
+    const aboveWater = p => groundHeight(level, p.x, p.z) - riverSurfaceHeight(level, level.rivers[0], p.x, p.z);
+    assert.ok(aboveWater(landing) < .15 && degrees(terrainSlope(level, landing.x, landing.z)) < 3, 'gentle crossing verge');
+    assert.ok(aboveWater(bank) > .45 && aboveWater(bank) - aboveWater(landing) > .3, 'ordinary banks retain substantial relief');
+    assert.ok(degrees(terrainSlope(level, bank.x, bank.z)) > 7, 'ordinary bank is allowed a stronger grade');
+    assert.equal(poolingSite(level, bank.x, bank.z, 2).eligible, false, 'higher sloping bank cannot host a large pool');
+    for (let v = -30; v <= 30; v += 1.7) {
+      const p = point(8.5, v), normal = terrainNormal(level, p.x, p.z);
+      const gradient = finiteGradient((x, z) => groundHeight(level, x, z), p.x, p.z);
+      assert.ok(Math.abs(gradient.dx + normal.x / normal.y) < 1e-7 && Math.abs(gradient.dz + normal.z / normal.y) < 1e-7, 'exact normal through the crossing-to-bank blend');
+    }
   }
 });
 
@@ -104,11 +128,46 @@ test('rolling bridges clear water and join both graded banks without height or n
       }
       for (let along = -bridge.length / 2 + .02; along < bridge.length / 2; along += .2) for (const lateral of [-bridge.width / 2 + .05, 0, bridge.width / 2 - .05]) {
         const point = bridgePoint(bridge, along, lateral), gradient = finiteGradient((x, z) => terrainHeight(level, x, z), point.x, point.z);
-        assert.ok(degrees(Math.atan(Math.hypot(gradient.dx, gradient.dz))) <= 12, `deck grade ${index}/${seed}`);
+        assert.ok(degrees(Math.atan(Math.hypot(gradient.dx, gradient.dz))) <= TERRAIN.maximumSlopeDegrees, `deck grade ${index}/${seed}`);
         if (Math.abs(along) <= river.width / 2) assert.ok(terrainHeight(level, point.x, point.z) > riverSurfaceHeight(level, river, point.x, point.z), `dry deck ${index}/${seed}`);
       }
     }
   }
+});
+
+test('elevated crossings retain high bank-to-bank support and match the entire landing surface', () => {
+  let elevated = 0, short = 0;const orientations = new Set();
+  for (let index = 0; index < 100; index++) {
+    const level = createLevel(index);
+    for (const river of level.rivers) for (const bridge of river.bridges) {
+      if (!bridge.elevated) { short++; continue; }
+      elevated++;orientations.add(Math.round(level.startHeading / (Math.PI / 2)));
+      assert.ok(level.terrain.enabled && index >= 5);
+      assert.ok(bridge.length <= river.width + 14, 'higher banks use a bounded physical span');
+      for (const lateral of [-bridge.width / 2 + .01, -bridge.width / 4, 0, bridge.width / 4, bridge.width / 2 - .01]) {
+        const ends = [-1, 1].map(side => bridgePoint(bridge, side * bridge.length / 2, lateral));
+        const heights = ends.map(p => groundHeight(level, p.x, p.z));
+        for (const end of ends) {
+          assert.ok(groundHeight(level, end.x, end.z) - riverSurfaceHeight(level, river, end.x, end.z) >= .25, 'both complete landing banks are elevated above water');
+          assert.ok(Math.abs(bridgeSurfaceHeight(level, bridge, end.x, end.z) - groundHeight(level, end.x, end.z)) < 1e-12);
+          const support = finiteGradient((x, z) => terrainHeight(level, x, z), end.x, end.z);
+          const ground = finiteGradient((x, z) => groundHeight(level, x, z), end.x, end.z);
+          assert.ok(Math.hypot(support.dx - ground.dx, support.dz - ground.dz) < .001, 'both components of the landing normal match');
+        }
+        for (let along = -bridge.length / 2 + .02; along < bridge.length / 2; along += .25) {
+          const point = bridgePoint(bridge, along, lateral), height = terrainHeight(level, point.x, point.z);
+          assert.ok(height >= Math.min(...heights) - .13, 'the deck stays near the higher banks instead of descending to the riverbed');
+          assert.ok(height > riverSurfaceHeight(level, river, point.x, point.z) + .2, 'elevated support stays clearly above running water');
+          const gradient = finiteGradient((x, z) => terrainHeight(level, x, z), point.x, point.z);
+          assert.ok(degrees(Math.atan(Math.hypot(gradient.dx, gradient.dz))) < 20, 'higher-bank decks have gentle traversable grades');
+        }
+      }
+    }
+  }
+  assert.ok(elevated >= 20 && short > elevated, 'the seeded campaign offers both crossing types');
+  assert.equal(orientations.size, 4, 'higher-bank crossings work in every compass orientation');
+  const demo = createLevel(5);
+  assert.ok(demo.rivers[0].bridges.every(bridge => bridge.elevated), 'public level 6 demonstrates higher-bank crossings');
 });
 
 test('rolling relief preserves all existing route openings and traversal for every cow size', () => {

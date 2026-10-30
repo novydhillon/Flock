@@ -1,5 +1,13 @@
 # Flock product requirements
 
+## Elevated river crossings — 29 October 2026
+
+F-TERRAIN-002/003/004: bridges may connect elevated positions on opposite riverbanks. Match the actual elevation on both sides, allowing a smooth graded deck between them instead of forcing every crossing down to the low channel. Keep ground/deck transitions smooth and crossable, preserve shared physical/rendered footprints and navigation, and remain within 4.5m total playable height difference and 30-degree maximum grade. A bounded subset of rolling crossings may use this form; existing low crossings may remain.
+
+## Riverbank relief clarification — 29 October 2026
+
+F-TERRAIN-002/003: riverbanks may have larger height differences and stronger grades, within the agreed 4.5m total playable relief and 30-degree maximum slope. Preserve smooth transitions without visible triangulation. Local bridge approaches remain gentle and continuous with the deck; do not flatten every riverbank to the bridge approach grade. Large rain pools form only on eligible low-gradient low ground.
+
 ## Issue table sorting — 28 October 2026
 
 Novy accepted F-DOCS-001 and authorized main source merge on 28 October 2026. Its complete record is preserved in [Closed issues](ISSUES_CLOSED.md#f-docs-001--sort-issue-overview-tables). No deployment was requested.
@@ -661,3 +669,12 @@ F-TERRAIN-001–004: implement selected rough pastures and continuous rolling fi
 ## Terrain appearance correction — 29 October 2026
 
 F-TERRAIN-001/002: the first dev candidate visually failed user review. Rolling play space must visibly read as hills/undulations at normal phone zoom while keeping smooth gradients and agreed safety limits. Rough pasture must have tangible dense overgrown grass/clumps and can include large rocks/boulders/outcroppings; flat color spots with sparse needle blades are insufficient. Preserve navigable routes, body clearance, coherent water and resource bounds.
+
+
+## Flat grass shader regression — 29 October 2026
+
+F-TERRAIN-002: restore visible grass on public levels 1–5 and later flat meadows after the terrain correction. Every surface using the shared vertex-colored grass material must bind RGB vertex colors: neutral white on flat planes and angular overlays, the existing continuous height tint on rolling ground. Preserve current hill dimensions, weather tint, ground glow and level-replacement resource ownership. Source regression checks and rendered user acceptance are separate.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.

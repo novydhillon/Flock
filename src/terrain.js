@@ -18,6 +18,13 @@ function randomStream(seed) {
   };
 }
 
+/** Selection is independent of layout RNG, including the longer-crossing choice. */
+export function elevatedBridgeMeadow(index, seed) {
+  return index >= TERRAIN.unlockIndex
+    && randomStream(seed ^ 0x54455252)() < TERRAIN.selectionProbability
+    && randomStream(seed ^ 0x454C4556)() < TERRAIN.elevatedBridgeChance;
+}
+
 /** Terrain has its own stream: changing relief never advances layout RNG. */
 export function createTerrain(level, { angle, halfV, channels }) {
   const random = randomStream(level.seed ^ 0x54455252);
@@ -29,15 +36,19 @@ export function createTerrain(level, { angle, halfV, channels }) {
     sine: Math.sin(angle),
     downstreamExtent: halfV,
     phases: Array.from({ length: 3 }, () => random() * Math.PI * 2),
-    channels: channels.map(channel => ({
-      base: channel.base,
-      phase: channel.phase,
-      primaryScale: channel.primaryScale,
-      secondaryScale: channel.secondaryScale,
-      primaryAmplitude: channel.primaryAmplitude,
-      secondaryAmplitude: channel.secondaryAmplitude,
-      wetRadius: channel.width / 2 + TERRAIN.waterEdgeInset,
-    })),
+    channels: channels.map((channel, index) => {
+      const wetRadius = channel.width / 2 + TERRAIN.waterEdgeInset;
+      return {
+        base: channel.base,
+        phase: channel.phase,
+        primaryScale: channel.primaryScale,
+        secondaryScale: channel.secondaryScale,
+        primaryAmplitude: channel.primaryAmplitude,
+        secondaryAmplitude: channel.secondaryAmplitude,
+        wetRadius,
+        bridgeCoordinates: (level.rivers?.[index]?.bridges || []).filter(bridge => !bridge.elevated).map(bridge => -bridge.x * Math.sin(angle) + bridge.z * Math.cos(angle)),
+      };
+    }),
     maximumRelief: TERRAIN.maximumRelief,
     maximumSlopeDegrees: TERRAIN.maximumSlopeDegrees,
   };
@@ -58,6 +69,35 @@ function downstream(terrain, v) {
   return { height: TERRAIN.downstreamDrop * t, derivative: TERRAIN.downstreamDrop * (1 - t * t) / terrain.downstreamExtent };
 }
 
+// Widen only the local crossing verges; the analytic Gaussian blend keeps
+// heights and grades continuous as higher banks return between bridges.
+function bankShelf(channel, v) {
+  let remaining = 1, derivative = 0;
+  for (const coordinate of channel.bridgeCoordinates) {
+    const delta = (v - coordinate) / TERRAIN.bridgeBlendLength;
+    const weight = Math.exp(-delta * delta / 2);
+    derivative = derivative * (1 - weight) + remaining * weight * delta / TERRAIN.bridgeBlendLength;
+    remaining *= 1 - weight;
+  }
+  const range = TERRAIN.bridgeShelfWidth - TERRAIN.bankShelfWidth;
+  return { value: TERRAIN.bankShelfWidth + range * (1 - remaining), derivative: -range * derivative };
+}
+
+// Odd analytic distance warp: a low-gradient wet verge, then unbounded
+// distance so far pasture still reaches its full independent hill relief.
+const softplus = value => Math.max(value, 0) + Math.log1p(Math.exp(-Math.abs(value)));
+const sigmoid = value => 1 / (1 + Math.exp(-value));
+function valleyDistance(distance, radius, shelf) {
+  const edge = radius + shelf, blend = TERRAIN.lowlandBlendWidth;
+  const t = Math.tanh(distance / radius), amplitude = radius / Math.tanh(1);
+  const a = (distance - edge) / blend, b = (-distance - edge) / blend;
+  return {
+    value: amplitude * t + TERRAIN.bankRiseScale * blend * (softplus(a) - softplus(b)),
+    derivative: amplitude * (1 - t * t) / radius + TERRAIN.bankRiseScale * (sigmoid(a) + sigmoid(b)),
+    shelfDerivative: TERRAIN.bankRiseScale * (-sigmoid(a) + sigmoid(b)),
+  };
+}
+
 /** C-infinity pasture/valley height and exact derivatives, without sample seams. */
 function groundSample(level, x, z) {
   const terrain = level?.terrain;
@@ -72,14 +112,19 @@ function groundSample(level, x, z) {
     const a = v / channel.primaryScale + channel.phase, b = v / channel.secondaryScale + channel.phase;
     const center = channel.base + Math.sin(a) * channel.primaryAmplitude + Math.sin(b) * channel.secondaryAmplitude;
     const derivative = Math.cos(a) * channel.primaryAmplitude / channel.primaryScale + Math.cos(b) * channel.secondaryAmplitude / channel.secondaryScale;
-    const distance = u - center, radiusSquared = channel.wetRadius ** 2;
+    const shelf = bankShelf(channel, v);
+    const mapped = valleyDistance(u - center, channel.wetRadius, shelf.value);
+    const edge = valleyDistance(channel.wetRadius, channel.wetRadius, shelf.value);
+    const distance = mapped.value, radiusSquared = edge.value ** 2;
     // Normalize the valley to the water elevation at its physical wet edge.
     // Hill waves may change the outer lift, but cannot expose the river bed.
     const exponent = -Math.log1p(-TERRAIN.waterDepth / lift) / radiusSquared;
     const exponentDerivative = -TERRAIN.waterDepth / (lift * (lift - TERRAIN.waterDepth) * radiusSquared);
     const gaussian = Math.exp(-distance * distance * exponent), nextMask = 1 - gaussian;
-    const du = gaussian * (2 * distance * exponent + distance * distance * exponentDerivative * liftU);
-    const dv = gaussian * (-2 * distance * exponent * derivative + distance * distance * exponentDerivative * liftV);
+    const du = gaussian * (2 * distance * exponent * mapped.derivative + distance * distance * exponentDerivative * liftU);
+    const mappedV = -mapped.derivative * derivative + mapped.shelfDerivative * shelf.derivative;
+    const exponentV = exponentDerivative * liftV - 2 * exponent * edge.shelfDerivative * shelf.derivative / edge.value;
+    const dv = gaussian * (2 * distance * exponent * mappedV + distance * distance * exponentV);
     maskU = maskU * nextMask + mask * du;
     maskV = maskV * nextMask + mask * dv;
     mask *= nextMask;
@@ -119,10 +164,28 @@ export function bridgeSurfaceHeight(level, bridge, x, z) {
   const forwardX = Math.sin(bridge.heading), forwardZ = Math.cos(bridge.heading);
   const along = (x - bridge.x) * forwardX + (z - bridge.z) * forwardZ;
   if (!level?.terrain?.enabled) return .18 + .12 * Math.sin(Math.PI * (along / bridge.length + .5));
+  if (bridge.elevated) {
+    if (Math.abs(along) >= bridge.length / 2) return groundHeight(level, x, z);
+    const lateral = (x - bridge.x) * forwardZ - (z - bridge.z) * forwardX;
+    const sample = end => groundSample(level,
+      bridge.x + forwardX * end * bridge.length / 2 + forwardZ * lateral,
+      bridge.z + forwardZ * end * bridge.length / 2 - forwardX * lateral);
+    const a = sample(-1), b = sample(1), t = clamp(along / bridge.length + .5, 0, 1);
+    const chord = (b.height - a.height) / bridge.length;
+    const nearGrade = a.dx * forwardX + a.dz * forwardZ - chord;
+    const farGrade = b.dx * forwardX + b.dz * forwardZ - chord;
+    // Match the entire bank cross-section and tangent at both ends. Localized
+    // corrections avoid the large central dip of an unconstrained cubic deck.
+    const power = TERRAIN.elevatedBridgeTangentPower;
+    return a.height * (1 - t) + b.height * t
+      + bridge.length * (nearGrade * t * (1 - t) ** power + farGrade * (t - 1) * t ** power)
+      + TERRAIN.elevatedBridgeCrown * (4 * t * (1 - t)) ** 2;
+  }
   const fraction = clamp(along * 2 / bridge.length, -1, 1);
-  // Both the lift and its derivative vanish at the dry ends. Ground grade is
-  // retained rather than replaced by a flat pad or a step onto the bridge.
-  return groundHeight(level, x, z) + TERRAIN.bridgeLift * (1 - fraction * fraction) ** 2;
+  // The broad crown clears the complete wet strip; a narrow arch can dip
+  // below water near the banks. Both lift and derivative vanish at dry ends.
+  // Retain the ground grade rather than adding a flat pad or a landing step.
+  return groundHeight(level, x, z) + TERRAIN.bridgeLift * (1 - fraction ** 4) ** 2;
 }
 
 /** Standing-water placement is a world rule; weather only fills eligible sites.

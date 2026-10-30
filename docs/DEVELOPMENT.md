@@ -1,5 +1,17 @@
 # Development, QA and release context
 
+## Elevated bridge smoke checks — 29 October 2026
+
+Compare selected elevated and ordinary river crossings. On each elevated bridge, inspect the visible gap above the low river, bank/deck height and slope joins at both ends and both edges, and rails/planks/glow/actor support. Cross with Pip, Buddy and every cow size in both directions; inspect nearby road turns, gates and riverbank access for unintended rail collisions or floating surfaces. These rendered/device checks remain pending.
+
+## Raised riverbank smoke checks — 29 October 2026
+
+Inspect tall banks away from crossings at ordinary phone zoom, then walk both directions through every bridge approach. Banks may rise substantially but must blend smoothly; bridge landings must remain crossable without a sudden step or abrupt grade. Inspect water edges and shallow rainy pools, which should appear only where terrain is sufficiently flat. These rendered/device checks remain pending.
+
+## Flat grass regression smoke checks — 29 October 2026
+
+At the dev URL inspect all public levels 1–5, then a later flat angular meadow. Grass must retain its texture/color both inside and outside the boundary, with roads and props unchanged. Jump from rolling public level 6 to each flat example and back; repeat restart, rain/sun and camera travel. Confirm ground glow and wetness remain coherent. These WebGL/phone appearance checks remain pending until observed; scene color-buffer tests do not establish pixel output.
+
 ## Terrain correction playtest — 29 October 2026
 
 Start public level 6 (20 animals), then a selected rough later meadow. At normal phone zoom, inspect hills as Pip crosses them and compare fence grades, livestock support and ground shading. Rough growth must have broad bent dimensional leaves and soft uneven cluster edges, not flat colored discs or sparse dark needles. Check large pasture rocks/outcrops against visible geometry: Pip/Buddy/sheep/cows must go around them, while roads, bridge turning areas, gate switches and goals remain clear. Compare rainy pools against actual terrain and verify no new road-ground seams. These are pending visual/user checks until observed; earlier source scores did not validate the screenshot appearance.
@@ -523,3 +535,7 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 ## Pasture correction test map — 29 October 2026
 
 `tests/pasture.test.js` owns shared rough-selection, physical rock bounds/blocking, route/spawn/goal/water clearance and dimensional grass/rock geometry budgets. `tests/render.test.js` verifies the public-level-6 scene has overgrowth instances without flat discs, single tint, grounded rock geometry and replacement cleanup. `tests/terrain-view.test.js` verifies the exact rendered-grid height sampler used by shallow pools. Full-world/cow journey tests remain integration gates.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.

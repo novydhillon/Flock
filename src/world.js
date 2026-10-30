@@ -1,7 +1,7 @@
 import { addPastureRocks } from './pasture.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from './delivery.js';
 import { animalRadius, COW_SCALES } from './animal-size.js';
-import { createTerrain, groundHeight, bridgeSurfaceHeight } from './terrain.js';
+import { createTerrain, groundHeight, bridgeSurfaceHeight, riverSurfaceHeight, terrainSlope, elevatedBridgeMeadow, TERRAIN } from './terrain.js';
 export { GROUND_SURFACE_OFFSET, groundHeight, terrainNormal, terrainSlope, riverSurfaceHeight, bridgeSurfaceHeight, poolingSite } from './terrain.js';
 /** Deterministic meadow geometry. Rendering and every ground body share these
  * sampled river edges, fence segments, and circular tree footprints. */
@@ -210,7 +210,8 @@ export function createLevel(index=0,seed=index*7919+42) {
   // meadow 3.5 times deeper, then later chapters expand further.
   // Larger herds get more trail between the last bridge and the gate so a
   // flock can leave the deck before reaching the next opening (F-WORLD-001).
-  const breathing=early?0:18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
+  const elevatedCandidate=elevatedBridgeMeadow(index,seed);
+  const breathing=early?0:(elevatedCandidate?TERRAIN.elevatedBridgeBankSetback:0)+18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
   const expansion=Math.max(0,index-19),endU=early?15+index*3:index>=39?150+Math.min(index-39,40)*.3:48+index*3+breathing+expansion*.45,minU=early?-32:-40,maxU=endU+15,halfV=early?24:index>=39?84+Math.min(expansion*.1,8):84+Math.floor(index/15)*14+expansion*.3;
   // Late routes cross the meadow laterally as well as longitudinally. The
   // destination stays on clear ground beyond every river and barrier.
@@ -230,11 +231,14 @@ export function createLevel(index=0,seed=index*7919+42) {
   const riverBases=index===0?[]:early?[index===1?-10:-12]:index>=15?[gateU-breathing-48,gateU-breathing-23]:[gateU-breathing-23];
   const meandering=index>=19&&rng(seed^0x4d45414e)()<.55;
   if(meandering&&riverBases.length>1)riverBases[0]-=15;
+  if(elevatedCandidate&&riverBases.length>1)riverBases[0]-=TERRAIN.elevatedBridgeRiverSeparation;
   const riverFunctions=riverBases.map(base=>{
     const phase=random()*Math.PI*2;
     const channel={base,phase,width:early?3.1:3.7+Math.min(index*.025,1.8),primaryScale:meandering?32:21,secondaryScale:meandering?12:8,primaryAmplitude:meandering?6:2.4,secondaryAmplitude:meandering?1:.65};
     return {...channel,at:v=>base+Math.sin(v/channel.primaryScale+phase)*channel.primaryAmplitude+Math.sin(v/channel.secondaryScale+phase)*channel.secondaryAmplitude};
   });
+  // Probe the unshelved bank field without consuming the layout stream.
+  const bankProbe={terrain:createTerrain({index,seed},{angle:0,halfV,channels:riverFunctions})};
   const canonicalRivers=riverFunctions.map(r=>({width:r.width,points:Array.from({length:Math.ceil((halfV*2+64)/2)+1},(_,i)=>{const z=-halfV-32+i*2;return{x:r.at(z),z};}),bridges:[]}));
   const canonicalGates=[],canonicalRoutes=[];
   const sign=random()>.5?1:-1;
@@ -254,11 +258,16 @@ export function createLevel(index=0,seed=index*7919+42) {
         const t=(z-a.z)/(b.z-a.z),x=a.x+(b.x-a.x)*t,f=unit(b.z-a.z,a.x-b.x);
         // A short .75-unit landing on each bank covers the sampled curvature.
         const bridge={x,z,width:roadWidth*1.25,length:river.width+1.5,heading:Math.atan2(f.x,f.z)-angle};
+        if(elevatedCandidate&&j===0){
+          const length=river.width+TERRAIN.elevatedBridgeBankSetback*2;
+          const landings=[-1,1].flatMap(end=>[-bridge.width/2,0,bridge.width/2].map(lateral=>({x:x+f.x*end*length/2+f.z*lateral,z:z+f.z*end*length/2-f.x*lateral})));
+          if(landings.every(p=>groundHeight(bankProbe,p.x,p.z)-riverSurfaceHeight(bankProbe,null,p.x,p.z)>=TERRAIN.elevatedBridgeMinimumClearance&&terrainSlope(bankProbe,p.x,p.z)<TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees*Math.PI/180))Object.assign(bridge,{elevated:true,length});
+        }
         canonicalRivers[j].bridges.push(bridge);
         // Every branch reaches common dry turning planes before changing
         // lanes. This prevents a turn crossing another deck's side rail.
-        // Turning space belongs to the trail, not the shortened deck.
-        const approach=river.width/2+2.5+(early?3:meandering?10:6);
+        // Turning space belongs to the trail, beyond either deck span.
+        const approach=river.width/2+2.5+(early?3:meandering?10:6)+(elevatedCandidate&&j===0?TERRAIN.elevatedBridgeApproachPadding:0);
         const nearU=early?approach:(x-riverBases[j]+approach)/f.x,farU=early?approach:(riverBases[j]+approach-x)/f.x;
         const near={x:x-f.x*nearU,z:z-f.z*nearU},far={x:x+f.x*farU,z:z+f.z*farU};
         points.push({x:near.x-4,z:near.z-sign*(early?3:8)},near,{x,z,kind:'bridge'},far);

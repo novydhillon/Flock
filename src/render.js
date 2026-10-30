@@ -154,6 +154,7 @@ export class MeadowRenderer{
       const outline=new THREE.Shape();level.boundary.forEach((p,i)=>i?outline.lineTo(p.x,-p.z):outline.moveTo(p.x,-p.z));outline.closePath();
       const geometry=new THREE.ShapeGeometry(outline);geometry.rotateX(-Math.PI/2);
       const positions=geometry.attributes.position,uv=geometry.attributes.uv;
+      geometry.setAttribute('color',new THREE.Float32BufferAttribute(new Float32Array(positions.count*3).fill(1),3));
       for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)-cx)/(w+90)+.5,.5-(positions.getZ(i)-cz)/(d+90));
       const meadow=new THREE.Mesh(geometry,this.grass);meadow.name='playable-meadow';meadow.position.y=-.025;meadow.receiveShadow=true;meadow.userData.ownedGeometry=true;this.terrain.add(meadow);
     }
@@ -184,6 +185,7 @@ export class MeadowRenderer{
             bridge.z - sine * x + cosine * z);
         } : null;
         const g=createBridge(bridge.width,bridge.length,support),glowMaterials=new Map();
+        g.name='Bridge';g.userData.bridge=bridge;
         // Bridge wood is shared with fences: keep this surface effect local.
         g.traverse(mesh=>{if(!mesh.isMesh)return;const source=mesh.material;
           if(!glowMaterials.has(source))glowMaterials.set(source,this.thrusterGlow.install(source.clone()));
@@ -349,7 +351,7 @@ export class MeadowRenderer{
     let animalDepth=null;
     for(const batch of this.animalBatches)for(const mesh of batch.meshes)if(mesh.geometry.attributes.animalGesture){mesh.customDepthMaterial=animalDepth||=createAnimalGestureDepthMaterial();mesh.userData.ownedDepthMaterial=true;}
     boostEnvironmentVibrancy(this.terrain, this.actors);
-    this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),0,level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
+    this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),terrainHeight(level,level.dog.x,level.dog.z),level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
   }
   placeFence(a, b) {
     const length = Math.hypot(b.x - a.x, b.z - a.z);
@@ -501,6 +503,7 @@ export class MeadowRenderer{
     this.destinationSign.material.opacity=preview?1:Math.max(0,Math.min(1,1-((level.time||0)-PRESENTATION.introduction.signHoldSeconds)/PRESENTATION.introduction.signFadeSeconds));
     this.destinationSign.visible=this.destinationSign.material.opacity>0;
     const showcase = preview && level.showcase;
+    const previousX=this.center.x,previousY=this.center.y,previousZ=this.center.z;
     const bounds = level.bounds;
     const viewHeight=preview?(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitHeight:PRESENTATION.camera.previewLandscapeHeight):(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.playPortraitHeight:PRESENTATION.camera.playLandscapeHeight);const half=viewHeight/2,halfWidth=half*this.aspect;
     // Center on Pip independently of distant livestock or the goal. The follow
@@ -541,8 +544,18 @@ export class MeadowRenderer{
       this.center.z=Math.max(desiredZ-marginZ,Math.min(desiredZ+marginZ,this.center.z));
     }
     this.camera.left=-halfWidth;this.camera.right=halfWidth;this.camera.top=half;this.camera.bottom=-half;this.camera.updateProjectionMatrix();
-    this.camera.position.set(this.center.x,PRESENTATION.camera.positionY,this.center.z+PRESENTATION.camera.positionOffsetZ);this.camera.lookAt(this.center.x,0,this.center.z+PRESENTATION.camera.lookOffsetZ);
-    this.sun.position.set(this.center.x+PRESENTATION.lighting.sunOffset[0],PRESENTATION.lighting.sunOffset[1],this.center.z+PRESENTATION.lighting.sunOffset[2]);this.sun.target.position.set(this.center.x,0,this.center.z);this.sun.target.updateMatrixWorld();
+    const desiredY=showcase?terrainHeight(level,this.center.x,this.center.z+PRESENTATION.camera.lookOffsetZ):terrainHeight(level,dog.x,dog.z);
+    if(dt>0)this.center.y+=(desiredY-this.center.y)*lerp;
+    if(showcase&&dt>0){
+      // Terrain elevation contributes to visible scan speed too. Keep the
+      // complete camera travel bounded, rather than adding vertical motion
+      // after an already maximum-speed horizontal step.
+      const dx=this.center.x-previousX,dy=this.center.y-previousY,dz=this.center.z-previousZ;
+      const distance=Math.hypot(dx,dy,dz),limit=dt*.65;
+      if(distance>limit){const fraction=limit/distance;this.center.set(previousX+dx*fraction,previousY+dy*fraction,previousZ+dz*fraction);}
+    }
+    this.camera.position.set(this.center.x,this.center.y+PRESENTATION.camera.positionY,this.center.z+PRESENTATION.camera.positionOffsetZ);this.camera.lookAt(this.center.x,this.center.y,this.center.z+PRESENTATION.camera.lookOffsetZ);
+    this.sun.position.set(this.center.x+PRESENTATION.lighting.sunOffset[0],this.center.y+PRESENTATION.lighting.sunOffset[1],this.center.z+PRESENTATION.lighting.sunOffset[2]);this.sun.target.position.set(this.center.x,this.center.y,this.center.z);this.sun.target.updateMatrixWorld();
     this.viewShadows.fit(this.camera,this.sun);
     this.dog.position.set(dog.x,terrainHeight(level,dog.x,dog.z),dog.z);this.dog.rotation.y=dog.heading??Math.PI/2;
     // Cancel the dog's heading so the triangle always faces the goal in world space.

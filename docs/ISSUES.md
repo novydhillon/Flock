@@ -1,5 +1,13 @@
 # FLOCK — Active issue tracker
 
+## Elevated bridge scope — 29 October 2026
+
+Novy additionally permits river bridges from elevated positions that match the bank elevation on both sides. F-TERRAIN-002–004 remain In progress while elevated crossings are integrated and validated. Where needed, extend the shared bridge span to reach raised banks and keep deck, rails, collision, navigation, routes and approach clearances coherent. Earlier field/grid checks describe the pre-elevated-bridge candidate and must be supplemented; no new source or dev publication is claimed.
+
+## Riverbank relief clarification — 29 October 2026
+
+For F-TERRAIN-002/003, Novy permits larger riverbank height differences except at bridges. The current high-effort candidate must allow raised, smoothly graded banks away from crossings while retaining gentle bridge approaches, coherent water and the overall 4.5m/30-degree bounds. Broad mandatory low shelves along every bank are superseded. Implementation, focused checks, fresh medium review and dev replacement are still in progress; earlier published builds do not contain this clarification.
+
 Updated 29 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
@@ -428,3 +436,19 @@ Novy's dev screenshot IMG_8476.jpeg rejects the current visual result: play area
 ## Terrain visual correction candidate complete — 29 October 2026
 
 F-TERRAIN-001/002 return to Review on `feat/rolling-terrain` after screenshot-driven correction: stronger actual rolling terrain, dimensional dense grass without colored discs/double tint, and physical seeded boulders. Shared pasture config and actual rendered-ground pool clipping are integrated. High implementation / fresh medium independent source review9.1/10; no confirmed source defect or material blocker remains. Rendered phone appearance and FPS still need Novy's playtest; no source score is visual acceptance. Updated dev publication follows successful checked build and source CI, separately from main/production.
+
+
+## Flat meadow black-ground regression — 29 October 2026
+
+F-TERRAIN-002 remains Review on `feat/rolling-terrain`, owner Codex. Screenshot IMG_8478.jpeg reports black grass on public levels 1–5 while roads and props remain visible. **Accept when:** every mesh using the shared vertex-colored grass material supplies a complete RGB color attribute; flat ground and angular playable overlays use neutral white, rolling ground retains its smooth height tint, and rolling-to-flat level replacement preserves this shader contract. Add actual scene regressions covering all first five levels, a later angular flat meadow and repeated level switches. High implementation and a fresh medium blind review apply; keep existing hill dimensions and limits unchanged. Checked dev publication is authorized; visual/device confirmation and user acceptance remain separate.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+F-TERRAIN-002–004 are In progress for expanded terrain integration on `feat/rolling-terrain`; F-TERRAIN-001 remains Review for the existing dimensional pasture. Do not close on source review.
+
+
+## Expanded terrain source review — 29 October 2026
+
+F-TERRAIN-002–004 return to Review after higher relief/banks, elevated crossings, full-width plank correction and black-flat-grass regression integration. Public6 demonstrates rolling hills and elevated crossings; public100 is a later example. Fresh independent medium review9.2/10 has no confirmed defect and73/73 focused checks. Full checked build passes; exact counts and deployment evidence are recorded in QUALITY and the publication manifest. This supersedes earlier In-progress scope notes without implying user/device acceptance. New dev publication remains a separate gate until its pinned source CI, native Pages run and live emitted-file hashes pass.

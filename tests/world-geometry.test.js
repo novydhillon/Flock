@@ -47,7 +47,8 @@ test('every crossing is perpendicular to its sampled river and its straight road
       assert.ok(riverSegments.some(([a, b]) => Math.abs(((b.x-a.x)*forward.x+(b.z-a.z)*forward.z)/distance(a,b)) < .000002), `perpendicular: ${label}`);
       const road = level.roads[routeIndex];
       assert.equal(bridge.width, road.width * 1.25, `usable deck/path ratio: ${label}`);
-      assert.ok(bridge.length < river.width + 5, `short dry landing overlap: ${label}`);
+      if(bridge.elevated)assert.ok(bridge.length<=river.width+14, `bounded higher-bank span: ${label}`);
+      else assert.ok(bridge.length < river.width + 5, `short dry landing overlap: ${label}`);
       assert.ok(stripInsideDeck(river, bridge) <= bridge.length/2 + .001, `full sampled river strip remains under the deck: ${label}`);
       const crossing = road.points.findIndex(p => p.kind === 'bridge' && distance(p, bridge) < .000002);
       assert.ok(crossing > 1 && crossing < road.points.length - 2, label);

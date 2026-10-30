@@ -32,13 +32,13 @@ export function createGateView(gates=[], groundHeight=()=>0){
   for(const gate of gates.filter(g=>g.operable)){
     const local=new THREE.Group();local.position.set(gate.x,groundHeight(gate.x,gate.z),gate.z);local.rotation.y=gate.heading;
     const groundAt = x => groundHeight(gate.x + Math.cos(gate.heading) * x, gate.z - Math.sin(gate.heading) * x);
-    const grade = Math.atan2(groundAt(gate.width / 2) - groundAt(-gate.width / 2), gate.width);
     local.userData.groundAt = groundAt;
     local.userData.baseHeight = local.position.y;
-    local.userData.grade = grade;group.add(local);
+    group.add(local);
     for(const x of [-gate.width/2,gate.width/2])box(local,x,.85,.22,1.7,.3,metal);
     const panel=new THREE.Group();panel.name='gate-panel';panel.userData = {...local.userData};local.add(panel);
-    for(const y of [.45,1.2])box(panel,0,y,gate.width,.15,.22,wood);
+    const railSpans=Math.ceil(gate.width/1.2),railWidth=gate.width/railSpans;
+    for(const y of [.45,1.2])for(let i=0;i<railSpans;i++)box(panel,-gate.width/2+railWidth*(i+.5),y,railWidth,.15,.22,wood);
     for(let i=0;i<=Math.ceil(gate.width/1.2);i++)box(panel,-gate.width/2+gate.width*i/Math.ceil(gate.width/1.2),.82,.14,1.05,.19,wood);
     box(panel,gate.width/2-.35,.85,.24,.28,.3,metal);
     const buttons=gateSwitchPanels(gate).map(point=>{
@@ -51,19 +51,35 @@ export function createGateView(gates=[], groundHeight=()=>0){
     });
     panels.push({gate,panel,buttons});
   }
-  const matrix=new THREE.Matrix4();
+  const matrix=new THREE.Matrix4(),scale=new THREE.Vector3(),batches=[];
   for(const [parent,byMaterial] of pending)for(const [material,parts] of byMaterial){
     const mesh=new THREE.InstancedMesh(cube,material,parts.length);
-    parts.forEach((part,i)=>{
-      const y = part.y + (parent.userData.groundAt?.(part.x) ?? 0) - (parent.userData.baseHeight ?? 0);
-      matrix.makeRotationZ(part.w > part.h ? parent.userData.grade || 0 : 0);
-      matrix.scale(new THREE.Vector3(part.w, part.h, part.d));
-      matrix.setPosition(part.x,y,0);mesh.setMatrixAt(i,matrix);
-    });
+    batches.push({parent,parts,mesh});
     mesh.castShadow=mesh.receiveShadow=true;parent.add(mesh);
   }
-  group.update=()=>{for(const {gate,panel,buttons} of panels){panel.position.x=gate.open?-gate.width:0;
-    panel.position.y = panel.userData.groundAt(panel.position.x) - panel.userData.baseHeight;
+  const supportBatch=({parent,parts,mesh})=>{
+    const slide=parent.name==='gate-panel'?parent.position.x:0;
+    parts.forEach((part,i)=>{
+      const at=x=>parent.userData.groundAt(x+slide),horizontal=part.w>part.h;
+      const first=horizontal?at(part.x-part.w/2):at(part.x),last=horizontal?at(part.x+part.w/2):first;
+      const rise=last-first,grade=horizontal?Math.atan2(rise,part.w):0;
+      matrix.makeRotationZ(grade);
+      // A rolled rail keeps its authored horizontal span and meets both posts.
+      matrix.scale(scale.set(horizontal?Math.hypot(part.w,rise):part.w,part.h,part.d));
+      matrix.setPosition(part.x,part.y+(first+last)/2-parent.userData.baseHeight-(parent.name==='gate-panel'?parent.position.y:0),0);
+      mesh.setMatrixAt(i,matrix);
+    });
+    mesh.instanceMatrix.needsUpdate=true;
+    mesh.computeBoundingBox();mesh.computeBoundingSphere();
+  };
+  for(const batch of batches)supportBatch(batch);
+  group.update=()=>{for(const {gate,panel,buttons} of panels){
+    const slide=gate.open?-gate.width:0;
+    if(panel.position.x!==slide){
+      panel.position.x=slide;
+      panel.position.y=panel.userData.groundAt(slide)-panel.userData.baseHeight;
+      for(const batch of batches)if(batch.parent===panel)supportBatch(batch);
+    }
     for(const {button,halo} of buttons){button.material=gate.open?green:red;halo.material=gate.open?greenHalo:redHalo;}}};
   group.update();return group;
 }

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { groundHeight, terrainHeight, GROUND_SURFACE_OFFSET } from './world.js';
+import { groundHeight, terrainHeight, terrainNormal, GROUND_SURFACE_OFFSET } from './world.js';
+import { TERRAIN } from './terrain.js';
 import settings from './config/presentation.json' with { type: 'json' };
 import { CONFIG_CONTRACTS } from './config/contracts.js';
 import { resolveConfig } from './config/resolve.js';
@@ -124,28 +125,30 @@ export function meadowGeometry(level, width, depth, centerX, centerZ) {
     rolling ? Math.ceil(depth / SETTINGS.groundSpacing) : 1);
   geometry.rotateX(-Math.PI / 2);
   geometry.translate(centerX, GROUND_SURFACE_OFFSET, centerZ);
+  const colors = new Float32Array(geometry.attributes.position.count * 3).fill(1);
   if (rolling) {
     const position = geometry.attributes.position, normal = geometry.attributes.normal;
-    const colors = new Float32Array(position.count * 3);
     const height = (x, z) => groundHeight(level, x, z);
     for (let i = 0; i < position.count; i++) {
       const x = position.getX(i), z = position.getZ(i);
       position.setY(i, height(x, z) + GROUND_SURFACE_OFFSET);
-      const n = surfaceNormal(height, x, z);
+      const n = terrainNormal(level, x, z);
       normal.setXYZ(i, n.x, n.y, n.z);
       // A continuous, restrained height tint complements actual slopes. The
       // shared ground keeps its texture; there are no separate color polygons.
-      const high = Math.max(0, Math.min(1, (height(x, z) + .4) / 1.2));
+      const high = Math.max(0, Math.min(1, (height(x, z) + TERRAIN.channelDepth + TERRAIN.downstreamDrop) / (TERRAIN.valleyLift + TERRAIN.waveAmplitude + 2 * TERRAIN.downstreamDrop)));
       colors.set([.9 + high * .14, .94 + high * .09, .88 + high * .1], i * 3);
     }
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   }
+  // The shared grass shader always consumes color, including on flat levels.
+  // Bind neutral white explicitly instead of relying on generic vertex state.
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   return geometry;
 }
 
 /** Exact piecewise-planar height of the rendered ground, including clearance.
- * Shallow standing water needs this instead of the smooth support field: two
- * metre triangle interpolation can differ by more than its eight mm depth.
+ * Shallow standing water needs this instead of the smooth support field: grid
+ * triangle interpolation can differ by more than its eight mm depth.
  * Dimensions and triangle diagonal match the renderer's meadowGeometry call.
  */
 export function meadowSurfaceHeight(level, x, z) {

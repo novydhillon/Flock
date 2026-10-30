@@ -359,8 +359,8 @@
   },
   "terrain": {
     "groundSpacing": {
-      "value": 2,
-      "_comment": "Maximum rolling ground grid spacing in world units; smooth gradient normals hide triangle boundaries.",
+      "value": 1.2,
+      "_comment": "Rolling ground grid spacing in world units; dense samples bound steep-bank interpolation while analytic gradient normals keep lighting smooth.",
       "min": 0.5,
       "max": 2
     },

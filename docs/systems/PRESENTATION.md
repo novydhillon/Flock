@@ -1,5 +1,13 @@
 # Presentation: renderer, nature and audio
 
+## Expanded terrain presentation — 29 October 2026
+
+Rolling ground uses exact analytic normals and a relief-normalized continuous tint. Terrain elevation contributes to camera height while preserving the existing orthographic scale and viewing angle; showcase travel limits include the vertical component and paused updates retain camera height. Sliding gates resample their contour at the current open position and rails preserve projected endpoints on slopes. Triangle-interior clearance and resource-budget checks are required for the expanded bank field; vertex samples alone do not establish surface agreement. Phone appearance and frame rate remain separate pending checks.
+
+## Shared grass vertex input — 29 October 2026
+
+The shared grass material enables vertex colors for rolling height tint. Every receiving geometry binds an RGB color attribute with one entry per position: flat meadow planes and angular playable overlays use neutral white; rolling meadow grids retain their smooth height tint. This explicit shader input survives level changes without depending on generic WebGL vertex attribute state. Geometry remains owned and disposed by the level. Scene tests cover first-five flat meadows, a later angular flat meadow and repeated rolling-to-flat replacement; they do not validate rendered phone appearance.
+
 ## Exterior minimap pointer and river presentation - 28 October 2026
 
 F-UI-017 places the goal arrow outside the circular minimap at the projected goal bearing. It is drawn after restoring the canvas clip, uses the shared `GOAL_POINTER_COLOR` (`#be8652`) from Pip's brown marker, and remains outside the circle across bearings. The circle radius leaves a 16 px canvas gutter; the arrow extends 3-11 px beyond that radius. The canvas remains transparent and square so its CSS drop shadow follows the circle. Canvas expansion preserves the original map diameter; a 10 px orbit allowance below the safe-area anchor protects the north-pointing arrow and shifts tips equally. Source tests cover projection and perimeter geometry; rendered clipping and phone appearance remain unverified.
@@ -447,3 +455,12 @@ Rolling rain pools use `pool-geometry.js` horizontal geometry clipped against th
 ## Overgrown pasture visual revision — 29 October 2026
 
 The first terrain candidate was rejected on device: solid color polygons and sparse dark blades did not establish rough overgrowth. The correction uses dense three-dimensional tuft structure with soft spatial edges, avoids multiplying two dark green tints, and makes actual terrain contours more apparent at ordinary camera scale. Hills remain shared physical elevations with smooth support; color/lighting cues complement that geometry. User appearance acceptance remains pending.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+
+## Elevated bridge presentation — 29 October 2026
+
+Terrain-following bridge boards deform vertically while retaining their authored horizontal footprint, avoiding the width loss of tilting a rigid box across a slope. Bounded cross-width subdivisions and analytic support-gradient normals retain the complete visible deck; temporary construction geometry is disposed after baking. Planks, rails, nails, posts, actor roots and hover illumination use the shared elevated support. Actual merged-model/scene ray tests cover both landing ends, lateral deck edges, rotated normals and rail clearance. These source/geometry checks do not establish rendered phone appearance.

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { createLevel, groundHeight, terrainHeight, terrainNormal, GROUND_SURFACE_OFFSET } from '../src/world.js';
 import { conformSurface, meadowGeometry, meadowSurfaceHeight, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from '../src/terrain-view.js';
 import { roadNetwork } from '../src/surfaces.js';
-import { createFlowerPatch } from '../src/models.js';
+import { createFlowerPatch, createBridge } from '../src/models.js';
 import { createGateView, createStoneWallView } from '../src/gate-view.js';
 
 function rollingLevel() {
@@ -19,7 +19,7 @@ test('rolling ground samples one smooth height field and smooth normals across a
   const level = rollingLevel();
   const geometry = meadowGeometry(level, 90, 70, 3, -8);
   const p = geometry.attributes.position, n = geometry.attributes.normal;
-  assert.ok(p.count < 4000, 'ground mesh budget scales with bounded grid spacing');
+  assert.ok(p.count < 5000, 'ground mesh budget scales with bounded grid spacing');
   const normal = new THREE.Vector3();
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), z = p.getZ(i), expected = terrainNormal(level, x, z);
@@ -61,6 +61,16 @@ test('large rolling road network has a bounded indexed geometry budget', () => {
     const geometry = conformSurface(roadNetwork(level.roads), (x, z) => groundHeight(level, x, z));
     assert.ok(geometry.attributes.position.count < vertexBudget, `public level ${index + 1} vertex budget`);
     assert.ok(geometry.index.count / 3 < triangleBudget, `public level ${index + 1} triangle budget`);
+    const positions=geometry.attributes.position, indices=geometry.index;
+    // Interiors reveal interpolation errors which exact vertex samples hide.
+    // Roads retain centimetre-scale support accuracy and always clear the
+    // actual receiving ground, including where its grid uses another diagonal.
+    for(let i=0;i<indices.count;i+=3)for(const weights of [[1/3,1/3,1/3],[.6,.2,.2]]) {
+      const point=new THREE.Vector3();
+      for(let j=0;j<3;j++)point.addScaledVector(new THREE.Vector3().fromBufferAttribute(positions,indices.getX(i+j)),weights[j]);
+      assert.ok(Math.abs(point.y-groundHeight(level,point.x,point.z)-.007)<.025,'road triangle follows smooth support within 25mm');
+      assert.ok(point.y-meadowSurfaceHeight(level,point.x,point.z)>.01,'road triangle remains above receiving ground');
+    }
     geometry.dispose();
   }
 });
@@ -172,5 +182,54 @@ test('pool support matches actual ground triangles at their vertices and interio
       }
     }
     geometry.dispose();
+  }
+});
+
+
+test('dense ground triangle interiors retain support clearance across hills and riverbanks', () => {
+  for(const index of [5,19,49,94,96,99]) {
+    const level=createLevel(index),b=level.bounds;
+    if(!level.terrain.enabled)continue;
+    const geometry=meadowGeometry(level,b.maxX-b.minX+90,b.maxZ-b.minZ+90,(b.minX+b.maxX)/2,(b.minZ+b.maxZ)/2);
+    const positions=geometry.attributes.position, indices=geometry.index;
+    assert.ok(positions.count<150000,'largest supported meadow retains a bounded dense indexed grid');
+    for(let i=0;i<indices.count;i+=3)for(const weights of [[1/3,1/3,1/3],[.6,.2,.2],[.2,.6,.2],[.2,.2,.6],[.5,.5,0],[.5,0,.5],[0,.5,.5]]) {
+      const point=new THREE.Vector3();
+      for(let j=0;j<3;j++)point.addScaledVector(new THREE.Vector3().fromBufferAttribute(positions,indices.getX(i+j)),weights[j]);
+      if(point.x<b.minX||point.x>b.maxX||point.z<b.minZ||point.z>b.maxZ)continue;
+      const error=point.y-groundHeight(level,point.x,point.z)-GROUND_SURFACE_OFFSET;
+      assert.ok(Math.abs(error)<.035,`ground triangle follows actual support within its 35mm clearance: ${index+1}/${error}`);
+      assert.ok(point.y<groundHeight(level,point.x,point.z),'ground never projects above the actor support plane');
+    }
+    geometry.dispose();
+  }
+});
+
+
+test('graded bridge planks keep their complete physical width, support and normals after baking',()=>{
+  globalThis.document={createElement:()=>({getContext:()=>({
+    createImageData:(width,height)=>({data:new Uint8ClampedArray(width*height*4)}),putImageData(){},
+  })})};
+  for(const length of [8,20])for(const support of [
+    (x,z)=>1+.3*x+.2*z,
+    (x,z)=>1+.28*x+.15*z+.05*Math.sin(x/2)*Math.cos(z/5),
+  ]){
+    const width=6,bridge=createBridge(width,length,support),boards=Math.ceil(length/.3);
+    bridge.updateMatrixWorld(true);
+    const ray=new THREE.Raycaster(),up=new THREE.Vector3(),expected=new THREE.Vector3();
+    let vertices=0,triangles=0;
+    bridge.traverse(mesh=>{if(mesh.isMesh){vertices+=mesh.geometry.attributes.position.count;triangles+=mesh.geometry.index.count/3;}});
+    assert.ok(vertices<boards*230+2000&&triangles<boards*230+2000,'longer supported spans retain linear bounded geometry growth');
+    for(let board=0;board<boards;board++)for(const offset of [0,-.4,.4])for(const x of [-width/2+.005,-width*.3,0,width*.3,width/2-.005]){
+      const z=-length/2+(board+.5+offset)*length/boards,y=support(x,z);
+      ray.set(new THREE.Vector3(x,y+.06,z),new THREE.Vector3(0,-1,0));ray.far=.12;
+      const hit=ray.intersectObject(bridge,true)[0];
+      assert.ok(hit,'a real merged plank covers the full shared physical width, including both dry ends');
+      assert.ok(Math.abs(hit.point.y-y)<.003,'deck top retains millimetre-scale support clearance across its full width');
+      const step=.025,dx=(support(x+step,z)-support(x-step,z))/(2*step),dz=(support(x,z+step)-support(x,z-step))/(2*step);
+      expected.set(-dx,1,-dz).normalize();up.copy(hit.normal).transformDirection(hit.object.matrixWorld);
+      assert.ok(up.dot(expected)>.99999,'top normals follow shared support without compound-rotation error');
+    }
+    bridge.traverse(mesh=>{if(mesh.isMesh)mesh.geometry.dispose();});
   }
 });

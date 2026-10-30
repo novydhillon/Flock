@@ -764,7 +764,7 @@ test('actual target meshes and map show the shared rectangle across every enclos
     }
     const admitted=targetWorldPoint(target,shape.halfLength-.98,shape.halfWidth-.98);
     assert.ok(containsTarget(target,admitted,.78));
-    const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,2,admitted.z),new THREE.Vector3(0,-1,0));
+    const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,terrainHeight(level,admitted.x,admitted.z)+5,admitted.z),new THREE.Vector3(0,-1,0));
     assert.ok(ray.intersectObject(renderer.goal).length,'admitted cow corner is visibly inside goal');
     let path=[],fills=[];
     const ctx={clearRect(){},save(){},restore(){},rect(){},clip(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
@@ -1261,4 +1261,103 @@ test('public level six builds dense dimensional overgrowth and physical boulders
   const resources=[grass.batch.geometry,grass.batch.material,rocks.batch.geometry,rocks.batch.material];let disposed=0;
   for(const resource of resources)resource.addEventListener('dispose',()=>disposed++);
   renderer.setLevel(createLevel(0));assert.equal(disposed,resources.length,'level replacement releases owned grass and rock resources');
+});
+
+
+// Verify the actual shared shader inputs, including after its previous level
+// supplied tinted vertices. Missing color buffers are a WebGL state regression.
+test('shared grass shader receives complete neutral colors on the first five and angular flat meadows',()=>{
+  const renderer=setup();
+  const check=level=>{
+    renderer.setLevel(level);
+    const ground=renderer.terrain.getObjectByName('Meadow ground');
+    assert.ok(ground);assert.equal(renderer.grass.vertexColors,true);
+    const receivers=[];renderer.terrain.traverse(mesh=>{if(mesh.isMesh&&mesh.material===renderer.grass)receivers.push(mesh);});
+    assert.ok(receivers.length);
+    for(const mesh of receivers){
+      const color=mesh.geometry.getAttribute('color'),position=mesh.geometry.getAttribute('position');
+      assert.ok(color,`${mesh.name} must bind its grass shader color input`);
+      assert.equal(color.itemSize,3);assert.equal(color.count,position.count);
+      for(const component of color.array)assert.ok(Number.isFinite(component)&&component>0,`${mesh.name} color must not black out the texture`);
+      if(!level.terrain.enabled)for(const component of color.array)assert.equal(component,1,'flat grass must preserve the original texture and weather tint');
+    }
+    if(level.boundary.length>4&&!level.terrain.enabled)assert.ok(receivers.some(mesh=>mesh.name==='playable-meadow'),'angular overlay uses the same complete shader inputs');
+    if(level.terrain.enabled)assert.ok(ground.geometry.getAttribute('color').array.some(value=>value!==1),'rolling height tint is retained');
+  };
+  for(let index=0;index<5;index++)check(createLevel(index));
+  const angular=createLevel(69,201);angular.terrain.enabled=false;check(angular);
+  assert.ok(angular.boundary.length>4);
+  const rolling=createLevel(5);assert.ok(rolling.terrain.enabled);
+  for(const flat of [createLevel(0),angular,createLevel(4)]){check(rolling);check(flat);}
+});
+
+test('rolling camera follows support elevation while preserving original projection and view angle',()=>{
+  const level=createLevel(5);assert.ok(level.terrain.enabled);
+  const sites=[];
+  for(let x=level.bounds.minX;x<=level.bounds.maxX;x+=3)for(let z=level.bounds.minZ;z<=level.bounds.maxZ;z+=3){
+    if(canOccupy(level,x,z,.62))sites.push({x,z,y:terrainHeight(level,x,z)});
+  }
+  sites.sort((a,b)=>a.y-b.y);const route=[sites[0],sites.at(-1),sites[0]];
+  assert.ok(route[1].y-route[0].y>2.5,'fixture exercises actual expanded hill relief');
+  for(const viewport of [{width:390,height:844},{width:844,height:390}]){
+    const renderer=setup(viewport),dog={...level.dog};renderer.setLevel(level);
+    const settings=resolveConfig(presentationSettings,'presentation',CONFIG_CONTRACTS.presentation).camera;
+    const viewHeight=viewport.width/viewport.height<settings.portraitAspect?settings.playPortraitHeight:settings.playLandscapeHeight;
+    let direction;
+    for(const site of route){
+      Object.assign(dog,site);renderer.update(level,dog,1,false);
+      assert.equal(renderer.camera.top-renderer.camera.bottom,viewHeight,'elevation never changes gameplay scale');
+      assert.ok(Math.abs(renderer.camera.position.y-site.y-settings.positionY)<1e-9,'camera retains configured height over actor support');
+      const current=renderer.camera.getWorldDirection(new THREE.Vector3());
+      if(direction)assert.ok(current.distanceTo(direction)<1e-9,'elevation never tilts the original view angle');
+      direction=current;
+      const center=new THREE.Vector3(dog.x,site.y,dog.z).project(renderer.camera);
+      assert.ok(Math.abs(center.x)<.13&&Math.abs(center.y)<.16,'high and low support stay near screen center');
+      const cameraHeight=renderer.center.y;renderer.update(level,dog,1/60,false);
+      assert.ok(Math.abs(renderer.center.y-cameraHeight)<1e-9,'stationary follow does not drift away from support');
+      const frozen=renderer.center.clone();renderer.update(level,dog,0,false);assert.ok(renderer.center.equals(frozen),'paused camera freezes all three follow axes');
+    }
+  }
+});
+
+
+test('elevated bridges render full-width supported decks, graded rails and surface glow at both bank joins',()=>{
+  const renderer=setup();
+  for(const index of [5,19]){
+    const level=createLevel(index);renderer.setLevel(level);
+    const spans=[];renderer.terrain.traverse(object=>{if(object.name==='Bridge'&&object.userData.bridge?.elevated)spans.push(object);});
+    assert.ok(spans.length,'fixture contains actual elevated bridge meshes in the rendered scene');
+    for(const group of spans){
+      const bridge=group.userData.bridge,boards=Math.ceil(bridge.length/.3),point=new THREE.Vector3(),normal=new THREE.Vector3();
+      group.updateWorldMatrix(true,true);
+      const probe=(x,along)=>{
+        point.set(x,0,along).applyMatrix4(group.matrixWorld);
+        const support=bridgeSurfaceHeight(level,bridge,point.x,point.z);
+        const ray=new THREE.Raycaster(new THREE.Vector3(point.x,support+.06,point.z),new THREE.Vector3(0,-1,0),0,.12);
+        const hit=ray.intersectObject(group,true)[0];
+        assert.ok(hit,'actual merged deck covers its full shared span and lateral width');
+        assert.ok(Math.abs(hit.point.y-support)<.006,'elevated deck top follows the authoritative support across its width');
+        const step=.025,height=(x,z)=>bridgeSurfaceHeight(level,bridge,x,z);
+        normal.set(-(height(point.x+step,point.z)-height(point.x-step,point.z))/(2*step),1,
+          -(height(point.x,point.z+step)-height(point.x,point.z-step))/(2*step)).normalize();
+        const actual=hit.normal.clone().transformDirection(hit.object.matrixWorld);
+        assert.ok(actual.dot(normal)>.9995,'merged deck normals track shared support through rotated dry bank joins');
+      };
+      for(let board=0;board<boards;board+=4)for(const x of [-bridge.width/2+.005,0,bridge.width/2-.005])probe(x,-bridge.length/2+(board+.5)*bridge.length/boards);
+      for(const end of [-1,1])for(const x of [-bridge.width/2+.005,0,bridge.width/2-.005])probe(x,end*(bridge.length/2-.02));
+      const sections=Math.ceil(bridge.length/.6);
+      for(const side of [-1,1])for(let section=0;section<sections;section+=4){
+        point.set(side*bridge.width/2,0,-bridge.length/2+(section+.5)*bridge.length/sections).applyMatrix4(group.matrixWorld);
+        const support=bridgeSurfaceHeight(level,bridge,point.x,point.z);
+        const ray=new THREE.Raycaster(new THREE.Vector3(point.x,support+.75,point.z),new THREE.Vector3(0,-1,0),0,.3);
+        const hit=ray.intersectObject(group,true)[0];
+        assert.ok(hit&&Math.abs(hit.point.y-support-.61)<.015,'upper rail stays at its authored clearance over the elevated deck');
+      }
+      Object.assign(level.dog,{x:bridge.x,z:bridge.z,heading:bridge.heading});renderer.update(level,level.dog,1/60,false);
+      assert.equal(renderer.dog.position.y,bridgeSurfaceHeight(level,bridge,bridge.x,bridge.z));
+      for(const glow of renderer.thrusterGlow.centers.value){
+        assert.equal(glow.y,bridgeSurfaceHeight(level,bridge,glow.x,glow.z),'hover illumination targets elevated deck, never channel bed');
+      }
+    }
+  }
 });
