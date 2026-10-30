@@ -26,7 +26,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-INPUT-001 | P2 | Controls | Double joystick radius and add logarithmic speed | Review | Existing floating joystick |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
@@ -419,13 +418,3 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 ## Water vegetation acceptance — 29 October 2026
 
 Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.
-
-
-
-### F-INPUT-001 — Larger logarithmic joystick
-
-**Status:** Review. Owner: Codex. **Branch:** `feat/logarithmic-joystick`.
-
-**Accept when:** Movement radius doubles from 42 to 84 CSS pixels; visible ring radius doubles in each responsive layout; radial speed is logarithmic and reaches maximum at 85% travel, remaining capped across the outer 15%. Preserve direction, independent thumb position, keyboard controls and cancellation behavior. Physical phone touch/layout checks pending.
-
-Implementation 29 October 2026: radius 84 px, doubled responsive ring, logarithmic radial response and 85% saturation implemented. Focused 65/65 and full 561/561 tests pass; checked dev build passed documentation checks, release QA exclusion and development QA inclusion. Independent blind review 9/10, no blockers; safe-area follow-up reviewed with no blockers. Phone checks/sign-off pending. Source only; not deployed or merged.

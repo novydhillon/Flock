@@ -1298,3 +1298,8 @@ Radius increases 42 to 84 CSS pixels. Ring diameters double for desktop/mobile/s
 Validation: 65/65 focused controller/configuration tests, 561/561 full regression tests, documentation freshness/link/lifecycle and 7/7 documentation behavior tests; `npm run build:checked:dev` passed release build (33 files, no QA assets) and dev build (35 files, two QA assets). Existing large-chunk advisory remains. Initial local docs check exposed a missing downloaded workflow file; restoring the unchanged connector-fetched source resolved it. Initial exact numeric test used strict equality at a floating-point threshold; tolerance was corrected to 1e-12.
 
 Blind review pass 1: 9/10, no blockers. Optional minor coverage suggestions: thumb transforms at diagonal/over-range and CSS dimensions could receive additional assertions. Follow-up reviewed safe-area idle clamp: no blockers. Critic ran 53/53 UI tests. Device rendering, physical touch feel, edge-origin clipping and phone FPS remain unverified. Item remains Review pending Novy's acceptance. No deployment, PR or main merge requested or performed.
+
+
+## F-INPUT-001 user acceptance and main merge — 29 October 2026
+
+Novy explicitly approved the joystick change and requested merge to main. F-INPUT-001 is Done and its complete tracker record is archived in ISSUES_CLOSED.md. Runtime `76284e94eca5d369b0ed31f9f3996bca8432d1e6` passed source CI [41014220871](https://github.com/novydhillon/Flock/actions/runs/41014220871). Main `41f3a05` is its direct parent; closure changes only documentation and generated HTML. Prior pending acceptance wording is historical and superseded. Documentation checks are rerun for this closure. Source merge is authorized; no production publication or new phone observation is claimed.

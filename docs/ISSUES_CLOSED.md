@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-INPUT-001~~ | ~~P2~~ | ~~Controls~~ | ~~Double joystick radius and add logarithmic speed~~ | ~~Done~~ | ~~Existing floating joystick~~ |
 | ~~F-WATER-002~~ | ~~P2~~ | ~~Environment~~ | ~~Seeded in-water grass and reed clumps on 20% of water bodies~~ | ~~Done~~ | ~~Existing rendered water surfaces~~ |
 | ~~F-WATER-003~~ | ~~P2~~ | ~~Environment~~ | ~~Slender vegetation clumps and natural bank/rock distribution~~ | ~~Done~~ | ~~F-WATER-002; accepted water obstacles~~ |
 | ~~F-UI-017~~ | ~~P2~~ | ~~Minimap~~ | ~~Exterior goal pointer matching Pip~~ | ~~Done~~ | ~~F-UI-014~~ |
@@ -1971,3 +1972,17 @@ Novy explicitly requested removing grass/reed shadows and deploying to dev, with
 ## F-WATER-003 - ~~downstream reed curvature — 29 October 2026~~
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+
+
+## Joystick user acceptance — 29 October 2026
+
+### F-INPUT-001 — ~~Larger logarithmic joystick~~
+
+**Status:** Done. Owner: Codex. **Branch:** `feat/logarithmic-joystick`.
+
+**Accept when:** Movement radius doubles from 42 to 84 CSS pixels; visible ring radius doubles in each responsive layout; radial speed is logarithmic and reaches maximum at 85% travel, remaining capped across the outer 15%. Preserve direction, independent thumb position, keyboard controls and cancellation behavior. Physical phone touch/layout checks pending.
+
+Implementation 29 October 2026: radius 84 px, doubled responsive ring, logarithmic radial response and 85% saturation implemented. Focused 65/65 and full 561/561 tests pass; checked dev build passed documentation checks, release QA exclusion and development QA inclusion. Independent blind review 9/10, no blockers; safe-area follow-up reviewed with no blockers. Phone checks/sign-off pending. Source only; not deployed or merged.
+
+Closed 29 October 2026: Novy explicitly approved with “Approved. Merge to main.” This supersedes the historical pending sign-off wording above. Accepted runtime `76284e94eca5d369b0ed31f9f3996bca8432d1e6`; source CI [41014220871](https://github.com/novydhillon/Flock/actions/runs/41014220871) succeeded. Full previous evidence and unobserved-device limits are retained; no new device measurement is claimed. Source merge authorized; production publication is separate.
