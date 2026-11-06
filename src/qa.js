@@ -1,3 +1,43 @@
+/** Development-only ground diagnostic. Heights come from the rendered meadow,
+ * so contour lines describe the visible surface without extra mesh work. */
+export function installQAContours(material) {
+  if (!material) return { setEnabled() {}, dispose() {} };
+  const compile = material.onBeforeCompile;
+  const cacheKey = material.customProgramCacheKey;
+  const enabled = { value: 0 };
+  material.onBeforeCompile = function(shader, renderer) {
+    compile.call(this, shader, renderer);
+    shader.uniforms.qaContourEnabled = enabled;
+    shader.vertexShader = 'varying float qaContourHeight;\n' + shader.vertexShader.replace(
+      '#include <begin_vertex>', '#include <begin_vertex>\nqaContourHeight = position.y + 0.035;');
+    shader.fragmentShader = `varying float qaContourHeight;
+      uniform float qaContourEnabled;
+      float qaContourLine(float interval) {
+        float h = qaContourHeight / interval;
+        float distanceToLine = abs(fract(h + 0.5) - 0.5);
+        float pixel = max(fwidth(h), 0.00001);
+        return 1.0 - smoothstep(pixel * 0.6, pixel * 1.6, distanceToLine);
+      }
+      ` + shader.fragmentShader.replace('#include <opaque_fragment>', `
+        float minorContour = qaContourLine(0.5);
+        float majorContour = qaContourLine(2.0);
+        outgoingLight = mix(outgoingLight, vec3(0.06, 0.035, 0.015),
+          qaContourEnabled * max(minorContour * 0.65, majorContour * 0.95));
+        #include <opaque_fragment>`);
+  };
+  material.customProgramCacheKey = function() { return cacheKey.call(this) + ':qa-contours'; };
+  material.needsUpdate = true;
+  return {
+    setEnabled(value) { enabled.value = value ? 1 : 0; },
+    dispose() {
+      enabled.value = 0;
+      material.onBeforeCompile = compile;
+      material.customProgramCacheKey = cacheKey;
+      material.needsUpdate = true;
+    },
+  };
+}
+
 import { animalRadius } from './animal-size.js';
 import './qa.css';
 
@@ -83,6 +123,7 @@ export function installQA(bridge, doc = document) {
     <form id="qa-jump"><label>QA level <select id="qa-level"><option value="0">QA 0 · tutorial shortcut</option>${Array.from({length:100},(_,i)=>`<option value="${i+1}">Level ${i+1}</option>`).join('')}</select></label><button>Jump · no unlock required</button></form>
     <form id="qa-bolts"><label>Bolts to add / remove <input id="qa-amount" type="number" min="0" step="1" value="100"></label><div><button value="add">Add bolts</button><button value="remove">Remove bolts</button></div><output id="qa-balance"></output></form>
     <label class="qa-check"><input id="qa-wander-debug" type="checkbox"> Flock debug: next check countdown and wander/bolt tints</label>
+    <label class="qa-check"><input id="qa-contours" type="checkbox"> Terrain contours · 0.5 m lines, bold every 2 m</label>
     <button id="qa-close" class="qa-close" aria-label="Close QA">×</button>
     <form id="qa-move" hidden><label>Individual flock animal <select id="qa-animal"></select></label><div class="qa-coordinates"><label>World X <input id="qa-x" type="number" step="any" required></label><label>World Z <input id="qa-z" type="number" step="any" required></label></div><p id="qa-bounds"></p><label class="qa-check"><input id="qa-override" type="checkbox"> Allow invalid placement (water, fences, trees); meadow bounds still apply</label><button>Move selected animal</button></form>
     <div class="qa-actions"><button id="qa-reset">Reset test session</button><button id="qa-export">Export scenario JSON</button><button id="qa-resume">Resume test play</button></div><p id="qa-status" role="status" aria-live="polite"></p>`;
@@ -95,8 +136,10 @@ export function installQA(bridge, doc = document) {
   let debugEnabled = false;
   const renderer = bridge.getRenderer?.(), originalBatches = renderer?.updateAnimalBatches;
   if (originalBatches) renderer.updateAnimalBatches = function(level, poseTime) { originalBatches.call(this, level, poseTime); applyQAWanderTints(this, level, debugEnabled); };
+  const contours = installQAContours(renderer?.grass);
   const $ = id => panel.querySelector(`#${id}`);
   $('qa-wander-debug').onchange = () => { debugEnabled = $('qa-wander-debug').checked; };
+  $('qa-contours').onchange = () => contours.setEnabled($('qa-contours').checked);
   let open = false, busy = false;
   const inertBefore = new Map();
   const freezeBackground = () => { for (const child of doc.body.children) if (child !== panel && child !== button) { if (!inertBefore.has(child)) inertBefore.set(child, child.inert); child.inert = true; } };
@@ -137,6 +180,7 @@ export function installQA(bridge, doc = document) {
       countdown.hidden = !debugEnabled || level.completed || (bridge.getMode ? bridge.getMode() !== 'playing' : bridge.isPaused());
       const seconds = nextQAWanderCheck(level); countdown.textContent = seconds === null ? '—' : seconds.toFixed(1);
     },
-    destroy() { if (originalBatches) { applyQAWanderTints(renderer, bridge.getState().level, false); renderer.updateAnimalBatches = originalBatches; } restoreBackground(); doc.removeEventListener('keydown', keydown, true); countdown.remove(); button.remove(); panel.remove(); }
+    destroy() { contours.dispose(); if (originalBatches) { applyQAWanderTints(renderer, bridge.getState().level, false); renderer.updateAnimalBatches = originalBatches; } restoreBackground(); doc.removeEventListener('keydown', keydown, true); countdown.remove(); button.remove(); panel.remove(); }
   };
 }
+
