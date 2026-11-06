@@ -38,3 +38,8 @@ Many modules use long, dense lines. A file with a few hundred lines can hold ten
 - Run focused tests, `npm test`, `npm run build:checked:dev` and `npm run build:checked:production`.
 - Update `docs/ARCHITECTURE.md` or the matching `docs/systems/*.md` page when a contract changes, then regenerate the HTML.
 - Add phone smoke-check steps to `docs/DEVELOPMENT.md` when the change affects appearance, input or performance. Record those checks as pending until someone observes them on a device.
+
+
+## Repeatable work — 6 November 2026
+
+Follow the root repeatable-work rule: on the fourth occurrence, save or extend a documented workflow and reusable tools under `scripts/`. Consult [the tool catalog](../scripts/README.md) first; preserve the checks and authorization gates for this area.

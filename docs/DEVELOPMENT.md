@@ -220,6 +220,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/chokepoints.test.js` | Mixed-crowd deck crossing without surging, lanes, open gate and entrance queues, opposing groups, early commit rules, player turn-back inside and outside the commit zone, bounded yielding, state cleanup and large-herd spacing |
 | `tests/qa.test.js` | QA mapping, edit constraints, isolated controller state and build gating |
 | `tests/deploy-pages.test.js` | Validated relative assets, destination guards, byte-preserving plans and concurrent-publication rejection |
+| `tests/deployment-workflow.test.js` | Preflight authorization inputs, exact Pages commit selection, native errors, bounded polling and CDN verification retries |
 | `tests/render.test.js` | Geometry, camera matrices, culling, batches, fitted sun shadows, animated shadow-depth poses and disposal |
 | `tests/nature.test.js` | Wildlife, weather, resource budgets and cleanup |
 | `tests/weather.test.js` | Seeded weather episodes, shared severity, lightning and atmosphere resources |
@@ -511,3 +512,12 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 ## F-INPUT-001 phone smoke checks — 29 October 2026
 
 In phone portrait/landscape and the smallest supported viewport, compare the doubled ring and 84-pixel travel with the previous joystick. Slowly drag from center through 85%, then to/beyond the rim: speed should increase logarithmically and stay maximum over the last 15%; thumb remains under the drag until clamped. Check all directions, nearby bark/QA controls, safe areas, floating touch origins near screen edges, pointer release/cancel/lost capture, pause/background, resize, restart and keyboard controls. Device layout and touch feel remain pending; automated controller tests do not establish those results.
+
+
+## Reusable workflows and tools — 6 November 2026
+
+On the fourth occurrence of a task, save or extend a repeatable workflow and reusable tools before handoff. Count demonstrated repeats across sessions, consult the [tool catalog](../scripts/README.md) first, and preserve useful scratch scripts under `scripts/`. Document prerequisites, commands/APIs, inputs, outputs, side effects, verification and limits. Python, Node.js or another suitable language is acceptable; prefer the existing project toolchain for delivery tooling.
+
+F-OPS-005 audits the existing delivery flow: checked builds, documentation generation/checking, artifact validation, scoped publication, live hashes, icon generation and chokepoint measurements already have tools. Repeated publication records under `docs/validation/` establish the recurrence threshold for deployment. The remaining inline preflight and native Pages polling are now `scripts/check-deploy-target.cjs` and `scripts/wait-for-pages.cjs`, called by Deploy Flock. Checkout with credentials disabled now precedes the extracted preflight so the checked-in file is available; preflight still precedes dependency installation, build and publication. Unknown environments and non-branch refs fail closed.
+
+The wait tool retains exact Pages-commit selection, immediate native-error failure, bounded polling and all-file live hash verification with CDN retries. Focused coverage is `node --test tests/deploy-pages.test.js tests/deployment-workflow.test.js`. All agent repository access stays connector-only; no deployment or merge is authorized by creating these tools. Checks simulate API states and do not establish native Pages, live deployment or device behavior.

@@ -659,3 +659,8 @@ F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about t
 ## F-INPUT-001 — Larger logarithmic joystick — 29 October 2026
 
 Double joystick travel radius to 84 CSS pixels and visible ring radius at every responsive size. Apply a normalized radial logarithm with configurable strength 9; reach full speed at 85% travel and hold full speed through the outer 15%. Preserve thumb tracking, heading, keyboard input and stop/cancel behavior.
+
+
+## Reusable task workflows — 6 November 2026
+
+F-OPS-005: tasks performed more than three times require a checked-in repeatable workflow with reusable tools, documented invocation and meaningful verification. Reuse existing scripts first, retain useful scratch tools, and preserve connector access, publication guards and user sign-off. Inventory current tooling and extract the deployment workflow's inline preflight and native Pages polling without changing destinations or bypassing live hash verification.

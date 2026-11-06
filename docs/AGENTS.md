@@ -33,3 +33,8 @@ These notes add to the root [AGENTS.md](../AGENTS.md). They cover editing `docs/
 ## Deployment runbook consistency — 19 October 2026
 
 Keep the preferred Deploy Flock workflow and connector-only gh-pages fallback aligned in the root guide and DEVELOPMENT.md. Missing dispatch permits the fallback under existing authorization; failed checks do not. Preserve destination guards, binary bytes, unrelated Pages paths, expected-head atomic updates and native/live-hash verification. Record actual connector capabilities and route used.
+
+
+## Repeatable work — 6 November 2026
+
+Follow the root repeatable-work rule: on the fourth occurrence, save or extend a documented workflow and reusable tools under `scripts/`. Consult [the tool catalog](../scripts/README.md) first; preserve the checks and authorization gates for this area.

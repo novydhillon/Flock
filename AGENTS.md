@@ -45,6 +45,14 @@ Use Node.js 22 or newer: the documented requirement, and the version CI uses (`p
 
 CI runs the checked build on every pushed branch except `gh-pages`, using `.github/workflows/deploy-dev2.yml` despite its historical name. Stale `docs/html` therefore fails CI.
 
+## Save repeatable workflows and tools — 6 November 2026
+
+- Always check the [tool catalog](scripts/README.md) and existing workflows before reconstructing a task. Reuse or extend the existing entry point first.
+- Once a task has been done more than three times (the fourth occurrence), create or update a repeatable workflow and commit reusable tools before completing that occurrence. Count repetitions across sessions when repository history, tracker records or user context establish them; do not reset the count each chat. Create tooling earlier when repetition is already clear.
+- Save executable automation under `scripts/` in the language that fits the task (Node.js, Python or another appropriate language). Keep Actions YAML as orchestration over shared tools. Parameterize changing inputs instead of copying task-specific scripts.
+- Document prerequisites, exact invocation, inputs, outputs, side effects, verification and limits in `scripts/README.md` or a linked runbook. Record recurrence evidence and new or extended tools in the task tracker. Preserve useful scripts from scratch work in the repository before handoff.
+- Validate extracted behavior with meaningful focused checks. Preserve destination guards, connector-only repository access, concurrent-update protection, existing authorization and sign-off rules. Creating a workflow does not authorize running its publishing or destructive steps. Do not store credentials or machine-specific paths in tools.
+
 ## GitHub access — effective 18 October 2026
 
 - Use the GitHub connector for every repository operation: refs/files, comparisons, branches, commits, source publication, pull requests, merges and Pages publication. Do not run shell `git` or `gh` commands or direct GitHub HTTP requests as substitutes. Local editing, dependency installation, builds and tests may still use shell tools.

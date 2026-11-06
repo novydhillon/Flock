@@ -11,3 +11,8 @@ These notes add to the root [AGENTS.md](../AGENTS.md) for work in `tests/`.
 - Use seeded levels and fixed `1/60` steps so results are repeatable. Keep test runtime modest; the whole suite runs in CI on every pushed branch.
 - `tests/tracker-*.test.js` cover the standalone `tracker/` site. `tests/deploy-pages.test.js` covers the deployment planner and publisher guards.
 - Passing tests do not show rendered appearance, sound quality, touch feel or phone FPS. Say so wherever results are recorded.
+
+
+## Repeatable work — 6 November 2026
+
+Follow the root repeatable-work rule: on the fourth occurrence, save or extend a documented workflow and reusable tools under `scripts/`. Consult [the tool catalog](../scripts/README.md) first; preserve the checks and authorization gates for this area.
