@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Double-height experiment presentation — 6 November 2026
+
+`feat/double-terrain-height` keeps the accepted static camera and shared support normals while raising actual ground relief. Crest/valley shading already derives its scale from the terrain configuration, so grass and road materials adapt to the 9 m ceiling without separate surface offsets. Terrain bounds continue setting the view-shadow maximum caster height dynamically. A small sun vertical adjustment from 32 to 33 m retains the existing 45,000 nearby-scenery triangle budget on the higher field; horizontal sun offset and accepted ambient/directional gains are unchanged. Flat introductory levels retain neutral relief shading. Phone framing, readability and FPS remain playtest checks.
+
 ## Terrain relief cues — 6 November 2026
 
 A chained material hook applies configurable0.88–1.08height brightness to grass, road and shoulder surfaces. One rolling-enabled uniform resets on each level replacement; flat levels are neutral. The same hook preserves prior shader/glow/weather hooks and adds no geometry. Lower sun angle and reduced hemisphere fill strengthen sided lighting. Shadow culling now uses per-plane support of the original sphere and its projected ellipse, retaining visible casters with less conservative overdraw than uniform radius inflation. Road conformance spacing is1.9m rather than2m to retain25mm interpolation accuracy on the stronger profile; ground density is unchanged. Device appearance and FPS require observation.

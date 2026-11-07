@@ -1,5 +1,11 @@
 # World generation, collision, and navigation
 
+## Double-height experimental profile — 6 November 2026
+
+On `feat/double-terrain-height`, mean lift is 4 m, wave amplitude 3.8 m and wave length scales 11/15/19 m per radian. Doubling height and horizontal wave scales preserves exact wave gradients, while the existing wet-edge-normalized channel field retains river coverage. The maximum allowed relief is 9 m and the pasture/support grade cap remains 30 degrees. The dry-bank rise scale changes 2 to 1.9 to widen the taller valley transition enough to preserve grades. This slope correction does not implement compact/steep banks. Channel floor, water depth, downstream drop, bridge dimensions, layout positions and compact-bank deferral are unchanged. Ground, actors, structures and decks continue reading the authoritative analytic field; no rendering-only vertical scale is applied.
+
+Sampled default public levels 6/20/50/100 use about 7.8–7.9 m actual range, compared with about 4.0–4.1 m previously. The cap is a ceiling, not an exact per-level target. `scripts/measure-terrain.mjs` records repeatable source measurements; its sampling does not prove rendered appearance or all possible seeded extrema.
+
 ## Readable hill profile — 6 November 2026
 
 The analytic pasture profile uses normalized configurable wave weights0.7/0.2/0.1 and length scales5.5/7.5/9.5m per radian. The dominant wave avoids visible cancellation without increasing the relief amplitude. Exact derivatives remain authoritative for support, normals, pooling and road conformance. Elevated-deck endpoint matching is localized with power12. Completed-field landing checks downgrade raised candidates that another river corridor has lowered; routes remain safe because downgraded rails only shorten. Eligible rain-pool search extends the deterministic journey-verge offsets to16m on rolling levels because stronger grades narrow lowland sites; eligibility, obstacle footprint safety and pool count limits are unchanged.

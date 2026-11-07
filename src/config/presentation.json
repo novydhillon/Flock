@@ -73,10 +73,10 @@
     "sunOffset": {
       "value": [
         -24,
-        32,
+        33,
         28
       ],
-      "_comment": "Sun offset from the followed camera center, in world XYZ.",
+      "_comment": "Sun offset in world XYZ; experimental33m vertical component preserves the mobile shadow submission budget over doubled terrain while retaining directional relief lighting.",
       "min": -100,
       "max": 100
     },

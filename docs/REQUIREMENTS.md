@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Double-height experiment — 6 November 2026
+
+F-TERRAIN-HEIGHT-001 explores a 9 m height ceiling, doubling the accepted 4.5 m range without raising the 30-degree pasture/support slope limit. Actual seeded terrain must gain approximately twice the physical relief; widening hills is permitted to preserve grades. Retain shared actor/road/structure/water support, smooth normals and transitions, fixed camera world height and flat first five levels. The separate F-TERRAIN-BANK-001 compact/steep bank feature stays Deferred. User acceptance of the earlier profile does not accept this experiment.
+
 ## Hill readability — 6 November 2026
 
 F-TERRAIN-002: make rounded crests and valleys easier to read with contours off, using a stronger smooth hill profile, lower directional sunlight and restrained continuous crest/valley brightness on meadow and roads. Preserve 4.5m maximum relief, 30-degree pasture/support grades, the static camera, flat first five levels, shared physical support, eligible lowland water and bounded geometry. Native appearance remains an acceptance check.

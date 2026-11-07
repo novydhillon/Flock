@@ -30,6 +30,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-TERRAIN-HEIGHT-001 | P2 | Terrain experiment | Double terrain range with unchanged slope limit | Review | Accepted rolling terrain |
 | F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | Deferred | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
@@ -384,3 +385,14 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 **Accept when:** Raised spans use compact banks with smooth slopes, coherent textures, fully dry/crossable decks and no cracks, visible triangle facets or floating actors. Validate full regression, geometry budgets and fresh independent review, then rendered/device checks before acceptance.
 
 **Deferred:** 6 November 2026. Novy explicitly requested keeping bank work waiting. Earlier local prototype used 2.75m setbacks versus accepted 7m, but was not committed or deployed; its 595/596 regression result included a mobile scenery budget failure. Preserve that experimental work separately; do not import it into accepted main or the next height experiment. Historical bank-related scope is retained in the archived terrain execution records and QUALITY.md.
+
+
+### F-TERRAIN-HEIGHT-001 — Double terrain range while retaining slope limits
+
+**Status:** Review. Owner: terrain experiment team.
+
+**Branch:** `feat/double-terrain-height`
+
+**Accept when:** Raise the allowed height range from 4.5 m to 9 m and approximately double actual seeded relief by widening rounded hills, while retaining 30-degree maximum pasture and support slopes, smooth shared surfaces, the fixed camera world height and flat first five levels. Keep actors, roads, goals, bridges and water coherent and mobile geometry bounded. The compact/steep bank work remains Deferred under F-TERRAIN-BANK-001. Record source checks separately from phone acceptance and deployment.
+
+**6 November 2026:** Prototype uses mean lift 4 m and wave amplitude 3.8 m, with doubled wave length scales 11/15/19. No bridge spans, river widths or bank profile algorithms are changed. Repeated height/grade scans across prior terrain sessions triggered extraction of `scripts/measure-terrain.mjs`; its parameterized levels/seeds/spacing and JSON evidence replace further one-off measurement scripts. Final `npm run build:checked:dev` passed 605/605 regressions, 7/7 documentation checks, release 33 files/zero QA assets and development 35 files/two QA assets. Fresh blind review initially scored 8/10 after finding a limiting bank slope; the corrected candidate scored 9/10 with no blockers. See QUALITY and the experiment record for measurements and validation limits. User acceptance and device checks remain pending; no deployment is claimed.
