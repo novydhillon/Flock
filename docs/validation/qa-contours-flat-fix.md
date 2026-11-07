@@ -1,0 +1,5 @@
+# QA contour flat-ground correction — 6 November 2026
+
+Scope: F-TERRAIN-002 QA testing aid, feat/rolling-terrain. The reported brown flat meadow was an elevation coincident with a contour: zero screen-space height gradient plus a clamped antialiasing width produced full-surface line coverage. The shader now fades contour coverage to zero as its actual elevation footprint vanishes. The QA controller also disables the uniform for levels without enabled terrain, while retaining the checked preference for subsequent rolling levels. Flat patches inside rolling terrain receive the shader safeguard.
+
+Validation: 16/16 QA tests, including evaluation of the actual generated contour shader function at positive/negative exact contour elevations and off-contour heights. Constant planes have zero contour weight; sloped crossings remain visible. Release and development builds and their QA-mode checks passed. WebGL/phone appearance remains pending. Previous uncommitted compact riverbank changes are outside this correction; these local builds are source checks, not complete deployment artifacts. No new dev publication is claimed by this record.

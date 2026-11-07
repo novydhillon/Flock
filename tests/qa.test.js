@@ -96,3 +96,18 @@ test('terrain contour toggle updates compiled uniforms and restores existing mat
   assert.equal(material.onBeforeCompile, compile);
   assert.equal(material.customProgramCacheKey, key);
 });
+
+
+test('actual contour shader leaves constant-height planes unshaded, including exact contour heights', () => {
+  const material = { onBeforeCompile() {}, customProgramCacheKey() { return 'test'; } };
+  installQAContours(material);
+  const shader = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <opaque_fragment>' };
+  material.onBeforeCompile(shader);
+  const body = shader.fragmentShader.match(/float qaContourLine\(float interval\) \{([\s\S]*?)\}/)[1].replace(/float /g, 'let ');
+  const evaluate = new Function('qaContourHeight', 'interval', 'fwidth', 'abs', 'fract', 'max', 'smoothstep', body);
+  const smoothstep = (a,b,x) => { const t=Math.max(0,Math.min(1,(x-a)/(b-a))); return t*t*(3-2*t); };
+  const weight = (height,interval,gradient) => evaluate(height,interval,()=>gradient,Math.abs,x=>x-Math.floor(x),Math.max,smoothstep);
+  for (const interval of [.5,2]) for (const height of [0,.5,2,-2,.27]) assert.equal(weight(height,interval,0),0);
+  assert.ok(weight(2,.5,.01) > .99, 'sloped contour crossing remains visible');
+  assert.equal(weight(2.25,.5,.01),0, 'sloped ground between contours retains its color');
+});

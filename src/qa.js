@@ -15,8 +15,12 @@ export function installQAContours(material) {
       float qaContourLine(float interval) {
         float h = qaContourHeight / interval;
         float distanceToLine = abs(fract(h + 0.5) - 0.5);
-        float pixel = max(fwidth(h), 0.00001);
-        return 1.0 - smoothstep(pixel * 0.6, pixel * 1.6, distanceToLine);
+        // A flat surface can coincide with an entire contour elevation.
+        // Suppress its zero-width footprint rather than filling the meadow.
+        float footprint = fwidth(h);
+        float pixel = max(footprint, 0.00001);
+        return smoothstep(0.000001, 0.00001, footprint)
+          * (1.0 - smoothstep(pixel * 0.6, pixel * 1.6, distanceToLine));
       }
       ` + shader.fragmentShader.replace('#include <opaque_fragment>', `
         float minorContour = qaContourLine(0.5);
@@ -139,7 +143,7 @@ export function installQA(bridge, doc = document) {
   const contours = installQAContours(renderer?.grass);
   const $ = id => panel.querySelector(`#${id}`);
   $('qa-wander-debug').onchange = () => { debugEnabled = $('qa-wander-debug').checked; };
-  $('qa-contours').onchange = () => contours.setEnabled($('qa-contours').checked);
+  $('qa-contours').onchange = () => contours.setEnabled($('qa-contours').checked && !!bridge.getState().level.terrain?.enabled);
   let open = false, busy = false;
   const inertBefore = new Map();
   const freezeBackground = () => { for (const child of doc.body.children) if (child !== panel && child !== button) { if (!inertBefore.has(child)) inertBefore.set(child, child.inert); child.inert = true; } };
@@ -177,6 +181,7 @@ export function installQA(bridge, doc = document) {
   return {
     update() {
       const {level} = bridge.getState();
+      contours.setEnabled($('qa-contours').checked && !!level.terrain?.enabled);
       countdown.hidden = !debugEnabled || level.completed || (bridge.getMode ? bridge.getMode() !== 'playing' : bridge.isPaused());
       const seconds = nextQAWanderCheck(level); countdown.textContent = seconds === null ? '—' : seconds.toFixed(1);
     },
