@@ -21,21 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Validate destination and authorization
         env:
           TARGET: ${{ inputs.environment }}
           CONFIRM: ${{ inputs.confirm_production }}
           PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
-        run: |
-          node - <<'NODE'
-          const production = process.env.TARGET === 'production';
-          if (production !== (process.env.GITHUB_REF === 'refs/heads/main')) throw Error('main is production-only; other branches are dev-only');
-          if (production && process.env.CONFIRM !== 'deploy-production') throw Error('Production confirmation missing');
-          if (!process.env.PUBLISH_TOKEN) throw Error('Configure PAGES_PUBLISH_TOKEN; GITHUB_TOKEN pushes do not trigger native Pages');
-          NODE
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
+        run: node scripts/check-deploy-target.cjs
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
@@ -60,20 +54,7 @@ jobs:
           PAGES_SHA: ${{ steps.publish.outputs.pages_sha }}
         with:
           script: |
-            const { execFileSync } = require('node:child_process');
-            for (let attempt = 0; attempt < 60; attempt++) {
-              const builds = (await github.rest.repos.listPagesBuilds({ ...context.repo, per_page: 100 })).data;
-              const build = builds.find(item => item.commit === process.env.PAGES_SHA);
-              if (build?.status === 'errored') throw Error('Native Pages build failed');
-              core.info(`Attempt ${attempt + 1}/60: native Pages build ${build?.status ?? 'not listed yet'}`);
-              if (build?.status === 'built') {
-                // Pages reports "built" slightly before the CDN serves it; retry hash mismatches.
-                try { execFileSync(process.execPath, ['scripts/verify-deployment.mjs'], { stdio: 'inherit' }); return; }
-                catch (error) { if (attempt === 59) throw error; core.info('Live verification not yet matching; retrying'); }
-              }
-              await new Promise(resolve => setTimeout(resolve, 10000));
-            }
-            throw Error('Timed out waiting for native Pages and live verification');
+            await require('./scripts/wait-for-pages.cjs').waitForPages({ github, context, core });
       - name: Save publication evidence
         if: always()
         uses: actions/upload-artifact@v6

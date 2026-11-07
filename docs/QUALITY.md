@@ -1303,3 +1303,13 @@ Blind review pass 1: 9/10, no blockers. Optional minor coverage suggestions: thu
 ## F-INPUT-001 user acceptance and main merge — 29 October 2026
 
 Novy explicitly approved the joystick change and requested merge to main. F-INPUT-001 is Done and its complete tracker record is archived in ISSUES_CLOSED.md. Runtime `76284e94eca5d369b0ed31f9f3996bca8432d1e6` passed source CI [41014220871](https://github.com/novydhillon/Flock/actions/runs/41014220871). Main `41f3a05` is its direct parent; closure changes only documentation and generated HTML. Prior pending acceptance wording is historical and superseded. Documentation checks are rerun for this closure. Source merge is authorized; no production publication or new phone observation is claimed.
+
+
+## F-OPS-005 delivery tooling — 6 November 2026
+
+Branch `chore/reusable-workflows`, based on main `5f3f17a4fb0fee59eafe93fe9b459580534bc67c`. Audited and cataloged existing tools; extracted the manual deployment preflight and native Pages polling into shared CJS modules, retaining the live verifier. Added fourth-occurrence automation policy to root and folder guides. Session model and inherited effort used for implementation and fresh independent review; exact identifier unavailable. Blind review 9.3/10, followed by 9.5/10 after two documentation findings were corrected; see REVIEW.md.
+
+Focused deployment checks 15/15, docs behavior 7/7, both builds and QA guards pass (release: 0 QA assets; dev: 2). Existing Vite large-chunk and dev JSON import-attribute warnings remain; runtime source is unchanged. Full regression verification follows in the tracker. Only offline tests and artifact builds were run; native Pages/live hash verification, device appearance, touch, audio and FPS were not observed. No deployment or main merge authorized; leave the task in Review.
+
+
+**Final verification — F-OPS-005:** Full regression 566/566 passed after restoring the unchanged local manifest. Documentation checks passed 13 pages, 2191 links/anchors, 10 diagrams and 7 DOM tests before this evidence append; deterministic regeneration and final documentation check follow. Both artifact modes and guards passed. No deployment or native/device claim.

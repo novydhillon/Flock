@@ -202,3 +202,13 @@ Fresh isolated documentation critic used the session model and inherited effort 
 ## Water vegetation closure and main integration — 29 October 2026
 
 Novy explicitly accepted the water-vegetation batch and requested main merge/ticket closure. Archive full F-WATER-002/003 rows and details, retaining acceptance criteria, shadow correction history, reed curves, source validation and publication limits. Preserve main-only F-BUTTERFLY-001 as Open. Runtime unchanged by closure; regenerate documentation and run documentation checks. No production publication. Session model and inherited effort; exact identifier unavailable.
+
+
+## F-OPS-005 reusable workflow review — 6 November 2026
+
+Fresh independent critic reviewed an isolated history-free candidate with only the task, acceptance criteria and candidate paths, excluding writer reasoning and earlier reviews. Initial score 9.3/10 with no blockers; two minor findings requested the new test in the development test map and concrete recurrence evidence in the tracker. Both were corrected. Targeted follow-up score 9.5/10 with no remaining findings. Implementation and review used the session model and inherited effort; the environment does not expose an exact model identifier.
+
+Focused deployment checks pass 15/15, documentation behavior checks 7/7, and release/development builds and QA artifact guards pass. The full regression run initially passed 565/566; the sole failure was a missing local `public/site.webmanifest` omitted during connector source preparation. Restoring the unchanged repository file made its focused test pass 1/1; final full-suite verification is recorded with the task evidence. This is offline/source verification, not a native Pages run, live hash observation, rendered-device test or user sign-off. No deployment, main merge or pull request requested.
+
+
+**Final verification — F-OPS-005:** Full regression 566/566 passed after restoring the unchanged local manifest. Documentation checks passed 13 pages, 2191 links/anchors, 10 diagrams and 7 DOM tests before this evidence append; deterministic regeneration and final documentation check follow. Both artifact modes and guards passed. No deployment or native/device claim.
