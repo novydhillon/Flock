@@ -521,3 +521,8 @@ On the fourth occurrence of a task, save or extend a repeatable workflow and reu
 F-OPS-005 audits the existing delivery flow: checked builds, documentation generation/checking, artifact validation, scoped publication, live hashes, icon generation and chokepoint measurements already have tools. Repeated publication records under `docs/validation/` establish the recurrence threshold for deployment. The remaining inline preflight and native Pages polling are now `scripts/check-deploy-target.cjs` and `scripts/wait-for-pages.cjs`, called by Deploy Flock. Checkout with credentials disabled now precedes the extracted preflight so the checked-in file is available; preflight still precedes dependency installation, build and publication. Unknown environments and non-branch refs fail closed.
 
 The wait tool retains exact Pages-commit selection, immediate native-error failure, bounded polling and all-file live hash verification with CDN retries. Focused coverage is `node --test tests/deploy-pages.test.js tests/deployment-workflow.test.js`. All agent repository access stays connector-only; no deployment or merge is authorized by creating these tools. Checks simulate API states and do not establish native Pages, live deployment or device behavior.
+
+
+## Reusable workflow acceptance — 6 November 2026
+
+Novy accepted F-OPS-005 by requesting main merge. The complete task and evidence move to [Closed issues](ISSUES_CLOSED.md#f-ops-005--repeatable-workflows-and-reusable-tools). Source CI `42313750618` passed for `adf8c8c`; the rule, catalog and extracted helpers are accepted. This authorizes source merge, with no production publication requested.

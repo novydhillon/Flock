@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-OPS-005~~ | ~~P2~~ | ~~Tooling~~ | ~~Save repeatable workflows and extract deployment helpers~~ | ~~Done~~ | ~~Existing delivery tools~~ |
 | ~~F-INPUT-001~~ | ~~P2~~ | ~~Controls~~ | ~~Double joystick radius and add logarithmic speed~~ | ~~Done~~ | ~~Existing floating joystick~~ |
 | ~~F-WATER-002~~ | ~~P2~~ | ~~Environment~~ | ~~Seeded in-water grass and reed clumps on 20% of water bodies~~ | ~~Done~~ | ~~Existing rendered water surfaces~~ |
 | ~~F-WATER-003~~ | ~~P2~~ | ~~Environment~~ | ~~Slender vegetation clumps and natural bank/rock distribution~~ | ~~Done~~ | ~~F-WATER-002; accepted water obstacles~~ |
@@ -1986,3 +1987,17 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 Implementation 29 October 2026: radius 84 px, doubled responsive ring, logarithmic radial response and 85% saturation implemented. Focused 65/65 and full 561/561 tests pass; checked dev build passed documentation checks, release QA exclusion and development QA inclusion. Independent blind review 9/10, no blockers; safe-area follow-up reviewed with no blockers. Phone checks/sign-off pending. Source only; not deployed or merged.
 
 Closed 29 October 2026: Novy explicitly approved with “Approved. Merge to main.” This supersedes the historical pending sign-off wording above. Accepted runtime `76284e94eca5d369b0ed31f9f3996bca8432d1e6`; source CI [41014220871](https://github.com/novydhillon/Flock/actions/runs/41014220871) succeeded. Full previous evidence and unobserved-device limits are retained; no new device measurement is claimed. Source merge authorized; production publication is separate.
+
+
+### F-OPS-005 — ~~Repeatable workflows and reusable tools~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `chore/reusable-workflows`
+
+**Accept when:** On the fourth occurrence of a task, save a documented workflow and reusable tools rather than reconstructing commands. Inventory existing tools, extract reusable inline deployment logic, retain publication gates, and validate the shared entry points.
+
+**Execution — 6 November 2026:** Rule, folder guidance and [tool catalog](../scripts/README.md) implemented. Existing publication records establish more than three occurrences: [F-OPS-003](validation/F-OPS-003-dev-publication.json), [F-UI-015](validation/F-UI-015-dev-publication.json), [F-UI-016](validation/F-UI-016-dev-publication.json) and [F-WATER-003](validation/F-WATER-003-dev-publication.json). Retained existing build/docs/publication/measurement tools; extracted preflight into `scripts/check-deploy-target.cjs` and exact-commit native Pages polling/CDN retries into `scripts/wait-for-pages.cjs`. Deploy Flock now calls both. Focused deployment checks pass 15/15; documentation checks and both build modes/artifact guards pass. Fresh blind review scored 9.3/10 with no blockers; the test-map and tracker-evidence minor findings were corrected. Final full regression passes 566/566; documentation checks pass 13 pages, 2191 links/anchors, 10 diagrams and 7 DOM tests. No deployment, main merge or user sign-off requested; remains Review.
+
+
+**User acceptance — 6 November 2026 (America/Cambridge_Bay):** Novy requested “Merge to main”, accepting this workflow/tooling batch. Source `adf8c8cc588099c7f8bb8ef9f845721d9e126ef2` passed CI run `42313750618`. Earlier Review/pending acceptance statements above are superseded by this acceptance. Main source merge is authorized; production publication was not requested. Existing validation limits remain.

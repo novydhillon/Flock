@@ -26,7 +26,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-OPS-005 | P2 | Tooling | Save repeatable workflows and extract deployment helpers | Review | Existing delivery tools |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
@@ -344,7 +343,7 @@ User requested merging fallback changes to main and integrating main into buddy_
 
 ## Buddy user acceptance — 22 October 2026
 
-Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-005 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
+Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
 
 
 
@@ -419,14 +418,3 @@ All four items are Open and unassigned. Rough-ground appearance is P3 polish; na
 ## Water vegetation acceptance — 29 October 2026
 
 Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.
-
-
-### F-OPS-005 — Repeatable workflows and reusable tools
-
-**Status:** Review. Owner: Codex.
-
-**Branch:** `chore/reusable-workflows`
-
-**Accept when:** On the fourth occurrence of a task, save a documented workflow and reusable tools rather than reconstructing commands. Inventory existing tools, extract reusable inline deployment logic, retain publication gates, and validate the shared entry points.
-
-**Execution — 6 November 2026:** Rule, folder guidance and [tool catalog](../scripts/README.md) implemented. Existing publication records establish more than three occurrences: [F-OPS-003](validation/F-OPS-003-dev-publication.json), [F-UI-015](validation/F-UI-015-dev-publication.json), [F-UI-016](validation/F-UI-016-dev-publication.json) and [F-WATER-003](validation/F-WATER-003-dev-publication.json). Retained existing build/docs/publication/measurement tools; extracted preflight into `scripts/check-deploy-target.cjs` and exact-commit native Pages polling/CDN retries into `scripts/wait-for-pages.cjs`. Deploy Flock now calls both. Focused deployment checks pass 15/15; documentation checks and both build modes/artifact guards pass. Fresh blind review scored 9.3/10 with no blockers; the test-map and tracker-evidence minor findings were corrected. Final full regression passes 566/566; documentation checks pass 13 pages, 2191 links/anchors, 10 diagrams and 7 DOM tests. No deployment, main merge or user sign-off requested; remains Review.
