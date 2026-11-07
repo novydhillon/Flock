@@ -138,10 +138,10 @@
     "max": 0.08
   },
   "elevatedBridgeTangentPower": {
-    "value": 8,
-    "_comment": "Smoothly localizes exact bank tangent matching near each landing while the main span follows the high-bank chord.",
-    "min": 8,
-    "max": 8
+    "value": 12,
+    "_comment": "Localizes exact bank tangent matching near each landing so stronger pasture crests cannot pull the elevated deck down into the channel.",
+    "min": 12,
+    "max": 12
   },
   "elevatedBridgeMaximumLandingSlopeDegrees": {
     "value": 20,
@@ -160,5 +160,44 @@
     "_comment": "Extra common dry turning-plane clearance beyond first-river approaches on elevated-crossing candidates.",
     "min": 3,
     "max": 3
+  },
+  "waveLengths": {
+    "value": [
+      5.5,
+      7.5,
+      9.5
+    ],
+    "_comment": "Smooth hill-wave length scales in metres per radian, shortened moderately so crests read at gameplay zoom. Coupled to weights and tested slope limits.",
+    "min": 5.5,
+    "max": 9.5
+  },
+  "waveWeights": {
+    "value": [
+      0.7,
+      0.2,
+      0.1
+    ],
+    "_comment": "Normalized hill-wave weights. A dominant primary wave prevents cancellation from flattening the visible crest/valley pattern.",
+    "min": 0,
+    "max": 1
+  },
+  "poolSearchOffsets": {
+    "value": [
+      5.5,
+      -5.5,
+      6.5,
+      -6.5,
+      8,
+      -8,
+      10,
+      -10,
+      12,
+      -12,
+      16,
+      -16
+    ],
+    "_comment": "Deterministic lateral journey-verge fallback offsets for finding eligible lowland pools on stronger rolling relief. Placement remains capped by maxPuddles and physical eligibility.",
+    "min": -16,
+    "max": 16
   }
 }

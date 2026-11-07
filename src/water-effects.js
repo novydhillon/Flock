@@ -1,3 +1,4 @@
+import { TERRAIN } from './terrain.js';
 import * as THREE from 'three';
 import { meadowSurfaceHeight } from './terrain-view.js';
 import { canOccupy, terrainHeight, groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from './world.js';
@@ -159,7 +160,7 @@ export class WaterEffects {
     if(level.terrain?.enabled)for(const route of routes)for(let segment=1;segment<route.points.length&&sites.length<this.maxPuddles;segment++){
       const a=route.points[segment-1],b=route.points[segment],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);
       if(!length)continue;
-      for(let along=0;along<length&&sites.length<this.maxPuddles;along+=1.5)for(const lateral of [5.5,-5.5,6.5,-6.5,8,-8]){
+      for(let along=0;along<length&&sites.length<this.maxPuddles;along+=1.5)for(const lateral of TERRAIN.poolSearchOffsets){
         if(sites.length>=this.maxPuddles)break;
         add({x:a.x+dx*along/length-dz*lateral/length,z:a.z+dz*along/length+dx*lateral/length},1.35);
       }
@@ -221,4 +222,5 @@ export class WaterEffects {
   spawnSplash(pos,waterHeight){const s=this.splashes.find(v=>v.age>=1);if(!s)return;s.age=0;s.waterHeight=waterHeight;s.mesh.position.set(pos.x,(waterHeight??terrainHeight(this.level,pos.x,pos.z))+.08,pos.z);s.mesh.scale.setScalar(.35);s.mesh.visible=true;}
   dispose(){this.restoreMaterials();this.clearEffects();this.root.removeFromParent();this.flowMap.dispose();this.flowMaterial.dispose();this.splashGeometry.dispose();this.level=null;this.scene=null;}
 }
+
 

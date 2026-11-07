@@ -218,3 +218,29 @@ test('large rain pools accept flat lowland footprints and reject hillside and hi
   assert.ok(lowSites > 0 && hillsideRejected > 0 && highRejected > 0);
   assert.ok(poolingSite(createLevel(0), 0, 0, 2).eligible, 'flat lessons retain their standing-water compatibility');
 });
+
+
+test('rounded hill profile increases visible relief and grades without raising the height budget', () => {
+  const level = {index: 5, seed: 202};
+  level.terrain = createTerrain(level, {angle: 0, halfV: 80, channels: []});
+  const phases = level.terrain.phases;
+  let heightEnergy = 0, previousHeightEnergy = 0, gradeEnergy = 0, previousGradeEnergy = 0;
+  // With no channels this measures the pasture shape independently of banks.
+  // The comparison is the previous broad-wave profile at the same seed/phase.
+  for (let x = -80; x < 80; x += 2) for (let z = -80; z < 80; z += 2) {
+    const flow = TERRAIN.downstreamDrop * Math.tanh(z / 80);
+    const height = groundHeight(level, x, z) + TERRAIN.channelDepth - flow - TERRAIN.valleyLift;
+    const a = x / 6 + phases[0], b = z / 8 + phases[1], c = (x + z) / 10 + phases[2];
+    const oldHeight = TERRAIN.waveAmplitude * (.5 * Math.sin(a) + .3 * Math.sin(b) + .2 * Math.sin(c));
+    const oldX = TERRAIN.waveAmplitude * (.5 * Math.cos(a) / 6 + .2 * Math.cos(c) / 10);
+    const oldZ = TERRAIN.downstreamDrop * (1 - Math.tanh(z / 80) ** 2) / 80
+      + TERRAIN.waveAmplitude * (.3 * Math.cos(b) / 8 + .2 * Math.cos(c) / 10);
+    heightEnergy += height * height;
+    previousHeightEnergy += oldHeight * oldHeight;
+    gradeEnergy += Math.tan(terrainSlope(level, x, z)) ** 2;
+    previousGradeEnergy += oldX * oldX + oldZ * oldZ;
+    assert.ok(Math.abs(height) <= TERRAIN.waveAmplitude, 'existing relief budget bounds the new profile');
+  }
+  assert.ok(heightEnergy > previousHeightEnergy * 1.4, 'at least 18% stronger RMS pasture relief');
+  assert.ok(gradeEnergy > previousGradeEnergy * 1.4, 'at least 18% stronger RMS grade');
+});

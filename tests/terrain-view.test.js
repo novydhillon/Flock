@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { createLevel, groundHeight, terrainHeight, terrainNormal, GROUND_SURFACE_OFFSET } from '../src/world.js';
-import { conformSurface, meadowGeometry, meadowSurfaceHeight, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from '../src/terrain-view.js';
+import { installTerrainRelief, conformSurface, meadowGeometry, meadowSurfaceHeight, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from '../src/terrain-view.js';
 import { roadNetwork } from '../src/surfaces.js';
 import { createFlowerPatch, createBridge } from '../src/models.js';
 import { createGateView, createStoneWallView } from '../src/gate-view.js';
@@ -232,4 +232,28 @@ test('graded bridge planks keep their complete physical width, support and norma
     }
     bridge.traverse(mesh=>{if(mesh.isMesh)mesh.geometry.dispose();});
   }
+});
+
+
+
+test('grass and road relief shading composes material hooks and shares a resettable rolling-level switch', () => {
+  const enabled = {value: 0};
+  let calls = 0;
+  const material = new THREE.MeshStandardMaterial();
+  material.onBeforeCompile = shader => { calls++; shader.uniforms.previousHook = {value: 7}; };
+  installTerrainRelief(material, enabled);
+  const shader = {uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <color_fragment>'};
+  material.onBeforeCompile(shader);
+  assert.equal(calls, 1);
+  assert.equal(shader.uniforms.previousHook.value, 7);
+  assert.equal(shader.uniforms.terrainReliefEnabled, enabled);
+  const low = shader.uniforms.terrainReliefLow.value, high = shader.uniforms.terrainReliefHigh.value;
+  assert.ok(low < 1 && high > 1 && high / low < 1.5, 'bounded contrast darkens valleys and brightens crests');
+  assert.match(shader.vertexShader, /modelMatrix \* vec4\(position, 1.0\)/, 'road and meadow vertices use world elevation');
+  assert.match(shader.fragmentShader, /#include <color_fragment>/, 'existing color input remains present');
+  enabled.value = 1;
+  assert.equal(shader.uniforms.terrainReliefEnabled.value, 1);
+  enabled.value = 0;
+  assert.equal(shader.uniforms.terrainReliefEnabled.value, 0, 'flat level disables contrast without recompiling');
+  material.dispose();
 });

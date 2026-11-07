@@ -1,6 +1,6 @@
 import { pastureGrassSites, PASTURE } from '../src/pasture.js';
 import { pastureClumpGeometry, pastureRockGeometry } from '../src/pasture-view.js';
-import {conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp} from '../src/terrain-view.js';
+import {installTerrainRelief,conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp} from '../src/terrain-view.js';
 import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
 import {createShowcase} from '../src/landing-ui.js';
 import {defaultProfile} from '../src/profile.js';
@@ -90,7 +90,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={pastureGrassSites,pastureClumpGeometry,pastureRockGeometry,alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={installTerrainRelief,pastureGrassSites,pastureClumpGeometry,pastureRockGeometry,alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -1027,7 +1027,8 @@ test('four cow sizes share batches and scale body, moving hips and culling bound
   });
   // Isolate an edge plane just beyond the small cow's conservative sphere.
   // Equal positions must cull the small cow and keep its larger sibling.
-  const x=-(batch.radius*1.125+3);
+  const edgeRadius=batch.radius*1.125;
+  const x=-(edgeRadius+Math.max(3,renderer.viewShadows.margin(0,edgeRadius)));
   level.animals.forEach((a,i)=>{a.x=x;a.z=0;const pose=renderer.animalMeshes[i];pose.position.set(x,0,0);pose.updateMatrix();});
   renderer.sceneryFrustum.planes=[new THREE.Plane(new THREE.Vector3(1,0,0),0)];
   renderer.updateAnimalBatches(level,Math.floor(renderer.time*12)/12);
@@ -1278,6 +1279,7 @@ test('shared grass shader receives complete neutral colors on the first five and
   const renderer=setup();
   const check=level=>{
     renderer.setLevel(level);
+    assert.equal(renderer.terrainReliefEnabled.value,level.terrain.enabled?1:0,'level replacement resets shared relief shading');
     const ground=renderer.terrain.getObjectByName('Meadow ground');
     assert.ok(ground);assert.equal(renderer.grass.vertexColors,true);
     const receivers=[];renderer.terrain.traverse(mesh=>{if(mesh.isMesh&&mesh.material===renderer.grass)receivers.push(mesh);});
@@ -1388,4 +1390,26 @@ test('elevated bridges render full-width supported decks, graded rails and surfa
       }
     }
   }
+});
+
+
+
+test('sun caster bounds retain original spheres and their projected ellipse in every frustum direction', () => {
+  const fit = new ViewShadows();
+  Object.assign(fit, {minHeight:-1, sunX:-.75, sunZ:.875, reach:Math.hypot(.75,.875)});
+  const center = new THREE.Vector3(4,5,-7), radius=2;
+  // Sample the full sphere and its ground projection. A plane through any
+  // such point must retain the caster even with the tighter directional bound.
+  for (let i=0;i<24;i++) {
+    const direction = new THREE.Vector3(Math.cos(i*.71),Math.sin(i*.39),Math.sin(i*.93)).normalize();
+    const point = center.clone().addScaledVector(direction,radius);
+    const projected = new THREE.Vector3(point.x-fit.sunX*(point.y-fit.minHeight),fit.minHeight,point.z-fit.sunZ*(point.y-fit.minHeight));
+    for (const sample of [point,projected]) for (let j=0;j<12;j++) {
+      const normal = new THREE.Vector3(Math.cos(j*.8),Math.sin(j*.67),Math.sin(j*.48)).normalize();
+      const plane = new THREE.Plane(normal,-normal.dot(sample)+1e-9);
+      assert.ok(fit.intersects([plane],center.x,center.y,center.z,radius),'visible body or ground shadow must not pop out');
+    }
+  }
+  const horizontal=new THREE.Plane(new THREE.Vector3(0,1,0),-8);
+  assert.equal(fit.intersects([horizontal],4,5,-7,2),false,'horizontal frustum planes do not inherit lateral shadow inflation');
 });

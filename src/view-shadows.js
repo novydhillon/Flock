@@ -35,7 +35,17 @@ export class ViewShadows {
     const height=Math.max(0,y-this.minHeight),sx=x-this.sunX*height,sz=z-this.sunZ*height,r=radius*Math.hypot(1,this.reach);
     // A swept sphere includes raised receivers as well as the final ground
     // projection, including the vertical drop of a small elevated crown.
-    return !planes.some(p=>Math.max(p.normal.x*x+p.normal.y*y+p.normal.z*z+p.constant,p.normal.x*sx+p.normal.y*(y-height)+p.normal.z*sz+p.constant)<-r);
+    return !planes.some(p => {
+      const n = p.normal;
+      const original = n.x * x + n.y * y + n.z * z + p.constant + radius;
+      // Projecting a sphere onto the receiver plane produces an ellipse. Use
+      // its exact support in this plane's direction, rather than expanding
+      // every frustum direction by the longest possible shadow radius.
+      const projectedRadius = y < this.minHeight ? r : radius * Math.hypot(
+        n.x, n.x * this.sunX + n.z * this.sunZ, n.z);
+      const projected = n.x * sx + n.y * (y - height) + n.z * sz + p.constant + projectedRadius;
+      return Math.max(original, projected) < 0;
+    });
   }
 }
 
@@ -50,3 +60,4 @@ export function treeDepthMaterial(){
   material.customProgramCacheKey=()=> 'tree-depth-width-v1';
   return material;
 }
+

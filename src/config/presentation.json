@@ -59,22 +59,22 @@
       "_comment": "Directional sunlight color."
     },
     "hemisphereIntensity": {
-      "value": 1.65,
+      "value": 1.25,
       "_comment": "Hemisphere intensity before daylight scaling.",
       "min": 0,
       "max": 10
     },
     "sunIntensity": {
-      "value": 2.05,
+      "value": 2.65,
       "_comment": "Sun intensity before daylight scaling.",
       "min": 0,
       "max": 10
     },
     "sunOffset": {
       "value": [
-        -18,
-        35,
-        20
+        -24,
+        32,
+        28
       ],
       "_comment": "Sun offset from the followed camera center, in world XYZ.",
       "min": -100,
@@ -365,10 +365,22 @@
       "max": 2
     },
     "surfaceSpacing": {
-      "value": 2,
+      "value": 1.9,
       "_comment": "Maximum horizontal edge for terrain-following roads, goal decals and river surfaces.",
       "min": 0.4,
       "max": 2
+    },
+    "reliefLowBrightness": {
+      "value": 0.88,
+      "_comment": "Rolling surface brightness in channel lowlands; shared by grass and roads. Flat levels bypass this shading.",
+      "min": 0.5,
+      "max": 1
+    },
+    "reliefHighBrightness": {
+      "value": 1.08,
+      "_comment": "Rolling surface brightness at the highest pasture crests; smooth elevation blend preserves texture and existing weather effects.",
+      "min": 1,
+      "max": 1.3
     }
   }
 }

@@ -1,5 +1,9 @@
 # World generation, collision, and navigation
 
+## Readable hill profile — 6 November 2026
+
+The analytic pasture profile uses normalized configurable wave weights0.7/0.2/0.1 and length scales5.5/7.5/9.5m per radian. The dominant wave avoids visible cancellation without increasing the relief amplitude. Exact derivatives remain authoritative for support, normals, pooling and road conformance. Elevated-deck endpoint matching is localized with power12. Completed-field landing checks downgrade raised candidates that another river corridor has lowered; routes remain safe because downgraded rails only shorten. Eligible rain-pool search extends the deterministic journey-verge offsets to16m on rolling levels because stronger grades narrow lowland sites; eligibility, obstacle footprint safety and pool count limits are unchanged.
+
 ## Elevated bridge contract — 29 October 2026
 
 Selected rolling crossings may span above the low river channel between higher banks. The shared bridge descriptor must carry the same complete span in collision, navigation, route generation and presentation. Its support height joins the actual ground elevation and grade at both dry ends. Elevated crossings must not be assigned a compulsory low riverbank corridor; ordinary crossings may retain gentle low verges. Preserve all cow-size clearance, river coverage, bridge rail clearance and the overall 4.5m/30-degree limits.
@@ -194,3 +198,4 @@ Shared seeded pasture selection and placement live in `pasture.js`, with a dedic
 An independent seeded35% candidate selection applies only to rolling meadows; this is implementation tuning, not an agreed frequency. Eligible first-river crossings extend the shared span to the river width plus two7m bank setbacks, reserve turning/approach space and omit the compulsory low crossing verge. Both complete landing cross-sections must stand at least.25m above local water with suitable grades. Other bridges retain their short low-crossing form. Public level6 is an early default example and public100 a later example.
 
 `bridge.elevated` selects a bank-to-bank chord with localized smooth tangent corrections and a.08m crown. Endpoint samples vary across the full deck width, preserving both bank height and normal at each end. The shared `bridgeSurfaceHeight` drives actors, navigation support and visual components; the same extended descriptor drives physical footprint and rails. Endpoints and interior support remain subject to the global4.5m relief/30-degree grade bounds.
+

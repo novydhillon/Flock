@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Hill readability smoke checks — 6 November 2026
+
+For F-TERRAIN-002 compare rolling public6/20/50 with contours off at normal phone zoom in portrait/landscape. Crests/valleys should read through shape and light without harsh bands, triangle edges or crushed grass colors. Compare roads and meadow, sunny/cloud/rain/storm, slopes around fences/goals and all bridge landings. Toggle contours on/off, jump to flat public1–5, restart and pause/resume. The camera height must remain fixed; inspect actor feet/hover, water edges and phone FPS. All rendered/device checks remain pending until observed.
+
 ## Static-height camera smoke checks — 29 October 2026
 
 At normal phone zoom traverse low/high ground and elevated bridges on public6, then compare public100 and a flat lesson in portrait/landscape. The camera must keep the same world height and viewing angle while terrain and actors change elevation beneath it. Confirm unchanged horizontal following, landing scan pace/FOV, pause/resume/restart and level jumps. Rendered framing and phone performance remain pending until observed.
@@ -549,4 +553,5 @@ Novy explicitly authorizes up to30-degree slopes and4.5m total height difference
 ## F-INPUT-001 phone smoke checks — 29 October 2026
 
 In phone portrait/landscape and the smallest supported viewport, compare the doubled ring and 84-pixel travel with the previous joystick. Slowly drag from center through 85%, then to/beyond the rim: speed should increase logarithmically and stay maximum over the last 15%; thumb remains under the drag until clamped. Check all directions, nearby bark/QA controls, safe areas, floating touch origins near screen edges, pointer release/cancel/lost capture, pause/background, resize, restart and keyboard controls. Device layout and touch feel remain pending; automated controller tests do not establish those results.
+
 

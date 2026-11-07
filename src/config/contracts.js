@@ -14,6 +14,8 @@ export const CONFIG_CONTRACTS = freeze({
     "maximumRelief": "number",
     "maximumSlopeDegrees": "number",
     "waveAmplitude": "number",
+    "waveLengths": ["number", "number", "number"],
+    "waveWeights": ["number", "number", "number"],
     "valleyLift": "number",
     "bankShelfWidth": "number",
     "bankRiseScale": "number",
@@ -34,6 +36,7 @@ export const CONFIG_CONTRACTS = freeze({
     "elevatedBridgeCrown": "number",
     "elevatedBridgeTangentPower": "integer",
     "poolMaximumSlopeDegrees": "number",
+    "poolSearchOffsets": ["number", "number", "number", "number", "number", "number", "number", "number", "number", "number", "number", "number"],
     "poolMaximumHeightRange": "number",
     "poolLowlandHeight": "number"
   },
@@ -258,7 +261,9 @@ export const CONFIG_CONTRACTS = freeze({
   "presentation": {
     "terrain": {
       "groundSpacing": "number",
-      "surfaceSpacing": "number"
+      "surfaceSpacing": "number",
+      "reliefLowBrightness": "number",
+      "reliefHighBrightness": "number"
     },
     "waterVegetation": {
       "bodyChance": "number",
@@ -584,5 +589,6 @@ export const CONFIG_CONTRACTS = freeze({
     }
   }
 });
+
 
 

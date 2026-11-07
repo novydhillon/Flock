@@ -260,8 +260,8 @@ export function createLevel(index=0,seed=index*7919+42) {
         const bridge={x,z,width:roadWidth*1.25,length:river.width+1.5,heading:Math.atan2(f.x,f.z)-angle};
         if(elevatedCandidate&&j===0){
           const length=river.width+TERRAIN.elevatedBridgeBankSetback*2;
-          const landings=[-1,1].flatMap(end=>[-bridge.width/2,0,bridge.width/2].map(lateral=>({x:x+f.x*end*length/2+f.z*lateral,z:z+f.z*end*length/2-f.x*lateral})));
-          if(landings.every(p=>groundHeight(bankProbe,p.x,p.z)-riverSurfaceHeight(bankProbe,null,p.x,p.z)>=TERRAIN.elevatedBridgeMinimumClearance&&terrainSlope(bankProbe,p.x,p.z)<TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees*Math.PI/180))Object.assign(bridge,{elevated:true,length});
+          const landings=[-1,1].flatMap(end=>Array.from({length:9},(_,i)=>bridge.width*(i/8-.5)).map(lateral=>({x:x+f.x*end*length/2+f.z*lateral,z:z+f.z*end*length/2-f.x*lateral})));
+          if(landings.every(p=>groundHeight(bankProbe,p.x,p.z)-riverSurfaceHeight(bankProbe,null,p.x,p.z)>=TERRAIN.elevatedBridgeMinimumClearance+.01&&terrainSlope(bankProbe,p.x,p.z)<TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees*Math.PI/180))Object.assign(bridge,{elevated:true,length});
         }
         canonicalRivers[j].bridges.push(bridge);
         // Every branch reaches common dry turning planes before changing
@@ -324,6 +324,29 @@ export function createLevel(index=0,seed=index*7919+42) {
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
     bounds,boundary,spawn,dog,target,startHeading:heading,layoutKind:angular?.kind||'field',riverStyle:meandering?'meandering':'gentle',animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:maximumLevelReward(index),sceneryHills:[]};
   level.terrain=createTerrain(level,{angle,halfV,channels:riverFunctions});
+  // A later river's low crossing corridor can lower an earlier candidate's
+  // landing. Validate against the completed shared field, not just the initial
+  // unshelved probe. Downgrades only shorten rails; the sampled routes stay safe.
+  let banksChanged;
+  do {
+    banksChanged = false;
+    for (const river of rivers) for (const bridge of river.bridges) {
+      if (!bridge.elevated) continue;
+      const forward = yawVector(bridge.heading);
+      const safe = [-1, 1].every(end => Array.from({length: 9}, (_, i) => bridge.width * (i / 8 - .5)).every(lateral => {
+        const x = bridge.x + forward.x * end * bridge.length / 2 + forward.z * lateral;
+        const z = bridge.z + forward.z * end * bridge.length / 2 - forward.x * lateral;
+        return groundHeight(level, x, z) - riverSurfaceHeight(level, river, x, z) >= TERRAIN.elevatedBridgeMinimumClearance + .01
+          && terrainSlope(level, x, z) < TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees * Math.PI / 180;
+      }));
+      if (!safe) {
+        delete bridge.elevated;
+        bridge.length = river.width + 1.5;
+        banksChanged = true;
+      }
+    }
+    if (banksChanged) level.terrain=createTerrain(level,{angle,halfV,channels:riverFunctions});
+  } while (banksChanged);
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
     const type=index>=3&&i%4===0?'cow':'sheep';
@@ -517,3 +540,4 @@ export function openingSteer(level,body,vx,vz,radius=.78) {
   return{x:f.z*Math.sign(u)*Math.min(2.4,speed*.8+.5),z:-f.x*Math.sign(u)*Math.min(2.4,speed*.8+.5)};
 }
 export const steeringOpening=openingSteer;
+

@@ -22,7 +22,7 @@ import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
 import { ViewShadows, treeDepthMaterial } from './view-shadows.js';
 import { groundHeight, riverSurfaceHeight, bridgeSurfaceHeight, terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
-import { conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from './terrain-view.js';
+import { installTerrainRelief, conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from './terrain-view.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
 import { minimapProjection, clipMinimap, minimapLivestockStates, drawLivestockMarker, drawGoalDirection, GOAL_POINTER_COLOR } from './minimap-markers.js';
 import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from './surfaces.js';
@@ -113,6 +113,8 @@ export class MeadowRenderer{
     this.terrain=new THREE.Group();this.actors=new THREE.Group();this.scene.add(this.terrain,this.actors);this.materials=createMaterials();
     this.grass=new THREE.MeshStandardMaterial({color:'#ffffff',vertexColors:true,roughness:.96,map:texture('grass'),bumpMap:texture('grass',true),bumpScale:.12});
     this.path=new THREE.MeshStandardMaterial({color:'#fff1d3',roughness:.95,map:texture('path'),bumpMap:texture('path',true),bumpScale:.08,side:THREE.DoubleSide});this.pathShoulder=new THREE.MeshStandardMaterial({color:'#a99261',roughness:1,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});
+    this.terrainReliefEnabled = {value: 0};
+    for (const material of [this.grass, this.path, this.pathShoulder]) installTerrainRelief(material, this.terrainReliefEnabled);
     this.thrusterGlow=new ThrusterGroundGlow();
     for(const material of [this.grass,this.path,this.pathShoulder])this.thrusterGlow.install(material);
     this.water=new THREE.MeshStandardMaterial({color:'#4b9fae',roughness:.29,metalness:.08,side:THREE.DoubleSide});
@@ -131,6 +133,7 @@ export class MeadowRenderer{
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
     this.level=level;this.barkEffects=[];
+    this.terrainReliefEnabled.value = level.terrain?.enabled ? 1 : 0;
     this.waterEffects.restoreMaterials();
     this.cutaway?.dispose();this.cutaway=null;
     this.gateView?.dispose();this.gateView?.removeFromParent();this.stoneView?.dispose();this.stoneView?.removeFromParent();this.gateView=this.stoneView=null;
@@ -650,4 +653,5 @@ export class MeadowRenderer{
     drawGoalDirection(ctx,level.target,view);
   }
 }
+
 

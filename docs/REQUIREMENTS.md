@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Hill readability — 6 November 2026
+
+F-TERRAIN-002: make rounded crests and valleys easier to read with contours off, using a stronger smooth hill profile, lower directional sunlight and restrained continuous crest/valley brightness on meadow and roads. Preserve 4.5m maximum relief, 30-degree pasture/support grades, the static camera, flat first five levels, shared physical support, eligible lowland water and bounded geometry. Native appearance remains an acceptance check.
+
 ## Fixed camera height — 29 October 2026
 
 F-TERRAIN-002: the camera stays at a static world height as Pip crosses hills, valleys and elevated bridges. Terrain elevation must not lift/lower the camera or its look target. Preserve original viewing angle, field of view and horizontal following/landing scan behavior. Actors and their illumination still follow the physical support surface. This supersedes the terrain-height-following camera behavior in the previous terrain candidate.
@@ -688,4 +692,5 @@ Novy explicitly authorizes up to30-degree slopes and4.5m total height difference
 ## F-INPUT-001 — Larger logarithmic joystick — 29 October 2026
 
 Double joystick travel radius to 84 CSS pixels and visible ring radius at every responsive size. Apply a normalized radial logarithm with configurable strength 9; reach full speed at 85% travel and hold full speed through the outer 15%. Preserve thumb tracking, heading, keyboard input and stop/cancel behavior.
+
 

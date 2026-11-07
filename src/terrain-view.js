@@ -8,6 +8,38 @@ import { resolveConfig } from './config/resolve.js';
 
 const SETTINGS = resolveConfig(settings, 'presentation', CONFIG_CONTRACTS.presentation).terrain;
 
+/** Height shading uses the same world elevation on grass and roads. The
+ * rolling-level uniform is shared across material clones, including weather
+ * wrappers, so replacing a level cannot leave a flat meadow shaded as a valley.
+ */
+export function installTerrainRelief(material, enabled) {
+  const compile = material.onBeforeCompile, cacheKey = material.customProgramCacheKey;
+  material.onBeforeCompile = function(shader, renderer) {
+    compile.call(this, shader, renderer);
+    shader.uniforms.terrainReliefEnabled = enabled;
+    shader.uniforms.terrainReliefFloor = {value: -TERRAIN.channelDepth - TERRAIN.downstreamDrop};
+    shader.uniforms.terrainReliefRange = {value: TERRAIN.valleyLift + TERRAIN.waveAmplitude + 2 * TERRAIN.downstreamDrop};
+    shader.uniforms.terrainReliefLow = {value: SETTINGS.reliefLowBrightness};
+    shader.uniforms.terrainReliefHigh = {value: SETTINGS.reliefHighBrightness};
+    shader.vertexShader = 'varying float vTerrainReliefHeight;\n' + shader.vertexShader.replace(
+      '#include <begin_vertex>', '#include <begin_vertex>\nvTerrainReliefHeight = (modelMatrix * vec4(position, 1.0)).y;');
+    shader.fragmentShader = `varying float vTerrainReliefHeight;
+      uniform float terrainReliefEnabled;
+      uniform float terrainReliefFloor;
+      uniform float terrainReliefRange;
+      uniform float terrainReliefLow;
+      uniform float terrainReliefHigh;
+      ` + shader.fragmentShader.replace('#include <color_fragment>', `
+        #include <color_fragment>
+        float reliefHeight = smoothstep(0.0, 1.0,
+          (vTerrainReliefHeight - terrainReliefFloor) / terrainReliefRange);
+        diffuseColor.rgb *= mix(1.0, mix(terrainReliefLow, terrainReliefHigh, reliefHeight), terrainReliefEnabled);`);
+  };
+  material.customProgramCacheKey = function() { return cacheKey.call(this) + ':terrain-relief-v1'; };
+  material.needsUpdate = true;
+  return material;
+}
+
 /** Analytic support normals also work for water and gently graded decks. */
 export function surfaceNormal(height, x, z) {
   const step = 0.025;
@@ -217,3 +249,4 @@ export function drapeGroundGuide(mesh, level, rootHeight) {
 export function alignGroundProp(group, height, x, z) {
   group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), surfaceNormal(height, x, z));
 }
+

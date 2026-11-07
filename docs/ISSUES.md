@@ -1,5 +1,9 @@
 # FLOCK — Active issue tracker
 
+## Hill readability pass — 6 November 2026
+
+F-TERRAIN-002 is Review for a readability correction on `feat/rolling-terrain`, owned by the terrain team. Accept when rounded crests/valleys are more distinct without exceeding 4.5m relief or 30-degree pasture/support grades; lighting and restrained ground/road shading reinforce shape with contours off. Preserve the static camera, smooth surfaces, flat first five levels, coherent structures/water and bounded geometry. Implementation is complete with599/599fullregressions,7/7docschecks,release/developmentartifactchecks and fresh9/10review plus9/10integrationfollow-up. Ground/roadphysical limits and unchangedmobiletrianglecap pass. Device appearance remains pending; no deployment or acceptance is claimed.
+
 ## Static camera correction — 29 October 2026
 
 F-TERRAIN-002 correction on feat/rolling-terrain: remove automatic vertical camera movement with terrain elevation. Accept when gameplay and landing cameras keep the same world height/view angle over hills and raised bridges, through pause and level replacement, while horizontal tracking and original scale remain coherent. Actor/deck/terrain heights are unchanged. High implementation, fresh medium review, focused/full checked builds and replacement dev verification are required; user sign-off remains pending.
@@ -475,4 +479,5 @@ F-TERRAIN-002–004 return to Review after higher relief/banks, elevated crossin
 ## Fixed-height camera correction reviewed — 29 October 2026
 
 F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elevation from camera initialization/following. Fixed world-height and look-target behavior cover gameplay, preview, rolling showcase, restart and level replacement; original scale, angle and horizontal movement are retained. Actor and hover-glow support remain terrain-following.6/6 focused renderer cases and593/593 full regressions pass; fresh medium blind review9/10 has no confirmed blocker. This supersedes the previous elevation-following camera implementation. Dev publication and physical-device acceptance are separate milestones.
+
 

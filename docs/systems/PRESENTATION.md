@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Terrain relief cues — 6 November 2026
+
+A chained material hook applies configurable0.88–1.08height brightness to grass, road and shoulder surfaces. One rolling-enabled uniform resets on each level replacement; flat levels are neutral. The same hook preserves prior shader/glow/weather hooks and adds no geometry. Lower sun angle and reduced hemisphere fill strengthen sided lighting. Shadow culling now uses per-plane support of the original sphere and its projected ellipse, retaining visible casters with less conservative overdraw than uniform radius inflation. Road conformance spacing is1.9m rather than2m to retain25mm interpolation accuracy on the stronger profile; ground density is unchanged. Device appearance and FPS require observation.
+
 ## Static world-height camera — 29 October 2026
 
 The current camera contract uses a zero-height look-target plane and the configured fixed camera positionY above that plane. Terrain and deck support heights do not contribute to initialization, following, showcase scanning, light-target height or level replacement. Keep horizontal following, orthographic projection/view angle, slow landing scans and pause behavior. Actor roots and hover illumination remain terrain/deck-following. This supersedes the expanded-terrain elevation-following camera sections below.
@@ -474,4 +478,5 @@ Terrain-following bridge boards deform vertically while retaining their authored
 ## Joystick response — 29 October 2026
 
 F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, distance / (radius * fullSpeedFraction))) / log1p(k), with controls.json defaults radius 84 CSS pixels, fraction 0.85 and strength 9. Direction stays normalized separately; the thumb tracks physical travel clamped to the radius, independent of speed shaping. Visible rings double to 220/212/192 pixels diameter for desktop/phone/short landscape. Idle ring placement keeps the bottom-third preference but clamps above the bottom safe area for short screens. Keyboard input and pointer lifecycle are unchanged.
+
 

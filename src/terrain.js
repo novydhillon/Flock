@@ -52,6 +52,8 @@ export function createTerrain(level, { angle, halfV, channels }) {
     maximumRelief: TERRAIN.maximumRelief,
     maximumSlopeDegrees: TERRAIN.maximumSlopeDegrees,
   };
+  if (Math.abs(TERRAIN.waveWeights.reduce((sum, weight) => sum + weight, 0) - 1) > 1e-12)
+    throw new RangeError('terrain: waveWeights must sum to one to preserve the relief budget');
   // These are construction limits, not a height clamp: clamping a finished
   // surface would introduce precisely the abrupt grade changes we avoid.
   const reliefBound = TERRAIN.valleyLift + TERRAIN.waveAmplitude + 2 * TERRAIN.downstreamDrop + TERRAIN.bridgeLift;
@@ -103,10 +105,17 @@ function groundSample(level, x, z) {
   const terrain = level?.terrain;
   if (!terrain?.enabled) return { height: 0, dx: 0, dz: 0 };
   const { u, v } = coordinates(terrain, x, z), phases = terrain.phases;
-  const a = u / 6 + phases[0], b = v / 8 + phases[1], c = (u + v) / 10 + phases[2];
-  const lift = TERRAIN.valleyLift + TERRAIN.waveAmplitude * (.5 * Math.sin(a) + .3 * Math.sin(b) + .2 * Math.sin(c));
-  const liftU = TERRAIN.waveAmplitude * (.5 * Math.cos(a) / 6 + .2 * Math.cos(c) / 10);
-  const liftV = TERRAIN.waveAmplitude * (.3 * Math.cos(b) / 8 + .2 * Math.cos(c) / 10);
+  const [primaryLength, secondaryLength, diagonalLength] = TERRAIN.waveLengths;
+  const [primaryWeight, secondaryWeight, diagonalWeight] = TERRAIN.waveWeights;
+  const a = u / primaryLength + phases[0];
+  const b = v / secondaryLength + phases[1];
+  const c = (u + v) / diagonalLength + phases[2];
+  // One dominant rounded wave preserves visible crests rather than letting
+  // three equally strong directions cancel. Exact derivatives keep every
+  // support normal and road/structure join on the same smooth field.
+  const lift = TERRAIN.valleyLift + TERRAIN.waveAmplitude * (primaryWeight * Math.sin(a) + secondaryWeight * Math.sin(b) + diagonalWeight * Math.sin(c));
+  const liftU = TERRAIN.waveAmplitude * (primaryWeight * Math.cos(a) / primaryLength + diagonalWeight * Math.cos(c) / diagonalLength);
+  const liftV = TERRAIN.waveAmplitude * (secondaryWeight * Math.cos(b) / secondaryLength + diagonalWeight * Math.cos(c) / diagonalLength);
   let mask = 1, maskU = 0, maskV = 0;
   for (const channel of terrain.channels) {
     const a = v / channel.primaryScale + channel.phase, b = v / channel.secondaryScale + channel.phase;
@@ -211,3 +220,4 @@ export function poolingSite(level, x, z, radius = 1.5) {
     && maximum <= reference + TERRAIN.poolLowlandHeight;
   return { eligible, height: minimum + .008, slope, minimum, maximum };
 }
+
