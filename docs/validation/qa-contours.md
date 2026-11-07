@@ -1,0 +1,7 @@
+# QA terrain contours — 6 November 2026
+
+Branch: feat/rolling-terrain. Scope: F-TERRAIN-002 testing aid. The QA menu checkbox Terrain contours switches a ground-material overlay on/off, initially off. Half-metre elevation lines and stronger two-metre lines show the visible meadow surface. The toggle persists through level replacement; teardown restores the original shader hooks. No simulation or saved progress is changed. Flat ground may have no discrete contour crossings; bridges and roads retain their normal materials.
+
+Validation: 15 QA tests passed, including toggle uniform and shader hook restoration. Release and development builds and artifact-mode checks passed; release has zero QA assets. These are source/build checks, not WebGL or phone appearance evidence. Existing unfinished compact-bank edits remain outside this contour commit. The earlier full regression run for that bank candidate passed 595/596, with a mobile scenery budget failure; no full-suite pass is claimed here. Binary audio/icon files unavailable in the local materialization mean these builds are not complete deployment packages. No deployment or user acceptance claimed.
+
+Device check: enable contours on rolling public level 6 and later levels, inspect hills/valleys from normal zoom, pause/resume, jump/restart, then disable. Verify readability, normal surface restoration and frame rate. Device checks remain pending.

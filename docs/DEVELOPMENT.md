@@ -1,5 +1,35 @@
 # Development, QA and release context
 
+## Hill readability smoke checks — 6 November 2026
+
+For F-TERRAIN-002 compare rolling public6/20/50 with contours off at normal phone zoom in portrait/landscape. Crests/valleys should read through shape and light without harsh bands, triangle edges or crushed grass colors. Compare roads and meadow, sunny/cloud/rain/storm, slopes around fences/goals and all bridge landings. Toggle contours on/off, jump to flat public1–5, restart and pause/resume. The camera height must remain fixed; inspect actor feet/hover, water edges and phone FPS. All rendered/device checks remain pending until observed.
+
+## Static-height camera smoke checks — 29 October 2026
+
+At normal phone zoom traverse low/high ground and elevated bridges on public6, then compare public100 and a flat lesson in portrait/landscape. The camera must keep the same world height and viewing angle while terrain and actors change elevation beneath it. Confirm unchanged horizontal following, landing scan pace/FOV, pause/resume/restart and level jumps. Rendered framing and phone performance remain pending until observed.
+
+## Elevated bridge smoke checks — 29 October 2026
+
+Compare selected elevated and ordinary river crossings. On each elevated bridge, inspect the visible gap above the low river, bank/deck height and slope joins at both ends and both edges, and rails/planks/glow/actor support. Cross with Pip, Buddy and every cow size in both directions; inspect nearby road turns, gates and riverbank access for unintended rail collisions or floating surfaces. These rendered/device checks remain pending.
+
+## Raised riverbank smoke checks — 29 October 2026
+
+Inspect tall banks away from crossings at ordinary phone zoom, then walk both directions through every bridge approach. Banks may rise substantially but must blend smoothly; bridge landings must remain crossable without a sudden step or abrupt grade. Inspect water edges and shallow rainy pools, which should appear only where terrain is sufficiently flat. These rendered/device checks remain pending.
+
+## Flat grass regression smoke checks — 29 October 2026
+
+At the dev URL inspect all public levels 1–5, then a later flat angular meadow. Grass must retain its texture/color both inside and outside the boundary, with roads and props unchanged. Jump from rolling public level 6 to each flat example and back; repeat restart, rain/sun and camera travel. Confirm ground glow and wetness remain coherent. These WebGL/phone appearance checks remain pending until observed; scene color-buffer tests do not establish pixel output.
+
+## Terrain correction playtest — 29 October 2026
+
+Start public level 6 (20 animals), then a selected rough later meadow. At normal phone zoom, inspect hills as Pip crosses them and compare fence grades, livestock support and ground shading. Rough growth must have broad bent dimensional leaves and soft uneven cluster edges, not flat colored discs or sparse dark needles. Check large pasture rocks/outcrops against visible geometry: Pip/Buddy/sheep/cows must go around them, while roads, bridge turning areas, gate switches and goals remain clear. Compare rainy pools against actual terrain and verify no new road-ground seams. These are pending visual/user checks until observed; earlier source scores did not validate the screenshot appearance.
+
+## Rolling terrain smoke checks — 29 October 2026
+
+On `feat/rolling-terrain`, inspect selected public levels after 5 in phone portrait/landscape and at normal gameplay zoom. Move the camera over hills and valleys: transitions and shading must remain smooth, with no visible triangle facets, cracks, z-fighting or floating road/goal surfaces. Spawn locations may slope; goals and bridge approaches may have gentle grades. Compare a smooth meadow with a separately selected rough pasture; tufts and patchiness must not obscure animals or crossings.
+
+Walk Pip and each Buddy tier up/down/across grades, guide split sheep/cow herds including all cow sizes through open wood/stone gates and both directions of rotated bridges, and finish at pen, field and barn goals. Check hoof contact, hover/glow clearance, terrain-following posts/rails/stone bases, switches, barn surfaces, vegetation and scenery. Inspect water at bends and crossings for coherent downhill flow, low channels, joined banks and wakes. In rain/storm, large pools must remain in flat low areas with level surfaces rather than running across hillsides. Pause, resume, restart, jump levels and return to landing; preserve saved progress and bounded resource use. These rendered, touch and FPS checks remain pending until observed on a device.
+
 ## Minimap, river and shadow smoke checks - 28 October 2026
 
 For F-UI-017, inspect the goal pointer at all bearings, including map corners and near-cardinal angles, at the smallest supported viewport and in phone portrait/landscape. Confirm the pointer stays fully outside the circular map, tracks the goal direction, matches Pip's brown, and is not clipped by the canvas or card. Check resizing and level changes.
@@ -507,11 +537,25 @@ Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank 
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
 
+## Terrain test ownership — 29 October 2026
+
+`tests/terrain.test.js` checks independent seeded terrain, the first-five-level flat boundary, configured cap rejection, continuous analytic gradients/relief, full-width submerged river beds and downhill surfaces, smooth graded deck landings, all cow-size route/crossing clearance, and lowland/slope pool eligibility. It samples all 100 campaign indexes with default and four compass-oriented custom seeds; it does not prove every possible 32-bit seed or rendered smoothness. `tests/terrain-view.test.js` covers presentation geometry and support when present; rendering integration remains covered by `tests/render.test.js` and weather by `tests/water-effects.test.js`.
+
+## Pasture correction test map — 29 October 2026
+
+`tests/pasture.test.js` owns shared rough-selection, physical rock bounds/blocking, route/spawn/goal/water clearance and dimensional grass/rock geometry budgets. `tests/render.test.js` verifies the public-level-6 scene has overgrowth instances without flat discs, single tint, grounded rock geometry and replacement cleanup. `tests/terrain-view.test.js` verifies the exact rendered-grid height sampler used by shallow pools. Full-world/cow journey tests remain integration gates.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
 
 
 ## F-INPUT-001 phone smoke checks — 29 October 2026
 
 In phone portrait/landscape and the smallest supported viewport, compare the doubled ring and 84-pixel travel with the previous joystick. Slowly drag from center through 85%, then to/beyond the rim: speed should increase logarithmically and stay maximum over the last 15%; thumb remains under the drag until clamped. Check all directions, nearby bark/QA controls, safe areas, floating touch origins near screen edges, pointer release/cancel/lost capture, pause/background, resize, restart and keyboard controls. Device layout and touch feel remain pending; automated controller tests do not establish those results.
+
+
 
 
 ## Reusable workflows and tools — 6 November 2026

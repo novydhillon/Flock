@@ -6,7 +6,7 @@ import { createLevel, canOccupy, defaultProfile } from '../src/simulation.js';
 
 // Remove browser CSS and resolve JS imports for the data-URL harness.
 const source = (await readFile(new URL('../src/qa.js', import.meta.url), 'utf8')).replace("import './qa.css';", '').replace("'./animal-size.js'", JSON.stringify(new URL('../src/animal-size.js', import.meta.url).href));
-const { qaLevelIndex, adjustQABolts, moveQAAnimal, exportQAScenario, installQA } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+const { qaLevelIndex, adjustQABolts, moveQAAnimal, exportQAScenario, installQA, installQAContours } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 
 test('QA tutorial alias and every public level map to exactly 100 campaign entries', () => {
   assert.equal(qaLevelIndex(0), 0);
@@ -72,4 +72,42 @@ test('QA editor hides positioning, closes safely, and isolates background contro
   doc.querySelector('#qa-toggle').click();await new Promise(resolve=>setTimeout(resolve,0));doc.querySelector('#qa-close').click();assert.equal(resumed,2);assert.equal(doc.querySelector('#qa-panel').hidden,true);assert.ok(!doc.querySelector('#game').inert);
   assert.equal(toggle.textContent,'⚙');assert.match(toggle.getAttribute('aria-label'),/QA.*test session/i);assert.match(toggle.title,/QA.*test session/i);
   qa.destroy();assert.equal(doc.querySelector('#qa-toggle'),null);
+});
+
+
+
+test('terrain contour toggle updates compiled uniforms and restores existing material hooks', () => {
+  let calls = 0;
+  const compile = shader => { calls++; shader.fragmentShader += '// existing hook'; };
+  const key = () => 'existing-material';
+  const material = { onBeforeCompile: compile, customProgramCacheKey: key };
+  const overlay = installQAContours(material);
+  const shader = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <opaque_fragment>' };
+  material.onBeforeCompile(shader);
+  assert.equal(calls, 1);
+  assert.equal(shader.uniforms.qaContourEnabled.value, 0);
+  overlay.setEnabled(true);
+  assert.equal(shader.uniforms.qaContourEnabled.value, 1);
+  assert.match(shader.fragmentShader, /qaContourLine\(0.5\)/);
+  assert.match(shader.fragmentShader, /qaContourLine\(2.0\)/);
+  overlay.setEnabled(false);
+  assert.equal(shader.uniforms.qaContourEnabled.value, 0);
+  overlay.dispose();
+  assert.equal(material.onBeforeCompile, compile);
+  assert.equal(material.customProgramCacheKey, key);
+});
+
+
+test('actual contour shader leaves constant-height planes unshaded, including exact contour heights', () => {
+  const material = { onBeforeCompile() {}, customProgramCacheKey() { return 'test'; } };
+  installQAContours(material);
+  const shader = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <opaque_fragment>' };
+  material.onBeforeCompile(shader);
+  const body = shader.fragmentShader.match(/float qaContourLine\(float interval\) \{([\s\S]*?)\}/)[1].replace(/float /g, 'let ');
+  const evaluate = new Function('qaContourHeight', 'interval', 'fwidth', 'abs', 'fract', 'max', 'smoothstep', body);
+  const smoothstep = (a,b,x) => { const t=Math.max(0,Math.min(1,(x-a)/(b-a))); return t*t*(3-2*t); };
+  const weight = (height,interval,gradient) => evaluate(height,interval,()=>gradient,Math.abs,x=>x-Math.floor(x),Math.max,smoothstep);
+  for (const interval of [.5,2]) for (const height of [0,.5,2,-2,.27]) assert.equal(weight(height,interval,0),0);
+  assert.ok(weight(2,.5,.01) > .99, 'sloped contour crossing remains visible');
+  assert.equal(weight(2.25,.5,.01),0, 'sloped ground between contours retains its color');
 });

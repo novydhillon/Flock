@@ -1,5 +1,21 @@
 # Presentation: renderer, nature and audio
 
+## Terrain relief cues — 6 November 2026
+
+A chained material hook applies configurable0.88–1.08height brightness to grass, road and shoulder surfaces. One rolling-enabled uniform resets on each level replacement; flat levels are neutral. The same hook preserves prior shader/glow/weather hooks and adds no geometry. Lower sun angle and reduced hemisphere fill strengthen sided lighting. Shadow culling now uses per-plane support of the original sphere and its projected ellipse, retaining visible casters with less conservative overdraw than uniform radius inflation. Road conformance spacing is1.9m rather than2m to retain25mm interpolation accuracy on the stronger profile; ground density is unchanged. Device appearance and FPS require observation.
+
+## Static world-height camera — 29 October 2026
+
+The current camera contract uses a zero-height look-target plane and the configured fixed camera positionY above that plane. Terrain and deck support heights do not contribute to initialization, following, showcase scanning, light-target height or level replacement. Keep horizontal following, orthographic projection/view angle, slow landing scans and pause behavior. Actor roots and hover illumination remain terrain/deck-following. This supersedes the expanded-terrain elevation-following camera sections below.
+
+## Expanded terrain presentation — 29 October 2026
+
+Rolling ground uses exact analytic normals and a relief-normalized continuous tint. Terrain elevation contributes to camera height while preserving the existing orthographic scale and viewing angle; showcase travel limits include the vertical component and paused updates retain camera height. Sliding gates resample their contour at the current open position and rails preserve projected endpoints on slopes. Triangle-interior clearance and resource-budget checks are required for the expanded bank field; vertex samples alone do not establish surface agreement. Phone appearance and frame rate remain separate pending checks.
+
+## Shared grass vertex input — 29 October 2026
+
+The shared grass material enables vertex colors for rolling height tint. Every receiving geometry binds an RGB color attribute with one entry per position: flat meadow planes and angular playable overlays use neutral white; rolling meadow grids retain their smooth height tint. This explicit shader input survives level changes without depending on generic WebGL vertex attribute state. Geometry remains owned and disposed by the level. Scene tests cover first-five flat meadows, a later angular flat meadow and repeated rolling-to-flat replacement; they do not validate rendered phone appearance.
+
 ## Exterior minimap pointer and river presentation - 28 October 2026
 
 F-UI-017 places the goal arrow outside the circular minimap at the projected goal bearing. It is drawn after restoring the canvas clip, uses the shared `GOAL_POINTER_COLOR` (`#be8652`) from Pip's brown marker, and remains outside the circle across bearings. The circle radius leaves a 16 px canvas gutter; the arrow extends 3-11 px beyond that radius. The canvas remains transparent and square so its CSS drop shadow follows the circle. Canvas expansion preserves the original map diameter; a 10 px orbit allowance below the safe-area anchor protects the north-pointing arrow and shifts tips equally. Source tests cover projection and perimeter geometry; rendered clipping and phone appearance remain unverified.
@@ -434,8 +450,33 @@ Novy requests slender multi-blade grass/reed clumps everywhere, randomized bank 
 
 Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
 
+## Rolling terrain presentation — 29 October 2026
+
+`terrain-view.js` builds a dense indexed ground grid and assigns smooth support-gradient normals; `conformSurface` clips roads/goals to shared world-grid lines while interpolating UV and road-fade attributes. This avoids triangle-face lighting and the excessive geometry of recursive subdivision on thin road-union triangles. River water retains its existing lightweight centerline tessellation because its separate downhill height varies smoothly without pasture hills. These construction choices do not establish visible smoothness until rendered playtest.
+
+The renderer samples shared bare/support heights for roads, vegetation, props, goals and actors. Livestock use a support plane sampled across actual scaled hoof spans, retaining authoritative yaw/scale. Pip/Buddy retain hover/pose ownership and shared support for glow anchors; wildlife height follows terrain. Fence rails, stone courses, gate posts/panels and switch mounts follow grades. Graded bridge construction places planks against support and uses short graded rail spans/posts rather than lifting an unchanged flat model. No new collision blockers or progression effects come from decoration.
+
+Rough pasture uses a separate seeded selection after the first five lessons, with bounded short clumps and muted irregular patches in the existing clay style. The provisional frequency, clump and patch budgets live in `presentation.json`; they are implementation settings, not user-approved cadence. Grass/reeds remain shadow-free. Water rocks and wakes use the same river height callback as their base surface, preserving seeded placement and current direction.
+
+Rolling rain pools use `pool-geometry.js` horizontal geometry clipped against the rendered ground surface. Their fixed buffers and quantized growth bound updates; visible footprint checks also control splashes. `GROUND_SURFACE_OFFSET` is the shared existing mesh clearance below bare support, preventing a second hard-coded ground-height contract. Flat-level water retains legacy geometry. Per-level geometry/material ownership and replacement cleanup remain mandatory.
+
+## Overgrown pasture visual revision — 29 October 2026
+
+The first terrain candidate was rejected on device: solid color polygons and sparse dark blades did not establish rough overgrowth. The correction uses dense three-dimensional tuft structure with soft spatial edges, avoids multiplying two dark green tints, and makes actual terrain contours more apparent at ordinary camera scale. Hills remain shared physical elevations with smooth support; color/lighting cues complement that geometry. User appearance acceptance remains pending.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+
+## Elevated bridge presentation — 29 October 2026
+
+Terrain-following bridge boards deform vertically while retaining their authored horizontal footprint, avoiding the width loss of tilting a rigid box across a slope. Bounded cross-width subdivisions and analytic support-gradient normals retain the complete visible deck; temporary construction geometry is disposed after baking. Planks, rails, nails, posts, actor roots and hover illumination use the shared elevated support. Actual merged-model/scene ray tests cover both landing ends, lateral deck edges, rotated normals and rail clearance. These source/geometry checks do not establish rendered phone appearance.
+
 
 
 ## Joystick response — 29 October 2026
 
 F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, distance / (radius * fullSpeedFraction))) / log1p(k), with controls.json defaults radius 84 CSS pixels, fraction 0.85 and strength 9. Direction stays normalized separately; the thumb tracks physical travel clamped to the radius, independent of speed shaping. Visible rings double to 220/212/192 pixels diameter for desktop/phone/short landscape. Idle ring placement keeps the bottom-third preference but clamps above the bottom safe area for short screens. Keyboard input and pointer lifecycle are unchanged.
+
+

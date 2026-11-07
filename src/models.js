@@ -836,22 +836,58 @@ export function createFence(length = 4) {
   return bakeModel(fence);
 }
 
-export function createBridge(width = 2.2, length = 4.5) {
+export function createBridge(width = 2.2, length = 4.5, supportHeight = null) {
   const m = createMaterials();
   const bridge = new THREE.Group();
-  const planks = Math.ceil(length / 0.3);
+  const planks = Math.ceil(length / 0.3), ownedPlanks=[];
   for (let i = 0; i < planks; i++) {
     const z = -length / 2 + (i + 0.5) * length / planks;
-    const y = Math.sin((i + 0.5) / planks * Math.PI) * 0.12;
-    box(bridge, i % 3 ? m.paleWood : m.wood, [0, y + 0.09, z], [width, 0.18, length / planks - 0.025]);
-    [-1, 1].forEach((s) => sphere(bridge, m.brass, [s * (width / 2 - 0.16), y + 0.184, z], [0.025, 0.01, 0.025], 6));
+    const y = supportHeight ? supportHeight(0, z) - .18 : Math.sin((i + 0.5) / planks * Math.PI) * 0.12;
+    const plank = box(bridge, i % 3 ? m.paleWood : m.wood, [0, y + 0.09, z], [width, 0.18, length / planks - 0.025]);
+    if (supportHeight) {
+      // Rolling a box narrows its horizontal footprint and pulls its upper
+      // corners away from support. Drape only elevation, retaining the shared
+      // physical deck width and each board's original UVs/thickness.
+      const geometry=new THREE.BoxGeometry(width,.18,length/planks-.025,Math.ceil(width/.6),1,1);
+      const position=geometry.attributes.position,normal=geometry.attributes.normal,step=.025;
+      for(let vertex=0;vertex<position.count;vertex++){
+        const x=position.getX(vertex),along=z+position.getZ(vertex),side=normal.getY(vertex);
+        position.setY(vertex,supportHeight(x,along)+position.getY(vertex)-.09);
+        if(side){
+          const dx=(supportHeight(x+step,along)-supportHeight(x-step,along))/(step*2);
+          const dz=(supportHeight(x,along+step)-supportHeight(x,along-step))/(step*2);
+          const size=Math.hypot(dx,1,dz);normal.setXYZ(vertex,-side*dx/size,side/size,-side*dz/size);
+        }
+      }
+      ownedPlanks.push(geometry);plank.geometry=geometry;plank.position.set(0,0,z);plank.scale.setScalar(1);
+    }
+    [-1, 1].forEach((s) => sphere(bridge, m.brass, [s * (width / 2 - 0.16), supportHeight ? supportHeight(s * (width / 2 - .16), z) + .004 : y + 0.184, z], [0.025, 0.01, 0.025], 6));
   }
   [-1, 1].forEach((side) => {
-    for (let i = 0; i < 4; i++) cylinder(bridge, m.wood, [side * width / 2, 0.56, -length / 2 + i * length / 3], 0.065, 0.96);
-    box(bridge, m.paleWood, [side * width / 2, 0.86, 0], [0.1, 0.1, length + 0.2]);
-    box(bridge, m.wood, [side * width / 2, 0.46, 0], [0.08, 0.075, length + 0.2]);
+    for (let i = 0; i < 4; i++) {
+      const x = side * width / 2, z = -length / 2 + i * length / 3;
+      cylinder(bridge, m.wood, [x, supportHeight ? supportHeight(x, z) + .38 : .56, z], .065, .96);
+    }
+    if (!supportHeight) {
+      box(bridge, m.paleWood, [side * width / 2, .86, 0], [.1, .1, length + .2]);
+      box(bridge, m.wood, [side * width / 2, .46, 0], [.08, .075, length + .2]);
+      return;
+    }
+    const sections = Math.ceil(length / .6), x = side * width / 2;
+    for (let i = 0; i < sections; i++) for (const upper of [true, false]) {
+      const start = -length / 2 + i * length / sections;
+      const end = -length / 2 + (i + 1) * length / sections;
+      const height = upper ? .56 : .16;
+      const firstY = supportHeight(x, start) + height, lastY = supportHeight(x, end) + height;
+      const delta = new THREE.Vector3(0, lastY - firstY, end - start);
+      const rail = box(bridge, upper ? m.paleWood : m.wood, [x, (firstY + lastY) / 2, (start + end) / 2],
+        [upper ? .1 : .08, upper ? .1 : .075, delta.length() + .015]);
+      rail.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), delta.normalize());
+    }
   });
-  return bakeModel(bridge);
+  const baked=bakeModel(bridge);
+  ownedPlanks.forEach(geometry=>geometry.dispose());
+  return baked;
 }
 
 export function createFlowerPatch(seed = 0, count = 5) {

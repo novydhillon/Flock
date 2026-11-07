@@ -1,5 +1,29 @@
 # World generation, collision, and navigation
 
+## Readable hill profile — 6 November 2026
+
+The analytic pasture profile uses normalized configurable wave weights0.7/0.2/0.1 and length scales5.5/7.5/9.5m per radian. The dominant wave avoids visible cancellation without increasing the relief amplitude. Exact derivatives remain authoritative for support, normals, pooling and road conformance. Elevated-deck endpoint matching is localized with power12. Completed-field landing checks downgrade raised candidates that another river corridor has lowered; routes remain safe because downgraded rails only shorten. Eligible rain-pool search extends the deterministic journey-verge offsets to16m on rolling levels because stronger grades narrow lowland sites; eligibility, obstacle footprint safety and pool count limits are unchanged.
+
+## Elevated bridge contract — 29 October 2026
+
+Selected rolling crossings may span above the low river channel between higher banks. The shared bridge descriptor must carry the same complete span in collision, navigation, route generation and presentation. Its support height joins the actual ground elevation and grade at both dry ends. Elevated crossings must not be assigned a compulsory low riverbank corridor; ordinary crossings may retain gentle low verges. Preserve all cow-size clearance, river coverage, bridge rail clearance and the overall 4.5m/30-degree limits.
+
+## Riverbank relief contract — 29 October 2026
+
+The current expanded terrain candidate targets 4.5m maximum playable relief and 30-degree maximum grade. Higher riverbanks are permitted away from bridges. Local crossing approaches retain gentler smooth grades; a universal broad low bank shelf is not required. Standing-water eligibility still requires low ground and grades below 3 degrees. This supersedes earlier 12-degree cap prose; source validation and publication evidence remain separate.
+
+Channel distance is warped analytically with a narrow ordinary-bank verge and a Gaussian widening near each bridge. The bridge widening fades along the river so higher banks can return between crossings. Wet-edge normalization preserves the submerged physical river ribbon while exact derivatives include the along-river transition. Rolling decks use the broader crown `bridgeLift * (1 - fraction^4)^2`, with zero lift and derivative at both dry ends, to clear the complete wet crossing. This supersedes the earlier narrow quartic-arch description.
+
+## Continuous terrain and water support — 29 October 2026
+
+`terrain.js` owns the renderer-independent analytic height field; `world.js` re-exports `groundHeight`, `terrainNormal`, `terrainSlope`, `riverSurfaceHeight`, `bridgeSurfaceHeight` and `poolingSite`. Existing `terrainHeight` (also exported as `surfaceHeight`) returns ground or bridge support inside the shared rotated deck footprint. Planar occupancy, collision, route/gate geometry and body widths remain authoritative; no separate 3D movement engine or controls are introduced.
+
+`createLevel` attaches a deterministic `level.terrain` descriptor using its own seed stream, without consuming layout RNG. The first five public levels remain flat. The default rolling selection probability is 65% thereafter; this is provisional implementation tuning, not a user-approved frequency. Spawn and goal locations are not flattened. Fields use broad smooth waves multiplied by analytic channel valleys; exact normals/grades have no height-sample seams. `src/config/terrain.json` documents relief, cap, water and pooling settings with comments/bounds. The 12-degree cap is deliberately fixed; lowering it requires deriving a new terrain/bridge construction.
+
+Rivers share a bounded smooth downstream reference along canonical lateral coordinates, descending toward their first sampled centerline point to match the existing animated current. Normalized valley shoulders keep the entire physical water strip submerged despite hill-wave variation. `groundHeight` includes the submerged bed; `riverSurfaceHeight` returns the separate downhill water plane. Rolling bridge support adds a smooth quartic lift over ground, with both lift and its first derivative vanishing at each dry end. Goals and bridge landings may gently slope.
+
+`poolingSite` screens the center and two footprint rings for grades below 3 degrees, height range no more than .035 units and lowland elevation relative to the local downstream reference. It returns eligibility plus a horizontal pool plane and footprint bounds for weather presentation; weather never rotates standing water onto a hillside. Selection/sampling limits are separate from rendered/device appearance, which remains pending playtest.
+
 ## Bird landing contract — 24 October 2026
 
 birdLandingPositionSafe vetoes the full river footprint even where bridges are playable. Landing searches validate ground endpoints and the approach in bounded samples; failed searches leave birds airborne and defer retry. Hops validate their short dry-ground path. This is ambient wildlife movement only and does not change physical game collision or navigation.
@@ -163,3 +187,15 @@ Stone walls changed physical thickness and player-signal visibility, exposing la
 ## Room between crossings — 20 October 2026
 
 From public level 6, levels with more than 30 animals gain extra trail before the gate: 0.4 m per animal above 30, capped at 14 m. The river positions relative to the spawn are unchanged, so the space is added between the last bridge and the gate. For 65-animal levels the trail from the last bridge exit to the gate grows from about 22 m to 30–37 m. Levels 1–5 are unchanged. `tests/chokepoints.test.js` checks the gap on sampled large-herd levels.
+
+## Physical pasture rocks — 29 October 2026
+
+Shared seeded pasture selection and placement live in `pasture.js`, with a dedicated `config/pasture.json` area for selection/detail budgets. Rough rocks are ordinary authoritative circular obstacles marked `kind: rock`, sharing occupancy, movement, line clearance and navigation with other solid obstacles. Generation uses an independent stream and rejects routes, spawn/animals, destinations, water, walls and gate space before adding rocks. Rendered horizontal rock bounds must fit those disks. The existing total obstacle ceiling remains enforced. Dense grass is decorative and cannot invent collision.
+
+
+## Elevated crossing construction — 29 October 2026
+
+An independent seeded35% candidate selection applies only to rolling meadows; this is implementation tuning, not an agreed frequency. Eligible first-river crossings extend the shared span to the river width plus two7m bank setbacks, reserve turning/approach space and omit the compulsory low crossing verge. Both complete landing cross-sections must stand at least.25m above local water with suitable grades. Other bridges retain their short low-crossing form. Public level6 is an early default example and public100 a later example.
+
+`bridge.elevated` selects a bank-to-bank chord with localized smooth tangent corrections and a.08m crown. Endpoint samples vary across the full deck width, preserving both bank height and normal at each end. The shared `bridgeSurfaceHeight` drives actors, navigation support and visual components; the same extended descriptor drives physical footprint and rails. Endpoints and interior support remain subject to the global4.5m relief/30-degree grade bounds.
+

@@ -1,5 +1,8 @@
+import { addPastureRocks } from './pasture.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from './delivery.js';
 import { animalRadius, COW_SCALES } from './animal-size.js';
+import { createTerrain, groundHeight, bridgeSurfaceHeight, riverSurfaceHeight, terrainSlope, elevatedBridgeMeadow, TERRAIN } from './terrain.js';
+export { GROUND_SURFACE_OFFSET, groundHeight, terrainNormal, terrainSlope, riverSurfaceHeight, bridgeSurfaceHeight, poolingSite } from './terrain.js';
 /** Deterministic meadow geometry. Rendering and every ground body share these
  * sampled river edges, fence segments, and circular tree footprints. */
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -148,10 +151,11 @@ export function hasClearGroundPath(level,a,b,radius=.55){return clearPath(level,
 export function hasClearPlayerSignal(level,a,b){return clearPath(level,a,b,.15,false,true);}
 export function terrainHeight(level,x,z){
   for(const river of level?.rivers||[])for(const bridge of river.bridges){
-    if(withinBridge(bridge,{x,z},0)){const f=yawVector(bridge.heading),along=(x-bridge.x)*f.x+(z-bridge.z)*f.z;return .18+.12*Math.sin(Math.PI*(along/bridge.length+.5));}
+    if(withinBridge(bridge,{x,z},0))return bridgeSurfaceHeight(level,bridge,x,z);
   }
-  return 0;
+  return groundHeight(level,x,z);
 }
+export const surfaceHeight=terrainHeight;
 function perimeter(b) { const nw={x:b.minX,z:b.minZ},ne={x:b.maxX,z:b.minZ},se={x:b.maxX,z:b.maxZ},sw={x:b.minX,z:b.maxZ};
   return [[nw,ne],[ne,se],[se,sw],[sw,nw]].map(([a,b])=>({a,b,kind:'boundary'})); }
 /** Roads have gentle, sampled meanders. Crossing decks remain straight. */
@@ -206,7 +210,8 @@ export function createLevel(index=0,seed=index*7919+42) {
   // meadow 3.5 times deeper, then later chapters expand further.
   // Larger herds get more trail between the last bridge and the gate so a
   // flock can leave the deck before reaching the next opening (F-WORLD-001).
-  const breathing=early?0:18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
+  const elevatedCandidate=elevatedBridgeMeadow(index,seed);
+  const breathing=early?0:(elevatedCandidate?TERRAIN.elevatedBridgeBankSetback:0)+18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
   const expansion=Math.max(0,index-19),endU=early?15+index*3:index>=39?150+Math.min(index-39,40)*.3:48+index*3+breathing+expansion*.45,minU=early?-32:-40,maxU=endU+15,halfV=early?24:index>=39?84+Math.min(expansion*.1,8):84+Math.floor(index/15)*14+expansion*.3;
   // Late routes cross the meadow laterally as well as longitudinally. The
   // destination stays on clear ground beyond every river and barrier.
@@ -226,7 +231,14 @@ export function createLevel(index=0,seed=index*7919+42) {
   const riverBases=index===0?[]:early?[index===1?-10:-12]:index>=15?[gateU-breathing-48,gateU-breathing-23]:[gateU-breathing-23];
   const meandering=index>=19&&rng(seed^0x4d45414e)()<.55;
   if(meandering&&riverBases.length>1)riverBases[0]-=15;
-  const riverFunctions=riverBases.map(base=>{const phase=random()*Math.PI*2;return {width:early?3.1:3.7+Math.min(index*.025,1.8),at:v=>base+Math.sin(v/(meandering?32:21)+phase)*(meandering?6:2.4)+Math.sin(v/(meandering?12:8)+phase)*(meandering?1:.65)};});
+  if(elevatedCandidate&&riverBases.length>1)riverBases[0]-=TERRAIN.elevatedBridgeRiverSeparation;
+  const riverFunctions=riverBases.map(base=>{
+    const phase=random()*Math.PI*2;
+    const channel={base,phase,width:early?3.1:3.7+Math.min(index*.025,1.8),primaryScale:meandering?32:21,secondaryScale:meandering?12:8,primaryAmplitude:meandering?6:2.4,secondaryAmplitude:meandering?1:.65};
+    return {...channel,at:v=>base+Math.sin(v/channel.primaryScale+phase)*channel.primaryAmplitude+Math.sin(v/channel.secondaryScale+phase)*channel.secondaryAmplitude};
+  });
+  // Probe the unshelved bank field without consuming the layout stream.
+  const bankProbe={terrain:createTerrain({index,seed},{angle:0,halfV,channels:riverFunctions})};
   const canonicalRivers=riverFunctions.map(r=>({width:r.width,points:Array.from({length:Math.ceil((halfV*2+64)/2)+1},(_,i)=>{const z=-halfV-32+i*2;return{x:r.at(z),z};}),bridges:[]}));
   const canonicalGates=[],canonicalRoutes=[];
   const sign=random()>.5?1:-1;
@@ -246,11 +258,16 @@ export function createLevel(index=0,seed=index*7919+42) {
         const t=(z-a.z)/(b.z-a.z),x=a.x+(b.x-a.x)*t,f=unit(b.z-a.z,a.x-b.x);
         // A short .75-unit landing on each bank covers the sampled curvature.
         const bridge={x,z,width:roadWidth*1.25,length:river.width+1.5,heading:Math.atan2(f.x,f.z)-angle};
+        if(elevatedCandidate&&j===0){
+          const length=river.width+TERRAIN.elevatedBridgeBankSetback*2;
+          const landings=[-1,1].flatMap(end=>Array.from({length:9},(_,i)=>bridge.width*(i/8-.5)).map(lateral=>({x:x+f.x*end*length/2+f.z*lateral,z:z+f.z*end*length/2-f.x*lateral})));
+          if(landings.every(p=>groundHeight(bankProbe,p.x,p.z)-riverSurfaceHeight(bankProbe,null,p.x,p.z)>=TERRAIN.elevatedBridgeMinimumClearance+.01&&terrainSlope(bankProbe,p.x,p.z)<TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees*Math.PI/180))Object.assign(bridge,{elevated:true,length});
+        }
         canonicalRivers[j].bridges.push(bridge);
         // Every branch reaches common dry turning planes before changing
         // lanes. This prevents a turn crossing another deck's side rail.
-        // Turning space belongs to the trail, not the shortened deck.
-        const approach=river.width/2+2.5+(early?3:meandering?10:6);
+        // Turning space belongs to the trail, beyond either deck span.
+        const approach=river.width/2+2.5+(early?3:meandering?10:6)+(elevatedCandidate&&j===0?TERRAIN.elevatedBridgeApproachPadding:0);
         const nearU=early?approach:(x-riverBases[j]+approach)/f.x,farU=early?approach:(riverBases[j]+approach-x)/f.x;
         const near={x:x-f.x*nearU,z:z-f.z*nearU},far={x:x+f.x*farU,z:z+f.z*farU};
         points.push({x:near.x-4,z:near.z-sign*(early?3:8)},near,{x,z,kind:'bridge'},far);
@@ -306,6 +323,30 @@ export function createLevel(index=0,seed=index*7919+42) {
   const level={index,seed,title:['First day on the farm','Over the babbling brook','Through the garden gate','A mixed-up meadow','The long way home'][index]||`Pasture patrol ${index+1}`,
     description:index===0?'Move behind the sheep and gently guide all five into the sunny pen.':`Bring ${count} robots to the ${target.type}. ${routeCount>1?'Choose a crossing and lead your flock through the meadow.':'Follow the winding trail and use the crossings.'}`,
     bounds,boundary,spawn,dog,target,startHeading:heading,layoutKind:angular?.kind||'field',riverStyle:meandering?'meandering':'gentle',animals:[],rivers,gates,fences:[],fenceSegments,obstacles:[],routes,roads,reward:maximumLevelReward(index),sceneryHills:[]};
+  level.terrain=createTerrain(level,{angle,halfV,channels:riverFunctions});
+  // A later river's low crossing corridor can lower an earlier candidate's
+  // landing. Validate against the completed shared field, not just the initial
+  // unshelved probe. Downgrades only shorten rails; the sampled routes stay safe.
+  let banksChanged;
+  do {
+    banksChanged = false;
+    for (const river of rivers) for (const bridge of river.bridges) {
+      if (!bridge.elevated) continue;
+      const forward = yawVector(bridge.heading);
+      const safe = [-1, 1].every(end => Array.from({length: 9}, (_, i) => bridge.width * (i / 8 - .5)).every(lateral => {
+        const x = bridge.x + forward.x * end * bridge.length / 2 + forward.z * lateral;
+        const z = bridge.z + forward.z * end * bridge.length / 2 - forward.x * lateral;
+        return groundHeight(level, x, z) - riverSurfaceHeight(level, river, x, z) >= TERRAIN.elevatedBridgeMinimumClearance + .01
+          && terrainSlope(level, x, z) < TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees * Math.PI / 180;
+      }));
+      if (!safe) {
+        delete bridge.elevated;
+        bridge.length = river.width + 1.5;
+        banksChanged = true;
+      }
+    }
+    if (banksChanged) level.terrain=createTerrain(level,{angle,halfV,channels:riverFunctions});
+  } while (banksChanged);
   for(let i=0;i<count;i++) {
     const p=transform({x:(early?-20:-26)+Math.floor(i/7)*1.65+(random()-.5)*.2,z:(i%7-3)*1.65+(random()-.5)*.2});
     const type=index>=3&&i%4===0?'cow':'sheep';
@@ -362,6 +403,7 @@ export function createLevel(index=0,seed=index*7919+42) {
       if(trees)level.groves.push({...anchor,id:group,trees});
     }
   }
+  addPastureRocks(level, (x, z, radius) => canOccupy(level, x, z, radius));
   for(let i=0;i<14;i++) {
     const radius=7+random()*8,height=3+random()*5;
     const side=i%4,p=side===0?{x:bounds.minX-radius-3,z:bounds.minZ+random()*(bounds.maxZ-bounds.minZ)}:side===1?{x:bounds.maxX+radius+3,z:bounds.minZ+random()*(bounds.maxZ-bounds.minZ)}:side===2?{x:bounds.minX+random()*(bounds.maxX-bounds.minX),z:bounds.minZ-radius-3}:{x:bounds.minX+random()*(bounds.maxX-bounds.minX),z:bounds.maxZ+radius+3};
@@ -498,3 +540,4 @@ export function openingSteer(level,body,vx,vz,radius=.78) {
   return{x:f.z*Math.sign(u)*Math.min(2.4,speed*.8+.5),z:-f.x*Math.sign(u)*Math.min(2.4,speed*.8+.5)};
 }
 export const steeringOpening=openingSteer;
+

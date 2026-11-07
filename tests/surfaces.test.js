@@ -5,6 +5,7 @@ import {ribbon,roadRibbon,roadNetwork,createRoadMaterial,barkSurface} from '../s
 import {createLevel} from '../src/simulation.js';
 import {createBridge} from '../src/models.js';
 import {MeadowRenderer} from '../src/render.js';
+import { terrainHeight, groundHeight, bridgeSurfaceHeight } from '../src/world.js';
 
 const cross=(a,b,c)=>(b.x-a.x)*(c.z-a.z)-(b.z-a.z)*(c.x-a.x);
 test('road terminals are rounded with gradual bounded coverage; water keeps square ends',()=>{
@@ -154,23 +155,49 @@ test('bark triangles stay above actual bridge planks across centers, ends and ap
   for(const index of [3,7]){
     const level=createLevel(index);
     for(const bridge of level.rivers.flatMap(r=>r.bridges)){
-      const model=createBridge(bridge.width,bridge.length);model.rotation.y=bridge.heading;model.position.set(bridge.x,0,bridge.z);model.updateMatrixWorld(true);
+      const support = level.terrain?.enabled ? (x, z) => bridgeSurfaceHeight(level, bridge,
+        bridge.x + Math.cos(bridge.heading) * x + Math.sin(bridge.heading) * z,
+        bridge.z - Math.sin(bridge.heading) * x + Math.cos(bridge.heading) * z) : null;
+      const model=createBridge(bridge.width,bridge.length,support);model.rotation.y=bridge.heading;model.position.set(bridge.x,0,bridge.z);model.updateMatrixWorld(true);
       for(const along of [-bridge.length/2-1,-bridge.length/2,0,bridge.length/2,bridge.length/2+1])for(const scale of [1,3.5,7]){
         const origin={x:bridge.x+Math.sin(bridge.heading)*along,z:bridge.z+Math.cos(bridge.heading)*along},geometry=barkSurface(level,origin,scale);
         for(const triangle of triangles(geometry))for(const weights of [[1/3,1/3,1/3],[.8,.1,.1],[.1,.8,.1],[.1,.1,.8]]){
           const p=triangle.reduce((p,v,i)=>({x:p.x+v.x*weights[i],y:p.y+v.y*weights[i],z:p.z+v.z*weights[i]}),{x:0,y:0,z:0});
-          const ray=new THREE.Raycaster(new THREE.Vector3(p.x,.37,p.z),new THREE.Vector3(0,-1,0));
+          const ray=new THREE.Raycaster(new THREE.Vector3(p.x,terrainHeight(level,p.x,p.z)+.03,p.z),new THREE.Vector3(0,-1,0));
           const deck=ray.intersectObject(model,true)[0];
-          if(deck)assert.ok(p.y>deck.point.y+.015,`bark ${p.y} clears rendered deck ${deck.point.y}`);
-          else assert.ok(p.y>=.05,'land clears road, river and ground');
+          if(deck)assert.ok(p.y>deck.point.y+.015,`bark ${p.y} clears rendered deck ${deck.point.y}; level=${index} along=${along} scale=${scale} x=${p.x} z=${p.z} support=${terrainHeight(level,p.x,p.z)}`);
+          else assert.ok(p.y >= terrainHeight(level,p.x,p.z)+.015,'land clears supported roads and ground');
         }
         geometry.dispose();
       }
     }
   }
 });
+test('bark rings follow rolling hills and retain bounds throughout expansion', () => {
+  for (const index of [5, 19, 99]) {
+    let level;
+    for (let seed = 200; seed < 220; seed++) {
+      const candidate = createLevel(index, seed);
+      if (candidate.terrain.enabled) { level = candidate; break; }
+    }
+    assert.ok(level, 'rolling fixture exists');
+    const geometry = new THREE.BufferGeometry();
+    for (const scale of [1, 3.5, 7]) {
+      barkSurface(level, level.spawn, scale, geometry);
+      const positions = geometry.attributes.position;
+      for (let i = 0; i < geometry.drawRange.count; i++) {
+        const point = new THREE.Vector3().fromBufferAttribute(positions, i);
+        assert.ok(Math.abs(point.y - groundHeight(level, point.x, point.z) - .04) < 1e-6,
+          'hill feedback stays just above its actual support');
+        assert.ok(geometry.boundingSphere.containsPoint(point), 'expanded height remains inside culling bounds');
+      }
+    }
+    geometry.dispose();
+  }
+});
+
 test('bark preserves depth occlusion and freezes on pause with bounded disposable effects',()=>{
-  const renderer=Object.create(MeadowRenderer.prototype);renderer.level=createLevel(7);renderer.dog=new THREE.Object3D();renderer.actors=new THREE.Group();renderer.barkEffects=[];
+  const renderer=Object.create(MeadowRenderer.prototype);renderer.level=createLevel(7);renderer.level.terrain.enabled=false;renderer.dog=new THREE.Object3D();renderer.actors=new THREE.Group();renderer.barkEffects=[];
   renderer.bark();const effect=renderer.barkEffects[0],mesh=effect.mesh;
   assert.equal(mesh.material.depthTest,true);assert.equal(mesh.material.depthWrite,false);
   assert.equal(mesh.userData.ownedGeometry,true);assert.equal(mesh.userData.ownedMaterial,true);

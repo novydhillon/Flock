@@ -2,6 +2,44 @@
 // These contracts contain no tuning values; update them when adding a setting.
 const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 export const CONFIG_CONTRACTS = freeze({
+  "pasture": {
+    "roughChance": "number",
+    "roughClumps": "integer",
+    "roughPatches": "integer",
+    "roughRocks": "integer"
+  },
+  "terrain": {
+    "unlockIndex": "integer",
+    "selectionProbability": "number",
+    "maximumRelief": "number",
+    "maximumSlopeDegrees": "number",
+    "waveAmplitude": "number",
+    "waveLengths": ["number", "number", "number"],
+    "waveWeights": ["number", "number", "number"],
+    "valleyLift": "number",
+    "bankShelfWidth": "number",
+    "bankRiseScale": "number",
+    "bridgeShelfWidth": "number",
+    "bridgeBlendLength": "number",
+    "lowlandBlendWidth": "number",
+    "channelDepth": "number",
+    "waterDepth": "number",
+    "downstreamDrop": "number",
+    "waterEdgeInset": "number",
+    "bridgeLift": "number",
+    "elevatedBridgeChance": "number",
+    "elevatedBridgeMaximumLandingSlopeDegrees": "number",
+    "elevatedBridgeRiverSeparation": "number",
+    "elevatedBridgeApproachPadding": "number",
+    "elevatedBridgeBankSetback": "number",
+    "elevatedBridgeMinimumClearance": "number",
+    "elevatedBridgeCrown": "number",
+    "elevatedBridgeTangentPower": "integer",
+    "poolMaximumSlopeDegrees": "number",
+    "poolSearchOffsets": ["number", "number", "number", "number", "number", "number", "number", "number", "number", "number", "number", "number"],
+    "poolMaximumHeightRange": "number",
+    "poolLowlandHeight": "number"
+  },
   "gameplay": {
     "simulation": {
       "maximumStepSeconds": "number",
@@ -221,6 +259,12 @@ export const CONFIG_CONTRACTS = freeze({
     }
   },
   "presentation": {
+    "terrain": {
+      "groundSpacing": "number",
+      "surfaceSpacing": "number",
+      "reliefLowBrightness": "number",
+      "reliefHighBrightness": "number"
+    },
     "waterVegetation": {
       "bodyChance": "number",
       "maximumClumps": "integer",
@@ -545,4 +589,6 @@ export const CONFIG_CONTRACTS = freeze({
     }
   }
 });
+
+
 

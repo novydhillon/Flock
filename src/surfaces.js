@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { terrainHeight, groundHeight, bridgeSurfaceHeight } from './world.js';
 
 const EPS=1e-9;
 const cross=(a,b)=>a.x*b.z-a.z*b.x;
@@ -237,7 +238,19 @@ export function barkSurface(level,origin,scale=1,geometry=new THREE.BufferGeomet
     for(const polygon of pieces){
       const center=polygon.reduce((p,v)=>({x:p.x+v.x/polygon.length,z:p.z+v.z/polygon.length}),{x:0,z:0});let height=.055;
       for(const b of frames){const p=local(center,b);if(Math.abs(p.x)<=b.width/2+EPS&&Math.abs(p.z)<b.length/2){const plank=Math.min(b.planks-1,Math.floor((p.z/b.length+.5)*b.planks));height=Math.max(height,.18+.12*Math.sin((plank+.5)/b.planks*Math.PI)+.04);}}
-      for(let j=1;j<polygon.length-1;j++)for(const p of [polygon[0],polygon[j],polygon[j+1]])positions.push(p.x,height,p.z);
+      // A clipped polygon belongs to one support surface. Classify its interior
+      // once: a rounded Float32 vertex on a deck edge must not fall to the bed.
+      const deck = level.terrain?.enabled && frames.find(bridge => {
+        const point = local(center, bridge);
+        return Math.abs(point.x) <= bridge.width / 2 + EPS && Math.abs(point.z) < bridge.length / 2;
+      });
+      for (let j = 1; j < polygon.length - 1; j++) {
+        for (const point of [polygon[0], polygon[j], polygon[j + 1]]) {
+          const support = deck ? bridgeSurfaceHeight(level, deck, point.x, point.z)
+            : groundHeight(level, point.x, point.z);
+          positions.push(point.x, level.terrain?.enabled ? support + .04 : height, point.z);
+        }
+      }
     }
   }
   let attribute=geometry.getAttribute('position');
@@ -248,5 +261,5 @@ export function barkSurface(level,origin,scale=1,geometry=new THREE.BufferGeomet
     attribute.setUsage(THREE.DynamicDrawUsage);geometry.setAttribute('position',attribute);
   }
   attribute.array.set(positions);attribute.needsUpdate=true;geometry.setDrawRange(0,positions.length/3);
-  geometry.boundingSphere=new THREE.Sphere(new THREE.Vector3(origin.x,.2,origin.z),1.1*scale+.4);return geometry;
+  geometry.boundingSphere=new THREE.Sphere(new THREE.Vector3(origin.x,terrainHeight(level,origin.x,origin.z)+.2,origin.z),1.1*scale+.4);return geometry;
 }

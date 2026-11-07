@@ -265,3 +265,41 @@ test('normal simulation movement presses a button, while paused steps do not',()
   const result=stepSimulation(level,dog,{x:f.x,z:f.z},.1,{});
   assert.equal(gate.open,true);assert.equal(result.events.filter(e=>e.type==='gateToggled').length,1);
 });
+
+test('sliding gate rails follow changing steep contours in both states without rebuilding resources',()=>{
+  const height=(x,z)=>.25+.34*x+.55*Math.sin(x/2.7)+.06*z;
+  for(const heading of [0,.7,Math.PI/2]){
+    const gate={x:2,z:-3,width:5,heading,operable:true,open:false},view=createGateView([gate],height);
+    const panel=view.getObjectByName('gate-panel'),batches=panel.children.filter(o=>o.isInstancedMesh);
+    const resources=batches.map(mesh=>[mesh.geometry,mesh.material,mesh.instanceMatrix]);
+    const matrix=new THREE.Matrix4(),world=new THREE.Matrix4(),point=new THREE.Vector3();
+    let original;
+    for(const open of [false,true,false,true]){
+      gate.open=open;view.update();view.updateMatrixWorld(true);
+      for(const [batchIndex,mesh] of batches.entries()){
+        assert.deepEqual([mesh.geometry,mesh.material,mesh.instanceMatrix],resources[batchIndex],'state changes reuse fixed resources');
+        for(let i=0;i<mesh.count;i++){
+          mesh.getMatrixAt(i,matrix);world.multiplyMatrices(mesh.matrixWorld,matrix);
+          const span=new THREE.Vector3().setFromMatrixColumn(matrix,0).length();
+          const tall=new THREE.Vector3().setFromMatrixColumn(matrix,1).length();
+          if(span<=tall)continue;
+          const clearances=[];
+          for(const end of [-.5,.5]){
+            point.set(end,0,0).applyMatrix4(world);
+            clearances.push(point.y-height(point.x,point.z));
+          }
+          assert.ok(Math.abs(clearances[0]-clearances[1])<2e-6,'each rail meets both graded support endpoints');
+          assert.ok(Math.min(...clearances)>.4,'lower rail stays clear of ground at either end');
+          point.set(0,0,0).applyMatrix4(world);
+          assert.ok(point.y-height(point.x,point.z)>.4,'rail interior clears changing curvature');
+        }
+      }
+      if(!open){
+        const matrices=batches.map(mesh=>Array.from(mesh.instanceMatrix.array));
+        if(original)assert.deepEqual(matrices,original,'closing restores original support matrices exactly');
+        original=matrices;
+      }
+    }
+    view.dispose();
+  }
+});

@@ -1,5 +1,21 @@
 # Flock product requirements
 
+## Hill readability — 6 November 2026
+
+F-TERRAIN-002: make rounded crests and valleys easier to read with contours off, using a stronger smooth hill profile, lower directional sunlight and restrained continuous crest/valley brightness on meadow and roads. Preserve 4.5m maximum relief, 30-degree pasture/support grades, the static camera, flat first five levels, shared physical support, eligible lowland water and bounded geometry. Native appearance remains an acceptance check.
+
+## Fixed camera height — 29 October 2026
+
+F-TERRAIN-002: the camera stays at a static world height as Pip crosses hills, valleys and elevated bridges. Terrain elevation must not lift/lower the camera or its look target. Preserve original viewing angle, field of view and horizontal following/landing scan behavior. Actors and their illumination still follow the physical support surface. This supersedes the terrain-height-following camera behavior in the previous terrain candidate.
+
+## Elevated river crossings — 29 October 2026
+
+F-TERRAIN-002/003/004: bridges may connect elevated positions on opposite riverbanks. Match the actual elevation on both sides, allowing a smooth graded deck between them instead of forcing every crossing down to the low channel. Keep ground/deck transitions smooth and crossable, preserve shared physical/rendered footprints and navigation, and remain within 4.5m total playable height difference and 30-degree maximum grade. A bounded subset of rolling crossings may use this form; existing low crossings may remain.
+
+## Riverbank relief clarification — 29 October 2026
+
+F-TERRAIN-002/003: riverbanks may have larger height differences and stronger grades, within the agreed 4.5m total playable relief and 30-degree maximum slope. Preserve smooth transitions without visible triangulation. Local bridge approaches remain gentle and continuous with the deck; do not flatten every riverbank to the bridge approach grade. Large rain pools form only on eligible low-gradient low ground.
+
 ## Issue table sorting — 28 October 2026
 
 Novy accepted F-DOCS-001 and authorized main source merge on 28 October 2026. Its complete record is preserved in [Closed issues](ISSUES_CLOSED.md#f-docs-001--sort-issue-overview-tables). No deployment was requested.
@@ -654,6 +670,23 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 
 F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about their body attachments rather than continuously spin. Preserve flight and pause/resume; rendered verification remains pending. This records the existing main tracker requirement without implementing the fix.
 
+## Rolling terrain design agreement — 29 October 2026
+
+F-TERRAIN-001–004: implement selected rough pastures and continuous rolling fields after public level 5, capped at 1.5 world units relief and 12-degree slopes. Smooth slope transitions and smoothly shaded ground must avoid visible triangulation. Use a shared authoritative elevation contract for navigable ground, actors, terrain-following boundaries, roads, bridges and goals. Spawns may be on any traversable grade; goals and bridge landings may slope gently rather than being perfectly flat. Rivers occupy low downhill channels; standing water remains level and large rain pools require low areas with less than 3-degree grade. Keep existing controls, planar route connectivity, cow-size clearances and saved progression. Source implementation/review does not establish visual/device acceptance.
+
+## Terrain appearance correction — 29 October 2026
+
+F-TERRAIN-001/002: the first dev candidate visually failed user review. Rolling play space must visibly read as hills/undulations at normal phone zoom while keeping smooth gradients and agreed safety limits. Rough pasture must have tangible dense overgrown grass/clumps and can include large rocks/boulders/outcroppings; flat color spots with sparse needle blades are insufficient. Preserve navigable routes, body clearance, coherent water and resource bounds.
+
+
+## Flat grass shader regression — 29 October 2026
+
+F-TERRAIN-002: restore visible grass on public levels 1–5 and later flat meadows after the terrain correction. Every surface using the shared vertex-colored grass material must bind RGB vertex colors: neutral white on flat planes and angular overlays, the existing continuous height tint on rolling ground. Preserve current hill dimensions, weather tint, ground glow and level-replacement resource ownership. Source regression checks and rendered user acceptance are separate.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
 
 
 ## F-INPUT-001 — Larger logarithmic joystick — 29 October 2026
@@ -661,6 +694,13 @@ F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about t
 Double joystick travel radius to 84 CSS pixels and visible ring radius at every responsive size. Apply a normalized radial logarithm with configurable strength 9; reach full speed at 85% travel and hold full speed through the outer 15%. Preserve thumb tracking, heading, keyboard input and stop/cancel behavior.
 
 
+
+
 ## Reusable task workflows — 6 November 2026
 
 F-OPS-005: tasks performed more than three times require a checked-in repeatable workflow with reusable tools, documented invocation and meaningful verification. Reuse existing scripts first, retain useful scratch tools, and preserve connector access, publication guards and user sign-off. Inventory current tooling and extract the deployment workflow's inline preflight and native Pages polling without changing destinations or bypassing live hash verification.
+
+
+## Deferred compact riverbanks — 6 November 2026
+
+F-TERRAIN-BANK-001 preserves the requested compact raised bridge approaches, varied smooth bank slopes and slope-based grass/dirt coverage. Novy deferred this separate work while accepting F-TERRAIN-001–004. The current accepted bank geometry remains in place.

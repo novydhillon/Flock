@@ -8,6 +8,10 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-TERRAIN-001~~ | ~~P3~~ | ~~Environment/art~~ | ~~Rough pasture appearance on selected levels~~ | ~~Done~~ | ~~Existing clay grass and ground presentation~~ |
+| ~~F-TERRAIN-002~~ | ~~P2~~ | ~~Terrain/navigation~~ | ~~Navigable undulating fields~~ | ~~Done~~ | ~~Existing world generation, navigation and actor presentation~~ |
+| ~~F-TERRAIN-003~~ | ~~P2~~ | ~~World/structures~~ | ~~Fences and stone walls follow terrain undulations~~ | ~~Done~~ | ~~F-TERRAIN-002; existing fences, stone walls and gates~~ |
+| ~~F-TERRAIN-004~~ | ~~P2~~ | ~~Terrain/water/weather~~ | ~~Lowland rivers and slope-aware rain pooling~~ | ~~Done~~ | ~~F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather~~ |
 | ~~F-OPS-005~~ | ~~P2~~ | ~~Tooling~~ | ~~Save repeatable workflows and extract deployment helpers~~ | ~~Done~~ | ~~Existing delivery tools~~ |
 | ~~F-INPUT-001~~ | ~~P2~~ | ~~Controls~~ | ~~Double joystick radius and add logarithmic speed~~ | ~~Done~~ | ~~Existing floating joystick~~ |
 | ~~F-WATER-002~~ | ~~P2~~ | ~~Environment~~ | ~~Seeded in-water grass and reed clumps on 20% of water bodies~~ | ~~Done~~ | ~~Existing rendered water surfaces~~ |
@@ -1989,6 +1993,7 @@ Implementation 29 October 2026: radius 84 px, doubled responsive ring, logarithm
 Closed 29 October 2026: Novy explicitly approved with “Approved. Merge to main.” This supersedes the historical pending sign-off wording above. Accepted runtime `76284e94eca5d369b0ed31f9f3996bca8432d1e6`; source CI [41014220871](https://github.com/novydhillon/Flock/actions/runs/41014220871) succeeded. Full previous evidence and unobserved-device limits are retained; no new device measurement is claimed. Source merge authorized; production publication is separate.
 
 
+
 ### F-OPS-005 — ~~Repeatable workflows and reusable tools~~
 
 **Status:** Done. Owner: Codex.
@@ -2001,3 +2006,134 @@ Closed 29 October 2026: Novy explicitly approved with “Approved. Merge to main
 
 
 **User acceptance — 6 November 2026 (America/Cambridge_Bay):** Novy requested “Merge to main”, accepting this workflow/tooling batch. Source `adf8c8cc588099c7f8bb8ef9f845721d9e126ef2` passed CI run `42313750618`. Earlier Review/pending acceptance statements above are superseded by this acceptance. Main source merge is authorized; production publication was not requested. Existing validation limits remain.
+
+
+### F-TERRAIN-001 — ~~Rough pasture appearance on selected levels (P3)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
+
+**Depends on / preserve:** Existing clay grass and ground presentation.
+
+**Accept when:** Selected levels visibly differ from smoother meadows through bounded tufts, patchiness and ground variation, without obscuring animals or routes. Preserve navigable clearance, collision and mobile performance. Do not apply the rough look to every level or invent a user-approved frequency. Coordinate physical height variation with F-TERRAIN-002; visual roughness alone must not silently add blockers.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+### F-TERRAIN-002 — ~~Navigable undulating fields (P2)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
+
+**Depends on / preserve:** Existing world generation, navigation and actor presentation.
+
+**Accept when:** Generate continuous terrain heights with traversable rolling slopes, safe spawn/goal areas and connected routes. Keep simulation, rendering and navigation consistent about surface elevation; livestock stay grounded and Pip/Buddy retain appropriate hover clearance without clipping, floating or becoming stuck. Paths, bridge landings and goal approaches join the terrain cleanly. Verify sheep, all cow sizes, helpers, split herds and terrain edges across seeds. Agree on height, slope limits and which levels use relief before implementation; do not require jumping or change controls.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+### F-TERRAIN-003 — ~~Fences and stone walls follow terrain undulations (P2)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
+
+**Depends on / preserve:** F-TERRAIN-002; existing fences, stone walls and gates.
+
+**Accept when:** Fence posts, rails, stone-wall bases and associated collision follow local terrain with no floating spans, buried sections or unintended gaps. Gates, switch panels, openings and traversable clearances remain usable from both sides on slopes. Preserve the accepted wall appearance, gate states and navigation connectivity. Test changing grades, corners, boundaries and crossings rather than only one straight slope.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+### F-TERRAIN-004 — ~~Lowland rivers and slope-aware rain pooling (P2)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
+
+**Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
+
+**Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+## Rolling terrain user acceptance — 6 November 2026
+
+Novy accepted the deployed result with “Ok, looks good. Merge the main and close tickets.” This closes F-TERRAIN-001–004, including fixed-height camera and QA contours. Existing higher-bank crossings are accepted; the uncommitted compact/steep bank revision remains Deferred under F-TERRAIN-BANK-001. The accepted dev runtime is source 7f675b948a4ac5970e717de87038fd7fd509a0ab, checked CI [42343482401](https://github.com/novydhillon/Flock/actions/runs/42343482401), native Pages [42343941019](https://github.com/novydhillon/Flock/actions/runs/42343941019), with all 35 emitted live hashes verified. Final source tests passed 599/599, docs 7/7, release/development artifact guards, and independent review 9/10 with integration follow-up 9/10. User playtest acceptance does not establish measured phone FPS. Source main merge is authorized; production publication is not.
+
+Historical execution records below retain their original wording and are superseded by this acceptance:
+
+## Hill readability pass — 6 November 2026
+
+F-TERRAIN-002 is Review for a readability correction on `feat/rolling-terrain`, owned by the terrain team. Accept when rounded crests/valleys are more distinct without exceeding 4.5m relief or 30-degree pasture/support grades; lighting and restrained ground/road shading reinforce shape with contours off. Preserve the static camera, smooth surfaces, flat first five levels, coherent structures/water and bounded geometry. Implementation is complete with599/599fullregressions,7/7docschecks,release/developmentartifactchecks and fresh9/10review plus9/10integrationfollow-up. Ground/roadphysical limits and unchangedmobiletrianglecap pass. Device appearance remains pending; no deployment or acceptance is claimed.
+
+## Static camera correction — 29 October 2026
+
+F-TERRAIN-002 correction on feat/rolling-terrain: remove automatic vertical camera movement with terrain elevation. Accept when gameplay and landing cameras keep the same world height/view angle over hills and raised bridges, through pause and level replacement, while horizontal tracking and original scale remain coherent. Actor/deck/terrain heights are unchanged. High implementation, fresh medium review, focused/full checked builds and replacement dev verification are required; user sign-off remains pending.
+
+## Elevated bridge scope — 29 October 2026
+
+Novy additionally permits river bridges from elevated positions that match the bank elevation on both sides. F-TERRAIN-002–004 remain In progress while elevated crossings are integrated and validated. Where needed, extend the shared bridge span to reach raised banks and keep deck, rails, collision, navigation, routes and approach clearances coherent. Earlier field/grid checks describe the pre-elevated-bridge candidate and must be supplemented; no new source or dev publication is claimed.
+
+## Riverbank relief clarification — 29 October 2026
+
+For F-TERRAIN-002/003, Novy permits larger riverbank height differences except at bridges. The current high-effort candidate must allow raised, smoothly graded banks away from crossings while retaining gentle bridge approaches, coherent water and the overall 4.5m/30-degree bounds. Broad mandatory low shelves along every bank are superseded. Implementation, focused checks, fresh medium review and dev replacement are still in progress; earlier published builds do not contain this clarification.
+
+
+## Rolling terrain execution — 29 October 2026
+
+F-TERRAIN-001–004 are claimed on `feat/rolling-terrain`, based on main `3c656ac2d590e0fea58cc02cc47a5963d0cfe0e4`. This supersedes the older unassigned and `feat/p2-ui` ownership statements for terrain only. Implementation uses the session model at high reasoning; independent review uses medium reasoning as explicitly requested.
+
+**Agreed design:** up to 1.5 world units of relief with slopes capped at 12 degrees, on a seeded selection of public levels after level 5. Terrain transitions must be smooth, with no visible triangulation. Spawn areas may lie on any traversable grade. Goals and bridges may have slight slopes; neither requires a perfectly flat pad. Large rain pools require low terrain and grades below 3 degrees; rivers follow coherent downhill channels. Rough pasture uses a separate seeded selection and retains navigable clearance. Frequency and detailed visual tuning are provisional implementation settings, not a user-approved percentage.
+
+**State:** implementation in progress. Source review, automated checks and rendered/device acceptance remain separate; no deployment or main merge requested.
+
+## Rolling terrain source completion — 29 October 2026
+
+F-TERRAIN-001–004 are implemented on `feat/rolling-terrain` and move to Review, awaiting Novy's rendered/playtest sign-off. This supersedes earlier implementation-in-progress and unassigned terrain statements. Smooth analytic rolling support, independently selected rough pasture, graded barriers/structures/actors, downhill channels and horizontal terrain-clipped lowland pools are implemented with documented bounds. Spawn areas retain their terrain grade; goals and bridges may slope gently. Bark feedback, flowers, water rocks/wakes, guidance and hover clearance share elevation contracts.
+
+High-effort implementation; medium independent source reviews scored 9/10 and then 9.2/10, with no outstanding blocker after corrections. Final full regression: 579/579; 113 focused review checks; 8/8 targeted terrain-view checks after the final behavior-preserving cleanup. Release/development artifact checks and documentation checks are recorded in [QUALITY.md](QUALITY.md). Source publication is separate from deployment and user acceptance. No Pages publication or main merge requested.
+
+**Remaining checks:** actual WebGL smooth appearance/no visible triangulation, clay pasture legibility, phone touch/gameplay and native FPS remain unverified because local Chromium startup was blocked. F-015 remains Open: public-level-100 mocked setup measured roughly 2.4 seconds slower with rolling terrain after optimization, and submitted geometry increased. This is a known setup/workload increase, not a measured phone-FPS verdict.
+
+## Terrain visual correction — 29 October 2026
+
+Novy's dev screenshot IMG_8476.jpeg rejects the current visual result: play area reads flat, and rough patches read as flat color with sparse dark blades. F-TERRAIN-001/002 return to In progress on `feat/rolling-terrain`; earlier source scores do not establish appearance acceptance. Increase perceptible smooth relief within the agreed 1.5-unit/12-degree limits; replace polygon-only rough spots with dense tangible overgrown grass and seeded boulders/outcroppings, preserving route/body clearance and bounded resources. Rocks that block actors require shared physical representation. Existing dev deployment source1212bd6/Pages2d42e24 verified35livefiles; this feedback requests correction, not acceptance.
+
+## Terrain visual correction candidate complete — 29 October 2026
+
+F-TERRAIN-001/002 return to Review on `feat/rolling-terrain` after screenshot-driven correction: stronger actual rolling terrain, dimensional dense grass without colored discs/double tint, and physical seeded boulders. Shared pasture config and actual rendered-ground pool clipping are integrated. High implementation / fresh medium independent source review9.1/10; no confirmed source defect or material blocker remains. Rendered phone appearance and FPS still need Novy's playtest; no source score is visual acceptance. Updated dev publication follows successful checked build and source CI, separately from main/production.
+
+
+## Flat meadow black-ground regression — 29 October 2026
+
+F-TERRAIN-002 remains Review on `feat/rolling-terrain`, owner Codex. Screenshot IMG_8478.jpeg reports black grass on public levels 1–5 while roads and props remain visible. **Accept when:** every mesh using the shared vertex-colored grass material supplies a complete RGB color attribute; flat ground and angular playable overlays use neutral white, rolling ground retains its smooth height tint, and rolling-to-flat level replacement preserves this shader contract. Add actual scene regressions covering all first five levels, a later angular flat meadow and repeated level switches. High implementation and a fresh medium blind review apply; keep existing hill dimensions and limits unchanged. Checked dev publication is authorized; visual/device confirmation and user acceptance remain separate.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+F-TERRAIN-002–004 are In progress for expanded terrain integration on `feat/rolling-terrain`; F-TERRAIN-001 remains Review for the existing dimensional pasture. Do not close on source review.
+
+
+## Expanded terrain source review — 29 October 2026
+
+F-TERRAIN-002–004 return to Review after higher relief/banks, elevated crossings, full-width plank correction and black-flat-grass regression integration. Public6 demonstrates rolling hills and elevated crossings; public100 is a later example. Fresh independent medium review9.2/10 has no confirmed defect and73/73 focused checks. Full checked build passes; exact counts and deployment evidence are recorded in QUALITY and the publication manifest. This supersedes earlier In-progress scope notes without implying user/device acceptance. New dev publication remains a separate gate until its pinned source CI, native Pages run and live emitted-file hashes pass.
+
+
+## Fixed-height camera correction reviewed — 29 October 2026
+
+F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elevation from camera initialization/following. Fixed world-height and look-target behavior cover gameplay, preview, rolling showcase, restart and level replacement; original scale, angle and horizontal movement are retained. Actor and hover-glow support remain terrain-following.6/6 focused renderer cases and593/593 full regressions pass; fresh medium blind review9/10 has no confirmed blocker. This supersedes the previous elevation-following camera implementation. Dev publication and physical-device acceptance are separate milestones.
+
+

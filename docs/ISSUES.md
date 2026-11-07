@@ -1,5 +1,9 @@
 # FLOCK — Active issue tracker
 
+## Terrain acceptance and bank deferral — 6 November 2026
+
+Accepted F-TERRAIN-001–004 are archived in [Closed issues](ISSUES_CLOSED.md#rolling-terrain-user-acceptance--6-november-2026). F-TERRAIN-BANK-001 remains Deferred at Novy’s request. The accepted main merge includes hill readability and QA contours, while the compact/steep bank prototype remains outside committed source.
+
 Updated 29 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
@@ -26,6 +30,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | Deferred | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
@@ -53,10 +58,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
-| F-TERRAIN-001 | P3 | Environment/art | Rough pasture appearance on selected levels | Open | Existing clay grass and ground presentation |
-| F-TERRAIN-002 | P2 | Terrain/navigation | Navigable undulating fields | Open | Existing world generation, navigation and actor presentation |
-| F-TERRAIN-003 | P2 | World/structures | Fences and stone walls follow terrain undulations | Open | F-TERRAIN-002; existing fences, stone walls and gates |
-| F-TERRAIN-004 | P2 | Terrain/water/weather | Lowland rivers and slope-aware rain pooling | Open | F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather |
 
 ## Acceptance criteria and planned work
 
@@ -367,54 +368,19 @@ Reference photos supplied by Novy: picture 1 `IMG_8450.webp` and picture 2 `IMG_
 
 All four items are Open and unassigned. Rough-ground appearance is P3 polish; navigable relief, aligned boundaries and terrain-aware water are linked P2 features that must be coordinated before a rolling-terrain release. This adds planned work only; no terrain, physics, water or game deployment changes are implemented.
 
-### F-TERRAIN-001 — Rough pasture appearance on selected levels (P3)
-
-**Status:** In progress. Owner: Codex rendering team.
-
-**Branch:** `feat/p2-ui`.
-
-**Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
-
-**Depends on / preserve:** Existing clay grass and ground presentation.
-
-**Accept when:** Selected levels visibly differ from smoother meadows through bounded tufts, patchiness and ground variation, without obscuring animals or routes. Preserve navigable clearance, collision and mobile performance. Do not apply the rough look to every level or invent a user-approved frequency. Coordinate physical height variation with F-TERRAIN-002; visual roughness alone must not silently add blockers.
-
-### F-TERRAIN-002 — Navigable undulating fields (P2)
-
-**Status:** In progress. Owner: Codex rendering team.
-
-**Branch:** `feat/p2-ui`.
-
-**Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
-
-**Depends on / preserve:** Existing world generation, navigation and actor presentation.
-
-**Accept when:** Generate continuous terrain heights with traversable rolling slopes, safe spawn/goal areas and connected routes. Keep simulation, rendering and navigation consistent about surface elevation; livestock stay grounded and Pip/Buddy retain appropriate hover clearance without clipping, floating or becoming stuck. Paths, bridge landings and goal approaches join the terrain cleanly. Verify sheep, all cow sizes, helpers, split herds and terrain edges across seeds. Agree on height, slope limits and which levels use relief before implementation; do not require jumping or change controls.
-
-### F-TERRAIN-003 — Fences and stone walls follow terrain undulations (P2)
-
-**Status:** In progress. Owner: Codex rendering team.
-
-**Branch:** `feat/p2-ui`.
-
-**Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
-
-**Depends on / preserve:** F-TERRAIN-002; existing fences, stone walls and gates.
-
-**Accept when:** Fence posts, rails, stone-wall bases and associated collision follow local terrain with no floating spans, buried sections or unintended gaps. Gates, switch panels, openings and traversable clearances remain usable from both sides on slopes. Preserve the accepted wall appearance, gate states and navigation connectivity. Test changing grades, corners, boundaries and crossings rather than only one straight slope.
-
-### F-TERRAIN-004 — Lowland rivers and slope-aware rain pooling (P2)
-
-**Status:** In progress. Owner: Codex rendering team.
-
-**Branch:** `feat/p2-ui`.
-
-**Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
-
-**Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
-
-**Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
-
 ## Water vegetation acceptance — 29 October 2026
 
 Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.
+
+
+### F-TERRAIN-BANK-001 — Compact steep riverbanks and slope-based bank textures
+
+**Status:** Deferred. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain` (preserved local prototype only; no source publication).
+
+**Requirement:** Allow steep banks beside raised river crossings so bridges do not extend deep into fields; vary other riverbank slopes smoothly and deterministically. Steeper banks show dirt texture; gentler banks show grass. Preserve continuous support, water coverage, deck joins, navigation and mobile budgets.
+
+**Accept when:** Raised spans use compact banks with smooth slopes, coherent textures, fully dry/crossable decks and no cracks, visible triangle facets or floating actors. Validate full regression, geometry budgets and fresh independent review, then rendered/device checks before acceptance.
+
+**Deferred:** 6 November 2026. Novy explicitly requested keeping bank work waiting. Earlier local prototype used 2.75m setbacks versus accepted 7m, but was not committed or deployed; its 595/596 regression result included a mobile scenery budget failure. Preserve that experimental work separately; do not import it into accepted main or the next height experiment. Historical bank-related scope is retained in the archived terrain execution records and QUALITY.md.

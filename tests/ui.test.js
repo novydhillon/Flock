@@ -958,3 +958,4 @@ test('joystick radial speed is logarithmic, continuous, and saturated over the o
   assert.equal(ui.app.state().input.x, 0);
   assert.equal(ui.app.state().input.z, 0);
 });
+

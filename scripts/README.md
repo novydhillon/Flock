@@ -37,3 +37,8 @@ Focused tool checks: `node --test tests/deploy-pages.test.js tests/deployment-wo
 2. On the fourth occurrence at the latest, move reusable scratch/inline logic into a parameterized tool; extend an existing tool where it already owns the task.
 3. Document the command or module API, prerequisites, inputs, outputs, side effects and failure/verification steps here. Keep user decisions and acceptance outside automation.
 4. Run meaningful focused checks, update the tracker and relevant runbook, regenerate affected documentation, and commit the tools with the task branch. Add actual execution evidence without claiming unobserved deployment/device results.
+
+
+## Archive accepted tracker work
+
+Repeated terrain, water, UI, joystick and tooling closures establish more than three tracker archival occurrences. Use `python3 scripts/close-tracker-items.py F-ID ... --date "6 November 2026" --reason "Explicit acceptance and evidence"` from the repository root for a dry-run; add `--apply` to write ISSUES.md and ISSUES_CLOSED.md together. It moves complete overview rows and detail sections, strikes archived titles/cells, records closure, and rejects missing or already archived IDs. Review linked/shared execution history separately, regenerate docs and run `npm run docs:check`. The tool does not commit, merge, deploy or infer user acceptance; supply only explicitly accepted IDs. Python 3 is required.

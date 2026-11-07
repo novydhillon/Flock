@@ -1,3 +1,6 @@
+import { pastureGrassSites, PASTURE } from '../src/pasture.js';
+import { pastureClumpGeometry, pastureRockGeometry } from '../src/pasture-view.js';
+import {installTerrainRelief,conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp} from '../src/terrain-view.js';
 import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
 import {createShowcase} from '../src/landing-ui.js';
 import {defaultProfile} from '../src/profile.js';
@@ -15,7 +18,7 @@ import * as THREE from 'three';
 import * as models from '../src/models.js';
 import {animalScale} from '../src/animal-size.js';
 import {createLevel} from '../src/simulation.js';
-import {terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment,canOccupy} from '../src/world.js';
+import {groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,terrainHeight,targetFootprint,targetWorldPoint,containsTarget,gateSegment,canOccupy} from '../src/world.js';
 import {goalSurface,goalOutline,drawGoalMap} from '../src/goal-view.js';
 import {generateBushClusters} from '../src/vegetation.js';
 import {setTailLightBarking} from '../src/tail-light.js';
@@ -87,7 +90,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={installTerrainRelief,pastureGrassSites,pastureClumpGeometry,pastureRockGeometry,alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -138,15 +141,15 @@ test('road fade clones preserve glow, weather baselines and once-only replacemen
   for(const count of counts.values())assert.equal(count,1);
 });
 // Object count includes hidden pool slots; submitted draw budget remains 170.
-test('angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
-  const renderer=setup(),level=createLevel(69,201);renderer.setLevel(level);
+test('flat angular playable turf is triangulated from the physical boundary and disposed on replacement',()=>{
+  const renderer=setup(),level=createLevel(69,201);level.terrain.enabled=false;renderer.setLevel(level);
   const meadow=renderer.terrain.getObjectByName('playable-meadow');assert.ok(meadow);
   const ground=renderer.terrain.children.find(o=>o.isMesh&&o.geometry.type==='PlaneGeometry'&&o.material===renderer.grass);assert.ok(ground);
   assert.equal(meadow.material,ground.material,'field and surrounding grass share color, wetness and glow');
   const uv=meadow.geometry.attributes.uv,mp=meadow.geometry.attributes.position;
   for(let i=0;i<mp.count;i++){
-    assert.ok(Math.abs(uv.getX(i)-((mp.getX(i)-ground.position.x)/ground.geometry.parameters.width+.5))<1e-6);
-    assert.ok(Math.abs(uv.getY(i)-(.5-(mp.getZ(i)-ground.position.z)/ground.geometry.parameters.height))<1e-6);
+    assert.ok(Math.abs(uv.getX(i)-((mp.getX(i)-(level.bounds.minX+level.bounds.maxX)/2)/ground.geometry.parameters.width+.5))<1e-6);
+    assert.ok(Math.abs(uv.getY(i)-(.5-(mp.getZ(i)-(level.bounds.minZ+level.bounds.maxZ)/2)/ground.geometry.parameters.height))<1e-6);
   }
   const shader={uniforms:{},vertexShader:'#include <project_vertex>',fragmentShader:'#include <emissivemap_fragment>'};ground.material.onBeforeCompile(shader);assert.ok(shader.uniforms.pipGlowCenters);
   const polygonArea=Math.abs(level.boundary.reduce((sum,p,i)=>{const q=level.boundary[(i+1)%level.boundary.length];return sum+p.x*q.z-q.x*p.z;},0))/2;
@@ -649,9 +652,9 @@ test('wide maps allocate a bounded detail budget beside winding routes with clea
   for(const index of [5,49,99]){
     const level=createLevel(index);renderer.setLevel(level);let besideRoute=0;
     assert.ok(renderer.meadowDetails.filter(p=>p.kind==='flower').length<=190);
-    assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650);
+    assert.ok(renderer.meadowDetails.filter(p=>p.kind==='tuft').length<=650+(renderer.roughPasture?PASTURE.roughClumps:0));
     for(const p of renderer.meadowDetails){
-      const padding=p.kind==='flower'?1:.4;
+      const padding=p.padding??(p.kind==='flower'?1:.4);
       assert.ok(canOccupy(level,p.x,p.z,padding),'detail footprint stays inside the playable polygon');
       for(const river of level.rivers)assert.ok(lineDistance(p,river.points)>=river.width/2+padding+.5);
       for(const road of level.roads)assert.ok(lineDistance(p,road.points)>=road.width/2+padding+.35);
@@ -751,13 +754,17 @@ test('actual target meshes and map show the shared rectangle across every enclos
       mesh.updateWorldMatrix(true,false);
       const positions=mesh.geometry.attributes.position;
       for(let i=0;i<4;i++){
-        const actual=new THREE.Vector3().fromBufferAttribute(positions,i).applyMatrix4(mesh.matrixWorld),expected=shape.corners[i];
-        assert.ok(Math.hypot(actual.x-expected.x,actual.z-expected.z)<.00001,`${target.type} geometry reaches physical corner ${i}`);
+        const expected=shape.corners[i];
+        const reachesCorner = Array.from({length: positions.count}, (_, vertex) => {
+          const actual = new THREE.Vector3().fromBufferAttribute(positions,vertex).applyMatrix4(mesh.matrixWorld);
+          return Math.hypot(actual.x-expected.x,actual.z-expected.z)<.00001;
+        }).some(Boolean);
+        assert.ok(reachesCorner,`${target.type} terrain-following geometry reaches physical corner ${i}`);
       }
     }
     const admitted=targetWorldPoint(target,shape.halfLength-.98,shape.halfWidth-.98);
     assert.ok(containsTarget(target,admitted,.78));
-    const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,2,admitted.z),new THREE.Vector3(0,-1,0));
+    const ray=new THREE.Raycaster(new THREE.Vector3(admitted.x,terrainHeight(level,admitted.x,admitted.z)+5,admitted.z),new THREE.Vector3(0,-1,0));
     assert.ok(ray.intersectObject(renderer.goal).length,'admitted cow corner is visibly inside goal');
     let path=[],fills=[];
     const ctx={clearRect(){},save(){},restore(){},rect(){},clip(){},fillRect(){},beginPath(){path=[];},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},closePath(){path.push('close');},arc(){path.push('arc');},stroke(){},fill(){fills.push({color:this.fillStyle,path:[...path]});}};
@@ -1020,7 +1027,8 @@ test('four cow sizes share batches and scale body, moving hips and culling bound
   });
   // Isolate an edge plane just beyond the small cow's conservative sphere.
   // Equal positions must cull the small cow and keep its larger sibling.
-  const x=-(batch.radius*1.125+3);
+  const edgeRadius=batch.radius*1.125;
+  const x=-(edgeRadius+Math.max(3,renderer.viewShadows.margin(0,edgeRadius)));
   level.animals.forEach((a,i)=>{a.x=x;a.z=0;const pose=renderer.animalMeshes[i];pose.position.set(x,0,0);pose.updateMatrix();});
   renderer.sceneryFrustum.planes=[new THREE.Plane(new THREE.Vector3(1,0,0),0)];
   renderer.updateAnimalBatches(level,Math.floor(renderer.time*12)/12);
@@ -1194,17 +1202,25 @@ test('zero environment saturation remains idempotent across reused surfaces and 
 test('landing camera retains original scale and scans occupied points slowly without zooming to map bounds', () => {
   for(const viewport of [{width:390,height:844},{width:844,height:390}]) {
     const renderer=setup(viewport), {level,dog}=createShowcase(defaultProfile(),725);
+    assert.ok(level.terrain.enabled,'landing fixture scans real rolling ground');
     renderer.setLevel(level);
     const height=viewport.width/viewport.height < presentationSettings.camera.portraitAspect.value ? presentationSettings.camera.previewPortraitHeight.value : presentationSettings.camera.previewLandscapeHeight.value;
     assert.equal(height, viewport.width < viewport.height ? 50 : 44);
     assert.equal(renderer.camera.top-renderer.camera.bottom,height);
-    const start=renderer.center.clone();
+    const start=renderer.center.clone(),direction=renderer.camera.getWorldDirection(new THREE.Vector3()),supportHeights=[];
     for(let i=0;i<600;i++) {
       const before=renderer.center.clone();renderer.update(level,dog,.1,true);
-      assert.ok(renderer.center.distanceTo(before)<=.065+1e-8);
-      assert.equal(height, viewport.width < viewport.height ? 50 : 44);
-    assert.equal(renderer.camera.top-renderer.camera.bottom,height);
+      const distance=renderer.center.distanceTo(before);
+      assert.ok(distance<=.065+1e-8);
+      if(distance>1e-8)assert.ok(Math.abs(distance-.065)<1e-8,'active scans retain the original .65 world-units-per-second travel');
+      assert.equal(renderer.camera.top-renderer.camera.bottom,height);
+      assert.equal(renderer.camera.position.y,presentationSettings.camera.positionY.value,'landing height is fixed in world space');
+      assert.equal(renderer.center.y,0,'the scan look target stays on the original zero-height plane');
+      assert.ok(renderer.camera.getWorldDirection(new THREE.Vector3()).distanceTo(direction)<1e-9,'scanning never tilts the view');
+      supportHeights.push(terrainHeight(level,renderer.center.x,renderer.center.z+presentationSettings.camera.lookOffsetZ.value));
+      if(i<29)assert.ok(renderer.center.equals(start),'the initial three-second scan rest is retained');
     }
+    assert.ok(Math.max(...supportHeights)-Math.min(...supportHeights)>.1,'scan crosses actual changing terrain height');
     assert.ok(renderer.center.distanceTo(start)>1);
     const frozen=renderer.center.clone();renderer.update(level,dog,0,true);assert.ok(renderer.center.equals(frozen));
   }
@@ -1229,4 +1245,171 @@ test('grass and bank reeds remain shadow-free through camera travel and level re
       renderer.scene.traverse(mesh => assert.equal(Boolean(mesh.userData.bakedVegetationShadow), false));
     }
   }
+});
+
+test('public level six builds dense dimensional overgrowth and physical boulders without pasture discs',()=>{
+  const renderer=setup(),level=createLevel(5);renderer.setLevel(level);
+  assert.ok(level.terrain.enabled&&renderer.roughPasture,'the default first eligible meadow exercises both improvements');
+  const grass=renderer.sceneryBatches.find(({batch})=>batch.userData.pastureGrass);
+  const rocks=renderer.sceneryBatches.find(({batch})=>batch.userData.pastureRocks);
+  assert.ok(grass&&grass.matrices.length/16>1500,'full dense overgrowth is actually installed in the live scene');
+  assert.ok(rocks&&rocks.matrices.length/16===level.obstacles.filter(o=>o.kind==='rock').length);
+  assert.equal(grass.batch.material.color.getHex(),0xffffff,'leaf vertex colors are not multiplied by a second dark green');
+  assert.equal(grass.batch.castShadow,false);assert.equal(grass.batch.receiveShadow,false);
+  renderer.terrain.traverse(object=>assert.notEqual(object.name,'Rough pasture patch','solid-colored polygon patches are removed'));
+  const matrix=new THREE.Matrix4(),vertex=new THREE.Vector3();
+  for(const owner of [grass,rocks])for(let i=0;i<owner.matrices.length/16;i++){
+    matrix.fromArray(owner.matrices,i*16);
+    const bound=owner.bounds.subarray(i*4,i*4+4),position=owner.batch.geometry.attributes.position;
+    for(let j=0;j<position.count;j++){
+      vertex.fromBufferAttribute(position,j).applyMatrix4(matrix);
+      assert.ok(Math.hypot(vertex.x-bound[0],vertex.y-bound[1],vertex.z-bound[2])<=bound[3]+1e-5,'actual dimensions fit immutable culling bounds');
+      if(owner===rocks){const rock=level.obstacles.filter(o=>o.kind==='rock')[i];assert.ok(Math.hypot(vertex.x-rock.x,vertex.z-rock.z)<=rock.radius+1e-5,'visible rock fits its authoritative circle');}
+    }
+  }
+  const resources=[grass.batch.geometry,grass.batch.material,rocks.batch.geometry,rocks.batch.material];let disposed=0;
+  for(const resource of resources)resource.addEventListener('dispose',()=>disposed++);
+  renderer.setLevel(createLevel(0));assert.equal(disposed,resources.length,'level replacement releases owned grass and rock resources');
+});
+
+
+// Verify the actual shared shader inputs, including after its previous level
+// supplied tinted vertices. Missing color buffers are a WebGL state regression.
+test('shared grass shader receives complete neutral colors on the first five and angular flat meadows',()=>{
+  const renderer=setup();
+  const check=level=>{
+    renderer.setLevel(level);
+    assert.equal(renderer.terrainReliefEnabled.value,level.terrain.enabled?1:0,'level replacement resets shared relief shading');
+    const ground=renderer.terrain.getObjectByName('Meadow ground');
+    assert.ok(ground);assert.equal(renderer.grass.vertexColors,true);
+    const receivers=[];renderer.terrain.traverse(mesh=>{if(mesh.isMesh&&mesh.material===renderer.grass)receivers.push(mesh);});
+    assert.ok(receivers.length);
+    for(const mesh of receivers){
+      const color=mesh.geometry.getAttribute('color'),position=mesh.geometry.getAttribute('position');
+      assert.ok(color,`${mesh.name} must bind its grass shader color input`);
+      assert.equal(color.itemSize,3);assert.equal(color.count,position.count);
+      for(const component of color.array)assert.ok(Number.isFinite(component)&&component>0,`${mesh.name} color must not black out the texture`);
+      if(!level.terrain.enabled)for(const component of color.array)assert.equal(component,1,'flat grass must preserve the original texture and weather tint');
+    }
+    if(level.boundary.length>4&&!level.terrain.enabled)assert.ok(receivers.some(mesh=>mesh.name==='playable-meadow'),'angular overlay uses the same complete shader inputs');
+    if(level.terrain.enabled)assert.ok(ground.geometry.getAttribute('color').array.some(value=>value!==1),'rolling height tint is retained');
+  };
+  for(let index=0;index<5;index++)check(createLevel(index));
+  const angular=createLevel(69,201);angular.terrain.enabled=false;check(angular);
+  assert.ok(angular.boundary.length>4);
+  const rolling=createLevel(5);assert.ok(rolling.terrain.enabled);
+  for(const flat of [createLevel(0),angular,createLevel(4)]){check(rolling);check(flat);}
+});
+
+test('camera stays at a fixed world height over hills and elevated bridges through preview, restart and level changes',()=>{
+  const level=createLevel(5);assert.ok(level.terrain.enabled);
+  const sites=[];
+  for(let x=level.bounds.minX;x<=level.bounds.maxX;x+=3)for(let z=level.bounds.minZ;z<=level.bounds.maxZ;z+=3){
+    if(canOccupy(level,x,z,.62))sites.push({x,z,y:terrainHeight(level,x,z)});
+  }
+  sites.sort((a,b)=>a.y-b.y);const low=sites[0],high=sites.at(-1);
+  assert.ok(high.y-low.y>2.5,'fixture exercises actual expanded hill relief');
+  const bridge=level.rivers.flatMap(r=>r.bridges).find(b=>b.elevated);assert.ok(bridge,'fixture includes a real elevated bank-to-bank crossing');
+  const crossing=[-bridge.length/2-1,-bridge.length/2,0,bridge.length/2,bridge.length/2+1].map(along=>{
+    const x=bridge.x+Math.sin(bridge.heading)*along,z=bridge.z+Math.cos(bridge.heading)*along;
+    return {x,z,y:terrainHeight(level,x,z)};
+  });
+  const route=[low,high,...crossing,low];
+  for(const viewport of [{width:390,height:844},{width:844,height:390}]){
+    const renderer=setup(viewport),dog={...level.dog};renderer.setLevel(level);
+    const settings=resolveConfig(presentationSettings,'presentation',CONFIG_CONTRACTS.presentation).camera;
+    const portrait=viewport.width/viewport.height<settings.portraitAspect;
+    const direction=new THREE.Vector3(0,-settings.positionY,settings.lookOffsetZ-settings.positionOffsetZ).normalize();
+    const check=(preview=false)=>{
+      const height=preview?(portrait?settings.previewPortraitHeight:settings.previewLandscapeHeight):(portrait?settings.playPortraitHeight:settings.playLandscapeHeight);
+      assert.equal(renderer.camera.top-renderer.camera.bottom,height,'terrain never changes the existing orthographic scale');
+      assert.equal(renderer.camera.position.y,settings.positionY,'camera retains its configured absolute world height');
+      assert.equal(renderer.center.y,0,'the look target never rises or bounces with terrain');
+      assert.ok(renderer.camera.getWorldDirection(new THREE.Vector3()).distanceTo(direction)<1e-9,'terrain never tilts the original view angle');
+      assert.equal(renderer.dog.position.y,terrainHeight(renderer.level,dog.x,dog.z),'Pip still follows the actual terrain/deck support');
+    };
+    for(const preview of [false,true])for(const site of route){
+      const from={x:dog.x,z:dog.z};
+      for(let step=1;step<=4;step++){
+        dog.x=from.x+(site.x-from.x)*step/4;dog.z=from.z+(site.z-from.z)*step/4;
+        renderer.update(level,dog,1/60,preview);check(preview);
+        if(!preview){
+          const half=(portrait?settings.playPortraitHeight:settings.playLandscapeHeight)/2;
+          assert.ok(Math.abs(renderer.center.x-dog.x)<=half*renderer.aspect*settings.lagFraction+1e-9,'horizontal follow keeps its bounded lag');
+          assert.ok(Math.abs(renderer.center.z-dog.z-settings.followOffsetZ)<=half*settings.lagFraction+1e-9,'planar forward follow keeps its bounded lag');
+        }
+      }
+      const frozen=renderer.center.clone(),camera=renderer.camera.position.clone();renderer.update(level,dog,0,preview);check(preview);
+      assert.ok(renderer.center.equals(frozen)&&renderer.camera.position.equals(camera),'paused camera position freezes');
+    }
+    for(const replacement of [createLevel(0),createLevel(19),level,level]){
+      Object.assign(dog,replacement===level?high:replacement.dog);Object.assign(replacement.dog,dog);
+      renderer.setLevel(replacement);check(true);
+      renderer.update(replacement,dog,1/60,false);check();
+    }
+  }
+});
+
+
+test('elevated bridges render full-width supported decks, graded rails and surface glow at both bank joins',()=>{
+  const renderer=setup();
+  for(const index of [5,19]){
+    const level=createLevel(index);renderer.setLevel(level);
+    const spans=[];renderer.terrain.traverse(object=>{if(object.name==='Bridge'&&object.userData.bridge?.elevated)spans.push(object);});
+    assert.ok(spans.length,'fixture contains actual elevated bridge meshes in the rendered scene');
+    for(const group of spans){
+      const bridge=group.userData.bridge,boards=Math.ceil(bridge.length/.3),point=new THREE.Vector3(),normal=new THREE.Vector3();
+      group.updateWorldMatrix(true,true);
+      const probe=(x,along)=>{
+        point.set(x,0,along).applyMatrix4(group.matrixWorld);
+        const support=bridgeSurfaceHeight(level,bridge,point.x,point.z);
+        const ray=new THREE.Raycaster(new THREE.Vector3(point.x,support+.06,point.z),new THREE.Vector3(0,-1,0),0,.12);
+        const hit=ray.intersectObject(group,true)[0];
+        assert.ok(hit,'actual merged deck covers its full shared span and lateral width');
+        assert.ok(Math.abs(hit.point.y-support)<.006,'elevated deck top follows the authoritative support across its width');
+        const step=.025,height=(x,z)=>bridgeSurfaceHeight(level,bridge,x,z);
+        normal.set(-(height(point.x+step,point.z)-height(point.x-step,point.z))/(2*step),1,
+          -(height(point.x,point.z+step)-height(point.x,point.z-step))/(2*step)).normalize();
+        const actual=hit.normal.clone().transformDirection(hit.object.matrixWorld);
+        assert.ok(actual.dot(normal)>.9995,'merged deck normals track shared support through rotated dry bank joins');
+      };
+      for(let board=0;board<boards;board+=4)for(const x of [-bridge.width/2+.005,0,bridge.width/2-.005])probe(x,-bridge.length/2+(board+.5)*bridge.length/boards);
+      for(const end of [-1,1])for(const x of [-bridge.width/2+.005,0,bridge.width/2-.005])probe(x,end*(bridge.length/2-.02));
+      const sections=Math.ceil(bridge.length/.6);
+      for(const side of [-1,1])for(let section=0;section<sections;section+=4){
+        point.set(side*bridge.width/2,0,-bridge.length/2+(section+.5)*bridge.length/sections).applyMatrix4(group.matrixWorld);
+        const support=bridgeSurfaceHeight(level,bridge,point.x,point.z);
+        const ray=new THREE.Raycaster(new THREE.Vector3(point.x,support+.75,point.z),new THREE.Vector3(0,-1,0),0,.3);
+        const hit=ray.intersectObject(group,true)[0];
+        assert.ok(hit&&Math.abs(hit.point.y-support-.61)<.015,'upper rail stays at its authored clearance over the elevated deck');
+      }
+      Object.assign(level.dog,{x:bridge.x,z:bridge.z,heading:bridge.heading});renderer.update(level,level.dog,1/60,false);
+      assert.equal(renderer.dog.position.y,bridgeSurfaceHeight(level,bridge,bridge.x,bridge.z));
+      for(const glow of renderer.thrusterGlow.centers.value){
+        assert.equal(glow.y,bridgeSurfaceHeight(level,bridge,glow.x,glow.z),'hover illumination targets elevated deck, never channel bed');
+      }
+    }
+  }
+});
+
+
+
+test('sun caster bounds retain original spheres and their projected ellipse in every frustum direction', () => {
+  const fit = new ViewShadows();
+  Object.assign(fit, {minHeight:-1, sunX:-.75, sunZ:.875, reach:Math.hypot(.75,.875)});
+  const center = new THREE.Vector3(4,5,-7), radius=2;
+  // Sample the full sphere and its ground projection. A plane through any
+  // such point must retain the caster even with the tighter directional bound.
+  for (let i=0;i<24;i++) {
+    const direction = new THREE.Vector3(Math.cos(i*.71),Math.sin(i*.39),Math.sin(i*.93)).normalize();
+    const point = center.clone().addScaledVector(direction,radius);
+    const projected = new THREE.Vector3(point.x-fit.sunX*(point.y-fit.minHeight),fit.minHeight,point.z-fit.sunZ*(point.y-fit.minHeight));
+    for (const sample of [point,projected]) for (let j=0;j<12;j++) {
+      const normal = new THREE.Vector3(Math.cos(j*.8),Math.sin(j*.67),Math.sin(j*.48)).normalize();
+      const plane = new THREE.Plane(normal,-normal.dot(sample)+1e-9);
+      assert.ok(fit.intersects([plane],center.x,center.y,center.z,radius),'visible body or ground shadow must not pop out');
+    }
+  }
+  const horizontal=new THREE.Plane(new THREE.Vector3(0,1,0),-8);
+  assert.equal(fit.intersects([horizontal],4,5,-7,2),false,'horizontal frustum planes do not inherit lateral shadow inflation');
 });

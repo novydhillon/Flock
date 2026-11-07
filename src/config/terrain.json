@@ -1,0 +1,203 @@
+{
+  "unlockIndex": {
+    "value": 5,
+    "_comment": "First zero-based campaign index eligible for rolling terrain; public levels 1\u20135 stay flat.",
+    "min": 5,
+    "max": 99
+  },
+  "selectionProbability": {
+    "value": 0.65,
+    "_comment": "Seeded rolling-meadow probability after unlock; an implementation tuning choice.",
+    "min": 0,
+    "max": 1
+  },
+  "maximumRelief": {
+    "value": 4.5,
+    "_comment": "Hard ceiling on total playable terrain relief, including support surfaces.",
+    "min": 0.1,
+    "max": 4.5
+  },
+  "maximumSlopeDegrees": {
+    "value": 30,
+    "_comment": "Fixed agreed hard cap on traversable terrain/support grades. Lower caps require re-deriving the analytic field and bridge parameters; this is not an independent tuning knob.",
+    "min": 30,
+    "max": 30
+  },
+  "waveAmplitude": {
+    "value": 1.9,
+    "_comment": "Broad pasture-wave amplitude; paired with valleyLift to use the agreed relief budget without flattening distant fields.",
+    "min": 0,
+    "max": 1.9
+  },
+  "valleyLift": {
+    "value": 2,
+    "_comment": "Mean pasture lift above the channel floor; the independent waves continue across outer pasture.",
+    "min": 2,
+    "max": 2
+  },
+  "channelDepth": {
+    "value": 0.3,
+    "_comment": "Channel floor below the smooth downstream reference plane.",
+    "min": 0.3,
+    "max": 0.3
+  },
+  "waterDepth": {
+    "value": 0.075,
+    "_comment": "River surface above its channel floor.",
+    "min": 0.06,
+    "max": 0.075
+  },
+  "downstreamDrop": {
+    "value": 0.12,
+    "_comment": "Half of the bounded smooth downhill river elevation range.",
+    "min": 0,
+    "max": 0.12
+  },
+  "bridgeLift": {
+    "value": 0.32,
+    "_comment": "Maximum smooth deck lift above channel terrain; joins with zero end derivative.",
+    "min": 0.3,
+    "max": 0.32
+  },
+  "poolMaximumSlopeDegrees": {
+    "value": 3,
+    "_comment": "Large rain pools require grades strictly below this threshold across their footprint.",
+    "min": 0.1,
+    "max": 3
+  },
+  "poolMaximumHeightRange": {
+    "value": 0.035,
+    "_comment": "Maximum ground height variation across one standing-water footprint.",
+    "min": 0.005,
+    "max": 0.035
+  },
+  "poolLowlandHeight": {
+    "value": 0.31,
+    "_comment": "Maximum pool ground elevation above the local downstream reference.",
+    "min": 0,
+    "max": 0.31
+  },
+  "waterEdgeInset": {
+    "value": 0.2,
+    "_comment": "Extra channel-bed width beyond the physical water ribbon; retains full-width water through sampled bends.",
+    "min": 0.2,
+    "max": 0.25
+  },
+  "lowlandBlendWidth": {
+    "value": 2.5,
+    "_comment": "Smooth analytic transition from low channel verge to stronger banks; broad enough for continuous shared ground and road sampling.",
+    "min": 2.5,
+    "max": 2.5
+  },
+  "bankShelfWidth": {
+    "value": 2,
+    "_comment": "Narrow lowland verge away from bridges; hill waves can rise close to ordinary riverbanks.",
+    "min": 2,
+    "max": 2
+  },
+  "bridgeShelfWidth": {
+    "value": 9,
+    "_comment": "Local low-gradient landing corridor beside each bridge; fades along the river rather than flattening every bank.",
+    "min": 9,
+    "max": 9
+  },
+  "bridgeBlendLength": {
+    "value": 10,
+    "_comment": "Gaussian length along each river for smooth transitions between gentle bridge approaches and higher banks.",
+    "min": 10,
+    "max": 10
+  },
+  "bankRiseScale": {
+    "value": 2,
+    "_comment": "Smooth bank-distance expansion beyond the low verge: permits larger riverbank relief while broad bridge verges keep crossings gentle.",
+    "min": 2,
+    "max": 2
+  },
+  "elevatedBridgeChance": {
+    "value": 0.35,
+    "_comment": "Independent seeded chance for a rolling meadow to offer higher-bank crossings on its first river.",
+    "min": 0,
+    "max": 1
+  },
+  "elevatedBridgeBankSetback": {
+    "value": 7,
+    "_comment": "Long elevated spans reach dry banks this far beyond each physical water edge.",
+    "min": 7,
+    "max": 7
+  },
+  "elevatedBridgeMinimumClearance": {
+    "value": 0.25,
+    "_comment": "Both full-width landing banks must stand at least this far above local water to select an elevated crossing.",
+    "min": 0.25,
+    "max": 0.25
+  },
+  "elevatedBridgeCrown": {
+    "value": 0.08,
+    "_comment": "Gentle smooth crown above the bank-to-bank deck chord; zero height and grade offset at landings.",
+    "min": 0.08,
+    "max": 0.08
+  },
+  "elevatedBridgeTangentPower": {
+    "value": 12,
+    "_comment": "Localizes exact bank tangent matching near each landing so stronger pasture crests cannot pull the elevated deck down into the channel.",
+    "min": 12,
+    "max": 12
+  },
+  "elevatedBridgeMaximumLandingSlopeDegrees": {
+    "value": 20,
+    "_comment": "Candidate bank footprints must have gentler grades than the hard30-degree traversable cap.",
+    "min": 20,
+    "max": 20
+  },
+  "elevatedBridgeRiverSeparation": {
+    "value": 5,
+    "_comment": "Extra separation before the first river when elevated bridges share a meadow with a second crossing, retaining room around extended rails.",
+    "min": 5,
+    "max": 5
+  },
+  "elevatedBridgeApproachPadding": {
+    "value": 3,
+    "_comment": "Extra common dry turning-plane clearance beyond first-river approaches on elevated-crossing candidates.",
+    "min": 3,
+    "max": 3
+  },
+  "waveLengths": {
+    "value": [
+      5.5,
+      7.5,
+      9.5
+    ],
+    "_comment": "Smooth hill-wave length scales in metres per radian, shortened moderately so crests read at gameplay zoom. Coupled to weights and tested slope limits.",
+    "min": 5.5,
+    "max": 9.5
+  },
+  "waveWeights": {
+    "value": [
+      0.7,
+      0.2,
+      0.1
+    ],
+    "_comment": "Normalized hill-wave weights. A dominant primary wave prevents cancellation from flattening the visible crest/valley pattern.",
+    "min": 0,
+    "max": 1
+  },
+  "poolSearchOffsets": {
+    "value": [
+      5.5,
+      -5.5,
+      6.5,
+      -6.5,
+      8,
+      -8,
+      10,
+      -10,
+      12,
+      -12,
+      16,
+      -16
+    ],
+    "_comment": "Deterministic lateral journey-verge fallback offsets for finding eligible lowland pools on stronger rolling relief. Placement remains capped by maxPuddles and physical eligibility.",
+    "min": -16,
+    "max": 16
+  }
+}
