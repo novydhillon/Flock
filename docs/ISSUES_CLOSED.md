@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-CAMERA-001~~ | ~~P2~~ | ~~Presentation~~ | ~~Lower camera height 25% at fixed target distance~~ | ~~Done~~ | ~~Current camera framing~~ |
 | ~~F-TERRAIN-HEIGHT-001~~ | ~~P2~~ | ~~Terrain experiment~~ | ~~Double terrain range with unchanged slope limit~~ | ~~Done~~ | ~~Accepted rolling terrain~~ |
 | ~~F-TERRAIN-001~~ | ~~P3~~ | ~~Environment/art~~ | ~~Rough pasture appearance on selected levels~~ | ~~Done~~ | ~~Existing clay grass and ground presentation~~ |
 | ~~F-TERRAIN-002~~ | ~~P2~~ | ~~Terrain/navigation~~ | ~~Navigable undulating fields~~ | ~~Done~~ | ~~Existing world generation, navigation and actor presentation~~ |
@@ -2153,4 +2154,18 @@ F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elev
 **6 November 2026 deployment:** Published source `bd4dd79b7e3fef8a57bdd19244cd76a8c08db3d1` to `/Flock/dev/` through the documented connector-only fallback because workflow dispatch was unavailable. Local checked build passed 607/607 regressions, 7/7 documentation checks and both artifact modes. Source CI and native Pages run 42348571997 succeeded; all 35 live file hashes matched. Only the dev subtree changed. See [publication evidence](validation/double-height-dev-publication.json). Device checks and user acceptance remain pending; this item stays Review.
 
 **Closed:** 9 November 2026. Novy accepted the deployed double-height experiment and requested merge to main. Publication evidence remains in docs/validation/double-height-dev-publication.json; physical device measurements were not independently performed.
+
+
+
+### F-CAMERA-001 — ~~Lower camera height at fixed target distance~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/double-terrain-height`
+
+**Accept when:** Reduce fixed camera world height from 36 to 27 units, retaining the same look target and camera-to-target distance in gameplay and landing, portrait and landscape. Preserve orthographic scale and terrain-independent height. Move the horizontal camera offset along the same ground direction to maintain the orbit radius. Device framing and user acceptance remain separate.
+
+**9 November 2026:** Shared configuration implemented with unchanged look target, radius, zoom and follow behavior. Original full regression had one scenery-budget guard failure due to the lower viewing angle; measured static triangle cap adjusted from 45,000 to 61,000, and draw cap made inclusive at the documented 170. No extra world geometry is generated. See QUALITY for the measured five-level sweep and final validation. Device framing/FPS and user acceptance remain pending; no deployment requested or performed.
+
+**Closed:** 9 November 2026. Novy explicitly accepted the camera change and authorized its main merge with “Merge to main”. Source f3b6e25784fa23124d609338a9e1c599dc11c801 passed 607/607 regressions, both artifact modes and source CI run 42699094989. Native phone framing/FPS remain unmeasured; this acceptance does not establish those measurements. No new deployment is requested by this merge instruction.
 
