@@ -179,14 +179,14 @@
       "max": 0.5
     },
     "positionY": {
-      "value": 36,
-      "_comment": "Camera elevation above the followed center.",
+      "value": 27,
+      "_comment": "Fixed camera world height above the ground datum; lowered 25% from 36 while preserving the target and orbit radius.",
       "min": 1,
       "max": 200
     },
     "positionOffsetZ": {
-      "value": 29,
-      "_comment": "Camera Z offset from the followed center.",
+      "value": 37.089640571384126,
+      "_comment": "Camera Z offset from the followed center: sqrt(36^2 + (29 - (-2))^2 - 27^2) - 2 preserves the original camera-to-target distance with lookOffsetZ -2.",
       "min": 1,
       "max": 200
     },

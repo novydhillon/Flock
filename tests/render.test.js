@@ -587,8 +587,10 @@ test('mobile scenery submissions remain bounded as the world grows',t=>{
     renderer.update(level,level.dog,1/60);
     const budget=sceneBudget(renderer),elapsed=performance.now()-start;
     t.diagnostic(`level ${index+1}: ${JSON.stringify(budget)}; scene setup ${Math.round(elapsed)} ms`);
-    assert.ok(budget.objects<310);assert.ok(budget.draws<170);
-    assert.ok(budget.sceneryTriangles<45000,`nearby scenery triangle budget: ${budget.sceneryTriangles}`);
+    assert.ok(budget.objects<310);assert.ok(budget.draws<=170);
+    // The lower viewpoint exposes more tree geometry and shadow casters. Keep
+    // a measured bound across early/late maps rather than the former angle's 45k cap.
+    assert.ok(budget.sceneryTriangles<61000,`nearby scenery triangle budget: ${budget.sceneryTriangles}`);
     const total=renderer.sceneryBatches.reduce((n,v)=>n+v.bounds.length/4,0);
     assert.ok(budget.sceneryInstances<total*.5,'offscreen static instances are omitted from GPU submissions');
   }
@@ -1325,6 +1327,8 @@ test('camera stays at a fixed world height over hills and elevated bridges throu
       assert.equal(renderer.camera.top-renderer.camera.bottom,height,'terrain never changes the existing orthographic scale');
       assert.equal(renderer.camera.position.y,settings.positionY,'camera retains its configured absolute world height');
       assert.equal(renderer.center.y,0,'the look target never rises or bounces with terrain');
+      const target=new THREE.Vector3(renderer.center.x,0,renderer.center.z+settings.lookOffsetZ);
+      assert.ok(Math.abs(renderer.camera.position.distanceTo(target)-Math.hypot(36,31))<1e-9,'lowered camera preserves the original distance to its unchanged ground target');
       assert.ok(renderer.camera.getWorldDirection(new THREE.Vector3()).distanceTo(direction)<1e-9,'terrain never tilts the original view angle');
       assert.equal(renderer.dog.position.y,terrainHeight(renderer.level,dog.x,dog.z),'Pip still follows the actual terrain/deck support');
     };

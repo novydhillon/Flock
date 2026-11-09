@@ -386,3 +386,6 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 **Deferred:** 6 November 2026. Novy explicitly requested keeping bank work waiting. Earlier local prototype used 2.75m setbacks versus accepted 7m, but was not committed or deployed; its 595/596 regression result included a mobile scenery budget failure. Preserve that experimental work separately; do not import it into accepted main or the next height experiment. Historical bank-related scope is retained in the archived terrain execution records and QUALITY.md.
 
 
+
+
+
