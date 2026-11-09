@@ -12,10 +12,10 @@
     "max": 1
   },
   "maximumRelief": {
-    "value": 4.5,
-    "_comment": "Hard ceiling on total playable terrain relief, including support surfaces.",
+    "value": 9,
+    "_comment": "Experimental hard ceiling on total playable relief, doubled from the accepted 4.5m profile; all traversable grades remain at most30degrees.",
     "min": 0.1,
-    "max": 4.5
+    "max": 9
   },
   "maximumSlopeDegrees": {
     "value": 30,
@@ -24,16 +24,16 @@
     "max": 30
   },
   "waveAmplitude": {
-    "value": 1.9,
-    "_comment": "Broad pasture-wave amplitude; paired with valleyLift to use the agreed relief budget without flattening distant fields.",
+    "value": 3.8,
+    "_comment": "Experimental pasture-wave amplitude, doubled alongside its horizontal length scales to increase actual relief while preserving wave gradients.",
     "min": 0,
-    "max": 1.9
+    "max": 3.8
   },
   "valleyLift": {
-    "value": 2,
-    "_comment": "Mean pasture lift above the channel floor; the independent waves continue across outer pasture.",
-    "min": 2,
-    "max": 2
+    "value": 4,
+    "_comment": "Experimental mean pasture lift above channel floor, doubled to4m; river normalization still preserves its wet edge.",
+    "min": 4,
+    "max": 4
   },
   "channelDepth": {
     "value": 0.3,
@@ -108,10 +108,10 @@
     "max": 10
   },
   "bankRiseScale": {
-    "value": 2,
-    "_comment": "Smooth bank-distance expansion beyond the low verge: permits larger riverbank relief while broad bridge verges keep crossings gentle.",
-    "min": 2,
-    "max": 2
+    "value": 1.9,
+    "_comment": "Experimental dry-bank distance expansion reduced from2 to1.9 to widen the higher valley transition and preserve the30-degree maximum grade. This is a support-grade correction, not the deferred compact-bank feature.",
+    "min": 1.9,
+    "max": 1.9
   },
   "elevatedBridgeChance": {
     "value": 0.35,
@@ -163,13 +163,13 @@
   },
   "waveLengths": {
     "value": [
-      5.5,
-      7.5,
-      9.5
+      11,
+      15,
+      19
     ],
-    "_comment": "Smooth hill-wave length scales in metres per radian, shortened moderately so crests read at gameplay zoom. Coupled to weights and tested slope limits.",
-    "min": 5.5,
-    "max": 9.5
+    "_comment": "Experimental rounded-wave length scales doubled with amplitude; wider hills preserve the maximum slope while doubling relief.",
+    "min": 11,
+    "max": 19
   },
   "waveWeights": {
     "value": [

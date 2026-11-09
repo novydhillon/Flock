@@ -1,0 +1,75 @@
+{
+  "method": "Bounds grid plus spawn/goal/boundary; bridge grades from finite differences on full deck width. Sampling is evidence, not an analytic proof.",
+  "spacing": 1,
+  "limits": {
+    "relief": 9,
+    "slopeDegrees": 30
+  },
+  "results": [
+    {
+      "publicLevel": 6,
+      "seed": 39637,
+      "rolling": true,
+      "samples": 31778,
+      "minimum": -0.3912691199313674,
+      "maximum": 7.475206153572467,
+      "relief": 7.866475273503834,
+      "maximumGroundSlopeDegrees": 17.983020746583623,
+      "maximumSupportSlopeDegrees": 12.728834075681672,
+      "rmsGroundSlopeDegrees": 9.56146978023783,
+      "withinLimits": true
+    },
+    {
+      "publicLevel": 20,
+      "seed": 150503,
+      "rolling": true,
+      "samples": 50438,
+      "minimum": -0.39013608282737405,
+      "maximum": 7.531676496098631,
+      "relief": 7.921812578926005,
+      "maximumGroundSlopeDegrees": 22.009328191015392,
+      "maximumSupportSlopeDegrees": 13.309878214667213,
+      "rmsGroundSlopeDegrees": 9.69704733978151,
+      "withinLimits": true
+    },
+    {
+      "publicLevel": 50,
+      "seed": 388073,
+      "rolling": true,
+      "samples": 75682,
+      "minimum": -0.4185610870243862,
+      "maximum": 7.4271983182659955,
+      "relief": 7.845759405290382,
+      "maximumGroundSlopeDegrees": 22.491881330902967,
+      "maximumSupportSlopeDegrees": 11.857893308406586,
+      "rmsGroundSlopeDegrees": 9.32094533141246,
+      "withinLimits": true
+    },
+    {
+      "publicLevel": 100,
+      "seed": 784023,
+      "rolling": true,
+      "samples": 91045,
+      "minimum": -0.39124805532832874,
+      "maximum": 7.4912201663334335,
+      "relief": 7.882468221661762,
+      "maximumGroundSlopeDegrees": 21.607833209128746,
+      "maximumSupportSlopeDegrees": 10.711921259772467,
+      "rmsGroundSlopeDegrees": 9.085818685705433,
+      "withinLimits": true
+    }
+  ],
+  "branch": "feat/double-terrain-height",
+  "base": "bdb66d9c5901f59bda9b366bc836e9f1658946d9",
+  "wideSweep": {
+    "publicLevels": "6-100",
+    "seeds": "200-211",
+    "spacing": 4,
+    "cases": 1140,
+    "sampledViolations": 0,
+    "maximumGroundSlopeDegrees": 27.942802375470993,
+    "maximumSupportSlopeDegrees": 14.987507275983724,
+    "maximumRelief": 7.995026709437353
+  },
+  "limitsOfEvidence": "Sampling only; independent fine bank refinement and focused/full tests are recorded in QUALITY.md. No phone appearance or FPS assertion."
+}

@@ -42,3 +42,15 @@ Focused tool checks: `node --test tests/deploy-pages.test.js tests/deployment-wo
 ## Archive accepted tracker work
 
 Repeated terrain, water, UI, joystick and tooling closures establish more than three tracker archival occurrences. Use `python3 scripts/close-tracker-items.py F-ID ... --date "6 November 2026" --reason "Explicit acceptance and evidence"` from the repository root for a dry-run; add `--apply` to write ISSUES.md and ISSUES_CLOSED.md together. It moves complete overview rows and detail sections, strikes archived titles/cells, records closure, and rejects missing or already archived IDs. Review linked/shared execution history separately, regenerate docs and run `npm run docs:check`. The tool does not commit, merge, deploy or infer user acceptance; supply only explicitly accepted IDs. Python 3 is required.
+
+
+## Terrain measurements
+
+Terrain tuning has required height/grade scans in more than three sessions, so `measure-terrain.mjs` is the reusable entry point. Prerequisites: Node.js 22+ and `npm ci` from the repository root. It performs local source-level measurements, writes JSON to stdout and exits nonzero on a sampled range or grade breach. It has no network or publishing side effects.
+
+```sh
+node scripts/measure-terrain.mjs --levels 6,20,50,100 --spacing 1
+node scripts/measure-terrain.mjs --levels 6-100 --seeds 200-211 --spacing 4 > terrain-measurements.json
+```
+
+`--levels` accepts public level numbers/ranges; `--seeds campaign` uses normal campaign seeds or supply integer seeds/ranges. `--spacing` sets the positive bounds-grid step in metres. JSON reports sampled range, maximum ground/deck grades, RMS ground grade, configured limits and per-case status. It samples level bounds and full deck widths; it is not an analytic proof or phone performance/readability test. See [the double-height experiment](../docs/experiments/double-terrain-height.md).

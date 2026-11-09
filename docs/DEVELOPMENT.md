@@ -1,5 +1,11 @@
 # Development, QA and release context
 
+## Double-height experiment smoke checks — 6 November 2026
+
+For F-TERRAIN-HEIGHT-001 compare the same seeded rolling public levels 6/20/50/100 with the accepted profile. With contours off and on, inspect taller rounded crests, valleys, roads and fence bases; preserve a fixed camera world height, normal zoom and smooth shading. Traverse slopes with Pip, each Buddy and all cow sizes; inspect full-width bridge joins, water coverage, pooling, goals, restart/pause/level jump and first-five flat levels. Check phone portrait/landscape framing and FPS. These device checks remain pending until observed.
+
+Use `node scripts/measure-terrain.mjs --levels 6,20,50,100 --spacing 1` for a normal campaign sample or `--levels 6-100 --seeds 200-211 --spacing 4` for a broader deterministic sweep. See [the experiment record](experiments/double-terrain-height.md) for inputs, JSON output and sampling limits.
+
 ## Hill readability smoke checks — 6 November 2026
 
 For F-TERRAIN-002 compare rolling public6/20/50 with contours off at normal phone zoom in portrait/landscape. Crests/valleys should read through shape and light without harsh bands, triangle edges or crushed grass colors. Compare roads and meadow, sunny/cloud/rain/storm, slopes around fences/goals and all bridge landings. Toggle contours on/off, jump to flat public1–5, restart and pause/resume. The camera height must remain fixed; inspect actor feet/hover, water edges and phone FPS. All rendered/device checks remain pending until observed.

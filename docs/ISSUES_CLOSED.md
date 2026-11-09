@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-TERRAIN-HEIGHT-001~~ | ~~P2~~ | ~~Terrain experiment~~ | ~~Double terrain range with unchanged slope limit~~ | ~~Done~~ | ~~Accepted rolling terrain~~ |
 | ~~F-TERRAIN-001~~ | ~~P3~~ | ~~Environment/art~~ | ~~Rough pasture appearance on selected levels~~ | ~~Done~~ | ~~Existing clay grass and ground presentation~~ |
 | ~~F-TERRAIN-002~~ | ~~P2~~ | ~~Terrain/navigation~~ | ~~Navigable undulating fields~~ | ~~Done~~ | ~~Existing world generation, navigation and actor presentation~~ |
 | ~~F-TERRAIN-003~~ | ~~P2~~ | ~~World/structures~~ | ~~Fences and stone walls follow terrain undulations~~ | ~~Done~~ | ~~F-TERRAIN-002; existing fences, stone walls and gates~~ |
@@ -2136,4 +2137,20 @@ F-TERRAIN-002–004 return to Review after higher relief/banks, elevated crossin
 
 F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elevation from camera initialization/following. Fixed world-height and look-target behavior cover gameplay, preview, rolling showcase, restart and level replacement; original scale, angle and horizontal movement are retained. Actor and hover-glow support remain terrain-following.6/6 focused renderer cases and593/593 full regressions pass; fresh medium blind review9/10 has no confirmed blocker. This supersedes the previous elevation-following camera implementation. Dev publication and physical-device acceptance are separate milestones.
 
+
+
+
+### F-TERRAIN-HEIGHT-001 — ~~Double terrain range while retaining slope limits~~
+
+**Status:** Done. Owner: terrain experiment team.
+
+**Branch:** `feat/double-terrain-height`
+
+**Accept when:** Raise the allowed height range from 4.5 m to 9 m and approximately double actual seeded relief by widening rounded hills, while retaining 30-degree maximum pasture and support slopes, smooth shared surfaces, the fixed camera world height and flat first five levels. Keep actors, roads, goals, bridges and water coherent and mobile geometry bounded. The compact/steep bank work remains Deferred under F-TERRAIN-BANK-001. Record source checks separately from phone acceptance and deployment.
+
+**6 November 2026:** Prototype uses mean lift 4 m and wave amplitude 3.8 m, with doubled wave length scales 11/15/19. No bridge spans, river widths or bank profile algorithms are changed. Repeated height/grade scans across prior terrain sessions triggered extraction of `scripts/measure-terrain.mjs`; its parameterized levels/seeds/spacing and JSON evidence replace further one-off measurement scripts. Final `npm run build:checked:dev` passed 605/605 regressions, 7/7 documentation checks, release 33 files/zero QA assets and development 35 files/two QA assets. Fresh blind review initially scored 8/10 after finding a limiting bank slope; the corrected candidate scored 9/10 with no blockers. See QUALITY and the experiment record for measurements and validation limits. User acceptance and device checks remain pending; no deployment is claimed.
+
+**6 November 2026 deployment:** Published source `bd4dd79b7e3fef8a57bdd19244cd76a8c08db3d1` to `/Flock/dev/` through the documented connector-only fallback because workflow dispatch was unavailable. Local checked build passed 607/607 regressions, 7/7 documentation checks and both artifact modes. Source CI and native Pages run 42348571997 succeeded; all 35 live file hashes matched. Only the dev subtree changed. See [publication evidence](validation/double-height-dev-publication.json). Device checks and user acceptance remain pending; this item stays Review.
+
+**Closed:** 9 November 2026. Novy accepted the deployed double-height experiment and requested merge to main. Publication evidence remains in docs/validation/double-height-dev-publication.json; physical device measurements were not independently performed.
 

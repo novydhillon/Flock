@@ -23,7 +23,7 @@ test('rolling ground samples one smooth height field and smooth normals across a
   const normal = new THREE.Vector3();
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), z = p.getZ(i), expected = terrainNormal(level, x, z);
-    assert.ok(Math.abs(p.getY(i) - groundHeight(level, x, z) - GROUND_SURFACE_OFFSET) < 2e-7);
+    assert.equal(p.getY(i), Math.fround(groundHeight(level, x, z) + GROUND_SURFACE_OFFSET), 'position stores the exact Float32 representation of shared support');
     normal.fromBufferAttribute(n, i);
     assert.ok(normal.distanceTo(new THREE.Vector3(expected.x, expected.y, expected.z)) < 2e-6,
       'normals follow the smooth gradient rather than individual triangle faces');

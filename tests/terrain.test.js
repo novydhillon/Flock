@@ -220,27 +220,37 @@ test('large rain pools accept flat lowland footprints and reject hillside and hi
 });
 
 
-test('rounded hill profile increases visible relief and grades without raising the height budget', () => {
+test('double-height experiment doubles actual rounded relief while preserving wave gradients', () => {
   const level = {index: 5, seed: 202};
   level.terrain = createTerrain(level, {angle: 0, halfV: 80, channels: []});
   const phases = level.terrain.phases;
-  let heightEnergy = 0, previousHeightEnergy = 0, gradeEnergy = 0, previousGradeEnergy = 0;
-  // With no channels this measures the pasture shape independently of banks.
-  // The comparison is the previous broad-wave profile at the same seed/phase.
   for (let x = -80; x < 80; x += 2) for (let z = -80; z < 80; z += 2) {
-    const flow = TERRAIN.downstreamDrop * Math.tanh(z / 80);
-    const height = groundHeight(level, x, z) + TERRAIN.channelDepth - flow - TERRAIN.valleyLift;
-    const a = x / 6 + phases[0], b = z / 8 + phases[1], c = (x + z) / 10 + phases[2];
-    const oldHeight = TERRAIN.waveAmplitude * (.5 * Math.sin(a) + .3 * Math.sin(b) + .2 * Math.sin(c));
-    const oldX = TERRAIN.waveAmplitude * (.5 * Math.cos(a) / 6 + .2 * Math.cos(c) / 10);
-    const oldZ = TERRAIN.downstreamDrop * (1 - Math.tanh(z / 80) ** 2) / 80
-      + TERRAIN.waveAmplitude * (.3 * Math.cos(b) / 8 + .2 * Math.cos(c) / 10);
-    heightEnergy += height * height;
-    previousHeightEnergy += oldHeight * oldHeight;
-    gradeEnergy += Math.tan(terrainSlope(level, x, z)) ** 2;
-    previousGradeEnergy += oldX * oldX + oldZ * oldZ;
-    assert.ok(Math.abs(height) <= TERRAIN.waveAmplitude, 'existing relief budget bounds the new profile');
+    const a = x / 5.5 + phases[0], b = z / 7.5 + phases[1], c = (x + z) / 9.5 + phases[2];
+    const acceptedWave = 1.9 * (.7 * Math.sin(a) + .2 * Math.sin(b) + .1 * Math.sin(c));
+    const flow = TERRAIN.downstreamDrop * Math.tanh(2 * z / 80);
+    const experimentalWave = groundHeight(level, 2 * x, 2 * z) + TERRAIN.channelDepth - flow - TERRAIN.valleyLift;
+    assert.ok(Math.abs(experimentalWave - acceptedWave * 2) < 1e-12, 'amplitude really doubles over a twice-wide hill');
+    const acceptedX = 1.9 * (.7 * Math.cos(a) / 5.5 + .1 * Math.cos(c) / 9.5);
+    const acceptedZ = 1.9 * (.2 * Math.cos(b) / 7.5 + .1 * Math.cos(c) / 9.5);
+    const normal = terrainNormal(level, 2*x, 2*z);
+    const flowGrade = TERRAIN.downstreamDrop * (1 - Math.tanh(2*z/80)**2) / 80;
+    assert.ok(Math.abs(-normal.x/normal.y - acceptedX) < 1e-12);
+    assert.ok(Math.abs(-normal.z/normal.y - flowGrade - acceptedZ) < 1e-12);
   }
-  assert.ok(heightEnergy > previousHeightEnergy * 1.4, 'at least 18% stronger RMS pasture relief');
-  assert.ok(gradeEnergy > previousGradeEnergy * 1.4, 'at least 18% stronger RMS grade');
+  for (const index of [5,19,49,99]) {
+    const meadow = createLevel(index), b = meadow.bounds;
+    let minimum = Infinity, maximum = -Infinity;
+    for (let x=b.minX;x<=b.maxX;x+=2) for (let z=b.minZ;z<=b.maxZ;z+=2) {
+      const height=groundHeight(meadow,x,z);minimum=Math.min(minimum,height);maximum=Math.max(maximum,height);
+    }
+    assert.ok(maximum-minimum > 7.5 && maximum-minimum <= 9, `public${index+1} uses the increased physical range`);
+  }
+});
+
+
+test('double-height dry river transition remains below30degrees around the limiting seed', () => {
+  const level=createLevel(5,12);
+  for(let x=25;x<=29;x+=.1) for(let z=5;z<=10;z+=.1) {
+    assert.ok(terrainSlope(level,x,z) <= Math.PI/6, `limiting bank grade at${x}/${z}`);
+  }
 });
