@@ -30,6 +30,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-CAMERA-001 | P2 | Presentation | Lower camera height 25% at fixed target distance | Review | Current camera framing |
 | F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | Deferred | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
@@ -386,3 +387,15 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 **Deferred:** 6 November 2026. Novy explicitly requested keeping bank work waiting. Earlier local prototype used 2.75m setbacks versus accepted 7m, but was not committed or deployed; its 595/596 regression result included a mobile scenery budget failure. Preserve that experimental work separately; do not import it into accepted main or the next height experiment. Historical bank-related scope is retained in the archived terrain execution records and QUALITY.md.
 
 
+
+
+
+### F-CAMERA-001 — Lower camera height at fixed target distance
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feat/double-terrain-height`
+
+**Accept when:** Reduce fixed camera world height from 36 to 27 units, retaining the same look target and camera-to-target distance in gameplay and landing, portrait and landscape. Preserve orthographic scale and terrain-independent height. Move the horizontal camera offset along the same ground direction to maintain the orbit radius. Device framing and user acceptance remain separate.
+
+**9 November 2026:** Shared configuration implemented with unchanged look target, radius, zoom and follow behavior. Original full regression had one scenery-budget guard failure due to the lower viewing angle; measured static triangle cap adjusted from 45,000 to 61,000, and draw cap made inclusive at the documented 170. No extra world geometry is generated. See QUALITY for the measured five-level sweep and final validation. Device framing/FPS and user acceptance remain pending; no deployment requested or performed.

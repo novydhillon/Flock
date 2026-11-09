@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## F-CAMERA-001 — Lower camera viewpoint — 9 November 2026
+
+Lower the fixed camera height by 25%, from 36 to 27 world units above the ground datum. Preserve the existing look target and camera-to-target distance sqrt(2257), approximately 47.508 units, by increasing the center-relative Z offset from 29 to approximately 37.08964. The target remains at center Z minus 2, with zero elevation; terrain elevation does not drive camera height. Apply the shared camera configuration to gameplay and landing in both orientations, preserving orthographic scale, follow behavior and progression. This supersedes the previous camera height/angle only.
+
+
 ## Double-height experiment — 6 November 2026
 
 F-TERRAIN-HEIGHT-001 explores a 9 m height ceiling, doubling the accepted 4.5 m range without raising the 30-degree pasture/support slope limit. Actual seeded terrain must gain approximately twice the physical relief; widening hills is permitted to preserve grades. Retain shared actor/road/structure/water support, smooth normals and transitions, fixed camera world height and flat first five levels. The separate F-TERRAIN-BANK-001 compact/steep bank feature stays Deferred. User acceptance of the earlier profile does not accept this experiment.

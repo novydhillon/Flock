@@ -1,5 +1,10 @@
 # Presentation: renderer, nature and audio
 
+## Lower fixed camera viewpoint — 9 November 2026
+
+F-CAMERA-001 changes only the shared presentation camera defaults: world Y 36 → 27 and center-relative Z 29 → 37.089640571384126. The ground target remains `(center.x, 0, center.z - 2)` and the orbit radius remains sqrt(36² + 31²). Orthographic view heights and planar follow behavior are unchanged. Terrain never lifts the camera or target. The shared pose applies to landing and gameplay.
+
+
 ## Double-height experiment presentation — 6 November 2026
 
 `feat/double-terrain-height` keeps the accepted static camera and shared support normals while raising actual ground relief. Crest/valley shading already derives its scale from the terrain configuration, so grass and road materials adapt to the 9 m ceiling without separate surface offsets. Terrain bounds continue setting the view-shadow maximum caster height dynamically. A small sun vertical adjustment from 32 to 33 m retains the existing 45,000 nearby-scenery triangle budget on the higher field; horizontal sun offset and accepted ambient/directional gains are unchanged. Flat introductory levels retain neutral relief shading. Phone framing, readability and FPS remain playtest checks.

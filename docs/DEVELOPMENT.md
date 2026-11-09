@@ -1,5 +1,10 @@
 # Development, QA and release context
 
+## Lower camera smoke checks — 9 November 2026
+
+For F-CAMERA-001 inspect gameplay and landing in portrait and landscape on flat levels 1–5 and rolling levels 6/20/50/100. Confirm a lower viewing angle at the original zoom, Pip visibility, taller hills/trees, bridge approaches, shadows, water/rain coverage, pause/resume, restart and level replacement. World height remains fixed over terrain. Native phone appearance and FPS remain pending until observed.
+
+
 ## Double-height experiment smoke checks — 6 November 2026
 
 For F-TERRAIN-HEIGHT-001 compare the same seeded rolling public levels 6/20/50/100 with the accepted profile. With contours off and on, inspect taller rounded crests, valleys, roads and fence bases; preserve a fixed camera world height, normal zoom and smooth shading. Traverse slopes with Pip, each Buddy and all cow sizes; inspect full-width bridge joins, water coverage, pooling, goals, restart/pause/level jump and first-five flat levels. Check phone portrait/landscape framing and FPS. These device checks remain pending until observed.
