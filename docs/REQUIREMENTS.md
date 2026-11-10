@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## Compact riverbanks resumed — 9 November 2026
+
+F-TERRAIN-BANK-001 resumes on current accepted terrain. Novy explicitly allows bank faces up to80degrees. Preserve30degrees for ordinary pasture and bridge decks,9m total relief, smooth continuous height/normal joins, first-five flat levels, fixed lower camera and existing navigation. Compact raised spans should stop close to the physical banks, with smoothly varied ordinary bank slopes, dirt on steep ground and grass on gentler ground. The bank exception is localized; it does not raise the global pasture/deck cap. The80degree value is an upper bound, not a requirement that every bank reach it.
+
+
 ## F-CAMERA-001 — Lower camera viewpoint — 9 November 2026
 
 Lower the fixed camera height by 25%, from 36 to 27 world units above the ground datum. Preserve the existing look target and camera-to-target distance sqrt(2257), approximately 47.508 units, by increasing the center-relative Z offset from 29 to approximately 37.08964. The target remains at center Z minus 2, with zero elevation; terrain elevation does not drive camera height. Apply the shared camera configuration to gameplay and landing in both orientations, preserving orthographic scale, follow behavior and progression. This supersedes the previous camera height/angle only.
@@ -713,3 +718,4 @@ F-OPS-005: tasks performed more than three times require a checked-in repeatable
 ## Deferred compact riverbanks — 6 November 2026
 
 F-TERRAIN-BANK-001 preserves the requested compact raised bridge approaches, varied smooth bank slopes and slope-based grass/dirt coverage. Novy deferred this separate work while accepting F-TERRAIN-001–004. The current accepted bank geometry remains in place.
+

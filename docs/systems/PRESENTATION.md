@@ -489,3 +489,9 @@ Terrain-following bridge boards deform vertically while retaining their authored
 F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, distance / (radius * fullSpeedFraction))) / log1p(k), with controls.json defaults radius 84 CSS pixels, fraction 0.85 and strength 9. Direction stays normalized separately; the thumb tracks physical travel clamped to the radius, independent of speed shaping. Visible rings double to 220/212/192 pixels diameter for desktop/phone/short landscape. Idle ring placement keeps the bottom-third preference but clamps above the bottom safe area for short screens. Keyboard input and pointer lifecycle are unchanged.
 
 
+
+
+
+## Compact bank surfaces — 9 November 2026
+
+The meadow shader composes slope-based soil albedo/bump blending with the accepted height shading, weather and receiving glow. The mask uses the analytic support normal before bump perturbation, blending from18degrees to fully exposed soil at32degrees. Shared meadow cells refine only where measured support curvature needs it; neighbouring cells stitch common edge samples and the decorative apron is coarser. Pool clipping interpolates those exact receiving triangles. Road/structure surface conforming shares adaptive edge cuts and interpolates original attributes, preserving UVs and fade while avoiding long buried faces on compact banks. Resource ownership remains per level, with WeakMap-scoped receiving grids.

@@ -211,7 +211,7 @@ export function createLevel(index=0,seed=index*7919+42) {
   // Larger herds get more trail between the last bridge and the gate so a
   // flock can leave the deck before reaching the next opening (F-WORLD-001).
   const elevatedCandidate=elevatedBridgeMeadow(index,seed);
-  const breathing=early?0:(elevatedCandidate?TERRAIN.elevatedBridgeBankSetback:0)+18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
+  const breathing=early?0:(elevatedCandidate?TERRAIN.elevatedBridgeFieldClearance:0)+18+clamp((count-30)*.4,0,14)+(count>30?.1:0);
   const expansion=Math.max(0,index-19),endU=early?15+index*3:index>=39?150+Math.min(index-39,40)*.3:48+index*3+breathing+expansion*.45,minU=early?-32:-40,maxU=endU+15,halfV=early?24:index>=39?84+Math.min(expansion*.1,8):84+Math.floor(index/15)*14+expansion*.3;
   // Late routes cross the meadow laterally as well as longitudinally. The
   // destination stays on clear ground beyond every river and barrier.
@@ -237,8 +237,6 @@ export function createLevel(index=0,seed=index*7919+42) {
     const channel={base,phase,width:early?3.1:3.7+Math.min(index*.025,1.8),primaryScale:meandering?32:21,secondaryScale:meandering?12:8,primaryAmplitude:meandering?6:2.4,secondaryAmplitude:meandering?1:.65};
     return {...channel,at:v=>base+Math.sin(v/channel.primaryScale+phase)*channel.primaryAmplitude+Math.sin(v/channel.secondaryScale+phase)*channel.secondaryAmplitude};
   });
-  // Probe the unshelved bank field without consuming the layout stream.
-  const bankProbe={terrain:createTerrain({index,seed},{angle:0,halfV,channels:riverFunctions})};
   const canonicalRivers=riverFunctions.map(r=>({width:r.width,points:Array.from({length:Math.ceil((halfV*2+64)/2)+1},(_,i)=>{const z=-halfV-32+i*2;return{x:r.at(z),z};}),bridges:[]}));
   const canonicalGates=[],canonicalRoutes=[];
   const sign=random()>.5?1:-1;
@@ -260,6 +258,15 @@ export function createLevel(index=0,seed=index*7919+42) {
         const bridge={x,z,width:roadWidth*1.25,length:river.width+1.5,heading:Math.atan2(f.x,f.z)-angle};
         if(elevatedCandidate&&j===0){
           const length=river.width+TERRAIN.elevatedBridgeBankSetback*2;
+          // Probe the candidate's actual raised-bank field. This uses its own
+          // terrain stream and cannot move scenery or advance the layout RNG.
+          const trialRivers = canonicalRivers.map((candidate, riverIndex) => ({
+            bridges: riverIndex === j
+              ? [...candidate.bridges, {...bridge, elevated: true, length}]
+              : candidate.bridges,
+          }));
+          const bankProbe = {terrain: createTerrain({index, seed, rivers: trialRivers},
+            {angle: 0, halfV, channels: riverFunctions})};
           const landings=[-1,1].flatMap(end=>Array.from({length:9},(_,i)=>bridge.width*(i/8-.5)).map(lateral=>({x:x+f.x*end*length/2+f.z*lateral,z:z+f.z*end*length/2-f.x*lateral})));
           if(landings.every(p=>groundHeight(bankProbe,p.x,p.z)-riverSurfaceHeight(bankProbe,null,p.x,p.z)>=TERRAIN.elevatedBridgeMinimumClearance+.01&&terrainSlope(bankProbe,p.x,p.z)<TERRAIN.elevatedBridgeMaximumLandingSlopeDegrees*Math.PI/180))Object.assign(bridge,{elevated:true,length});
         }

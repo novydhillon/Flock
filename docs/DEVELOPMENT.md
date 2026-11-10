@@ -1,5 +1,10 @@
 # Development, QA and release context
 
+## Compact bank smoke checks — 9 November 2026
+
+For F-TERRAIN-BANK-001 inspect public6/20/50/100 and rotated seeded maps at normal phone zoom in portrait/landscape. Compare short raised spans, smooth full-width deck/bank joins, varying banks and continuous dirt/grass blends with contours off/on. Cross both ways with Pip, Buddy, sheep and every cow size. Inspect water coverage, shallow pools, road clearance, shadows, pause/restart and flat levels1–5; check FPS and repeated level replacement. Browser launch in this session is blocked by Chromium singleton socket permissions; rendered/device checks remain pending.
+
+
 ## Lower camera smoke checks — 9 November 2026
 
 For F-CAMERA-001 inspect gameplay and landing in portrait and landscape on flat levels 1–5 and rolling levels 6/20/50/100. Confirm a lower viewing angle at the original zoom, Pip visibility, taller hills/trees, bridge approaches, shadows, water/rain coverage, pause/resume, restart and level replacement. World height remains fixed over terrain. Native phone appearance and FPS remain pending until observed.
@@ -581,3 +586,4 @@ The wait tool retains exact Pages-commit selection, immediate native-error failu
 ## Reusable workflow acceptance — 6 November 2026
 
 Novy accepted F-OPS-005 by requesting main merge. The complete task and evidence move to [Closed issues](ISSUES_CLOSED.md#f-ops-005--repeatable-workflows-and-reusable-tools). Source CI `42313750618` passed for `adf8c8c`; the rule, catalog and extracted helpers are accepted. This authorizes source merge, with no production publication requested.
+

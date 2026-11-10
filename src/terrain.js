@@ -46,6 +46,11 @@ export function createTerrain(level, { angle, halfV, channels }) {
         primaryAmplitude: channel.primaryAmplitude,
         secondaryAmplitude: channel.secondaryAmplitude,
         wetRadius,
+        bankPhase: random() * Math.PI * 2,
+        elevatedBanks: (level.rivers?.[index]?.bridges || []).filter(bridge => bridge.elevated).map(bridge => ({
+          coordinate: -bridge.x * Math.sin(angle) + bridge.z * Math.cos(angle),
+          halfWidth: bridge.width / 2 + 1,
+        })),
         bridgeCoordinates: (level.rivers?.[index]?.bridges || []).filter(bridge => !bridge.elevated).map(bridge => -bridge.x * Math.sin(angle) + bridge.z * Math.cos(angle)),
       };
     }),
@@ -82,7 +87,11 @@ function bankShelf(channel, v) {
     remaining *= 1 - weight;
   }
   const range = TERRAIN.bridgeShelfWidth - TERRAIN.bankShelfWidth;
-  return { value: TERRAIN.bankShelfWidth + range * (1 - remaining), derivative: -range * derivative };
+  // Seeded slow variations change ordinary bank grades without sample seams.
+  const variation = TERRAIN.bankVariation * Math.sin(v / TERRAIN.bankVariationLength + channel.bankPhase);
+  return { value: TERRAIN.bankShelfWidth + variation * remaining + range * (1 - remaining),
+    derivative: TERRAIN.bankVariation / TERRAIN.bankVariationLength * Math.cos(v / TERRAIN.bankVariationLength + channel.bankPhase) * remaining
+      + variation * derivative - range * derivative };
 }
 
 // Odd analytic distance warp: a low-gradient wet verge, then unbounded
@@ -100,7 +109,31 @@ function valleyDistance(distance, radius, shelf) {
   };
 }
 
-/** C-infinity pasture/valley height and exact derivatives, without sample seams. */
+function smoothRise(value) {
+  const t = clamp(value, 0, 1);
+  return { value: t ** 3 * (10 - 15 * t + 6 * t * t), derivative: 30 * t * t * (1 - t) ** 2 };
+}
+
+/** Region where the compact-bank blend modifies the ordinary valley field.
+ * This is a measurement classification, not an occupancy/collision rule.
+ * The C2 blend joins the unchanged field at its along-river boundaries.
+ */
+export function compactBankRegion(level, x, z) {
+  const terrain = level?.terrain;
+  if (!terrain?.enabled) return false;
+  const {u, v} = coordinates(terrain, x, z);
+  return terrain.channels.some(channel => {
+    const a = v / channel.primaryScale + channel.phase;
+    const b = v / channel.secondaryScale + channel.phase;
+    const center = channel.base + Math.sin(a) * channel.primaryAmplitude
+      + Math.sin(b) * channel.secondaryAmplitude;
+    return Math.abs(u - center) > channel.wetRadius + .25
+      && channel.elevatedBanks.some(bank =>
+        Math.abs(v - bank.coordinate) < bank.halfWidth + TERRAIN.bridgeBlendLength);
+  });
+}
+
+/** C2 pasture/valley height and exact derivatives, without sample seams. */
 function groundSample(level, x, z) {
   const terrain = level?.terrain;
   if (!terrain?.enabled) return { height: 0, dx: 0, dz: 0 };
@@ -129,11 +162,31 @@ function groundSample(level, x, z) {
     // Hill waves may change the outer lift, but cannot expose the river bed.
     const exponent = -Math.log1p(-TERRAIN.waterDepth / lift) / radiusSquared;
     const exponentDerivative = -TERRAIN.waterDepth / (lift * (lift - TERRAIN.waterDepth) * radiusSquared);
-    const gaussian = Math.exp(-distance * distance * exponent), nextMask = 1 - gaussian;
-    const du = gaussian * (2 * distance * exponent * mapped.derivative + distance * distance * exponentDerivative * liftU);
+    const gaussian = Math.exp(-distance * distance * exponent);
+    let nextMask = 1 - gaussian;
+    let du = gaussian * (2 * distance * exponent * mapped.derivative + distance * distance * exponentDerivative * liftU);
     const mappedV = -mapped.derivative * derivative + mapped.shelfDerivative * shelf.derivative;
     const exponentV = exponentDerivative * liftV - 2 * exponent * edge.shelfDerivative * shelf.derivative / edge.value;
-    const dv = gaussian * (2 * distance * exponent * mappedV + distance * distance * exponentV);
+    let dv = gaussian * (2 * distance * exponent * mappedV + distance * distance * exponentV);
+    // Raise dry banks beside selected crossings within a compact setback.
+    // Quintic joins leave water untouched and meet the outer field at its
+    // actual height and tangent, so decks need no long ramps into pasture.
+    const signedDistance = u - center;
+    const span = TERRAIN.elevatedBridgeBankSetback - .5;
+    const rise = smoothRise((Math.abs(signedDistance) - channel.wetRadius - .25) / span);
+    const riseU = rise.derivative * Math.sign(signedDistance) / span;
+    for (const bank of channel.elevatedBanks) {
+      const delta = v - bank.coordinate;
+      const fade = smoothRise((Math.abs(delta) - bank.halfWidth) / TERRAIN.bridgeBlendLength);
+      const weight = 1 - fade.value;
+      const weightV = -fade.derivative * Math.sign(delta) / TERRAIN.bridgeBlendLength;
+      const blend = rise.value * weight * TERRAIN.compactBankLiftFraction;
+      const blendU = riseU * weight * TERRAIN.compactBankLiftFraction;
+      const blendV = (-riseU * derivative * weight + rise.value * weightV) * TERRAIN.compactBankLiftFraction;
+      du = du * (1 - blend) + (1 - nextMask) * blendU;
+      dv = dv * (1 - blend) + (1 - nextMask) * blendV;
+      nextMask += (1 - nextMask) * blend;
+    }
     maskU = maskU * nextMask + mask * du;
     maskV = maskV * nextMask + mask * dv;
     mask *= nextMask;

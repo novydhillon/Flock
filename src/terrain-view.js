@@ -8,6 +8,38 @@ import { resolveConfig } from './config/resolve.js';
 
 const SETTINGS = resolveConfig(settings, 'presentation', CONFIG_CONTRACTS.presentation).terrain;
 
+/** Blend painted grass and granular soil using the unperturbed support normal.
+ * Sampling before bump lighting keeps the soil mask stable as the camera moves.
+ * Both textures share the meadow UV transform and its existing weather tint.
+ */
+export function installSlopeSoil(material, soilMap, soilBumpMap) {
+  const compile = material.onBeforeCompile, key = material.customProgramCacheKey();
+  material.onBeforeCompile = function(shader, renderer) {
+    compile.call(this, shader, renderer);
+    shader.uniforms.meadowSoilMap = {value: soilMap};
+    shader.uniforms.meadowSoilBumpMap = {value: soilBumpMap};
+    shader.vertexShader = 'varying float meadowNormalY;\n' + shader.vertexShader.replace(
+      '#include <begin_vertex>', '#include <begin_vertex>\nmeadowNormalY = normal.y;');
+    shader.fragmentShader = `varying float meadowNormalY;
+      uniform sampler2D meadowSoilMap;
+      uniform sampler2D meadowSoilBumpMap;
+      float meadowSoilWeight() {
+        return 1.0 - smoothstep(${Math.cos(TERRAIN.soilFullDegrees * Math.PI / 180)}, ${Math.cos(TERRAIN.soilStartDegrees * Math.PI / 180)}, meadowNormalY);
+      }
+      ` + shader.fragmentShader;
+    // 18 to 32 degrees: gentle ground retains grass, steep banks expose soil.
+    shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>',
+      THREE.ShaderChunk.map_fragment.replace('diffuseColor *= sampledDiffuseColor;',
+        'sampledDiffuseColor = mix(sampledDiffuseColor, texture2D(meadowSoilMap, vMapUv), meadowSoilWeight());\ndiffuseColor *= sampledDiffuseColor;'));
+    shader.fragmentShader = shader.fragmentShader.replace('#include <bumpmap_pars_fragment>',
+      THREE.ShaderChunk.bumpmap_pars_fragment.replace(/texture2D\( bumpMap, ([^)]*) \)\.x/g,
+        'mix(texture2D(bumpMap, $1).x, texture2D(meadowSoilBumpMap, $1).x, meadowSoilWeight())'));
+  };
+  material.customProgramCacheKey = () => key + ':slope-soil-v1';
+  material.needsUpdate = true;
+  return material;
+}
+
 /** Height shading uses the same world elevation on grass and roads. The
  * rolling-level uniform is shared across material clones, including weather
  * wrappers, so replacing a level cannot leave a flat meadow shaded as a valley.
@@ -130,15 +162,105 @@ export function conformSurface(source, height, { spacing = SETTINGS.surfaceSpaci
     }
     normals.push(sample[1], sample[2], sample[3]);
   };
+  // Match the indexed merge tolerance: a face thinner than one micrometre
+  // has no stable topology after quantization. Use altitude, not absolute
+  // area, so small but well-shaped legitimate faces remain represented.
+  const numericalSliver = (a,b,c) => {
+    const x=positionOffset,z=x+2;
+    const area=Math.abs((b[x]-a[x])*(c[z]-a[z])-(b[z]-a[z])*(c[x]-a[x]));
+    const longest=Math.max(Math.hypot(b[x]-a[x],b[z]-a[z]),
+      Math.hypot(c[x]-b[x],c[z]-b[z]),Math.hypot(a[x]-c[x],a[z]-c[z]));
+    return area < longest*1e-6;
+  };
+  let triangles = [];
   const count = index?.count ?? source.attributes.position.count;
   for (let i = 0; i < count; i += 3) {
     const triangle = [read(index ? index.getX(i) : i), read(index ? index.getX(i + 1) : i + 1),
       read(index ? index.getX(i + 2) : i + 2)];
     for (const polygon of slice(slice([triangle], 0), 2)) for (let j = 1; j < polygon.length - 1; j++) {
       const a = polygon[0], b = polygon[j], c = polygon[j + 1], x = positionOffset, z = x + 2;
-      if (Math.abs((b[x]-a[x])*(c[z]-a[z]) - (b[z]-a[z])*(c[x]-a[x])) < 1e-12) continue;
-      emit(a);emit(b);emit(c);
+      if (numericalSliver(a,b,c)) continue;
+      triangles.push([a,b,c]);
     }
+  }
+  // Red/green refinement shares every new edge sample with its neighbour.
+  // This keeps narrow roads conforming to compact banks without raising the
+  // uniform tessellation cost across the entire route network.
+  const pointKeys = new WeakMap();
+  const pointKey = p => {
+    let key=pointKeys.get(p);
+    if(key===undefined){key=p[positionOffset].toFixed(7)+','+p[positionOffset+2].toFixed(7);pointKeys.set(p,key);}
+    return key;
+  };
+  const edgeKey = (a,b) => {
+    const first=pointKey(a),last=pointKey(b);
+    return first<last ? first+':'+last : last+':'+first;
+  };
+  const midpoint = (a,b) => a.map((value,i)=>(value+b[i])/2);
+  const supportCache = new Map();
+  const support = p => {
+    const key = pointKey(p);
+    if (!supportCache.has(key)) supportCache.set(key, height(p[positionOffset],p[positionOffset+2]));
+    return supportCache.get(key);
+  };
+  // Unchanged triangles retain the same analytic interpolation error. Only
+  // newly split faces need to be checked again as neighbour cuts propagate.
+  const converged = new WeakSet();
+  for(let pass=0;pass<10;pass++) {
+    const splits = new Map();
+    for(const triangle of triangles) {
+      if(converged.has(triangle))continue;
+      let split = false;
+      for(let e=0;e<3;e++) {
+        const a=triangle[e],b=triangle[(e+1)%3],middle=midpoint(a,b);
+        if(Math.abs(support(middle)-(support(a)+support(b))/2)>.012) {
+          splits.set(edgeKey(a,b),middle);split=true;
+        }
+      }
+      if(split) for(let e=0;e<3;e++) {
+        const a=triangle[e],b=triangle[(e+1)%3];splits.set(edgeKey(a,b),midpoint(a,b));
+      }
+      if(!split) {
+        const interiorError = [[1/3,1/3,1/3],[.6,.2,.2],[.2,.6,.2],[.2,.2,.6]].some(weights => {
+          // Interior probes are unique to this face. Avoid allocating an
+          // attribute row and string cache entry for each temporary probe.
+          let x = 0, z = 0, interpolated = 0;
+          for (let j = 0; j < 3; j++) {
+            x += triangle[j][positionOffset] * weights[j];
+            z += triangle[j][positionOffset + 2] * weights[j];
+            interpolated += support(triangle[j]) * weights[j];
+          }
+          return Math.abs(height(x, z) - interpolated) > .012;
+        });
+        if(interiorError) {
+          for(let e=0;e<3;e++) {
+            const a=triangle[e],b=triangle[(e+1)%3];splits.set(edgeKey(a,b),midpoint(a,b));
+          }
+        } else converged.add(triangle);
+      }
+    }
+    if(!splits.size)break;
+    const next=[];
+    for(const triangle of triangles) {
+      const middles=triangle.map((a,e)=>splits.has(edgeKey(a,triangle[(e+1)%3])) ? midpoint(a,triangle[(e+1)%3]) : undefined);
+      const count=middles.filter(Boolean).length;
+      if(!count)next.push(triangle);
+      else if(count===3) {
+        const [a,b,c]=triangle,[ab,bc,ca]=middles;
+        next.push([a,ab,ca],[ab,b,bc],[ca,bc,c],[ab,bc,ca]);
+      } else {
+        const start=count===1?middles.findIndex(Boolean):(middles.findIndex(p=>!p)+1)%3;
+        const a=triangle[start],b=triangle[(start+1)%3],c=triangle[(start+2)%3];
+        const ab=middles[start],bc=middles[(start+1)%3];
+        if(count===1)next.push([a,ab,c],[ab,b,c]);
+        else next.push([ab,b,bc],[a,ab,c],[ab,bc,c]);
+      }
+    }
+    triangles=next;
+  }
+  for(const triangle of triangles) {
+    if(numericalSliver(...triangle))continue;
+    for(const vertex of triangle)emit(vertex);
   }
   const geometry = new THREE.BufferGeometry();
   for (const entry of attributes) geometry.setAttribute(entry.name,
@@ -150,54 +272,140 @@ export function conformSurface(source, height, { spacing = SETTINGS.surfaceSpaci
   return indexed;
 }
 
-export function meadowGeometry(level, width, depth, centerX, centerZ) {
-  const rolling = level.terrain?.enabled;
-  const geometry = new THREE.PlaneGeometry(width, depth,
-    rolling ? Math.ceil(width / SETTINGS.groundSpacing) : 1,
-    rolling ? Math.ceil(depth / SETTINGS.groundSpacing) : 1);
-  geometry.rotateX(-Math.PI / 2);
-  geometry.translate(centerX, GROUND_SURFACE_OFFSET, centerZ);
-  const colors = new Float32Array(geometry.attributes.position.count * 3).fill(1);
-  if (rolling) {
-    const position = geometry.attributes.position, normal = geometry.attributes.normal;
-    const height = (x, z) => groundHeight(level, x, z);
-    for (let i = 0; i < position.count; i++) {
-      const x = position.getX(i), z = position.getZ(i);
-      position.setY(i, height(x, z) + GROUND_SURFACE_OFFSET);
-      const n = terrainNormal(level, x, z);
-      normal.setXYZ(i, n.x, n.y, n.z);
-      // A continuous, restrained height tint complements actual slopes. The
-      // shared ground keeps its texture; there are no separate color polygons.
-      const high = Math.max(0, Math.min(1, (height(x, z) + TERRAIN.channelDepth + TERRAIN.downstreamDrop) / (TERRAIN.valleyLift + TERRAIN.waveAmplitude + 2 * TERRAIN.downstreamDrop)));
-      colors.set([.9 + high * .14, .94 + high * .09, .88 + high * .1], i * 3);
+// Refine cells only where smooth support curves too far from a linear face.
+// Coarse cells share their fine neighbours' edge cuts; center fans stitch those
+// cuts without cracks or the whole-axis growth of the original prototype.
+const meadowGrids = new WeakMap();
+function meadowGrid(level, width, depth, centerX, centerZ) {
+  const key = [width, depth, centerX, centerZ].join(',');
+  let cache = meadowGrids.get(level);
+  if (!cache) meadowGrids.set(level, cache = new Map());
+  if (cache.has(key)) return cache.get(key);
+  // Keep dense support through the play area and its immediate verge. The
+  // distant decorative apron has no actors and can use a coarser base mesh.
+  const axis = (extent, center, low, high) => {
+    const start = center - extent / 2, end = center + extent / 2;
+    const cuts = [start, Math.max(start, Math.min(end, low - 2)),
+      Math.max(start, Math.min(end, high + 2)), end];
+    const values = [Math.fround(start)];
+    for (let section = 0; section < 3; section++) {
+      const a = cuts[section], b = cuts[section + 1];
+      const spacing = section === 1 ? SETTINGS.groundSpacing : 2.4;
+      const count = Math.ceil((b - a) / spacing);
+      for (let i = 1; i <= count; i++) values.push(Math.fround(a + (b - a) * i / count));
+    }
+    return values;
+  };
+  const xs = axis(width, centerX, level.bounds.minX, level.bounds.maxX);
+  const zs = axis(depth, centerZ, level.bounds.minZ, level.bounds.maxZ);
+  const nx = xs.length - 1, nz = zs.length - 1;
+  const height = (x, z) => groundHeight(level, x, z) + GROUND_SURFACE_OFFSET;
+  const cells = Array.from({length: nx * nz}, () => ({pieces: 1, triangles: []}));
+  // Measure actual triangular interpolation, including the diagonal: a
+  // bilinear estimate misses mixed-axis curvature on the steepest bank faces.
+  const weights = [[1/3,1/3,1/3],[.6,.2,.2],[.2,.6,.2],[.2,.2,.6],
+    [.5,.5,0],[.5,0,.5],[0,.5,.5]];
+  const error = triangle => {
+    const heights = triangle.map(([x,z]) => height(x,z));
+    return Math.max(...weights.map(weight => {
+      const x = triangle.reduce((sum,p,i) => sum + p[0]*weight[i],0);
+      const z = triangle.reduce((sum,p,i) => sum + p[1]*weight[i],0);
+      return Math.abs(heights.reduce((sum,y,i) => sum+y*weight[i],0)-height(x,z));
+    }));
+  };
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+    const x0 = xs[i], x1 = xs[i + 1], z0 = zs[j], z1 = zs[j + 1];
+    const bounds = level.bounds;
+    if (x1 < bounds.minX - 2 || x0 > bounds.maxX + 2
+        || z1 < bounds.minZ - 2 || z0 > bounds.maxZ + 2) continue;
+    let pieces = 1;
+    while (pieces < 16) {
+      let maximum = 0;
+      for (let v=0;v<pieces;v++) for(let u=0;u<pieces;u++) {
+        const xa=x0+(x1-x0)*u/pieces,xb=x0+(x1-x0)*(u+1)/pieces;
+        const za=z0+(z1-z0)*v/pieces,zb=z0+(z1-z0)*(v+1)/pieces;
+        maximum=Math.max(maximum,error([[xa,za],[xa,zb],[xb,za]]),
+          error([[xa,zb],[xb,zb],[xb,za]]));
+      }
+      if(maximum < .024)break;
+      pieces*=2;
+    }
+    cells[j*nx+i].pieces=pieces;
+  }
+  const positions = [], normals = [], uvs = [], colors = [], indices = [], vertices = new Map();
+  const vertex = (x, z) => {
+    x = Math.fround(x); z = Math.fround(z);
+    const key = x + ',' + z;
+    if (vertices.has(key)) return vertices.get(key);
+    const index = positions.length / 3, y = height(x, z), n = terrainNormal(level, x, z);
+    positions.push(x, y, z); normals.push(n.x, n.y, n.z);
+    uvs.push((x-centerX+width/2)/width, 1-(z-centerZ+depth/2)/depth);
+    const high = Math.max(0,Math.min(1,(y-GROUND_SURFACE_OFFSET+TERRAIN.channelDepth+TERRAIN.downstreamDrop)/(TERRAIN.valleyLift+TERRAIN.waveAmplitude+2*TERRAIN.downstreamDrop)));
+    colors.push(.9+high*.14,.94+high*.09,.88+high*.1);
+    vertices.set(key, index); return index;
+  };
+  const piecesAt = (i,j) => i < 0 || j < 0 || i >= nx || j >= nz ? 1 : cells[j*nx+i].pieces;
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+    const cell = cells[j*nx+i], pieces = cell.pieces;
+    const triangle = (a,b,c) => {indices.push(a,b,c);cell.triangles.push([a,b,c]);};
+    for (let v=0;v<pieces;v++) for(let u=0;u<pieces;u++) {
+      const x0=xs[i]+(xs[i+1]-xs[i])*u/pieces,x1=xs[i]+(xs[i+1]-xs[i])*(u+1)/pieces;
+      const z0=zs[j]+(zs[j+1]-zs[j])*v/pieces,z1=zs[j]+(zs[j+1]-zs[j])*(v+1)/pieces;
+      // Clockwise from above gives upward normals in the x/z ground plane.
+      const corners=[[x0,z0],[x0,z1],[x1,z1],[x1,z0]];
+      const edgePieces=[u===0?piecesAt(i-1,j):pieces, v===pieces-1?piecesAt(i,j+1):pieces, u===pieces-1?piecesAt(i+1,j):pieces, v===0?piecesAt(i,j-1):pieces]
+        .map(n=>Math.max(1,n/pieces));
+      if(edgePieces.every(n=>n===1)) {
+        const [a,b,c,d]=corners.map(([x,z])=>vertex(x,z));triangle(a,b,d);triangle(b,c,d);
+      } else {
+        const rim=[];
+        for(let e=0;e<4;e++)for(let k=0;k<edgePieces[e];k++) {
+          const a=corners[e],b=corners[(e+1)%4],t=k/edgePieces[e];
+          rim.push(vertex(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t));
+        }
+        const center=vertex((x0+x1)/2,(z0+z1)/2);
+        for(let k=0;k<rim.length;k++)triangle(center,rim[k],rim[(k+1)%rim.length]);
+      }
     }
   }
-  // The shared grass shader always consumes color, including on flat levels.
-  // Bind neutral white explicitly instead of relying on generic vertex state.
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  return geometry;
+  const grid={xs,zs,nx,nz,cells,positions:new Float32Array(positions),normals,uvs,colors,indices};
+  cache.set(key,grid);return grid;
 }
 
-/** Exact piecewise-planar height of the rendered ground, including clearance.
- * Shallow standing water needs this instead of the smooth support field: grid
- * triangle interpolation can differ by more than its eight mm depth.
- * Dimensions and triangle diagonal match the renderer's meadowGeometry call.
- */
-export function meadowSurfaceHeight(level, x, z) {
-  if (!level.terrain?.enabled) return GROUND_SURFACE_OFFSET;
-  const b=level.bounds, width=b.maxX-b.minX+90, depth=b.maxZ-b.minZ+90;
-  const nx=Math.ceil(width/SETTINGS.groundSpacing), nz=Math.ceil(depth/SETTINGS.groundSpacing);
-  const cx=(b.minX+b.maxX)/2, cz=(b.minZ+b.maxZ)/2;
-  const ix=Math.max(0,Math.min(nx-1,Math.floor((x-b.minX+45)*nx/width)));
-  const iz=Math.max(0,Math.min(nz-1,Math.floor((z-b.minZ+45)*nz/depth)));
-  const px=i=>Math.fround(Math.fround(-width/2+i*width/nx)+cx);
-  const pz=i=>Math.fround(Math.fround(-depth/2+i*depth/nz)+cz);
-  const x0=px(ix),x1=px(ix+1),z0=pz(iz),z1=pz(iz+1);
-  const tx=(x-x0)/(x1-x0),tz=(z-z0)/(z1-z0);
-  const height=(xx,zz)=>Math.fround(groundHeight(level,xx,zz)+GROUND_SURFACE_OFFSET);
-  return tx+tz<=1
-    ? height(x0,z0)*(1-tx-tz)+height(x1,z0)*tx+height(x0,z1)*tz
-    : height(x1,z1)*(tx+tz-1)+height(x1,z0)*(1-tz)+height(x0,z1)*(1-tx);
+export function meadowGeometry(level, width, depth, centerX, centerZ) {
+  if (!level.terrain?.enabled) {
+    const geometry=new THREE.PlaneGeometry(width,depth);
+    geometry.rotateX(-Math.PI/2);geometry.translate(centerX,GROUND_SURFACE_OFFSET,centerZ);
+    geometry.setAttribute('color',new THREE.Float32BufferAttribute(new Float32Array(12).fill(1),3));
+    return geometry;
+  }
+  const grid=meadowGrid(level,width,depth,centerX,centerZ),geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(grid.positions,3));
+  geometry.setAttribute('normal',new THREE.Float32BufferAttribute(grid.normals,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(grid.uvs,2));
+  geometry.setAttribute('color',new THREE.Float32BufferAttribute(grid.colors,3));
+  geometry.setIndex(grid.indices);return geometry;
+}
+
+/** Pool clipping reads the same stitched triangles as the receiving mesh. */
+export function meadowSurfaceHeight(level,x,z) {
+  if(!level.terrain?.enabled)return GROUND_SURFACE_OFFSET;
+  const b=level.bounds,width=b.maxX-b.minX+90,depth=b.maxZ-b.minZ+90;
+  const g=meadowGrid(level,width,depth,(b.minX+b.maxX)/2,(b.minZ+b.maxZ)/2);
+  const interval = (values, value) => {
+    let low=0,high=values.length-1;
+    while(high-low>1){const middle=(low+high)>>1;if(values[middle]<=value)low=middle;else high=middle;}
+    return Math.min(values.length-2,low);
+  };
+  const ix=interval(g.xs,x),iz=interval(g.zs,z);
+  for(const triangle of g.cells[iz*g.nx+ix].triangles) {
+    const [a,b,c]=triangle.map(index=>index*3),p=g.positions;
+    const denominator=(p[b+2]-p[c+2])*(p[a]-p[c])+(p[c]-p[b])*(p[a+2]-p[c+2]);
+    const u=((p[b+2]-p[c+2])*(x-p[c])+(p[c]-p[b])*(z-p[c+2]))/denominator;
+    const v=((p[c+2]-p[a+2])*(x-p[c])+(p[a]-p[c])*(z-p[c+2]))/denominator;
+    if(u>=-1e-5&&v>=-1e-5&&u+v<=1+1e-5)return u*p[a+1]+v*p[b+1]+(1-u-v)*p[c+1];
+  }
+  return groundHeight(level,x,z)+GROUND_SURFACE_OFFSET;
 }
 
 export { roughPastureEnabled } from './pasture.js';

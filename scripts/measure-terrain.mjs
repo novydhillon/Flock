@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Reproducible source-level terrain measurements, not rendered/device evidence.
 import { createLevel, groundHeight, terrainSlope, bridgeSurfaceHeight } from '../src/world.js';
-import { TERRAIN } from '../src/terrain.js';
+import { TERRAIN, compactBankRegion } from '../src/terrain.js';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -23,18 +23,28 @@ const degrees = value => value * 180 / Math.PI;
 const results = [];
 for (const publicLevel of levels) for (const seed of seeds) {
   const level = createLevel(publicLevel - 1, seed), b = level.bounds;
-  let minimum = Infinity, maximum = -Infinity, maxGroundGrade = 0, maxSupportGrade = 0, squares = 0, samples = 0;
+  let minimum = Infinity, maximum = -Infinity, maxGroundGrade = 0, maxPastureGrade = 0, maxBankGrade = 0, maxSupportGrade = 0, elevatedCrossings = 0, maximumBankSetback = 0, squares = 0, samples = 0;
   const ground = (x, z) => {
     const height = groundHeight(level, x, z), grade = terrainSlope(level, x, z);
     minimum = Math.min(minimum, height); maximum = Math.max(maximum, height);
-    maxGroundGrade = Math.max(maxGroundGrade, grade); squares += grade * grade; samples++;
+    maxGroundGrade = Math.max(maxGroundGrade, grade);
+    if (compactBankRegion(level, x, z)) maxBankGrade = Math.max(maxBankGrade, grade);
+    else maxPastureGrade = Math.max(maxPastureGrade, grade);
+    squares += grade * grade; samples++;
   };
   for (let x = b.minX; x <= b.maxX; x += spacing) for (let z = b.minZ; z <= b.maxZ; z += spacing) ground(x, z);
   for (const point of [level.spawn, level.target, ...level.boundary]) ground(point.x, point.z);
   for (const river of level.rivers) for (const bridge of river.bridges) {
+    if (bridge.elevated) {
+      elevatedCrossings++;
+      maximumBankSetback = Math.max(maximumBankSetback, (bridge.length - river.width) / 2);
+    }
     const f = {x: Math.sin(bridge.heading), z: Math.cos(bridge.heading)};
-    for (let along = -bridge.length / 2; along <= bridge.length / 2; along += Math.min(spacing, .25)) {
-      for (const lateral of [-bridge.width / 2 + .02, 0, bridge.width / 2 - .02]) {
+    const steps = Math.ceil(bridge.length / Math.min(spacing, .25));
+    for (let step = 0; step <= steps; step++) {
+      const along = -bridge.length / 2 + bridge.length * step / steps;
+      for (let side = 0; side <= 8; side++) {
+        const lateral = -bridge.width / 2 + .02 + (bridge.width - .04) * side / 8;
         const x = bridge.x + f.x * along + f.z * lateral, z = bridge.z + f.z * along - f.x * lateral;
         const height = bridgeSurfaceHeight(level, bridge, x, z), h = .0001;
         const dx = (bridgeSurfaceHeight(level, bridge, x + h, z) - bridgeSurfaceHeight(level, bridge, x - h, z)) / (2 * h);
@@ -46,9 +56,10 @@ for (const publicLevel of levels) for (const seed of seeds) {
   }
   const relief = maximum - minimum;
   results.push({publicLevel, seed: level.seed, rolling: level.terrain.enabled, samples, minimum, maximum, relief,
-    maximumGroundSlopeDegrees: degrees(maxGroundGrade), maximumSupportSlopeDegrees: degrees(maxSupportGrade), rmsGroundSlopeDegrees: degrees(Math.sqrt(squares / samples)),
-    withinLimits: relief <= TERRAIN.maximumRelief + 1e-6 && degrees(Math.max(maxGroundGrade, maxSupportGrade)) <= TERRAIN.maximumSlopeDegrees + 1e-6});
+    elevatedCrossings, maximumBankSetback,
+    maximumGroundSlopeDegrees: degrees(maxGroundGrade), maximumPastureSlopeDegrees: degrees(maxPastureGrade), maximumBankSlopeDegrees: degrees(maxBankGrade), maximumSupportSlopeDegrees: degrees(maxSupportGrade), rmsGroundSlopeDegrees: degrees(Math.sqrt(squares / samples)),
+    withinLimits: relief <= TERRAIN.maximumRelief + 1e-6 && degrees(Math.max(maxPastureGrade, maxSupportGrade)) <= TERRAIN.maximumSlopeDegrees + 1e-6 && degrees(maxBankGrade) <= TERRAIN.maximumBankSlopeDegrees + 1e-6});
 }
-console.log(JSON.stringify({method: 'Bounds grid plus spawn/goal/boundary; bridge grades from finite differences on full deck width. Sampling is evidence, not an analytic proof.',
-  spacing, limits: {relief: TERRAIN.maximumRelief, slopeDegrees: TERRAIN.maximumSlopeDegrees}, results}, null, 2));
+console.log(JSON.stringify({method: 'Bounds grid plus spawn/goal/boundary; bridge grades from finite differences at nine lateral positions including inset edges, with exact longitudinal endpoints. Sampling is evidence, not an analytic proof.',
+  spacing, limits: {relief: TERRAIN.maximumRelief, slopeDegrees: TERRAIN.maximumSlopeDegrees, compactBankSlopeDegrees: TERRAIN.maximumBankSlopeDegrees}, results}, null, 2));
 if (results.some(result => !result.withinLimits)) process.exitCode = 1;
