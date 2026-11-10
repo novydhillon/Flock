@@ -14,21 +14,22 @@ function movingEnvironmentPart(object, root) {
  * on the largest meadow; camera travel never changes its projection or pixels.
  */
 export class StaticShadows {
-  constructor({mapSize = 4096, depthBias = .005, normalBias = .03} = {}) {
+  constructor({ mapSize = 4096, depthBias = 0.005, normalBias = 0.03 } = {}) {
     if (!Number.isInteger(mapSize) || mapSize < 128 || mapSize > 4096 || (mapSize & (mapSize - 1)) !== 0) {
       throw new RangeError('static shadow map size must be a power of two from 128 to4096');
     }
     this.mapSize = mapSize;
-    if (!Number.isFinite(depthBias) || depthBias < 0 || depthBias > .05) throw new RangeError('static shadow depth bias must be from0 to.05 world units');
+    if (!Number.isFinite(depthBias) || depthBias < 0 || depthBias > 0.05)
+      throw new RangeError('static shadow depth bias must be from0 to.05 world units');
     this.depthBias = depthBias;
     this.normalBias = normalBias;
     this.uniforms = {
-      bakedShadowEnabled: {value: 0},
-      bakedShadowMap: {value: null},
-      bakedShadowMatrix: {value: new THREE.Matrix4()},
-      bakedShadowTexel: {value: new THREE.Vector2(1 / mapSize, 1 / mapSize)},
-      bakedShadowBias: {value: 0},
-      bakedShadowOffset: {value: new THREE.Vector3()},
+      bakedShadowEnabled: { value: 0 },
+      bakedShadowMap: { value: null },
+      bakedShadowMatrix: { value: new THREE.Matrix4() },
+      bakedShadowTexel: { value: new THREE.Vector2(1 / mapSize, 1 / mapSize) },
+      bakedShadowBias: { value: 0 },
+      bakedShadowOffset: { value: new THREE.Vector3() },
     };
     this.light = null;
     this.staticCasters = new Set();
@@ -36,7 +37,11 @@ export class StaticShadows {
   }
 
   install(material) {
-    if (!material || !(material.isMeshStandardMaterial || material.isMeshPhongMaterial || material.isMeshLambertMaterial)) return;
+    if (
+      !material ||
+      !(material.isMeshStandardMaterial || material.isMeshPhongMaterial || material.isMeshLambertMaterial)
+    )
+      return;
     const existing = installedMaterials.get(material);
     if (existing) {
       existing.source = this.uniforms;
@@ -44,29 +49,35 @@ export class StaticShadows {
     }
     // Stable holders let cached programs follow a replacement level without
     // retaining every shader ever compiled by a shared source material.
-    const state = {source: this.uniforms, uniforms: {}};
+    const state = { source: this.uniforms, uniforms: {} };
     for (const name of Object.keys(this.uniforms)) {
       state.uniforms[name] = Object.defineProperty({}, 'value', {
         enumerable: true,
         get: () => state.source[name].value,
-        set: value => { state.source[name].value = value; },
+        set: (value) => {
+          state.source[name].value = value;
+        },
       });
     }
     installedMaterials.set(material, state);
     const compile = material.onBeforeCompile;
     const cacheKey = material.customProgramCacheKey;
-    material.onBeforeCompile = function(shader, renderer) {
+    material.onBeforeCompile = function (shader, renderer) {
       compile.call(this, shader, renderer);
       Object.assign(shader.uniforms, state.uniforms);
       // createRoadMaterial and other wrappers deliberately call the source
       // hook. A clone can therefore already contain this projection; retarget
       // its uniform holders above, but never inject duplicate GLSL symbols.
       if (shader.vertexShader.includes('// FLOCK_STATIC_SHADOW_BAKE_V1')) return;
-      shader.vertexShader = `// FLOCK_STATIC_SHADOW_BAKE_V1
+      shader.vertexShader =
+        `// FLOCK_STATIC_SHADOW_BAKE_V1
         varying vec4 vBakedShadowCoord;
         uniform mat4 bakedShadowMatrix;
         uniform vec3 bakedShadowOffset;
-        ` + shader.vertexShader.replace('#include <project_vertex>', `
+        ` +
+        shader.vertexShader.replace(
+          '#include <project_vertex>',
+          `
         #include <project_vertex>
         vec4 bakedWorldPosition = vec4(transformed, 1.0);
         #ifdef USE_BATCHING
@@ -78,8 +89,10 @@ export class StaticShadows {
         bakedWorldPosition = modelMatrix * bakedWorldPosition;
         bakedWorldPosition.xyz += bakedShadowOffset;
         vBakedShadowCoord = bakedShadowMatrix * bakedWorldPosition;
-      `);
-      shader.fragmentShader = `varying vec4 vBakedShadowCoord;
+      `,
+        );
+      shader.fragmentShader =
+        `varying vec4 vBakedShadowCoord;
         uniform float bakedShadowEnabled;
         uniform sampler2D bakedShadowMap;
         uniform vec2 bakedShadowTexel;
@@ -96,32 +109,37 @@ export class StaticShadows {
           }
           return visible / 9.0;
         }
-        ` + shader.fragmentShader.replace('#include <lights_fragment_end>', `
+        ` +
+        shader.fragmentShader.replace(
+          '#include <lights_fragment_end>',
+          `
           #include <lights_fragment_end>
           float bakedVisibility = bakedStaticVisibility();
           reflectedLight.directDiffuse *= bakedVisibility;
           reflectedLight.directSpecular *= bakedVisibility;
-        `);
+        `,
+        );
     };
-    material.customProgramCacheKey = function() {
+    material.customProgramCacheKey = function () {
       return cacheKey.call(this) + ':static-shadow-bake-v1';
     };
     material.needsUpdate = true;
   }
 
   prepare(scene, terrain) {
-    const capture = object => {
+    const capture = (object) => {
       if (!object.isMesh || !object.castShadow || movingEnvironmentPart(object, terrain)) return;
       object.userData.bakedStaticShadow = true;
       this.staticCasters.add(object);
     };
     terrain.traverse(capture);
-    scene.traverse(object => {
+    scene.traverse((object) => {
       // RiverDetails owns fixed rocks under the water-effects root, separate
       // from terrain. Explicit tags include these without capturing wildlife.
       if (object.userData.staticEnvironment) capture(object);
       if (!object.isMesh || !object.receiveShadow) return;
-      for (const material of Array.isArray(object.material) ? object.material : [object.material]) this.install(material);
+      for (const material of Array.isArray(object.material) ? object.material : [object.material])
+        this.install(material);
     });
   }
 
@@ -145,7 +163,7 @@ export class StaticShadows {
     const direction = sun.position.clone().sub(sun.target.position).normalize();
     light.target.position.copy(center);
     light.position.copy(center).addScaledVector(direction, radius * 2 + 2);
-    light.shadow.camera.near = .1;
+    light.shadow.camera.near = 0.1;
     light.shadow.camera.far = radius * 4 + 4;
     light.shadow.camera.left = light.shadow.camera.bottom = -radius;
     light.shadow.camera.right = light.shadow.camera.top = radius;
@@ -161,7 +179,7 @@ export class StaticShadows {
       right: lightBounds.max.x + 1,
       bottom: lightBounds.min.y - 1,
       top: lightBounds.max.y + 1,
-      near: Math.max(.1, -lightBounds.max.z - 1),
+      near: Math.max(0.1, -lightBounds.max.z - 1),
       far: -lightBounds.min.z + 1,
     });
     light.shadow.camera.updateProjectionMatrix();
@@ -171,7 +189,7 @@ export class StaticShadows {
     this.uniforms.bakedShadowBias.value = -this.depthBias / (light.shadow.camera.far - light.shadow.camera.near);
     const originalSunCasting = sun.castShadow;
     const flags = [];
-    scene.traverse(object => {
+    scene.traverse((object) => {
       if (!object.isMesh) return;
       flags.push([object, object.castShadow]);
       object.castShadow = this.staticCasters.has(object);
@@ -189,7 +207,8 @@ export class StaticShadows {
       captured = true;
     } finally {
       sun.castShadow = originalSunCasting;
-      for (const [object, castShadow] of flags) object.castShadow = captured && this.staticCasters.has(object) ? false : castShadow;
+      for (const [object, castShadow] of flags)
+        object.castShadow = captured && this.staticCasters.has(object) ? false : castShadow;
       scene.remove(light, light.target);
       light.castShadow = false;
       light.shadow.needsUpdate = false;

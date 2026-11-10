@@ -1520,3 +1520,16 @@ Final scope follow-up9/10, no remaining confirmed blockers or minor findings. In
 
 
 Final validation: local checked build620/620 regression tests,7/7 documentation checks and release/development artifact guards pass. Final scope revision `3de9d57` CI [42776193941](https://github.com/novydhillon/Flock/actions/runs/42776193941) succeeds. Broader static/cutaway/water-effects focused32/32 pass; independent final scope review9/10. A subsequent behavior-preserving shader-local identifier rename (`packed`→`depthTexel`) avoids a reserved GLSL word; focused5/5 and both build/artifact guards pass again, and independent review retains9/10. No rendered/device validation or deployment is claimed. F-SHADOW-001 is Review, pending user acceptance.
+
+
+## F-PERF-002 engineering review - 10 November 2026
+
+Branch `refactor/performance-pipelines`, base main `86a5b5d`. Implementation: session model, identifier not recorded because the session does not expose an authoritative identifier. Fresh isolated critic: GPT-6.1 Sol, extra-high effort, 9.3/10; no material blockers. Minor findings: align advertised Node support with Vite (fixed to >=22.12.0), and add regression coverage for readable Dev/minified live artifacts (follow-up test added separately).
+
+Kept simulation, graphics settings and saved-profile contracts unchanged. Formatted JavaScript with pinned Prettier, added scoped checks and independent tracker/game test/build/deploy paths, and extended the existing publisher for explicitly authorized dev_performance staging. Removed duplicate glow work and reused rain/goal-pointer scratch objects. Exact rain output/random-state comparison spans400frames; focused formatted glow/tree-yaw2/2 and QA helper4/4 pass.
+
+Checked game build:615/615 tests,7/7 documentation behavior tests plus deterministic/link checks, production QA exclusion and readable development QA inclusion pass. Checked tracker build:15/15 tests, dependency validation and independent three-file output pass. Builds retain existing mixed JSON import-attribute and chunk-size advisories. Independent release/Dev artifact builds and formatting check pass. Isolated critic tracker build hit an environment-specific EPERM; the actual task checkout tracker checked build passes. No physical FPS, touch, listening or pixel comparison is claimed. User playtesting remains necessary before acceptance; no main merge or production publication is authorized.
+
+Follow-up: five actual in-memory Vite build regressions pass across QA/development/production/release/default modes, checking executed results, identifier retention/minification and QA exclusion. These five tests were added after the full615-test game run; final source CI covers the combined suite. The critic's original isolated focused run subsequently completed147/147, superseding its earlier pending-test limitation.
+
+Independent bounded recheck:9.5/10, both minor findings resolved, no remaining findings. New build-format tests5/5 independently pass. Physical/rendered performance and user acceptance remain outside this score.

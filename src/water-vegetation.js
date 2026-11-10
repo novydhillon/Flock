@@ -20,7 +20,7 @@ function randomSequence(seed) {
 }
 
 const cross = (a, b, c) => (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
-const pointKey = point => `${Math.round(point.x * 1e5)},${Math.round(point.z * 1e5)}`;
+const pointKey = (point) => `${Math.round(point.x * 1e5)},${Math.round(point.z * 1e5)}`;
 
 function waterSurface(geometry) {
   const positions = geometry.attributes.position;
@@ -38,18 +38,20 @@ function waterSurface(geometry) {
     area += triangleArea;
     triangles.push({ points, endArea: area });
     for (let i = 0; i < 3; i++) {
-      const a = points[i], b = points[(i + 1) % 3];
+      const a = points[i],
+        b = points[(i + 1) % 3];
       const key = [pointKey(a), pointKey(b)].sort().join('|');
       const previous = edges.get(key);
       if (previous) previous.count++;
       else edges.set(key, { a, b, count: 1 });
     }
   }
-  return { triangles, area, banks: [...edges.values()].filter(edge => edge.count === 1) };
+  return { triangles, area, banks: [...edges.values()].filter((edge) => edge.count === 1) };
 }
 
 function distanceToEdge(point, edge) {
-  const dx = edge.b.x - edge.a.x, dz = edge.b.z - edge.a.z;
+  const dx = edge.b.x - edge.a.x,
+    dz = edge.b.z - edge.a.z;
   const lengthSquared = dx * dx + dz * dz;
   const t = Math.max(0, Math.min(1, ((point.x - edge.a.x) * dx + (point.z - edge.a.z) * dz) / lengthSquared));
   return Math.hypot(point.x - edge.a.x - dx * t, point.z - edge.a.z - dz * t);
@@ -57,11 +59,13 @@ function distanceToEdge(point, edge) {
 
 function clearOfBridge(point, bridge) {
   const heading = bridge.heading ?? 0;
-  const dx = point.x - bridge.x, dz = point.z - bridge.z;
+  const dx = point.x - bridge.x,
+    dz = point.z - bridge.z;
   const along = dx * Math.sin(heading) + dz * Math.cos(heading);
   const across = dx * Math.cos(heading) - dz * Math.sin(heading);
-  return Math.abs(along) > bridge.length / 2 + CLUMP_RADIUS + 0.6 ||
-    Math.abs(across) > bridge.width / 2 + CLUMP_RADIUS + 0.6;
+  return (
+    Math.abs(along) > bridge.length / 2 + CLUMP_RADIUS + 0.6 || Math.abs(across) > bridge.width / 2 + CLUMP_RADIUS + 0.6
+  );
 }
 
 /** One eligibility roll per body, followed by area sampling biased toward its banks. */
@@ -75,22 +79,33 @@ export function waterVegetationSites(geometry, seed, bridges = []) {
   // Bounded rejection sampling keeps narrow/bridge-covered water cheap and safe.
   for (let attempt = 0; attempt < count * 60 && sites.length < count; attempt++) {
     const choice = random() * area;
-    const { points: [a, b, c] } = triangles.find(triangle => choice <= triangle.endArea) ?? triangles.at(-1);
-    const u = Math.sqrt(random()), v = random();
+    const {
+      points: [a, b, c],
+    } = triangles.find((triangle) => choice <= triangle.endArea) ?? triangles.at(-1);
+    const u = Math.sqrt(random()),
+      v = random();
     const point = {
       x: a.x * (1 - u) + b.x * u * (1 - v) + c.x * u * v,
       y: a.y * (1 - u) + b.y * u * (1 - v) + c.y * u * v,
       z: a.z * (1 - u) + b.z * u * (1 - v) + c.z * u * v,
     };
-    const edgeDistance = Math.min(...banks.map(edge => distanceToEdge(point, edge)));
+    const edgeDistance = Math.min(...banks.map((edge) => distanceToEdge(point, edge)));
     // The entire circular clump footprint stays in water, including concave banks.
     if (edgeDistance < CLUMP_RADIUS) continue;
     const reed = random() < 0.55;
     const baseline = reed ? 0.06 : SETTINGS.grassInteriorAcceptance;
-    const acceptance = baseline + (1 - baseline) * Math.exp(-(edgeDistance - CLUMP_RADIUS) / SETTINGS.edgeFalloffMeters);
-    if (random() > acceptance || !bridges.every(bridge => clearOfBridge(point, bridge))) continue;
-    if (sites.some(site => Math.hypot(point.x - site.x, point.z - site.z) < CLUMP_RADIUS * 3)) continue;
-    sites.push({ ...point, radius: CLUMP_RADIUS, edgeDistance, reed, rotation: random() * Math.PI * 2, scale: 0.8 + random() * 0.4 });
+    const acceptance =
+      baseline + (1 - baseline) * Math.exp(-(edgeDistance - CLUMP_RADIUS) / SETTINGS.edgeFalloffMeters);
+    if (random() > acceptance || !bridges.every((bridge) => clearOfBridge(point, bridge))) continue;
+    if (sites.some((site) => Math.hypot(point.x - site.x, point.z - site.z) < CLUMP_RADIUS * 3)) continue;
+    sites.push({
+      ...point,
+      radius: CLUMP_RADIUS,
+      edgeDistance,
+      reed,
+      rotation: random() * Math.PI * 2,
+      scale: 0.8 + random() * 0.4,
+    });
   }
   return sites;
 }
@@ -107,17 +122,20 @@ export class WaterVegetation {
     this.sites = waterVegetationSites(water.mesh.geometry, seed, water.bridges);
     this.meshes = [];
     if (!this.sites.length) return;
-    const grass = [], stems = [], bentStems = [], heads = [];
+    const grass = [],
+      stems = [],
+      bentStems = [],
+      heads = [];
     const detailRandom = randomSequence(seed ^ 0x636c756d);
     for (const [clump, site] of this.sites.entries()) {
       site.bladeCount = oddBladeCount(detailRandom);
       for (let blade = 0; blade < site.bladeCount; blade++) {
-        const angle = site.rotation + blade * Math.PI * 2 / site.bladeCount;
-        const spread = blade === 0 ? 0 : site.reed
-          ? 0.06 + detailRandom() * 0.03
-          : 0.11 + detailRandom() * 0.04;
-        const height = (site.reed ? SETTINGS.reedHeight : SETTINGS.grassHeight) * site.scale * plantBladeHeight(detailRandom);
-        const x = site.x + Math.cos(angle) * spread, z = site.z + Math.sin(angle) * spread;
+        const angle = site.rotation + (blade * Math.PI * 2) / site.bladeCount;
+        const spread = blade === 0 ? 0 : site.reed ? 0.06 + detailRandom() * 0.03 : 0.11 + detailRandom() * 0.04;
+        const height =
+          (site.reed ? SETTINGS.reedHeight : SETTINGS.grassHeight) * site.scale * plantBladeHeight(detailRandom);
+        const x = site.x + Math.cos(angle) * spread,
+          z = site.z + Math.sin(angle) * spread;
         const pose = { clump, x, z, y: site.y - 0.06 + height / 2, height, angle };
         if (site.reed) {
           const bent = (clump + blade) % 3 === 0;
@@ -125,15 +143,16 @@ export class WaterVegetation {
           const flowAngle = Math.atan2(direction.x, direction.z);
           if (bent) bentStems.push({ ...pose, angle: flowAngle });
           else stems.push(pose);
-          if (blade % 2 === 0) heads.push({
-            ...pose,
-            x: x + (bent ? direction.x * 0.10 : 0),
-            z: z + (bent ? direction.z * 0.10 : 0),
-            y: site.y - 0.06 + height,
-            height: 0.19 * site.scale,
-            angle: bent ? flowAngle : angle,
-            tilt: bent ? Math.atan(0.20 / height) : 0,
-          });
+          if (blade % 2 === 0)
+            heads.push({
+              ...pose,
+              x: x + (bent ? direction.x * 0.1 : 0),
+              z: z + (bent ? direction.z * 0.1 : 0),
+              y: site.y - 0.06 + height,
+              height: 0.19 * site.scale,
+              angle: bent ? flowAngle : angle,
+              tilt: bent ? Math.atan(0.2 / height) : 0,
+            });
         } else grass.push(pose);
       }
     }
@@ -144,7 +163,7 @@ export class WaterVegetation {
     const positions = curved.attributes.position;
     for (let i = 0; i < positions.count; i++) {
       const t = positions.getY(i) + 0.5;
-      positions.setZ(i, positions.getZ(i) + 0.10 * t * t);
+      positions.setZ(i, positions.getZ(i) + 0.1 * t * t);
     }
     curved.computeVertexNormals();
     this.addBatch(bentStems, curved, 0x627b43);
@@ -152,11 +171,14 @@ export class WaterVegetation {
   }
 
   addBatch(poses, geometry, color) {
-    if (!poses.length) { geometry.dispose(); return; }
+    if (!poses.length) {
+      geometry.dispose();
+      return;
+    }
     const material = new THREE.MeshStandardMaterial({ color, roughness: 1 });
     const mesh = new THREE.InstancedMesh(geometry, material, poses.length);
     const transform = new THREE.Object3D();
-    mesh.userData.shadowGroups = poses.map(pose => pose.clump);
+    mesh.userData.shadowGroups = poses.map((pose) => pose.clump);
     poses.forEach((pose, index) => {
       transform.position.set(pose.x, pose.y, pose.z);
       transform.rotation.set(pose.tilt || 0, pose.angle, 0, 'YXZ');

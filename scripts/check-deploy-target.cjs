@@ -1,25 +1,14 @@
-// Shared preflight for the manual publication workflow. Never log token values.
+// Shared preflight for manual publication workflows. Never log token values.
+const { deploymentTarget } = require('./deployment-targets.cjs');
 function checkDeployTarget({ environment, ref, confirmation, publishToken }) {
-  if (!['dev', 'production'].includes(environment)) {
-    throw Error('Unknown deployment environment');
-  }
-  if (!ref?.startsWith('refs/heads/')) {
-    throw Error('Deployment requires a branch ref');
-  }
-  const production = environment === 'production';
-  if (production !== (ref === 'refs/heads/main')) {
-    throw Error('main is production-only; other branches are dev-only');
-  }
-  if (production && confirmation !== 'deploy-production') {
+  if (!ref?.startsWith('refs/heads/')) throw Error('Deployment requires a branch ref');
+  deploymentTarget(environment, ref.slice('refs/heads/'.length));
+  if (environment === 'production' && confirmation !== 'deploy-production')
     throw Error('Production confirmation missing');
-  }
-  if (!publishToken) {
-    throw Error('Configure PAGES_PUBLISH_TOKEN; GITHUB_TOKEN pushes do not trigger native Pages');
-  }
+  if (environment === 'tracker' && confirmation !== 'deploy-tracker') throw Error('Tracker confirmation missing');
+  if (!publishToken) throw Error('Configure PAGES_PUBLISH_TOKEN; GITHUB_TOKEN pushes do not trigger native Pages');
 }
-
 module.exports = { checkDeployTarget };
-
 if (require.main === module) {
   checkDeployTarget({
     environment: process.env.TARGET,

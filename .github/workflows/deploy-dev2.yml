@@ -3,6 +3,13 @@ name: Flock 3D — checks and standalone build
 on:
   push:
     branches-ignore: [gh-pages]
+    paths-ignore:
+      - 'tracker/**'
+      - 'tests/tracker-*.test.js'
+      - 'scripts/build-tracker.mjs'
+      - 'scripts/build-checked-tracker.mjs'
+      - '.github/workflows/tracker-checks.yml'
+      - '.github/workflows/deploy-tracker.yml'
   workflow_dispatch:
 
 permissions:
@@ -35,3 +42,5 @@ jobs:
           name: ${{ github.ref == 'refs/heads/main' && 'flock-production-standalone' || 'flock-dev-standalone' }}
           path: dist/
           if-no-files-found: error
+
+

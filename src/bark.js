@@ -5,9 +5,9 @@ const GAMEPLAY = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
 /** Transient player bark state. Advance with gameplay time so modals freeze it. */
 export const BARK_COOLDOWN = GAMEPLAY.bark.cooldownSeconds;
 export const BARK_DURATION = GAMEPLAY.bark.durationSeconds;
-const capacityOf = value => value === 2 ? 2 : 1;
+const capacityOf = (value) => (value === 2 ? 2 : 1);
 export function createBarkState(capacity = 1) {
-  return {capacity: capacityOf(capacity), charges: capacityOf(capacity), remaining: 0, burstRemaining: 0};
+  return { capacity: capacityOf(capacity), charges: capacityOf(capacity), remaining: 0, burstRemaining: 0 };
 }
 export function stepBark(state, dt, capacity = state.capacity) {
   const next = capacityOf(capacity);
@@ -20,7 +20,10 @@ export function stepBark(state, dt, capacity = state.capacity) {
   state.burstRemaining = Math.max(0, state.burstRemaining - step);
   if (state.remaining > 0) {
     state.remaining = Math.max(0, state.remaining - step);
-    if (state.remaining <= 1e-8) { state.remaining = 0; state.charges = next; }
+    if (state.remaining <= 1e-8) {
+      state.remaining = 0;
+      state.charges = next;
+    }
   }
   return state;
 }

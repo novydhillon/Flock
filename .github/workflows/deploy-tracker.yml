@@ -1,0 +1,57 @@
+name: Deploy Flock tracker
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_tracker:
+        description: 'Enter deploy-tracker to publish main to /tracker/'
+        required: true
+        type: string
+permissions:
+  contents: read
+  pages: read
+concurrency:
+  group: flock-pages-publication
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Validate tracker destination and authorization
+        env:
+          TARGET: tracker
+          CONFIRM: ${{ inputs.confirm_tracker }}
+          PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
+        run: node scripts/check-deploy-target.cjs
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build:checked:tracker
+      - name: Publish tracker files to gh-pages
+        id: publish
+        uses: actions/github-script@v8
+        env:
+          DEPLOY_ENV: tracker
+        with:
+          github-token: ${{ secrets.PAGES_PUBLISH_TOKEN }}
+          script: |
+            await require('./scripts/publish-pages.cjs')({ github, context, core });
+      - name: Wait for native Pages and verify live hashes
+        uses: actions/github-script@v8
+        env:
+          PAGES_SHA: ${{ steps.publish.outputs.pages_sha }}
+        with:
+          script: |
+            await require('./scripts/wait-for-pages.cjs').waitForPages({ github, context, core });
+      - name: Save publication evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: flock-tracker-deployment-evidence
+          path: deployment.json
+          if-no-files-found: ignore

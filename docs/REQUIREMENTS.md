@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## Engineering and performance review - 10 November 2026
+
+F-PERF-002: review current main for maintainability, separation of concerns and resource lifetime. Keep JavaScript readable in source control and Dev, and minify live game builds. Separate game and tracker build, test and deployment entry points and outputs. Preserve gameplay, graphics, saved progress and unrelated deployed content. Apply behavior-preserving performance changes where justified. Novy explicitly authorizes game staging at `/dev_performance/` for this branch, overriding the normal non-main `/dev/` destination for this target; production merge/publication is not requested.
+
 ## Static environment shadow bake — 10 November 2026
 
 F-SHADOW-001: bake shadows for all static environment objects once per generated meadow, including trees, bushes, bridges, fences, barns, pens, rocks and static wall/gate supports. Camera movement must not rerender static casters or shift their shadows. Preserve real-time shadows for moving actors and gate panels, correct receiving surfaces over terrain/decks, disposal and shadow-free grass/reeds. A bake may retain the physical exterior barn silhouette while its visual cutaway exposes occupants.

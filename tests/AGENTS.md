@@ -16,3 +16,7 @@ These notes add to the root [AGENTS.md](../AGENTS.md) for work in `tests/`.
 ## Repeatable work — 6 November 2026
 
 Follow the root repeatable-work rule: on the fourth occurrence, save or extend a documented workflow and reusable tools under `scripts/`. Consult [the tool catalog](../scripts/README.md) first; preserve the checks and authorization gates for this area.
+
+## Current delivery and formatting - 10 November 2026
+
+Follow the root readable-source policy: pinned Prettier, readable Dev/QA output, minified production output, independent game/tracker entry points and explicitly authorized `/dev_performance/` staging for F-PERF-002. This supersedes older dense-source guidance. See current DEVELOPMENT.md and scripts/README.md.

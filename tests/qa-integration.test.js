@@ -4,9 +4,9 @@ import presentationSettings from '../src/config/presentation.json' with { type: 
 import { resolveConfig } from '../src/config/resolve.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import {JSDOM} from 'jsdom';
+import { JSDOM } from 'jsdom';
 import * as simulation from '../src/simulation.js';
 import * as progression from '../src/progression.js';
 import * as world from '../src/world.js';
@@ -15,111 +15,318 @@ import * as barkAPI from '../src/bark.js';
 import * as landingUI from '../src/landing-ui.js';
 import * as profileAPI from '../src/profile.js';
 import { animalRadius } from '../src/animal-size.js';
+import { stripModuleSyntax } from './helpers/source.js';
 
-const settle=()=>new Promise(resolve=>setImmediate(resolve));
-function launch({music=false}={}){
-  const dom=new JSDOM(readFileSync(new URL('../index.html',import.meta.url),'utf8'),{url:'https://example.test/Flock/dev2/'}),document=dom.window.document;
-  const initial=JSON.stringify({version:1,points:315,highestLevel:7,completedLevels:[0,1],upgrades:{speed:1},music}),saved=new Map([['flock-foundry-v1',initial]]);
-  const storage={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value)};
-  const descriptor=Object.getOwnPropertyDescriptor(globalThis,'localStorage');Object.defineProperty(globalThis,'localStorage',{configurable:true,value:storage});
-  let now=1000;const muteEvents=[];
-  class MeadowRenderer {updateAnimalBatches(){} setLevel(){} update(){} drawMap(){} bark(){} celebrate(){}}
-  class FarmAudio {async start(){} pause(){} setGameplayPaused(){} resume(){} play(){} setMuted(value){muteEvents.push(value);}}
-  const context=vm.createContext({settings:controlsSettings,presentationSettings,resolveConfig,CONFIG_CONTRACTS,animalRadius,...simulation,...profileAPI,...progression,...world,...gates,...barkAPI,...landingUI,document,window:dom.window,navigator:dom.window.navigator,MeadowRenderer,FarmAudio,__FLOCK_QA__:true,
-    localStorage:storage,performance:{now:()=>now},requestAnimationFrame(){},setTimeout:()=>1,clearTimeout(){},Blob:dom.window.Blob,URL:dom.window.URL,console});
-  const qa=readFileSync(new URL('../src/qa.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
-  vm.runInContext(qa,context);
-  const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace("import('./qa.js')","Promise.resolve({installQA})");
-  vm.runInContext(main+'\nrenderer=new MeadowRenderer();setupShowcase();updateWallet();void activateMusic();void initializeDevelopmentQA();\nglobalThis.app={frame,state:()=>({mode,level,dog,profile,elapsed,qaSession,renderer})};',context);
-  return {dom,document,saved,initial,muteEvents,app:context.app,tick:()=>{now+=16;context.app.frame(now);},close(){if(descriptor)Object.defineProperty(globalThis,'localStorage',descriptor);else delete globalThis.localStorage;dom.window.close();}};
+const settle = () => new Promise((resolve) => setImmediate(resolve));
+function launch({ music = false } = {}) {
+  const dom = new JSDOM(readFileSync(new URL('../index.html', import.meta.url), 'utf8'), {
+      url: 'https://example.test/Flock/dev2/',
+    }),
+    document = dom.window.document;
+  const initial = JSON.stringify({
+      version: 1,
+      points: 315,
+      highestLevel: 7,
+      completedLevels: [0, 1],
+      upgrades: { speed: 1 },
+      music,
+    }),
+    saved = new Map([['flock-foundry-v1', initial]]);
+  const storage = { getItem: (key) => saved.get(key), setItem: (key, value) => saved.set(key, value) };
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage });
+  let now = 1000;
+  const muteEvents = [];
+  class MeadowRenderer {
+    updateAnimalBatches() {}
+    setLevel() {}
+    update() {}
+    drawMap() {}
+    bark() {}
+    celebrate() {}
+  }
+  class FarmAudio {
+    async start() {}
+    pause() {}
+    setGameplayPaused() {}
+    resume() {}
+    play() {}
+    setMuted(value) {
+      muteEvents.push(value);
+    }
+  }
+  const context = vm.createContext({
+    settings: controlsSettings,
+    presentationSettings,
+    resolveConfig,
+    CONFIG_CONTRACTS,
+    animalRadius,
+    ...simulation,
+    ...profileAPI,
+    ...progression,
+    ...world,
+    ...gates,
+    ...barkAPI,
+    ...landingUI,
+    document,
+    window: dom.window,
+    navigator: dom.window.navigator,
+    MeadowRenderer,
+    FarmAudio,
+    __FLOCK_QA__: true,
+    localStorage: storage,
+    performance: { now: () => now },
+    requestAnimationFrame() {},
+    setTimeout: () => 1,
+    clearTimeout() {},
+    Blob: dom.window.Blob,
+    URL: dom.window.URL,
+    console,
+  });
+  const qa = stripModuleSyntax(readFileSync(new URL('../src/qa.js', import.meta.url), 'utf8'));
+  vm.runInContext(qa, context);
+  const main = stripModuleSyntax(readFileSync(new URL('../src/main.js', import.meta.url), 'utf8')).replace(
+    /import\s*\(\s*(['"])\.\/qa\.js\1\s*\)/g,
+    'Promise.resolve({installQA})',
+  );
+  vm.runInContext(
+    main +
+      '\nrenderer=new MeadowRenderer();setupShowcase();updateWallet();void activateMusic();void initializeDevelopmentQA();\nglobalThis.app={frame,state:()=>({mode,level,dog,profile,elapsed,qaSession,renderer})};',
+    context,
+  );
+  return {
+    dom,
+    document,
+    saved,
+    initial,
+    muteEvents,
+    app: context.app,
+    tick: () => {
+      now += 16;
+      context.app.frame(now);
+    },
+    close() {
+      if (descriptor) Object.defineProperty(globalThis, 'localStorage', descriptor);
+      else delete globalThis.localStorage;
+      dom.window.close();
+    },
+  };
 }
-function submit(ui,id,submitter){const event=new ui.dom.window.Event('submit',{bubbles:true,cancelable:true});if(submitter)Object.defineProperty(event,'submitter',{value:submitter});ui.document.getElementById(id).dispatchEvent(event);}
+function submit(ui, id, submitter) {
+  const event = new ui.dom.window.Event('submit', { bubbles: true, cancelable: true });
+  if (submitter) Object.defineProperty(event, 'submitter', { value: submitter });
+  ui.document.getElementById(id).dispatchEvent(event);
+}
 
-test('QA workshop uses tested level and test wallet for unlocks, purchases and backward jumps',async()=>{
-  const ui=launch();try{
-    const doc=ui.document, buy=id=>doc.querySelector(`[data-buy="${id}"]`);
-    const jump=async number=>{
-      doc.getElementById('qa-toggle').click();await settle();
-      doc.getElementById('qa-level').value=String(number);submit(ui,'qa-jump');await settle();
-      doc.getElementById('qa-close').click();doc.getElementById('wallet').click();
+test('QA workshop uses tested level and test wallet for unlocks, purchases and backward jumps', async () => {
+  const ui = launch();
+  try {
+    const doc = ui.document,
+      buy = (id) => doc.querySelector(`[data-buy="${id}"]`);
+    const jump = async (number) => {
+      doc.getElementById('qa-toggle').click();
+      await settle();
+      doc.getElementById('qa-level').value = String(number);
+      submit(ui, 'qa-jump');
+      await settle();
+      doc.getElementById('qa-close').click();
+      doc.getElementById('wallet').click();
     };
-    await settle();doc.getElementById('qa-toggle').click();await settle();
-    doc.getElementById('qa-amount').value='600';submit(ui,'qa-bolts');await settle();
-    doc.getElementById('qa-level').value='20';submit(ui,'qa-jump');await settle();
-    doc.getElementById('qa-close').click();doc.getElementById('wallet').click();
-    assert.equal(buy('helper').disabled,false,'level 20 unlocks the first buddy tier without campaign progress');
+    await settle();
+    doc.getElementById('qa-toggle').click();
+    await settle();
+    doc.getElementById('qa-amount').value = '600';
+    submit(ui, 'qa-bolts');
+    await settle();
+    doc.getElementById('qa-level').value = '20';
+    submit(ui, 'qa-jump');
+    await settle();
+    doc.getElementById('qa-close').click();
+    doc.getElementById('wallet').click();
+    assert.equal(buy('helper').disabled, false, 'level 20 unlocks the first buddy tier without campaign progress');
     buy('helper').click();
-    assert.equal(ui.app.state().profile.upgrades.helper,1);assert.equal(ui.app.state().profile.points,0);
-    assert.equal(buy('speed').disabled,true,'available level still needs enough bolts');
-    doc.getElementById('qa-toggle').click();await settle();
-    doc.getElementById('qa-amount').value='80';submit(ui,'qa-bolts');await settle();
-    doc.getElementById('qa-close').click();doc.getElementById('wallet').click();
-    assert.equal(buy('speed').disabled,false);buy('speed').click();
-    assert.equal(ui.app.state().profile.upgrades.speed,1);assert.equal(ui.app.state().profile.points,0);
+    assert.equal(ui.app.state().profile.upgrades.helper, 1);
+    assert.equal(ui.app.state().profile.points, 0);
+    assert.equal(buy('speed').disabled, true, 'available level still needs enough bolts');
+    doc.getElementById('qa-toggle').click();
+    await settle();
+    doc.getElementById('qa-amount').value = '80';
+    submit(ui, 'qa-bolts');
+    await settle();
+    doc.getElementById('qa-close').click();
+    doc.getElementById('wallet').click();
+    assert.equal(buy('speed').disabled, false);
+    buy('speed').click();
+    assert.equal(ui.app.state().profile.upgrades.speed, 1);
+    assert.equal(ui.app.state().profile.points, 0);
     // Even test completions at a later meadow cannot unlock early-level purchases.
-    Object.assign(ui.app.state().profile,{highestLevel:99,completedLevels:[98],points:10000});
+    Object.assign(ui.app.state().profile, { highestLevel: 99, completedLevels: [98], points: 10000 });
     await jump(1);
-    assert.equal(buy('speed').disabled,true);assert.match(doc.getElementById('modal-card').textContent,/level 6/i);
-    assert.equal(buy('helper').disabled,true);assert.match(doc.getElementById('modal-card').textContent,/level 24/i);
+    assert.equal(buy('speed').disabled, true);
+    assert.match(doc.getElementById('modal-card').textContent, /level 6/i);
+    assert.equal(buy('helper').disabled, true);
+    assert.match(doc.getElementById('modal-card').textContent, /level 24/i);
     await jump(24);
-    assert.equal(buy('helper').disabled,false);buy('helper').click();
-    assert.equal(ui.app.state().profile.upgrades.helper,2);assert.equal(ui.app.state().profile.points,9150);
-    assert.equal(buy('helper').disabled,true);assert.match(doc.getElementById('modal-card').textContent,/level 28/i);
-    assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial,'QA purchases never alter the normal save');
-  }finally{ui.close();}
+    assert.equal(buy('helper').disabled, false);
+    buy('helper').click();
+    assert.equal(ui.app.state().profile.upgrades.helper, 2);
+    assert.equal(ui.app.state().profile.points, 9150);
+    assert.equal(buy('helper').disabled, true);
+    assert.match(doc.getElementById('modal-card').textContent, /level 28/i);
+    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial, 'QA purchases never alter the normal save');
+  } finally {
+    ui.close();
+  }
 });
 
-test('production controller and QA editor freeze timed delivery and protect the normal save',async()=>{
-  const ui=launch();try{
-    await settle();ui.document.getElementById('play').click();await settle();
-    assert.equal(ui.app.state().level.index,7);
-    ui.document.getElementById('qa-toggle').click();await settle();
-    assert.equal(ui.app.state().mode,'qa');assert.equal(ui.app.state().qaSession,true);
-    assert.equal(ui.app.state().level.index,0);assert.equal(ui.app.state().profile.points,0);
-    assert.equal(ui.document.getElementById('qa-move').hidden,true,'animal selection and coordinate positioning are temporarily hidden');
-    assert.equal(ui.document.getElementById('qa-animal').closest('[hidden]')!==null,true,'hidden positioning controls are outside the focus trap');
-    ui.document.getElementById('qa-toggle').click();assert.equal(ui.app.state().mode,'qa');assert.equal(ui.document.getElementById('qa-panel').hidden,false,'repeated QA trigger click keeps the QA panel open');
-    const state=ui.app.state();state.level.delivery={started:true,duration:30,remaining:12};
-    const time=state.level.time||0,elapsed=state.elapsed;
-    for(let i=0;i<100;i++)ui.tick();
-    assert.equal(state.level.delivery.remaining,12);assert.equal(state.level.time||0,time);assert.equal(ui.app.state().elapsed,elapsed);
-    ui.document.getElementById('qa-amount').value='500';submit(ui,'qa-bolts');await settle();
-    assert.equal(ui.app.state().profile.points,500);assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial);
-    ui.document.getElementById('qa-close').click();assert.equal(ui.app.state().mode,'playing');assert.equal(ui.document.getElementById('modal').classList.contains('hidden'),true,'closing QA does not open the level menu');
-    Object.assign(state.dog,{x:state.level.target.x,z:state.level.target.z});for(const a of state.level.animals)Object.assign(a,{x:state.level.target.x,z:state.level.target.z,vx:0,vz:0});
-    ui.tick();assert.equal(ui.app.state().mode,'complete');assert.ok(ui.app.state().profile.points>500);
-    assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial,'QA completion cannot persist rewards over the real profile');
-    const earned=ui.app.state().profile.points,completed=ui.app.state().level,result=JSON.stringify(completed.result),savedStart=completed.animals.map(a=>({x:a.x,z:a.z}));
-    Object.defineProperty(ui.document,'hidden',{configurable:true,value:false});
-    for(let i=0;i<120;i++)ui.tick();
-    assert.ok(completed.animals.some((a,i)=>Math.hypot(a.x-savedStart[i].x,a.z-savedStart[i].z)>.1),'visible QA results still animate delivered animals');
-    assert.equal(JSON.stringify(completed.result),result,'QA roaming leaves the displayed score intact');
-    assert.equal(ui.app.state().profile.points,earned,'QA roaming does not issue another reward');
-    ui.document.getElementById('qa-toggle').click();await settle();
-    assert.equal(ui.app.state().mode,'qa');ui.document.getElementById('qa-close').click();
-    assert.equal(ui.app.state().mode,'complete');assert.ok(!ui.document.getElementById('modal').classList.contains('hidden'));
-    assert.ok(ui.document.getElementById('next'));assert.equal(ui.app.state().profile.points,earned,'Restoring results must not award again');
-  }finally{ui.close();}
+test('production controller and QA editor freeze timed delivery and protect the normal save', async () => {
+  const ui = launch();
+  try {
+    await settle();
+    ui.document.getElementById('play').click();
+    await settle();
+    assert.equal(ui.app.state().level.index, 7);
+    ui.document.getElementById('qa-toggle').click();
+    await settle();
+    assert.equal(ui.app.state().mode, 'qa');
+    assert.equal(ui.app.state().qaSession, true);
+    assert.equal(ui.app.state().level.index, 0);
+    assert.equal(ui.app.state().profile.points, 0);
+    assert.equal(
+      ui.document.getElementById('qa-move').hidden,
+      true,
+      'animal selection and coordinate positioning are temporarily hidden',
+    );
+    assert.equal(
+      ui.document.getElementById('qa-animal').closest('[hidden]') !== null,
+      true,
+      'hidden positioning controls are outside the focus trap',
+    );
+    ui.document.getElementById('qa-toggle').click();
+    assert.equal(ui.app.state().mode, 'qa');
+    assert.equal(
+      ui.document.getElementById('qa-panel').hidden,
+      false,
+      'repeated QA trigger click keeps the QA panel open',
+    );
+    const state = ui.app.state();
+    state.level.delivery = { started: true, duration: 30, remaining: 12 };
+    const time = state.level.time || 0,
+      elapsed = state.elapsed;
+    for (let i = 0; i < 100; i++) ui.tick();
+    assert.equal(state.level.delivery.remaining, 12);
+    assert.equal(state.level.time || 0, time);
+    assert.equal(ui.app.state().elapsed, elapsed);
+    ui.document.getElementById('qa-amount').value = '500';
+    submit(ui, 'qa-bolts');
+    await settle();
+    assert.equal(ui.app.state().profile.points, 500);
+    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial);
+    ui.document.getElementById('qa-close').click();
+    assert.equal(ui.app.state().mode, 'playing');
+    assert.equal(
+      ui.document.getElementById('modal').classList.contains('hidden'),
+      true,
+      'closing QA does not open the level menu',
+    );
+    Object.assign(state.dog, { x: state.level.target.x, z: state.level.target.z });
+    for (const a of state.level.animals)
+      Object.assign(a, { x: state.level.target.x, z: state.level.target.z, vx: 0, vz: 0 });
+    ui.tick();
+    assert.equal(ui.app.state().mode, 'complete');
+    assert.ok(ui.app.state().profile.points > 500);
+    assert.equal(
+      ui.saved.get('flock-foundry-v1'),
+      ui.initial,
+      'QA completion cannot persist rewards over the real profile',
+    );
+    const earned = ui.app.state().profile.points,
+      completed = ui.app.state().level,
+      result = JSON.stringify(completed.result),
+      savedStart = completed.animals.map((a) => ({ x: a.x, z: a.z }));
+    Object.defineProperty(ui.document, 'hidden', { configurable: true, value: false });
+    for (let i = 0; i < 120; i++) ui.tick();
+    assert.ok(
+      completed.animals.some((a, i) => Math.hypot(a.x - savedStart[i].x, a.z - savedStart[i].z) > 0.1),
+      'visible QA results still animate delivered animals',
+    );
+    assert.equal(JSON.stringify(completed.result), result, 'QA roaming leaves the displayed score intact');
+    assert.equal(ui.app.state().profile.points, earned, 'QA roaming does not issue another reward');
+    ui.document.getElementById('qa-toggle').click();
+    await settle();
+    assert.equal(ui.app.state().mode, 'qa');
+    ui.document.getElementById('qa-close').click();
+    assert.equal(ui.app.state().mode, 'complete');
+    assert.ok(!ui.document.getElementById('modal').classList.contains('hidden'));
+    assert.ok(ui.document.getElementById('next'));
+    assert.equal(ui.app.state().profile.points, earned, 'Restoring results must not award again');
+  } finally {
+    ui.close();
+  }
 });
 
-test('QA public-level jump remains paused through controller startup and cannot bypass into background play',async()=>{
-  const ui=launch();try{
-    await settle();ui.document.getElementById('qa-toggle').click();await settle();
-    ui.document.getElementById('qa-level').value='100';submit(ui,'qa-jump');
-    assert.equal(ui.app.state().mode,'qa');await settle();assert.equal(ui.app.state().level.index,99);assert.equal(ui.app.state().mode,'qa');
-    ui.document.dispatchEvent(new ui.dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));assert.equal(ui.app.state().mode,'playing');
-    assert.equal(ui.document.getElementById('modal').classList.contains('hidden'),true,'Escape closes QA without leaking to the level menu');
-    ui.document.getElementById('qa-toggle').click();await settle();assert.equal(ui.app.state().mode,'qa');ui.document.getElementById('qa-resume').click();assert.equal(ui.app.state().mode,'playing');
-    assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial);
-  }finally{ui.close();}
+test('QA public-level jump remains paused through controller startup and cannot bypass into background play', async () => {
+  const ui = launch();
+  try {
+    await settle();
+    ui.document.getElementById('qa-toggle').click();
+    await settle();
+    ui.document.getElementById('qa-level').value = '100';
+    submit(ui, 'qa-jump');
+    assert.equal(ui.app.state().mode, 'qa');
+    await settle();
+    assert.equal(ui.app.state().level.index, 99);
+    assert.equal(ui.app.state().mode, 'qa');
+    ui.document.dispatchEvent(
+      new ui.dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+    );
+    assert.equal(ui.app.state().mode, 'playing');
+    assert.equal(
+      ui.document.getElementById('modal').classList.contains('hidden'),
+      true,
+      'Escape closes QA without leaking to the level menu',
+    );
+    ui.document.getElementById('qa-toggle').click();
+    await settle();
+    assert.equal(ui.app.state().mode, 'qa');
+    ui.document.getElementById('qa-resume').click();
+    assert.equal(ui.app.state().mode, 'playing');
+    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial);
+  } finally {
+    ui.close();
+  }
 });
 
-
-
-test('quitting QA restores campaign continuation and sound without saving test settings',async()=>{
- for(const music of [false,true]){const ui=launch({music});try{await settle();const doc=ui.document;doc.getElementById('qa-toggle').click();await settle();doc.getElementById('qa-close').click();doc.getElementById('pause').click();if(music)doc.getElementById('menu-sound').click();doc.getElementById('quit').click();
- assert.equal(ui.app.state().qaSession,false);assert.equal(ui.app.state().profile.music,music);assert.equal(ui.muteEvents.at(-1),!music);assert.match(doc.getElementById('play').textContent,/Continue.*8/);assert.equal(ui.saved.get('flock-foundry-v1'),ui.initial);
- }finally{ui.close();}}
+test('quitting QA restores campaign continuation and sound without saving test settings', async () => {
+  for (const music of [false, true]) {
+    const ui = launch({ music });
+    try {
+      await settle();
+      const doc = ui.document;
+      doc.getElementById('qa-toggle').click();
+      await settle();
+      doc.getElementById('qa-close').click();
+      doc.getElementById('pause').click();
+      if (music) doc.getElementById('menu-sound').click();
+      doc.getElementById('quit').click();
+      assert.equal(ui.app.state().qaSession, false);
+      assert.equal(ui.app.state().profile.music, music);
+      assert.equal(ui.muteEvents.at(-1), !music);
+      assert.match(doc.getElementById('play').textContent, /Continue.*8/);
+      assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial);
+    } finally {
+      ui.close();
+    }
+  }
 });
 
-test('development QA attaches its tint wrapper to the initialized renderer',async()=>{const ui=launch();try{await settle();const renderer=ui.app.state().renderer;assert.notEqual(renderer.updateAnimalBatches,Object.getPrototypeOf(renderer).updateAnimalBatches);}finally{ui.close();}});
+test('development QA attaches its tint wrapper to the initialized renderer', async () => {
+  const ui = launch();
+  try {
+    await settle();
+    const renderer = ui.app.state().renderer;
+    assert.notEqual(renderer.updateAnimalBatches, Object.getPrototypeOf(renderer).updateAnimalBatches);
+  } finally {
+    ui.close();
+  }
+});

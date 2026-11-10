@@ -7,7 +7,7 @@ test('installed app requests an opaque status bar with consistent flat launch ch
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const document = new JSDOM(html).window.document;
   const manifest = JSON.parse(readFileSync(new URL('../public/site.webmanifest', import.meta.url), 'utf8'));
-  const meta = name => {
+  const meta = (name) => {
     const matches = document.querySelectorAll(`meta[name="${name}"]`);
     assert.equal(matches.length, 1, `${name} must have one unambiguous value`);
     return matches[0].content;

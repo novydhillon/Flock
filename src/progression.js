@@ -5,49 +5,99 @@ import { MAX_LEVEL_INDEX, MAX_LEVEL_NUMBER } from './delivery.js';
 
 const CONFIG = resolveConfig(settings, 'progression', CONFIG_CONTRACTS.progression);
 for (const [id, policy] of Object.entries(CONFIG.upgrades)) {
-  if (policy.unlockLevels.some((level, index) => level > MAX_LEVEL_NUMBER || index > 0 && level < policy.unlockLevels[index - 1])) throw new RangeError(`progression.upgrades.${id}: tier unlock levels must be ordered within the campaign`);
+  if (
+    policy.unlockLevels.some(
+      (level, index) => level > MAX_LEVEL_NUMBER || (index > 0 && level < policy.unlockLevels[index - 1]),
+    )
+  )
+    throw new RangeError(`progression.upgrades.${id}: tier unlock levels must be ordered within the campaign`);
 }
-
 
 /** Persisted tiers are numeric (1–3); old boolean unlocks migrate to tier 1. */
 const catalog = [
-  { id: 'speed', name: 'Turbo paws', icon: 'paw', ...CONFIG.upgrades.speed,
+  {
+    id: 'speed',
+    name: 'Turbo paws',
+    icon: 'paw',
+    ...CONFIG.upgrades.speed,
     description: 'Circle a roaming flock faster with upgraded paw motors.',
     tierNames: ['Quick paws', 'Trail runner', 'Meadow racer'],
-    tierDescriptions: ['+1.8 m/s running speed', '+2.7 m/s running speed', '+3.5 m/s running speed'] },
-  { id: 'flock', name: 'Friendly signal', icon: 'signal', ...CONFIG.upgrades.flock,
+    tierDescriptions: ['+1.8 m/s running speed', '+2.7 m/s running speed', '+3.5 m/s running speed'],
+  },
+  {
+    id: 'flock',
+    name: 'Friendly signal',
+    icon: 'signal',
+    ...CONFIG.upgrades.flock,
     description: 'Reach more robots with a wider herding signal.',
     tierNames: ['Clear signal', 'Pasture beacon', 'Far-field beacon'],
-    tierDescriptions: ['+2 m herding range', '+3 m herding range', '+4 m herding range'] },
-  { id: 'drone', name: 'Scout drone', icon: 'drone', ...CONFIG.upgrades.drone,
+    tierDescriptions: ['+2 m herding range', '+3 m herding range', '+4 m herding range'],
+  },
+  {
+    id: 'drone',
+    name: 'Scout drone',
+    icon: 'drone',
+    ...CONFIG.upgrades.drone,
     description: 'A hovering helper keeps the main herd together while you lead the way.',
     tierNames: ['Scout', 'Shepherd scout', 'Flock captain'],
-    tierDescriptions: ['Keeps the main herd together; holds when you leave', '33% stronger drone support', '67% stronger drone support'] },
-  { id: 'helper', name: 'Buddy dog', icon: 'dog', ...CONFIG.upgrades.helper,
+    tierDescriptions: [
+      'Keeps the main herd together; holds when you leave',
+      '33% stronger drone support',
+      '67% stronger drone support',
+    ],
+  },
+  {
+    id: 'helper',
+    name: 'Buddy dog',
+    icon: 'dog',
+    ...CONFIG.upgrades.helper,
     description: 'Herds from the rear, supports split flocks, and learns to retrieve strays.',
     tierNames: ['Farm friend', 'Trail partner', 'Senior shepherd'],
-    tierDescriptions: ['Herds from behind in the flock’s direction of travel', 'Guides the smaller flock and passages; barks autonomously', 'Also retrieves wanderers and bolters to the nearest flock'] },
-  { id: 'bark', name: 'Happy bark', icon: 'bark', ...CONFIG.upgrades.bark,
+    tierDescriptions: [
+      'Herds from behind in the flock’s direction of travel',
+      'Guides the smaller flock and passages; barks autonomously',
+      'Also retrieves wanderers and bolters to the nearest flock',
+    ],
+  },
+  {
+    id: 'bark',
+    name: 'Happy bark',
+    icon: 'bark',
+    ...CONFIG.upgrades.bark,
     description: 'A stronger bark gives wandering robots a cheerful nudge.',
     tierNames: ['Bright bark', 'Resonant bark', 'Meadow chorus'],
-    tierDescriptions: ['Stronger bark · one bark before cooldown', '+33% strength versus level 1 · one bark before cooldown', '+33% strength versus level 1 · two barks before cooldown'] },
-  { id: 'cohesion', name: 'Flock harmony', icon: 'harmony', ...CONFIG.upgrades.cohesion,
+    tierDescriptions: [
+      'Stronger bark · one bark before cooldown',
+      '+33% strength versus level 1 · one bark before cooldown',
+      '+33% strength versus level 1 · two barks before cooldown',
+    ],
+  },
+  {
+    id: 'cohesion',
+    name: 'Flock harmony',
+    icon: 'harmony',
+    ...CONFIG.upgrades.cohesion,
     description: 'Robots regroup more readily when the flock stretches across a meadow.',
     tierNames: ['Stay together', 'Close companions', 'Perfect formation'],
-    tierDescriptions: ['12% stronger regrouping', '23% stronger regrouping', '35% stronger regrouping'] },
+    tierDescriptions: ['12% stronger regrouping', '23% stronger regrouping', '35% stronger regrouping'],
+  },
 ];
 
-export const UPGRADE_CATALOG = Object.freeze(catalog.map(item => Object.freeze({
-  ...item,
-  cost: item.costs[0],
-  maxLevel: item.costs.length,
-  costs: Object.freeze(item.costs),
-  unlockLevels: Object.freeze(item.unlockLevels),
-  tierNames: Object.freeze(item.tierNames),
-  tierDescriptions: Object.freeze(item.tierDescriptions),
-})));
+export const UPGRADE_CATALOG = Object.freeze(
+  catalog.map((item) =>
+    Object.freeze({
+      ...item,
+      cost: item.costs[0],
+      maxLevel: item.costs.length,
+      costs: Object.freeze(item.costs),
+      unlockLevels: Object.freeze(item.unlockLevels),
+      tierNames: Object.freeze(item.tierNames),
+      tierDescriptions: Object.freeze(item.tierDescriptions),
+    }),
+  ),
+);
 
-const findUpgrade = id => UPGRADE_CATALOG.find(item => item.id === id);
+const findUpgrade = (id) => UPGRADE_CATALOG.find((item) => item.id === id);
 
 /** Unknown, malformed and fractional levels confer no benefit. */
 export function upgradeLevel(upgrades, id) {
@@ -88,11 +138,18 @@ function progressionLevel(profileOrLevelNumber) {
   }
   const profile = profileOrLevelNumber;
   if (!profile || typeof profile !== 'object') return 1;
-  const highest = Number.isInteger(profile.highestLevel) && profile.highestLevel >= 0
-    ? Math.min(MAX_LEVEL_INDEX, profile.highestLevel) : 0;
+  const highest =
+    Number.isInteger(profile.highestLevel) && profile.highestLevel >= 0
+      ? Math.min(MAX_LEVEL_INDEX, profile.highestLevel)
+      : 0;
   const completed = Array.isArray(profile.completedLevels) ? profile.completedLevels : [];
-  const completedLevel = completed.reduce((highestNumber, index) =>
-    Number.isInteger(index) && index >= 0 && index <= MAX_LEVEL_INDEX ? Math.max(highestNumber, Math.min(MAX_LEVEL_NUMBER, index + 2)) : highestNumber, 1);
+  const completedLevel = completed.reduce(
+    (highestNumber, index) =>
+      Number.isInteger(index) && index >= 0 && index <= MAX_LEVEL_INDEX
+        ? Math.max(highestNumber, Math.min(MAX_LEVEL_NUMBER, index + 2))
+        : highestNumber,
+    1,
+  );
   return Math.max(highest + 1, completedLevel);
 }
 
@@ -104,11 +161,24 @@ export function upgradeAvailability(profileOrLevelNumber, id, levelNumber = prof
   const level = upgradeLevel(profile?.upgrades, id);
   const cost = upgradeCost(profile?.upgrades, id);
   const unlockLevel = nextUnlockLevel(profile?.upgrades, id);
-  const reason = !upgrade ? 'unknown' : cost === null ? 'owned'
-    : currentLevelNumber < unlockLevel ? 'locked'
-    : profile && (!Number.isFinite(profile.points) || profile.points < cost) ? 'points' : null;
-  return { available: reason === null, reason, level, nextLevel: cost === null ? null : level + 1,
-    cost, unlockLevel, currentLevelNumber };
+  const reason = !upgrade
+    ? 'unknown'
+    : cost === null
+      ? 'owned'
+      : currentLevelNumber < unlockLevel
+        ? 'locked'
+        : profile && (!Number.isFinite(profile.points) || profile.points < cost)
+          ? 'points'
+          : null;
+  return {
+    available: reason === null,
+    reason,
+    level,
+    nextLevel: cost === null ? null : level + 1,
+    cost,
+    unlockLevel,
+    currentLevelNumber,
+  };
 }
 
 /** Legacy purchases stay saved; only tiers unlocked in the current meadow apply. */
@@ -117,7 +187,7 @@ export function activeUpgrades(upgrades, levelNumber = 1) {
   const result = {};
   for (const upgrade of UPGRADE_CATALOG) {
     const owned = upgradeLevel(upgrades, upgrade.id);
-    const unlocked = upgrade.unlockLevels.filter(level => level <= currentLevelNumber).length;
+    const unlocked = upgrade.unlockLevels.filter((level) => level <= currentLevelNumber).length;
     const tier = Math.min(owned, unlocked);
     if (tier) result[upgrade.id] = tier;
   }
@@ -143,14 +213,16 @@ export function purchaseUpgrade(profile, id, levelNumber = profile) {
 /** Add boosts to base dog stats; use helper strengths as absolute values. */
 export function upgradeEffects(upgrades, levelNumber = 1) {
   const active = activeUpgrades(upgrades, levelNumber);
-  const tier = id => upgradeLevel(active, id);
+  const tier = (id) => upgradeLevel(active, id);
   const bark = CONFIG.effects.bark;
   const firstTierBark = bark.baseMultiplier + bark.tierOneBoost;
   const advancedBark = firstTierBark * bark.advancedMultiplier;
   const effects = {
     speedBoost: CONFIG.effects.speedBoost[tier('speed')],
     signalBoost: CONFIG.effects.signalBoost[tier('flock')],
-    barkBoost: [0, bark.tierOneBoost, advancedBark - bark.baseMultiplier, advancedBark - bark.baseMultiplier][tier('bark')],
+    barkBoost: [0, bark.tierOneBoost, advancedBark - bark.baseMultiplier, advancedBark - bark.baseMultiplier][
+      tier('bark')
+    ],
     barkMultiplier: [bark.baseMultiplier, firstTierBark, advancedBark, advancedBark][tier('bark')],
     barkCharges: bark.charges[tier('bark')],
     cohesionBoost: CONFIG.effects.cohesionBoost[tier('cohesion')],
@@ -162,4 +234,3 @@ export function upgradeEffects(upgrades, levelNumber = 1) {
   };
   return effects;
 }
-

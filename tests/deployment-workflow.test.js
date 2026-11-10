@@ -13,9 +13,14 @@ const valid = {
 
 test('preflight permits canonical targets and rejects invalid destinations or missing authorization inputs', () => {
   assert.doesNotThrow(() => checkDeployTarget(valid));
-  assert.doesNotThrow(() => checkDeployTarget({
-    ...valid, environment: 'production', ref: 'refs/heads/main', confirmation: 'deploy-production',
-  }));
+  assert.doesNotThrow(() =>
+    checkDeployTarget({
+      ...valid,
+      environment: 'production',
+      ref: 'refs/heads/main',
+      confirmation: 'deploy-production',
+    }),
+  );
   for (const change of [
     { environment: 'other' },
     { ref: 'refs/tags/release' },
@@ -23,7 +28,8 @@ test('preflight permits canonical targets and rejects invalid destinations or mi
     { environment: 'production' },
     { environment: 'production', ref: 'refs/heads/main' },
     { publishToken: '' },
-  ]) assert.throws(() => checkDeployTarget({ ...valid, ...change }));
+  ])
+    assert.throws(() => checkDeployTarget({ ...valid, ...change }));
 });
 
 const sha = 'a'.repeat(40);
@@ -32,16 +38,26 @@ function polling(states, overrides = {}) {
   let sleeps = 0;
   let verifications = 0;
   const options = {
-    github: { rest: { repos: { listPagesBuilds: async () => ({
-      data: states[Math.min(calls++, states.length - 1)],
-    }) } } },
+    github: {
+      rest: {
+        repos: {
+          listPagesBuilds: async () => ({
+            data: states[Math.min(calls++, states.length - 1)],
+          }),
+        },
+      },
+    },
     context: { repo: { owner: 'fixture', repo: 'fixture' } },
     core: { info() {} },
     pagesSha: sha,
     attempts: 3,
     intervalMs: 0,
-    sleep: async () => { sleeps++; },
-    verify: async () => { verifications++; },
+    sleep: async () => {
+      sleeps++;
+    },
+    verify: async () => {
+      verifications++;
+    },
     ...overrides,
   };
   return { options, counts: () => ({ calls, sleeps, verifications }) };
@@ -60,7 +76,9 @@ test('polling ignores unrelated completed builds and waits for the exact Pages S
 test('built Pages retries stale CDN hashes and succeeds only after verification', async () => {
   let checked = 0;
   const f = polling([[{ commit: sha, status: 'built' }]], {
-    verify: async () => { if (++checked < 2) throw Error('Live hash mismatch'); },
+    verify: async () => {
+      if (++checked < 2) throw Error('Live hash mismatch');
+    },
   });
   await waitForPages(f.options);
   assert.equal(checked, 2);
@@ -76,7 +94,9 @@ test('native error, pending timeout and persistent CDN mismatch fail closed', as
   assert.equal(pending.counts().calls, 3);
   assert.equal(pending.counts().sleeps, 2);
   const stale = polling([[{ commit: sha, status: 'built' }]], {
-    verify: async () => { throw Error('Live hash mismatch'); },
+    verify: async () => {
+      throw Error('Live hash mismatch');
+    },
   });
   await assert.rejects(waitForPages(stale.options), /Live hash mismatch/);
   assert.equal(stale.counts().calls, 3);
@@ -88,7 +108,25 @@ test('invalid polling input and API failure cannot report deployment success', a
   assert.equal(invalid.counts().calls, 0);
   await assert.rejects(waitForPages(polling([[]], { attempts: 0 }).options), /polling limits/);
   const apiFailure = polling([[]], {
-    github: { rest: { repos: { listPagesBuilds: async () => { throw Error('API unavailable'); } } } },
+    github: {
+      rest: {
+        repos: {
+          listPagesBuilds: async () => {
+            throw Error('API unavailable');
+          },
+        },
+      },
+    },
   });
   await assert.rejects(waitForPages(apiFailure.options), /API unavailable/);
+});
+
+test('preflight allows performance and separately confirmed main-only tracker deployment', () => {
+  assert.doesNotThrow(() => checkDeployTarget({ ...valid, environment: 'dev_performance' }));
+  assert.throws(() => checkDeployTarget({ ...valid, environment: 'dev_performance', ref: 'refs/heads/main' }));
+  assert.throws(() => checkDeployTarget({ ...valid, environment: 'tracker', confirmation: 'deploy-tracker' }));
+  assert.throws(() => checkDeployTarget({ ...valid, environment: 'tracker', ref: 'refs/heads/main' }));
+  assert.doesNotThrow(() =>
+    checkDeployTarget({ ...valid, environment: 'tracker', ref: 'refs/heads/main', confirmation: 'deploy-tracker' }),
+  );
 });

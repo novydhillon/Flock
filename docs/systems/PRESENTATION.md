@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## Allocation cleanup without visual changes - 10 November 2026
+
+F-PERF-002 updates glow once after current Pip/Buddy transforms instead of twice. Rain reuses five vectors while retaining expression order, random draws, wrap logic and all drop counts. Goal-pointer rotation reuses renderer-owned quaternion/axis. No geometry density, shader quality, graphics settings or simulation step is reduced. Rain regression checks compare exact Float32 buffers/random state against the previous algorithm across 400 frames.
+
 ## Lower fixed camera viewpoint — 9 November 2026
 
 F-CAMERA-001 changes only the shared presentation camera defaults: world Y 36 → 27 and center-relative Z 29 → 37.089640571384126. The ground target remains `(center.x, 0, center.z - 2)` and the orbit radius remains sqrt(36² + 31²). Orthographic view heights and planar follow behavior are unchanged. Terrain never lifts the camera or target. The shared pose applies to landing and gameplay.

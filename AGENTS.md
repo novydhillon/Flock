@@ -156,3 +156,6 @@ Connector limits seen so far:
 
 Before ending, commit/push the intended branch, update tracker/validation evidence, and state what is implemented, reviewed, published and still awaiting sign-off. Never claim completion of a blocked check or deployment.
 
+## Current readable-source and staging policy - 10 November 2026
+
+F-PERF-002: JavaScript uses pinned Prettier via `npm run format` / `format:check`; this supersedes older dense-source style notes. Dev/QA game bundles remain readable; production game bundles are minified. Game and tracker use separate test/build/deployment entry points and `dist/` / `dist-tracker/`. The explicitly requested non-main `dev_performance` target publishes only `/dev_performance/`; ordinary feature staging remains `/dev/`. Shared destination, authorization, concurrent-parent and verification gates still apply. See current DEVELOPMENT.md and scripts/README.md.

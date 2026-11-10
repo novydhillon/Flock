@@ -1,5 +1,9 @@
 # Architecture and system contracts
 
+## Engineering audit and delivery separation - 10 November 2026
+
+The F-PERF-002 review retained simulation/presentation ownership, seeded generation, validated JSON configuration and explicit resource disposal. Shared delivery policy now resides in `scripts/deployment-targets.cjs`; game and tracker have separate test selectors, checked builds, output directories and deployment workflows. Formatting is enforced by pinned Prettier rather than hand-compacted source. Larger controller/renderer modules and mixed gate/grazing responsibilities remain follow-up candidates; no speculative gameplay restructuring was introduced. See the [audit record](experiments/performance-review.md).
+
 ## Gesture and foreground audio recovery — 26 October 2026
 
 The controller retries enabled audio from touchend and capture-phase click as well as pointer/key gestures. A visible interaction establishes foreground intent even if an earlier blur lacked a matching focus event. A real hidden-to-visible transition and pageshow restore that intent; repeated visible notifications alone do not undo an unrelated blur. pagehide silences music and pauses gameplay, including back/forward-cache restoration. FarmAudio.start({gesture:true}) starts a silent one-sample source synchronously before calling resume, then uses the existing activation generation guard after awaiting it. Every gesture can issue a fresh resume even while an older autoplay resume remains pending. Healthy running playback returns without changing its score, timer or mix.

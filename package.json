@@ -8,12 +8,19 @@
     "preview": "vite preview --host 0.0.0.0",
     "build": "vite build --base=./",
     "build:dev": "vite build --mode qa --base=./",
-    "test": "node --test tests/*.test.js",
+    "test": "node scripts/test-suite.mjs all",
     "docs:build": "node scripts/docs/build.mjs",
     "docs:check": "node scripts/docs/check.mjs && node --test scripts/docs/behavior.test.mjs",
     "build:checked:dev": "node scripts/build-checked.mjs dev",
     "build:checked:production": "node scripts/build-checked.mjs production",
-    "measure:chokepoints": "node scripts/measure-chokepoints.mjs"
+    "measure:chokepoints": "node scripts/measure-chokepoints.mjs",
+    "test:game": "node scripts/test-suite.mjs game",
+    "test:tracker": "node scripts/test-suite.mjs tracker",
+    "build:tracker": "node scripts/build-tracker.mjs",
+    "build:checked:tracker": "node scripts/build-checked-tracker.mjs",
+    "build:checked:dev_performance": "node scripts/build-checked.mjs dev_performance",
+    "format": "node scripts/format.mjs --write",
+    "format:check": "node scripts/format.mjs --check"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
@@ -24,7 +31,11 @@
     "jsdom": "26.1.0",
     "marked": "17.0.1",
     "mermaid": "11.12.1",
+    "prettier": "3.6.2",
     "rollup": "4.64.5",
     "vite": "7.1.9"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }
