@@ -29,6 +29,7 @@ import {createGateView,createStoneWallView} from '../src/gate-view.js';
 import {StructureCutaway} from '../src/cutaway.js';
 import {ThrusterGroundGlow} from '../src/thruster-glow.js';
 import {ViewShadows,treeDepthMaterial} from '../src/view-shadows.js';
+import {StaticShadows} from '../src/static-shadows.js';
 
 test('fitted sun map contains ground receivers and upstream casters across aspect, zoom and distant travel',()=>{
   const sun=new THREE.DirectionalLight(),fit=new ViewShadows(),point=new THREE.Vector3(),ray=new THREE.Vector3();
@@ -60,7 +61,7 @@ test('small elevated crown is retained when only its directional ground shadow i
 test('scene wildlife and immutable scenery retain directional shadows and owned depth resources across restart',()=>{
   const renderer=setup(),level=createLevel(19,201);renderer.setLevel(level);
   const wood=renderer.sceneryBatches.filter(({batch})=>batch.userData.treeWood);assert.ok(wood.length);
-  for(const {batch}of wood){assert.ok(batch.castShadow&&batch.receiveShadow);assert.ok(batch.customDepthMaterial);assert.equal(batch.geometry.attributes.treeInstanceWidth.count,batch.instanceMatrix.count);}
+  for(const {batch}of wood){assert.ok(batch.userData.bakedStaticShadow&&batch.receiveShadow);assert.equal(batch.castShadow,false);assert.ok(batch.customDepthMaterial);assert.equal(batch.geometry.attributes.treeInstanceWidth.count,batch.instanceMatrix.count);}
   const fauna=Object.entries(renderer.nature.batches).filter(([name])=>/rabbit|squirrel|bird/.test(name));assert.ok(fauna.length>=4);
   for(const [,mesh]of fauna)assert.ok(mesh.castShadow&&mesh.receiveShadow,'live anatomical wildlife batches cast and receive the sun');
   const before=fauna.map(([,mesh])=>mesh.instanceMatrix.array.slice());renderer.update(level,level.dog,0);
@@ -70,7 +71,7 @@ test('scene wildlife and immutable scenery retain directional shadows and owned 
   const depth=gestured[0].customDepthMaterial;assert.ok(depth);assert.ok(gestured.every(m=>m.customDepthMaterial===depth),'one owned depth material serves all animated herd parts');
   const materialDisposals=new Map([...wood.map(v=>v.batch.customDepthMaterial),depth].map(m=>[m,0]));for(const m of materialDisposals.keys())m.addEventListener('dispose',()=>materialDisposals.set(m,materialDisposals.get(m)+1));
   const source=gestured[0].material,makeShader=()=>({uniforms:{},vertexShader:'#include <beginnormal_vertex>\n#include <begin_vertex>',fragmentShader:''}),surfaceShader=makeShader(),depthShader=makeShader();source.onBeforeCompile(surfaceShader);depth.onBeforeCompile(depthShader);
-  assert.equal(depthShader.vertexShader,surfaceShader.vertexShader,'ear, tail, blink and chew deformation uses the identical visible/depth vertex program');
+  assert.equal(depthShader.vertexShader,surfaceShader.vertexShader.slice(surfaceShader.vertexShader.indexOf('attribute vec2 animalGesturePart')),'ear, tail, blink and chew deformation uses the identical visible/depth vertex program before receiver-only projection');
   renderer.setLevel(createLevel(0,201));for(const count of materialDisposals.values())assert.equal(count,1,'restart disposes each owned depth material exactly once');
 });
 
@@ -90,7 +91,7 @@ function setup({width=390,height=844,treeYaw=true,settings=presentationSettings}
   globalThis.document=document;
   class GPUStub{constructor(){this.shadowMap={};}setPixelRatio(ratio){this.pixelRatio=ratio;}setSize(){}render(scene){scene.updateMatrixWorld(true);}}
   const source=readFileSync(new URL('../src/render.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'').replace(/tree.rotation.y=treeRotation\(\)\*Math.PI\*2;/g,treeYaw?'tree.rotation.y=treeRotation()*Math.PI*2;':'tree.rotation.y=0;');
-  const context={installSlopeSoil,installTerrainRelief,pastureGrassSites,pastureClumpGeometry,pastureRockGeometry,alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
+  const context={installSlopeSoil,installTerrainRelief,pastureGrassSites,pastureClumpGeometry,pastureRockGeometry,alignGroundProp,drapeGroundGuide,conformSurface,meadowGeometry,roughPastureEnabled,alignAnimalToTerrain,groundHeight,riverSurfaceHeight,bridgeSurfaceHeight,plantClumpGeometry,bankClumpSites,...minimap,StaticShadows,ViewShadows,treeDepthMaterial,settings,resolveConfig,CONFIG_CONTRACTS,updateGrazing,grazingAngle,updateAnimalTurn,animalGaitSpeed,animalScale,THREE:{...THREE,WebGLRenderer:GPUStub},...models,createGateView,createStoneWallView,gateSegment,terrainHeight,targetFootprint,canOccupy,goalSurface,goalOutline,drawGoalMap,WaterEffects,generateBushClusters,setTailLightBarking,MeadowNature,ribbon,roadNetwork,createRoadMaterial,barkSurface,StructureCutaway,ThrusterGroundGlow,document,innerWidth:width,innerHeight:height,devicePixelRatio:2,performance:{now:()=>1000},requestAnimationFrame(){}};
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`,context);
   return context.renderer;
 }
@@ -426,7 +427,7 @@ test('actual barn panels reveal Pip and dispose their private materials on level
   const collision=JSON.stringify(level.fenceSegments);renderer.setLevel(level);
   const controller=renderer.cutaway;
   const roofPart=controller.parts.find(p=>p.mesh.userData.coverKind==='roof');
-  assert.equal(roofPart.mesh.castShadow,true,'opaque roof casts its normal shadow');
+  assert.equal(roofPart.mesh.castShadow,false,'opaque roof uses its retained baked shadow');
   assert.ok(controller.parts.length>12,'complete roof and segmented walls exist');
   level.dog.x=target.x;level.dog.z=target.z;
   for(let i=0;i<60;i++)renderer.update(level,level.dog,1/60);
@@ -438,7 +439,7 @@ test('actual barn panels reveal Pip and dispose their private materials on level
   controller.update(renderer.camera,[],0);assert.equal(roofPart.material.opacity,.7,'pause freezes the complete roof fade');
   for(let i=0;i<60;i++)controller.update(renderer.camera,[],1/60);
   assert.equal(roofPart.material.opacity,1);assert.equal(roofPart.material.transparent,false);
-  assert.equal(roofPart.material.depthWrite,true);assert.equal(roofPart.mesh.castShadow,true,'empty barn restores its roof shadow');
+  assert.equal(roofPart.material.depthWrite,true);assert.equal(roofPart.mesh.castShadow,false,'empty barn keeps its baked roof shadow without rejoining dynamic casting');
   const count=controller.parts.length;let disposed=0,geometryDisposed=0;
   for(const part of controller.parts)part.material.addEventListener('dispose',()=>disposed++);
   roofPart.mesh.geometry.addEventListener('dispose',()=>geometryDisposed++);
@@ -634,7 +635,8 @@ test('shared fence instances preserve collision endpoints, post spacing and near
   assert.equal(posts.matrices.length/16,fences.reduce((n,s)=>n+Math.ceil(Math.hypot(s.b.x-s.a.x,s.b.z-s.a.z)/1.8)+1,0));
   const positions=[];for(let i=0;i<posts.matrices.length;i+=16)positions.push({x:posts.matrices[i+12],z:posts.matrices[i+14]});
   for(const fence of fences)for(const endpoint of [fence.a,fence.b])assert.ok(positions.some(p=>Math.hypot(p.x-endpoint.x,p.z-endpoint.z)<.0001),'rendered fence reaches exact collision endpoints');
-  assert.ok(posts.batch.castShadow&&posts.batch.receiveShadow);
+  assert.ok(posts.batch.userData.bakedStaticShadow&&posts.batch.receiveShadow);
+  assert.equal(posts.batch.castShadow,false,'static fence shadows no longer require live shadow casters');
   // Fence tops cast less than one unit along the directional light at y=0;
   // the camera padding retains these casters when their ground shadow is visible.
   const edge=fences[0],center={x:(edge.a.x+edge.b.x)/2+11.9,z:(edge.a.z+edge.b.z)/2};
@@ -642,7 +644,7 @@ test('shared fence instances preserve collision endpoints, post spacing and near
   const shadow=new THREE.Vector3(.94*18/35,0,-.94*20/35),sphere=new THREE.Sphere(),frustum=renderer.sceneryFrustum;let checkedShadows=0;
   for(let i=0;i<posts.bounds.length;i+=4){
     sphere.center.set(posts.bounds[i]+shadow.x,0,posts.bounds[i+2]+shadow.z);sphere.radius=.1;
-    if(frustum.intersectsSphere(sphere)){checkedShadows++;assert.ok([...posts.batch.instanceMatrix.array.slice(0,posts.batch.count*16)].some((_,j,array)=>j%16===12&&Math.abs(array[j]-posts.matrices[i*4+12])<.0001&&Math.abs(array[j+2]-posts.matrices[i*4+14])<.0001),'visible ground shadows retain their fence posts');}
+    if(frustum.intersectsSphere(sphere)){checkedShadows++;assert.ok(renderer.staticShadows.staticCasters.has(posts.batch),'visible ground shadows stay in the immutable full-level bake after camera culling');}
   }
   assert.ok(checkedShadows>0,'shadow retention test exercises visible fence posts');
 });

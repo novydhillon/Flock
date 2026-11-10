@@ -34,6 +34,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-SHADOW-001 | P2 | Rendering | Bake all static environment shadows once per meadow | In progress | Existing shadow renderer |
 | F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | In progress | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
@@ -379,3 +380,12 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 ## Main merged into bank work — 9 November 2026
 
 Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.
+
+
+### F-SHADOW-001 — Baked static environment shadows
+
+**Status:** In progress. Owner: Codex.
+
+**Branch:** `feat/baked-environment-shadows`
+
+**Accept when:** Trees, bushes, bridges, fences, barns, pens, rocks and other static environment objects cast shadows from a per-level bake, with no recurring static shadow pass as the camera travels. Preserve terrain/bridge receiving shadows, dynamic actor and moving gate shadows, full-meadow coverage, level replacement/disposal and existing shadow-free grass/reeds. Inspect camera travel and barn cutaway behavior; verify bounded textures and repeated frame/level lifecycle. User requested source fix; deployment/main merge remain separate.

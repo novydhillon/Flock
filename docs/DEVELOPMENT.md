@@ -1,5 +1,10 @@
 # Development, QA and release context
 
+## Baked static shadow smoke checks — 10 November 2026
+
+F-SHADOW-001: compare flat1–5 and rolling6/20/50/100 in portrait/landscape. Inspect bridge rails/planks, fences, barn roofs/walls, pens, stone supports, rocks, trees and bushes. Move the camera across the full field: static silhouettes must stay fixed without rebaking or popping; dynamic actors and moving gate panels retain their shadows. Inspect actor shadows on decks, terrain slopes, grass/reed shadow absence, barn cutaway and weather changes. Restart/jump repeatedly and inspect texture disposal, loading and phone memory/FPS. The shared browser cannot reach this executor localhost (connection refused), so rendered/device checks remain pending.
+
+
 ## Compact bank smoke checks — 9 November 2026
 
 For F-TERRAIN-BANK-001 inspect public6/20/50/100 and rotated seeded maps at normal phone zoom in portrait/landscape. Compare short raised spans, smooth full-width deck/bank joins, varying banks and continuous dirt/grass blends with contours off/on. Cross both ways with Pip, Buddy, sheep and every cow size. Inspect water coverage, shallow pools, road clearance, shadows, pause/restart and flat levels1–5; check FPS and repeated level replacement. Browser launch in this session is blocked by Chromium singleton socket permissions; rendered/device checks remain pending.

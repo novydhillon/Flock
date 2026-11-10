@@ -286,6 +286,8 @@ export const CONFIG_CONTRACTS = freeze({
       "exposure": "number",
       "environmentSaturation": "number",
       "shadowMapSize": "integer",
+      "staticShadowMapSize": "integer",
+      "staticShadowDepthBias": "number",
       "fogNear": "number",
       "fogFar": "number"
     },

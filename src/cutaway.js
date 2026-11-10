@@ -47,12 +47,12 @@ export class StructureCutaway {
       const faded=part.alpha<1;
       if(material.transparent!==(faded||part.original.transparent)){material.transparent=faded||part.original.transparent;material.needsUpdate=true;}
       material.depthWrite=faded?false:part.original.depthWrite;
-      mesh.castShadow=faded?false:part.shadow;
+      mesh.castShadow = faded || mesh.userData.bakedStaticShadow ? false : part.shadow;
     }
   }
   dispose(){
     if(this.disposed)return;this.disposed=true;
-    for(const {mesh,original,material,shadow} of this.parts){mesh.material=original;mesh.castShadow=shadow;material.dispose();}
+    for(const {mesh,original,material,shadow} of this.parts){mesh.material=original;mesh.castShadow=mesh.userData.bakedStaticShadow?false:shadow;material.dispose();}
     this.parts=[];this.covered.clear();
   }
 }
