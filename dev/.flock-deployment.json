@@ -1,7 +1,7 @@
 {
   "environment": "dev",
-  "branch": "feat/odd-vegetation-clumps",
-  "sourceSha": "decee2970192f38c1c8001de0b5a42504bad5e3b",
+  "branch": "feat/compact-riverbanks",
+  "sourceSha": "5a81df604e0964d5cbb2172640207ce875b07fbe",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,20 +30,20 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-CSqPztdu.css",
-      "sha256": "6ff49017d2d9472d347430bccdaa2df20b183baf8482d4f8d31d3ac45ca243c6"
+      "path": "dev/assets/index-BPRbKyHr.js",
+      "sha256": "f30def7f7be32a95ca7adf1f5064285444dffcc8e97772b4ab82e59aba652102"
     },
     {
-      "path": "dev/assets/index-D1PBhP2P.js",
-      "sha256": "75717e572a56af1ad0bd2546832816e80ad571a7046e98d95b95eacf2d62be29"
+      "path": "dev/assets/index-CSqPztdu.css",
+      "sha256": "6ff49017d2d9472d347430bccdaa2df20b183baf8482d4f8d31d3ac45ca243c6"
     },
     {
       "path": "dev/assets/main-CCM3MR4L.css",
       "sha256": "844f49cfc6413d5fdddc1e56a07ea2bb22b2cab768e2d458e1d2e08a3df76a6c"
     },
     {
-      "path": "dev/assets/main-tWPLtPbk.js",
-      "sha256": "78a52bb664a70fa258151d588bb4a7e2d7ea10ba990e7c894fe25c9d0e321d95"
+      "path": "dev/assets/main-CmfVdSxu.js",
+      "sha256": "a9b9c67856653b978e54349fc2cc171c7ba9b1e75f373712256f6c98db0375ec"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -70,12 +70,12 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-Bz571FEl.css",
-      "sha256": "a9f42849e9cd5f890318ac84b7601f02b26b1f4d3fe75e308ca8e17d086c631e"
+      "path": "dev/assets/qa-Bxi9CN0e.js",
+      "sha256": "5c01cc49af7247c0fc85d5a2ac6eefa5858682ab1fbcda1cb1cf003e4c397d84"
     },
     {
-      "path": "dev/assets/qa-C3uQaFG2.js",
-      "sha256": "cfa1c4eed541744bfb0488c8437d7807380aa444c225ff0b503a698418410a09"
+      "path": "dev/assets/qa-Bz571FEl.css",
+      "sha256": "a9f42849e9cd5f890318ac84b7601f02b26b1f4d3fe75e308ca8e17d086c631e"
     },
     {
       "path": "dev/audio/CREDITS.md",
@@ -139,7 +139,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "71a652b8e972adeece69d5cc9707320c3976c2901127a8f6a4c55e842731dbbb"
+      "sha256": "b52d528ee9bf8e2b30c8cb0449b4c84458d665ba6a287c67e2d095401f411953"
     },
     {
       "path": "dev/site.webmanifest",
