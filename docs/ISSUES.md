@@ -8,7 +8,7 @@ Updated 29 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
 
 This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
 
-F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). The user authorized its main source merge; F-AUDIO-003 remains Open.
+F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Closed issues](ISSUES_CLOSED.md#configuration-refactor-user-acceptance--28-october-2026). The user authorized its main source merge; F-AUDIO-003 was closed at Novy's request on 9 November 2026.
 
 ## P2 UI acceptance — 28 October 2026
 
@@ -33,7 +33,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | Deferred | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
-| F-AUDIO-003 | P1 | Audio regression | Music stays silent on browser/app launch until audio is toggled off/on | Open | Accepted soundtrack; physical launch investigation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
@@ -53,7 +52,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-BIRD-006 | P2 | World/art | 10% per-level chance of a single tree nest | Open | F-BIRD-003 |
 | F-BIRD-007 | P2 | Integration | Weather, lifecycle and mobile resource limits | Open | F-BIRD-002–006 |
 | F-BIRD-008 | P2 | Validation | Regression, blind review and development acceptance | Open | F-BIRD-007 |
-| F-008 | P1 | Art | Cloud visuals temporarily removed at user request | Deferred | No runtime clouds or cloud shadows |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
 | F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
@@ -86,25 +84,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 **Scope:** Tracker addition only; animation fix and rendered verification remain pending.
 
-
-### F-AUDIO-003 — Music requires audio off/on after browser or app launch
-
-**Status:** Open. Owner: Unassigned.
-
-**Branch:** `unassigned`
-
-**User report — 26 October 2026:** Music does not start automatically on app launch. The user must toggle audio off and on to start it. This persists in the browser and an iOS Home Screen launch after the attempted launch-recovery build. Workaround: turn audio off, then on.
-
-**Accept when:** reproduce and diagnose the remaining launch failure on the affected browser and iOS Home Screen path; enabled music begins at the earliest browser-permitted activation without requiring an off/on toggle; saved mute, foreground/background handling, existing playback and bounded resources remain intact. Record the actual browser/device and audible result. Browser autoplay policy may require interaction, but neither that policy nor passing mock tests establishes the cause or resolution of this reported defect.
-
-**26 October 2026:** Logged at Novy's explicit request while accepting the soundtrack feature for main merge. Prior automated activation tests, 9.5/10 source review, CI and live asset hashes did not establish physical launch resolution. This issue stays Open independently of F-MUSIC-001 acceptance. No new runtime fix is included in the merge/logging task.
-
-
-### F-008 — Clouds temporarily deferred
-
-**Current decision, 15 October 2026 at 11:22 America/Vancouver:** Novy requested removing clouds for now because they are not working as intended. Disable all visible cloud puffs and their associated ground shadows. Rain, fixed per-level weather, sky/fog/daylight, lightning/thunder, wet ground and wildlife remain active.
-
-**Status:** Deferred. The renderer no longer instantiates or updates `Atmosphere`; its source and unit tests are retained as dormant reference for future work. No cloud texture, billboard or shadow resource is allocated by normal game rendering. Earlier cloud appearance/opacity criteria and review evidence are historical, not current runtime requirements. Do not re-enable clouds as part of routine weather maintenance.
 
 ### F-015 — Performance verification gap
 

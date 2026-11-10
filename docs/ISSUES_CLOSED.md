@@ -8,6 +8,8 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-008~~ | ~~P1~~ | ~~Art~~ | ~~Cloud visuals temporarily removed at user request~~ | ~~Closed~~ | ~~No runtime clouds or cloud shadows~~ |
+| ~~F-AUDIO-003~~ | ~~P1~~ | ~~Audio regression~~ | ~~Music stays silent on browser/app launch until audio is toggled off/on~~ | ~~Closed~~ | ~~Accepted soundtrack; physical launch investigation~~ |
 | ~~F-VEG-001~~ | ~~P2~~ | ~~Environment~~ | ~~Odd 3–11 stem clumps, varied heights and denser randomized water vegetation~~ | ~~Done~~ | ~~Accepted F-WATER-002/003~~ |
 | ~~F-CAMERA-001~~ | ~~P2~~ | ~~Presentation~~ | ~~Lower camera height 25% at fixed target distance~~ | ~~Done~~ | ~~Current camera framing~~ |
 | ~~F-TERRAIN-HEIGHT-001~~ | ~~P2~~ | ~~Terrain experiment~~ | ~~Double terrain range with unchanged slope limit~~ | ~~Done~~ | ~~Accepted rolling terrain~~ |
@@ -2189,3 +2191,30 @@ F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elev
 F-VEG-001 follow-up: widen land grass/bank reed blade-center spread 2.5× (radius multiplier2→5), and water-grass spread .06–.09m→.11–.15m. Preserve counts, blade widths/heights, existing clump centers, wet/bridge clearance and shadows. Remains Review.
 
 User acceptance on 9 November 2026 supersedes the historical Review status above.
+
+## Closures requested — 9 November 2026
+
+### F-008 — ~~Clouds temporarily deferred~~
+
+**Current decision, 15 October 2026 at 11:22 America/Vancouver:** Novy requested removing clouds for now because they are not working as intended. Disable all visible cloud puffs and their associated ground shadows. Rain, fixed per-level weather, sky/fog/daylight, lightning/thunder, wet ground and wildlife remain active.
+
+**Status:** Deferred. The renderer no longer instantiates or updates `Atmosphere`; its source and unit tests are retained as dormant reference for future work. No cloud texture, billboard or shadow resource is allocated by normal game rendering. Earlier cloud appearance/opacity criteria and review evidence are historical, not current runtime requirements. Do not re-enable clouds as part of routine weather maintenance.
+
+
+**Closed — 9 November 2026:** Closed at Novy's request; no fix or validation is claimed. Documentation rebuild and checks waived for this closure.
+
+### F-AUDIO-003 — ~~Music requires audio off/on after browser or app launch~~
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**User report — 26 October 2026:** Music does not start automatically on app launch. The user must toggle audio off and on to start it. This persists in the browser and an iOS Home Screen launch after the attempted launch-recovery build. Workaround: turn audio off, then on.
+
+**Accept when:** reproduce and diagnose the remaining launch failure on the affected browser and iOS Home Screen path; enabled music begins at the earliest browser-permitted activation without requiring an off/on toggle; saved mute, foreground/background handling, existing playback and bounded resources remain intact. Record the actual browser/device and audible result. Browser autoplay policy may require interaction, but neither that policy nor passing mock tests establishes the cause or resolution of this reported defect.
+
+**26 October 2026:** Logged at Novy's explicit request while accepting the soundtrack feature for main merge. Prior automated activation tests, 9.5/10 source review, CI and live asset hashes did not establish physical launch resolution. This issue stays Open independently of F-MUSIC-001 acceptance. No new runtime fix is included in the merge/logging task.
+
+
+
+**Closed — 9 November 2026:** Closed at Novy's request; no fix or validation is claimed. Documentation rebuild and checks waived for this closure.
