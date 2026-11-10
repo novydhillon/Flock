@@ -305,11 +305,56 @@ export class MeadowRenderer{
     for(let i=0;i<tuftBudget;i++){
       const {x,z}=candidate(i,tuftBudget);if(meadowClear(x,z,.4)){tufts.push({x,z});this.meadowDetails.push({x,z,kind:'tuft'});}}
     // Use a white material: vertex/instance colors already supply the green.
-    if(tufts.length){const blade=plantClumpGeometry(.024,.55),bladeMat=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:1,transparent:true,opacity:1,depthWrite:false}),grass=new THREE.InstancedMesh(blade,bladeMat,tufts.length),pose=new THREE.Object3D();tufts.forEach((p,i)=>{pose.position.set(p.x,groundAt(p.x,p.z),p.z);pose.scale.set(.7+r()*.6,.55+r()*.8,.7+r()*.6);pose.rotation.y=r()*Math.PI;pose.updateMatrix();grass.setMatrixAt(i,pose.matrix);grass.setColorAt(i,new THREE.Color('#839c61'));});grass.castShadow=grass.receiveShadow=false;grass.userData.decorativeGrass=true;grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;this.terrain.add(grass);this.trackScenery(grass);}
+    // Preserve the existing decoration stream; stem counts use a separate seed.
+    const grassSites = tufts.map(site => ({
+      ...site,
+      scaleX: .7 + r() * .6,
+      scaleY: .55 + r() * .8,
+      scaleZ: .7 + r() * .6,
+      heading: r() * Math.PI,
+    }));
+    for (const [blades, sites] of this.plantSiteGroups(grassSites, 0x67726173)) {
+      const geometry = plantClumpGeometry(.024, .55, blades);
+      const material = new THREE.MeshStandardMaterial({
+        color: '#ffffff', roughness: 1, transparent: true, opacity: 1, depthWrite: false,
+      });
+      const grass = new THREE.InstancedMesh(geometry, material, sites.length);
+      const pose = new THREE.Object3D();
+      sites.forEach((site, i) => {
+        pose.position.set(site.x, groundAt(site.x, site.z), site.z);
+        pose.scale.set(site.scaleX, site.scaleY, site.scaleZ);
+        pose.rotation.y = site.heading;
+        pose.updateMatrix();
+        grass.setMatrixAt(i, pose.matrix);
+        grass.setColorAt(i, new THREE.Color('#839c61'));
+      });
+      grass.castShadow = grass.receiveShadow = false;
+      grass.userData.decorativeGrass = true;
+      grass.userData.ownedGeometry = grass.userData.ownedMaterial = true;
+      this.terrain.add(grass);
+      this.trackScenery(grass);
+    }
 
-    // Thin reeds follow the exact banks and leave crossing entrances clear.
-    const reeds = level.rivers.flatMap(river => bankClumpSites(river, r, b));
-    if(reeds.length){const geo=plantClumpGeometry(.025,.95),mat=new THREE.MeshStandardMaterial({color:'#5b7951',roughness:1}),batch=new THREE.InstancedMesh(geo,mat,reeds.length),pose=new THREE.Object3D();reeds.forEach((p,i)=>{pose.position.set(p.x,groundAt(p.x,p.z),p.z);pose.rotation.z=(r()-.5)*.25;pose.updateMatrix();batch.setMatrixAt(i,pose.matrix);});batch.castShadow=batch.receiveShadow=false;batch.userData.bankReeds=true;batch.userData.ownedGeometry=batch.userData.ownedMaterial=true;this.terrain.add(batch);this.trackScenery(batch);}
+    // Reeds form compact odd clumps with independently varied bank setbacks.
+    const reeds = level.rivers.flatMap(river => bankClumpSites(river, r, b))
+      .map(site => ({...site, lean: (r() - .5) * .25}));
+    for (const [blades, sites] of this.plantSiteGroups(reeds, 0x72656564)) {
+      const geometry = plantClumpGeometry(.025, .95, blades);
+      const material = new THREE.MeshStandardMaterial({color: '#5b7951', roughness: 1});
+      const batch = new THREE.InstancedMesh(geometry, material, sites.length);
+      const pose = new THREE.Object3D();
+      sites.forEach((site, i) => {
+        pose.position.set(site.x, groundAt(site.x, site.z), site.z);
+        pose.rotation.z = site.lean;
+        pose.updateMatrix();
+        batch.setMatrixAt(i, pose.matrix);
+      });
+      batch.castShadow = batch.receiveShadow = false;
+      batch.userData.bankReeds = true;
+      batch.userData.ownedGeometry = batch.userData.ownedMaterial = true;
+      this.terrain.add(batch);
+      this.trackScenery(batch);
+    }
     const sceneryCount=Math.min(62,28+Math.floor(level.index/3));for(let i=0;i<sceneryCount;i++){
       let x,z;const side=i%4;
       if(side<2){x=b.minX-12+r()*(w+24);z=side===0?b.minZ-4-r()*17:b.maxZ+4+r()*17;}else{x=side===2?b.minX-5-r()*18:b.maxX+5+r()*18;z=b.minZ+r()*d;}
@@ -390,23 +435,42 @@ export class MeadowRenderer{
     }
     this.terrain.add(group);
   }
+  /** A seeded shared shape bounds submissions; larger clumps use fewer sites.
+   * Keep total stems near the previous density so eleven-blade variants do not
+   * exceed the mobile triangle budget. Each category varies across level seeds.
+   */
+  plantSiteGroups(sites, salt, previousBlades = 5) {
+    if (!sites.length) return new Map();
+    const random = rng(this.level.seed ^ salt);
+    const blades = 3 + 2 * Math.floor(random() * 5);
+    const count = Math.ceil(sites.length * Math.min(1, previousBlades / blades));
+    const clumps = Array.from({length: count}, (_, i) => sites[Math.floor(i * sites.length / count)]);
+    return new Map([[blades, clumps]]);
+  }
   addPastureGrass(clear, groundAt) {
     const sites = pastureGrassSites(this.level, clear);
-    if (!sites.length) return;
-    const geometry = pastureClumpGeometry();
-    const material = new THREE.MeshStandardMaterial({color:'#ffffff', vertexColors:true, roughness:1, side:THREE.DoubleSide});
-    const grass = new THREE.InstancedMesh(geometry, material, sites.length), pose = new THREE.Object3D();
-    sites.forEach((site, i) => {
-      pose.position.set(site.x, groundAt(site.x, site.z) - .018, site.z);
-      pose.scale.setScalar(site.scale);pose.rotation.y=site.heading;pose.updateMatrix();
-      grass.setMatrixAt(i, pose.matrix);
-      this.meadowDetails.push({...site, kind:'overgrowth', padding:.65*site.scale});
-    });
-    grass.name='Overgrown pasture grass';
-    grass.castShadow=grass.receiveShadow=false;
-    grass.userData.decorativeGrass=grass.userData.pastureGrass=true;
-    grass.userData.ownedGeometry=grass.userData.ownedMaterial=true;
-    this.terrain.add(grass);this.trackScenery(grass);
+    for (const [blades, clumps] of this.plantSiteGroups(sites, 0x70617374, 8)) {
+      const geometry = pastureClumpGeometry(blades);
+      const material = new THREE.MeshStandardMaterial({
+        color: '#ffffff', vertexColors: true, roughness: 1, side: THREE.DoubleSide,
+      });
+      const grass = new THREE.InstancedMesh(geometry, material, clumps.length);
+      const pose = new THREE.Object3D();
+      clumps.forEach((site, i) => {
+        pose.position.set(site.x, groundAt(site.x, site.z) - .018, site.z);
+        pose.scale.setScalar(site.scale);
+        pose.rotation.y = site.heading;
+        pose.updateMatrix();
+        grass.setMatrixAt(i, pose.matrix);
+        this.meadowDetails.push({...site, kind: 'overgrowth', padding: .65 * site.scale});
+      });
+      grass.name = 'Overgrown pasture grass';
+      grass.castShadow = grass.receiveShadow = false;
+      grass.userData.decorativeGrass = grass.userData.pastureGrass = true;
+      grass.userData.ownedGeometry = grass.userData.ownedMaterial = true;
+      this.terrain.add(grass);
+      this.trackScenery(grass);
+    }
   }
   addPastureRocks(groundAt) {
     const rocks=this.level.obstacles.filter(obstacle=>obstacle.kind==='rock');

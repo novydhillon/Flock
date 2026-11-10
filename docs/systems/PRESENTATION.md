@@ -489,3 +489,13 @@ Terrain-following bridge boards deform vertically while retaining their authored
 F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, distance / (radius * fullSpeedFraction))) / log1p(k), with controls.json defaults radius 84 CSS pixels, fraction 0.85 and strength 9. Direction stays normalized separately; the thumb tracks physical travel clamped to the radius, independent of speed shaping. Visible rings double to 220/212/192 pixels diameter for desktop/phone/short landscape. Idle ring placement keeps the bottom-third preference but clamps above the bottom safe area for short screens. Keyboard input and pointer lifecycle are unchanged.
 
 
+
+
+## Odd vegetation clump contract — 9 November 2026
+
+F-VEG-001 uses shared oddBladeCount and plantBladeHeight helpers for3/5/7/9/11-stem, mixed-height plants. Land renderers use one seeded odd-count geometry per category/level, varying across seeds; larger clumps retain an evenly spaced subset of sites to preserve the existing stem budget; water plants retain four instanced batches and per-clump groups. Water decoration RNG is separate from body eligibility and simulation RNG. Water grass has a25% interior acceptance floor, reeds6%, with1.2m bank falloff; target22m²/clump capped at30. Land bank offsets are widened. No per-frame geometry or plant shadows.
+
+
+## Wider grass blade spread — 9 November 2026
+
+F-VEG-001 readability follow-up: land blade centers use5× blade radius instead of2×; water grass spread is .11–.15m, reeds retain .06–.09m and downstream bends. Existing clump centers, odd counts, widths/heights and conservative footprint remain unchanged.
