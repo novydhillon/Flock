@@ -277,6 +277,7 @@ export const CONFIG_CONTRACTS = freeze({
       "maximumClumps": "integer",
       "areaPerClump": "number",
       "edgeFalloffMeters": "number",
+      "grassInteriorAcceptance": "number",
       "grassHeight": "number",
       "reedHeight": "number"
     },

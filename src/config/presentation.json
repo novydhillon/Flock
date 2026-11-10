@@ -185,7 +185,7 @@
       "max": 200
     },
     "positionOffsetZ": {
-      "value": 37.089640571384126,
+      "value": 37.08964057138412,
       "_comment": "Camera Z offset from the followed center: sqrt(36^2 + (29 - (-2))^2 - 27^2) - 2 preserves the original camera-to-target distance with lookOffsetZ -2.",
       "min": 1,
       "max": 200
@@ -327,19 +327,19 @@
       "max": 1
     },
     "maximumClumps": {
-      "value": 18,
+      "value": 30,
       "_comment": "Maximum vegetation clumps per selected water body.",
       "min": 0,
       "max": 64
     },
     "areaPerClump": {
-      "value": 34,
+      "value": 22,
       "_comment": "Water surface area in square world metres per target clump.",
       "min": 1,
       "max": 500
     },
     "edgeFalloffMeters": {
-      "value": 0.65,
+      "value": 1.2,
       "_comment": "Distance from bank clearance over which placement acceptance decays; smaller values favor banks more strongly.",
       "min": 0.05,
       "max": 10
@@ -355,6 +355,12 @@
       "_comment": "Typical reed stem height above water in world metres, before seeded variation.",
       "min": 0.1,
       "max": 4
+    },
+    "grassInteriorAcceptance": {
+      "value": 0.25,
+      "_comment": "Baseline acceptance for water grass away from banks; higher values broaden landward-to-center distance variation while preserving edge preference.",
+      "min": 0,
+      "max": 1
     }
   },
   "terrain": {

@@ -491,7 +491,11 @@ F-INPUT-001: main.js maps radial pointer travel to speed using log1p(k * min(1, 
 
 
 
+## Odd vegetation clump contract — 9 November 2026
 
-## Compact bank surfaces — 9 November 2026
+F-VEG-001 uses shared oddBladeCount and plantBladeHeight helpers for3/5/7/9/11-stem, mixed-height plants. Land renderers use one seeded odd-count geometry per category/level, varying across seeds; larger clumps retain an evenly spaced subset of sites to preserve the existing stem budget; water plants retain four instanced batches and per-clump groups. Water decoration RNG is separate from body eligibility and simulation RNG. Water grass has a25% interior acceptance floor, reeds6%, with1.2m bank falloff; target22m²/clump capped at30. Land bank offsets are widened. No per-frame geometry or plant shadows.
 
-The meadow shader composes slope-based soil albedo/bump blending with the accepted height shading, weather and receiving glow. The mask uses the analytic support normal before bump perturbation, blending from18degrees to fully exposed soil at32degrees. Shared meadow cells refine only where measured support curvature needs it; neighbouring cells stitch common edge samples and the decorative apron is coarser. Pool clipping interpolates those exact receiving triangles. Road/structure surface conforming shares adaptive edge cuts and interpolates original attributes, preserving UVs and fade while avoiding long buried faces on compact banks. Resource ownership remains per level, with WeakMap-scoped receiving grids.
+
+## Wider grass blade spread — 9 November 2026
+
+F-VEG-001 readability follow-up: land blade centers use5× blade radius instead of2×; water grass spread is .11–.15m, reeds retain .06–.09m and downstream bends. Existing clump centers, odd counts, widths/heights and conservative footprint remain unchanged.

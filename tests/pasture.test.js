@@ -59,3 +59,16 @@ test('grass uses dense dimensional folded leaves and a varied small fringe, neve
   for(let i=0;i<p.count;i++)assert.ok(Math.hypot(p.getX(i),p.getZ(i))<=1,'visual rock stays inside the shared collision radius');
   rock.dispose();
 });
+
+
+test('rough pasture uses only odd bounded rosettes with nonuniform leaf heights', () => {
+  for (const blades of [3, 5, 7, 9, 11]) {
+    const geometry = pastureClumpGeometry(blades), position = geometry.attributes.position;
+    assert.equal(geometry.userData.bladesPerClump, blades);
+    assert.equal(position.count, blades * 9, 'three folded stations per complete leaf');
+    const tips = Array.from({length: blades}, (_, leaf) => position.getY(leaf * 9 + 6));
+    assert.ok(Math.max(...tips) - Math.min(...tips) > .08);
+    geometry.dispose();
+  }
+  assert.throws(() => pastureClumpGeometry(8), RangeError);
+});

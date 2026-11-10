@@ -46,8 +46,8 @@ test('clumps favor banks, retain complete wet footprints and leave bridge decks 
     }
   }
   assert.ok(count > 300);
-  assert.ok(nearEdge / count > 0.7, `${nearEdge}/${count} are near banks`);
-  assert.ok(sumDistance / count < 1.9, 'uniform surface sampling would average about 2.7m from banks');
+  assert.ok(nearEdge / count > 0.5, `${nearEdge}/${count} are near banks`);
+  assert.ok(sumDistance / count < 2.5, 'uniform surface sampling would average about 2.7m from banks');
   geometry.dispose();
 });
 
@@ -190,4 +190,52 @@ test('bent reed head axes align with the current on all cardinal headings', () =
     }
     assert.ok(checked);geometry.dispose();water.mesh.material.dispose();
   }
+});
+
+
+test('water grass and reeds form varied odd 3–11 stem clumps with mixed heights', () => {
+  const geometry = rectangle(), sizes = new Set();
+  let grassClumps = 0, reedClumps = 0;
+  for (let seed = 0; seed < 80; seed++) {
+    const mesh = new THREE.Mesh(geometry);
+    const plants = new WaterVegetation(new THREE.Group(), { mesh }, seed);
+    const groups = new Map();
+    for (const batch of plants.meshes) {
+      if (batch.geometry.parameters.radiusTop === .045) continue; // seed heads are not stems
+      batch.userData.shadowGroups.forEach((clump, i) => {
+        const matrix = new THREE.Matrix4();
+        batch.getMatrixAt(i, matrix);
+        const heights = groups.get(clump) || [];
+        heights.push(new THREE.Vector3().setFromMatrixColumn(matrix, 1).length());
+        groups.set(clump, heights);
+      });
+    }
+    for (const [clump, heights] of groups) {
+      assert.ok([3, 5, 7, 9, 11].includes(heights.length));
+      assert.equal(heights.length, plants.sites[clump].bladeCount);
+      assert.ok(Math.max(...heights) - Math.min(...heights) > .01);
+      sizes.add(heights.length);
+      if (plants.sites[clump].reed) reedClumps++; else grassClumps++;
+    }
+    plants.dispose(); mesh.material.dispose();
+  }
+  assert.equal(sizes.size, 5);
+  assert.ok(grassClumps > 10 && reedClumps > 10);
+  geometry.dispose();
+});
+
+test('eligible water has denser clumps and grass spans varied bank distances', () => {
+  const geometry = rectangle();
+  let maximum = 0, innerGrass = 0, edgeGrass = 0;
+  for (let seed = 0; seed < 150; seed++) {
+    const sites = waterVegetationSites(geometry, seed);
+    maximum = Math.max(maximum, sites.length);
+    for (const site of sites.filter(site => !site.reed)) {
+      if (site.edgeDistance > 3) innerGrass++;
+      if (site.edgeDistance < 1) edgeGrass++;
+    }
+  }
+  assert.ok(maximum > 18, 'selected bodies exceed the former 18-clump cap');
+  assert.ok(innerGrass > 20 && edgeGrass > 20);
+  geometry.dispose();
 });

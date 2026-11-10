@@ -395,6 +395,8 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 
 
 
-## Bank integration checkpoint — 9 November 2026
 
-Verified current main through the connector: `43184c5` remains latest and is already the bank candidate base; no additional main commits require integration. F-TERRAIN-BANK-001 remains In progress. Bank cap80degrees is implemented; final optimized terrain-view suite14/14 passes. Checked regression/build and independent review continue. Loading CPU cost remains a documented issue; source checkpoint is not deployment or user acceptance.
+
+## Main merged into bank work — 9 November 2026
+
+Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.

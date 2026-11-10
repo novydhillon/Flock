@@ -828,7 +828,8 @@ test('ground bark draws over real decorative blades while opaque fence rails ret
   assert.equal(grass.material.transparent,true);assert.equal(grass.material.opacity,1);
   assert.equal(grass.material.depthWrite,false);assert.equal(grass.material.depthTest,true);
   const blade=new THREE.Mesh(grass.geometry,grass.material),matrix=new THREE.Matrix4();grass.getMatrixAt(0,matrix);blade.applyMatrix4(matrix);blade.updateMatrixWorld(true);
-  const center=blade.position.clone(),direction=new THREE.Vector3(0,-36,-31).normalize();
+  // Aim through the first widened blade, rather than the gap at the clump center.
+  const center=new THREE.Vector3(.024 * 5, .1, 0).applyMatrix4(blade.matrixWorld),direction=new THREE.Vector3(0,-36,-31).normalize();
   const ray=new THREE.Raycaster(center.clone().addScaledVector(direction,-10),direction);
   const land=center.clone().addScaledVector(direction,(.055-center.y)/direction.y);
   renderer.dog.position.set(land.x-1,0,land.z);renderer.bark();const ring=renderer.barkEffects[0].mesh;ring.updateMatrixWorld(true);
@@ -1243,6 +1244,11 @@ test('grass and bank reeds remain shadow-free through camera travel and level re
       for (const { batch } of plants) {
         assert.equal(batch.castShadow, false);
         assert.equal(batch.receiveShadow, false);
+        const blades = batch.geometry.userData.bladesPerClump;
+        assert.ok([3, 5, 7, 9, 11].includes(blades), 'every rendered grass/reed geometry is a complete odd clump');
+      }
+      for (const kind of ['bankReeds', 'pastureGrass']) {
+        assert.ok(plants.filter(({batch}) => batch.userData[kind]).length <= 1, 'shared clump variants bound draw calls');
       }
       renderer.scene.traverse(mesh => assert.equal(Boolean(mesh.userData.bakedVegetationShadow), false));
     }
@@ -1252,15 +1258,19 @@ test('grass and bank reeds remain shadow-free through camera travel and level re
 test('public level six builds dense dimensional overgrowth and physical boulders without pasture discs',()=>{
   const renderer=setup(),level=createLevel(5);renderer.setLevel(level);
   assert.ok(level.terrain.enabled&&renderer.roughPasture,'the default first eligible meadow exercises both improvements');
-  const grass=renderer.sceneryBatches.find(({batch})=>batch.userData.pastureGrass);
+  const grasses=renderer.sceneryBatches.filter(({batch})=>batch.userData.pastureGrass);
+  const grass=grasses[0];
   const rocks=renderer.sceneryBatches.find(({batch})=>batch.userData.pastureRocks);
-  assert.ok(grass&&grass.matrices.length/16>1500,'full dense overgrowth is actually installed in the live scene');
+  assert.equal(grasses.length, 1);
+  assert.ok(grasses.reduce((sum, owner) => sum + owner.matrices.length / 16, 0) > 1500, 'full dense overgrowth is installed across bounded odd variants');
+  assert.ok(grasses.every(owner => [3,5,7,9,11].includes(owner.batch.geometry.userData.bladesPerClump)));
+  assert.equal(new Set(Array.from(grasses, owner => owner.batch.geometry.userData.bladesPerClump)).size, 1);
   assert.ok(rocks&&rocks.matrices.length/16===level.obstacles.filter(o=>o.kind==='rock').length);
   assert.equal(grass.batch.material.color.getHex(),0xffffff,'leaf vertex colors are not multiplied by a second dark green');
   assert.equal(grass.batch.castShadow,false);assert.equal(grass.batch.receiveShadow,false);
   renderer.terrain.traverse(object=>assert.notEqual(object.name,'Rough pasture patch','solid-colored polygon patches are removed'));
   const matrix=new THREE.Matrix4(),vertex=new THREE.Vector3();
-  for(const owner of [grass,rocks])for(let i=0;i<owner.matrices.length/16;i++){
+  for(const owner of [...grasses,rocks])for(let i=0;i<owner.matrices.length/16;i++){
     matrix.fromArray(owner.matrices,i*16);
     const bound=owner.bounds.subarray(i*4,i*4+4),position=owner.batch.geometry.attributes.position;
     for(let j=0;j<position.count;j++){
@@ -1269,7 +1279,7 @@ test('public level six builds dense dimensional overgrowth and physical boulders
       if(owner===rocks){const rock=level.obstacles.filter(o=>o.kind==='rock')[i];assert.ok(Math.hypot(vertex.x-rock.x,vertex.z-rock.z)<=rock.radius+1e-5,'visible rock fits its authoritative circle');}
     }
   }
-  const resources=[grass.batch.geometry,grass.batch.material,rocks.batch.geometry,rocks.batch.material];let disposed=0;
+  const resources=[...grasses,rocks].flatMap(owner => [owner.batch.geometry, owner.batch.material]);let disposed=0;
   for(const resource of resources)resource.addEventListener('dispose',()=>disposed++);
   renderer.setLevel(createLevel(0));assert.equal(disposed,resources.length,'level replacement releases owned grass and rock resources');
 });
@@ -1418,3 +1428,22 @@ test('sun caster bounds retain original spheres and their projected ellipse in e
   assert.equal(fit.intersects([horizontal],4,5,-7,2),false,'horizontal frustum planes do not inherit lateral shadow inflation');
 });
 
+test('land clump variants cover all odd sizes across campaign seeds without increasing stem budgets', () => {
+  const renderer = setup();
+  const sites = Array.from({length: 100}, (_, x) => ({x, z: 0}));
+  for (const [salt, previousBlades] of [[0x67726173, 5], [0x72656564, 5], [0x70617374, 8]]) {
+    const sizes = new Set();
+    for (let index = 0; index < 100; index++) {
+      const owner = {level: {seed: index * 7919 + 42}};
+      const groups = renderer.plantSiteGroups.call(owner, sites, salt, previousBlades);
+      assert.equal(groups.size, 1, 'one shared geometry per category bounds submissions');
+      for (const [blades, clumps] of groups) {
+        sizes.add(blades);
+        assert.ok(clumps.length * blades <= sites.length * previousBlades + blades, 'ceil allowance is less than one extra clump');
+        assert.ok(clumps.every(site => sites.includes(site)), 'thinning preserves validated locations');
+        assert.ok(clumps.length > 0);
+      }
+    }
+    assert.deepEqual([...sizes].sort((a, b) => a - b), [3, 5, 7, 9, 11]);
+  }
+});
