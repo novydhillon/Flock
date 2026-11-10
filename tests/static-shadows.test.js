@@ -117,3 +117,29 @@ test('road clones of installed sources inject one static projection and follow l
     road.dispose();texture.dispose();
   }
 });
+
+
+test('explicit static water-effect rocks join the bake and bounds without capturing external wildlife', () => {
+  const f=fixture(),baked=new StaticShadows();
+  const waterEffects=new THREE.Group();f.scene.add(waterEffects);
+  const rock=new THREE.Mesh(new THREE.BoxGeometry(4,4,4),new THREE.MeshStandardMaterial());
+  rock.name='Seeded river rocks';rock.position.set(350,2,-90);
+  rock.castShadow=rock.receiveShadow=true;rock.userData.staticEnvironment=true;waterEffects.add(rock);
+  const bird=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial());
+  bird.position.set(10000,5,0);bird.castShadow=bird.receiveShadow=true;f.scene.add(bird);
+  const render=f.renderer.render;
+  f.renderer.render=scene=>{
+    assert.equal(rock.castShadow,true,'external tagged static rock participates in the depth bake');
+    assert.equal(bird.castShadow,false,'live wildlife is excluded from the baked map');
+    render(scene);
+  };
+  baked.bake(f.renderer,f.scene,f.camera,f.sun,f.terrain);
+  assert.ok(baked.staticCasters.has(rock));
+  assert.equal(rock.castShadow,false);assert.equal(bird.castShadow,true);
+  const position=new THREE.Vector3();rock.getWorldPosition(position);
+  position.applyMatrix4(baked.uniforms.bakedShadowMatrix.value);
+  assert.ok(position.x>0&&position.x<1&&position.y>0&&position.y<1&&position.z>0&&position.z<1,'bake projection includes an external fixed rock');
+  bird.getWorldPosition(position);position.applyMatrix4(baked.uniforms.bakedShadowMatrix.value);
+  assert.ok(position.x>1||position.x<0||position.y>1||position.y<0,'distant moving wildlife cannot inflate the static bake bounds');
+  baked.dispose();
+});

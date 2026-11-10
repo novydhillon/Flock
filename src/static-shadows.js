@@ -110,14 +110,16 @@ export class StaticShadows {
   }
 
   prepare(scene, terrain) {
-    terrain.traverse(object => {
-      if (!object.isMesh) return;
-      if (object.castShadow && !movingEnvironmentPart(object, terrain)) {
-        object.userData.bakedStaticShadow = true;
-        this.staticCasters.add(object);
-      }
-    });
+    const capture = object => {
+      if (!object.isMesh || !object.castShadow || movingEnvironmentPart(object, terrain)) return;
+      object.userData.bakedStaticShadow = true;
+      this.staticCasters.add(object);
+    };
+    terrain.traverse(capture);
     scene.traverse(object => {
+      // RiverDetails owns fixed rocks under the water-effects root, separate
+      // from terrain. Explicit tags include these without capturing wildlife.
+      if (object.userData.staticEnvironment) capture(object);
       if (!object.isMesh || !object.receiveShadow) return;
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) this.install(material);
     });
@@ -136,6 +138,7 @@ export class StaticShadows {
     this.uniforms.bakedShadowTexel.value.set(1 / mapSize, 1 / mapSize);
     light.shadow.normalBias = this.normalBias;
     const bounds = new THREE.Box3().setFromObject(terrain);
+    for (const object of this.staticCasters) bounds.expandByObject(object);
     const center = bounds.getCenter(new THREE.Vector3());
     const size = bounds.getSize(new THREE.Vector3());
     const radius = Math.max(1, size.length() / 2 + 2);
