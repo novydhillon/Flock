@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-VEG-001~~ | ~~P2~~ | ~~Environment~~ | ~~Odd 3–11 stem clumps, varied heights and denser randomized water vegetation~~ | ~~Done~~ | ~~Accepted F-WATER-002/003~~ |
 | ~~F-CAMERA-001~~ | ~~P2~~ | ~~Presentation~~ | ~~Lower camera height 25% at fixed target distance~~ | ~~Done~~ | ~~Current camera framing~~ |
 | ~~F-TERRAIN-HEIGHT-001~~ | ~~P2~~ | ~~Terrain experiment~~ | ~~Double terrain range with unchanged slope limit~~ | ~~Done~~ | ~~Accepted rolling terrain~~ |
 | ~~F-TERRAIN-001~~ | ~~P3~~ | ~~Environment/art~~ | ~~Rough pasture appearance on selected levels~~ | ~~Done~~ | ~~Existing clay grass and ground presentation~~ |
@@ -2169,3 +2170,22 @@ F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elev
 
 **Closed:** 9 November 2026. Novy explicitly accepted the camera change and authorized its main merge with “Merge to main”. Source f3b6e25784fa23124d609338a9e1c599dc11c801 passed 607/607 regressions, both artifact modes and source CI run 42699094989. Native phone framing/FPS remain unmeasured; this acceptance does not establish those measurements. No new deployment is requested by this merge instruction.
 
+
+
+### F-VEG-001 — ~~Odd grass and reed clumps~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/odd-vegetation-clumps`.
+
+**Accept when:** All modeled grass/reed clumps use 3,5,7,9 or11 stems with varied heights, including field/bank/rough pasture and in-water plants. No single-blade instances. Water grass occurs at more varied bank distances while retaining edge preference and full wet footprints. Increase density on selected water bodies (30 clumps cap,22m² target area per clump) while preserving the seeded20% eligibility, downstream curved reeds, no plant shadows, bridge clearance, determinism and bounded owned resources. Independent source review and checks precede handoff; rendered phone acceptance remains separate. User has requested implementation, not publication or main merge.
+
+**Closed:** 9 November 2026. Novy explicitly approved the odd clumps, denser water vegetation and wider blade spread and requested main merge. Accepted source decee297. Source validation and limitations retained in QUALITY.md; source merge only, no production publication.
+
+
+
+## Wider grass blade spread — 9 November 2026
+
+F-VEG-001 follow-up: widen land grass/bank reed blade-center spread 2.5× (radius multiplier2→5), and water-grass spread .06–.09m→.11–.15m. Preserve counts, blade widths/heights, existing clump centers, wet/bridge clearance and shadows. Remains Review.
+
+User acceptance on 9 November 2026 supersedes the historical Review status above.

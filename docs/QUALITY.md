@@ -1492,3 +1492,8 @@ F-VEG-001 bounded readability follow-up: widen land grass/bank reed stem centers
 
 
 Spread validation:18/18 focused plant/water tests and3/3 renderer budget/lifecycle tests passed. Full regression ran612 tests:611 passed; one bark-occlusion ray fixture missed the newly widened clump center gap. Corrected only the fixture to aim through an actual blade; its focused recheck1/1 passed. Runtime unchanged after the full run. Both release/development builds and artifact guards pass (33/35files, zero/two QA assets). No rendered phone verification or deployment.
+
+
+## Vegetation user acceptance — 9 November 2026
+
+Novy approved the completed F-VEG-001 odd clumps, denser/randomized water plants and wider blade spread, and authorized main merge. Archive the full tracker row/details and related spread follow-up using the reusable closure workflow. Accepted source `decee2970192f38c1c8001de0b5a42504bad5e3b`. Runtime unchanged by closure. Prior source checks and their limits remain above; no production publication is included.
