@@ -1,7 +1,7 @@
 {
   "environment": "dev",
-  "branch": "feat/compact-riverbanks",
-  "sourceSha": "5a81df604e0964d5cbb2172640207ce875b07fbe",
+  "branch": "feat/baked-environment-shadows",
+  "sourceSha": "6c16f7d1f16cece081a56091985617b808815257",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,8 +30,8 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-BPRbKyHr.js",
-      "sha256": "f30def7f7be32a95ca7adf1f5064285444dffcc8e97772b4ab82e59aba652102"
+      "path": "dev/assets/index-C4Bq1onc.js",
+      "sha256": "1ce1308febfd5732129215f3ec98b73235d437e9c0e73f1270cecda5e13332f9"
     },
     {
       "path": "dev/assets/index-CSqPztdu.css",
@@ -42,8 +42,8 @@
       "sha256": "844f49cfc6413d5fdddc1e56a07ea2bb22b2cab768e2d458e1d2e08a3df76a6c"
     },
     {
-      "path": "dev/assets/main-CmfVdSxu.js",
-      "sha256": "a9b9c67856653b978e54349fc2cc171c7ba9b1e75f373712256f6c98db0375ec"
+      "path": "dev/assets/main-wv2eGcGm.js",
+      "sha256": "4ad6f9351ca06f1b633fb14fbbd7ed9bf377a834cf6390ec48bf970a806c985f"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -70,8 +70,8 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-Bxi9CN0e.js",
-      "sha256": "5c01cc49af7247c0fc85d5a2ac6eefa5858682ab1fbcda1cb1cf003e4c397d84"
+      "path": "dev/assets/qa-BL1YWNaC.js",
+      "sha256": "affc5e8da0fcc47d21596b1d58a37cfd66e10bb743109952d4b0785c21ac2d4b"
     },
     {
       "path": "dev/assets/qa-Bz571FEl.css",
@@ -139,7 +139,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "b52d528ee9bf8e2b30c8cb0449b4c84458d665ba6a287c67e2d095401f411953"
+      "sha256": "8161da8ca1f175898b20eb0808cb1d088ddf8017341d66863303140f63d6e35d"
     },
     {
       "path": "dev/site.webmanifest",
