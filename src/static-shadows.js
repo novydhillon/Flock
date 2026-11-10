@@ -90,8 +90,8 @@ export class StaticShadows {
           if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0 || p.z < 0.0 || p.z > 1.0) return 1.0;
           float visible = 0.0;
           for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
-            vec4 packed = texture2D(bakedShadowMap, p.xy + vec2(float(x), float(y)) * bakedShadowTexel);
-            float depth = dot(packed, vec4(0.99609375, 0.0038909912109375, 0.00001519918441772461, 0.000000059604644775390625));
+            vec4 depthTexel = texture2D(bakedShadowMap, p.xy + vec2(float(x), float(y)) * bakedShadowTexel);
+            float depth = dot(depthTexel, vec4(0.99609375, 0.0038909912109375, 0.00001519918441772461, 0.000000059604644775390625));
             visible += step(p.z + bakedShadowBias, depth);
           }
           return visible / 9.0;
