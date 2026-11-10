@@ -399,3 +399,8 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 **Branch:** `feat/odd-vegetation-clumps`.
 
 **Accept when:** All modeled grass/reed clumps use 3,5,7,9 or11 stems with varied heights, including field/bank/rough pasture and in-water plants. No single-blade instances. Water grass occurs at more varied bank distances while retaining edge preference and full wet footprints. Increase density on selected water bodies (30 clumps cap,22m² target area per clump) while preserving the seeded20% eligibility, downstream curved reeds, no plant shadows, bridge clearance, determinism and bounded owned resources. Independent source review and checks precede handoff; rendered phone acceptance remains separate. User has requested implementation, not publication or main merge.
+
+
+## Wider grass blade spread — 9 November 2026
+
+F-VEG-001 follow-up: widen land grass/bank reed blade-center spread 2.5× (radius multiplier2→5), and water-grass spread .06–.09m→.11–.15m. Preserve counts, blade widths/heights, existing clump centers, wet/bridge clearance and shadows. Remains Review.

@@ -113,7 +113,9 @@ export class WaterVegetation {
       site.bladeCount = oddBladeCount(detailRandom);
       for (let blade = 0; blade < site.bladeCount; blade++) {
         const angle = site.rotation + blade * Math.PI * 2 / site.bladeCount;
-        const spread = blade === 0 ? 0 : 0.06 + detailRandom() * 0.03;
+        const spread = blade === 0 ? 0 : site.reed
+          ? 0.06 + detailRandom() * 0.03
+          : 0.11 + detailRandom() * 0.04;
         const height = (site.reed ? SETTINGS.reedHeight : SETTINGS.grassHeight) * site.scale * plantBladeHeight(detailRandom);
         const x = site.x + Math.cos(angle) * spread, z = site.z + Math.sin(angle) * spread;
         const pose = { clump, x, z, y: site.y - 0.06 + height / 2, height, angle };

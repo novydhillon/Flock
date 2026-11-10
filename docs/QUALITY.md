@@ -1484,3 +1484,11 @@ F-VEG-001, branch `feat/odd-vegetation-clumps`, base `43184c5db1b14922d5350e4d6e
 
 
 **Final validation:** standard `npm run build:checked:dev` exits0:612/612 regressions, zero failures/skips;7/7 docs DOM checks; release33files/zero QA and development35files/two QA. Existing Vite chunk-size advisory remains. Rendered phone appearance and FPS remain pending. F-VEG-001 stays Review awaiting user sign-off; no deployment or main merge performed.
+
+
+## Wider grass blade spread — 9 November 2026
+
+F-VEG-001 bounded readability follow-up: widen land grass/bank reed stem centers2.5×, water grass to .11–.15m, retaining water reeds/current bends. Footprints remain inside existing .28m water radius and land clearance. No topology, count, material, simulation or saved-state changes. Session model gpt-6.1-sol, inherited effort; checks follow; no device appearance/FPS claim.
+
+
+Spread validation:18/18 focused plant/water tests and3/3 renderer budget/lifecycle tests passed. Full regression ran612 tests:611 passed; one bark-occlusion ray fixture missed the newly widened clump center gap. Corrected only the fixture to aim through an actual blade; its focused recheck1/1 passed. Runtime unchanged after the full run. Both release/development builds and artifact guards pass (33/35files, zero/two QA assets). No rendered phone verification or deployment.

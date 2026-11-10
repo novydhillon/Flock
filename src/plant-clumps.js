@@ -21,7 +21,7 @@ export function plantClumpGeometry(radius, height, blades = 5) {
     const variation = (i * 0.61803398875 + blades * 0.173) % 1;
     const bladeHeight = height * plantBladeHeight(() => variation);
     const geometry = new THREE.ConeGeometry(radius, bladeHeight, 3);
-    geometry.translate(Math.cos(angle) * radius * 2, bladeHeight / 2, Math.sin(angle) * radius * 2);
+    geometry.translate(Math.cos(angle) * radius * 5, bladeHeight / 2, Math.sin(angle) * radius * 5);
     pieces.push(geometry);
   }
   const result = mergeGeometries(pieces);

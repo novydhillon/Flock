@@ -828,7 +828,8 @@ test('ground bark draws over real decorative blades while opaque fence rails ret
   assert.equal(grass.material.transparent,true);assert.equal(grass.material.opacity,1);
   assert.equal(grass.material.depthWrite,false);assert.equal(grass.material.depthTest,true);
   const blade=new THREE.Mesh(grass.geometry,grass.material),matrix=new THREE.Matrix4();grass.getMatrixAt(0,matrix);blade.applyMatrix4(matrix);blade.updateMatrixWorld(true);
-  const center=blade.position.clone(),direction=new THREE.Vector3(0,-36,-31).normalize();
+  // Aim through the first widened blade, rather than the gap at the clump center.
+  const center=new THREE.Vector3(.024 * 5, .1, 0).applyMatrix4(blade.matrixWorld),direction=new THREE.Vector3(0,-36,-31).normalize();
   const ray=new THREE.Raycaster(center.clone().addScaledVector(direction,-10),direction);
   const land=center.clone().addScaledVector(direction,(.055-center.y)/direction.y);
   renderer.dog.position.set(land.x-1,0,land.z);renderer.bark();const ring=renderer.barkEffects[0].mesh;ring.updateMatrixWorld(true);

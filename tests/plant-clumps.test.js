@@ -12,7 +12,8 @@ test('slender merged clumps retain multiple blades without multiplying instances
   assert.equal(geometry.userData.bladesPerClump, 5);
   geometry.computeBoundingBox();
   assert.ok(geometry.boundingBox.max.y > .5);
-  assert.ok(geometry.boundingBox.max.x - geometry.boundingBox.min.x < .15);
+  assert.ok(geometry.boundingBox.max.x - geometry.boundingBox.min.x > .2
+    && geometry.boundingBox.max.x - geometry.boundingBox.min.x < .3);
   geometry.dispose();
 });
 test('bank clumps are seeded and have varied spacing, sides and offsets', () => {
