@@ -120,10 +120,10 @@
     "max": 1
   },
   "elevatedBridgeBankSetback": {
-    "value": 7,
-    "_comment": "Long elevated spans reach dry banks this far beyond each physical water edge.",
-    "min": 7,
-    "max": 7
+    "value": 2.75,
+    "_comment": "Compact elevated spans land on raised banks within 2.75m of each physical water edge.",
+    "min": 2.75,
+    "max": 2.75
   },
   "elevatedBridgeMinimumClearance": {
     "value": 0.25,
@@ -199,5 +199,47 @@
     "_comment": "Deterministic lateral journey-verge fallback offsets for finding eligible lowland pools on stronger rolling relief. Placement remains capped by maxPuddles and physical eligibility.",
     "min": -16,
     "max": 16
+  },
+  "bankVariation": {
+    "value": 0.7,
+    "min": 0,
+    "max": 1,
+    "_comment": "Seeded change in ordinary low-bank shelf width, metres."
+  },
+  "bankVariationLength": {
+    "value": 13,
+    "min": 10,
+    "max": 30,
+    "_comment": "Length scale of the smooth seeded bank-width variation."
+  },
+  "compactBankLiftFraction": {
+    "value": 0.25,
+    "min": 0.1,
+    "max": 0.5,
+    "_comment": "Fraction of remaining pasture rise reached beside compact elevated crossings; retuned for the accepted doubled hill relief."
+  },
+  "soilStartDegrees": {
+    "value": 18,
+    "min": 0,
+    "max": 30,
+    "_comment": "Slope where grass begins blending into granular soil."
+  },
+  "soilFullDegrees": {
+    "value": 32,
+    "min": 31,
+    "max": 60,
+    "_comment": "Slope where ground becomes fully granular soil."
+  },
+  "maximumBankSlopeDegrees": {
+    "value": 80,
+    "min": 40,
+    "max": 80,
+    "_comment": "User-authorized cap for localized compact bank faces; pasture and bridge support remain limited to30degrees. This cap is checked by measurements, not enforced by clipping the smooth surface."
+  },
+  "elevatedBridgeFieldClearance": {
+    "value": 7,
+    "min": 7,
+    "max": 7,
+    "_comment": "Retain established meadow layout breathing room independently of compact bridge span setbacks; avoids moving scenery and goals closer to spawn."
   }
 }

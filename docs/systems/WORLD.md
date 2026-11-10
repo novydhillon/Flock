@@ -205,3 +205,8 @@ An independent seeded35% candidate selection applies only to rolling meadows; th
 
 `bridge.elevated` selects a bank-to-bank chord with localized smooth tangent corrections and a.08m crown. Endpoint samples vary across the full deck width, preserving both bank height and normal at each end. The shared `bridgeSurfaceHeight` drives actors, navigation support and visual components; the same extended descriptor drives physical footprint and rails. Endpoints and interior support remain subject to the global4.5m relief/30-degree grade bounds.
 
+
+
+## Compact elevated banks — 9 November 2026
+
+F-TERRAIN-BANK-001 separates bridge setback from layout clearance: raised crossings use2.75m per-bank span setbacks while retaining the existing7m meadow breathing room. A seeded slow shelf variation changes ordinary banks; a localized quintic rise beside selected elevated spans raises dry banks without changing the wet edge. Current doubled hills retain9m relief and30degree pasture/deck caps; localized compact faces have a user-authorized80degree cap. `compactBankRegion` classifies that analytic deformation for validation, not collision. Existing planar bank occupancy remains unchanged. Dense full-width landing/interior validation can downgrade invalid elevated candidates, rebuilding the terrain field before acceptance.

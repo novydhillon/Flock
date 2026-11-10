@@ -54,3 +54,8 @@ node scripts/measure-terrain.mjs --levels 6-100 --seeds 200-211 --spacing 4 > te
 ```
 
 `--levels` accepts public level numbers/ranges; `--seeds campaign` uses normal campaign seeds or supply integer seeds/ranges. `--spacing` sets the positive bounds-grid step in metres. JSON reports sampled range, maximum ground/deck grades, RMS ground grade, configured limits and per-case status. It samples level bounds and full deck widths; it is not an analytic proof or phone performance/readability test. See [the double-height experiment](../docs/experiments/double-terrain-height.md).
+
+
+## Terrain and bank measurements — 9 November 2026
+
+`node scripts/measure-terrain.mjs --levels 6-100 --seeds 200-203 --spacing 2` measures deterministic support geometry. Omit `--seeds` for campaign seeds. JSON reports relief, ordinary-pasture and localized-bank grades separately, full-width bridge support grades, elevated-crossing count and maximum setback; exits nonzero for sampled limit violations. Uses configured9m relief,30degree pasture/deck and80degree compact-face limits. `compactBankRegion` identifies the actual analytic compact blend footprint. Read-only, no publication. Finite sampling is neither an analytic proof nor rendered/device evidence. This extends the existing repeated terrain measurement workflow rather than creating task-specific scripts.

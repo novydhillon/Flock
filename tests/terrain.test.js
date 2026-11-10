@@ -5,7 +5,7 @@ import {
   groundHeight, terrainHeight, terrainNormal, terrainSlope,
   bridgeSurfaceHeight, riverSurfaceHeight, poolingSite,
 } from '../src/world.js';
-import { createTerrain, TERRAIN } from '../src/terrain.js';
+import { createTerrain, compactBankRegion, TERRAIN } from '../src/terrain.js';
 import terrainSettings from '../src/config/terrain.json' with { type: 'json' };
 import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
 import { resolveConfig } from '../src/config/resolve.js';
@@ -17,7 +17,7 @@ const bridgePoint = (bridge, along, lateral = 0) => ({
   x: bridge.x + Math.sin(bridge.heading) * along + Math.cos(bridge.heading) * lateral,
   z: bridge.z + Math.cos(bridge.heading) * along - Math.sin(bridge.heading) * lateral,
 });
-const finiteGradient = (sample, x, z, step = .001) => ({
+const finiteGradient = (sample, x, z, step = .0001) => ({
   dx: (sample(x + step, z) - sample(x - step, z)) / (2 * step),
   dz: (sample(x, z + step) - sample(x, z - step)) / (2 * step),
 });
@@ -56,7 +56,9 @@ test('every campaign seed and compass orientation keeps continuous relief and gr
       const label = `${index}/${seed}/${point.x}/${point.z}`;
       const height = groundHeight(level, point.x, point.z), normal = terrainNormal(level, point.x, point.z);
       minimum = Math.min(minimum, height); maximum = Math.max(maximum, height);
-      assert.ok(degrees(terrainSlope(level, point.x, point.z)) <= TERRAIN.maximumSlopeDegrees, `ground grade: ${label}`);
+      const limit = compactBankRegion(level, point.x, point.z)
+        ? TERRAIN.maximumBankSlopeDegrees : TERRAIN.maximumSlopeDegrees;
+      assert.ok(degrees(terrainSlope(level, point.x, point.z)) <= limit, `ground grade: ${label}`);
       assert.ok(Math.abs(Math.hypot(normal.x, normal.y, normal.z) - 1) < 1e-12, `unit normal: ${label}`);
       const gradient = finiteGradient((x, z) => groundHeight(level, x, z), point.x, point.z);
       assert.ok(Math.abs(gradient.dx + normal.x / normal.y) < 1e-7 && Math.abs(gradient.dz + normal.z / normal.y) < 1e-7, `smooth shared gradient: ${label}`);
@@ -143,7 +145,7 @@ test('elevated crossings retain high bank-to-bank support and match the entire l
       if (!bridge.elevated) { short++; continue; }
       elevated++;orientations.add(Math.round(level.startHeading / (Math.PI / 2)));
       assert.ok(level.terrain.enabled && index >= 5);
-      assert.ok(bridge.length <= river.width + 14, 'higher banks use a bounded physical span');
+      assert.ok(bridge.length <= river.width + 5.5, 'higher banks use a bounded physical span');
       for (const lateral of [-bridge.width / 2 + .01, -bridge.width / 4, 0, bridge.width / 4, bridge.width / 2 - .01]) {
         const ends = [-1, 1].map(side => bridgePoint(bridge, side * bridge.length / 2, lateral));
         const heights = ends.map(p => groundHeight(level, p.x, p.z));
@@ -253,4 +255,25 @@ test('double-height dry river transition remains below30degrees around the limit
   for(let x=25;x<=29;x+=.1) for(let z=5;z<=10;z+=.1) {
     assert.ok(terrainSlope(level,x,z) <= Math.PI/6, `limiting bank grade at${x}/${z}`);
   }
+});
+
+test('compact raised banks shorten spans while retaining steep soil-bearing slopes and deterministic selection', () => {
+  let crossings = 0, steep = 0;
+  for(let index=5; index<100;index++) {
+    const level=createLevel(index);
+    for(const river of level.rivers)for(const bridge of river.bridges) {
+      if(!bridge.elevated)continue;
+      crossings++;
+      assert.ok(bridge.length<=river.width+5.5,'raised spans extend at most2.75m beyond each water edge');
+      let slope=0;
+      for(const side of [-1,1])for(let offset=.4;offset<2.7;offset+=.15){
+        const p=bridgePoint(bridge,side*(river.width/2+offset));
+        slope=Math.max(slope,degrees(terrainSlope(level,p.x,p.z)));
+      }
+      if(slope>TERRAIN.soilFullDegrees)steep++;
+      assert.ok(slope<TERRAIN.maximumBankSlopeDegrees,'bounded steep-bank exception');
+    }
+  }
+  assert.ok(crossings>10 && steep>5,'campaign retains elevated crossings and visibly steep soil-bearing banks');
+  assert.deepEqual(createLevel(5).terrain,createLevel(5).terrain,'seeded variation is repeatable');
 });

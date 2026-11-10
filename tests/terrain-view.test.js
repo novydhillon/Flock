@@ -55,12 +55,24 @@ test('surface grid preserves road fade and shared edge positions while bounding 
   geometry.dispose();
 });
 
-test('large rolling road network has a bounded indexed geometry budget', () => {
+test('large rolling surfaces share a bounded indexed geometry budget', t => {
   for (const [index, seed, vertexBudget, triangleBudget] of [[19, 201, 50000, 100000], [99, undefined, 80000, 150000]]) {
     const level = createLevel(index, seed);
     const geometry = conformSurface(roadNetwork(level.roads), (x, z) => groundHeight(level, x, z));
-    assert.ok(geometry.attributes.position.count < vertexBudget, `public level ${index + 1} vertex budget`);
-    assert.ok(geometry.index.count / 3 < triangleBudget, `public level ${index + 1} triangle budget`);
+    const b=level.bounds;
+    const ground=meadowGeometry(level,b.maxX-b.minX+90,b.maxZ-b.minZ+90,(b.minX+b.maxX)/2,(b.minZ+b.maxZ)/2);
+    const bytes=g=>Object.values(g.attributes).reduce((sum,a)=>sum+a.array.byteLength,0)+g.index.array.byteLength;
+    const vertices=ground.attributes.position.count+geometry.attributes.position.count;
+    const triangles=(ground.index.count+geometry.index.count)/3;
+    // Spend the saved decorative-apron allocation on accurate compact-bank
+    // roads, retaining the existing combined ground+road ceilings and bytes.
+    assert.ok(vertices<150000+vertexBudget, `public level ${index+1} combined vertex budget: ${vertices}`);
+    assert.ok(triangles<300000+triangleBudget, `public level ${index+1} combined triangle budget: ${triangles}`);
+    const byteBudget=150000*44+300000*12+vertexBudget*36+triangleBudget*12;
+    assert.ok(bytes(ground)+bytes(geometry)<byteBudget,'combined position/normal/UV/color/opacity/index buffers stay within prior allocated ceilings');
+    assert.ok(geometry.attributes.position.count<160000,'individual road growth stays bounded');
+    t.diagnostic(`public${index+1}: ${vertices} vertices, ${triangles} triangles, ${bytes(ground)+bytes(geometry)} buffer bytes`);
+    ground.dispose();
     const positions=geometry.attributes.position, indices=geometry.index;
     // Interiors reveal interpolation errors which exact vertex samples hide.
     // Roads retain centimetre-scale support accuracy and always clear the
@@ -256,4 +268,50 @@ test('grass and road relief shading composes material hooks and shares a resetta
   enabled.value = 0;
   assert.equal(shader.uniforms.terrainReliefEnabled.value, 0, 'flat level disables contrast without recompiling');
   material.dispose();
+});
+
+test('slope soil blends granular albedo and bump while preserving existing material hooks', async () => {
+  const { installSlopeSoil } = await import('../src/terrain-view.js');
+  const material = new THREE.MeshStandardMaterial({map: new THREE.Texture(), bumpMap: new THREE.Texture()});
+  const soil = new THREE.Texture(), bump = new THREE.Texture();
+  let previous = 0;
+  material.onBeforeCompile = shader => { previous++; shader.uniforms.existing = {value: 7}; };
+  installSlopeSoil(material, soil, bump);
+  const enabled = {value: 1};
+  installTerrainRelief(material, enabled);
+  const shader = {
+    uniforms: {}, vertexShader: THREE.ShaderLib.standard.vertexShader,
+    fragmentShader: THREE.ShaderLib.standard.fragmentShader,
+  };
+  material.onBeforeCompile(shader);
+  assert.equal(previous, 1);
+  assert.equal(shader.uniforms.existing.value, 7);
+  assert.equal(shader.uniforms.terrainReliefEnabled, enabled, 'soil composes with the accepted hill shading');
+  assert.equal(shader.uniforms.meadowSoilMap.value, soil);
+  assert.equal(shader.uniforms.meadowSoilBumpMap.value, bump);
+  assert.match(shader.vertexShader, /meadowNormalY = normal.y/);
+  assert.match(shader.fragmentShader, /mix\(sampledDiffuseColor, texture2D\(meadowSoilMap, vMapUv\)/);
+  assert.equal((shader.fragmentShader.match(/texture2D\(meadowSoilBumpMap,/g) || []).length, 3,
+    'all three forward bump samples use the same continuous soil blend');
+  assert.match(shader.fragmentShader, /#include <color_fragment>/, 'weather and height tint stay in the standard material pipeline');
+  assert.match(material.customProgramCacheKey(), /slope-soil-v1:terrain-relief-v1/);
+  material.dispose();soil.dispose();bump.dispose();
+});
+
+
+test('adaptive surface cuts retain discontinuous per-face attributes at shared edges', () => {
+  const source = new THREE.BufferGeometry();
+  source.setAttribute('position', new THREE.Float32BufferAttribute([
+    0, 0, 0, 4, 0, 0, 0, 0, 4,
+    4, 0, 0, 4, 0, 4, 0, 0, 4,
+  ], 3));
+  source.setAttribute('roadOpacity', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 1], 1));
+  const geometry = conformSurface(source, (x, z) => .5 * Math.sin(x) + .3 * Math.cos(z));
+  const opacity = geometry.attributes.roadOpacity;
+  for (let i = 0; i < geometry.index.count; i += 3) {
+    const values = [0, 1, 2].map(j => opacity.getX(geometry.index.getX(i + j)));
+    assert.equal(values[0], values[1]);
+    assert.equal(values[1], values[2], 'refinement preserves each original face attribute instead of copying its neighbour');
+  }
+  geometry.dispose();
 });

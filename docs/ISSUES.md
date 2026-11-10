@@ -1,5 +1,9 @@
 # FLOCK — Active issue tracker
 
+## Bank work resumed — 9 November 2026
+
+Novy requested continuation of F-TERRAIN-BANK-001. Owner: Codex terrain team; branch `feat/compact-riverbanks`, based on current main `43184c5`. Preserve accepted doubled hills, fixed lower camera and full-width bridge validation. Recovered prototype is input only: revalidate geometry budgets, smooth support, water coverage, textures and navigation on current terrain. Novy subsequently authorized an80degree localized bank cap; ordinary pasture/decks remain30degrees. No deployment or main merge requested.
+
 ## Terrain acceptance and bank deferral — 6 November 2026
 
 Accepted F-TERRAIN-001–004 are archived in [Closed issues](ISSUES_CLOSED.md#rolling-terrain-user-acceptance--6-november-2026). F-TERRAIN-BANK-001 remains Deferred at Novy’s request. The accepted main merge includes hill readability and QA contours, while the compact/steep bank prototype remains outside committed source.
@@ -30,7 +34,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | Deferred | Accepted rolling terrain and elevated crossings |
+| F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | In progress | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
@@ -354,9 +358,9 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 
 ### F-TERRAIN-BANK-001 — Compact steep riverbanks and slope-based bank textures
 
-**Status:** Deferred. Owner: Codex terrain team.
+**Status:** In progress. Owner: Codex terrain team.
 
-**Branch:** `feat/rolling-terrain` (preserved local prototype only; no source publication).
+**Branch:** `feat/compact-riverbanks`
 
 **Requirement:** Allow steep banks beside raised river crossings so bridges do not extend deep into fields; vary other riverbank slopes smoothly and deterministically. Steeper banks show dirt texture; gentler banks show grass. Preserve continuous support, water coverage, deck joins, navigation and mobile budgets.
 
@@ -370,3 +374,8 @@ Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and clos
 
 
 
+
+
+## Main merged into bank work — 9 November 2026
+
+Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.

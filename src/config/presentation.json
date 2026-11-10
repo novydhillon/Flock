@@ -372,7 +372,7 @@
     },
     "surfaceSpacing": {
       "value": 1.9,
-      "_comment": "Maximum horizontal edge for terrain-following roads, goal decals and river surfaces.",
+      "_comment": "Starting horizontal edge scale for terrain-following surfaces; adaptive shared-edge refinement adds detail where support curvature requires it.",
       "min": 0.4,
       "max": 2
     },

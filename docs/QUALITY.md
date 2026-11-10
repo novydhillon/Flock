@@ -1497,3 +1497,7 @@ Spread validation:18/18 focused plant/water tests and3/3 renderer budget/lifecyc
 ## Vegetation user acceptance — 9 November 2026
 
 Novy approved the completed F-VEG-001 odd clumps, denser/randomized water plants and wider blade spread, and authorized main merge. Archive the full tracker row/details and related spread follow-up using the reusable closure workflow. Accepted source `decee2970192f38c1c8001de0b5a42504bad5e3b`. Runtime unchanged by closure. Prior source checks and their limits remain above; no production publication is included.
+
+## Main integration into compact banks — 9 November 2026
+
+Merged main `16776d8` into bank branch parent `8fb570d`. Runtime merges retain both slope-soil/terrain hooks and accepted odd vegetation clumps/spread; documentation append conflicts preserve both histories. Validated22/22 vegetation/pasture tests,3/3 targeted renderer/shader integration checks,7/7 documentation checks, release/development builds and both artifact-mode guards. No new full-regression or device pass is claimed. The existing8.3/10 bank review and setup-performance blocker remain unchanged; this integration is not feature acceptance or deployment.
