@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from '../src/bark.js';
-import { upgradeEffects, UPGRADE_CATALOG } from '../src/progression.js';
+import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from '../src/simulation/bark.js';
+import { upgradeEffects, UPGRADE_CATALOG } from '../src/progression/progression.js';
 
 test('level-two strength is exactly 33 percent above level one and respects meadow gates', () => {
   const first = upgradeEffects({ bark: 1 }, 100),

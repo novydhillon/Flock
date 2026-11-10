@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canGrazeAt, updateGrazing } from '../src/grazing.js';
-import { targetWorldPoint, segmentDistance } from '../src/world.js';
+import { canGrazeAt, updateGrazing } from '../src/rendering/animation/grazing.js';
+import { targetWorldPoint, segmentDistance } from '../src/world/world.js';
 
 const meadow = () => ({
   bounds: { minX: -50, maxX: 50, minZ: -50, maxZ: 50 },

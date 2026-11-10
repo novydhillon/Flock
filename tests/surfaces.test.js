@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { ribbon, roadRibbon, roadNetwork, createRoadMaterial, barkSurface } from '../src/surfaces.js';
-import { createLevel } from '../src/simulation.js';
-import { createBridge } from '../src/models.js';
-import { MeadowRenderer } from '../src/render.js';
-import { terrainHeight, groundHeight, bridgeSurfaceHeight } from '../src/world.js';
+import { ribbon, roadRibbon, roadNetwork, createRoadMaterial, barkSurface } from '../src/rendering/surfaces.js';
+import { createLevel } from '../src/simulation/simulation.js';
+import { createBridge } from '../src/rendering/models.js';
+import { MeadowRenderer } from '../src/rendering/render.js';
+import { terrainHeight, groundHeight, bridgeSurfaceHeight } from '../src/world/world.js';
 
 const cross = (a, b, c) => (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
 test('road terminals are rounded with gradual bounded coverage; water keeps square ends', () => {

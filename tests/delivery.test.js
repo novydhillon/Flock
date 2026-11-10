@@ -1,4 +1,4 @@
-import { animalRadius } from '../src/animal-size.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -12,8 +12,8 @@ import {
   saveProfile,
   loadProfile,
   canOccupy,
-} from '../src/simulation.js';
-import { targetFootprint, targetWorldPoint, containsTarget } from '../src/world.js';
+} from '../src/simulation/simulation.js';
+import { targetFootprint, targetWorldPoint, containsTarget } from '../src/world/world.js';
 
 function arrive(level, count = 1) {
   Object.assign(level.dog, { x: level.target.x, z: level.target.z });

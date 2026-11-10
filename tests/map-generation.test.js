@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createLevel, canOccupy, hasClearGroundPath, moveBody, distance } from '../src/world.js';
-import { animalRadius } from '../src/animal-size.js';
+import { createLevel, canOccupy, hasClearGroundPath, moveBody, distance } from '../src/world/world.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
 
 const walk = (level, route, radius) => {
   const body = { ...level.spawn };

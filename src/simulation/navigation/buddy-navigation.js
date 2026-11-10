@@ -1,0 +1,256 @@
+import { navigationTarget, hasClearGroundPath, canOccupy, segmentDistance, moveBody } from '../../world/world.js';
+
+const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+
+/** Resolve the actual standing goal separately from intermediate route waypoints. */
+export function buddyStandingTarget(level, body, desired, radius = 0.6) {
+  // The ideal rear position can itself overlap a tree, rail or bank. Route
+  // to a nearby valid standing point instead of planning to an impossible end.
+  if (!canOccupy(level, desired.x, desired.z, radius)) {
+    let best = null,
+      score = Infinity;
+    for (const reach of [0.6, 1.2, 1.8, 2.4, 3.2, 4.5, 6]) {
+      for (let i = 0; i < 24; i++) {
+        const angle = (i * Math.PI) / 12,
+          p = { x: desired.x + Math.cos(angle) * reach, z: desired.z + Math.sin(angle) * reach };
+        const cost = reach + distance(body, p) * 0.015;
+        if (cost < score && canOccupy(level, p.x, p.z, radius + 0.08)) {
+          best = p;
+          score = cost;
+        }
+      }
+      if (best) break;
+    }
+    if (!best) return null;
+    desired = best;
+  }
+  return desired;
+}
+
+/** Follow physical route/crossing waypoints, adding a cached visibility detour
+ * around circular tree footprints. Every edge uses the moving body's radius. */
+export function buddyNavigationTarget(level, body, desired, radius = 0.6) {
+  desired = buddyStandingTarget(level, body, desired, radius);
+  if (!desired) return { x: body.x, z: body.z };
+  let aim = navigationTarget(level, body, desired, radius);
+  // A road projection can land on a trunk or behind us. Where trees are
+  // the only blockers, detour toward the actual work position directly.
+  if (hasClearGroundPath({ ...level, obstacles: [] }, body, desired, radius)) aim = desired;
+  const cache = body.buddyNavigation;
+  if (cache && distance(cache.goal, aim) < 3 && level.time < cache.until) {
+    while (cache.path.length && distance(body, cache.path[0]) < 0.45) cache.path.shift();
+    if (cache.path.length && hasClearGroundPath(level, body, cache.path[0], radius)) return cache.path[0];
+  }
+  if (hasClearGroundPath(level, body, aim, radius)) {
+    delete body.buddyNavigation;
+    return aim;
+  }
+  const trees = (level.obstacles || [])
+    .filter(
+      (t) =>
+        distance(body, t) < Math.min(24, distance(body, aim) + 6) &&
+        segmentDistance(t, body, aim) < t.radius + radius + 4,
+    )
+    .sort((a, b) => distance(body, a) - distance(body, b))
+    .slice(0, 6);
+  if (!trees.length) return aim;
+  const nodes = [body, aim];
+  for (const tree of trees) {
+    // Inflate for the straight chords between sampled points, not just vertices.
+    const reach = (tree.radius + radius + 0.16) / Math.cos(Math.PI / 12);
+    for (let i = 0; i < 12; i++) {
+      const angle = (i * Math.PI) / 6,
+        point = { x: tree.x + Math.cos(angle) * reach, z: tree.z + Math.sin(angle) * reach };
+      if (canOccupy(level, point.x, point.z, radius)) nodes.push(point);
+    }
+  }
+  const costs = nodes.map(() => Infinity),
+    previous = [],
+    visited = new Set();
+  costs[0] = 0;
+  for (let step = 0; step < nodes.length; step++) {
+    let nearest = -1;
+    for (let i = 0; i < nodes.length; i++)
+      if (!visited.has(i) && (nearest < 0 || costs[i] < costs[nearest])) nearest = i;
+    if (nearest < 0 || !Number.isFinite(costs[nearest])) break;
+    if (nearest === 1) break;
+    visited.add(nearest);
+    for (let i = 1; i < nodes.length; i++) {
+      if (visited.has(i)) continue;
+      const cost = costs[nearest] + distance(nodes[nearest], nodes[i]);
+      if (cost >= costs[i] || !hasClearGroundPath(level, nodes[nearest], nodes[i], radius)) continue;
+      costs[i] = cost;
+      previous[i] = nearest;
+    }
+  }
+  if (!Number.isFinite(costs[1])) return aim;
+  const path = [];
+  for (let i = 1; i !== 0; i = previous[i]) path.unshift({ x: nodes[i].x, z: nodes[i].z });
+  body.buddyNavigation = { goal: { x: aim.x, z: aim.z }, path, until: level.time + 2 };
+  return path[0];
+}
+
+const recoveryLevels = new WeakMap();
+
+/** Recovery belongs to a task, never to the helper across tasks or levels. */
+export function resetBuddyRecovery(buddy) {
+  delete buddy.buddyRecovery;
+  recoveryLevels.delete(buddy);
+  delete buddy.buddyNavigation;
+  delete buddy.navigationBlocked;
+}
+
+/** Observe real collision-limited movement before attempting a short, clear
+ * back-out. Recovery never writes position; moveBuddy remains the only mover. */
+export function buddyRecoveryTarget(level, buddy, desired, dt, { taskKey, active = true, yielding = false } = {}) {
+  if (!(dt > 0) || !Number.isFinite(dt)) return { x: buddy.x, z: buddy.z };
+  // Measure arrival/progress against the reachable standing substitute, not
+  // an ideal point inside a trunk or a transient bridge/road waypoint.
+  desired = buddyStandingTarget(level, buddy, desired);
+  if (!desired) {
+    resetBuddyRecovery(buddy);
+    return { x: buddy.x, z: buddy.z };
+  }
+  if (!active || yielding || distance(buddy, desired) < 0.55) {
+    resetBuddyRecovery(buddy);
+    return buddyNavigationTarget(level, buddy, desired);
+  }
+  let state = buddy.buddyRecovery;
+  if (
+    !state ||
+    recoveryLevels.get(buddy) !== level ||
+    state.lastTime > level.time ||
+    state.taskKey !== taskKey ||
+    distance(state.goal, desired) > 6
+  ) {
+    resetBuddyRecovery(buddy);
+    state = buddy.buddyRecovery = {
+      lastTime: level.time,
+      taskKey,
+      bestDistance: distance(buddy, desired),
+      goal: { ...desired },
+      progressGoal: { ...desired },
+      progressDistance: distance(buddy, desired),
+      progressElapsed: 0,
+      anchor: { x: buddy.x, z: buddy.z },
+      blocked: 0,
+      attempts: 0,
+      elapsed: 0,
+    };
+  }
+  recoveryLevels.set(buddy, level);
+  state.lastTime = level.time;
+  state.elapsed += dt;
+  // A clear but futile route can oscillate without reporting a collision.
+  // Only judge progress while the requested work point remains stable.
+  if (distance(state.progressGoal, desired) > 0.5 || distance(buddy, desired) < state.progressDistance - 1e-5) {
+    state.progressGoal = { ...desired };
+    state.progressDistance = distance(buddy, desired);
+    state.progressElapsed = 0;
+  } else state.progressElapsed += dt;
+  if (state.waitUntil) {
+    if (state.elapsed < state.waitUntil) return { x: buddy.x, z: buddy.z };
+    delete state.waitUntil;
+    // Retry route planning after a quiet interval; each cycle stays bounded.
+    state.attempts = 0;
+    state.blocked = 0;
+    delete buddy.buddyNavigation;
+  }
+  if (state.escape) {
+    if (
+      distance(buddy, state.escape) < 0.3 ||
+      state.elapsed >= state.escapeUntil ||
+      !hasClearGroundPath(level, buddy, state.escape, 0.6)
+    ) {
+      delete state.escape;
+      delete buddy.buddyNavigation;
+      state.blocked = 0;
+      state.progressElapsed = 0;
+      state.anchor = { x: buddy.x, z: buddy.z };
+    } else return state.escape;
+  }
+  // Ordinary slow pursuit or turning is not stuck. Require a real collision
+  // plus sustained lack of displacement, rather than a minimum speed test.
+  if (distance(buddy, state.anchor) > 0.3) {
+    state.anchor = { x: buddy.x, z: buddy.z };
+    state.blocked = 0;
+    // Successful movement toward work replenishes the bounded attempt budget.
+    if (distance(buddy, desired) < state.bestDistance - 0.5) {
+      state.attempts = 0;
+      state.bestDistance = distance(buddy, desired);
+    }
+  }
+  state.blocked = buddy.navigationBlocked ? state.blocked + dt : Math.max(0, state.blocked - dt);
+  if (state.blocked < 1.5 && state.progressElapsed < 6) return buddyNavigationTarget(level, buddy, desired);
+  delete buddy.buddyNavigation;
+  if (state.attempts >= 3) {
+    state.waitUntil = state.elapsed + 2;
+    state.blocked = 0;
+    return { x: buddy.x, z: buddy.z };
+  }
+  const heading = Math.atan2(desired.x - buddy.x, desired.z - buddy.z);
+  const side = state.attempts % 2 ? -1 : 1;
+  state.attempts++;
+  state.blocked = 0;
+  state.progressElapsed = 0;
+  // Alternate back/side exits. Every complete edge must obey water, rails,
+  // gates, walls, trees and full body clearance, just like a normal route.
+  for (const angle of [
+    heading + side * Math.PI * 0.65,
+    heading - side * Math.PI * 0.65,
+    heading + Math.PI,
+    heading + (side * Math.PI) / 2,
+  ]) {
+    const point = { x: buddy.x + Math.sin(angle) * 1.8, z: buddy.z + Math.cos(angle) * 1.8 };
+    if (canOccupy(level, point.x, point.z, 0.68) && hasClearGroundPath(level, buddy, point, 0.6)) {
+      state.escape = point;
+      state.escapeUntil = state.elapsed + 2;
+      return point;
+    }
+  }
+  state.waitUntil = state.elapsed + 2;
+  return { x: buddy.x, z: buddy.z };
+}
+
+export const angleDifference = (to, from) => Math.atan2(Math.sin(to - from), Math.cos(to - from));
+export function turnToward(current, target, rate, dt) {
+  const change = angleDifference(target, current),
+    limit = rate * dt;
+  return current + Math.max(-limit, Math.min(limit, change));
+}
+
+/** Turn before reversing. Slow near the waypoint rather than shuttling through it. */
+export function moveBuddy(level, buddy, waypoint, dt, speed) {
+  if (!(dt > 0) || !Number.isFinite(dt)) return;
+  const dx = waypoint.x - buddy.x,
+    dz = waypoint.z - buddy.z,
+    d = Math.hypot(dx, dz);
+  const old = { x: buddy.x, z: buddy.z };
+  buddy.navigationBlocked = false;
+  if (d > 1e-4) {
+    const target = Math.atan2(dx, dz);
+    buddy.heading = turnToward(buddy.heading ?? target, target, 2.8, dt);
+    const alignment = Math.max(0, Math.cos(angleDifference(target, buddy.heading)));
+    // A fixed-speed step plus a .22m dead zone made a moving low-speed
+    // waypoint get chased in bursts: stop, let the target drift away, then
+    // accelerate toward it again. Use a proportional arrival speed and a
+    // bounded acceleration instead, so both pursuit and stopping are smooth.
+    const response = 5,
+      acceleration = 10;
+    const desiredSpeed = Math.min(Math.max(0, speed), d * response) * alignment;
+    const currentSpeed = Math.max(0, buddy.moveSpeed ?? Math.hypot(buddy.vx || 0, buddy.vz || 0));
+    const nextSpeed =
+      currentSpeed + Math.max(-acceleration * dt, Math.min(acceleration * dt, desiredSpeed - currentSpeed));
+    const travel = Math.min(d, dt * nextSpeed);
+    const collision = moveBody(level, buddy, Math.sin(buddy.heading) * travel, Math.cos(buddy.heading) * travel, 0.6);
+    buddy.navigationBlocked = collision.blockedX || collision.blockedZ;
+    const moved = Math.hypot(buddy.x - old.x, buddy.z - old.z);
+    // Do not accumulate acceleration against a wall/tree/rail. Resume from
+    // the actual body speed once a clear route opens.
+    buddy.moveSpeed = collision.blockedX || collision.blockedZ ? moved / dt : nextSpeed;
+  } else {
+    buddy.moveSpeed = Math.max(0, (buddy.moveSpeed || 0) - 10 * dt);
+  }
+  buddy.vx = (buddy.x - old.x) / dt;
+  buddy.vz = (buddy.z - old.z) / dt;
+}

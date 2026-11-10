@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPipMotionState, updatePipMotion } from '../src/pip-motion.js';
+import { createPipMotionState, updatePipMotion } from '../src/rendering/animation/pip-motion.js';
 
 const radians = (degrees) => (degrees * Math.PI) / 180;
 const sample = (speed = 0, heading = 0, x = 0, z = 0) => ({

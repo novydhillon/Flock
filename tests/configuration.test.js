@@ -10,13 +10,13 @@ const resolve = (document, area = 'gameplay') => resolveConfig(document, area, C
 // Load the actual ES module with one JSON import replaced, retaining genuine
 // resolver, domain helpers and native JSON import-attribute behavior.
 function configuredModuleURL(file, document, area = 'gameplay', dependencies = {}) {
-  const url = new URL(`../src/${file}.js`, import.meta.url);
+  const url = new URL(`../src/${file}`, import.meta.url);
+  const configURL = new URL(`../src/config/${area}.json`, import.meta.url).href;
   const json = 'data:application/json,' + encodeURIComponent(JSON.stringify(document)).replaceAll("'", '%27');
-  const source = readFileSync(url, 'utf8').replace(
-    /from (['"])(\.\.?\/[^'"]+)\1/g,
-    (_match, quote, relative) =>
-      `from ${quote}${dependencies[relative] || (relative === './config/' + area + '.json' ? json : new URL(relative, url).href)}${quote}`,
-  );
+  const source = readFileSync(url, 'utf8').replace(/from (['"])(\.\.?\/[^'"]+)\1/g, (_match, quote, relative) => {
+    const target = new URL(relative, url).href;
+    return `from ${quote}${dependencies[relative] || (target === configURL ? json : target)}${quote}`;
+  });
   return 'data:text/javascript,' + encodeURIComponent(source).replaceAll("'", '%27');
 }
 const configuredModule = (...args) => import(configuredModuleURL(...args));
@@ -72,7 +72,7 @@ test('genuine bark module consumes edited cooldown and burst settings', async ()
   const document = documentFor('gameplay');
   document.bark.cooldownSeconds.value = 3.25;
   document.bark.durationSeconds.value = 0.9;
-  const bark = await configuredModule('bark', document),
+  const bark = await configuredModule('simulation/bark.js', document),
     state = bark.createBarkState();
   assert.equal(bark.triggerBark(state), true);
   assert.equal(state.remaining, 3.25);
@@ -87,7 +87,7 @@ test('genuine wandering module consumes cohort and independent interval settings
   const document = documentFor('gameplay');
   document.wander.cohortFraction.value = 0.5;
   document.wander.checkRange.value = [2, 4];
-  const wander = await configuredModule('wandering', document);
+  const wander = await configuredModule('simulation/wandering.js', document);
   const level = {
     index: 10,
     seed: 48,
@@ -107,7 +107,7 @@ test('genuine body module consumes documented clearance radii', async () => {
   const document = documentFor('gameplay');
   document.body.sheepRadius.value = 0.65;
   document.body.cowRadius.value = 0.9;
-  const sizes = await configuredModule('animal-size', document);
+  const sizes = await configuredModule('simulation/animal-size.js', document);
   assert.equal(sizes.animalRadius({ type: 'sheep' }), 0.65);
   assert.equal(sizes.animalRadius({ type: 'cow', scale: 1.25 }), 0.9 * 1.25);
 });
@@ -115,23 +115,26 @@ test('genuine body module consumes documented clearance radii', async () => {
 test('native module import fails before gameplay for missing consumed settings', async () => {
   const document = documentFor('gameplay');
   delete document.bark.durationSeconds;
-  await assert.rejects(configuredModule('bark', document), /gameplay.bark.durationSeconds/);
+  await assert.rejects(configuredModule('simulation/bark.js', document), /gameplay.bark.durationSeconds/);
 });
 
 test('wander relationship validation rejects reversed ranges at module import', async () => {
   const document = documentFor('gameplay');
   document.wander.checkRange.value = [8, 5];
-  await assert.rejects(configuredModule('wandering', document), /minimum exceeds maximum/);
+  await assert.rejects(configuredModule('simulation/wandering.js', document), /minimum exceeds maximum/);
 });
 
 test('weather cumulative probability and tier unlock ordering fail clearly', async () => {
   const weather = documentFor('weather');
   weather.selection.stormCutoffs.value = [0.5, 0.3, 0.6, 0.8];
-  await assert.rejects(configuredModule('weather', weather, 'weather'), /cumulative cutoffs must be ordered/);
+  await assert.rejects(
+    configuredModule('rendering/weather/weather.js', weather, 'weather'),
+    /cumulative cutoffs must be ordered/,
+  );
   const progression = documentFor('progression');
   progression.upgrades.speed.unlockLevels.value = [6, 2, 11];
   await assert.rejects(
-    configuredModule('progression', progression, 'progression'),
+    configuredModule('progression/progression.js', progression, 'progression'),
     /tier unlock levels must be ordered/,
   );
 });
@@ -141,8 +144,8 @@ test('configured bark pressure reaches the real simulation at every owned tier',
   progression.effects.bark.baseMultiplier.value = 2;
   progression.effects.bark.tierOneBoost.value = 0.5;
   progression.effects.bark.advancedMultiplier.value = 1.5;
-  const api = await configuredModule('simulation', documentFor('gameplay'), 'gameplay', {
-    './progression.js': configuredModuleURL('progression', progression, 'progression'),
+  const api = await configuredModule('simulation/simulation.js', documentFor('gameplay'), 'gameplay', {
+    '../progression/progression.js': configuredModuleURL('progression/progression.js', progression, 'progression'),
   });
   const gameplay = resolve(documentFor('gameplay'));
   const radius = gameplay.simulation.signalRadius + gameplay.simulation.barkRadiusBoost;
@@ -171,8 +174,8 @@ test('configured bark pressure reaches the real simulation at every owned tier',
 test('configured progression charge capacity reaches the real bark state', async () => {
   const progression = documentFor('progression');
   progression.effects.bark.charges.value = [2, 2, 1, 2];
-  const policy = await configuredModule('progression', progression, 'progression');
-  const bark = await import('../src/bark.js');
+  const policy = await configuredModule('progression/progression.js', progression, 'progression');
+  const bark = await import('../src/simulation/bark.js');
   for (const tier of [0, 1, 2, 3]) {
     const effects = policy.upgradeEffects({ bark: tier }, 100);
     const state = bark.createBarkState(effects.barkCharges);
@@ -181,13 +184,16 @@ test('configured progression charge capacity reaches the real bark state', async
     assert.equal(bark.triggerBark(state), effects.barkCharges === 2);
   }
   progression.effects.bark.charges.value[3] = 3;
-  await assert.rejects(configuredModule('progression', progression, 'progression'), /charges\[3\].*exceeds max 2/);
+  await assert.rejects(
+    configuredModule('progression/progression.js', progression, 'progression'),
+    /charges\[3\].*exceeds max 2/,
+  );
 });
 
 test('crowded saved animals obey edited speed cap during overlap recovery', async () => {
   const document = documentFor('gameplay');
   document.saved.maximumSpeed.value = 0.1;
-  const roaming = await configuredModule('saved-roaming', document);
+  const roaming = await configuredModule('simulation/saved-roaming.js', document);
   const level = {
     time: 1,
     seed: 48,

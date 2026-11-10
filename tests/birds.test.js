@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { MeadowNature } from '../src/nature.js';
-import { birdLandingPositionSafe, stepWildlife } from '../src/wildlife.js';
-import { wildlifeParts } from '../src/wildlife-models.js';
+import { MeadowNature } from '../src/rendering/environment/nature.js';
+import { birdLandingPositionSafe, stepWildlife } from '../src/rendering/environment/wildlife.js';
+import { wildlifeParts } from '../src/rendering/environment/wildlife-models.js';
 
 const meadow = () => ({
   index: 0,

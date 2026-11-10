@@ -28,7 +28,7 @@ test('VM module loading preserves executable code and module-like text across mu
 
 function api() {
   const context = {};
-  const source = stripModuleSyntax(readFileSync(new URL('../src/qa.js', import.meta.url), 'utf8'));
+  const source = stripModuleSyntax(readFileSync(new URL('../src/qa/qa.js', import.meta.url), 'utf8'));
   vm.runInNewContext(source + '\nglobalThis.api={nextQAWanderCheck,applyQAWanderTints,installQA};', context);
   return context.api;
 }

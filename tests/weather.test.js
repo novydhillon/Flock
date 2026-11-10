@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createWeatherState, stepWeather, weatherForLevel } from '../src/weather.js';
-import { Atmosphere, cloudTexture } from '../src/atmosphere.js';
+import { createWeatherState, stepWeather, weatherForLevel } from '../src/rendering/weather/weather.js';
+import { Atmosphere, cloudTexture } from '../src/rendering/weather/atmosphere.js';
 const level = { index: 9, seed: 45, bounds: { minX: -80, maxX: 80, minZ: -80, maxZ: 80 }, rivers: [], roads: [] };
 const fields = [
   'rainIntensity',

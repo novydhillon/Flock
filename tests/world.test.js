@@ -16,7 +16,7 @@ import {
   openingSteer,
   distance,
   segmentDistance,
-} from '../src/world.js';
+} from '../src/world/world.js';
 
 test('ground helper navigation walks around dry bridge ends instead of pushing through rails', () => {
   for (const seed of [200, 201, 202, 203])

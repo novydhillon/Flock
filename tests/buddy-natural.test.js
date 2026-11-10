@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation } from '../src/simulation.js';
-import { updateAnimalTurn } from '../src/animal-turn.js';
-import { updateGrazing } from '../src/grazing.js';
-import { canOccupy } from '../src/world.js';
-import { animalRadius } from '../src/animal-size.js';
+import { stepSimulation } from '../src/simulation/simulation.js';
+import { updateAnimalTurn } from '../src/rendering/animation/animal-turn.js';
+import { updateGrazing } from '../src/rendering/animation/grazing.js';
+import { canOccupy } from '../src/world/world.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const center = (as) => as.reduce((p, a) => ({ x: p.x + a.x / as.length, z: p.z + a.z / as.length }), { x: 0, z: 0 });
 function fixture(count = 65, spacing = 2.4) {

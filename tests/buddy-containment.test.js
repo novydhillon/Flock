@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation } from '../src/simulation.js';
-import { updateBuddy } from '../src/buddy.js';
-import { canOccupy } from '../src/world.js';
-import { animalRadius } from '../src/animal-size.js';
-import { updateAnimalTurn } from '../src/animal-turn.js';
-import { updateGrazing } from '../src/grazing.js';
+import { stepSimulation } from '../src/simulation/simulation.js';
+import { updateBuddy } from '../src/simulation/companions/buddy.js';
+import { canOccupy } from '../src/world/world.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
+import { updateAnimalTurn } from '../src/rendering/animation/animal-turn.js';
+import { updateGrazing } from '../src/rendering/animation/grazing.js';
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep', saved: false, nextWanderCheck: 1e9 });
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const center = (as) => as.reduce((p, a) => ({ x: p.x + a.x / as.length, z: p.z + a.z / as.length }), { x: 0, z: 0 });

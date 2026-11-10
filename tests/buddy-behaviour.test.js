@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { updateBuddy, BUDDY_WORK_GAP } from '../src/buddy.js';
-import { canOccupy } from '../src/world.js';
+import { updateBuddy, BUDDY_WORK_GAP } from '../src/simulation/companions/buddy.js';
+import { canOccupy } from '../src/world/world.js';
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep' });
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const fixture = (animals) => ({

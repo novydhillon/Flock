@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation, canOccupy } from '../src/simulation.js';
-import { prepareWanderCohort } from '../src/wandering.js';
-import { createLevel, targetFootprint, targetWorldPoint } from '../src/world.js';
-import { moveBuddy } from '../src/buddy-navigation.js';
-import { updateBuddy } from '../src/buddy.js';
+import { stepSimulation, canOccupy } from '../src/simulation/simulation.js';
+import { prepareWanderCohort } from '../src/simulation/wandering.js';
+import { createLevel, targetFootprint, targetWorldPoint } from '../src/world/world.js';
+import { moveBuddy } from '../src/simulation/navigation/buddy-navigation.js';
+import { updateBuddy } from '../src/simulation/companions/buddy.js';
 
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep', saved: false, nextWanderCheck: 1e9 });
 const center = (group) =>

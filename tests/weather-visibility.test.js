@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import * as THREE from 'three';
-import { Atmosphere } from '../src/atmosphere.js';
-import { RainView } from '../src/rain-view.js';
+import { Atmosphere } from '../src/rendering/weather/atmosphere.js';
+import { RainView } from '../src/rendering/weather/rain-view.js';
 
 const level = (index) => ({
   index,

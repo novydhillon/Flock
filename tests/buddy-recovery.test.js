@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buddyRecoveryTarget, moveBuddy, resetBuddyRecovery } from '../src/buddy-navigation.js';
-import { canOccupy, hasClearGroundPath } from '../src/world.js';
+import { buddyRecoveryTarget, moveBuddy, resetBuddyRecovery } from '../src/simulation/navigation/buddy-navigation.js';
+import { canOccupy, hasClearGroundPath } from '../src/world/world.js';
 const meadow = () => ({
   time: 0,
   bounds: { minX: -20, maxX: 20, minZ: -20, maxZ: 20 },

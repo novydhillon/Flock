@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation, stepSavedRoaming, createLevel } from '../src/simulation.js';
-import { temperament, familiarNeighbor } from '../src/herd-behavior.js';
-import { animalRadius } from '../src/animal-size.js';
-import { updateAnimalTurn } from '../src/animal-turn.js';
-import { updateGrazing } from '../src/grazing.js';
-import { canOccupy, containsTarget, targetWorldPoint, targetLocalPoint, targetFootprint } from '../src/world.js';
+import { stepSimulation, stepSavedRoaming, createLevel } from '../src/simulation/simulation.js';
+import { temperament, familiarNeighbor } from '../src/simulation/herd-behavior.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
+import { updateAnimalTurn } from '../src/rendering/animation/animal-turn.js';
+import { updateGrazing } from '../src/rendering/animation/grazing.js';
+import { canOccupy, containsTarget, targetWorldPoint, targetLocalPoint, targetFootprint } from '../src/world/world.js';
 
 function meadow() {
   const animals = Array.from({ length: 12 }, (_, id) => ({

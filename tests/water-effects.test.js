@@ -1,14 +1,14 @@
-import { meadowSurfaceHeight } from '../src/terrain-view.js';
+import { meadowSurfaceHeight } from '../src/rendering/terrain-view.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { WaterEffects, puddleGrowthSeconds } from '../src/water-effects.js';
-import { ribbon } from '../src/surfaces.js';
-import { riverSurfaceContains } from '../src/river-details.js';
-import { createWeatherState } from '../src/weather.js';
-import { createLevel } from '../src/simulation.js';
-import { canOccupy, groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from '../src/world.js';
-import { HorizontalPoolGeometry } from '../src/pool-geometry.js';
+import { WaterEffects, puddleGrowthSeconds } from '../src/rendering/water/water-effects.js';
+import { ribbon } from '../src/rendering/surfaces.js';
+import { riverSurfaceContains } from '../src/rendering/water/river-details.js';
+import { createWeatherState } from '../src/rendering/weather/weather.js';
+import { createLevel } from '../src/simulation/simulation.js';
+import { canOccupy, groundHeight, poolingSite, GROUND_SURFACE_OFFSET } from '../src/world/world.js';
+import { HorizontalPoolGeometry } from '../src/rendering/water/pool-geometry.js';
 
 test('rain accumulates wetness gradually, dries in sun, and ignores zero-dt and pause', () => {
   const scene = new THREE.Scene(),

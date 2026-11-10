@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { waterVegetationSites, WaterVegetation } from '../src/water-vegetation.js';
-import { WaterEffects } from '../src/water-effects.js';
-import { RiverDetails, riverSurfaceContains } from '../src/river-details.js';
-import { ribbon } from '../src/surfaces.js';
+import { waterVegetationSites, WaterVegetation } from '../src/rendering/water/water-vegetation.js';
+import { WaterEffects } from '../src/rendering/water/water-effects.js';
+import { RiverDetails, riverSurfaceContains } from '../src/rendering/water/river-details.js';
+import { ribbon } from '../src/rendering/surfaces.js';
 
 function rectangle(width = 40, depth = 12) {
   const geometry = new THREE.PlaneGeometry(width, depth);

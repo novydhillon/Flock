@@ -1,4 +1,4 @@
-import { FarmAudio } from '../src/audio.js';
+import { FarmAudio } from '../src/audio/audio.js';
 
 class Param {
   constructor() {

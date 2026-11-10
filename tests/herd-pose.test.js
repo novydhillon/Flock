@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { updateHerdPose } from '../src/herd-pose.js';
-import { updateGrazing } from '../src/grazing.js';
-import { createAnimal, createAnimalGestureGeometry } from '../src/models.js';
+import { updateHerdPose } from '../src/rendering/animation/herd-pose.js';
+import { updateGrazing } from '../src/rendering/animation/grazing.js';
+import { createAnimal, createAnimalGestureGeometry } from '../src/rendering/models.js';
 
 const calm = (id) => ({ id, type: 'sheep', x: 0, z: 0, vx: 0, vz: 0, heading: 0, relaxation: 1 });
 const meadow = () => ({

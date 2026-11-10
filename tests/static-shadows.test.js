@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { StaticShadows } from '../src/static-shadows.js';
-import { createRoadMaterial } from '../src/surfaces.js';
+import { StaticShadows } from '../src/rendering/static-shadows.js';
+import { createRoadMaterial } from '../src/rendering/surfaces.js';
 
 function fixture() {
   const scene = new THREE.Scene(),

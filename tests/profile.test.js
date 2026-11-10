@@ -1,8 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { defaultProfile, validateProfile, applyLevelReward, loadProfile, saveProfile } from '../src/profile.js';
-import { maximumLevelReward, MAX_LEVEL_INDEX } from '../src/delivery.js';
-import { UPGRADE_CATALOG, upgradeEffects, upgradeAvailability, purchaseUpgrade } from '../src/progression.js';
+import {
+  defaultProfile,
+  validateProfile,
+  applyLevelReward,
+  loadProfile,
+  saveProfile,
+} from '../src/progression/profile.js';
+import { maximumLevelReward, MAX_LEVEL_INDEX } from '../src/simulation/delivery.js';
+import {
+  UPGRADE_CATALOG,
+  upgradeEffects,
+  upgradeAvailability,
+  purchaseUpgrade,
+} from '../src/progression/progression.js';
 import progressionSettings from '../src/config/progression.json' with { type: 'json' };
 import { resolveConfig } from '../src/config/resolve.js';
 

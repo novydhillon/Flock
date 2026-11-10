@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createLevel, canOccupy, hasClearGroundPath, moveBody } from '../src/world.js';
-import { PASTURE, roughPastureEnabled, pastureGrassSites } from '../src/pasture.js';
-import { pastureClumpGeometry, pastureRockGeometry } from '../src/pasture-view.js';
-import { animalRadius, COW_SCALES } from '../src/animal-size.js';
+import { createLevel, canOccupy, hasClearGroundPath, moveBody } from '../src/world/world.js';
+import { PASTURE, roughPastureEnabled, pastureGrassSites } from '../src/world/pasture.js';
+import { pastureClumpGeometry, pastureRockGeometry } from '../src/rendering/pasture-view.js';
+import { animalRadius, COW_SCALES } from '../src/simulation/animal-size.js';
 
 const segmentDistance = (p, a, b) => {
   const dx = b.x - a.x,

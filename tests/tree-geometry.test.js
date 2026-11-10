@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createTreeWood, deformTreeGeometry, configureTreeMaterial } from '../src/tree-geometry.js';
+import {
+  createTreeWood,
+  deformTreeGeometry,
+  configureTreeMaterial,
+} from '../src/rendering/environment/tree-geometry.js';
 
 const point = (attribute, id) => new THREE.Vector3().fromBufferAttribute(attribute, id);
 

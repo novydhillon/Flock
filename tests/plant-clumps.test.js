@@ -1,8 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { plantClumpGeometry, bankClumpSites, oddBladeCount, plantBladeHeight } from '../src/plant-clumps.js';
-import { RiverDetails } from '../src/river-details.js';
-import { ribbon } from '../src/surfaces.js';
+import {
+  plantClumpGeometry,
+  bankClumpSites,
+  oddBladeCount,
+  plantBladeHeight,
+} from '../src/rendering/environment/plant-clumps.js';
+import { RiverDetails } from '../src/rendering/water/river-details.js';
+import { ribbon } from '../src/rendering/surfaces.js';
 import * as THREE from 'three';
 function random(seed) {
   return () => {

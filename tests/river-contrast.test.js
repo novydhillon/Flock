@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { WaterEffects } from '../src/water-effects.js';
-import { createLevel } from '../src/simulation.js';
-import { ribbon } from '../src/surfaces.js';
+import { WaterEffects } from '../src/rendering/water/water-effects.js';
+import { createLevel } from '../src/simulation/simulation.js';
+import { ribbon } from '../src/rendering/surfaces.js';
 
 test('river crests add light contrast in every fixed weather tier without filling troughs or tiling seams', () => {
   const effects = new WaterEffects(new THREE.Scene(), { maxPuddles: 0, maxSplashes: 0 }),

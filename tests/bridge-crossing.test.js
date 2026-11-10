@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation, canOccupy } from '../src/simulation.js';
+import { stepSimulation, canOccupy } from '../src/simulation/simulation.js';
 
 function crossingLevel({ type = 'sheep', sign = 1, heading = Math.PI / 2, count = 1 } = {}) {
   const f = { x: Math.sin(heading), z: Math.cos(heading) },

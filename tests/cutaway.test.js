@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { StructureCutaway } from '../src/cutaway.js';
+import { StructureCutaway } from '../src/rendering/cutaway.js';
 
 function fixture(heading = 0) {
   const group = new THREE.Group(),

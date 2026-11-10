@@ -1,5 +1,11 @@
 # Development, QA and release context
 
+## Source folder migration - 10 November 2026
+
+F-ARCH-002 is based on the accepted performance branch, not main. Entry: `src/app/bootstrap.js`; controller: `src/app/main.js`; QA lazy entry: `src/qa/qa.js`. Use the current architecture folder map when locating modules. Tests remain under `tests/` to preserve existing runner commands; all source imports, measurement/icon tools, file-reading fixtures and documentation source links follow their modules. `tests/source-layout.test.js` validates recursive module/asset resolution, HTML startup and absence of loose root JavaScript.
+
+Validate with `npm run build:checked:dev`, `npm run build:checked:tracker` and the release artifact guard. A one-time migration comparison normalizes only module specifiers and AST locations, verifying executable module structure and exact stylesheet bytes against the parent snapshot. It does not establish GPU/pixel or phone FPS results. No deployment is part of this source organization request.
+
 ## Independent delivery and performance staging - 10 November 2026
 
 F-PERF-002 adds `npm run test:game`, `npm run test:tracker`, `npm run build:tracker`, `npm run build:checked:tracker`, and `npm run build:checked:dev_performance`. `npm test` remains the aggregate suite. Game artifacts use `dist/`; tracker artifacts use `dist-tracker/`. Tracker CI and Deploy Tracker are separate workflows; tracker publication writes only `tracker/` and requires main plus explicit confirmation. Shared publication tools retain parent checks, protected destinations, byte hashes and old assets.

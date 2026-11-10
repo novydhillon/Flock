@@ -11,10 +11,10 @@ import { pathToFileURL } from 'node:url';
 
 const [levelArg = '6,10,13,16,21,31,46,61,81', seedArg = 'default', srcArg = 'src'] = process.argv.slice(2);
 const src = pathToFileURL(resolve(srcArg)).href;
-const W = await import(`${src}/world.js`);
-const { stepSimulation } = await import(`${src}/simulation.js`);
-const { upgradeEffects } = await import(`${src}/progression.js`);
-const { animalRadius } = await import(`${src}/animal-size.js`);
+const W = await import(`${src}/world/world.js`);
+const { stepSimulation } = await import(`${src}/simulation/simulation.js`);
+const { upgradeEffects } = await import(`${src}/progression/progression.js`);
+const { animalRadius } = await import(`${src}/simulation/animal-size.js`);
 const {
   createLevel,
   routeProgress,

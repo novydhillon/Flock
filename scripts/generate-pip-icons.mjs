@@ -3,7 +3,7 @@
 import { JSDOM } from 'jsdom';
 import * as THREE from 'three';
 import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
-import { createPip } from '../src/models.js';
+import { createPip } from '../src/rendering/models.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 const dom = new JSDOM('<!doctype html><html><body></body></html>');

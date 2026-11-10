@@ -12,12 +12,12 @@ import {
   bridgeSurfaceHeight,
   riverSurfaceHeight,
   poolingSite,
-} from '../src/world.js';
-import { createTerrain, compactBankRegion, TERRAIN } from '../src/terrain.js';
+} from '../src/world/world.js';
+import { createTerrain, compactBankRegion, TERRAIN } from '../src/world/terrain.js';
 import terrainSettings from '../src/config/terrain.json' with { type: 'json' };
 import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
 import { resolveConfig } from '../src/config/resolve.js';
-import { animalRadius, COW_SCALES } from '../src/animal-size.js';
+import { animalRadius, COW_SCALES } from '../src/simulation/animal-size.js';
 
 const degrees = (radians) => (radians * 180) / Math.PI;
 const seedsFor = (index) => [index * 7919 + 42, 200, 201, 202, 203];

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Reproducible source-level terrain measurements, not rendered/device evidence.
-import { createLevel, groundHeight, terrainSlope, bridgeSurfaceHeight } from '../src/world.js';
-import { TERRAIN, compactBankRegion } from '../src/terrain.js';
+import { createLevel, groundHeight, terrainSlope, bridgeSurfaceHeight } from '../src/world/world.js';
+import { TERRAIN, compactBankRegion } from '../src/world/terrain.js';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { updateAnimalTurn, animalGaitSpeed } from '../src/animal-turn.js';
+import { updateAnimalTurn, animalGaitSpeed } from '../src/rendering/animation/animal-turn.js';
 for (const [type, seconds] of [
   ['sheep', 0.5],
   ['cow', 0.75],

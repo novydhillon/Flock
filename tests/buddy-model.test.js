@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createBuddy, createPip, updatePipPose, updatePipHover } from '../src/models.js';
+import { createBuddy, createPip, updatePipPose, updatePipHover } from '../src/rendering/models.js';
 
 function installCanvasStub() {
   const context = {

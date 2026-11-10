@@ -7,8 +7,8 @@ import {
   wanderTuning,
   nextWanderOpportunity,
   WANDER_CHECK_RANGE,
-} from '../src/wandering.js';
-import { createLevel, stepSimulation, canOccupy } from '../src/simulation.js';
+} from '../src/simulation/wandering.js';
+import { createLevel, stepSimulation, canOccupy } from '../src/simulation/simulation.js';
 const flock = (count) => Array.from({ length: count }, (_, id) => ({ id, x: id * 1.5, z: 0, saved: false }));
 const center = { x: 0, z: 0 };
 

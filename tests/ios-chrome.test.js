@@ -21,7 +21,7 @@ test('installed app requests an opaque status bar with consistent flat launch ch
   assert.equal(manifest.scope, './');
   assert.equal(manifest.start_url, './');
   assert.match(meta('viewport'), /viewport-fit=cover/);
-  const css = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/ui/style.css', import.meta.url), 'utf8');
   assert.match(css, /env\(safe-area-inset-top\)/);
   assert.match(css, /env\(safe-area-inset-bottom\)/);
 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation, canOccupy } from '../src/simulation.js';
-import { createLevel } from '../src/world.js';
+import { stepSimulation, canOccupy } from '../src/simulation/simulation.js';
+import { createLevel } from '../src/world/world.js';
 
 const robot = (id, x, z, vx = 0, vz = 0) => ({ id, type: 'sheep', x, z, vx, vz, saved: false });
 function meadow(animals, changes = {}) {

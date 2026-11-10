@@ -1,5 +1,9 @@
 # Runtime source notes
 
+## Current folder map - 10 November 2026
+
+Use `app/` for orchestration, `ui/` for browser UI/styles, `simulation/` for rules (with `companions/` and `navigation/`), `world/` for physical generation, `rendering/` for views (with `animation/`, `environment/`, `water/`, `weather/`), plus `audio/`, `progression/`, `qa/` and existing `config/`. The architecture document has the full map. Import concrete modules directly. Preserve ownership contracts below; the relocation does not authorize new simulation/rendering coupling. QA stays lazy and development-only.
+
 Deployment follows the root guide: prefer Deploy Flock dispatch; if unavailable, use the connector-only gh-pages fallback in docs/DEVELOPMENT.md with unchanged build, authorization and verification gates.
 
 These notes add to the root [AGENTS.md](../AGENTS.md) for work in `src/`. [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) holds the full module map and contracts. The system pages in `docs/systems/` hold API detail.

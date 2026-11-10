@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { goalSurface, goalOutline, drawGoalMap } from '../src/goal-view.js';
-import { targetFootprint, targetWorldPoint, containsTarget } from '../src/world.js';
+import { goalSurface, goalOutline, drawGoalMap } from '../src/rendering/goal-view.js';
+import { targetFootprint, targetWorldPoint, containsTarget } from '../src/world/world.js';
 
 const headings = [0, Math.PI / 2, Math.PI, Math.PI * 1.5, 0.37];
 const point = (positions, i) => ({ x: positions.getX(i), z: positions.getZ(i) });

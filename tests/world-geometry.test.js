@@ -10,7 +10,7 @@ import {
   targetLocalPoint,
   targetWorldPoint,
   containsTarget,
-} from '../src/world.js';
+} from '../src/world/world.js';
 
 const directions = [200, 201, 202, 203];
 

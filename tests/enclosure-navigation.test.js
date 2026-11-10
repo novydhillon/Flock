@@ -10,7 +10,7 @@ import {
   moveBody,
   distance,
   canOccupy,
-} from '../src/world.js';
+} from '../src/world/world.js';
 
 test('local enclosure navigation walks around solid far and side walls with each moving body radius', () => {
   for (const seed of [200, 201, 202, 203])

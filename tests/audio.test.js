@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Context, DeferredContext, withAudio } from './audio-fixture.js';
-import { LoFiMusic, MUSIC_STEPS, MUSIC_TEMPO } from '../src/music.js';
-import { createWeatherState, stepWeather } from '../src/weather.js';
+import { LoFiMusic, MUSIC_STEPS, MUSIC_TEMPO } from '../src/audio/music.js';
+import { createWeatherState, stepWeather } from '../src/rendering/weather/weather.js';
 
 test('livestock voices use independent clocks, state cadence and immediate bolt calls', async () => {
   await withAudio(async (audio) => {

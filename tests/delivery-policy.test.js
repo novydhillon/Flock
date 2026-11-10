@@ -8,7 +8,7 @@ import {
   startDeliveryCountdown,
   completeDelivery,
   maximumLevelReward,
-} from '../src/delivery.js';
+} from '../src/simulation/delivery.js';
 
 const flock = (total = 5, saved = 0, index = 0) => ({
   index,

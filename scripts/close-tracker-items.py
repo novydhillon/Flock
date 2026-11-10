@@ -9,7 +9,7 @@ def close_items(active, archive, ids, date, reason):
     rows, details = [], []
     for issue in ids:
         row = re.search(r'^\| ' + re.escape(issue) + r' \|.*$', active, re.M)
-        detail = re.search(r'^### ' + re.escape(issue) + r' — (.*?)(?=^### |^## |\Z)', active, re.M | re.S)
+        detail = re.search(r'^### ' + re.escape(issue) + r' [-—] (.*?)(?=^### |^## |\Z)', active, re.M | re.S)
         if not row or not detail:
             raise ValueError(f'{issue}: missing unique active row or detail')
         if re.search(r'^\| (?:~~)?' + re.escape(issue) + r'(?:~~)? \|', archive, re.M):
@@ -21,7 +21,7 @@ def close_items(active, archive, ids, date, reason):
         rows.append('| ' + ' | '.join(f'~~{cell}~~' for cell in cells) + ' |')
         section = detail[0].rstrip()
         first, rest = section.split('\n', 1)
-        title = first.split(' — ', 1)[1]
+        title = re.split(r' [-—] ', first, maxsplit=1)[1]
         section = f'### {issue} — ~~{title}~~\n' + rest
         section = re.sub(r'(\*\*Status:\*\*\s*)[A-Za-z ]+(?=[.;\n])', r'\1Done', section, count=1)
         section += f'\n\n**Closed:** {date}. {reason}\n'

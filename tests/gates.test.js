@@ -10,7 +10,7 @@ import {
   hasClearGroundPath,
   hasClearPlayerSignal,
   distance,
-} from '../src/world.js';
+} from '../src/world/world.js';
 import {
   accessibleGate,
   openNearbyGate,
@@ -18,9 +18,9 @@ import {
   gateButtons,
   gateSwitchPanels,
   updateGateContacts,
-} from '../src/gates.js';
-import { createGateView, createStoneWallView } from '../src/gate-view.js';
-import { stepSimulation } from '../src/simulation.js';
+} from '../src/simulation/gates.js';
+import { createGateView, createStoneWallView } from '../src/rendering/gate-view.js';
+import { stepSimulation } from '../src/simulation/simulation.js';
 
 const near = (gate, side = -1, d = 2) => ({
   x: gate.x + Math.sin(gate.heading) * d * side,

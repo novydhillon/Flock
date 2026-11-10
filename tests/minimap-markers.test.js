@@ -7,8 +7,8 @@ import {
   drawLivestockMarker,
   drawGoalDirection,
   GOAL_POINTER_COLOR,
-} from '../src/minimap-markers.js';
-import { flockGroups } from '../src/buddy.js';
+} from '../src/rendering/minimap-markers.js';
+import { flockGroups } from '../src/simulation/companions/buddy.js';
 
 const animal = (id, x, z = 0, saved = false) => ({ id, x, z, saved, type: 'sheep' });
 const fixture = (animals) => ({

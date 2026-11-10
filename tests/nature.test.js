@@ -1,9 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { MeadowNature, weatherForLevel, safeWildlifePosition, stepWildlife } from '../src/nature.js';
-import { wildlifePopulation, wildlifeGroundPositionSafe } from '../src/wildlife.js';
-import { wildlifeBodyGeometry } from '../src/wildlife-models.js';
+import {
+  MeadowNature,
+  weatherForLevel,
+  safeWildlifePosition,
+  stepWildlife,
+} from '../src/rendering/environment/nature.js';
+import { wildlifePopulation, wildlifeGroundPositionSafe } from '../src/rendering/environment/wildlife.js';
+import { wildlifeBodyGeometry } from '../src/rendering/environment/wildlife-models.js';
 
 function meadow(index = 0) {
   return {

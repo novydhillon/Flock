@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import * as THREE from 'three';
-import { createAnimal, createCowCoatMaterial, cowCoatVariant } from '../src/models.js';
+import { createAnimal, createCowCoatMaterial, cowCoatVariant } from '../src/rendering/models.js';
 
 // Model/matrix checks exercise real geometry; Canvas is a texture-data stand-in.
 // They do not establish rendered likeness or device performance.

@@ -1,10 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation, canOccupy } from '../src/simulation.js';
-import { createLevel, routeProgress, distance, targetFootprint } from '../src/world.js';
-import { animalRadius, COW_SCALES } from '../src/animal-size.js';
-import { yieldAtOpening, chokeApproach, YIELD_LIMIT, ESCAPE_TIME, QUEUE_WIDTH } from '../src/chokepoints.js';
-import { bridgeCrossing } from '../src/bridge-crossing.js';
+import { stepSimulation, canOccupy } from '../src/simulation/simulation.js';
+import { createLevel, routeProgress, distance, targetFootprint } from '../src/world/world.js';
+import { animalRadius, COW_SCALES } from '../src/simulation/animal-size.js';
+import {
+  yieldAtOpening,
+  chokeApproach,
+  YIELD_LIMIT,
+  ESCAPE_TIME,
+  QUEUE_WIDTH,
+} from '../src/simulation/navigation/chokepoints.js';
+import { bridgeCrossing } from '../src/simulation/navigation/bridge-crossing.js';
 
 // A 6m deck like the later campaign's, across a river on x=0. Travel is +x.
 function crowdLevel(count = 14) {

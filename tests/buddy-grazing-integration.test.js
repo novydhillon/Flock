@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation } from '../src/simulation.js';
-import { updateAnimalTurn } from '../src/animal-turn.js';
-import { updateGrazing } from '../src/grazing.js';
+import { stepSimulation } from '../src/simulation/simulation.js';
+import { updateAnimalTurn } from '../src/rendering/animation/animal-turn.js';
+import { updateGrazing } from '../src/rendering/animation/grazing.js';
 
 test('contained sheep and every cow size settle into grazing without patrol pressure', () => {
   const animals = ['sheep', 'cow', 'cow', 'cow', 'cow'].map((type, id) => ({

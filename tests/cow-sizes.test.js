@@ -1,8 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { COW_SCALES, animalScale, animalRadius } from '../src/animal-size.js';
-import { createLevel, canOccupy, distance, containsTarget, targetWorldPoint, targetFootprint } from '../src/world.js';
-import { stepSimulation } from '../src/simulation.js';
+import { COW_SCALES, animalScale, animalRadius } from '../src/simulation/animal-size.js';
+import {
+  createLevel,
+  canOccupy,
+  distance,
+  containsTarget,
+  targetWorldPoint,
+  targetFootprint,
+} from '../src/world/world.js';
+import { stepSimulation } from '../src/simulation/simulation.js';
 
 test('cow size variants are discrete, repeatable, varied across seeds and bounded for invalid state', () => {
   const sizes = (seed) =>
@@ -58,7 +65,7 @@ test('largest cow requires full clearance for admission and remains inside after
 });
 
 test('largest cow respects narrow bridge and gate clearance while base cow fits', async () => {
-  const { bridgeCrossing } = await import('../src/bridge-crossing.js');
+  const { bridgeCrossing } = await import('../src/simulation/navigation/bridge-crossing.js');
   const level = {
     bounds: { minX: -30, maxX: 30, minZ: -30, maxZ: 30 },
     obstacles: [],

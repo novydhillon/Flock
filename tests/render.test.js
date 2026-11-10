@@ -1,5 +1,5 @@
-import { pastureGrassSites, PASTURE } from '../src/pasture.js';
-import { pastureClumpGeometry, pastureRockGeometry } from '../src/pasture-view.js';
+import { pastureGrassSites, PASTURE } from '../src/world/pasture.js';
+import { pastureClumpGeometry, pastureRockGeometry } from '../src/rendering/pasture-view.js';
 import {
   installSlopeSoil,
   installTerrainRelief,
@@ -9,24 +9,24 @@ import {
   alignAnimalToTerrain,
   drapeGroundGuide,
   alignGroundProp,
-} from '../src/terrain-view.js';
-import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
-import { createShowcase } from '../src/landing-ui.js';
-import { defaultProfile } from '../src/profile.js';
-import * as minimap from '../src/minimap-markers.js';
+} from '../src/rendering/terrain-view.js';
+import { plantClumpGeometry, bankClumpSites } from '../src/rendering/environment/plant-clumps.js';
+import { createShowcase } from '../src/ui/landing-ui.js';
+import { defaultProfile } from '../src/progression/profile.js';
+import * as minimap from '../src/rendering/minimap-markers.js';
 import { CONFIG_CONTRACTS } from '../src/config/contracts.js';
 import presentationSettings from '../src/config/presentation.json' with { type: 'json' };
 import { resolveConfig } from '../src/config/resolve.js';
-import { updateAnimalTurn, animalGaitSpeed } from '../src/animal-turn.js';
-import { updateGrazing, grazingAngle } from '../src/grazing.js';
+import { updateAnimalTurn, animalGaitSpeed } from '../src/rendering/animation/animal-turn.js';
+import { updateGrazing, grazingAngle } from '../src/rendering/animation/grazing.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
-import * as models from '../src/models.js';
-import { animalScale } from '../src/animal-size.js';
-import { createLevel } from '../src/simulation.js';
+import * as models from '../src/rendering/models.js';
+import { animalScale } from '../src/simulation/animal-size.js';
+import { createLevel } from '../src/simulation/simulation.js';
 import {
   groundHeight,
   riverSurfaceHeight,
@@ -37,18 +37,18 @@ import {
   containsTarget,
   gateSegment,
   canOccupy,
-} from '../src/world.js';
-import { goalSurface, goalOutline, drawGoalMap } from '../src/goal-view.js';
-import { generateBushClusters } from '../src/vegetation.js';
-import { setTailLightBarking } from '../src/tail-light.js';
-import { WaterEffects } from '../src/water-effects.js';
-import { MeadowNature } from '../src/nature.js';
-import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from '../src/surfaces.js';
-import { createGateView, createStoneWallView } from '../src/gate-view.js';
-import { StructureCutaway } from '../src/cutaway.js';
-import { ThrusterGroundGlow } from '../src/thruster-glow.js';
-import { ViewShadows, treeDepthMaterial } from '../src/view-shadows.js';
-import { StaticShadows } from '../src/static-shadows.js';
+} from '../src/world/world.js';
+import { goalSurface, goalOutline, drawGoalMap } from '../src/rendering/goal-view.js';
+import { generateBushClusters } from '../src/rendering/environment/vegetation.js';
+import { setTailLightBarking } from '../src/rendering/animation/tail-light.js';
+import { WaterEffects } from '../src/rendering/water/water-effects.js';
+import { MeadowNature } from '../src/rendering/environment/nature.js';
+import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from '../src/rendering/surfaces.js';
+import { createGateView, createStoneWallView } from '../src/rendering/gate-view.js';
+import { StructureCutaway } from '../src/rendering/cutaway.js';
+import { ThrusterGroundGlow } from '../src/rendering/animation/thruster-glow.js';
+import { ViewShadows, treeDepthMaterial } from '../src/rendering/view-shadows.js';
+import { StaticShadows } from '../src/rendering/static-shadows.js';
 import { stripModuleSyntax } from './helpers/source.js';
 
 test('fitted sun map contains ground receivers and upstream casters across aspect, zoom and distant travel', () => {
@@ -199,7 +199,7 @@ test('scenery batching separates identical geometry with different cast or recei
   const flags = new Set(renderer.sceneryBatches.map(({ batch }) => `${batch.castShadow}:${batch.receiveShadow}`));
   assert.equal(flags.size, 4, 'batching cannot silently inherit another piece shadow policy');
 });
-import { gateButtons, updateGateContacts } from '../src/gates.js';
+import { gateButtons, updateGateContacts } from '../src/simulation/gates.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
@@ -226,7 +226,9 @@ function setup({ width = 390, height = 844, treeYaw = true, settings = presentat
       scene.updateMatrixWorld(true);
     }
   }
-  const source = stripModuleSyntax(readFileSync(new URL('../src/render.js', import.meta.url), 'utf8')).replace(
+  const source = stripModuleSyntax(
+    readFileSync(new URL('../src/rendering/render.js', import.meta.url), 'utf8'),
+  ).replace(
     /tree\.rotation\.y\s*=\s*treeRotation\(\)\s*\*\s*Math\.PI\s*\*\s*2\s*;/g,
     treeYaw ? 'tree.rotation.y=treeRotation()*Math.PI*2;' : 'tree.rotation.y=0;',
   );
@@ -2321,7 +2323,7 @@ test('coat torso batches retain identity after culling, scale edits, reorder and
         'compacted slot contains its own animal pose',
       );
     });
-  const qaSource = stripModuleSyntax(readFileSync(new URL('../src/qa.js', import.meta.url), 'utf8'));
+  const qaSource = stripModuleSyntax(readFileSync(new URL('../src/qa/qa.js', import.meta.url), 'utf8'));
   // Read only the tint helper's definition; QA UI initialization is unrelated.
   const tintContext = {};
   vm.runInNewContext(
@@ -2495,7 +2497,7 @@ test('environment saturation preserves actor materials and existing surface hook
 });
 
 test('shared actor materials get one owned environment clone with their shader behavior retained', () => {
-  const source = readFileSync(new URL('../src/render.js', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('../src/rendering/render.js', import.meta.url), 'utf8');
   const start = source.indexOf('function boostEnvironmentVibrancy(');
   const end = source.indexOf('function label(', start);
   const context = {};
@@ -2528,7 +2530,7 @@ test('zero environment saturation remains idempotent across reused surfaces and 
   const settings = structuredClone(presentationSettings);
   settings.renderer.environmentSaturation.value = 0;
   const renderer = setup({ settings });
-  const source = readFileSync(new URL('../src/render.js', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('../src/rendering/render.js', import.meta.url), 'utf8');
   const start = source.indexOf('function boostEnvironmentVibrancy(');
   const context = {};
   vm.runInNewContext(

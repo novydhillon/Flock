@@ -67,3 +67,7 @@ node scripts/measure-terrain.mjs --levels 6-100 --seeds 200-211 --spacing 4 > te
 `npm run test:game` excludes tracker tests; `npm run test:tracker` selects them; `npm test` runs both. `npm run build:checked:dev_performance` checks formatting, docs, game regressions and both game artifact modes, leaving readable QA output in `dist/`. `npm run build:checked:tracker` checks tracker formatting/tests and builds only the tracker in `dist-tracker/`. The tracker build has no Three.js/game imports. Both need Node 22+ and locked npm dependencies; no publication occurs.
 
 Deploy Flock supports non-main `dev_performance` at `/dev_performance/` under the explicit task authorization; normal dev and main-only production routing remain. Deploy Tracker separately requires main, target tracker, `deploy-tracker` confirmation and the publication token. It publishes only `tracker/`. Both reuse the shared planner/publisher, serialize Pages publication, preserve unrelated/old files, reject concurrent parents and verify native Pages plus emitted file hashes. Authorizing one application does not authorize the other.
+
+## Source-system layout checks - 10 November 2026
+
+Use `node --test tests/source-layout.test.js` to check all relative static/dynamic imports, re-exports, import.meta.url assets, CSS dependencies and the HTML app entry. The checks recurse through system folders without maintaining a second module list. Existing measurement/icon tools now import the relocated world/rendering modules; commands and outputs are unchanged.

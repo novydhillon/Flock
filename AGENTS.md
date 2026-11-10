@@ -146,11 +146,11 @@ Connector limits seen so far:
 
 - Public levels are 1–100. `level.index` and saved completion indexes are 0–99. QA level 0 is the tutorial.
 - The ground plane is `x`/`z`; `y` is elevation. Headings are radians.
-- The simulation must not depend on rendering. `src/simulation.js`, `src/world.js` and their helpers own physics, collision, delivery and profile state; the renderer only reads them.
+- The simulation must not depend on rendering. `src/simulation/simulation.js`, `src/world/world.js` and their helpers own physics, collision, delivery and profile state; the renderer only reads them.
 - QA code is development-only. `vite.config.js` sets `__FLOCK_QA__` for modes `development` and `qa`. Release artifacts must contain no QA files or identifiers (`scripts/check-build-mode.mjs`).
 - Saved progress lives in `localStorage` under `flock-foundry-v1` (a version-2 profile). Do not change saved-profile keys or ledger semantics without migration and tests.
 - The tracker site in `tracker/` is a separate buildless page that reads the public `main` tracker files.
-- Clouds (F-008) are deferred; `src/atmosphere.js` is dormant on purpose.
+- Clouds (F-008) are deferred; `src/rendering/weather/atmosphere.js` is dormant on purpose.
 
 ## Handoff
 

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createGateView } from '../src/gate-view.js';
+import { createGateView } from '../src/rendering/gate-view.js';
 
 test('sliding gates retain every slat support and both rail endpoints on a changing steep contour', () => {
   const gate = { x: 2, z: -3, width: 10, heading: 0.7, operable: true, open: false };

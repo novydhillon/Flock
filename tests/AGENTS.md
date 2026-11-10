@@ -20,3 +20,7 @@ Follow the root repeatable-work rule: on the fourth occurrence, save or extend a
 ## Current delivery and formatting - 10 November 2026
 
 Follow the root readable-source policy: pinned Prettier, readable Dev/QA output, minified production output, independent game/tracker entry points and explicitly authorized `/dev_performance/` staging for F-PERF-002. This supersedes older dense-source guidance. See current DEVELOPMENT.md and scripts/README.md.
+
+## Source layout - 10 November 2026
+
+Runtime modules now live under system folders. Resolve actual module paths in imports and source-loading fixtures. `source-layout.test.js` recursively validates local module/asset edges and startup; it intentionally avoids a duplicate hardcoded module inventory.

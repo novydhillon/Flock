@@ -2,12 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
-import { createLevel, canOccupy, defaultProfile } from '../src/simulation.js';
+import { createLevel, canOccupy, defaultProfile } from '../src/simulation/simulation.js';
 
 // Remove browser CSS and resolve JS imports for the data-URL harness.
-const source = (await readFile(new URL('../src/qa.js', import.meta.url), 'utf8'))
+const source = (await readFile(new URL('../src/qa/qa.js', import.meta.url), 'utf8'))
   .replace("import './qa.css';", '')
-  .replace("'./animal-size.js'", JSON.stringify(new URL('../src/animal-size.js', import.meta.url).href));
+  .replace(
+    "'../simulation/animal-size.js'",
+    JSON.stringify(new URL('../src/simulation/animal-size.js', import.meta.url).href),
+  );
 const { qaLevelIndex, adjustQABolts, moveQAAnimal, exportQAScenario, installQA, installQAContours } = await import(
   `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`
 );

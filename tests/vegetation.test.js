@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createDog, createTree, createBush, createMaterials } from '../src/models.js';
-import { setTailLightBarking } from '../src/tail-light.js';
-import { generateBushClusters } from '../src/vegetation.js';
-import { createLevel, canOccupy } from '../src/world.js';
+import { createDog, createTree, createBush, createMaterials } from '../src/rendering/models.js';
+import { setTailLightBarking } from '../src/rendering/animation/tail-light.js';
+import { generateBushClusters } from '../src/rendering/environment/vegetation.js';
+import { createLevel, canOccupy } from '../src/world/world.js';
 
 function installCanvasStub() {
   const context = {

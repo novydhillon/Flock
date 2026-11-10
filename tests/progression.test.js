@@ -10,7 +10,7 @@ import {
   upgradeAvailability,
   activeUpgrades,
   nextUnlockLevel,
-} from '../src/progression.js';
+} from '../src/progression/progression.js';
 
 const richProfile = (highestLevel) => ({ points: 10000, upgrades: {}, highestLevel, completedLevels: [] });
 

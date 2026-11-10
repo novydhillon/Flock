@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { JSDOM } from 'jsdom';
-import { createLoading, requireWebGL2 } from '../src/loading.js';
+import { createLoading, requireWebGL2 } from '../src/ui/loading.js';
 
 function launch({ reduced = false } = {}) {
   const dom = new JSDOM(readFileSync(new URL('../index.html', import.meta.url), 'utf8'));
@@ -105,7 +105,7 @@ test('only an unavailable context produces graphics-specific recovery; retry pre
 });
 
 test('initialization submits and paints the scene before revealing or starting the loop', async () => {
-  const source = readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('../src/app/main.js', import.meta.url), 'utf8');
   const init = source
     .slice(source.indexOf('export async function initializeMeadow'), source.indexOf('// Vite removes'))
     .replace('export ', '');

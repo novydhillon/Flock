@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-PERF-002~~ | ~~P2~~ | ~~Engineering~~ | ~~Readable source, separate delivery pipelines and allocation cleanup~~ | ~~Done~~ | ~~Current main~~ |
 | ~~F-008~~ | ~~P1~~ | ~~Art~~ | ~~Cloud visuals temporarily removed at user request~~ | ~~Closed~~ | ~~No runtime clouds or cloud shadows~~ |
 | ~~F-AUDIO-003~~ | ~~P1~~ | ~~Audio regression~~ | ~~Music stays silent on browser/app launch until audio is toggled off/on~~ | ~~Closed~~ | ~~Accepted soundtrack; physical launch investigation~~ |
 | ~~F-VEG-001~~ | ~~P2~~ | ~~Environment~~ | ~~Odd 3–11 stem clumps, varied heights and denser randomized water vegetation~~ | ~~Done~~ | ~~Accepted F-WATER-002/003~~ |
@@ -409,7 +410,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys wildlife-specific water/tree/structure collision; ordinary fences and map edges are permeable under F-027. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.
 
-**Files:** `src/nature.js`; reusable art may belong in `src/models.js`. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.
+**Files:** `src/rendering/environment/nature.js`; reusable art may belong in `src/rendering/models.js`. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.
 
 ### F-004 — ~~Flowing water~~
 
@@ -417,7 +418,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** subtle moving ripples/flow follow each river's local direction across bends; bridges remain clear, banks have no seams, and water continues beyond map bounds. Pause freezes animation. Reuse/dispose resources and assess mobile cost. Collision stays tied to the river geometry.
 
-**Files:** `src/render.js`, `src/world.js`, renderer tests.
+**Files:** `src/rendering/render.js`, `src/world/world.js`, renderer tests.
 
 ### F-005 — ~~Bridge and crossing alignment~~
 
@@ -425,7 +426,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** orientation uses the local river tangent, not a global axis; approaching/exiting paths align with the deck; mesh, terrain height, deck occupancy and rails share the same footprint. Retain enough landing overlap to cross both banks safely. Validate cow-sized bodies, helpers, the full initial flock, alternative routes, all campaign levels and representative seeds.
 
-**Files:** `src/world.js`, `src/render.js`, `src/models.js`, world/journey tests. Preserve the solved level-2 retrieval case; narrower replacement geometry must not reintroduce its stall. The implementation compares usable road width, excluding decorative shoulders. `4887ea7` aligns decks and straight approaches perpendicular to sampled river segments; deck width is 1.25 × road width, including the widened level-2 road/deck. Follow-up shortens decks to river width + 1.5 (0.75 nominal bank overlap per end) without changing width or dry route turning planes. Blocked opening steering follows collision-valid local bridge waypoints using each animal’s actual radius (.55 sheep, .78 cow), rather than pushing sideways through rail/bank corners. Sampled wet-strip coverage and unchanged full-flock journeys support the repair; Novy accepted the reported landing fix on 14 October 2026.
+**Files:** `src/world/world.js`, `src/rendering/render.js`, `src/rendering/models.js`, world/journey tests. Preserve the solved level-2 retrieval case; narrower replacement geometry must not reintroduce its stall. The implementation compares usable road width, excluding decorative shoulders. `4887ea7` aligns decks and straight approaches perpendicular to sampled river segments; deck width is 1.25 × road width, including the widened level-2 road/deck. Follow-up shortens decks to river width + 1.5 (0.75 nominal bank overlap per end) without changing width or dry route turning planes. Blocked opening steering follows collision-valid local bridge waypoints using each animal’s actual radius (.55 sheep, .78 cow), rather than pushing sideways through rail/bank corners. Sampled wet-strip coverage and unchanged full-flock journeys support the repair; Novy accepted the reported landing fix on 14 October 2026.
 
 ### F-006 — ~~Operable gates from level 20~~
 
@@ -441,7 +442,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** selected deterministic levels have readable stone boundaries, consistent visible/physical footprints and usable entrances. Define whether walls block herding signals and how gates join them; raised walls should occlude effects correctly. Keep goals and route clearance valid.
 
-**Decision to resolve:** level/theme distribution and wall height. Candidate files: `src/world.js`, `src/models.js`, `src/render.js`, collision tests.
+**Decision to resolve:** level/theme distribution and wall height. Candidate files: `src/world/world.js`, `src/rendering/models.js`, `src/rendering/render.js`, collision tests.
 
 ### F-009 — ~~Delivery countdown and score~~
 
@@ -451,7 +452,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Implementation / decisions recorded 14 October 2026:** user approved positive partial unlock, `floor(reward * saved / total)` score/earned entitlement and lifetime best improvement paying only its delta. `1fee206` implements a 30–60 second complexity formula, first-arrival start, timeout-before-admission, early full completion, consistent HUD/results and v2 ledger migration. Legacy completions become fully earned without crediting points again. Replay spending/reload cannot farm duplicate rewards. See [Gameplay](systems/GAMEPLAY.md) for exact formula. Novy accepted F-009 on 14 October 2026; future pacing changes remain tracked separately.
 
-**Files:** `src/simulation.js`, `src/main.js`, `src/progression.js`, UI/style and persistence tests. Depends on F-010 so timer starts only inside the correct goal.
+**Files:** `src/simulation/simulation.js`, `src/app/main.js`, `src/progression/progression.js`, UI/style and persistence tests. Depends on F-010 so timer starts only inside the correct goal.
 
 ### F-010 — ~~Goal shape matches enclosure~~
 
@@ -467,7 +468,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** Pip's blue light visibly flashes red for the bark feedback interval and returns blue reliably. Repeated bark, cooldown, pause and level restart leave no stuck-red state. Decide whether Buddy dog uses the same convention when it has an actual bark event. Do not recolor every shared cyan robotic material.
 
-**Files:** `src/models.js`, `src/render.js`, `src/main.js`; use the same bark event as F-002.
+**Files:** `src/rendering/models.js`, `src/rendering/render.js`, `src/app/main.js`; use the same bark event as F-002.
 
 ### F-012 — ~~Wandering and bolting animals~~
 
@@ -477,7 +478,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Decisions required:** selection/rounding, probability evaluation interval, wander distance/speed/cooldown, what counts as active herding (Pip versus companions), and whether the 10% is conditional on a wander event. Do not silently interpret a chance as a per-second or per-frame rate. Balance together with F-009 to avoid unfair late losses.
 
-**Files:** `src/simulation.js`, `src/world.js`, companion/journey/simulation tests.
+**Files:** `src/simulation/simulation.js`, `src/world/world.js`, companion/journey/simulation tests.
 
 ### F-014 — ~~Real-phone verification gap~~
 
@@ -501,7 +502,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Decisions to resolve:** area-to-count ranges/caps, whether either species may be absent, and spawn spacing/habitat. Do not silently replace the requested randomness with a fixed count per level.
 
-**Files:** `src/nature.js`, `src/models.js`, wildlife/resource tests. Coordinate squirrel motion work with F-003.
+**Files:** `src/rendering/environment/nature.js`, `src/rendering/models.js`, wildlife/resource tests. Coordinate squirrel motion work with F-003.
 
 ### F-018 — ~~Dev-build QA menu~~
 
@@ -511,7 +512,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Implementation evidence:** `df1d193` adds a dynamically imported QA module only in local development/explicit `build:dev`; normal production excludes the entry and handlers. User approved QA 0 = tutorial shortcut and public 1–100 = campaign indexes 0–99. First entry starts an isolated default test profile; persistence is suppressed until reload. Dialog pauses gameplay/countdowns/audio, makes background controls inert, permits finite safe bolt edits, identifies animals by species/ID, and edits finite coordinates within bounds. Explicit invalid-placement override bypasses occupancy only; velocity resets and saved state is retained. Reset starts fresh; export downloads a scenario JSON. `7acc632` restores results when resuming a completed QA meadow without another award. QA-enabled live publication is verified. Novy accepted F-018 on 14 October 2026; animal selection/position controls remain temporarily hidden as requested.
 
-**Files:** build configuration, `src/main.js`, `src/style.css`, `src/simulation.js`, controller/profile tests. QA pause must permit manual edits while freezing all normal simulation; gameplay pause alone is insufficient. Exercise development and release builds separately to verify gating.
+**Files:** build configuration, `src/app/main.js`, `src/ui/style.css`, `src/simulation/simulation.js`, controller/profile tests. QA pause must permit manual edits while freezing all normal simulation; gameplay pause alone is insufficient. Exercise development and release builds separately to verify gating.
 
 ### F-019 — ~~Bushes~~
 
@@ -519,7 +520,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** organic bush clusters vary in shape/placement and fit fields/woodland edges without hiding critical controls, destinations or crossings. Generation preserves safe spawns, flock staging space and route clearance. Explicitly decide whether bushes are decorative or physical; if physical, mesh and collision footprints must agree and all routes remain traversable. Include visibility/culling and resource cleanup checks.
 
-**Files:** `src/world.js`, `src/models.js`, `src/render.js`, scenery/world tests. Coordinate appearance with F-021 rather than duplicating the assets.
+**Files:** `src/world/world.js`, `src/rendering/models.js`, `src/rendering/render.js`, scenery/world tests. Coordinate appearance with F-021 rather than duplicating the assets.
 
 ### F-020 — ~~Larger trees~~
 
@@ -527,7 +528,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** trees are visibly larger at the normal camera scale and remain proportionate to Pip, animals and structures. Maintain readable play space and valid routes/entrances. If trunk or canopy dimensions change, update placement clearance, physical footprints where applicable, bounds and shadow/culling data together. Verify that larger near-camera trees do not introduce new actor-visibility problems; F-016 covers structures specifically.
 
-**Decision to resolve:** target scale or size range and variation across levels. `src/models.js`, `src/world.js` and `src/render.js` are likely touch points.
+**Decision to resolve:** target scale or size range and variation across levels. `src/rendering/models.js`, `src/world/world.js` and `src/rendering/render.js` are likely touch points.
 
 ### F-021 — ~~Bush and tree surface detail~~
 
@@ -535,7 +536,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** foliage has readable volume, color/leaf variation and softened organic forms; trunks/branches have bark detail. Preserve the established cheerful handmade appearance and consistency between new bushes and larger trees. Avoid flat uniform blobs, repetitive obvious tiling and excessive fine-detail shimmer at portrait scale. Assess shader/texture memory, draw submissions, shadows and mobile performance; shared/cached resources must dispose correctly.
 
-**Files:** `src/models.js`, `src/render.js`, scenery/resource tests. Dependencies F-019/F-020 establish the base shapes and size targets.
+**Files:** `src/rendering/models.js`, `src/rendering/render.js`, scenery/resource tests. Dependencies F-019/F-020 establish the base shapes and size targets.
 
 ### F-022 — ~~Weather-aware wildlife and shelter~~
 
@@ -545,7 +546,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Decisions required:** species size categories, severity thresholds/hysteresis, shelter/exit behavior and return delay. The user supplied the ordering principle, not exact numeric thresholds.
 
-**Files:** `src/nature.js`, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.
+**Files:** `src/rendering/environment/nature.js`, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.
 
 ### F-023 — ~~Fixed per-level atmosphere and storm feedback~~
 
@@ -553,7 +554,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Accept when:** the selected sunny/breezy/light/heavy/storm condition remains fixed throughout the level; storm flashes and thunder share one bounded event with sensible delay. Rain, lighting and ground state remain readable. Mute, pause, backgrounding, replay and level changes cancel pending/stale effects consistently. No cloud meshes or cloud ground shadows appear. Phone appearance/listening acceptance remains pending for the rain/storm effects.
 
-**Files:** `src/weather.js`, `src/nature.js`, `src/rain-view.js`, `src/render.js`, `src/audio.js` and relevant tests. `Atmosphere` is dormant and no longer part of the runtime contract.
+**Files:** `src/rendering/weather/weather.js`, `src/rendering/environment/nature.js`, `src/rendering/weather/rain-view.js`, `src/rendering/render.js`, `src/audio/audio.js` and relevant tests. `Atmosphere` is dormant and no longer part of the runtime contract.
 
 ### F-024 — ~~Rain accumulation, puddles and water response~~
 
@@ -563,7 +564,7 @@ The images are visible in the conversation. Their advertised local attachment pa
 
 **Decisions required:** accumulation/saturation and drying rates, puddle formation thresholds/placement, river changes (for example ripples, roughness or color), and whether Pip/helpers/wildlife also splash. Those examples are implementation options, not approved extra mechanics.
 
-**Files:** `src/nature.js`, `src/render.js`, `src/world.js`, weather/renderer/resource tests. Use shared weather state from F-023 and check material sharing does not leak wetness into the next level.
+**Files:** `src/rendering/environment/nature.js`, `src/rendering/render.js`, `src/world/world.js`, weather/renderer/resource tests. Use shared weather state from F-023 and check material sharing does not leak wetness into the next level.
 
 ### F-027 — ~~Wildlife crossing fences and map edges~~
 
@@ -846,7 +847,7 @@ Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495]
 **Status:** Review. Mission card is narrower with its map immediately to the right. Tips end after the final 14-second display cycle (first-level tips also advance without requiring a delivery). A question-mark toggle appears beside pause after automatic or manual dismissal; reopened tips stay visible until toggled off. Woof is circular with title above the symbol and “double tap” below it inside the button. The route label/distance is removed; a triangle outside Pip’s ring points directly to the goal independently of Pip’s heading. Source regression checks cover completion, reopening, hiding and per-level reset; phone layout acceptance is pending. Development publication follows the restored project workflow; production main/root remain unchanged.
 
 
-F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/main.js`, `index.html`, `src/style.css`; the goal triangle is in `src/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.
+F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/app/main.js`, `index.html`, `src/ui/style.css`; the goal triangle is in `src/rendering/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.
 
 F-051 execution: independent source review 9.3/10; documentation 8/10 then 9/10 after evidence fixes. Published reviewed source `20e39cf` to development, Pages `9da398d`; both CI and native deployment succeeded. All 17 live artifacts/canonical HTML match; 32 unrelated Pages files preserved. Production main/root unchanged. See [publication evidence](QUALITY.md#verified-f-051-development-publication). Status remains Review for phone acceptance.
 
@@ -1139,7 +1140,7 @@ F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7a
 
 **Connector waiver — 20 October 2026:** Regenerated docs HTML (about 600 KB) is too large for the connector. Novy explicitly authorized shell `git commit`/`git push` for F-HERD-005 and F-WORLD-001 on the new branch `feature/herd-bottlenecks`. The connector-only rule stays in force for other work.
 
-**Execution — 20 October 2026:** Implemented in `src/chokepoints.js`, `src/bridge-crossing.js`, `src/simulation.js` and `openingSteer` in `src/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
+**Execution — 20 October 2026:** Implemented in `src/simulation/navigation/chokepoints.js`, `src/simulation/navigation/bridge-crossing.js`, `src/simulation/simulation.js` and `openingSteer` in `src/world/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
 
 | Measure (mean per animal, finished runs) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
 |---|---|---|---|---|
@@ -2218,3 +2219,17 @@ User acceptance on 9 November 2026 supersedes the historical Review status above
 
 
 **Closed — 9 November 2026:** Closed at Novy's request; no fix or validation is claimed. Documentation rebuild and checks waived for this closure.
+
+
+### F-PERF-002 — ~~Readable source, separate delivery pipelines and allocation cleanup~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `refactor/performance-pipelines`
+
+**Accept when:** Source and Dev JavaScript are readable, live JavaScript is minified, game/tracker have independent build/test/deploy paths, regressions pass, bounded allocation improvements preserve appearance and gameplay, and the checked game build is published to the explicitly authorized `/dev_performance/`. User playtest sign-off remains separate.
+
+**10 November 2026:** Based on main `86a5b5d96d3ec38e50b76b0f32bdb5e41d58a0aa`. Extended existing delivery tools rather than making per-task publishers. Audit found a redundant glow update and avoidable rain/goal-pointer allocations. Source review also identified larger controller/renderer modules and mixed grazing/gate responsibilities; broad gameplay rewrites are deferred to retain validated behavior. Implementation and validation in progress.
+
+**Closed:** 10 November 2026. Novy accepted the code refactors and performance. No main merge requested; accepted source is retained in the parent feature branch.
+

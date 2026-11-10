@@ -10,9 +10,9 @@ import {
   hasClearGroundPath,
   hasClearPlayerSignal,
   distance,
-} from '../src/world.js';
-import { stepSimulation } from '../src/simulation.js';
-import { upgradeEffects } from '../src/progression.js';
+} from '../src/world/world.js';
+import { stepSimulation } from '../src/simulation/simulation.js';
+import { upgradeEffects } from '../src/progression/progression.js';
 
 const unit = (x, z) => {
   const length = Math.hypot(x, z) || 1;

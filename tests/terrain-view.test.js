@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createLevel, groundHeight, terrainHeight, terrainNormal, GROUND_SURFACE_OFFSET } from '../src/world.js';
+import { createLevel, groundHeight, terrainHeight, terrainNormal, GROUND_SURFACE_OFFSET } from '../src/world/world.js';
 import {
   installTerrainRelief,
   conformSurface,
@@ -11,10 +11,10 @@ import {
   alignAnimalToTerrain,
   drapeGroundGuide,
   alignGroundProp,
-} from '../src/terrain-view.js';
-import { roadNetwork } from '../src/surfaces.js';
-import { createFlowerPatch, createBridge } from '../src/models.js';
-import { createGateView, createStoneWallView } from '../src/gate-view.js';
+} from '../src/rendering/terrain-view.js';
+import { roadNetwork } from '../src/rendering/surfaces.js';
+import { createFlowerPatch, createBridge } from '../src/rendering/models.js';
+import { createGateView, createStoneWallView } from '../src/rendering/gate-view.js';
 
 function rollingLevel() {
   for (let seed = 200; seed < 220; seed++) {
@@ -429,7 +429,7 @@ test('grass and road relief shading composes material hooks and shares a resetta
 });
 
 test('slope soil blends granular albedo and bump while preserving existing material hooks', async () => {
-  const { installSlopeSoil } = await import('../src/terrain-view.js');
+  const { installSlopeSoil } = await import('../src/rendering/terrain-view.js');
   const material = new THREE.MeshStandardMaterial({ map: new THREE.Texture(), bumpMap: new THREE.Texture() });
   const soil = new THREE.Texture(),
     bump = new THREE.Texture();

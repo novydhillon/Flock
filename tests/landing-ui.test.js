@@ -9,11 +9,11 @@ import {
   workshopHTML,
   createShowcase,
   stepShowcase,
-} from '../src/landing-ui.js';
-import { defaultProfile, applyLevelReward } from '../src/profile.js';
-import { UPGRADE_CATALOG, purchaseUpgrade } from '../src/progression.js';
-import { updateGrazing, canGrazeAt } from '../src/grazing.js';
-import { canOccupy } from '../src/world.js';
+} from '../src/ui/landing-ui.js';
+import { defaultProfile, applyLevelReward } from '../src/progression/profile.js';
+import { UPGRADE_CATALOG, purchaseUpgrade } from '../src/progression/progression.js';
+import { updateGrazing, canGrazeAt } from '../src/rendering/animation/grazing.js';
+import { canOccupy } from '../src/world/world.js';
 
 test('landing continuation follows campaign highest unlocked index, including completed campaign and reset', () => {
   const profile = defaultProfile();

@@ -8,10 +8,10 @@ import { spawnSync } from 'node:child_process';
 const active =
   '# Active\n\n| ID | Priority | Type | Item | Status | Depends on |\n|---|---|---|---|---|---|\n| F-TEST-001 | P2 | Test | Accepted work | Review | — |\n\n### F-TEST-001 — Accepted work\n\n**Status:** Review.\n\n**Accept when:** Preserve this criterion.\n\n### F-TEST-002 — Other work\n\nKeep this active.\n';
 const archive = '# Archive\n\n| ID | Priority | Type | Item | Status | Depends on |\n|---|---|---|---|---|---|\n';
-function fixture(t) {
+function fixture(t, activeText = active) {
   const root = mkdtempSync(join(tmpdir(), 'flock-archive-'));
   mkdirSync(join(root, 'docs'));
-  writeFileSync(join(root, 'docs/ISSUES.md'), active);
+  writeFileSync(join(root, 'docs/ISSUES.md'), activeText);
   writeFileSync(join(root, 'docs/ISSUES_CLOSED.md'), archive);
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const run = (...options) =>
@@ -39,6 +39,15 @@ test('tracker archive dry-run leaves both files unchanged', (t) => {
   assert.equal(run().status, 0);
   assert.equal(readFileSync(join(root, 'docs/ISSUES.md'), 'utf8'), active);
   assert.equal(readFileSync(join(root, 'docs/ISSUES_CLOSED.md'), 'utf8'), archive);
+});
+
+test('tracker archive accepts ASCII-hyphen detail headings without dropping their contents', (t) => {
+  const { root, run } = fixture(t, active.replaceAll('\u2014', '-'));
+  assert.equal(run('--apply').status, 0);
+  assert.doesNotMatch(readFileSync(join(root, 'docs/ISSUES.md'), 'utf8'), /F-TEST-001/);
+  const closed = readFileSync(join(root, 'docs/ISSUES_CLOSED.md'), 'utf8');
+  assert.match(closed, /Preserve this criterion/);
+  assert.match(closed, /~~Accepted work~~/);
 });
 test('tracker archive applies full detail/row with acceptance and rejects duplicate closure', (t) => {
   const { root, run } = fixture(t);

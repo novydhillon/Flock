@@ -8,13 +8,13 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
-import * as simulationAPI from '../src/simulation.js';
-import * as progressionAPI from '../src/progression.js';
-import * as gatesAPI from '../src/gates.js';
-import * as worldAPI from '../src/world.js';
-import * as barkAPI from '../src/bark.js';
-import * as landingUI from '../src/landing-ui.js';
-import * as profileAPI from '../src/profile.js';
+import * as simulationAPI from '../src/simulation/simulation.js';
+import * as progressionAPI from '../src/progression/progression.js';
+import * as gatesAPI from '../src/simulation/gates.js';
+import * as worldAPI from '../src/world/world.js';
+import * as barkAPI from '../src/simulation/bark.js';
+import * as landingUI from '../src/ui/landing-ui.js';
+import * as profileAPI from '../src/progression/profile.js';
 import { Context, DeferredContext, withAudio } from './audio-fixture.js';
 import { stripModuleSyntax } from './helpers/source.js';
 
@@ -33,7 +33,7 @@ function launch({
   audioInstance = null,
   settings = controlsSettings,
 } = {}) {
-  const main = stripModuleSyntax(readFileSync(path.join(root, 'src/main.js'), 'utf8'));
+  const main = stripModuleSyntax(readFileSync(path.join(root, 'src/app/main.js'), 'utf8'));
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const elements = new Map();
   const documentEvents = new Map(),

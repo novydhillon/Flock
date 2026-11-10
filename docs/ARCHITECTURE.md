@@ -1,5 +1,27 @@
 # Architecture and system contracts
 
+## Source system folders - 10 November 2026
+
+F-ARCH-002 relocates modules with direct explicit imports; there are no compatibility shims, barrel re-exports, aliases or extra startup modules. The HTML entry is `src/app/bootstrap.js`. The dependency graph is unchanged; folders describe current responsibility, not newly enforced layering. Existing mixed responsibilities (gate DOM helper, pure grazing queries alongside animation, weather state alongside effects) remain documented follow-up extraction candidates rather than behavior changes in this move.
+
+| Folder | Responsibility |
+|---|---|
+| `src/app/` | Browser startup, controller and frame-loop orchestration |
+| `src/ui/` | Loading/landing helpers and application styles |
+| `src/simulation/` | Herd/gameplay rules, bark, gates, delivery and transient roaming |
+| `src/simulation/companions/` | Buddy decisions and companion herd assistance |
+| `src/simulation/navigation/` | Physical navigation, bridge commitment and chokepoint yielding |
+| `src/world/` | Seeded level generation, physical terrain and pasture placement |
+| `src/rendering/` | Renderer, models, surfaces, views, minimap and shadows |
+| `src/rendering/animation/` | Actor poses, turns, grazing presentation, hover and glow |
+| `src/rendering/environment/` | Nature, vegetation, trees and wildlife |
+| `src/rendering/water/` | Water effects, plants, river detail and pool geometry |
+| `src/rendering/weather/` | Weather state and rain/cloud presentation |
+| `src/audio/` | Audio activation, transport, effects and music |
+| `src/progression/` | Profiles, upgrade catalog and progression rules |
+| `src/qa/` | Development-only QA editor and styles |
+| `src/config/` | Documented settings, contracts and immutable resolution |
+
 ## Engineering audit and delivery separation - 10 November 2026
 
 The F-PERF-002 review retained simulation/presentation ownership, seeded generation, validated JSON configuration and explicit resource disposal. Shared delivery policy now resides in `scripts/deployment-targets.cjs`; game and tracker have separate test selectors, checked builds, output directories and deployment workflows. Formatting is enforced by pinned Prettier rather than hand-compacted source. Larger controller/renderer modules and mixed gate/grazing responsibilities remain follow-up candidates; no speculative gameplay restructuring was introduced. See the [audit record](experiments/performance-review.md).
@@ -79,32 +101,32 @@ The current game is a static browser application: Vite bundles JavaScript, CSS a
 
 | Source | Responsibility | Important boundary |
 |---|---|---|
-| `src/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
-| `src/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
-| `src/bridge-crossing.js` | Per-animal committed deck-to-bank traversal, including a short pressured approach zone | Body-clear local waypoints; no goal choice, score or profile writes |
-| `src/chokepoints.js` | Lanes, yielding and bounded deadlock escape at bridge mouths, open gates and the destination entrance | Shapes a pressured animal's desired velocity only; transient per-animal state; never chooses goals or moves bodies |
-| `src/buddy-navigation.js` | Cached tree detours and bounded Buddy turning/movement | Uses physical ground clearance and existing route/crossing navigation |
-| `src/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; local passage guidance; no DOM or profile writes |
-| `src/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
-| `src/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
-| `src/wandering.js` | Seeded straggler opportunity cohort and conditional bolt selection | Simulation-time cadence; normal world collision remains authoritative |
-| `src/gates.js`, `src/gate-view.js` | Nearby gate action/state and owned gate/stone-wall meshes | Gate panel state follows `level.gates`; collision/map read the same geometry |
-| `src/models.js` | Robot/scenery model construction and shared model resources | Shared material changes may affect many objects |
-| `src/tail-light.js` | Pip's bark-state tail-light color/emission | Mutates only the dedicated light material; restore after the bark window |
-| `src/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |
-| `src/vegetation.js` | Seeded, route-aware decorative bush clusters | Decorative only; avoids collision and play-critical areas |
-| `src/wildlife.js`, `src/wildlife-models.js` | Area-scaled ambient populations, movement, fence permeability and weather shelter | Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared |
-| `src/weather.js` | Fixed seeded level weather and deterministic paired storm events | `MeadowNature` is the single advancing owner; other systems read the same object |
-| `src/water-effects.js` | Directional river flow, surface wetness, puddles and splashes | Per-level resources are bounded and disposed; zero dt/pause freezes effects |
-| `src/atmosphere.js` | Dormant cloud/shadow implementation, deferred by user | Not instantiated or updated by the game renderer |
-| `src/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
-| `src/cutaway.js` | Occupied-structure roof/facing-side visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
-| `src/qa.js` | Development-only isolated QA controls and scenario export | Dynamically imported only in development/QA builds |
-| `src/render.js` | Camera, scene, static/actor batches, map, transient effects | Visual state must not decide rewards or collision |
-| `src/nature.js` | Advances shared weather once and updates instanced fauna/precipitation | Weather presentation does not change movement speed or rewards |
-| `src/audio.js` | Music scheduling, UI/game sounds and ambience lifecycle | Browser activation is asynchronous and can be invalidated |
+| `src/app/main.js` | Browser UI state, input, game loop, profile actions, effect/audio dispatch | Owns mode and pause; full simulation runs only while playing, saved-only goal roaming also runs behind results |
+| `src/world/world.js` | Seeded levels, routes, barrier queries, body movement and navigation | Shared physical geometry; render geometry must agree |
+| `src/simulation/navigation/bridge-crossing.js` | Per-animal committed deck-to-bank traversal, including a short pressured approach zone | Body-clear local waypoints; no goal choice, score or profile writes |
+| `src/simulation/navigation/chokepoints.js` | Lanes, yielding and bounded deadlock escape at bridge mouths, open gates and the destination entrance | Shapes a pressured animal's desired velocity only; transient per-animal state; never chooses goals or moves bodies |
+| `src/simulation/navigation/buddy-navigation.js` | Cached tree detours and bounded Buddy turning/movement | Uses physical ground clearance and existing route/crossing navigation |
+| `src/simulation/companions/buddy.js` | Buddy flock grouping, rear positioning, smaller-group selection, retrieval, local pressure and bark decisions | Per-level transient state; local passage guidance; no DOM or profile writes |
+| `src/simulation/simulation.js` | Herd movement, confined delivered-animal roaming, companion behavior, delivery and profile functions | Mutates the level/dog; returns events, not DOM operations |
+| `src/progression/progression.js` | Upgrade catalog, gates, costs, validation and effects | Ownership is separate from activation in the selected level |
+| `src/simulation/wandering.js` | Seeded straggler opportunity cohort and conditional bolt selection | Simulation-time cadence; normal world collision remains authoritative |
+| `src/simulation/gates.js`, `src/rendering/gate-view.js` | Nearby gate action/state and owned gate/stone-wall meshes | Gate panel state follows `level.gates`; collision/map read the same geometry |
+| `src/rendering/models.js` | Robot/scenery model construction and shared model resources | Shared material changes may affect many objects |
+| `src/rendering/animation/tail-light.js` | Pip's bark-state tail-light color/emission | Mutates only the dedicated light material; restore after the bark window |
+| `src/rendering/goal-view.js` | Shared-footprint highlight, border, barn floor and minimap polygon | Consumes world corners; does not define admission |
+| `src/rendering/environment/vegetation.js` | Seeded, route-aware decorative bush clusters | Decorative only; avoids collision and play-critical areas |
+| `src/rendering/environment/wildlife.js`, `src/rendering/environment/wildlife-models.js` | Area-scaled ambient populations, movement, fence permeability and weather shelter | Fauna do not move robotic herd bodies or award progress; water/tree occupancy remains shared |
+| `src/rendering/weather/weather.js` | Fixed seeded level weather and deterministic paired storm events | `MeadowNature` is the single advancing owner; other systems read the same object |
+| `src/rendering/water/water-effects.js` | Directional river flow, surface wetness, puddles and splashes | Per-level resources are bounded and disposed; zero dt/pause freezes effects |
+| `src/rendering/weather/atmosphere.js` | Dormant cloud/shadow implementation, deferred by user | Not instantiated or updated by the game renderer |
+| `src/rendering/surfaces.js` | Non-overlapping ribbon union and surface-aware bark geometry | Geometry construction only; retains normal depth testing |
+| `src/rendering/cutaway.js` | Occupied-structure roof/facing-side visibility and material clone lifecycle | Changes visibility only, never collision or rewards |
+| `src/qa/qa.js` | Development-only isolated QA controls and scenario export | Dynamically imported only in development/QA builds |
+| `src/rendering/render.js` | Camera, scene, static/actor batches, map, transient effects | Visual state must not decide rewards or collision |
+| `src/rendering/environment/nature.js` | Advances shared weather once and updates instanced fauna/precipitation | Weather presentation does not change movement speed or rewards |
+| `src/audio/audio.js` | Music scheduling, UI/game sounds and ambience lifecycle | Browser activation is asynchronous and can be invalidated |
 
-Source links: [controller](../src/main.js), [world](../src/world.js), [simulation](../src/simulation.js), [progression](../src/progression.js), [renderer](../src/render.js), [models](../src/models.js), [nature](../src/nature.js), [audio](../src/audio.js).
+Source links: [controller](../src/app/main.js), [world](../src/world/world.js), [simulation](../src/simulation/simulation.js), [progression](../src/progression/progression.js), [renderer](../src/rendering/render.js), [models](../src/rendering/models.js), [nature](../src/rendering/environment/nature.js), [audio](../src/audio/audio.js).
 
 ```mermaid
 flowchart TD
@@ -127,7 +149,7 @@ The main loop requests animation frames and caps the per-frame simulation `dt` a
 
 ```js
 // Runnable: node --input-type=module from the repository root.
-import { createLevel, stepSimulation } from './src/simulation.js';
+import { createLevel, stepSimulation } from './src/simulation/simulation.js';
 const level = createLevel(0);
 const dog = { ...level.dog };
 const result = stepSimulation(level, dog, { x: 0, z: 0 }, 1 / 60, {});

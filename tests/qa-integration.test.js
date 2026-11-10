@@ -7,14 +7,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { JSDOM } from 'jsdom';
-import * as simulation from '../src/simulation.js';
-import * as progression from '../src/progression.js';
-import * as world from '../src/world.js';
-import * as gates from '../src/gates.js';
-import * as barkAPI from '../src/bark.js';
-import * as landingUI from '../src/landing-ui.js';
-import * as profileAPI from '../src/profile.js';
-import { animalRadius } from '../src/animal-size.js';
+import * as simulation from '../src/simulation/simulation.js';
+import * as progression from '../src/progression/progression.js';
+import * as world from '../src/world/world.js';
+import * as gates from '../src/simulation/gates.js';
+import * as barkAPI from '../src/simulation/bark.js';
+import * as landingUI from '../src/ui/landing-ui.js';
+import * as profileAPI from '../src/progression/profile.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
 import { stripModuleSyntax } from './helpers/source.js';
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
@@ -83,10 +83,10 @@ function launch({ music = false } = {}) {
     URL: dom.window.URL,
     console,
   });
-  const qa = stripModuleSyntax(readFileSync(new URL('../src/qa.js', import.meta.url), 'utf8'));
+  const qa = stripModuleSyntax(readFileSync(new URL('../src/qa/qa.js', import.meta.url), 'utf8'));
   vm.runInContext(qa, context);
-  const main = stripModuleSyntax(readFileSync(new URL('../src/main.js', import.meta.url), 'utf8')).replace(
-    /import\s*\(\s*(['"])\.\/qa\.js\1\s*\)/g,
+  const main = stripModuleSyntax(readFileSync(new URL('../src/app/main.js', import.meta.url), 'utf8')).replace(
+    /import\s*\(\s*(['"])\.\.\/qa\/qa\.js\1\s*\)/g,
     'Promise.resolve({installQA})',
   );
   vm.runInContext(

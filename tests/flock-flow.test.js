@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepSimulation, canOccupy } from '../src/simulation.js';
+import { stepSimulation, canOccupy } from '../src/simulation/simulation.js';
 
 const animal = (id, x, z, vx = 0, vz = 0) => ({ id, x, z, vx, vz, type: 'sheep', saved: false, nextWanderCheck: 1e9 });
 function meadow(animals, changes = {}) {

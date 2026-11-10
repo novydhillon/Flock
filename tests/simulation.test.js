@@ -1,4 +1,4 @@
-import { animalRadius } from '../src/animal-size.js';
+import { animalRadius } from '../src/simulation/animal-size.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -12,7 +12,7 @@ import {
   validateProfile,
   loadProfile,
   saveProfile,
-} from '../src/simulation.js';
+} from '../src/simulation/simulation.js';
 import {
   distance,
   targetFootprint,
@@ -21,7 +21,7 @@ import {
   containsTarget,
   navigationTarget,
   destinationApproach,
-} from '../src/world.js';
+} from '../src/world/world.js';
 
 test('idle waiting cannot finish the tutorial, but player herding can', () => {
   const idle = createLevel(0);

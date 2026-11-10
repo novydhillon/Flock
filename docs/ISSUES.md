@@ -34,7 +34,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-PERF-002 | P2 | Engineering | Readable source, separate delivery pipelines and allocation cleanup | Review | Current main |
+| F-ARCH-002 | P2 | Architecture | Organize source into system and functionality folders | Review | Accepted F-PERF-002 |
 | F-SHADOW-001 | P2 | Rendering | Bake all static environment shadows once per meadow | Review | Existing shadow renderer |
 | F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | In progress | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
@@ -144,7 +144,7 @@ Acceptance criteria:
 
 Planning requested by Novy; **all F-BIRD items are Open, unassigned and not implemented**. Planning owner: Codex; documentation branch: `plan/bird-behaviour`, based on main `5fd8cf5`. Runtime implementation branch: to be claimed from current main when scheduled. Bird-scoped IDs avoid collisions with concurrently assigned numeric F-IDs. Proposed priority: P2 for this ambient-life feature. This request authorizes planning/tracker updates; no runtime work or game deployment is included.
 
-**Existing foundation:** `src/wildlife.js` already supplies seeded, area-scaled birds (currently capped at six), threat response and weather sheltering. `src/nature.js` renders continuously airborne birds; `src/audio.js` schedules generic ambient calls. Extend these systems rather than introduce a second population/audio loop. New ambient birds do not affect herding, collision admission, scoring or progression.
+**Existing foundation:** `src/rendering/environment/wildlife.js` already supplies seeded, area-scaled birds (currently capped at six), threat response and weather sheltering. `src/rendering/environment/nature.js` renders continuously airborne birds; `src/audio/audio.js` schedules generic ambient calls. Extend these systems rather than introduce a second population/audio loop. New ambient birds do not affect herding, collision admission, scoring or progression.
 
 **Requested behavior:** birds fly, land and peck for food on the ground, land in trees and chirp, and perch on fences/other structures to chirp or sit quietly. Ground birds fly away from Pip and Buddy. Quickly approaching livestock also cause takeoff; grazing or slowly moving livestock alone do not. Each level has a random 10% chance of one nest in one tree.
 
@@ -394,12 +394,14 @@ Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetat
 
 **F-SHADOW-001 validation — 10 November 2026:** Implemented and independently reviewed9/10. Local full baseline620/620 and final scope CI pass; focused static/cutaway/water-effects32/32, independent static5/5. Release/development artifacts pass QA guards. Final shader-local identifier cleanup retained review9/10 and5/5 focused/build checks. Device appearance/fine-object resolution remain pending. Source only; no deployment or main merge.
 
-### F-PERF-002 - Readable source, separate delivery pipelines and allocation cleanup
+### F-ARCH-002 - Organize source into system and functionality folders
 
 **Status:** Review. Owner: Codex.
 
-**Branch:** `refactor/performance-pipelines`
+**Branch:** `refactor/system-folders`
 
-**Accept when:** Source and Dev JavaScript are readable, live JavaScript is minified, game/tracker have independent build/test/deploy paths, regressions pass, bounded allocation improvements preserve appearance and gameplay, and the checked game build is published to the explicitly authorized `/dev_performance/`. User playtest sign-off remains separate.
+**Accept when:** Runtime files live in meaningful system folders, every static/dynamic module and asset reference resolves, behavior and the dependency graph match the accepted source, regression/build/docs checks pass, and the change receives independent review. Preserve source readability and independent delivery pipelines.
 
-**10 November 2026:** Based on main `86a5b5d96d3ec38e50b76b0f32bdb5e41d58a0aa`. Extended existing delivery tools rather than making per-task publishers. Audit found a redundant glow update and avoidable rain/goal-pointer allocations. Source review also identified larger controller/renderer modules and mixed grazing/gate responsibilities; broad gameplay rewrites are deferred to retain validated behavior. Implementation and validation in progress.
+**10 November 2026:** Based on accepted `refactor/performance-pipelines` head `aecb5ae`. Novy accepted F-PERF-002; its complete record is archived. Keeping a separate successor branch retains accepted changes without implying main merge or deployment permission. Implementing a pure relocation/import migration, with a one-time canonical AST and stylesheet equivalence check against the parent snapshot.
+
+**Validation - 10 November 2026:** Independent review9.5/10 after correcting a measurement tool import; no remaining findings. All72runtime/config/style files retained; release33/33 and Dev35/35 emitted files are byte-identical to the accepted parent. Recursive source/tool resolution and seeded measurement smoke4/4; configuration/QA fixtures pass; tracker16/16, docs7/7 and artifact guards pass. Final source CI follows the branch publication. No deployment or main merge requested.
