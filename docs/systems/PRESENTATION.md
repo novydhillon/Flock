@@ -499,3 +499,9 @@ F-VEG-001 uses shared oddBladeCount and plantBladeHeight helpers for3/5/7/9/11-s
 ## Wider grass blade spread — 9 November 2026
 
 F-VEG-001 readability follow-up: land blade centers use5× blade radius instead of2×; water grass spread is .11–.15m, reeds retain .06–.09m and downstream bends. Existing clump centers, odd counts, widths/heights and conservative footprint remain unchanged.
+
+## Static environment shadow cache — 10 November 2026
+
+F-SHADOW-001 separates immutable environment capture from moving shadows. `static-shadows.js` fits a light-space camera to the complete level and renders a packed depth map once, with only static terrain casters. Standard-lit receivers sample the retained map in world space; their existing material hooks, ambient illumination and dynamic sun shadows remain intact. The ordinary sun shadow pass retains actors and moving gate panels. Static gate supports, bridges, fences, pens, barns, trees, bushes, rocks and scenery hills stop participating in recurring shadow passes. Grass/reeds remain shadow-free. The physical barn exterior remains baked even while its visual cutaway fades; cutaway state cannot restore live static casters.
+
+Each level owns one bounded static map and releases it on replacement. Shared material uniforms retarget the new map. The configured texture size trades full-world thin-object detail against fixed memory; world-space depth tolerance is converted after fitting, preserving low fence shadows on large maps. Device visual detail and memory/performance remain separate checks.

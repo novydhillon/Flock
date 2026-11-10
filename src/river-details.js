@@ -47,7 +47,7 @@ export class RiverDetails {
       this.sites.push({x,z,radius,direction:{x:-dx,z:-dz},kind:'rock',rotation:roll(seed,i*7+4)*Math.PI*2});
     }
     const y=river.mesh.geometry.attributes.position.getY(0),rocks=this.sites.length;
-    if(rocks){const geometry=new THREE.IcosahedronGeometry(1,0),material=new THREE.MeshStandardMaterial({color:0x797c72,roughness:.96}),mesh=new THREE.InstancedMesh(geometry,material,rocks),pose=new THREE.Object3D();mesh.name='Seeded river rocks';for(let i=0;i<rocks;i++){const p=this.sites[i];pose.position.set(p.x,(river.heightAt?.(p.x,p.z)??y)+.02,p.z);pose.rotation.set(.15,p.rotation,.1);pose.scale.set(p.radius,p.radius*.72,p.radius*.85);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);}mesh.castShadow=true;mesh.receiveShadow=true;this.root.add(mesh);this.resources.push(geometry,material);}
+    if(rocks){const geometry=new THREE.IcosahedronGeometry(1,0),material=new THREE.MeshStandardMaterial({color:0x797c72,roughness:.96}),mesh=new THREE.InstancedMesh(geometry,material,rocks),pose=new THREE.Object3D();mesh.name='Seeded river rocks';mesh.userData.staticEnvironment=true;for(let i=0;i<rocks;i++){const p=this.sites[i];pose.position.set(p.x,(river.heightAt?.(p.x,p.z)??y)+.02,p.z);pose.rotation.set(.15,p.rotation,.1);pose.scale.set(p.radius,p.radius*.72,p.radius*.85);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);}mesh.castShadow=true;mesh.receiveShadow=true;this.root.add(mesh);this.resources.push(geometry,material);}
     this.sites.push(...bankSites(river,tris));
     // Plant clumps share the clipped, current-responsive obstacle wake surface.
     this.sites.push(...vegetationSites.map(site => ({ ...site, kind: 'vegetation', direction: tangent(river, site) })));

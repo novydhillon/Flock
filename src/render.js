@@ -21,6 +21,7 @@ import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './thruster-glow.js';
 import { ViewShadows, treeDepthMaterial } from './view-shadows.js';
+import { StaticShadows } from './static-shadows.js';
 import { groundHeight, riverSurfaceHeight, bridgeSurfaceHeight, terrainHeight, targetFootprint, gateSegment, canOccupy } from './world.js';
 import { installSlopeSoil, installTerrainRelief, conformSurface, meadowGeometry, roughPastureEnabled, alignAnimalToTerrain, drapeGroundGuide, alignGroundProp } from './terrain-view.js';
 import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
@@ -133,6 +134,8 @@ export class MeadowRenderer{
   place(group,x,z,scale=1,owned=false){group.position.set(x,groundHeight(this.level,x,z),z);group.scale.multiplyScalar(scale);group.traverse(o=>{if(o.userData.treeWidth!==undefined){o.userData.treeWidth=treeTrunkFactor(scale);o.material.userData.treeWidth.value=o.userData.treeWidth;}});if(owned)group.traverse(o=>{if(o.isMesh)o.userData.ownedGeometry=true;});this.terrain.add(group);return group;}
   flat(geometry,material,x,z,y=.02){const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;this.terrain.add(mesh);return mesh;}
   setLevel(level){
+    this.staticShadows?.dispose();
+    this.staticShadows = new StaticShadows({mapSize: PRESENTATION.renderer.staticShadowMapSize, depthBias: PRESENTATION.renderer.staticShadowDepthBias, normalBias: PRESENTATION.lighting.shadowNormalBias});
     this.level=level;this.barkEffects=[];
     this.terrainReliefEnabled.value = level.terrain?.enabled ? 1 : 0;
     this.waterEffects.restoreMaterials();
@@ -400,6 +403,7 @@ export class MeadowRenderer{
     let animalDepth=null;
     for(const batch of this.animalBatches)for(const mesh of batch.meshes)if(mesh.geometry.attributes.animalGesture){mesh.customDepthMaterial=animalDepth||=createAnimalGestureDepthMaterial();mesh.userData.ownedDepthMaterial=true;}
     boostEnvironmentVibrancy(this.terrain, this.actors);
+    this.staticShadows.bake(this.renderer, this.scene, this.camera, this.sun, this.terrain);
     this.center.set(level.spawn.x+(this.aspect<PRESENTATION.camera.portraitAspect?PRESENTATION.camera.previewPortraitOffsetX:PRESENTATION.camera.previewLandscapeOffsetX),0,level.spawn.z+PRESENTATION.camera.previewOffsetZ);this.time=0;this.update(level,level.dog,0,true);
   }
   placeFence(a, b) {
@@ -648,6 +652,9 @@ export class MeadowRenderer{
         m=h.type==='drone'?createDrone():createBuddy();
         if(h.type==='helper')m.scale.setScalar(this.dog.scale.x*(m.userData.suggestedScale??.82));
         this.helperMeshes.set(h.type,m);this.actors.add(m);
+        m.traverse(object => {
+          if (object.isMesh && object.receiveShadow) for (const material of Array.isArray(object.material) ? object.material : [object.material]) this.staticShadows.install(material);
+        });
       }
       m.visible=true;m.position.set(h.x,h.type==='drone'?terrainHeight(level,h.x,h.z)+2+Math.sin(this.time*4)*.18:terrainHeight(level,h.x,h.z),h.z);
       if(h.type==='drone')m.userData.parts.propellers.forEach(p=>p.rotation.y=this.time*35);
@@ -664,6 +671,7 @@ export class MeadowRenderer{
     setTailLightBarking(this.dog,(this.barkEffects||[]).some(e=>!e.buddy));this.gateView?.update();
     this.goal.material.opacity=.38+Math.sin(this.time*2)*.09;
     this.cutaway?.update(this.camera,[dog,...level.animals,...(level.helpers||[]).filter(h=>h.type!=='drone')],dt);
+    this.staticShadows.enforceStaticCasters();
     this.nature.update(dt,{dog,animals:level.animals,camera:this.camera,time:this.time,paused:dt<=0});
     const weather=this.nature.weather;
     this.waterEffects.update(dt,{weather,movers:[{...dog,id:'pip'},...level.animals.map(a=>({...a,id:`flock-${a.id}`})),...(level.helpers||[]).filter(h=>h.type!=='drone').map(h=>({...h,id:`helper-${h.type}`}))],paused:dt<=0});

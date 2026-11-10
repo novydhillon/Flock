@@ -18,6 +18,18 @@
       "min": 128,
       "max": 4096
     },
+    "staticShadowMapSize": {
+      "value": 4096,
+      "_comment": "One per-meadow cached static shadow map. Power-of-two dimensions512–4096; full-world coverage trades distant fine-detail resolution for fixed texture allocation.",
+      "min": 512,
+      "max": 4096
+    },
+    "staticShadowDepthBias": {
+      "value": 0.005,
+      "_comment": "World-space depth comparison tolerance for baked static shadows, converted to normalized depth after fitting the full-level shadow camera.",
+      "min": 0,
+      "max": 0.05
+    },
     "fogNear": {
       "value": 95,
       "_comment": "Retained legacy fog near distance; distance fog is currently disabled.",

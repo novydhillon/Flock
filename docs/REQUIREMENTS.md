@@ -1,5 +1,10 @@
 # Flock product requirements
 
+## Static environment shadow bake — 10 November 2026
+
+F-SHADOW-001: bake shadows for all static environment objects once per generated meadow, including trees, bushes, bridges, fences, barns, pens, rocks and static wall/gate supports. Camera movement must not rerender static casters or shift their shadows. Preserve real-time shadows for moving actors and gate panels, correct receiving surfaces over terrain/decks, disposal and shadow-free grass/reeds. A bake may retain the physical exterior barn silhouette while its visual cutaway exposes occupants.
+
+
 ## Compact riverbanks resumed — 9 November 2026
 
 F-TERRAIN-BANK-001 resumes on current accepted terrain. Novy explicitly allows bank faces up to80degrees. Preserve30degrees for ordinary pasture and bridge decks,9m total relief, smooth continuous height/normal joins, first-five flat levels, fixed lower camera and existing navigation. Compact raised spans should stop close to the physical banks, with smoothly varied ordinary bank slopes, dirt on steep ground and grass on gentler ground. The bank exception is localized; it does not raise the global pasture/deck cap. The80degree value is an upper bound, not a requirement that every bank reach it.
