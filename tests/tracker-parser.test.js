@@ -122,7 +122,9 @@ test('real main tracker rows remain unique, complete and historically scoped', (
   const overviewIds = [...active.matchAll(/^\| (F-(?:[A-Z]+-)*\d{3}) \|/gm), ...closed.matchAll(/^\| ~~(F-(?:[A-Z]+-)*\d{3})~~ \|/gm)];
   assert.equal(tasks.length, new Set(overviewIds.map(match => match[1])).size);
   assert.ok(tasks.length >= 108);
-  assert.equal(map.get('F-008').status, 'Deferred');
+  assert.equal(map.get('F-008').status, 'Closed');
+  assert.equal(map.get('F-008').column, 'closed');
+  assert.equal(map.get('F-AUDIO-003').status, 'Closed');
   assert.equal(map.get('F-066').column, 'closed');
   assert.ok(map.get('F-066').branches.includes('livestock_grazing'));
   assert.ok(map.get('F-064').branches.includes('art_update_cow'));
