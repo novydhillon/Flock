@@ -1464,3 +1464,23 @@ Focused deployment checks 15/15, docs behavior 7/7, both builds and QA guards pa
 Novy accepted the deployed hill/contour result and authorized main merge. F-TERRAIN-001–004 are archived; F-TERRAIN-BANK-001 is Deferred. Integration preserves the newer main reusable-workflow rules/scripts and all accepted feature runtime. Shared append-only documentation conflicts retain both histories. No root publication is performed. Closure uses the saved tracker archival tool, following repeated prior lifecycle closures; documentation and deployment-helper checks are rerun. Implementation/integration model: session model, identifier not recorded because no authoritative identifier is exposed. Prior runtime validation remains 599/599 with 9/10 independent review and verified 35-file dev publication; no new phone FPS claim.
 
 Closure validation: final documentation checks passed 7/7, deployment-helper behavior checks 5/5 and tracker archival tool checks 2/2. The archival tool validates dry-run immutability, full row/detail transfer, acceptance text and duplicate rejection. Terrain runtime is unchanged from the accepted 599/599 revision. Integration CI is triggered after source publication and must not be described as passed until observed.
+
+
+## Odd grass and reed clumps — 9 November 2026
+
+F-VEG-001, branch `feat/odd-vegetation-clumps`, base `43184c5db1b14922d5350e4d6e26489c63f4c3d0`. All modeled field/bank/pasture/water plants use odd3–11-stem clumps with within-clump height variation; land has up to five shared geometry variants per category, water retains four instanced batches. Water cap18→30 and area34→22m²/clump increase selected-body density, keeping the20% eligibility roll. Water grass interior acceptance floor rises6%→25%, bank falloff .65→1.2m; bank land offsets widen .65–3.65m. No simulation/progression changes or per-frame allocation. Reuses the standard checked build and documentation workflows from scripts/README.md. Implementation: gpt-6.1-sol, inherited effort. Focused water11/11 pass; independent review and final full-build evidence follow. Rendered phone appearance/FPS not measured. No publication or main merge requested.
+
+
+**Independent review:** fresh isolated critic9.2/10, no source findings or blockers;13/13 focused checks. Seeded100-level scan found no bank centers inside river channels. A stale renderer test assumed all pasture clumps shared one batch; updated to sum the bounded odd-count batches and inspect every geometry/culling bound/disposal. Implementation checks: water11/11, land/pasture11/11, targeted renderer3/3. No rendered or phone FPS claims. Full regression/artifact results recorded below after completion.
+
+
+**Broader validation finding:** initial five-variant land implementation exceeded the existing scene draw budget on public6 (177 versus170), although scenery triangles58182 remained below61000. Initial focused review9.2/10 is superseded for final acceptance until this material rendering-budget issue is repaired and rechecked. Interrupted full runs are not passes. Optimize shared batching, preserve requirements and rerun the existing budget rather than increasing its limit.
+
+
+**Final batching repair:** one seeded odd-count geometry per land category/level (all3/5/7/9/11 available across seeds), with mixed stem heights and proportionate site density compensation for counts above the former field/bank5 and pasture8. Water retains per-clump size variety and increased density. This supersedes the earlier five/two-variant approaches and avoids shader complexity or weakening existing rendering limits. Final independent review and checked-build result follow.
+
+
+**Final review:** fresh isolated gpt-6.1-sol critic9.2/10, no blockers or actionable minor findings; observed11 plant/pasture and2 filtered scene checks. Implementation budget/lifecycle scan3/3 passes: draws on public1/6/20/50/100 are125/169/163/168/144 (limit170), scenery triangles29176/59784/15990/23658/3930 (limit61000). Separate100-seed check confirms all odd land counts remain available without increasing category stem budgets. Root focused plants/pasture/water22/22 pass. Full regression/build evidence follows; no device rendering/FPS verification or deployment.
+
+
+**Final validation:** standard `npm run build:checked:dev` exits0:612/612 regressions, zero failures/skips;7/7 docs DOM checks; release33files/zero QA and development35files/two QA. Existing Vite chunk-size advisory remains. Rendered phone appearance and FPS remain pending. F-VEG-001 stays Review awaiting user sign-off; no deployment or main merge performed.

@@ -581,3 +581,8 @@ The wait tool retains exact Pages-commit selection, immediate native-error failu
 ## Reusable workflow acceptance — 6 November 2026
 
 Novy accepted F-OPS-005 by requesting main merge. The complete task and evidence move to [Closed issues](ISSUES_CLOSED.md#f-ops-005--repeatable-workflows-and-reusable-tools). Source CI `42313750618` passed for `adf8c8c`; the rule, catalog and extracted helpers are accepted. This authorizes source merge, with no production publication requested.
+
+
+## Odd vegetation smoke checks — 9 November 2026
+
+F-VEG-001: inspect field/bank/rough pasture and in-water clumps at QA camera close view and normal phone zoom, in portrait/landscape. Count odd3–11 stems and compare mixed heights; no standalone modeled blades. On public6/12/14 compare varied grass bank distances, denser eligible water, full wet footprints, bridge gaps, downstream curved reed heads and shadow absence. Restart/jump/pause and verify resources remain stable. Rendered appearance and phone FPS pending; headless geometry tests are separate evidence.

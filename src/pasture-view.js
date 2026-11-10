@@ -4,10 +4,13 @@ import * as THREE from 'three';
  * Folded cross-sections catch light from every camera direction;
  * the bent tips and layered root/tip colors avoid thin black needle silhouettes.
  */
-export function pastureClumpGeometry() {
+export function pastureClumpGeometry(blades = 7) {
+  if (!Number.isInteger(blades) || blades < 3 || blades > 11 || blades % 2 === 0) {
+    throw new RangeError('Pasture clumps require 3, 5, 7, 9 or 11 blades');
+  }
   const positions = [], colors = [], indices = [];
   const root = new THREE.Color('#697b48'), tip = new THREE.Color('#a5ad73');
-  for (let leaf = 0; leaf < 8; leaf++) {
+  for (let leaf = 0; leaf < blades; leaf++) {
     const angle = leaf * 2.399963, sx = Math.cos(angle), sz = Math.sin(angle);
     const height = .44 + (leaf % 4) * .065, reach = .29 + (leaf % 3) * .07;
     const start = positions.length / 3;
@@ -30,6 +33,7 @@ export function pastureClumpGeometry() {
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   geometry.setIndex(indices);geometry.computeVertexNormals();
+  geometry.userData.bladesPerClump = blades;
   return geometry;
 }
 

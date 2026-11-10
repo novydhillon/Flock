@@ -713,3 +713,8 @@ F-OPS-005: tasks performed more than three times require a checked-in repeatable
 ## Deferred compact riverbanks — 6 November 2026
 
 F-TERRAIN-BANK-001 preserves the requested compact raised bridge approaches, varied smooth bank slopes and slope-based grass/dirt coverage. Novy deferred this separate work while accepting F-TERRAIN-001–004. The current accepted bank geometry remains in place.
+
+
+## Odd vegetation clumps — 9 November 2026
+
+F-VEG-001: modeled grass and reeds always form odd clumps of3–11 stems, with mixed heights within and between clumps. Applies to field, bank, rough pasture and water vegetation. Broaden water-grass bank distance variation while retaining edge preference. Eligible water bodies get denser grass/reed coverage (30-clump cap,22m² per target clump); retain independent seeded20% eligibility, shadow-free plants, curved downstream reeds, bridge/footprint safety and bounded resources.

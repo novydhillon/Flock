@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { plantClumpGeometry, bankClumpSites } from '../src/plant-clumps.js';
+import { plantClumpGeometry, bankClumpSites, oddBladeCount, plantBladeHeight } from '../src/plant-clumps.js';
 import { RiverDetails } from '../src/river-details.js';
 import { ribbon } from '../src/surfaces.js';
 import * as THREE from 'three';
@@ -56,4 +56,41 @@ test('one river has irregular rock gaps rather than fixed longitudinal slots', (
   assert.ok(gaps.length >= 3);
   assert.ok(Math.max(...gaps) > Math.min(...gaps) * 2);
   details.dispose(); mesh.geometry.dispose(); mesh.material.dispose();
+});
+
+
+test('every grass variant contains an odd 3–11 complete blades with varied heights', () => {
+  const randomDraw = random(71), counts = new Set();
+  for (let draw = 0; draw < 100; draw++) counts.add(oddBladeCount(randomDraw));
+  assert.deepEqual([...counts].sort((a, b) => a - b), [3, 5, 7, 9, 11]);
+  for (const count of counts) {
+    const geometry = plantClumpGeometry(.024, .55, count);
+    assert.equal(geometry.userData.bladesPerClump, count);
+    const position = geometry.attributes.position;
+    const single = plantClumpGeometry(.024, .55, 3);
+    assert.equal(position.count / count, single.attributes.position.count / 3);
+    single.dispose();
+    const verticesPerBlade = position.count / count, heights = [];
+    for (let blade = 0; blade < count; blade++) {
+      let low = Infinity, high = -Infinity;
+      for (let i = blade * verticesPerBlade; i < (blade + 1) * verticesPerBlade; i++) {
+        low = Math.min(low, position.getY(i));high = Math.max(high, position.getY(i));
+      }
+      assert.ok(Math.abs(low) < 1e-6, 'all blade roots share the clump base');
+      heights.push(high);
+    }
+    assert.ok(Math.max(...heights) - Math.min(...heights) > .1);
+    geometry.dispose();
+  }
+  for (const invalid of [1, 2, 4, 12, 13]) assert.throws(() => plantClumpGeometry(.024, .55, invalid), RangeError);
+  assert.equal(plantBladeHeight(() => 0), .65);
+  assert.ok(plantBladeHeight(() => .999) < 1.2);
+});
+
+test('landward bank spacing includes near and distant clumps without rows', () => {
+  const sites = bankClumpSites(river, random(12), bounds);
+  const distances = sites.map(site => Math.abs(site.z) - river.width / 2);
+  assert.ok(Math.min(...distances) < 1.2);
+  assert.ok(Math.max(...distances) > 2.8);
+  assert.ok(distances.every(distance => distance >= .65 && distance <= 3.65));
 });

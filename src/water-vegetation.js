@@ -1,3 +1,4 @@
+import { oddBladeCount, plantBladeHeight } from './plant-clumps.js';
 import { waterCurrentDirection } from './river-details.js';
 import * as THREE from 'three';
 import presentationSettings from './config/presentation.json' with { type: 'json' };
@@ -84,10 +85,12 @@ export function waterVegetationSites(geometry, seed, bridges = []) {
     const edgeDistance = Math.min(...banks.map(edge => distanceToEdge(point, edge)));
     // The entire circular clump footprint stays in water, including concave banks.
     if (edgeDistance < CLUMP_RADIUS) continue;
-    const acceptance = 0.06 + 0.94 * Math.exp(-(edgeDistance - CLUMP_RADIUS) / SETTINGS.edgeFalloffMeters);
+    const reed = random() < 0.55;
+    const baseline = reed ? 0.06 : SETTINGS.grassInteriorAcceptance;
+    const acceptance = baseline + (1 - baseline) * Math.exp(-(edgeDistance - CLUMP_RADIUS) / SETTINGS.edgeFalloffMeters);
     if (random() > acceptance || !bridges.every(bridge => clearOfBridge(point, bridge))) continue;
     if (sites.some(site => Math.hypot(point.x - site.x, point.z - site.z) < CLUMP_RADIUS * 3)) continue;
-    sites.push({ ...point, radius: CLUMP_RADIUS, edgeDistance, reed: random() < 0.55, rotation: random() * Math.PI * 2, scale: 0.8 + random() * 0.4 });
+    sites.push({ ...point, radius: CLUMP_RADIUS, edgeDistance, reed, rotation: random() * Math.PI * 2, scale: 0.8 + random() * 0.4 });
   }
   return sites;
 }
@@ -105,11 +108,13 @@ export class WaterVegetation {
     this.meshes = [];
     if (!this.sites.length) return;
     const grass = [], stems = [], bentStems = [], heads = [];
+    const detailRandom = randomSequence(seed ^ 0x636c756d);
     for (const [clump, site] of this.sites.entries()) {
-      for (let blade = 0; blade < 5; blade++) {
-        const angle = site.rotation + blade * Math.PI * 2 / 5;
-        const spread = blade === 0 ? 0 : 0.12;
-        const height = (site.reed ? SETTINGS.reedHeight : SETTINGS.grassHeight) * site.scale * (0.8 + blade * 0.06);
+      site.bladeCount = oddBladeCount(detailRandom);
+      for (let blade = 0; blade < site.bladeCount; blade++) {
+        const angle = site.rotation + blade * Math.PI * 2 / site.bladeCount;
+        const spread = blade === 0 ? 0 : 0.06 + detailRandom() * 0.03;
+        const height = (site.reed ? SETTINGS.reedHeight : SETTINGS.grassHeight) * site.scale * plantBladeHeight(detailRandom);
         const x = site.x + Math.cos(angle) * spread, z = site.z + Math.sin(angle) * spread;
         const pose = { clump, x, z, y: site.y - 0.06 + height / 2, height, angle };
         if (site.reed) {
