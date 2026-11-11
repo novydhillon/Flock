@@ -82,7 +82,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 **Branch:** `unassigned`
 
-**Request — 11 November 2026:** Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts.
+**Request — 11 November 2026:** Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts. Breeds should vary in size from “pig” to Newfoundland (wording as requested; confirm whether “pig” means pug when designing the roster).
 
 **Accept when:** Ten additional recognizable breeds offer distinguishable movement speeds and capabilities inspired by their breeds, and support upgrades and boosts. Define breed selection, unlocks, costs, upgrade and boost behavior, balancing and persistence before implementation; these details are not yet specified. Preserve existing saves and progression with an appropriate migration if needed. Verify capabilities, balance, controls and mobile performance across breeds.
 
