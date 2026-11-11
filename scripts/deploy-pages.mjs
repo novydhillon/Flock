@@ -5,22 +5,34 @@ import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { validateBuild } from './validate-build.mjs';
-export function deploymentPlan({ environment, branch, sourceSha, directory = 'dist' }) {
-  if (!['dev', 'production'].includes(environment)) throw Error('Unknown environment');
-  if (!branch || (environment === 'production') !== (branch === 'main')) throw Error('Only main may deploy production; all other branches deploy dev');
+import { deploymentTarget } from './deployment-targets.cjs';
+export function deploymentPlan({ environment, branch, sourceSha, directory }) {
+  if (!branch) throw Error('A branch name is required');
+  const target = deploymentTarget(environment, branch);
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw Error('An immutable source SHA is required');
-  const root = resolve(directory);
+  const root = resolve(directory ?? target.directory);
   validateBuild(root);
-  const prefix = environment === 'dev' ? 'dev/' : '';
+  const prefix = target.prefix;
   const files = [];
   function walk(path, relative = '') {
     for (const name of readdirSync(path).sort()) {
-      const file = join(path, name), key = relative + name, stat = lstatSync(file);
+      const file = join(path, name),
+        key = relative + name,
+        stat = lstatSync(file);
       if (stat.isDirectory()) walk(file, key + '/');
       else {
-        if (['dev', 'dev2', 'flock', 'tracker', '.nojekyll', '.flock-deployment.json'].includes(key.split('/')[0])) throw Error(`Protected output path: ${key}`);
+        if (
+          ['dev', 'dev_performance', 'dev2', 'flock', 'tracker', '.nojekyll', '.flock-deployment.json'].includes(
+            key.split('/')[0],
+          )
+        )
+          throw Error(`Protected output path: ${key}`);
         const bytes = readFileSync(file);
-        files.push({ path: prefix + key, content: bytes.toString('base64'), sha256: createHash('sha256').update(bytes).digest('hex') });
+        files.push({
+          path: prefix + key,
+          content: bytes.toString('base64'),
+          sha256: createHash('sha256').update(bytes).digest('hex'),
+        });
       }
     }
   }

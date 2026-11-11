@@ -25,8 +25,14 @@ export function validateBuild(build) {
     if (!['.html', '.css', '.js', '.mjs'].includes(extension)) return;
     const content = readFileSync(path, 'utf8');
     const references = [];
-    const collect = (regex) => { for (const match of content.matchAll(regex)) references.push(match[1]); };
-    if (extension === '.html') collect(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi);
+    const collect = (regex) => {
+      for (const match of content.matchAll(regex)) references.push(match[1]);
+    };
+    if (extension === '.html') {
+      collect(/\bsrc\s*=\s*["']([^"']+)["']/gi);
+      // Anchors are navigation destinations, not artifact dependencies.
+      collect(/<link\b[^>]*\bhref\s*=\s*["']([^"']+)["']/gi);
+    }
     if (extension === '.css') {
       collect(/url\(\s*["']?([^"')\s]+)["']?\s*\)/gi);
       collect(/@import\s+["']([^"']+)["']/gi);
@@ -34,14 +40,34 @@ export function validateBuild(build) {
     if (extension === '.js' || extension === '.mjs') {
       // Inspect syntax, never prose/HTML strings containing words such as
       // "Export scenario". The QA bundle contains those labels legitimately.
-      const walkSyntax = node => {
+      const walkSyntax = (node) => {
         if (!node || typeof node !== 'object') return;
-        if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration', 'ImportExpression'].includes(node.type) && typeof node.source?.value === 'string') references.push(node.source.value);
-        if (node.type === 'NewExpression' && node.callee?.type === 'Identifier' && node.callee.name === 'URL' && typeof node.arguments[0]?.value === 'string') {
+        if (
+          ['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration', 'ImportExpression'].includes(
+            node.type,
+          ) &&
+          typeof node.source?.value === 'string'
+        )
+          references.push(node.source.value);
+        if (
+          node.type === 'NewExpression' &&
+          node.callee?.type === 'Identifier' &&
+          node.callee.name === 'URL' &&
+          typeof node.arguments[0]?.value === 'string'
+        ) {
           const base = node.arguments[1];
-          if (base?.type === 'MemberExpression' && base.object?.type === 'MetaProperty' && base.object.meta?.name === 'import' && base.object.property?.name === 'meta' && base.property?.name === 'url') references.push(node.arguments[0].value);
+          if (
+            base?.type === 'MemberExpression' &&
+            base.object?.type === 'MetaProperty' &&
+            base.object.meta?.name === 'import' &&
+            base.object.property?.name === 'meta' &&
+            base.property?.name === 'url'
+          )
+            references.push(node.arguments[0].value);
         }
-        for (const value of Object.values(node)) if (Array.isArray(value)) value.forEach(walkSyntax); else if (value && typeof value === 'object') walkSyntax(value);
+        for (const value of Object.values(node))
+          if (Array.isArray(value)) value.forEach(walkSyntax);
+          else if (value && typeof value === 'object') walkSyntax(value);
       };
       walkSyntax(parseAst(content));
     }
@@ -67,4 +93,3 @@ export function validateBuild(build) {
   for (const file of files) if (extname(file) === '.css') visit(file);
   if (!scripts || !styles) throw new Error('Build entry must reference local JavaScript and CSS assets.');
 }
-

@@ -1,0 +1,1591 @@
+import { pastureGrassSites } from '../world/pasture.js';
+import { pastureClumpGeometry, pastureRockGeometry } from './pasture-view.js';
+import { plantClumpGeometry, bankClumpSites } from './environment/plant-clumps.js';
+import { CONFIG_CONTRACTS } from '../config/contracts.js';
+import settings from '../config/presentation.json' with { type: 'json' };
+import { resolveConfig } from '../config/resolve.js';
+const PRESENTATION = resolveConfig(settings, 'presentation', CONFIG_CONTRACTS.presentation);
+if (PRESENTATION.camera.near >= PRESENTATION.camera.far)
+  throw new RangeError('presentation.camera: near must be below far');
+if (PRESENTATION.renderer.fogNear >= PRESENTATION.renderer.fogFar)
+  throw new RangeError('presentation.renderer: fogNear must be below fogFar');
+
+import { updateAnimalTurn, animalGaitSpeed } from './animation/animal-turn.js';
+import { updateGrazing, grazingAngle } from './animation/grazing.js';
+import * as THREE from 'three';
+import { animalScale } from '../simulation/animal-size.js';
+import { generateBushClusters } from './environment/vegetation.js';
+import { setTailLightBarking } from './animation/tail-light.js';
+import { WaterEffects } from './water/water-effects.js';
+import { MeadowNature } from './environment/nature.js';
+import { createGateView, createStoneWallView } from './gate-view.js';
+import { StructureCutaway } from './cutaway.js';
+import { ThrusterGroundGlow } from './animation/thruster-glow.js';
+import { ViewShadows, treeDepthMaterial } from './view-shadows.js';
+import { StaticShadows } from './static-shadows.js';
+import {
+  groundHeight,
+  riverSurfaceHeight,
+  bridgeSurfaceHeight,
+  terrainHeight,
+  targetFootprint,
+  gateSegment,
+  canOccupy,
+} from '../world/world.js';
+import {
+  installSlopeSoil,
+  installTerrainRelief,
+  conformSurface,
+  meadowGeometry,
+  roughPastureEnabled,
+  alignAnimalToTerrain,
+  drapeGroundGuide,
+  alignGroundProp,
+} from './terrain-view.js';
+import { goalSurface, goalOutline, drawGoalMap } from './goal-view.js';
+import {
+  minimapProjection,
+  clipMinimap,
+  minimapLivestockStates,
+  drawLivestockMarker,
+  drawGoalDirection,
+  GOAL_POINTER_COLOR,
+} from './minimap-markers.js';
+import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from './surfaces.js';
+import {
+  createAnimalGestureDepthMaterial,
+  createAnimalGestureGeometry,
+  createPip,
+  updatePipPose,
+  updatePipHover,
+  createBuddy,
+  createAnimal,
+  createCowCoatMaterial,
+  cowCoatVariant,
+  createDrone,
+  createTree,
+  treeTrunkFactor,
+  createBush,
+  createBridge,
+  createFlowerPatch,
+  createMaterials,
+} from './models.js';
+
+function rng(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+// Tileable hand-painted surface: broad meadow patches, fine blades and soil grains.
+function texture(kind, bump = false) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 512;
+  const ctx = canvas.getContext('2d'),
+    random = rng(kind === 'grass' ? 83 : 193);
+  ctx.fillStyle = bump ? '#909090' : kind === 'grass' ? '#779c4d' : '#b79763';
+  ctx.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 90; i++) {
+    const x = random() * 512,
+      y = random() * 512,
+      radius = 12 + random() * 57;
+    ctx.fillStyle = bump
+      ? ['#858585', '#999999', '#aaaaaa'][i % 3]
+      : kind === 'grass'
+        ? ['#92ad56', '#4f854a', '#bdba67', '#6a964d'][i % 4]
+        : ['#c9ad78', '#9c8055', '#ddc18e'][i % 3];
+    ctx.globalAlpha = 0.08;
+    // Repeat edge splashes so the tile has no seam.
+    for (const ox of [-512, 0, 512])
+      for (const oy of [-512, 0, 512]) {
+        ctx.beginPath();
+        ctx.ellipse(x + ox, y + oy, radius, radius * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+  }
+  for (let i = 0; i < 7200; i++) {
+    const x = random() * 512,
+      y = random() * 512;
+    ctx.fillStyle = bump
+      ? ['#777777', '#bbbbbb', '#dddddd'][i % 3]
+      : kind === 'grass'
+        ? ['#496f39', '#9eb568', '#d0c480', '#789b4b'][i % 4]
+        : ['#826b48', '#e4c995', '#b99a6a'][i % 3];
+    ctx.globalAlpha = 0.14 + random() * 0.25;
+    ctx.beginPath();
+    ctx.ellipse(
+      x,
+      y,
+      0.35 + random() * 0.85,
+      kind === 'grass' ? 1.2 + random() * 3.8 : 0.3 + random() * 1.4,
+      random() * Math.PI,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(canvas);
+  if (!bump) t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+function segmentDistanceSquared(x, z, a, b) {
+  const dx = b.x - a.x,
+    dz = b.z - a.z,
+    t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz || 1))),
+    px = x - a.x - t * dx,
+    pz = z - a.z - t * dz;
+  return px * px + pz * pz;
+}
+function segmentDistance(x, z, a, b) {
+  return Math.sqrt(segmentDistanceSquared(x, z, a, b));
+}
+function lineDistance(x, z, points) {
+  let d = Infinity;
+  for (let i = 1; i < points.length; i++) d = Math.min(d, segmentDistanceSquared(x, z, points[i - 1], points[i]));
+  return Math.sqrt(d);
+}
+// Install once on environment-only materials. Saturation is applied after surface
+// lighting, so textures, instance colors and wet-weather colors share the gain.
+function boostEnvironmentVibrancy(terrain, actors, saturation = PRESENTATION.renderer.environmentSaturation) {
+  const shaderGain = Number.isInteger(saturation) ? saturation.toFixed(1) : String(saturation);
+  const actorMaterials = new Set();
+  actors.traverse((object) => {
+    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+      if (material) actorMaterials.add(material);
+    }
+  });
+  const environmentClones = new Map();
+  terrain.traverse((object) => {
+    const sourceMaterials = Array.isArray(object.material) ? object.material : [object.material];
+    const materials = sourceMaterials.map((source) => {
+      if (!source || !actorMaterials.has(source)) return source;
+      if (!environmentClones.has(source)) {
+        const clone = source.clone();
+        clone.onBeforeCompile = source.onBeforeCompile;
+        const sourceKey = source.customProgramCacheKey();
+        clone.customProgramCacheKey = () => sourceKey;
+        environmentClones.set(source, clone);
+      }
+      object.userData.ownedMaterial = true;
+      return environmentClones.get(source);
+    });
+    if (object.material) object.material = Array.isArray(object.material) ? materials : materials[0];
+    for (const material of materials) {
+      if (!material || material.userData.environmentVibrancy !== undefined) continue;
+      const originalCompile = material.onBeforeCompile;
+      const originalKey = material.customProgramCacheKey();
+      material.onBeforeCompile = function (shader, renderer) {
+        originalCompile.call(this, shader, renderer);
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <tonemapping_fragment>',
+          'float environmentLuma = dot(gl_FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n' +
+            'gl_FragColor.rgb = max(vec3(0.0), mix(vec3(environmentLuma), gl_FragColor.rgb, ' +
+            shaderGain +
+            '));\n' +
+            '#include <tonemapping_fragment>',
+        );
+      };
+      material.customProgramCacheKey = () => originalKey + ':environment-vibrancy-' + saturation;
+      material.userData.environmentVibrancy = saturation;
+      material.needsUpdate = true;
+    }
+  });
+}
+
+function label(text, color = '#45684d') {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 128;
+  const x = c.getContext('2d');
+  x.fillStyle = '#faf6e9';
+  x.beginPath();
+  x.roundRect(8, 12, 496, 98, 35);
+  x.fill();
+  x.fillStyle = color;
+  x.font = 'bold 34px sans-serif';
+  x.textAlign = 'center';
+  x.fillText(text, 256, 76);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }));
+  s.scale.set(6, 1.5, 1);
+  return s;
+}
+
+export class MeadowRenderer {
+  constructor(canvas) {
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, PRESENTATION.renderer.pixelRatioCap));
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = PRESENTATION.renderer.exposure;
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(PRESENTATION.lighting.skyDay);
+    this.scene.fog = null;
+    this.hemisphere = new THREE.HemisphereLight(
+      PRESENTATION.lighting.hemisphereSky,
+      PRESENTATION.lighting.hemisphereGround,
+      PRESENTATION.lighting.hemisphereIntensity,
+    );
+    this.scene.add(this.hemisphere);
+    this.skyDay = new THREE.Color(PRESENTATION.lighting.skyDay);
+    this.skyStorm = new THREE.Color(PRESENTATION.lighting.skyStorm);
+    this.sun = new THREE.DirectionalLight(PRESENTATION.lighting.sunColor, PRESENTATION.lighting.sunIntensity);
+    this.sun.position.set(...PRESENTATION.lighting.sunOffset);
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.set(PRESENTATION.renderer.shadowMapSize, PRESENTATION.renderer.shadowMapSize);
+    this.viewShadows = new ViewShadows();
+    this.sun.shadow.bias = PRESENTATION.lighting.shadowBias;
+    this.sun.shadow.normalBias = PRESENTATION.lighting.shadowNormalBias;
+    this.scene.add(this.sun, this.sun.target);
+    this.camera = new THREE.OrthographicCamera(-30, 30, 20, -20, PRESENTATION.camera.near, PRESENTATION.camera.far);
+    this.center = new THREE.Vector3(-7, 0, 0);
+    this.targetCenter = this.center.clone();
+    this.terrain = new THREE.Group();
+    this.actors = new THREE.Group();
+    this.scene.add(this.terrain, this.actors);
+    this.materials = createMaterials();
+    this.grass = new THREE.MeshStandardMaterial({
+      color: '#ffffff',
+      vertexColors: true,
+      roughness: 0.96,
+      map: texture('grass'),
+      bumpMap: texture('grass', true),
+      bumpScale: 0.12,
+    });
+    this.path = new THREE.MeshStandardMaterial({
+      color: '#fff1d3',
+      roughness: 0.95,
+      map: texture('path'),
+      bumpMap: texture('path', true),
+      bumpScale: 0.08,
+      side: THREE.DoubleSide,
+    });
+    this.pathShoulder = new THREE.MeshStandardMaterial({
+      color: '#a99261',
+      roughness: 1,
+      transparent: true,
+      opacity: 0.36,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    installSlopeSoil(this.grass, this.path.map, this.path.bumpMap);
+    this.terrainReliefEnabled = { value: 0 };
+    for (const material of [this.grass, this.path, this.pathShoulder])
+      installTerrainRelief(material, this.terrainReliefEnabled);
+    this.thrusterGlow = new ThrusterGroundGlow();
+    for (const material of [this.grass, this.path, this.pathShoulder]) this.thrusterGlow.install(material);
+    this.water = new THREE.MeshStandardMaterial({
+      color: '#4b9fae',
+      roughness: 0.29,
+      metalness: 0.08,
+      side: THREE.DoubleSide,
+    });
+    this.targetMat = new THREE.MeshBasicMaterial({
+      color: '#ffe8a0',
+      transparent: true,
+      opacity: 0.56,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    // Fence parts stay shared across worlds, just like cached animal geometry.
+    this.fenceParts = [
+      new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.92, 10), this.materials.paleWood),
+      new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), this.materials.paleWood),
+      new THREE.Mesh(new THREE.BoxGeometry(1, 0.105, 0.085), this.materials.wood),
+    ];
+    this.sceneryBatches = [];
+    this.sceneryFrustum = new THREE.Frustum();
+    this.viewMatrix = new THREE.Matrix4();
+    this.goalPointerTurn = new THREE.Quaternion();
+    this.goalPointerAxis = new THREE.Vector3(0, 1, 0);
+    this.animalMeshes = [];
+    this.animalBatches = [];
+    this.helperMeshes = new Map();
+    this.resize();
+    this.preview = true;
+    this.particles = [];
+    this.nature = new MeadowNature(this.scene);
+    this.waterEffects = new WaterEffects(this.scene);
+  }
+  resize() {
+    this.width = innerWidth;
+    this.height = innerHeight;
+    this.renderer.setSize(this.width, this.height, false);
+    this.aspect = this.width / this.height;
+  }
+  place(group, x, z, scale = 1, owned = false) {
+    group.position.set(x, groundHeight(this.level, x, z), z);
+    group.scale.multiplyScalar(scale);
+    group.traverse((o) => {
+      if (o.userData.treeWidth !== undefined) {
+        o.userData.treeWidth = treeTrunkFactor(scale);
+        o.material.userData.treeWidth.value = o.userData.treeWidth;
+      }
+    });
+    if (owned)
+      group.traverse((o) => {
+        if (o.isMesh) o.userData.ownedGeometry = true;
+      });
+    this.terrain.add(group);
+    return group;
+  }
+  flat(geometry, material, x, z, y = 0.02) {
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(x, y, z);
+    mesh.receiveShadow = true;
+    this.terrain.add(mesh);
+    return mesh;
+  }
+  setLevel(level) {
+    this.staticShadows?.dispose();
+    this.staticShadows = new StaticShadows({
+      mapSize: PRESENTATION.renderer.staticShadowMapSize,
+      depthBias: PRESENTATION.renderer.staticShadowDepthBias,
+      normalBias: PRESENTATION.lighting.shadowNormalBias,
+    });
+    this.level = level;
+    this.barkEffects = [];
+    this.terrainReliefEnabled.value = level.terrain?.enabled ? 1 : 0;
+    this.waterEffects.restoreMaterials();
+    this.cutaway?.dispose();
+    this.cutaway = null;
+    this.gateView?.dispose();
+    this.gateView?.removeFromParent();
+    this.stoneView?.dispose();
+    this.stoneView?.removeFromParent();
+    this.gateView = this.stoneView = null;
+    // Level replacement disposes only tagged, level-owned resources. Shared
+    // cached model geometry/materials remain valid for the next meadow.
+    const geometries = new Set(),
+      materials = new Set();
+    for (const parent of [this.terrain, this.actors])
+      parent.traverse((o) => {
+        if (o.userData.ownedGeometry) geometries.add(o.geometry);
+        if (o.userData.ownedMaterial)
+          for (const material of Array.isArray(o.material) ? o.material : [o.material]) materials.add(material);
+        if (o.userData.ownedDepthMaterial) materials.add(o.customDepthMaterial);
+        if (o.userData.ownedLabel) {
+          o.material.map.dispose();
+          materials.add(o.material);
+        }
+        if (o.isInstancedMesh) o.dispose();
+      });
+    geometries.forEach((g) => g?.dispose());
+    materials.forEach((m) => m?.dispose());
+    this.terrain.clear();
+    this.actors.clear();
+    this.sceneryBatches = [];
+    this.helperMeshes.clear();
+    this.animalMeshes = [];
+    this.animalBatches = [];
+    this.particles = [];
+    // Orientation has its own stream so scenery positions and palette draws stay stable.
+    const b = level.bounds,
+      w = b.maxX - b.minX,
+      d = b.maxZ - b.minZ,
+      r = rng(level.seed),
+      treeRotation = rng(level.seed ^ 0x746565),
+      cx = (b.maxX + b.minX) / 2,
+      cz = (b.maxZ + b.minZ) / 2;
+    const ground = new THREE.Mesh(meadowGeometry(level, w + 90, d + 90, cx, cz), this.grass);
+    ground.name = 'Meadow ground';
+    ground.receiveShadow = true;
+    ground.userData.ownedGeometry = true;
+    this.terrain.add(ground);
+    this.grass.map.repeat.set((w + 90) / 15, (d + 90) / 15);
+    this.grass.bumpMap.repeat.copy(this.grass.map.repeat);
+    if (level.boundary?.length > 4 && !level.terrain?.enabled) {
+      // The field follows collision geometry, while both sides share the same
+      // grass shader, world-aligned texture and weather response.
+      const outline = new THREE.Shape();
+      level.boundary.forEach((p, i) => (i ? outline.lineTo(p.x, -p.z) : outline.moveTo(p.x, -p.z)));
+      outline.closePath();
+      const geometry = new THREE.ShapeGeometry(outline);
+      geometry.rotateX(-Math.PI / 2);
+      const positions = geometry.attributes.position,
+        uv = geometry.attributes.uv;
+      geometry.setAttribute(
+        'color',
+        new THREE.Float32BufferAttribute(new Float32Array(positions.count * 3).fill(1), 3),
+      );
+      for (let i = 0; i < positions.count; i++)
+        uv.setXY(i, (positions.getX(i) - cx) / (w + 90) + 0.5, 0.5 - (positions.getZ(i) - cz) / (d + 90));
+      const meadow = new THREE.Mesh(geometry, this.grass);
+      meadow.name = 'playable-meadow';
+      meadow.position.y = -0.025;
+      meadow.receiveShadow = true;
+      meadow.userData.ownedGeometry = true;
+      this.terrain.add(meadow);
+    }
+    for (const spec of level.sceneryHills || []) {
+      const hill = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 20, 12),
+        new THREE.MeshStandardMaterial({ color: ['#799552', '#6f914e', '#93a75d'][Math.floor(r() * 3)], roughness: 1 }),
+      );
+      hill.position.set(spec.x, groundHeight(level, spec.x, spec.z) - 0.3, spec.z);
+      hill.scale.set(spec.radius, spec.height, spec.radius);
+      hill.castShadow = hill.receiveShadow = true;
+      hill.userData.ownedGeometry = hill.userData.ownedMaterial = true;
+      this.terrain.add(hill);
+    }
+    const groundAt = (x, z) => groundHeight(level, x, z);
+    const surface = (g, m, height = groundAt, spacing) => {
+      if (level.terrain?.enabled) g = conformSurface(g, height, { spacing });
+      const mesh = new THREE.Mesh(g, m);
+      mesh.receiveShadow = true;
+      mesh.userData.ownedGeometry = true;
+      this.terrain.add(mesh);
+      return mesh;
+    };
+    const roadCore = level.roads.length ? createRoadMaterial(this.path) : null,
+      roadShoulder = level.roads.length ? createRoadMaterial(this.pathShoulder) : null;
+    if (level.roads.length) {
+      surface(
+        roadNetwork(level.roads, { widthExtra: 0.65, ragged: true, y: 0.003, seed: level.seed + 5 }),
+        roadShoulder,
+      ).userData.ownedMaterial = true;
+      surface(roadNetwork(level.roads, { ragged: true, y: 0.007, seed: level.seed }), roadCore).userData.ownedMaterial =
+        true;
+    }
+    const riverViews = [];
+    for (const river of level.rivers) {
+      const bankMat = new THREE.MeshStandardMaterial({ color: '#6c8960', roughness: 1, side: THREE.DoubleSide });
+      this.thrusterGlow.install(bankMat);
+      const bank = surface(ribbon(river.points, river.width + 0.8, { y: 0.002 }), bankMat);
+      bank.userData.ownedMaterial = true;
+      const waterHeight = (x, z) => riverSurfaceHeight(level, river, x, z);
+      const waterGeometry = ribbon(river.points, river.width, { y: level.terrain?.enabled ? 0 : 0.018 });
+      const mesh = surface(waterGeometry, this.water, waterHeight, Infinity);
+      const a = river.points[0],
+        b = river.points.at(-1);
+      riverViews.push({
+        mesh,
+        heightAt: waterHeight,
+        points: river.points,
+        width: river.width,
+        bridges: river.bridges,
+        heading: Math.atan2(b.x - a.x, b.z - a.z),
+      });
+      for (const bridge of river.bridges) {
+        const support = level.terrain?.enabled
+          ? (x, z) => {
+              const sine = Math.sin(bridge.heading),
+                cosine = Math.cos(bridge.heading);
+              return bridgeSurfaceHeight(
+                level,
+                bridge,
+                bridge.x + cosine * x + sine * z,
+                bridge.z - sine * x + cosine * z,
+              );
+            }
+          : null;
+        const g = createBridge(bridge.width, bridge.length, support),
+          glowMaterials = new Map();
+        g.name = 'Bridge';
+        g.userData.bridge = bridge;
+        // Bridge wood is shared with fences: keep this surface effect local.
+        g.traverse((mesh) => {
+          if (!mesh.isMesh) return;
+          const source = mesh.material;
+          if (!glowMaterials.has(source)) glowMaterials.set(source, this.thrusterGlow.install(source.clone()));
+          mesh.material = glowMaterials.get(source);
+          mesh.userData.ownedMaterial = true;
+        });
+        g.rotation.y = bridge.heading;
+        this.place(g, bridge.x, bridge.z, 1, true);
+        if (level.terrain?.enabled) g.position.y = 0;
+      }
+    }
+    const t = level.target,
+      shape = targetFootprint(t),
+      s = shape.halfLength,
+      structure = [];
+    this.goal = surface(goalSurface(t), this.targetMat);
+    this.goalOutline = surface(
+      goalOutline(t),
+      new THREE.MeshBasicMaterial({ color: '#fff0b5', side: THREE.DoubleSide }),
+    );
+    this.goalOutline.userData.ownedMaterial = true;
+    this.goalFloor = null;
+    const beam = (a, b, height, thickness, mat, coverSide) => {
+      const length = Math.hypot(b.x - a.x, b.z - a.z),
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(length, height, thickness), mat);
+      mesh.position.set((a.x + b.x) / 2, height / 2 + groundAt((a.x + b.x) / 2, (a.z + b.z) / 2), (a.z + b.z) / 2);
+      mesh.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x);
+      if (level.terrain?.enabled) {
+        const p = mesh.geometry.attributes.position,
+          cosine = Math.cos(mesh.rotation.y),
+          sine = Math.sin(mesh.rotation.y);
+        const centerHeight = groundAt(mesh.position.x, mesh.position.z);
+        for (let i = 0; i < p.count; i++) {
+          const x = mesh.position.x + cosine * p.getX(i) + sine * p.getZ(i);
+          const z = mesh.position.z - sine * p.getX(i) + cosine * p.getZ(i);
+          p.setY(i, p.getY(i) + groundAt(x, z) - centerHeight);
+        }
+        mesh.geometry.computeVertexNormals();
+      }
+      mesh.castShadow = mesh.receiveShadow = true;
+      mesh.userData.ownedGeometry = true;
+      if (coverSide) mesh.userData.coverSide = coverSide;
+      this.terrain.add(mesh);
+      return mesh;
+    };
+    // Every visible blocking perimeter, gate and destination segment comes from
+    // the same world objects as collision: no fake scenery walls in play space.
+    for (const segment of level.fenceSegments || []) {
+      if (segment.material === 'stone') continue;
+      const { a, b, kind } = segment,
+        len = Math.hypot(b.x - a.x, b.z - a.z);
+      if (kind === 'target' && t.type === 'barn') {
+        // Segmented clay walls share a cutaway state for each facing side.
+        const count = Math.ceil(len / 3);
+        for (let i = 0; i < count; i++) {
+          const start = { x: a.x + ((b.x - a.x) * i) / count, z: a.z + ((b.z - a.z) * i) / count },
+            end = { x: a.x + ((b.x - a.x) * (i + 1)) / count, z: a.z + ((b.z - a.z) * (i + 1)) / count };
+          const dx = (start.x + end.x) / 2 - t.x,
+            dz = (start.z + end.z) / 2 - t.z,
+            c = Math.cos(t.heading || 0),
+            sn = Math.sin(t.heading || 0),
+            lx = dx * c - dz * sn,
+            lz = dx * sn + dz * c;
+          const coverSide =
+            Math.abs(Math.abs(lx) - s) < Math.abs(Math.abs(lz) - s) ? (lx >= 0 ? '+x' : '-x') : lz >= 0 ? '+z' : '-z';
+          structure.push(beam(start, end, 2.4, 0.22, this.materials.barn, coverSide));
+          const trim = beam(start, end, 0.14, 0.25, this.materials.barnTrim, coverSide);
+          trim.position.y = 2.35 + groundAt((start.x + end.x) / 2, (start.z + end.z) / 2);
+          structure.push(trim);
+        }
+      } else if (kind === 'target' && t.type === 'field') {
+        // Visible low fence defines the exact collision line; plants soften it.
+        this.placeFence(a, b);
+        const steps = Math.ceil(len / 1.4);
+        for (let i = 0; i < steps; i++)
+          this.place(
+            createBush(i),
+            a.x + ((b.x - a.x) * (i + 0.5)) / steps,
+            a.z + ((b.z - a.z) * (i + 0.5)) / steps,
+            0.75,
+          );
+      } else this.placeFence(a, b);
+    }
+    this.gateView = createGateView(level.gates, groundAt);
+    this.stoneView = createStoneWallView(level.fenceSegments, groundAt);
+    this.terrain.add(this.gateView, this.stoneView);
+    if (t.type === 'barn') {
+      this.goalFloor = surface(goalSurface(t, 0.013), this.path);
+      // One continuous sheet: thick overlapping panels would accumulate alpha
+      // at their ridge, seam faces and undersides during the cutaway. Shallow
+      // grooves retain the clay boards without adding another transparent layer.
+      const extent = s + 0.3,
+        rows = Math.ceil((s * 2) / 2.4),
+        depth = (extent * 2) / rows;
+      const zs = [-extent];
+      for (let i = 1; i < rows; i++) {
+        const z = -extent + i * depth;
+        zs.push(z - 0.045, z, z + 0.045);
+      }
+      zs.push(extent);
+      const positions = [],
+        uvs = [],
+        indices = [],
+        ridge = 3.29 + s * 0.5 * Math.tan(0.21);
+      for (let j = 0; j < zs.length; j++)
+        for (const x of [-extent, 0, extent]) {
+          const groove = j > 0 && j < zs.length - 1 && (j - 2) % 3 === 0 ? 0.025 : 0;
+          positions.push(x, ridge - Math.abs(x) * Math.tan(0.21) - groove, zs[j]);
+          uvs.push((x + extent) / 2.4, (zs[j] + extent) / 2.4);
+        }
+      for (let j = 0; j < zs.length - 1; j++)
+        for (let i = 0; i < 2; i++) {
+          const a = j * 3 + i,
+            b = a + 3;
+          indices.push(a, b, a + 1, a + 1, b, b + 1);
+        }
+      const roofGeometry = new THREE.BufferGeometry();
+      roofGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      roofGeometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      roofGeometry.setIndex(indices);
+      roofGeometry.computeVertexNormals();
+      const roof = new THREE.Mesh(roofGeometry, this.materials.roof);
+      roof.name = 'barn-roof';
+      roof.castShadow = true;
+      roof.userData.ownedGeometry = true;
+      roof.userData.coverKind = 'roof';
+      if (level.terrain?.enabled) {
+        const p = roofGeometry.attributes.position,
+          sine = Math.sin(t.heading || 0),
+          cosine = Math.cos(t.heading || 0);
+        for (let i = 0; i < p.count; i++)
+          p.setY(
+            i,
+            p.getY(i) +
+              groundAt(t.x + cosine * p.getX(i) + sine * p.getZ(i), t.z - sine * p.getX(i) + cosine * p.getZ(i)),
+          );
+        roofGeometry.computeVertexNormals();
+      }
+      roof.position.set(t.x, 0, t.z);
+      roof.rotation.y = t.heading || 0;
+      this.terrain.add(roof);
+      structure.push(roof);
+      this.cutaway = new StructureCutaway(t, structure, { halfExtent: s + 0.3 });
+    }
+    const sign = label(t.type === 'pen' ? 'SUNNY PEN' : t.type === 'barn' ? 'HOME BARN' : 'CLOVER FIELD');
+    sign.scale.set(4.5, 1.125, 1);
+    sign.position.set(t.x - Math.sin(t.heading || 0) * (s + 1), 3, t.z - Math.cos(t.heading || 0) * (s + 1));
+    sign.position.y += groundAt(sign.position.x, sign.position.z);
+    sign.name = 'Destination introduction';
+    sign.userData.ownedLabel = true;
+    this.destinationSign = sign;
+    this.terrain.add(sign);
+    this.addPastureRocks(groundAt);
+    for (const obstacle of level.obstacles) {
+      if (obstacle.kind === 'rock') continue;
+      const treeScale = obstacle.radius * 1.45;
+      const tree = createTree(Math.floor(r() * 3), treeScale < 1.7 ? 0 : treeScale < 2.4 ? 1 : 2);
+      tree.rotation.y = treeRotation() * Math.PI * 2;
+      this.place(tree, obstacle.x, obstacle.z, treeScale);
+      // A rounded root hedge shows the otherwise invisible tree collision disk.
+      for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI) / 2;
+        this.place(
+          createBush(i),
+          obstacle.x + Math.cos(angle) * obstacle.radius * 0.48,
+          obstacle.z + Math.sin(angle) * obstacle.radius * 0.48,
+          obstacle.radius * 0.7,
+        );
+      }
+    }
+    const meadowClear = (x, z, padding = 0) =>
+      x > b.minX + padding &&
+      x < b.maxX - padding &&
+      z > b.minZ + padding &&
+      z < b.maxZ - padding &&
+      (!(level.boundary?.length > 4) || canOccupy(level, x, z, padding)) &&
+      !level.rivers.some((v) => lineDistance(x, z, v.points) < v.width / 2 + padding + 0.5) &&
+      !level.roads.some((v) => lineDistance(x, z, v.points) < v.width / 2 + padding + 0.35) &&
+      Math.hypot(x - t.x, z - t.z) > t.radius + padding + 2 &&
+      !level.obstacles.some((o) => Math.hypot(x - o.x, z - o.z) < o.radius + padding) &&
+      !(level.fenceSegments || []).some((v) => segmentDistance(x, z, v.a, v.b) < padding + 0.7);
+    // Spend the same detail budget beside winding routes, including wide maps.
+    // Sampling by arc length avoids concentrating patches at dense curve points.
+    const routeSegments = [];
+    let routeLength = 0;
+    for (const road of level.roads)
+      for (let i = 1; i < road.points.length; i++) {
+        const a = road.points[i - 1],
+          b = road.points[i],
+          length = Math.hypot(b.x - a.x, b.z - a.z);
+        if (length) {
+          routeLength += length;
+          routeSegments.push({ a, b, length, end: routeLength, width: road.width });
+        }
+      }
+    const candidate = (i, count) => {
+      if (i < count * 0.7 && routeLength) {
+        const distance = (i / (count * 0.7) + r() / (count * 0.7)) * routeLength;
+        const segment = routeSegments.find((v) => v.end >= distance) || routeSegments[routeSegments.length - 1];
+        const t = (distance - segment.end + segment.length) / segment.length,
+          dx = (segment.b.x - segment.a.x) / segment.length,
+          dz = (segment.b.z - segment.a.z) / segment.length;
+        const offset = (segment.width / 2 + 1.1 + r() * 2.8) * (i % 2 ? 1 : -1);
+        return {
+          x: segment.a.x + dx * t * segment.length - dz * offset,
+          z: segment.a.z + dz * t * segment.length + dx * offset,
+        };
+      }
+      return { x: b.minX + 2 + r() * (w - 4), z: b.minZ + 2 + r() * (d - 4) };
+    };
+    this.meadowDetails = [];
+    this.roughPasture = roughPastureEnabled(level);
+    this.addPastureGrass(meadowClear, groundAt);
+    const patches = Math.min(190, Math.ceil((w * d) / 130));
+    for (let i = 0; i < patches; i++) {
+      const { x, z } = candidate(i, patches);
+      if (meadowClear(x, z, 1)) {
+        const patch = this.place(createFlowerPatch(i, 3), x, z, 0.85 + r() * 0.6);
+        if (level.terrain?.enabled) alignGroundProp(patch, groundAt, x, z);
+        this.meadowDetails.push({ x, z, kind: 'flower' });
+      }
+    }
+    const tufts = [],
+      tuftBudget = Math.min(650, Math.ceil((w * d) / 35));
+    for (let i = 0; i < tuftBudget; i++) {
+      const { x, z } = candidate(i, tuftBudget);
+      if (meadowClear(x, z, 0.4)) {
+        tufts.push({ x, z });
+        this.meadowDetails.push({ x, z, kind: 'tuft' });
+      }
+    }
+    // Use a white material: vertex/instance colors already supply the green.
+    // Preserve the existing decoration stream; stem counts use a separate seed.
+    const grassSites = tufts.map((site) => ({
+      ...site,
+      scaleX: 0.7 + r() * 0.6,
+      scaleY: 0.55 + r() * 0.8,
+      scaleZ: 0.7 + r() * 0.6,
+      heading: r() * Math.PI,
+    }));
+    for (const [blades, sites] of this.plantSiteGroups(grassSites, 0x67726173)) {
+      const geometry = plantClumpGeometry(0.024, 0.55, blades);
+      const material = new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        roughness: 1,
+        transparent: true,
+        opacity: 1,
+        depthWrite: false,
+      });
+      const grass = new THREE.InstancedMesh(geometry, material, sites.length);
+      const pose = new THREE.Object3D();
+      sites.forEach((site, i) => {
+        pose.position.set(site.x, groundAt(site.x, site.z), site.z);
+        pose.scale.set(site.scaleX, site.scaleY, site.scaleZ);
+        pose.rotation.y = site.heading;
+        pose.updateMatrix();
+        grass.setMatrixAt(i, pose.matrix);
+        grass.setColorAt(i, new THREE.Color('#839c61'));
+      });
+      grass.castShadow = grass.receiveShadow = false;
+      grass.userData.decorativeGrass = true;
+      grass.userData.ownedGeometry = grass.userData.ownedMaterial = true;
+      this.terrain.add(grass);
+      this.trackScenery(grass);
+    }
+
+    // Reeds form compact odd clumps with independently varied bank setbacks.
+    const reeds = level.rivers
+      .flatMap((river) => bankClumpSites(river, r, b))
+      .map((site) => ({ ...site, lean: (r() - 0.5) * 0.25 }));
+    for (const [blades, sites] of this.plantSiteGroups(reeds, 0x72656564)) {
+      const geometry = plantClumpGeometry(0.025, 0.95, blades);
+      const material = new THREE.MeshStandardMaterial({ color: '#5b7951', roughness: 1 });
+      const batch = new THREE.InstancedMesh(geometry, material, sites.length);
+      const pose = new THREE.Object3D();
+      sites.forEach((site, i) => {
+        pose.position.set(site.x, groundAt(site.x, site.z), site.z);
+        pose.rotation.z = site.lean;
+        pose.updateMatrix();
+        batch.setMatrixAt(i, pose.matrix);
+      });
+      batch.castShadow = batch.receiveShadow = false;
+      batch.userData.bankReeds = true;
+      batch.userData.ownedGeometry = batch.userData.ownedMaterial = true;
+      this.terrain.add(batch);
+      this.trackScenery(batch);
+    }
+    const sceneryCount = Math.min(62, 28 + Math.floor(level.index / 3));
+    for (let i = 0; i < sceneryCount; i++) {
+      let x, z;
+      const side = i % 4;
+      if (side < 2) {
+        x = b.minX - 12 + r() * (w + 24);
+        z = side === 0 ? b.minZ - 4 - r() * 17 : b.maxZ + 4 + r() * 17;
+      } else {
+        x = side === 2 ? b.minX - 5 - r() * 18 : b.maxX + 5 + r() * 18;
+        z = b.minZ + r() * d;
+      }
+      if (level.rivers.some((v) => lineDistance(x, z, v.points) < v.width / 2 + 3)) continue;
+      const treeScale = 1.3 + r() * 1.8;
+      const tree = createTree(i % 3, treeScale < 1.7 ? 0 : treeScale < 2.4 ? 1 : 2);
+      tree.rotation.y = treeRotation() * Math.PI * 2;
+      this.place(tree, x, z, treeScale);
+    }
+    this.bushPlacements = generateBushClusters(level);
+    for (const b of this.bushPlacements) this.place(createBush(b.variant), b.x, b.z, b.scale);
+    this.nature.setLevel(level);
+    this.waterEffects.setLevel(level, {
+      grassMaterials: [this.grass],
+      pathMaterials: [this.path, roadCore],
+      waterMaterial: this.water,
+      terrain: this.terrain,
+      rivers: riverViews,
+      weather: this.nature.weather,
+    });
+    this.terrain.updateMatrixWorld(true);
+    this.viewShadows.maxHeight = Math.max(12, new THREE.Box3().setFromObject(this.terrain).max.y + 1);
+    this.batchScenery();
+    this.dog = createPip();
+    this.dog.scale.setScalar(1.35 * 0.75);
+    this.actors.add(this.dog);
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(0.82, 0.95, 40),
+      new THREE.MeshBasicMaterial({
+        color: '#fff0bb',
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    );
+    halo.scale.setScalar(1 / 0.75);
+    halo.rotation.x = -Math.PI / 2;
+    halo.position.y = 0.03 / 0.75;
+    halo.userData.ownedGeometry = halo.userData.ownedMaterial = true;
+    this.dog.add(halo);
+    this.dogHalo = halo;
+    const arrowShape = new THREE.Shape();
+    arrowShape.moveTo(0, 1.45);
+    arrowShape.lineTo(-0.19, 1.05);
+    arrowShape.lineTo(0.19, 1.05);
+    arrowShape.closePath();
+    this.goalPointer = new THREE.Mesh(
+      new THREE.ShapeGeometry(arrowShape),
+      new THREE.MeshBasicMaterial({ color: GOAL_POINTER_COLOR, side: THREE.DoubleSide, depthWrite: false }),
+    );
+    this.goalPointer.scale.setScalar(1 / 0.75);
+    this.goalPointer.rotation.x = Math.PI / 2;
+    this.goalPointer.userData.ownedGeometry = this.goalPointer.userData.ownedMaterial = true;
+    this.dog.add(this.goalPointer);
+    for (const a of level.animals) {
+      const pose = new THREE.Object3D();
+      pose.position.set(a.x, 0, a.z);
+      pose.rotation.y = a.heading ?? Math.PI / 2;
+      pose.scale.setScalar(animalScale(a));
+      this.animalMeshes.push(pose);
+    }
+    for (const type of ['sheep', 'cow']) {
+      const indices = level.animals.flatMap((a, i) => (a.type === type ? [i] : []));
+      if (!indices.length) continue;
+      const prototype = createAnimal(type),
+        meshes = [];
+      let radius = 0;
+      const coats = [];
+      for (const child of prototype.children) {
+        if (!child.geometry.boundingSphere) child.geometry.computeBoundingSphere();
+        const sphere = child.geometry.boundingSphere,
+          pivot = child.userData.pivot;
+        // A sphere about the animal origin includes every baked body piece and
+        // the full rotation envelope of each leg around its retained hip pivot.
+        radius = Math.max(radius, sphere.center.length() + sphere.radius + (pivot ? Math.hypot(...pivot) : 0));
+        if (child.material.userData.cowCoatVariant !== undefined) {
+          for (let variant = 0; variant < 4; variant++) {
+            const coatIndices = indices.filter(
+              (index) => cowCoatVariant(level.seed, level.animals[index].id ?? index) === variant,
+            );
+            if (!coatIndices.length) continue;
+            const instanced = new THREE.InstancedMesh(
+              child.geometry,
+              createCowCoatMaterial(variant),
+              coatIndices.length,
+            );
+            instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            instanced.castShadow = instanced.receiveShadow = true;
+            instanced.frustumCulled = false;
+            this.actors.add(instanced);
+            coats.push({ indices: coatIndices, meshes: [instanced], visibleIndices: [], coatVariant: variant });
+          }
+          continue;
+        }
+        const rigGeometry = child.geometry.userData.animalRig
+          ? createAnimalGestureGeometry(child.geometry, indices.length)
+          : child.geometry;
+        const instanced = new THREE.InstancedMesh(rigGeometry, child.material, indices.length);
+        instanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        instanced.castShadow = instanced.receiveShadow = true;
+        instanced.frustumCulled = false;
+        instanced.userData = { ...child.userData, ownedGeometry: Boolean(rigGeometry.userData.animalGestureWrapper) };
+        this.actors.add(instanced);
+        meshes.push(instanced);
+      }
+      this.animalBatches.push(
+        { indices, meshes, radius, visibleIndices: [] },
+        ...coats.map((batch) => ({ ...batch, radius })),
+      );
+    }
+    let animalDepth = null;
+    for (const batch of this.animalBatches)
+      for (const mesh of batch.meshes)
+        if (mesh.geometry.attributes.animalGesture) {
+          mesh.customDepthMaterial = animalDepth ||= createAnimalGestureDepthMaterial();
+          mesh.userData.ownedDepthMaterial = true;
+        }
+    boostEnvironmentVibrancy(this.terrain, this.actors);
+    this.staticShadows.bake(this.renderer, this.scene, this.camera, this.sun, this.terrain);
+    this.center.set(
+      level.spawn.x +
+        (this.aspect < PRESENTATION.camera.portraitAspect
+          ? PRESENTATION.camera.previewPortraitOffsetX
+          : PRESENTATION.camera.previewLandscapeOffsetX),
+      0,
+      level.spawn.z + PRESENTATION.camera.previewOffsetZ,
+    );
+    this.time = 0;
+    this.update(level, level.dog, 0, true);
+  }
+  placeFence(a, b) {
+    const length = Math.hypot(b.x - a.x, b.z - a.z);
+    const sections = Math.max(1, Math.ceil(length / 1.8));
+    const group = new THREE.Group();
+    const at = (i) => ({ x: a.x + ((b.x - a.x) * i) / sections, z: a.z + ((b.z - a.z) * i) / sections });
+    const add = (part, x, y, z, sx = 1, sy = 1, sz = 1) => {
+      const mesh = this.fenceParts[part].clone();
+      mesh.position.set(x, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.userData.fencePart = true;
+      group.add(mesh);
+      return mesh;
+    };
+    for (let i = 0; i <= sections; i++) {
+      const p = at(i),
+        y = groundHeight(this.level, p.x, p.z);
+      add(0, p.x, y + 0.46, p.z);
+      add(1, p.x, y + 0.94, p.z, 0.083, 0.065, 0.083);
+    }
+    for (let i = 0; i < sections; i++) {
+      const start = at(i),
+        end = at(i + 1);
+      const first = groundHeight(this.level, start.x, start.z);
+      const last = groundHeight(this.level, end.x, end.z);
+      const delta = new THREE.Vector3(end.x - start.x, last - first, end.z - start.z);
+      for (const y of [0.34, 0.69]) {
+        const rail = add(
+          2,
+          (start.x + end.x) / 2,
+          (first + last) / 2 + y,
+          (start.z + end.z) / 2,
+          delta.length() + 0.03,
+        );
+        rail.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), delta.normalize());
+        // Reuse the full vector for the second rail after normalization.
+        delta.set(end.x - start.x, last - first, end.z - start.z);
+      }
+    }
+    this.terrain.add(group);
+  }
+  /** A seeded shared shape bounds submissions; larger clumps use fewer sites.
+   * Keep total stems near the previous density so eleven-blade variants do not
+   * exceed the mobile triangle budget. Each category varies across level seeds.
+   */
+  plantSiteGroups(sites, salt, previousBlades = 5) {
+    if (!sites.length) return new Map();
+    const random = rng(this.level.seed ^ salt);
+    const blades = 3 + 2 * Math.floor(random() * 5);
+    const count = Math.ceil(sites.length * Math.min(1, previousBlades / blades));
+    const clumps = Array.from({ length: count }, (_, i) => sites[Math.floor((i * sites.length) / count)]);
+    return new Map([[blades, clumps]]);
+  }
+  addPastureGrass(clear, groundAt) {
+    const sites = pastureGrassSites(this.level, clear);
+    for (const [blades, clumps] of this.plantSiteGroups(sites, 0x70617374, 8)) {
+      const geometry = pastureClumpGeometry(blades);
+      const material = new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        vertexColors: true,
+        roughness: 1,
+        side: THREE.DoubleSide,
+      });
+      const grass = new THREE.InstancedMesh(geometry, material, clumps.length);
+      const pose = new THREE.Object3D();
+      clumps.forEach((site, i) => {
+        pose.position.set(site.x, groundAt(site.x, site.z) - 0.018, site.z);
+        pose.scale.setScalar(site.scale);
+        pose.rotation.y = site.heading;
+        pose.updateMatrix();
+        grass.setMatrixAt(i, pose.matrix);
+        this.meadowDetails.push({ ...site, kind: 'overgrowth', padding: 0.65 * site.scale });
+      });
+      grass.name = 'Overgrown pasture grass';
+      grass.castShadow = grass.receiveShadow = false;
+      grass.userData.decorativeGrass = grass.userData.pastureGrass = true;
+      grass.userData.ownedGeometry = grass.userData.ownedMaterial = true;
+      this.terrain.add(grass);
+      this.trackScenery(grass);
+    }
+  }
+  addPastureRocks(groundAt) {
+    const rocks = this.level.obstacles.filter((obstacle) => obstacle.kind === 'rock');
+    if (!rocks.length) return;
+    const geometry = pastureRockGeometry(),
+      material = new THREE.MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: 1 });
+    const batch = new THREE.InstancedMesh(geometry, material, rocks.length),
+      pose = new THREE.Object3D();
+    rocks.forEach((rock, i) => {
+      let base = groundAt(rock.x, rock.z);
+      for (let j = 0; j < 12; j++) {
+        const angle = (j * Math.PI) / 6;
+        base = Math.min(base, groundAt(rock.x + Math.cos(angle) * rock.radius, rock.z + Math.sin(angle) * rock.radius));
+      }
+      pose.position.set(rock.x, base - 0.035, rock.z);
+      pose.scale.set(rock.radius, rock.height, rock.radius * (0.8 + rock.variant * 0.1));
+      pose.rotation.y = rock.heading;
+      pose.updateMatrix();
+      batch.setMatrixAt(i, pose.matrix);
+    });
+    batch.name = 'Pasture boulders';
+    batch.castShadow = batch.receiveShadow = true;
+    batch.userData.pastureRocks = batch.userData.ownedGeometry = batch.userData.ownedMaterial = true;
+    this.terrain.add(batch);
+    this.trackScenery(batch);
+  }
+  trackScenery(batch) {
+    // Three.js culls an InstancedMesh as one sphere. Keep immutable poses and
+    // per-instance bounds, then submit only nearby instances in each frame.
+    const matrices = batch.instanceMatrix.array.slice(),
+      bounds = new Float32Array(batch.count * 4),
+      matrix = new THREE.Matrix4(),
+      sphere = new THREE.Sphere();
+    if (!batch.geometry.boundingSphere) batch.geometry.computeBoundingSphere();
+    for (let i = 0; i < batch.count; i++) {
+      matrix.fromArray(matrices, i * 16);
+      sphere.copy(batch.geometry.boundingSphere).applyMatrix4(matrix);
+      bounds.set([sphere.center.x, sphere.center.y, sphere.center.z, sphere.radius], i * 4);
+    }
+    batch.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    batch.frustumCulled = false;
+    const widths = batch.geometry.attributes.treeInstanceWidth?.array.slice();
+    this.sceneryBatches.push({ batch, matrices, bounds, widths });
+  }
+  batchScenery() {
+    this.terrain.updateMatrixWorld(true);
+    const groups = new Map();
+    // Stateful meshes must remain attached to their owner; static batches
+    // cannot follow later material swaps such as red/green gate indicators.
+    this.terrain.traverse((o) => {
+      if (
+        !o.isMesh ||
+        o.isInstancedMesh ||
+        o.userData.dynamicScenery ||
+        o.userData.ownedGeometry ||
+        o.material.transparent
+      )
+        return;
+      const key = `${o.geometry.id}:${o.userData.treeWidth !== undefined ? 'treeWood' : o.material.id}:${!!(o.castShadow || o.userData.fencePart)}:${o.receiveShadow}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(o);
+    });
+    for (const pieces of groups.values()) {
+      if (pieces.length < 2 && pieces[0].userData.treeWidth === undefined) continue;
+      const first = pieces[0],
+        wood = first.userData.treeWidth !== undefined;
+      const geometry = wood ? first.geometry.clone() : first.geometry;
+      if (wood)
+        geometry.setAttribute(
+          'treeInstanceWidth',
+          new THREE.InstancedBufferAttribute(
+            new Float32Array(pieces.map((piece) => piece.userData.treeWidth)),
+            1,
+          ).setUsage(THREE.DynamicDrawUsage),
+        );
+      const batch = new THREE.InstancedMesh(
+        geometry,
+        wood ? createMaterials().treeWood : first.material,
+        pieces.length,
+      );
+      if (wood) {
+        batch.userData.ownedGeometry = true;
+        batch.userData.treeWood = true;
+        batch.customDepthMaterial = treeDepthMaterial();
+        batch.userData.ownedDepthMaterial = true;
+      }
+      pieces.forEach((piece, i) => {
+        batch.setMatrixAt(i, piece.matrixWorld);
+        if (wood && piece.userData.ownedMaterial) piece.material.dispose();
+        piece.parent.remove(piece);
+      });
+      batch.castShadow = !!(first.castShadow || first.userData.fencePart);
+      batch.receiveShadow = first.receiveShadow || !!first.userData.fencePart;
+      this.terrain.add(batch);
+      this.trackScenery(batch);
+    }
+    // Empty model wrappers no longer need a matrix traversal every frame.
+    const empty = [];
+    this.terrain.traverse((o) => {
+      if (o.isGroup && !o.children.length) empty.push(o);
+    });
+    empty.forEach((o) => o.parent.remove(o));
+  }
+  cullScenery() {
+    this.camera.updateMatrixWorld(true);
+    this.viewMatrix.multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse);
+    this.sceneryFrustum.setFromProjectionMatrix(this.viewMatrix);
+    const planes = this.sceneryFrustum.planes;
+    for (const { batch, matrices, bounds, widths } of this.sceneryBatches) {
+      let count = 0;
+      for (let i = 0; i < bounds.length; i += 4) {
+        // Retain offscreen trees whose directional ground shadows remain in view.
+        const radius = bounds[i + 3] + PRESENTATION.culling.sceneryMargin;
+        if (
+          batch.castShadow
+            ? !this.viewShadows.intersects(planes, bounds[i], bounds[i + 1], bounds[i + 2], radius)
+            : planes.some(
+                (p) =>
+                  p.normal.x * bounds[i] + p.normal.y * bounds[i + 1] + p.normal.z * bounds[i + 2] + p.constant <
+                  -radius,
+              )
+        )
+          continue;
+        batch.instanceMatrix.array.set(matrices.subarray(i * 4, i * 4 + 16), count * 16);
+        if (widths) batch.geometry.attributes.treeInstanceWidth.array[count] = widths[i / 4];
+        count++;
+      }
+      batch.count = count;
+      batch.visible = count > 0;
+      batch.instanceMatrix.needsUpdate = true;
+      batch.instanceMatrix.clearUpdateRanges();
+      if (count) batch.instanceMatrix.addUpdateRange(0, count * 16);
+      if (widths) {
+        const attribute = batch.geometry.attributes.treeInstanceWidth;
+        attribute.needsUpdate = true;
+        attribute.clearUpdateRanges();
+        if (count) attribute.addUpdateRange(0, count);
+      }
+    }
+  }
+  updateAnimalBatches(level, poseTime) {
+    const planes = this.sceneryFrustum.planes,
+      limbTransform = new THREE.Matrix4(),
+      limbRotation = new THREE.Matrix4(),
+      worldTransform = new THREE.Matrix4();
+    for (const batch of this.animalBatches) {
+      const visible = batch.visibleIndices;
+      visible.length = 0;
+      // The configured margin keeps offscreen bodies whose short sun shadows
+      // can still land in view, and avoid edge popping during a walking pose.
+      for (const index of batch.indices) {
+        const pose = this.animalMeshes[index],
+          position = pose.position,
+          bodyRadius = batch.radius * Math.max(Math.abs(pose.scale.x), Math.abs(pose.scale.y), Math.abs(pose.scale.z)),
+          radius =
+            bodyRadius + Math.max(PRESENTATION.culling.animalMargin, this.viewShadows.margin(position.y, bodyRadius));
+        if (
+          !planes.some(
+            (p) => p.normal.x * position.x + p.normal.y * position.y + p.normal.z * position.z + p.constant < -radius,
+          )
+        )
+          visible.push(index);
+      }
+      // All body and limb materials share one compacted ordering. Gait phases
+      // still use the original animal index, including saved and distant animals.
+      visible.forEach((index, i) =>
+        batch.meshes.forEach((m) => {
+          const gesture = m.geometry.attributes.animalGesture,
+            poseState = this.animalMeshes[index].userData,
+            herdPose = poseState.herdPose || {};
+          if (gesture)
+            gesture.setXYZW(i, herdPose.ear || 0, herdPose.tail || 0, herdPose.blink || 0, herdPose.chew || 0);
+          if (m.userData.headPart) {
+            const state = this.animalMeshes[index].userData,
+              pivot = m.userData.pivot;
+            limbTransform.makeTranslation(
+              pivot[0],
+              pivot[1] - (state.graze || 0) * m.userData.grazeDrop + (herdPose.headLift || 0),
+              pivot[2],
+            );
+            limbRotation.makeRotationY(herdPose.headYaw || 0);
+            limbTransform.multiply(limbRotation);
+            limbRotation.makeRotationX(grazingAngle(state, index));
+            limbTransform.multiply(limbRotation);
+            worldTransform.multiplyMatrices(this.animalMeshes[index].matrix, limbTransform);
+            m.setMatrixAt(i, worldTransform);
+            return;
+          }
+          if (m.userData.limbIndex === undefined) {
+            m.setMatrixAt(i, this.animalMeshes[index].matrix);
+            return;
+          }
+          const a = level.animals[index],
+            limb = m.userData.limbIndex,
+            phase = limb === 0 || limb === 3 ? 0 : Math.PI,
+            gait =
+              Math.sin(poseTime * 12 + index * 0.8 + phase) *
+              Math.min(0.5, animalGaitSpeed(a, this.animalMeshes[index].userData.turnSpeed) * 0.15);
+          limbTransform.makeTranslation(...m.userData.pivot);
+          limbRotation.makeRotationX(gait);
+          limbTransform.multiply(limbRotation);
+          worldTransform.multiplyMatrices(this.animalMeshes[index].matrix, limbTransform);
+          m.setMatrixAt(i, worldTransform);
+        }),
+      );
+      for (const mesh of batch.meshes) {
+        if (mesh.geometry.attributes.animalGesture) {
+          mesh.geometry.attributes.animalGesture.needsUpdate = true;
+          mesh.geometry.attributes.animalGesture.clearUpdateRanges();
+          if (visible.length) mesh.geometry.attributes.animalGesture.addUpdateRange(0, visible.length * 4);
+        }
+        mesh.count = visible.length;
+        mesh.visible = visible.length > 0;
+        mesh.instanceMatrix.needsUpdate = true;
+        mesh.instanceMatrix.clearUpdateRanges();
+        if (visible.length) mesh.instanceMatrix.addUpdateRange(0, visible.length * 16);
+      }
+    }
+  }
+  update(level, dog, dt, preview = false) {
+    this.time += dt;
+    this.preview = preview;
+    // Simulation time advances only during play, so menus freeze this introduction.
+    this.destinationSign.material.opacity = preview
+      ? 1
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            1 -
+              ((level.time || 0) - PRESENTATION.introduction.signHoldSeconds) /
+                PRESENTATION.introduction.signFadeSeconds,
+          ),
+        );
+    this.destinationSign.visible = this.destinationSign.material.opacity > 0;
+    const showcase = preview && level.showcase;
+    const bounds = level.bounds;
+    const viewHeight = preview
+      ? this.aspect < PRESENTATION.camera.portraitAspect
+        ? PRESENTATION.camera.previewPortraitHeight
+        : PRESENTATION.camera.previewLandscapeHeight
+      : this.aspect < PRESENTATION.camera.portraitAspect
+        ? PRESENTATION.camera.playPortraitHeight
+        : PRESENTATION.camera.playLandscapeHeight;
+    const half = viewHeight / 2,
+      halfWidth = half * this.aspect;
+    // Center on Pip independently of distant livestock or the goal. The follow
+    // offset cancels the camera ground look-at offset in every travel direction.
+    let desiredX = preview
+      ? level.spawn.x +
+        (this.aspect < PRESENTATION.camera.portraitAspect
+          ? PRESENTATION.camera.previewPortraitOffsetX
+          : PRESENTATION.camera.previewLandscapeOffsetX)
+      : dog.x;
+    let desiredZ = preview
+      ? level.spawn.z + PRESENTATION.camera.previewOffsetZ
+      : dog.z + PRESENTATION.camera.followOffsetZ;
+    if (showcase) {
+      if (this.showcaseCamera?.level !== level) {
+        this.showcaseCamera = { level, index: 0, rest: 3 };
+        this.center.x = dog.x;
+        this.center.z = dog.z - PRESENTATION.camera.lookOffsetZ;
+      }
+      const scan = this.showcaseCamera;
+      const occupied = [dog, ...(level.helpers || []), ...level.animals];
+      const target = (scan.point ||= { ...occupied[scan.index % occupied.length] });
+      const targetZ = target.z - PRESENTATION.camera.lookOffsetZ;
+      const dx = target.x - this.center.x,
+        dz = targetZ - this.center.z;
+      const distance = Math.hypot(dx, dz);
+      if (dt > 0) {
+        if (scan.rest > 0) scan.rest = Math.max(0, scan.rest - dt);
+        else if (distance < 0.5) {
+          scan.index = (scan.index + 1) % occupied.length;
+          scan.point = null;
+          scan.rest = 3;
+        } else {
+          const step = Math.min(distance, dt * 0.65);
+          this.center.x += (dx / distance) * step;
+          this.center.z += (dz / distance) * step;
+        }
+      }
+      desiredX = this.center.x;
+      desiredZ = this.center.z;
+    }
+    const lerp = preview
+      ? Math.min(1, dt * PRESENTATION.camera.previewFollowRate)
+      : Math.min(1, dt * PRESENTATION.camera.playFollowRate);
+    this.center.x += (desiredX - this.center.x) * lerp;
+    this.center.z += (desiredZ - this.center.z) * lerp;
+    if (!preview) {
+      const marginX = halfWidth * PRESENTATION.camera.lagFraction,
+        marginZ = half * PRESENTATION.camera.lagFraction;
+      this.center.x = Math.max(desiredX - marginX, Math.min(desiredX + marginX, this.center.x));
+      this.center.z = Math.max(desiredZ - marginZ, Math.min(desiredZ + marginZ, this.center.z));
+    }
+    this.camera.left = -halfWidth;
+    this.camera.right = halfWidth;
+    this.camera.top = half;
+    this.camera.bottom = -half;
+    this.camera.updateProjectionMatrix();
+    // Terrain moves actors and receiving surfaces, never the camera's world height.
+    this.camera.position.set(
+      this.center.x,
+      this.center.y + PRESENTATION.camera.positionY,
+      this.center.z + PRESENTATION.camera.positionOffsetZ,
+    );
+    this.camera.lookAt(this.center.x, this.center.y, this.center.z + PRESENTATION.camera.lookOffsetZ);
+    this.sun.position.set(
+      this.center.x + PRESENTATION.lighting.sunOffset[0],
+      this.center.y + PRESENTATION.lighting.sunOffset[1],
+      this.center.z + PRESENTATION.lighting.sunOffset[2],
+    );
+    this.sun.target.position.set(this.center.x, this.center.y, this.center.z);
+    this.sun.target.updateMatrixWorld();
+    this.viewShadows.fit(this.camera, this.sun);
+    this.dog.position.set(dog.x, terrainHeight(level, dog.x, dog.z), dog.z);
+    this.dog.rotation.y = dog.heading ?? Math.PI / 2;
+    // Cancel the dog's heading so the triangle always faces the goal in world space.
+    this.goalPointer.rotation.set(Math.PI / 2, 0, 0);
+    this.goalPointer.quaternion.premultiply(
+      this.goalPointerTurn.setFromAxisAngle(
+        this.goalPointerAxis,
+        Math.atan2(level.target.x - dog.x, level.target.z - dog.z) - this.dog.rotation.y,
+      ),
+    );
+    this.goalPointer.position.y = 0.04 / 0.75;
+    this.goalPointer.visible = !preview;
+    drapeGroundGuide(this.dogHalo, level, this.dog.position.y);
+    drapeGroundGuide(this.goalPointer, level, this.dog.position.y);
+    const parts = this.dog.userData.parts;
+    const poseTime = Math.floor(this.time * 12) / 12;
+    updatePipPose(this.dog, dog, dt);
+    updatePipHover(this.dog, dt);
+    parts.tail.rotation.z = Math.sin(poseTime * 7) * 0.3;
+    level.animals.forEach((a, i) => {
+      const m = this.animalMeshes[i];
+      m.scale.setScalar(animalScale(a));
+      // Rolling hoof support owns vertical placement; keep the legacy gait bob on flat meadows.
+      const walkBob = level.terrain?.enabled
+        ? 0
+        : Math.sin(poseTime * 12 + i) * Math.min(0.07, Math.hypot(a.vx, a.vz) * 0.025);
+      m.position.set(a.x, terrainHeight(level, a.x, a.z) + walkBob, a.z);
+      if (showcase && !m.userData.showcaseGrazing) {
+        m.rotation.y = a.heading || 0;
+        m.userData.grazeAnchor = { x: a.x, z: a.z };
+        m.userData.grazeWait = 20;
+        m.userData.graze = 1;
+        m.userData.showcaseGrazing = true;
+        // A tiny first step runs the normal surface/hoof checks before drawing.
+        updateGrazing(m, a, level, Math.max(dt, 0.001));
+      }
+      updateAnimalTurn(m, a, dt);
+      updateGrazing(m, a, level, dt);
+      m.rotation.z = Math.sin(poseTime * 9 + i) * Math.min(0.055, Math.hypot(a.vx, a.vz) * 0.02);
+      m.rotation.x = m.userData.herdPose?.weightShift || 0;
+      alignAnimalToTerrain(m, a, level);
+      m.updateMatrix();
+    });
+    this.updateBarks(dt);
+    for (const m of this.helperMeshes.values()) m.visible = false;
+    for (const h of level.helpers || []) {
+      let m = this.helperMeshes.get(h.type);
+      if (!m) {
+        m = h.type === 'drone' ? createDrone() : createBuddy();
+        if (h.type === 'helper') m.scale.setScalar(this.dog.scale.x * (m.userData.suggestedScale ?? 0.82));
+        this.helperMeshes.set(h.type, m);
+        this.actors.add(m);
+        m.traverse((object) => {
+          if (object.isMesh && object.receiveShadow)
+            for (const material of Array.isArray(object.material) ? object.material : [object.material])
+              this.staticShadows.install(material);
+        });
+      }
+      m.visible = true;
+      m.position.set(
+        h.x,
+        h.type === 'drone'
+          ? terrainHeight(level, h.x, h.z) + 2 + Math.sin(this.time * 4) * 0.18
+          : terrainHeight(level, h.x, h.z),
+        h.z,
+      );
+      if (h.type === 'drone') m.userData.parts.propellers.forEach((p) => (p.rotation.y = this.time * 35));
+      else {
+        if (Number.isFinite(h.heading)) m.rotation.y = h.heading;
+        updatePipPose(m, { ...h, heading: m.rotation.y }, dt);
+        updatePipHover(m, dt);
+        m.userData.parts.tail.rotation.z = Math.sin(poseTime * 7) * 0.3;
+        setTailLightBarking(
+          m,
+          (this.barkEffects || []).some((e) => e.buddy),
+        );
+      }
+    }
+    // A missing helper must clear its previous illuminated footprints.
+    const buddy = (level.helpers || []).some((h) => h.type === 'helper') ? this.helperMeshes.get('helper') : null;
+    this.thrusterGlow.update(this.dog, (x, z) => terrainHeight(level, x, z), buddy);
+    setTailLightBarking(
+      this.dog,
+      (this.barkEffects || []).some((e) => !e.buddy),
+    );
+    this.gateView?.update();
+    this.goal.material.opacity = 0.38 + Math.sin(this.time * 2) * 0.09;
+    this.cutaway?.update(
+      this.camera,
+      [dog, ...level.animals, ...(level.helpers || []).filter((h) => h.type !== 'drone')],
+      dt,
+    );
+    this.staticShadows.enforceStaticCasters();
+    this.nature.update(dt, { dog, animals: level.animals, camera: this.camera, time: this.time, paused: dt <= 0 });
+    const weather = this.nature.weather;
+    this.waterEffects.update(dt, {
+      weather,
+      movers: [
+        { ...dog, id: 'pip' },
+        ...level.animals.map((a) => ({ ...a, id: `flock-${a.id}` })),
+        ...(level.helpers || []).filter((h) => h.type !== 'drone').map((h) => ({ ...h, id: `helper-${h.type}` })),
+      ],
+      paused: dt <= 0,
+    });
+    this.sun.intensity = PRESENTATION.lighting.sunIntensity * weather.daylight + weather.lightningFlash;
+    this.hemisphere.intensity =
+      PRESENTATION.lighting.hemisphereIntensity * weather.daylight +
+      weather.lightningFlash * PRESENTATION.lighting.hemisphereFlashScale;
+    this.scene.background
+      .copy(this.skyDay)
+      .lerp(this.skyStorm, weather.cloudCoverage * PRESENTATION.lighting.stormSkyBlend);
+    this.scene.fog?.color.copy(this.scene.background);
+    for (const p of this.particles) {
+      p.life -= dt;
+      p.mesh.position.addScaledVector(p.velocity, dt);
+      p.velocity.y -= dt * PRESENTATION.effects.particleGravity;
+      p.mesh.rotation.x += dt * 2;
+      p.mesh.scale.setScalar(Math.max(0, p.life));
+      if (p.life <= 0) {
+        this.actors.remove(p.mesh);
+        p.mesh.geometry.dispose();
+        p.mesh.material.dispose();
+      }
+    }
+    this.particles = this.particles.filter((p) => p.life > 0);
+    this.cullScenery();
+    this.updateAnimalBatches(level, poseTime);
+    this.renderer.render(this.scene, this.camera);
+  }
+  celebrate(x, z) {
+    for (let i = 0; i < PRESENTATION.effects.celebrationParticles; i++) {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.12, 0.05),
+        new THREE.MeshBasicMaterial({ color: ['#f0b65c', '#f8e8ad', '#e99585', '#80b398'][i % 4] }),
+      );
+      mesh.userData.ownedGeometry = mesh.userData.ownedMaterial = true;
+      mesh.position.set(x, 1.5, z);
+      this.actors.add(mesh);
+      this.particles.push({
+        mesh,
+        velocity: new THREE.Vector3(Math.sin(i * 2.4) * 3, 2 + (i % 5), Math.cos(i * 2.4) * 3),
+        life: PRESENTATION.effects.celebrationLifeSeconds,
+      });
+    }
+  }
+  bark(source) {
+    if (!source) setTailLightBarking(this.dog, true);
+    const origin = source ? { x: source.x, z: source.z } : { x: this.dog.position.x, z: this.dog.position.z };
+    const mesh = new THREE.Mesh(
+      barkSurface(this.level, origin),
+      new THREE.MeshBasicMaterial({
+        color: '#fff6d8',
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: PRESENTATION.effects.barkOpacity,
+        depthTest: true,
+        depthWrite: false,
+      }),
+    );
+    mesh.renderOrder = 1;
+    mesh.userData.ownedGeometry = mesh.userData.ownedMaterial = true;
+    this.actors.add(mesh);
+    this.barkEffects ??= [];
+    this.barkEffects.push({ mesh, origin, age: 0, buddy: Boolean(source) });
+    // Cooldowns normally limit this to one; retain a hard cap for QA/repeated input.
+    while (this.barkEffects.length > PRESENTATION.effects.maxBarkRings) {
+      const old = this.barkEffects.shift();
+      this.actors.remove(old.mesh);
+      old.mesh.geometry.dispose();
+      old.mesh.material.dispose();
+    }
+  }
+  updateBarks(dt) {
+    for (const effect of this.barkEffects || []) {
+      if (dt <= 0) continue;
+      effect.age += dt;
+      if (effect.age >= PRESENTATION.effects.barkSeconds) {
+        this.actors.remove(effect.mesh);
+        effect.mesh.geometry.dispose();
+        effect.mesh.material.dispose();
+        continue;
+      }
+      barkSurface(
+        this.level,
+        effect.origin,
+        1 + (effect.age / PRESENTATION.effects.barkSeconds) * PRESENTATION.effects.barkExpansion,
+        effect.mesh.geometry,
+      );
+      effect.mesh.material.opacity =
+        PRESENTATION.effects.barkOpacity * (1 - effect.age / PRESENTATION.effects.barkSeconds);
+    }
+    this.barkEffects = (this.barkEffects || []).filter((effect) => effect.age < PRESENTATION.effects.barkSeconds);
+  }
+  drawMap(canvas, level, dog) {
+    const ctx = canvas.getContext('2d'),
+      w = canvas.width,
+      h = canvas.height,
+      world = level.bounds;
+    const view = minimapProjection(world, dog, w, h, PRESENTATION.minimap.viewDepth),
+      { scale, project } = view;
+    const px = (x) => project({ x, z: 0 }).x,
+      pz = (z) => project({ x: 0, z }).y;
+    clipMinimap(ctx, w, h);
+    const shaped = level.boundary?.length > 4;
+    ctx.fillStyle = shaped ? '#172e25' : '#29483a';
+    ctx.fillRect(0, 0, w, h);
+    if (shaped) {
+      ctx.save();
+      ctx.beginPath();
+      level.boundary.forEach((p, i) => (i ? ctx.lineTo(px(p.x), pz(p.z)) : ctx.moveTo(px(p.x), pz(p.z))));
+      ctx.closePath();
+      ctx.fillStyle = '#29483a';
+      ctx.fill();
+      ctx.clip();
+    }
+    const line = (points, width, color) => {
+      ctx.lineWidth = width;
+      ctx.strokeStyle = color;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      points.forEach((p, i) => (i ? ctx.lineTo(px(p.x), pz(p.z)) : ctx.moveTo(px(p.x), pz(p.z))));
+      ctx.stroke();
+    };
+    for (const river of level.rivers) {
+      line(river.points, river.width * scale, '#35b9ed');
+      for (const bridge of river.bridges) {
+        const vx = (Math.sin(bridge.heading) * bridge.length) / 2,
+          vz = (Math.cos(bridge.heading) * bridge.length) / 2;
+        line(
+          [
+            { x: bridge.x - vx, z: bridge.z - vz },
+            { x: bridge.x + vx, z: bridge.z + vz },
+          ],
+          Math.max(3, bridge.width * scale),
+          '#dfbd8c',
+        );
+      }
+    }
+    for (const road of level.roads) line(road.points, Math.max(1.5, road.width * scale), '#f0c777');
+    drawGoalMap(ctx, level.target, (p) => ({ x: px(p.x), y: pz(p.z) }));
+    for (const fence of level.fenceSegments || [])
+      line(
+        [fence.a, fence.b],
+        fence.material === 'stone' ? 2 : fence.kind === 'boundary' ? 1 : 1.5,
+        fence.material === 'stone' ? '#d5d9c9' : '#c0a67b',
+      );
+    for (const gate of level.gates || [])
+      if (gate.operable && !gate.open) {
+        const segment = gateSegment(gate);
+        line([segment.a, segment.b], 2.5, '#ffad45');
+      }
+    const dot = (x, z, r, c, outline = '#183027') => {
+      ctx.fillStyle = c;
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(px(x), pz(z), r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    };
+    const states = minimapLivestockStates(level);
+    for (const a of level.animals) drawLivestockMarker(ctx, project(a), a, states.get(a));
+    // Pip's larger gold marker and separate outer ring distinguish the player from helpers.
+    dot(dog.x, dog.z, 4.8, '#ffd166');
+    ctx.strokeStyle = '#ffe6a3';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(px(dog.x), pz(dog.z), 7, 0, Math.PI * 2);
+    ctx.stroke();
+    for (const helper of level.helpers || []) dot(helper.x, helper.z, 3, '#45d9ef', '#102c39');
+    if (shaped) ctx.restore();
+    ctx.restore();
+    drawGoalDirection(ctx, level.target, view);
+  }
+}

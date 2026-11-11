@@ -1,5 +1,9 @@
 # Runtime source notes
 
+## Current folder map - 10 November 2026
+
+Use `app/` for orchestration, `ui/` for browser UI/styles, `simulation/` for rules (with `companions/` and `navigation/`), `world/` for physical generation, `rendering/` for views (with `animation/`, `environment/`, `water/`, `weather/`), plus `audio/`, `progression/`, `qa/` and existing `config/`. The architecture document has the full map. Import concrete modules directly. Preserve ownership contracts below; the relocation does not authorize new simulation/rendering coupling. QA stays lazy and development-only.
+
 Deployment follows the root guide: prefer Deploy Flock dispatch; if unavailable, use the connector-only gh-pages fallback in docs/DEVELOPMENT.md with unchanged build, authorization and verification gates.
 
 These notes add to the root [AGENTS.md](../AGENTS.md) for work in `src/`. [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) holds the full module map and contracts. The system pages in `docs/systems/` hold API detail.
@@ -43,3 +47,7 @@ Many modules use long, dense lines. A file with a few hundred lines can hold ten
 ## Repeatable work — 6 November 2026
 
 Follow the root repeatable-work rule: on the fourth occurrence, save or extend a documented workflow and reusable tools under `scripts/`. Consult [the tool catalog](../scripts/README.md) first; preserve the checks and authorization gates for this area.
+
+## Current delivery and formatting - 10 November 2026
+
+Follow the root readable-source policy: pinned Prettier, readable Dev/QA output, minified production output, independent game/tracker entry points and explicitly authorized `/dev_performance/` staging for F-PERF-002. This supersedes older dense-source guidance. See current DEVELOPMENT.md and scripts/README.md.

@@ -59,3 +59,15 @@ node scripts/measure-terrain.mjs --levels 6-100 --seeds 200-211 --spacing 4 > te
 ## Terrain and bank measurements — 9 November 2026
 
 `node scripts/measure-terrain.mjs --levels 6-100 --seeds 200-203 --spacing 2` measures deterministic support geometry. Omit `--seeds` for campaign seeds. JSON reports relief, ordinary-pasture and localized-bank grades separately, full-width bridge support grades, elevated-crossing count and maximum setback; exits nonzero for sampled limit violations. Uses configured9m relief,30degree pasture/deck and80degree compact-face limits. `compactBankRegion` identifies the actual analytic compact blend footprint. Read-only, no publication. Finite sampling is neither an analytic proof nor rendered/device evidence. This extends the existing repeated terrain measurement workflow rather than creating task-specific scripts.
+
+## Independent game/tracker delivery and formatting - 10 November 2026
+
+`npm run format` writes JavaScript with pinned Prettier; `npm run format:check -- game` or `-- tracker` checks the scoped source/tests and shared scripts. The default checks all JavaScript. It excludes generated HTML/assets and build outputs. `scripts/format.mjs` and `scripts/test-suite.mjs` enumerate files portably rather than depending on shell globs.
+
+`npm run test:game` excludes tracker tests; `npm run test:tracker` selects them; `npm test` runs both. `npm run build:checked:dev_performance` checks formatting, docs, game regressions and both game artifact modes, leaving readable QA output in `dist/`. `npm run build:checked:tracker` checks tracker formatting/tests and builds only the tracker in `dist-tracker/`. The tracker build has no Three.js/game imports. Both need Node 22+ and locked npm dependencies; no publication occurs.
+
+Deploy Flock supports non-main `dev_performance` at `/dev_performance/` under the explicit task authorization; normal dev and main-only production routing remain. Deploy Tracker separately requires main, target tracker, `deploy-tracker` confirmation and the publication token. It publishes only `tracker/`. Both reuse the shared planner/publisher, serialize Pages publication, preserve unrelated/old files, reject concurrent parents and verify native Pages plus emitted file hashes. Authorizing one application does not authorize the other.
+
+## Source-system layout checks - 10 November 2026
+
+Use `node --test tests/source-layout.test.js` to check all relative static/dynamic imports, re-exports, import.meta.url assets, CSS dependencies and the HTML app entry. The checks recurse through system folders without maintaining a second module list. Existing measurement/icon tools now import the relocated world/rendering modules; commands and outputs are unchanged.

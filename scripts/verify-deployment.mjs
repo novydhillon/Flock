@@ -8,7 +8,9 @@ for (const file of plan.files) {
   url.searchParams.set('revision', plan.sourceSha);
   const response = await fetch(url, { signal: AbortSignal.timeout(30000), cache: 'no-store' });
   if (!response.ok) throw Error(`${file.path}: HTTP ${response.status}`);
-  const hash = createHash('sha256').update(Buffer.from(await response.arrayBuffer())).digest('hex');
+  const hash = createHash('sha256')
+    .update(Buffer.from(await response.arrayBuffer()))
+    .digest('hex');
   if (hash !== file.sha256) throw Error(`Live hash mismatch: ${file.path}`);
 }
 console.log(`Verified ${plan.files.length} live files for ${plan.sourceSha}`);

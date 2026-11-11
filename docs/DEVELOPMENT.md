@@ -1,5 +1,21 @@
 # Development, QA and release context
 
+## Source folder migration - 10 November 2026
+
+F-ARCH-002 is based on the accepted performance branch, not main. Entry: `src/app/bootstrap.js`; controller: `src/app/main.js`; QA lazy entry: `src/qa/qa.js`. Use the current architecture folder map when locating modules. Tests remain under `tests/` to preserve existing runner commands; all source imports, measurement/icon tools, file-reading fixtures and documentation source links follow their modules. `tests/source-layout.test.js` validates recursive module/asset resolution, HTML startup and absence of loose root JavaScript.
+
+Validate with `npm run build:checked:dev`, `npm run build:checked:tracker` and the release artifact guard. A one-time migration comparison normalizes only module specifiers and AST locations, verifying executable module structure and exact stylesheet bytes against the parent snapshot. It does not establish GPU/pixel or phone FPS results. No deployment is part of this source organization request.
+
+## Independent delivery and performance staging - 10 November 2026
+
+F-PERF-002 adds `npm run test:game`, `npm run test:tracker`, `npm run build:tracker`, `npm run build:checked:tracker`, and `npm run build:checked:dev_performance`. `npm test` remains the aggregate suite. Game artifacts use `dist/`; tracker artifacts use `dist-tracker/`. Tracker CI and Deploy Tracker are separate workflows; tracker publication writes only `tracker/` and requires main plus explicit confirmation. Shared publication tools retain parent checks, protected destinations, byte hashes and old assets.
+
+Use `npm run format` before committing JavaScript; `npm run format:check` verifies it. Checked builds apply the relevant game/tracker scope. Prettier 3.6.2 is pinned; the precise Node floor is 22.12.0, matching Vite. Generated documentation assets remain owned by their generator. Vite QA/Dev output is readable; release output stays minified and QA-free.
+
+Novy explicitly requested `/dev_performance/` for this task. Deploy Flock now supports this named non-main target in addition to normal dev; it uses QA builds and cannot write the production root. Other feature work continues to use `/dev/`. This is a scoped user-authorized exception, not production permission.
+
+Playtest public levels 1/6/20/50/100 in portrait and landscape: Pip/Buddy glow, rain across weather tiers, pause/resume, camera travel, level replacement, crossings and saved progress. Compare the same meadow/weather on a phone before claiming FPS or graphics equivalence; exact rain buffers and headless tests do not establish GPU/frame-time results.
+
 ## Baked static shadow smoke checks — 10 November 2026
 
 F-SHADOW-001: compare flat1–5 and rolling6/20/50/100 in portrait/landscape. Inspect bridge rails/planks, fences, barn roofs/walls, pens, stone supports, rocks, trees and bushes. Move the camera across the full field: static silhouettes must stay fixed without rebaking or popping; dynamic actors and moving gate panels retain their shadows. Inspect actor shadows on decks, terrain slopes, grass/reed shadow absence, barn cutaway and weather changes. Restart/jump repeatedly and inspect texture disposal, loading and phone memory/FPS. The shared browser cannot reach this executor localhost (connection refused), so rendered/device checks remain pending.

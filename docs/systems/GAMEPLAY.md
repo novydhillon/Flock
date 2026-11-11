@@ -8,7 +8,7 @@ Unattended undelivered animals start slow, collision-checked browsing after eigh
 
 `bark.js` owns transient Pip charges, burst and cooldown in gameplay seconds. `main.js` advances them only while playing. The second tier multiplies first-tier force by exactly 1.33; the third retains that force and grants two charges before a 2.1-second cooldown refills both. Distinct accepted actions each emit audio/visual events and reset the existing sustained .65-second pressure burst. Touch compatibility clicks and key repeats do not double-spend charges. Buddy retains independent bark ownership. Current-meadow restart, Quit and QA jumps rebuild transient state; pause freezes it.
 
-This describes current source behavior, not the queued design in the [issue tracker](../ISSUES.md). Geometry and navigation contracts are in [WORLD.md](WORLD.md). Entry points: [simulation.js](../../src/simulation.js), [progression.js](../../src/progression.js), and browser orchestration in [main.js](../../src/main.js).
+This describes current source behavior, not the queued design in the [issue tracker](../ISSUES.md). Geometry and navigation contracts are in [WORLD.md](WORLD.md). Entry points: [simulation.js](../../src/simulation/simulation.js), [progression.js](../../src/progression/progression.js), and browser orchestration in [main.js](../../src/app/main.js).
 
 ## State and interfaces
 
@@ -116,7 +116,7 @@ flowchart TD
 
 ## Upgrade contract
 
-The six three-tier catalog entries and exact costs/gates live in [progression.js](../../src/progression.js). Use its exports rather than duplicate a pricing table in callers:
+The six three-tier catalog entries and exact costs/gates live in [progression.js](../../src/progression/progression.js). Use its exports rather than duplicate a pricing table in callers:
 
 | Export | Purpose |
 |---|---|
@@ -136,8 +136,8 @@ import assert from 'node:assert/strict';
 import {
   createLevel, stepSimulation, defaultProfile, applyLevelReward,
   purchaseUpgrade, saveProfile, loadProfile,
-} from './src/simulation.js';
-import { activeUpgrades } from './src/progression.js';
+} from './src/simulation/simulation.js';
+import { activeUpgrades } from './src/progression/progression.js';
 const level = createLevel(0);
 // Synthetic admission fixture, as opposed to a player input policy.
 level.animals.forEach(a => Object.assign(a, {x:level.target.x, z:level.target.z}));

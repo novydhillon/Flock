@@ -46,7 +46,7 @@ Later starter modules have bounded longitudinal/lateral extent; progression adds
 
 Non-early levels add dry spacing before the interior fence. A seeded subset from public level 20 uses stronger, longer river bends (`riverStyle: meandering`); these maps also separate the two rivers further and widen dry turning planes around bridges. Deck headings still follow the local sampled river normal. Rivers end beyond their local starter-field perimeter, which may lie inside the overall AABB of a returning U/stepped level. Validate against actual playable polygon occupancy rather than assuming every river must extend past the full-map AABB.
 
-Current contracts come from [world.js](../../src/world.js); [GAMEPLAY.md](GAMEPLAY.md) explains its simulation callers. The [issue tracker](../ISSUES.md) is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.
+Current contracts come from [world.js](../../src/world/world.js); [GAMEPLAY.md](GAMEPLAY.md) explains its simulation callers. The [issue tracker](../ISSUES.md) is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.
 
 ## Map generation candidate — 22 October 2026
 
@@ -116,7 +116,7 @@ A bridge `{x,z,width,length,heading}` is a straight rotated rectangle. In its lo
 
 Each side rail runs from `-length/2 - 0.1` to `length/2 + 0.1` at lateral `±width/2`, with beam radius 0.05 and four post footprints of radius 0.065 per side. Rails remain solid beyond the wet river edge, so a body on dry land beside a deck cannot cut sideways through its end rail. It must walk around an open end. Rail and river bounds are cached in WeakMaps keyed by geometry object; treat generated descriptors as static or replace the object when editing rather than mutating cached geometry in place.
 
-`terrainHeight(level,x,z)` returns a deck arch `0.18 + 0.12*sin(π*(along/length + 0.5))` inside the zero-radius bridge footprint, otherwise 0. It does not change collision into a 3D physics system. See [render.js](../../src/render.js) for presentation of these descriptors.
+`terrainHeight(level,x,z)` returns a deck arch `0.18 + 0.12*sin(π*(along/length + 0.5))` inside the zero-radius bridge footprint, otherwise 0. It does not change collision into a 3D physics system. See [render.js](../../src/rendering/render.js) for presentation of these descriptors.
 
 `targetFootprint(target)` defines a rotated rectangle with half-length/half-width `target.radius + 1.4`, a 7-unit entrance on the upstream side, world corners and entrance point. `targetLocalPoint` converts positions to forward/lateral coordinates; `targetWorldPoint` performs the inverse. `containsTarget(target,point,bodyRadius)` requires the entire circular body within both edges. `createLevel` derives the five target wall segments from that same footprint. Thus corner regions outside the former circle are admissible when the full body is inside; a center sitting on a wall is insufficient.
 
@@ -155,7 +155,7 @@ import assert from 'node:assert/strict';
 import {
   createLevel, distance, canOccupy, moveBody,
   hasClearGroundPath, routeProgress, nextNavigationPoint, terrainHeight,
-} from './src/world.js';
+} from './src/world/world.js';
 const level = createLevel(23, 201);
 assert.deepEqual(level, createLevel(23, 201));
 const bridge = level.rivers[0].bridges[0];

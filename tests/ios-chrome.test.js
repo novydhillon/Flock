@@ -7,7 +7,7 @@ test('installed app requests an opaque status bar with consistent flat launch ch
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const document = new JSDOM(html).window.document;
   const manifest = JSON.parse(readFileSync(new URL('../public/site.webmanifest', import.meta.url), 'utf8'));
-  const meta = name => {
+  const meta = (name) => {
     const matches = document.querySelectorAll(`meta[name="${name}"]`);
     assert.equal(matches.length, 1, `${name} must have one unambiguous value`);
     return matches[0].content;
@@ -21,7 +21,7 @@ test('installed app requests an opaque status bar with consistent flat launch ch
   assert.equal(manifest.scope, './');
   assert.equal(manifest.start_url, './');
   assert.match(meta('viewport'), /viewport-fit=cover/);
-  const css = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/ui/style.css', import.meta.url), 'utf8');
   assert.match(css, /env\(safe-area-inset-top\)/);
   assert.match(css, /env\(safe-area-inset-bottom\)/);
 });

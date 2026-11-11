@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'dev for feature branches; production for main only'
+        description: 'dev or dev_performance for feature branches; production for main only'
         required: true
         type: choice
-        options: [dev, production]
+        options: [dev, dev_performance, production]
       confirm_production:
         description: 'For production, enter deploy-production (requires user sign-off)'
         type: string
@@ -62,3 +62,4 @@ jobs:
           name: flock-deployment-evidence
           path: deployment.json
           if-no-files-found: ignore
+
