@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-ARCH-002~~ | ~~P2~~ | ~~Architecture~~ | ~~Organize source into system and functionality folders~~ | ~~Done~~ | ~~Accepted F-PERF-002~~ |
 | ~~F-PERF-002~~ | ~~P2~~ | ~~Engineering~~ | ~~Readable source, separate delivery pipelines and allocation cleanup~~ | ~~Done~~ | ~~Current main~~ |
 | ~~F-008~~ | ~~P1~~ | ~~Art~~ | ~~Cloud visuals temporarily removed at user request~~ | ~~Closed~~ | ~~No runtime clouds or cloud shadows~~ |
 | ~~F-AUDIO-003~~ | ~~P1~~ | ~~Audio regression~~ | ~~Music stays silent on browser/app launch until audio is toggled off/on~~ | ~~Closed~~ | ~~Accepted soundtrack; physical launch investigation~~ |
@@ -2232,4 +2233,20 @@ User acceptance on 9 November 2026 supersedes the historical Review status above
 **10 November 2026:** Based on main `86a5b5d96d3ec38e50b76b0f32bdb5e41d58a0aa`. Extended existing delivery tools rather than making per-task publishers. Audit found a redundant glow update and avoidable rain/goal-pointer allocations. Source review also identified larger controller/renderer modules and mixed grazing/gate responsibilities; broad gameplay rewrites are deferred to retain validated behavior. Implementation and validation in progress.
 
 **Closed:** 10 November 2026. Novy accepted the code refactors and performance. No main merge requested; accepted source is retained in the parent feature branch.
+
+
+
+### F-ARCH-002 — ~~Organize source into system and functionality folders~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `refactor/system-folders`
+
+**Accept when:** Runtime files live in meaningful system folders, every static/dynamic module and asset reference resolves, behavior and the dependency graph match the accepted source, regression/build/docs checks pass, and the change receives independent review. Preserve source readability and independent delivery pipelines.
+
+**10 November 2026:** Based on accepted `refactor/performance-pipelines` head `aecb5ae`. Novy accepted F-PERF-002; its complete record is archived. Keeping a separate successor branch retains accepted changes without implying main merge or deployment permission. Implementing a pure relocation/import migration, with a one-time canonical AST and stylesheet equivalence check against the parent snapshot.
+
+**Validation - 10 November 2026:** Independent review9.5/10 after correcting a measurement tool import; no remaining findings. All72runtime/config/style files retained; release33/33 and Dev35/35 emitted files are byte-identical to the accepted parent. Recursive source/tool resolution and seeded measurement smoke4/4; configuration/QA fixtures pass; tracker16/16, docs7/7 and artifact guards pass. Final source CI follows the branch publication. No deployment or main merge requested.
+
+**Closed:** 10 November 2026. Novy approved the source organization and requested merge to main.
 

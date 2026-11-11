@@ -34,7 +34,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-ARCH-002 | P2 | Architecture | Organize source into system and functionality folders | Review | Accepted F-PERF-002 |
 | F-SHADOW-001 | P2 | Rendering | Bake all static environment shadows once per meadow | Review | Existing shadow renderer |
 | F-TERRAIN-BANK-001 | P2 | Terrain/bridges | Compact steep riverbanks and slope-based bank textures | In progress | Accepted rolling terrain and elevated crossings |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
@@ -394,14 +393,3 @@ Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetat
 
 **F-SHADOW-001 validation — 10 November 2026:** Implemented and independently reviewed9/10. Local full baseline620/620 and final scope CI pass; focused static/cutaway/water-effects32/32, independent static5/5. Release/development artifacts pass QA guards. Final shader-local identifier cleanup retained review9/10 and5/5 focused/build checks. Device appearance/fine-object resolution remain pending. Source only; no deployment or main merge.
 
-### F-ARCH-002 - Organize source into system and functionality folders
-
-**Status:** Review. Owner: Codex.
-
-**Branch:** `refactor/system-folders`
-
-**Accept when:** Runtime files live in meaningful system folders, every static/dynamic module and asset reference resolves, behavior and the dependency graph match the accepted source, regression/build/docs checks pass, and the change receives independent review. Preserve source readability and independent delivery pipelines.
-
-**10 November 2026:** Based on accepted `refactor/performance-pipelines` head `aecb5ae`. Novy accepted F-PERF-002; its complete record is archived. Keeping a separate successor branch retains accepted changes without implying main merge or deployment permission. Implementing a pure relocation/import migration, with a one-time canonical AST and stylesheet equivalence check against the parent snapshot.
-
-**Validation - 10 November 2026:** Independent review9.5/10 after correcting a measurement tool import; no remaining findings. All72runtime/config/style files retained; release33/33 and Dev35/35 emitted files are byte-identical to the accepted parent. Recursive source/tool resolution and seeded measurement smoke4/4; configuration/QA fixtures pass; tracker16/16, docs7/7 and artifact guards pass. Final source CI follows the branch publication. No deployment or main merge requested.
