@@ -695,7 +695,7 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 
 ## Butterfly wing motion — 29 October 2026
 
-F-BUTTERFLY-001 requires bounded, alternating flaps around the butterfly's body attachments during flight. Preserve movement and pause/resume. Use the seeded yellow, orange, blue, purple and pink palette. Use 75% of the initial Dev preview size across the body, wings and attachment offsets. Rendered verification remains pending.
+F-BUTTERFLY-001 requires bounded, alternating flaps around the butterfly's body attachments during flight. Preserve movement and pause/resume. Use the seeded yellow, orange, blue, purple and pink palette. Use 75% of the initial Dev preview size across the body, wings and attachment offsets. See [user acceptance](ISSUES_CLOSED.md#f-butterfly-001--butterfly-wing-flaps-and-colors).
 
 ## Rolling terrain design agreement — 29 October 2026
 

@@ -2,7 +2,7 @@
 
 ## Butterfly wing flap and palette — 18 November 2026
 
-F-BUTTERFLY-001 uses body-local hinges and a bounded mirrored stroke. A seeded shuffle assigns yellow, orange, blue, purple and pink tints within the existing wing instance batch. The first five slots use distinct colors without advancing the wildlife placement random stream. The focused nature suite passed 20 tests, including hinge attachment under changing headings, full flap reversal, pause/resume and reproducible paired colors. Implementation used the session model. Its exact model and effort metadata were unavailable. Rendered appearance and device acceptance remain pending.
+F-BUTTERFLY-001 uses body-local hinges and a bounded mirrored stroke. A seeded shuffle assigns yellow, orange, blue, purple and pink tints within the existing wing instance batch. The first five slots use distinct colors without advancing the wildlife placement random stream. The focused nature suite passed 20 tests, including hinge attachment under changing headings, full flap reversal, pause/resume and reproducible paired colors. Implementation used the session model. Its exact model and effort metadata were unavailable. Novy accepted the completed flap, palette, and 25% size reduction on 19 November 2026. The resized source passed [CI](https://github.com/novydhillon/Flock/actions/runs/44471801038). See the [archived issue](ISSUES_CLOSED.md#f-butterfly-001--butterfly-wing-flaps-and-colors) for validation scope.
 
 
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
