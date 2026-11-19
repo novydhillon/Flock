@@ -736,3 +736,13 @@ F-TERRAIN-BANK-001 preserves the requested compact raised bridge approaches, var
 ## Odd vegetation clumps — 9 November 2026
 
 F-VEG-001: modeled grass and reeds always form odd clumps of3–11 stems, with mixed heights within and between clumps. Applies to field, bank, rough pasture and water vegetation. Broaden water-grass bank distance variation while retaining edge preference. Eligible water bodies get denser grass/reed coverage (30-clump cap,22m² per target clump); retain independent seeded20% eligibility, shadow-free plants, curved downstream reeds, bridge/footprint safety and bounded resources.
+
+## State audit follow-up — 18 November 2026
+
+F-TERRAIN-BANK-001 was subsequently resumed, deployed and accepted for main merge; the earlier deferral is historical. F-SHADOW-001 likewise completed development publication and user-requested main merge. Preserve unresolved bank setup profiling as F-PERF-003: remeasure current seeded meadow 20/100 setup time and peak memory, establish a budget and address any confirmed regression without reducing accepted geometry, visuals or gameplay. Do not infer setup resolution from general allocation cleanup or source relocation.
+
+## Existing dog requests: requirement traceability — 18 November 2026
+
+F-DOG-001: Replace Pip with a claymation dog using the supplied model/animation references; Buddy is smaller, younger and feistier. Preserve gameplay, controls, terrain contact and readable animation. Full acceptance criteria and references remain in the active tracker.
+
+F-DOG-002: Add ten additional dog breeds spanning pug/Chihuahua to Newfoundland, with distinct speeds and breed-related capabilities, upgrades and boosts. Selection, unlocks, economy and persistence details remain to be defined before implementation. This records existing Open requests and does not expand or implement them.

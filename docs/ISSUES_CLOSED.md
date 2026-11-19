@@ -8,6 +8,8 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-SHADOW-001~~ | ~~P2~~ | ~~Rendering~~ | ~~Bake all static environment shadows once per meadow~~ | ~~Done~~ | ~~Existing shadow renderer~~ |
+| ~~F-TERRAIN-BANK-001~~ | ~~P2~~ | ~~Terrain/bridges~~ | ~~Compact steep riverbanks and slope-based bank textures~~ | ~~Done~~ | ~~Accepted rolling terrain and elevated crossings~~ |
 | ~~F-ARCH-002~~ | ~~P2~~ | ~~Architecture~~ | ~~Organize source into system and functionality folders~~ | ~~Done~~ | ~~Accepted F-PERF-002~~ |
 | ~~F-PERF-002~~ | ~~P2~~ | ~~Engineering~~ | ~~Readable source, separate delivery pipelines and allocation cleanup~~ | ~~Done~~ | ~~Current main~~ |
 | ~~F-008~~ | ~~P1~~ | ~~Art~~ | ~~Cloud visuals temporarily removed at user request~~ | ~~Closed~~ | ~~No runtime clouds or cloud shadows~~ |
@@ -2250,3 +2252,57 @@ User acceptance on 9 November 2026 supersedes the historical Review status above
 
 **Closed:** 10 November 2026. Novy approved the source organization and requested merge to main.
 
+
+
+### F-SHADOW-001 — ~~Baked static environment shadows~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/baked-environment-shadows`
+
+**Accept when:** Trees, bushes, bridges, fences, barns, pens, rocks and other static environment objects cast shadows from a per-level bake, with no recurring static shadow pass as the camera travels. Preserve terrain/bridge receiving shadows, dynamic actor and moving gate shadows, full-meadow coverage, level replacement/disposal and existing shadow-free grass/reeds. Inspect camera travel and barn cutaway behavior; verify bounded textures and repeated frame/level lifecycle. User requested source fix; deployment/main merge remain separate.
+
+
+**F-SHADOW-001 validation — 10 November 2026:** Implemented and independently reviewed9/10. Local full baseline620/620 and final scope CI pass; focused static/cutaway/water-effects32/32, independent static5/5. Release/development artifacts pass QA guards. Final shader-local identifier cleanup retained review9/10 and5/5 focused/build checks. Device appearance/fine-object resolution remain pending. Source only; no deployment or main merge.
+
+**Closed:** 2026-11-18. State audit: Novy requested main merge after dev publication. Source merges PR #39 (shadows) and PR #38 (banks) are complete. Original acceptance/merge requests were 10 November 2026. Preserve historical validation limits; the bank loading concern is tracked separately as F-PERF-003.
+
+
+### F-TERRAIN-BANK-001 — ~~Compact steep riverbanks and slope-based bank textures~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/compact-riverbanks`
+
+**Requirement:** Allow steep banks beside raised river crossings so bridges do not extend deep into fields; vary other riverbank slopes smoothly and deterministically. Steeper banks show dirt texture; gentler banks show grass. Preserve continuous support, water coverage, deck joins, navigation and mobile budgets.
+
+**Accept when:** Raised spans use compact banks with smooth slopes, coherent textures, fully dry/crossable decks and no cracks, visible triangle facets or floating actors. Validate full regression, geometry budgets and fresh independent review, then rendered/device checks before acceptance.
+
+**Deferred:** 6 November 2026. Novy explicitly requested keeping bank work waiting. Earlier local prototype used 2.75m setbacks versus accepted 7m, but was not committed or deployed; its 595/596 regression result included a mobile scenery budget failure. Preserve that experimental work separately; do not import it into accepted main or the next height experiment. Historical bank-related scope is retained in the archived terrain execution records and QUALITY.md.
+
+**Closed:** 2026-11-18. State audit: Novy requested main merge after dev publication. Source merges PR #39 (shadows) and PR #38 (banks) are complete. Original acceptance/merge requests were 10 November 2026. Preserve historical validation limits; the bank loading concern is tracked separately as F-PERF-003.
+
+
+## Bank execution history retained by state audit — 18 November 2026
+
+Historical checkpoints below are superseded by the completed PR #38 main merge and the closure record above. Remaining setup-performance work is Open as F-PERF-003.
+
+## Bank work resumed — 9 November 2026
+
+Novy requested continuation of F-TERRAIN-BANK-001. Owner: Codex terrain team; branch `feat/compact-riverbanks`, based on current main `43184c5`. Preserve accepted doubled hills, fixed lower camera and full-width bridge validation. Recovered prototype is input only: revalidate geometry budgets, smooth support, water coverage, textures and navigation on current terrain. Novy subsequently authorized an80degree localized bank cap; ordinary pasture/decks remain30degrees. No deployment or main merge requested.
+
+## Terrain acceptance and bank deferral — 6 November 2026
+
+Accepted F-TERRAIN-001–004 are archived in [Closed issues](ISSUES_CLOSED.md#rolling-terrain-user-acceptance--6-november-2026). F-TERRAIN-BANK-001 remains Deferred at Novy’s request. The accepted main merge includes hill readability and QA contours, while the compact/steep bank prototype remains outside committed source.
+
+## Main merged into bank work — 9 November 2026
+
+Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.
+
+
+
+## Publication and acceptance corrections — 18 November 2026
+
+F-TERRAIN-BANK-001: Novy requested development deployment and main merge. PR #38 merged on 10 November 2026 at `4d07744517a0d53b63d326a415a0d9a2d2a853b7`. Accepted localized bank cap is 80 degrees; ordinary pasture/decks retain their limits. Development source `5a81df604e0964d5cbb2172640207ce875b07fbe` passed 616 tests; publication evidence is [F-TERRAIN-BANK-001-dev-publication.json](validation/F-TERRAIN-BANK-001-dev-publication.json). The 8.3/10 source review's setup-cost concern remains an Open investigation under F-PERF-003. This closure does not assert that the performance concern or physical-phone validation is resolved.
+
+F-SHADOW-001: Novy requested development deployment and main merge. PR #39 merged on 10 November 2026 at `86a5b5d96d3ec38e50b76b0f32bdb5e41d58a0aa`. Development source `6c16f7d1f16cece081a56091985617b808815257` passed 621 tests; publication evidence is [F-SHADOW-001-dev-publication.json](validation/F-SHADOW-001-dev-publication.json). Source review scored 9/10; publication records include native Pages checks and 35-file hash verification. Physical-device appearance/performance limits remain recorded, with broader mobile validation under F-015. These later milestones supersede the earlier source-only/no-merge notes.

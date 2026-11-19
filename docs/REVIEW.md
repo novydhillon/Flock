@@ -212,3 +212,9 @@ Focused deployment checks pass 15/15, documentation behavior checks 7/7, and rel
 
 
 **Final verification — F-OPS-005:** Full regression 566/566 passed after restoring the unchanged local manifest. Documentation checks passed 13 pages, 2191 links/anchors, 10 diagrams and 7 DOM tests before this evidence append; deterministic regeneration and final documentation check follow. Both artifact modes and guards passed. No deployment or native/device claim.
+
+## Active-state audit — 18 November 2026
+
+Compared main `0a6f20a` tracker overview/detail states against PR #38/#39 merges, development-publication evidence and Novy's explicit merge requests. Moved the two accepted features (F-TERRAIN-BANK-001 and F-SHADOW-001) with their complete rows/details to the archive using `scripts/close-tracker-items.py`; preserved completed execution history and superseding publication/acceptance evidence. Kept bank setup cost Open independently as F-PERF-003. Corrected 19 stale In progress detail claims to Open/unassigned, matching their authoritative overview and planning records: F-BIRD-001–014, F-COMP-004/005/006/008 and F-AUDIO-002. No runtime behavior or publication changes. Documentation generation, lifecycle/link checks and DOM behavior checks validate this tracker-only correction; they do not establish device performance or appearance.
+
+Validation also exposed missing pre-existing requirement traceability for F-DOG-001/002. Added summaries of those existing requests without changing their Open status or acceptance scope. Current-main source files were materialized for local link verification after the earlier folder migration.
