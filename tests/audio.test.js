@@ -228,18 +228,25 @@ test('ambience never creates audio before start, start is reusable, and frames a
   });
 });
 
-test('birds are varied short quiet phrases and do not burst after a long frame gap', async () => {
+const perchedCall = {
+  dog: { x: 0, z: 0 },
+  birdCalls: [{ x: 0, y: 4, z: 0 }],
+};
+
+test('bird phrases only play for current perched call events and do not accumulate across gaps', async () => {
   await withAudio(async (audio) => {
+    audio.updateAmbience(0.1, perchedCall);
+    assert.equal(audio.context, null);
     await audio.start();
     const context = audio.context;
-    audio.birdCountdown = 1;
     const before = context.oscillators.length;
-    audio.updateAmbience(1000, { weather: 'sun' });
+    audio.updateAmbience(1000, perchedCall);
+    for (let i = 0; i < 600; i++) audio.updateAmbience(0.1, { weather: 'sun' });
     assert.equal(context.oscillators.length, before);
-    for (let i = 0; i < 3; i++) audio.updateAmbience(0.25, { weather: 'sun' });
+    audio.updateAmbience(0.1, perchedCall);
     assert.ok(context.oscillators.length - before >= 2);
     assert.ok(context.oscillators.length - before <= 3);
-    const birds = [...audio.ambientSources];
+    const birds = [...audio.birdSources];
     for (const bird of birds) {
       assert.equal(bird.type, 'sine');
       assert.ok(bird.stops[0] - bird.startTime < 0.2);
@@ -247,7 +254,34 @@ test('birds are varied short quiet phrases and do not burst after a long frame g
       assert.equal(bird.disconnected, true);
     }
     assert.equal(audio.ambientSources.size, 0);
-    assert.ok(audio.birdCountdown >= 4 && audio.birdCountdown <= 10);
+    assert.equal(audio.birdSources.size, 0);
+  });
+});
+
+test('bird voices attenuate with distance, cap across perches and stop on level replacement', async () => {
+  await withAudio(async (audio) => {
+    await audio.start();
+    const gain = () => audio.birdSources.values().next().value.connections[0].gain.events[1][1];
+    audio.updateAmbience(0.1, perchedCall);
+    const nearGain = gain();
+    const previous = [...audio.birdSources];
+    audio.resetBirds();
+    assert.ok(previous.every((source) => source.disconnected));
+    assert.equal(audio.birdSources.size, 0);
+    audio.updateAmbience(0.1, { ...perchedCall, dog: { x: 31, z: 0 } });
+    assert.equal(audio.birdSources.size, 0);
+    audio.updateAmbience(0.1, { ...perchedCall, dog: { x: 11, z: 0 } });
+    assert.equal(gain(), nearGain / 2);
+    const birdCalls = Array.from({ length: 5 }, (_, i) => ({ x: i, y: 4, z: 0 }));
+    for (let i = 0; i < 4; i++) audio.updateAmbience(0.1, { ...perchedCall, birdCalls });
+    assert.ok(audio.birdSources.size >= 5 && audio.birdSources.size <= 6);
+    const birds = [...audio.birdSources];
+    audio.setGameplayPaused(true);
+    assert.ok(birds.every((source) => source.disconnected));
+    audio.updateAmbience(0.1, perchedCall);
+    audio.setGameplayPaused(false);
+    audio.updateAmbience(0.1);
+    assert.equal(audio.birdSources.size, 0);
   });
 });
 
@@ -256,17 +290,16 @@ test('pause and mute stop ambience and prevent new chirps, UI sounds remain on p
     await audio.start();
     audio.updateAmbience(0.1, { weather: 'wind' });
     const source = audio.weatherSource.source;
-    audio.birdCountdown = 0;
-    audio.updateAmbience(0.1);
-    const birds = [...audio.ambientSources];
+    audio.updateAmbience(0.1, { ...perchedCall, weather: 'wind' });
+    const birds = [...audio.birdSources];
+    assert.ok(birds.length >= 2);
     audio.pause();
     assert.equal(timers.size, 0);
     assert.equal(source.disconnected, true);
     assert.equal(audio.ambientSources.size, 0);
     assert.ok(birds.every((bird) => bird.disconnected));
     const before = audio.context.oscillators.length;
-    audio.birdCountdown = 0;
-    audio.updateAmbience(1000, { weather: 'rain' });
+    audio.updateAmbience(0.1, { ...perchedCall, weather: 'rain' });
     assert.equal(audio.context.oscillators.length, before);
     audio.play('click');
     assert.ok(audio.context.oscillators.length > before);
@@ -276,8 +309,7 @@ test('pause and mute stop ambience and prevent new chirps, UI sounds remain on p
     audio.setMuted(true);
     assert.equal(rain.disconnected, true);
     const mutedCount = audio.context.oscillators.length;
-    audio.birdCountdown = 0;
-    audio.updateAmbience(1, { weather: 'sun' });
+    audio.updateAmbience(0.1, perchedCall);
     audio.play('click');
     assert.equal(audio.context.oscillators.length, mutedCount);
     assert.equal(audio.master.gain.value, 0);
@@ -330,9 +362,9 @@ test('weather shares a single noise buffer, bounded gains, and cleans up on weat
     audio.updateAmbience(0.1, { weather: 'sun' });
     assert.equal(wind.disconnected, true);
     assert.equal(audio.weatherSource, null);
-    audio.birdCountdown = 0;
     const before = audio.context.oscillators.length;
-    audio.updateAmbience(0.1, { weather: { type: 'rain', intensity: 0.9 } });
+    const sheltered = { type: 'rain', intensity: 0.9 };
+    audio.updateAmbience(0.1, { ...perchedCall, weather: sheltered });
     assert.equal(audio.context.oscillators.length, before);
   });
 });
@@ -340,15 +372,15 @@ test('weather shares a single noise buffer, bounded gains, and cleans up on weat
 test('dispose stops and disconnects every source, releases buffer and timer, and is final', async () => {
   await withAudio(async (audio, timers) => {
     await audio.start();
-    audio.updateAmbience(0.1, { weather: 'rain' });
-    audio.birdCountdown = 0;
-    audio.updateAmbience(0.1, { weather: 'rain' });
+    audio.updateAmbience(0.1, { ...perchedCall, weather: 'rain' });
+    assert.ok(audio.birdSources.size > 0);
     const sources = [...audio.active];
     const context = audio.context;
     audio.dispose();
     assert.equal(timers.size, 0);
     assert.equal(audio.active.size, 0);
     assert.equal(audio.ambientSources.size, 0);
+    assert.equal(audio.birdSources.size, 0);
     assert.ok(sources.every((source) => source.disconnected && source.stops.length > 0));
     assert.equal(context.state, 'closed');
     assert.equal(audio.noiseBuffer, null);
@@ -542,19 +574,23 @@ test('successive thunder strikes vary their 3-5 second fade and reverb together'
   });
 });
 
-test('storm suppresses ambient bird calls even when explicit rain intensity is missing', async () => {
+test('sheltering weather clears bird phrases even when explicit rain intensity is missing', async () => {
   await withAudio(async (audio) => {
     await audio.start();
     for (const weather of [
       'storm',
       { type: 'storm' },
+      { type: 'storm', kind: 'rain', intensity: 0.2 },
       { kind: 'storm', type: 'rain', intensity: 0.2 },
       { storm: true, type: 'rain' },
+      { kind: 'heavy-rain', type: 'rain', intensity: 0.65 },
     ]) {
-      audio.birdCountdown = 0;
+      audio.updateAmbience(0.1, perchedCall);
+      assert.ok(audio.birdSources.size > 0);
       const before = audio.context.oscillators.length;
-      audio.updateAmbience(0.1, { weather });
+      audio.updateAmbience(0.1, { ...perchedCall, weather });
       assert.equal(audio.context.oscillators.length, before);
+      assert.equal(audio.birdSources.size, 0);
     }
   });
 });

@@ -1,5 +1,15 @@
 # Flock revision quality record
 
+## Bird behavior batch — 18 November 2026
+
+Branch `feat/bird-behavior`, based on `0a6f20a`. Implementation was split between support geometry, audio and state/presentation integration. Implementation used the session model, identifier not recorded because the session does not expose the exact identifier and inherited effort. The candidate reuses existing instanced bird meshes and caps, and keeps gameplay independent of wildlife. The validation record covers source, tests and artifact modes. Rendered phone appearance, listening and frame time require device verification.
+
+The fresh blind critic scored 7/10 initially. The branch added solid-interior detection, early approach aborts away from threats, live puddle avoidance, orthographic call visibility, bilateral perch support and visual ground contact. The first follow-up scored 8/10 after reproducing a thin prop intersecting the torso between the center and wing paths. A continuous torso sweep fixed that case. The final follow-up scored 9/10 with zero material blockers. It independently passed 69 bird, audio and nature tests and six targeted renderer tests, including a same-frame puddle growth and toe-contact check. Sampled wing clearance can still allow clipping against thin scenery between the samples.
+
+The final source passed 88 targeted bird, audio, nature, wildlife and tracker tests. Three seeded meadow scans found 373 supported anchors with clear reverse departures. The release mode guard reported 33 files and zero QA assets. The development guard reported 35 files and two QA assets. Both implementation and independent review used session models, with exact identifiers and inherited effort unavailable. The six tickets are in Review for appearance, listening and phone frame-time acceptance.
+
+
+
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
 
 Branch: `feat/double-terrain-height`, base `3ac0dd95eaef7844ffe172e6527e60c54ddd7984`. Implementation: session model, identifier not recorded because the environment does not expose a verifiable root model identifier or effort setting; bounded camera configuration tuning. Lower Y from 36 to 27 and solve the Z offset from the original radius including the existing lookOffsetZ -2. No renderer algorithm, orthographic scale or follow-target changes. Same-session source inspection; independent blind review is not required for this bounded settings change and no independent score is claimed.

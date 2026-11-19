@@ -1,5 +1,18 @@
 # Flock product requirements
 
+## Bird behavior batch — 18 November 2026
+
+F-BIRD-001, 002, 003, 005, 009 and 010 share one seeded, presentation-owned bird population. Birds alternate between dry foraging, flight and landing on usable tree branches, fence rails, stone walls or barn roofs. A moving gate releases perched birds when the panel opens. Birds reserve a perch while approaching or sitting and leave an obstructed route. Ground birds peck and hop, and perched birds rest, tilt, preen, ruffle or chirp. Nearby members of the same two- or three-bird foraging group can follow a startled bird after a short delay.
+
+Calls originate from eligible camera-visible perches and attenuate with distance. The existing storm exclusion and heavy-weather shelter policy apply. Pause freezes bird state and pose. Replacing a meadow clears perch reservations and active calls. Birds remain ambient and leave gameplay collision, delivery and saved progress unchanged.
+
+
+## Planned dog models and breeds — 11 November 2026
+
+F-DOG-001 tracks expressive clay dog models and ground locomotion for Pip and the smaller, younger Buddy. Reference poses, gameplay constraints and acceptance are in [the character art ticket](ISSUES.md#f-dog-001--pip-and-buddy-dog-models-and-animation).
+
+F-DOG-002 tracks ten additional breeds with distinct movement and capabilities, including pug, Chihuahua and Newfoundland, along with upgrades and boosts. Progression and migration design remain part of [the breed ticket](ISSUES.md#f-dog-002--ten-additional-dog-breeds-and-progression).
+
 ## Source organization - 10 November 2026
 
 F-ARCH-002: organize runtime source into folders by system and responsibility. Preserve the accepted F-PERF-002 code and performance, module behavior/dependency relationships, seeded outcomes, progress storage and graphics quality. Update imports, dynamic QA entry, CSS, HTML entry, tests, tools and current source links. Keep JavaScript formatted, Dev readable and live minified, with game/tracker delivery separate. Source-only work; no main merge or new deployment requested.

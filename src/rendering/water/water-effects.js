@@ -412,6 +412,15 @@ export class WaterEffects {
     }
     return sites;
   }
+  puddleAt(x, z) {
+    return this.puddles.find(
+      (p) =>
+        p.mesh.visible &&
+        (x - p.site.x) ** 2 / p.site.radius ** 2 + (z - p.site.z) ** 2 / (p.site.radius * 0.62) ** 2 < p.depth &&
+        (!p.pool || p.pool.contains(x - p.site.x, z - p.site.z)),
+    );
+  }
+
   applyPuddleAppearance(p) {
     // Area and opacity grow together; geometry never exceeds the validated footprint.
     const size = Math.sqrt(p.depth);
@@ -521,13 +530,7 @@ export class WaterEffects {
             ? { x: mover.previousX, z: mover.previousZ }
             : this.lastMoverPositions.get(id));
       const moved = prev && Math.hypot(pos.x - prev.x, pos.z - prev.z) > 0.008;
-      const puddle = this.puddles.find(
-        (p) =>
-          p.mesh.visible &&
-          (pos.x - p.site.x) ** 2 / p.site.radius ** 2 + (pos.z - p.site.z) ** 2 / (p.site.radius * 0.62) ** 2 <
-            p.depth &&
-          (!p.pool || p.pool.contains(pos.x - p.site.x, pos.z - p.site.z)),
-      );
+      const puddle = this.puddleAt(pos.x, pos.z);
       if (
         moved &&
         puddle &&

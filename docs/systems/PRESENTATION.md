@@ -1,5 +1,12 @@
 # Presentation: renderer, nature and audio
 
+## Bird perches, foraging groups and calls — 18 November 2026
+
+[Bird behavior](../../src/rendering/environment/bird-behavior.js) owns forage, takeoff, flight, landing, perched rest and chirp states. Per-bird random streams drive pacing, local grouping and gestures. Birds sample prospective routes and keep flying after a bounded failed search. Dry-ground checks read the same changing pool footprint as water effects. An approaching or perched bird claims its anchor until it transitions to flight. The same capped population can land together in loose groups, separate between flights and react to a group member's startle after independent delays. Nearby Pip and robotic companions cause direct flight. A livestock trigger uses actual velocity and the closing direction.
+
+[Perch geometry](../../src/rendering/environment/bird-perches.js) samples supports from transformed branch wood, fence rails, stone walls, barn roof edges and gate panels before scenery batching. The route query checks terrain and sampled body and wing paths against placed geometry, including points inside solid props. A perch must support both feet. Opening a gate invalidates its old support. Nature poses the feet against the landing surface, then moves the body, wing hinges and head from shared instance batches. A short head movement accompanies a call. The frame's call events pass a camera frustum and scenery occlusion check and then flow from Nature through the renderer and controller into [audio](../../src/audio/audio.js). Audio applies distance and light-rain gain and limits the number of scheduled notes. Pause, mute and reset retire active calls.
+
+
 ## Allocation cleanup without visual changes - 10 November 2026
 
 F-PERF-002 updates glow once after current Pip/Buddy transforms instead of twice. Rain reuses five vectors while retaining expression order, random draws, wrap logic and all drop counts. Goal-pointer rotation reuses renderer-owned quaternion/axis. No geometry density, shader quality, graphics settings or simulation step is reduced. Rain regression checks compare exact Float32 buffers/random state against the previous algorithm across 400 frames.

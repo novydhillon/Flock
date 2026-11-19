@@ -1,5 +1,10 @@
 # Development, QA and release context
 
+## Bird behavior playtest — 18 November 2026
+
+Use normal gameplay zoom in phone portrait and landscape. Start public meadow 1 with seed 201 and watch for groups of two or three, pecks, short hops and staggered startle. Follow a bird through takeoff, flight and landing. Use public meadow 6 with seed 201 for a rolling barn and meadow 21 with seed 4 for stone coping, a rotated barn and operable gates. Check that feet meet the support and opening a perched gate causes departure. Sit near a visible tree perch through one full quiet interval, pause mid-animation, then move beyond hearing range. With audio enabled, check the call against music, livestock and weather. Repeat in light rain, in heavy weather and after restart. Observe frame time during camera travel and repeated level replacement. Rendered appearance, device frame time and listening remain subject to that playtest.
+
+
 ## Source folder migration - 10 November 2026
 
 F-ARCH-002 is based on the accepted performance branch, not main. Entry: `src/app/bootstrap.js`; controller: `src/app/main.js`; QA lazy entry: `src/qa/qa.js`. Use the current architecture folder map when locating modules. Tests remain under `tests/` to preserve existing runner commands; all source imports, measurement/icon tools, file-reading fixtures and documentation source links follow their modules. `tests/source-layout.test.js` validates recursive module/asset resolution, HTML startup and absence of loose root JavaScript.

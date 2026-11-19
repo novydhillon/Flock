@@ -139,10 +139,9 @@ export const CONFIG_CONTRACTS = freeze({
       maxStepsPerTick: 'integer',
     },
     birds: {
-      clearDelaySeconds: 'number',
-      clearJitterSeconds: 'number',
-      rainDelaySeconds: 'number',
-      rainJitterSeconds: 'number',
+      maxVoices: 'integer',
+      maxDistance: 'number',
+      attenuationDistance: 'number',
       frameCapSeconds: 'number',
       rainSuppressionIntensity: 'number',
       clearGain: 'number',

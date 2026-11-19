@@ -43,6 +43,14 @@ import { generateBushClusters } from '../src/rendering/environment/vegetation.js
 import { setTailLightBarking } from '../src/rendering/animation/tail-light.js';
 import { WaterEffects } from '../src/rendering/water/water-effects.js';
 import { MeadowNature } from '../src/rendering/environment/nature.js';
+import {
+  birdAirPathClear,
+  birdPerchAvailable,
+  birdPerchVisible,
+  createBirdPerches,
+} from '../src/rendering/environment/bird-perches.js';
+import { wildlifePopulation } from '../src/rendering/environment/wildlife.js';
+import { createWeatherState } from '../src/rendering/weather/weather.js';
 import { ribbon, roadNetwork, createRoadMaterial, barkSurface } from '../src/rendering/surfaces.js';
 import { createGateView, createStoneWallView } from '../src/rendering/gate-view.js';
 import { StructureCutaway } from '../src/rendering/cutaway.js';
@@ -276,6 +284,9 @@ function setup({ width = 390, height = 844, treeYaw = true, settings = presentat
     generateBushClusters,
     setTailLightBarking,
     MeadowNature,
+    createBirdPerches,
+    wildlifePopulation,
+    createWeatherState,
     ribbon,
     roadNetwork,
     createRoadMaterial,
@@ -292,6 +303,93 @@ function setup({ width = 390, height = 844, treeYaw = true, settings = presentat
   vm.runInNewContext(`${source}\nglobalThis.renderer=new MeadowRenderer({});`, context);
   return context.renderer;
 }
+
+test('birds use actual tree, wood rail, coping, roof, and moving gate surfaces', () => {
+  const renderer = setup();
+  const woodLevel = createLevel(0, 201);
+  renderer.setLevel(woodLevel);
+  const wood = renderer.nature.birdFrame.perches;
+  assert.ok(wood.anchors.some(({ kind }) => kind === 'fence'));
+  assert.ok(wood.anchors.some(({ kind }) => kind === 'tree'));
+
+  const level = createLevel(20, 4);
+  level.weather = 'sun';
+  renderer.setLevel(level);
+  const perches = renderer.nature.birdFrame.perches;
+  for (const kind of ['tree', 'stone', 'barn', 'gate']) {
+    const anchor = perches.anchors.find((entry) => entry.kind === kind);
+    assert.ok(anchor, `missing ${kind} anchor`);
+    assert.ok(birdAirPathClear(level, perches, anchor.approach, anchor, anchor));
+    assert.ok(birdAirPathClear(level, perches, anchor, anchor.approach, anchor));
+  }
+
+  const barn = perches.anchors.find(({ kind }) => kind === 'barn');
+  const aboveRoof = { ...barn, y: barn.y + 0.7 };
+  const underRoof = { ...barn, y: barn.y - 0.7 };
+  assert.equal(birdAirPathClear(level, perches, aboveRoof, underRoof), false);
+  const ray = new THREE.Raycaster(new THREE.Vector3(barn.x, barn.y + 0.7, barn.z), new THREE.Vector3(0, -1, 0));
+  const [roofContact] = ray.intersectObject(renderer.terrain.getObjectByName('barn-roof'));
+  assert.ok(roofContact && Math.abs(roofContact.point.y - barn.y) < 1e-5);
+
+  const bridge = level.rivers.flatMap((river) => river.bridges)[0];
+  const rightX = Math.cos(bridge.heading);
+  const rightZ = -Math.sin(bridge.heading);
+  const railX = bridge.x + rightX * (bridge.width / 2);
+  const railZ = bridge.z + rightZ * (bridge.width / 2);
+  const y = bridgeSurfaceHeight(level, bridge, railX, railZ) + 0.34;
+  const besideRail = { x: railX + rightX * 0.23, y, z: railZ + rightZ * 0.23 };
+  const insideRail = { x: railX - rightX * 0.23, y, z: railZ - rightZ * 0.23 };
+  assert.ok(birdAirPathClear(level, null, besideRail, insideRail));
+  assert.equal(birdAirPathClear(level, perches, besideRail, insideRail), false);
+
+  const gateAnchor = perches.anchors.find(({ kind }) => kind === 'gate');
+  assert.ok(birdPerchAvailable(level, gateAnchor));
+  gateAnchor.gate.open = true;
+  renderer.gateView.update();
+  assert.equal(birdPerchAvailable(level, gateAnchor), false);
+  assert.ok(birdAirPathClear(level, perches, gateAnchor, gateAnchor.approach, gateAnchor));
+});
+
+test('bird movement rejects interior proposals and perch audio traces the orthographic line of sight', () => {
+  const level = { bounds: { minX: -10, maxX: 10, minZ: -10, maxZ: 10 } };
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1));
+  wall.position.set(0, 1, 0);
+  const perches = createBirdPerches(level, { blockers: [wall] });
+  const inside = { x: 0, y: 0.5, z: 0 };
+  assert.equal(birdAirPathClear(level, perches, inside, { ...inside, x: 0.05 }), false);
+  assert.equal(birdAirPathClear(level, perches, inside, inside), false);
+  assert.ok(birdAirPathClear(level, perches, { ...inside, y: 2.3 }, { ...inside, x: 0.05, y: 2.3 }));
+
+  const camera = new THREE.OrthographicCamera(-4, 4, 4, -4, 0.1, 20);
+  camera.position.set(-4, 0.88, 3);
+  camera.lookAt(0, 0.88, 3);
+  const hidden = { x: 4, y: 0.5, z: 0 };
+  assert.equal(birdPerchVisible(perches, camera, hidden), false);
+  assert.ok(birdPerchVisible(perches, camera, { ...hidden, z: 3 }));
+});
+
+test('elevated perch contact supports both feet and their gripping pads', () => {
+  const level = { bounds: { minX: -10, maxX: 10, minZ: -10, maxZ: 10 } };
+  const coping = (width) => {
+    const stone = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.35, width));
+    stone.position.y = 1.1;
+    stone.name = 'clay-drystone';
+    return stone;
+  };
+  const narrow = createBirdPerches(level, { stoneWalls: coping(0.045) });
+  assert.equal(narrow.anchors.length, 0, 'body center contact alone leaves both feet beyond the edge');
+  const wide = createBirdPerches(level, { stoneWalls: coping(0.36) });
+  assert.equal(wide.anchors.length, 1);
+});
+
+test('a prop between center and wing rays still blocks a passing bird torso', () => {
+  const level = { bounds: { minX: -10, maxX: 10, minZ: -10, maxZ: 10 } };
+  const prop = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.2, 0.4));
+  prop.position.set(0.09, 3.25, 0);
+  const perches = createBirdPerches(level, { blockers: [prop] });
+  assert.equal(birdAirPathClear(level, perches, { x: 0, y: 3, z: -2 }, { x: 0, y: 3, z: 2 }), false);
+  assert.ok(birdAirPathClear(level, perches, { x: -0.12, y: 3, z: -2 }, { x: -0.12, y: 3, z: 2 }));
+});
 
 test('ground glow updates once after current Pip and Buddy transforms and clears absent Buddy', () => {
   const renderer = setup(),

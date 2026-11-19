@@ -180,6 +180,7 @@ async function begin(index = profile.highestLevel) {
   barkWasCooling = false;
   lastTouchBark = -Infinity;
   audio.resetLivestock?.(level);
+  audio.resetBirds?.();
   resetInput();
   renderer.setLevel(level);
   mode = 'playing';
@@ -758,13 +759,14 @@ function frame(now) {
     $('weather-status').setAttribute('aria-label', label);
   }
   if (mode === 'playing') audio.updateLivestock?.(dt, { animals: level.animals, listener: dog, level });
-  if (mode === 'playing')
+  if (mode === 'playing' && !document.hidden)
     audio.updateAmbience?.(dt, {
       weather: renderer.nature?.weather || level.weather || 'sun',
       level: level.index + 1,
       time: level.time,
       dog,
       animals: level.animals,
+      birdCalls: renderer.birdCalls,
     });
   mapTick += dt;
   if (mapTick > CONTROLS.frame.mapIntervalSeconds) {

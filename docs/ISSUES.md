@@ -45,17 +45,17 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
 | F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
 | F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
-| F-BIRD-009 | P2 | Behavior | Small social foraging groups | Open | F-BIRD-001; F-BIRD-004 |
-| F-BIRD-010 | P2 | Animation | Ground hops and perched idle gestures | Open | F-BIRD-002; F-BIRD-003 |
+| F-BIRD-009 | P2 | Behavior | Small social foraging groups | Review | F-BIRD-001; F-BIRD-004 |
+| F-BIRD-010 | P2 | Animation | Ground hops and perched idle gestures | Review | F-BIRD-002; F-BIRD-003 |
 | F-BIRD-011 | P2 | Behavior/audio | React to Pip and Buddy barking | Open | F-BIRD-004; F-BIRD-005 |
 | F-BIRD-012 | P2 | Behavior | Occasional visits to the nest | Open | F-BIRD-003; F-BIRD-006 |
 | F-BIRD-013 | P2 | Art/audio | Two or three recognizable bird varieties | Open | F-BIRD-002; F-BIRD-005 |
 | F-BIRD-014 | P2 | Behavior | Gradual return after the meadow settles | Open | F-BIRD-003; F-BIRD-004; F-BIRD-009; F-BIRD-011 |
-| F-BIRD-001 | P2 | Behavior | Bird states and seeded population | Open | — |
-| F-BIRD-002 | P2 | Art/animation | Clay birds, flight, landing and peck animations | Open | F-BIRD-001 |
-| F-BIRD-003 | P2 | World/perching | Ground, tree, fence and structure landing sites | Open | F-BIRD-001 |
+| F-BIRD-001 | P2 | Behavior | Bird states and seeded population | Review | — |
+| F-BIRD-002 | P2 | Art/animation | Clay birds, flight, landing and peck animations | Review | F-BIRD-001 |
+| F-BIRD-003 | P2 | World/perching | Ground, tree, fence and structure landing sites | Review | F-BIRD-001 |
 | F-BIRD-004 | P2 | Behavior | Pip/Buddy avoidance and speed-sensitive livestock response | Open | F-BIRD-001; F-BIRD-003 |
-| F-BIRD-005 | P2 | Audio | Perched chirping and quiet sitting | Open | F-BIRD-001; F-BIRD-003 |
+| F-BIRD-005 | P2 | Audio | Perched chirping and quiet sitting | Review | F-BIRD-001; F-BIRD-003 |
 | F-BIRD-006 | P2 | World/art | 10% per-level chance of a single tree nest | Open | F-BIRD-003 |
 | F-BIRD-007 | P2 | Integration | Weather, lifecycle and mobile resource limits | Open | F-BIRD-002–006 |
 | F-BIRD-008 | P2 | Validation | Regression, blind review and development acceptance | Open | F-BIRD-007 |
@@ -166,9 +166,9 @@ Acceptance criteria:
 
 ## Bird behavior feature plan — 18 October 2026 (America/Creston)
 
-Planning requested by Novy; **all F-BIRD items are Open, unassigned and not implemented**. Planning owner: Codex; documentation branch: `plan/bird-behaviour`, based on main `5fd8cf5`. Runtime implementation branch: to be claimed from current main when scheduled. Bird-scoped IDs avoid collisions with concurrently assigned numeric F-IDs. Proposed priority: P2 for this ambient-life feature. This request authorizes planning/tracker updates; no runtime work or game deployment is included.
+Novy requested the original P2 plan on `plan/bird-behaviour`, based on main `5fd8cf5`. The work overview above records current states. Bird-scoped IDs avoid collisions with concurrently assigned numeric F-IDs. Proposed priority: P2 for this ambient-life feature. That original request covered planning and tracker updates.
 
-**Existing foundation:** `src/rendering/environment/wildlife.js` already supplies seeded, area-scaled birds (currently capped at six), threat response and weather sheltering. `src/rendering/environment/nature.js` renders continuously airborne birds; `src/audio/audio.js` schedules generic ambient calls. Extend these systems rather than introduce a second population/audio loop. New ambient birds do not affect herding, collision admission, scoring or progression.
+**Existing foundation:** `src/rendering/environment/wildlife.js` already supplies seeded, area-scaled birds (currently capped at six), threat response and weather sheltering. The initial ground-foraging implementation shipped in F-POLISH-001. The six-ticket feature branch extends that population with elevated landings, gestures, group behavior and calls from visible perches. New ambient birds do not affect herding, collision admission, scoring or progression.
 
 **Requested behavior:** birds fly, land and peck for food on the ground, land in trees and chirp, and perch on fences/other structures to chirp or sit quietly. Ground birds fly away from Pip and Buddy. Quickly approaching livestock also cause takeoff; grazing or slowly moving livestock alone do not. Each level has a random 10% chance of one nest in one tree.
 
@@ -176,21 +176,23 @@ Planning requested by Novy; **all F-BIRD items are Open, unassigned and not impl
 
 **Implementation order:** first define states and landing-site contracts (001/003); then integrate animated transitions (002) and threat handling (004). Audio (005) and nest decoration (006) can follow independently with disjoint ownership. Add social groups (009), idle gestures (010), bark response (011), nest visits (012), bird varieties (013) and gradual return (014) on their listed foundations. Prioritize 009/010/011 within these additions. Integrate lifecycle/weather/performance (007), then validate and review the complete scope (008). Compare simple discrete takeoff/landing phases with a full flight physics controller; prefer bounded state-driven curved trajectories and reserved landing anchors for this ambient feature. Use terrain/obstacle clearance along the flight path rather than ground navigation for flying birds.
 
+On 18 November 2026, F-BIRD-001, 002, 003, 005, 009 and 010 moved to Review after implementation and blind review on `feat/bird-behavior` from main `0a6f20a`. The branch extends the existing capped bird population. It integrates the closing-speed filter needed for social startle behavior. The wider F-BIRD-004 validation remains a separate tracker item. Phone appearance, listening and frame-time checks await a development playtest. See [presentation](systems/PRESENTATION.md#bird-perches-foraging-groups-and-calls--18-november-2026) and [quality](QUALITY.md#bird-behavior-batch--18-november-2026).
+
 ### F-BIRD-001 — Bird states and seeded population (P2)
 
-**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+**Status:** Review. Owner: Codex. Branch: `feat/bird-behavior`.
 
 **Accept when:** one authoritative bird state machine supports flight, approach/landing, ground idle/pecking, perched quiet/chirp and takeoff/flee. States have bounded randomized dwell times and legal transitions, with interrupted landing safely returning to flight. Population and behavior RNG are reproducible without changing existing level/herd streams; no duplicate legacy bird population remains. Threats take precedence over ground pecking. State must be testable separately from rendering and audio.
 
 ### F-BIRD-002 — Clay birds and animated transitions (P2)
 
-**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+**Status:** Review. Owner: Codex. Branch: `feat/bird-behavior`.
 
 **Accept when:** birds match the current handmade clay style and remain legible at normal gameplay zoom. Flight has visible wing beats; takeoff gains height and landing decelerates to the actual surface, with wings settling when grounded/perched. Ground pecking visibly lowers the head/beak toward food with pauses. Feet align with the support surface, and silhouettes do not hover, sink or snap between flight and rest. Pause freezes animation. Ordinary phone-scale appearance requires rendered user review.
 
 ### F-BIRD-003 — Safe ground and elevated landing sites (P2)
 
-**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+**Status:** Review. Owner: Codex. Branch: `feat/bird-behavior`.
 
 **Accept when:** birds find reachable dry ground for pecking, usable tree branches, fence tops and explicitly supported structure tops (initially stone-wall tops and barn roof edges where present). Support positions use actual world transforms/heights, including rotated/scaled trees and fences. Birds do not land in water, inside trunks/foliage/solid structures, on unsupported air, or through roofs. Air trajectories clear obstacles; invalid/occupied anchors are skipped with bounded search and a safe continue-flying fallback. Reserve elevated anchors to prevent overlapping perched birds. Opening a supporting gate or otherwise losing a support causes safe takeoff rather than floating. Ground birds do not block gameplay actors.
 
@@ -202,7 +204,7 @@ Planning requested by Novy; **all F-BIRD items are Open, unassigned and not impl
 
 ### F-BIRD-005 — Perched chirping and quiet sitting (P2)
 
-**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+**Status:** Review. Owner: Codex. Branch: `feat/bird-behavior`.
 
 **Accept when:** tree-perched birds chirp intermittently with natural quiet gaps. Fence/structure birds can chirp or sit quietly. Schedule calls from actual visible, eligible perched birds, with distance-aware audibility and bounded concurrent voices; reconcile the existing generic ambient bird loop to avoid duplicate/orphan calls. Honor sound settings, pause/backgrounding, weather shelter and restart/level disposal. Enabling audio after interaction must not replay a backlog. Source scheduling checks and a listening check are separate evidence.
 
@@ -229,11 +231,11 @@ Planning requested by Novy; **all F-BIRD items are Open, unassigned and not impl
 
 ## Bird feature additions — 18 October 2026, 21:47 America/Creston
 
-Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
+Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2. The work overview records their current status. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
 
 ### F-BIRD-009 — Small social foraging groups (P2)
 
-**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+**Status:** Review. Owner: Codex. Branch: `feat/bird-behavior`.
 
 **Depends on:** F-BIRD-001; F-BIRD-004.
 
@@ -241,7 +243,7 @@ Novy requested adding all six suggested features to the tracker. F-BIRD-009–01
 
 ### F-BIRD-010 — Ground hops and perched idle gestures (P2)
 
-**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+**Status:** Review. Owner: Codex. Branch: `feat/bird-behavior`.
 
 **Depends on:** F-BIRD-002; F-BIRD-003.
 

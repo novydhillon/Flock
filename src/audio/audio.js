@@ -29,7 +29,7 @@ export class FarmAudio {
     this.thunderSource = null;
     this.thunderEvent = null;
     this.weatherState = null;
-    this.birdCountdown = AUDIO.birds.clearDelaySeconds + Math.random() * AUDIO.birds.clearJitterSeconds;
+    this.birdSources = new Set();
     this.muted = false;
     this.paused = false;
     this.gameplayPaused = false;
@@ -231,20 +231,31 @@ export class FarmAudio {
           ? AUDIO.weather.heavyRainScale
           : AUDIO.weather.lightRainScale;
     this._weather(kind, intensity, rainScale);
-    // Clamp frame gaps so resuming a hidden tab cannot emit a burst of birds.
-    this.birdCountdown -= Number.isFinite(dt) ? Math.max(0, Math.min(dt, AUDIO.birds.frameCapSeconds)) : 0;
-    if (this.birdCountdown > 0) return;
-    this.birdCountdown =
-      kind === 'rain'
-        ? AUDIO.birds.rainDelaySeconds + Math.random() * AUDIO.birds.rainJitterSeconds
-        : AUDIO.birds.clearDelaySeconds + Math.random() * AUDIO.birds.clearJitterSeconds;
     if (
-      (typeof raw === 'object' && (raw.storm || raw.kind === 'storm')) ||
+      tier === 'storm' ||
       type === 'storm' ||
+      tier === 'heavy-rain' ||
+      type === 'heavy-rain' ||
       (kind === 'rain' && intensity >= AUDIO.birds.rainSuppressionIntensity)
-    )
+    ) {
+      this.resetBirds();
       return;
-    this._chirp(kind === 'rain' ? AUDIO.birds.rainGain : AUDIO.birds.clearGain);
+    }
+    // Frame events are consumed immediately. Calls missed during mute,
+    // backgrounding or audio activation never enter an audio queue.
+    if (!(dt > 0 && dt <= AUDIO.birds.frameCapSeconds) || !state.dog || !state.birdCalls?.length) return;
+    const gain = kind === 'rain' ? AUDIO.birds.rainGain : AUDIO.birds.clearGain;
+    for (const bird of state.birdCalls) {
+      if (this.birdSources.size + 2 > AUDIO.birds.maxVoices) break;
+      const distance = Math.hypot(bird.x - state.dog.x, bird.z - state.dog.z);
+      if (!Number.isFinite(distance) || distance > AUDIO.birds.maxDistance) continue;
+      const volume = gain / (1 + (distance / AUDIO.birds.attenuationDistance) ** 2);
+      if (volume > 0.0001) this._chirp(volume);
+    }
+  }
+
+  resetBirds() {
+    for (const source of this.birdSources) this._releaseAmbience(source);
   }
 
   _noise() {
@@ -558,7 +569,7 @@ export class FarmAudio {
   _chirp(volume) {
     const now = this.context.currentTime + 0.015;
     const base = 1600 + Math.random() * 1100;
-    const notes = 2 + Math.floor(Math.random() * 2);
+    const notes = Math.min(2 + Math.floor(Math.random() * 2), AUDIO.birds.maxVoices - this.birdSources.size);
     for (let i = 0; i < notes; i++) {
       const oscillator = this.context.createOscillator();
       const envelope = this.context.createGain();
@@ -573,6 +584,12 @@ export class FarmAudio {
       oscillator.connect(envelope);
       envelope.connect(this.ambience);
       this._trackAmbience(oscillator, [envelope]);
+      this.birdSources.add(oscillator);
+      const ended = oscillator.onended;
+      oscillator.onended = () => {
+        ended();
+        this.birdSources.delete(oscillator);
+      };
       oscillator.start(time);
       oscillator.stop(time + 0.17);
     }
@@ -652,7 +669,6 @@ export class FarmAudio {
     this._stopWeather();
     this.thunderSource = null;
     for (const source of [...this.ambientSources]) this._releaseAmbience(source);
-    this.birdCountdown = AUDIO.birds.clearDelaySeconds + Math.random() * AUDIO.birds.clearJitterSeconds;
     this.livestockSources.clear();
   }
 

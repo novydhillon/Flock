@@ -58,33 +58,27 @@
     }
   },
   "birds": {
-    "clearDelaySeconds": {
-      "value": 4,
-      "_comment": "Minimum delay between clear-weather bird calls.",
-      "min": 0.1,
-      "max": 120
-    },
-    "clearJitterSeconds": {
+    "maxVoices": {
       "value": 6,
-      "_comment": "Additional random clear-weather bird delay.",
-      "min": 0,
-      "max": 120
+      "_comment": "Maximum simultaneous scheduled bird notes across all perched birds.",
+      "min": 3,
+      "max": 18
     },
-    "rainDelaySeconds": {
-      "value": 10,
-      "_comment": "Minimum delay between rainy-weather bird calls.",
-      "min": 0.1,
-      "max": 120
+    "maxDistance": {
+      "value": 30,
+      "_comment": "Maximum horizontal distance in world metres for a call to reach Pip.",
+      "min": 1,
+      "max": 100
     },
-    "rainJitterSeconds": {
-      "value": 10,
-      "_comment": "Additional random rainy-weather bird delay.",
-      "min": 0,
-      "max": 120
+    "attenuationDistance": {
+      "value": 11,
+      "_comment": "Horizontal distance in world metres at which bird call gain halves.",
+      "min": 1,
+      "max": 100
     },
     "frameCapSeconds": {
       "value": 0.25,
-      "_comment": "Maximum elapsed bird clock step; avoids return-from-background bursts.",
+      "_comment": "Discard call events on frame gaps longer than this many seconds.",
       "min": 0.001,
       "max": 1
     },

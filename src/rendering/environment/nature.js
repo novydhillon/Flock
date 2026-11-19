@@ -1,8 +1,18 @@
 import * as THREE from 'three';
 import { terrainHeight, terrainNormal } from '../../world/world.js';
 import { createWeatherState, stepWeather, weatherForLevel } from '../weather/weather.js';
-import { wildlifePopulation, wildlifePositionSafe, stepWildlife } from './wildlife.js';
+import {
+  birdLandingPositionSafe,
+  wildlifeGroundPositionSafe,
+  wildlifePopulation,
+  wildlifePositionSafe,
+  stepWildlife,
+} from './wildlife.js';
 import { wildlifeParts, wildlifeBodyGeometry, birdWingGeometry } from './wildlife-models.js';
+import { arrangeBirdGroups, birdWetFooting } from './bird-behavior.js';
+import { birdAirPathClear, birdPerchVisible } from './bird-perches.js';
+import { canGrazeAt } from '../animation/grazing.js';
+import { meadowSurfaceHeight } from '../terrain-view.js';
 import { RainView } from '../weather/rain-view.js';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function seeded(seed) {
@@ -26,6 +36,12 @@ export class MeadowNature {
     this.transform = new THREE.Object3D();
     this.birdRoot = new THREE.Matrix4();
     this.birdFeetRoot = new THREE.Matrix4();
+    this.birdHeadRoot = new THREE.Matrix4();
+    this.callFrustum = new THREE.Frustum();
+    this.callProjection = new THREE.Matrix4();
+    this.callPosition = new THREE.Vector3();
+    this.birdCalls = [];
+    this.birdFrame = { birds: [], perches: null };
     this.partMatrix = new THREE.Matrix4();
   }
   own(r) {
@@ -44,6 +60,8 @@ export class MeadowNature {
     this.wildlife = [];
     this.batches = {};
     this.precipitation = null;
+    this.birdCalls.length = 0;
+    this.birdFrame = { birds: [], perches: null };
   }
   batch(name, geo, mat, count) {
     const m = new THREE.InstancedMesh(geo, mat, count);
@@ -54,11 +72,11 @@ export class MeadowNature {
     this.batches[name] = m;
     return m;
   }
-  setLevel(level) {
+  setLevel(level, perches = null, wetGround, weather = createWeatherState(level)) {
     this.clear();
     this.level = level;
     this.time = 0;
-    this.weather = createWeatherState(level);
+    this.weather = weather;
     const rand = seeded((level.seed || 42) + 71053),
       b = level.bounds,
       w = b.maxX - b.minX,
@@ -85,6 +103,21 @@ export class MeadowNature {
             break;
           }
         }
+        if (kind === 'bird' && p) {
+          const safeStart = (point) => {
+            if (birdWetFooting(wetGround, point.x, point.z) || !birdLandingPositionSafe(level, point)) return false;
+            const y = terrainHeight(level, point.x, point.z);
+            return birdAirPathClear(level, perches, { ...point, y }, { ...point, y: y + 0.9 });
+          };
+          if (!safeStart(p)) {
+            p = null;
+            const birdRand = seeded((level.seed || 42) ^ Math.imul(i + 1, 1750606043));
+            for (let attempt = 0; attempt < 40 && !p; attempt++) {
+              const candidate = { x: b.minX + 2 + birdRand() * (w - 4), z: b.minZ + 2 + birdRand() * (d - 4) };
+              if (wildlifePositionSafe(level, candidate, threats, 0) && safeStart(candidate)) p = candidate;
+            }
+          }
+        }
         this.wildlife.push({
           kind,
           slot: i,
@@ -101,6 +134,12 @@ export class MeadowNature {
         });
       }
     }
+    this.birdFrame = {
+      birds: this.wildlife.filter((animal) => animal.kind === 'bird' && animal.visible),
+      perches,
+      wetGround,
+    };
+    arrangeBirdGroups(level, this.birdFrame.birds, perches, threats, wildlifeGroundPositionSafe, wetGround);
     if (counts.bird) {
       const parts = wildlifeParts.bird,
         body = this.batch(
@@ -177,15 +216,26 @@ export class MeadowNature {
     const state = a.birdState || 'forage',
       visibility = Math.max(0.06, 1 - (a.shelter || 0) * 0.94),
       landing = state === 'landing' ? clamp((a.birdStateTime || 0) / a.landingDuration, 0, 1) : 0;
-    const flight =
-      state === 'forage'
+    const perched = state === 'perched' || state === 'perchedChirp';
+    const flightPhase =
+      state === 'forage' || perched
         ? 0
         : state === 'takeoff'
           ? clamp((a.birdStateTime || 0) / 0.18, 0, 1)
           : state === 'landing'
             ? clamp((1 - landing) * 4, 0, 1)
             : 1;
-    const y = terrainHeight(this.level, a.x, a.z) + (a.altitude || 0) + (a.hopHeight || 0),
+    const support = a.perch || a.landing?.anchor;
+    const ground = terrainHeight(this.level, a.x, a.z);
+    const altitude = a.altitude || 0;
+    const wingSupport = support || a.takeoffExit;
+    const flight = wingSupport
+      ? Math.min(flightPhase, Math.hypot(a.x - wingSupport.x, ground + altitude - wingSupport.y, a.z - wingSupport.z))
+      : flightPhase;
+    const groundBlend = support ? 0 : clamp(1 - altitude / 0.38, 0, 1);
+    const groundOffset =
+      groundBlend && canGrazeAt(this.level, a) ? (meadowSurfaceHeight(this.level, a.x, a.z) - ground) * groundBlend : 0;
+    const y = ground + groundOffset + altitude + (a.hopHeight || 0),
       pitch =
         state === 'forage'
           ? (a.peck || 0) * 0.76
@@ -193,12 +243,17 @@ export class MeadowNature {
             ? -0.18 * flight
             : state === 'landing'
               ? -0.12 * flight
-              : -0.035;
+              : perched
+                ? 0
+                : -0.035;
     const t = this.transform;
     t.position.set(a.x, y, a.z);
     t.rotation.set(0, a.heading || 0, 0);
-    if (this.level.terrain?.enabled && flight === 0) {
-      const normal = terrainNormal(this.level, a.x, a.z);
+    const supportNormal =
+      support?.normal ||
+      (state === 'forage' && this.level.terrain?.enabled ? terrainNormal(this.level, a.x, a.z) : null);
+    if (supportNormal && flight === 0) {
+      const normal = supportNormal;
       const sine = Math.sin(a.heading || 0),
         cosine = Math.cos(a.heading || 0);
       const rightGrade = -(normal.x * cosine - normal.z * sine) / normal.y;
@@ -212,19 +267,38 @@ export class MeadowNature {
     this.birdFeetRoot.copy(t.matrix);
     // Local pitch follows heading; feet keep their support while the body pecks.
     t.position.set(0, 0, 0);
-    t.rotation.set(pitch, 0, 0);
+    const gesture = perched ? a.gestureAmount || 0 : 0;
+    t.rotation.set(pitch, 0, a.perchedGesture === 'ruffle' ? gesture * 0.13 : 0);
     t.scale.setScalar(1);
     t.updateMatrix();
     this.birdRoot.multiplyMatrices(this.birdFeetRoot, t.matrix);
+    // The head, beak and eyes share a neck pivot so they never separate.
+    t.position.set(0, 0.34, 0.126);
+    const singing = state === 'perchedChirp' ? Math.sin((a.birdStateTime / 0.55) * Math.PI) : 0;
+    t.rotation.set(
+      a.perchedGesture === 'preen' ? gesture * 0.7 : singing * -0.18,
+      a.perchedGesture === 'preen' ? gesture * 0.94 : 0,
+      a.perchedGesture === 'tilt' ? gesture * 0.46 : 0,
+    );
+    t.updateMatrix();
+    this.birdHeadRoot.multiplyMatrices(this.birdRoot, t.matrix);
     const parts = wildlifeParts.bird;
     for (let j = 0; j < parts.length; j++) {
       const p = parts[j];
+      const headPart = p.part === 'head' || p.part === 'beak' || p.part === 'eye';
+      const footPart = p.part === 'foot' || p.part === 'leg';
       t.position.set(...p.at);
+      // Match the grip footprint validated for this support as the wings fold.
+      if (footPart) t.position.z -= (1 - flight) * (support?.footInset || 0);
+      if (headPart) {
+        t.position.y -= 0.34;
+        t.position.z -= 0.126;
+      }
       t.rotation.set(p.tilt || 0, 0, 0);
       t.scale.set(...p.scale);
       t.updateMatrix();
       this.partMatrix.multiplyMatrices(
-        p.part === 'foot' || p.part === 'leg' ? this.birdFeetRoot : this.birdRoot,
+        footPart ? this.birdFeetRoot : headPart ? this.birdHeadRoot : this.birdRoot,
         t.matrix,
       );
       this.batches.birdBody.setMatrixAt(a.slot * parts.length + j, this.partMatrix);
@@ -235,28 +309,58 @@ export class MeadowNature {
       // Geometry begins at its shoulder. Mirrored, bounded hinge rotations lift
       // both tips together and fold them back along the body on dry ground.
       t.position.set(side * 0.105, 0.28, 0);
-      t.rotation.set(0, side * (1 - flight) * 1.35, (j ? 0 : Math.PI) + side * ((1 - flight) * -0.11 + flight * flap));
+      const ruffle = a.perchedGesture === 'ruffle' ? gesture * 0.22 : 0;
+      t.rotation.set(
+        0,
+        side * ((1 - flight) * 1.35 + ruffle),
+        (j ? 0 : Math.PI) + side * ((1 - flight) * -0.11 + flight * flap + ruffle),
+      );
       t.scale.setScalar(1);
       t.updateMatrix();
       this.partMatrix.multiplyMatrices(this.birdRoot, t.matrix);
       this.batches.birdWing.setMatrixAt(a.slot * 2 + j, this.partMatrix);
     }
   }
-  update(dt, { dog, animals = [], camera, paused = false } = {}) {
+  advanceWeather(dt, paused = false) {
+    const step = !this.level || paused ? 0 : clamp(Number(dt) || 0, 0, 0.1);
+    this.time += step;
+    if (this.level) stepWeather(this.weather, step);
+    return step;
+  }
+  update(dt, frame = {}) {
+    this.updateEffects(this.advanceWeather(dt, frame.paused), frame);
+  }
+  updateEffects(dt, { dog, animals = [], camera, paused = false } = {}) {
+    this.birdCalls.length = 0;
     if (!this.level) return;
-    dt = paused ? 0 : clamp(Number(dt) || 0, 0, 0.1);
-    this.time += dt;
-    stepWeather(this.weather, dt);
     const now = this.time,
       threats = [dog, ...animals, ...(this.level.helpers || [])].filter(Boolean);
+    let callCameraReady = false;
     for (const a of this.wildlife) {
-      stepWildlife(this.level, a, dt, threats, now, this.weather);
+      if (a.visible) {
+        stepWildlife(this.level, a, dt, threats, now, this.weather, wildlifeGroundPositionSafe, this.birdFrame);
+      }
       if (!a.visible || a.hidden) {
         this.hideParts(a);
         continue;
       }
       if (a.kind === 'bird') {
         this.poseBird(a, now);
+        if (dt > 0 && a.call && a.perch) {
+          if (camera && !callCameraReady) {
+            camera.updateMatrixWorld();
+            this.callProjection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+            this.callFrustum.setFromProjectionMatrix(this.callProjection);
+            callCameraReady = true;
+          }
+          const { x, y, z } = a.perch;
+          if (
+            !camera ||
+            (this.callFrustum.containsPoint(this.callPosition.set(x, y + 0.38, z)) &&
+              birdPerchVisible(this.birdFrame.perches, camera, a.perch))
+          )
+            this.birdCalls.push({ x, y, z });
+        }
         continue;
       }
       const flying = a.kind === 'butterfly',

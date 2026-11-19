@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { MeadowNature } from '../src/rendering/environment/nature.js';
 import { birdLandingPositionSafe, stepWildlife } from '../src/rendering/environment/wildlife.js';
+import { createBirdPerches } from '../src/rendering/environment/bird-perches.js';
 import { wildlifeParts } from '../src/rendering/environment/wildlife-models.js';
 
 const meadow = () => ({
@@ -203,5 +204,214 @@ test('bird states and matrices freeze on pause, all hidden anatomy clears, and r
       .filter((a) => a.kind === 'bird')
       .every((a) => a.birdState === undefined && a.landingX === undefined),
   );
+  nature.dispose();
+});
+
+test('perch reservations, calls, quiet gestures, pause, and support loss share one state', () => {
+  const level = meadow();
+  const gate = { open: false };
+  level.gates = [gate];
+  const anchor = {
+    id: 'test-perch',
+    kind: 'tree',
+    x: 0,
+    y: 2.6,
+    z: 5,
+    heading: 0,
+    approach: { x: 0, y: 3.5, z: 3.4 },
+    normal: { x: 0, y: 1, z: 0 },
+    gate,
+  };
+  const perches = createBirdPerches(level);
+  perches.anchors.push(anchor);
+  const nature = new MeadowNature(new THREE.Scene());
+  nature.setLevel(level, perches);
+  const [first, second] = nature.birdFrame.birds;
+  for (const a of [first, second]) {
+    Object.assign(a, bird(), {
+      slot: a.slot,
+      x: (a === first ? -1 : 1) * 0.55,
+      birdSeed: 2,
+      birdState: 'flight',
+      altitude: 3,
+      cruiseAltitude: 3,
+      flightRemaining: 0,
+      clearTime: 3,
+    });
+  }
+  for (const a of nature.birdFrame.birds.slice(2)) a.visible = false;
+  nature.birdFrame.birds.length = 2;
+  let calls = 0;
+  let firstCallFrame = -1;
+  let perched = false;
+  const gestures = new Set();
+  for (let frame = 0; frame < 780; frame++) {
+    nature.update(dt);
+    assert.ok(
+      [first, second].filter((a) => a.perch?.id === anchor.id || a.landing?.anchor?.id === anchor.id).length <= 1,
+      'simultaneous approaches reserve distinct elevated anchors',
+    );
+    if (first.perch) {
+      perched = true;
+      assert.equal(first.altitude, 2.6);
+      if (first.perchedGesture) gestures.add(first.perchedGesture);
+    }
+    if (!nature.birdCalls.length) continue;
+    calls += nature.birdCalls.length;
+    firstCallFrame = frame;
+    assert.deepEqual(nature.birdCalls, [{ x: 0, y: 2.6, z: 5 }]);
+    const before = { ...first };
+    nature.update(0.1, { paused: true });
+    assert.deepEqual(nature.birdCalls, []);
+    assert.deepEqual(first, before);
+  }
+  assert.ok(perched && calls >= 1 && firstCallFrame > 150);
+  assert.ok(gestures.size >= 1);
+  assert.equal(first.perch, anchor);
+  first.perchedGesture = 'ruffle';
+  first.gestureAmount = 1;
+  gate.open = true;
+  nature.update(dt);
+  assert.equal(first.birdState, 'takeoff');
+  assert.equal(first.perch, null);
+  assert.equal(first.perchedGesture, null);
+  assert.ok(first.altitude >= 2.6);
+  nature.dispose();
+});
+
+test('off-camera and scenery-occluded perched chirps are not emitted or queued', () => {
+  const nature = new MeadowNature(new THREE.Scene());
+  nature.setLevel(meadow());
+  const [a] = nature.birdFrame.birds;
+  const anchor = { id: 'tree', kind: 'tree', x: 0, y: 2.6, z: 5, heading: 0 };
+  Object.assign(a, {
+    birdState: 'perched',
+    x: anchor.x,
+    z: anchor.z,
+    altitude: anchor.y,
+    perch: anchor,
+    callWait: 0,
+    gestureWait: 3,
+    perchRemaining: 12,
+  });
+  const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 40);
+  camera.position.set(20, 2.6, 18);
+  camera.lookAt(20, 2.6, 0);
+  nature.update(dt, { camera });
+  assert.equal(a.birdState, 'perchedChirp');
+  assert.deepEqual(nature.birdCalls, []);
+  camera.position.x = 0;
+  camera.lookAt(0, 2.6, 0);
+  nature.update(dt, { camera });
+  assert.deepEqual(nature.birdCalls, []);
+
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 0.5));
+  wall.position.set(0, 3, 10);
+  nature.birdFrame.perches = createBirdPerches(nature.level, { blockers: [wall] });
+  a.callWait = 0;
+  nature.update(dt, { camera });
+  assert.deepEqual(nature.birdCalls, [], 'the wall hides a bird that is inside the camera frame');
+  nature.birdFrame.perches = createBirdPerches(nature.level);
+  a.callWait = 0;
+  nature.update(dt, { camera });
+  assert.deepEqual(nature.birdCalls, [{ x: 0, y: 2.6, z: 5 }]);
+  wall.geometry.dispose();
+  wall.material.dispose();
+  nature.dispose();
+});
+
+test('seeded birds start in foraging groups and an alarm ripples only to close partners', () => {
+  const nature = new MeadowNature(new THREE.Scene());
+  const level = { ...meadow(), bounds: { minX: -55, maxX: 55, minZ: -55, maxZ: 55 }, dog: { x: -50, z: -50 } };
+  nature.setLevel(level);
+  const flock = nature.birdFrame.birds;
+  assert.equal(flock.length, 6);
+  for (const group of [0, 1]) {
+    const members = flock.filter((a) => a.group === group);
+    assert.equal(members.length, 3);
+    assert.ok(members.every((a) => Math.hypot(a.x - members[0].x, a.z - members[0].z) < 4));
+  }
+  for (const [i, a] of flock.entries()) {
+    Object.assign(a, { x: i < 3 ? i * 1.8 : 24 + i * 1.8, z: 0, heading: Math.PI / 2 });
+  }
+  const departures = new Map();
+  for (let frame = 0; frame < 45; frame++) {
+    nature.update(dt, { dog: { x: -9.4, z: 0 } });
+    for (const a of flock) if (a.birdState === 'takeoff' && !departures.has(a.slot)) departures.set(a.slot, frame);
+  }
+  assert.equal(departures.get(0), 0);
+  assert.ok(departures.get(1) > 0 && departures.get(2) > 0 && departures.get(1) !== departures.get(2));
+  assert.ok(flock.slice(3).every((a) => a.birdState === 'forage'));
+  nature.dispose();
+});
+
+test('nearby livestock only startle foraging birds while moving quickly toward them', () => {
+  for (const type of ['sheep', 'cow']) {
+    for (const [vx, vz, isThreat] of [
+      [0, 0, false],
+      [0, 1, false],
+      [0, -4, false],
+      [4, 0, false],
+      [0, 4, true],
+    ]) {
+      const a = bird();
+      const livestock = { type, x: 0, z: -4, vx, vz };
+      stepWildlife(meadow(), a, dt, [livestock], 0, { severity: 0 });
+      assert.equal(a.birdState, isThreat ? 'takeoff' : 'forage');
+    }
+  }
+});
+
+test('an early elevated approach breaks away from a threat instead of flying toward the perch', () => {
+  const nature = new MeadowNature(new THREE.Scene());
+  const level = meadow();
+  const perches = createBirdPerches(level);
+  const anchor = { id: 'test-tree', kind: 'tree', x: 3, y: 3, z: 0, approach: { x: 1.5, y: 3.8, z: 0 }, heading: 0 };
+  perches.anchors.push(anchor);
+  nature.setLevel(level, perches);
+  const [a] = nature.birdFrame.birds;
+  Object.assign(a, {
+    x: -8,
+    z: 0,
+    heading: Math.PI / 2,
+    birdSeed: 2,
+    birdState: 'flight',
+    altitude: 3,
+    cruiseAltitude: 3,
+    flightRemaining: 0,
+    clearTime: 3,
+  });
+  nature.update(dt);
+  assert.equal(a.landing?.anchor, anchor);
+  nature.update(dt);
+  const x = a.x;
+  nature.update(dt, { dog: { x: 0, z: 0 } });
+  assert.equal(a.birdState, 'takeoff');
+  assert.equal(a.takeoffExit, null);
+  assert.ok(a.x <= x, 'the bird climbs and turns instead of continuing toward the threat');
+  nature.dispose();
+});
+
+test('a puddle that grows into a dry destination cancels the approach before contact', () => {
+  const nature = new MeadowNature(new THREE.Scene());
+  const level = meadow();
+  let wet = null;
+  nature.setLevel(level, null, (x, z) => wet && Math.hypot(x - wet.x, z - wet.z) < 0.75);
+  const [a] = nature.birdFrame.birds;
+  Object.assign(a, {
+    x: 0,
+    z: 0,
+    birdState: 'flight',
+    altitude: 3,
+    cruiseAltitude: 3,
+    flightRemaining: 0,
+    clearTime: 3,
+  });
+  nature.update(dt);
+  assert.equal(a.birdState, 'landing');
+  wet = a.landing.end;
+  nature.update(dt);
+  assert.equal(a.birdState, 'takeoff');
+  assert.ok(a.altitude > 2.5);
   nature.dispose();
 });

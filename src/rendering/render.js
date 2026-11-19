@@ -18,6 +18,9 @@ import { generateBushClusters } from './environment/vegetation.js';
 import { setTailLightBarking } from './animation/tail-light.js';
 import { WaterEffects } from './water/water-effects.js';
 import { MeadowNature } from './environment/nature.js';
+import { createBirdPerches } from './environment/bird-perches.js';
+import { createWeatherState } from './weather/weather.js';
+import { wildlifePopulation } from './environment/wildlife.js';
 import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
 import { ThrusterGroundGlow } from './animation/thruster-glow.js';
@@ -313,6 +316,9 @@ export class MeadowRenderer {
     this.nature = new MeadowNature(this.scene);
     this.waterEffects = new WaterEffects(this.scene);
   }
+  get birdCalls() {
+    return this.nature.birdCalls;
+  }
   resize() {
     this.width = innerWidth;
     this.height = innerHeight;
@@ -394,6 +400,7 @@ export class MeadowRenderer {
       treeRotation = rng(level.seed ^ 0x746565),
       cx = (b.maxX + b.minX) / 2,
       cz = (b.maxZ + b.minZ) / 2;
+    const birdScenery = { trees: [], fences: [], blockers: [] };
     const ground = new THREE.Mesh(meadowGeometry(level, w + 90, d + 90, cx, cz), this.grass);
     ground.name = 'Meadow ground';
     ground.receiveShadow = true;
@@ -500,6 +507,7 @@ export class MeadowRenderer {
         });
         g.rotation.y = bridge.heading;
         this.place(g, bridge.x, bridge.z, 1, true);
+        birdScenery.blockers.push(g);
         if (level.terrain?.enabled) g.position.y = 0;
       }
     }
@@ -564,16 +572,18 @@ export class MeadowRenderer {
         }
       } else if (kind === 'target' && t.type === 'field') {
         // Visible low fence defines the exact collision line; plants soften it.
-        this.placeFence(a, b);
+        birdScenery.fences.push(this.placeFence(a, b));
         const steps = Math.ceil(len / 1.4);
         for (let i = 0; i < steps; i++)
-          this.place(
-            createBush(i),
-            a.x + ((b.x - a.x) * (i + 0.5)) / steps,
-            a.z + ((b.z - a.z) * (i + 0.5)) / steps,
-            0.75,
+          birdScenery.blockers.push(
+            this.place(
+              createBush(i),
+              a.x + ((b.x - a.x) * (i + 0.5)) / steps,
+              a.z + ((b.z - a.z) * (i + 0.5)) / steps,
+              0.75,
+            ),
           );
-      } else this.placeFence(a, b);
+      } else birdScenery.fences.push(this.placeFence(a, b));
     }
     this.gateView = createGateView(level.gates, groundAt);
     this.stoneView = createStoneWallView(level.fenceSegments, groundAt);
@@ -633,6 +643,7 @@ export class MeadowRenderer {
       roof.position.set(t.x, 0, t.z);
       roof.rotation.y = t.heading || 0;
       this.terrain.add(roof);
+      birdScenery.roof = roof;
       structure.push(roof);
       this.cutaway = new StructureCutaway(t, structure, { halfExtent: s + 0.3 });
     }
@@ -644,21 +655,24 @@ export class MeadowRenderer {
     sign.userData.ownedLabel = true;
     this.destinationSign = sign;
     this.terrain.add(sign);
-    this.addPastureRocks(groundAt);
+    birdScenery.blockers.push(this.addPastureRocks(groundAt));
+    birdScenery.blockers.push(...structure.filter((object) => object !== birdScenery.roof));
     for (const obstacle of level.obstacles) {
       if (obstacle.kind === 'rock') continue;
       const treeScale = obstacle.radius * 1.45;
       const tree = createTree(Math.floor(r() * 3), treeScale < 1.7 ? 0 : treeScale < 2.4 ? 1 : 2);
       tree.rotation.y = treeRotation() * Math.PI * 2;
-      this.place(tree, obstacle.x, obstacle.z, treeScale);
+      birdScenery.trees.push(this.place(tree, obstacle.x, obstacle.z, treeScale));
       // A rounded root hedge shows the otherwise invisible tree collision disk.
       for (let i = 0; i < 4; i++) {
         const angle = (i * Math.PI) / 2;
-        this.place(
-          createBush(i),
-          obstacle.x + Math.cos(angle) * obstacle.radius * 0.48,
-          obstacle.z + Math.sin(angle) * obstacle.radius * 0.48,
-          obstacle.radius * 0.7,
+        birdScenery.blockers.push(
+          this.place(
+            createBush(i),
+            obstacle.x + Math.cos(angle) * obstacle.radius * 0.48,
+            obstacle.z + Math.sin(angle) * obstacle.radius * 0.48,
+            obstacle.radius * 0.7,
+          ),
         );
       }
     }
@@ -797,16 +811,21 @@ export class MeadowRenderer {
       this.place(tree, x, z, treeScale);
     }
     this.bushPlacements = generateBushClusters(level);
-    for (const b of this.bushPlacements) this.place(createBush(b.variant), b.x, b.z, b.scale);
-    this.nature.setLevel(level);
+    for (const b of this.bushPlacements)
+      birdScenery.blockers.push(this.place(createBush(b.variant), b.x, b.z, b.scale));
+    const perches = wildlifePopulation(level).bird
+      ? createBirdPerches(level, { ...birdScenery, stoneWalls: this.stoneView, gateView: this.gateView })
+      : null;
+    const weather = createWeatherState(level);
     this.waterEffects.setLevel(level, {
       grassMaterials: [this.grass],
       pathMaterials: [this.path, roadCore],
       waterMaterial: this.water,
       terrain: this.terrain,
       rivers: riverViews,
-      weather: this.nature.weather,
+      weather,
     });
+    this.nature.setLevel(level, perches, (x, z) => !!this.waterEffects.puddleAt(x, z), weather);
     this.terrain.updateMatrixWorld(true);
     this.viewShadows.maxHeight = Math.max(12, new THREE.Box3().setFromObject(this.terrain).max.y + 1);
     this.batchScenery();
@@ -951,12 +970,14 @@ export class MeadowRenderer {
           (start.z + end.z) / 2,
           delta.length() + 0.03,
         );
+        rail.userData.birdRail = y > 0.5;
         rail.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), delta.normalize());
         // Reuse the full vector for the second rail after normalization.
         delta.set(end.x - start.x, last - first, end.z - start.z);
       }
     }
     this.terrain.add(group);
+    return group;
   }
   /** A seeded shared shape bounds submissions; larger clumps use fewer sites.
    * Keep total stems near the previous density so eleven-blade variants do not
@@ -1022,6 +1043,7 @@ export class MeadowRenderer {
     batch.userData.pastureRocks = batch.userData.ownedGeometry = batch.userData.ownedMaterial = true;
     this.terrain.add(batch);
     this.trackScenery(batch);
+    return batch;
   }
   trackScenery(batch) {
     // Three.js culls an InstancedMesh as one sphere. Keep immutable poses and
@@ -1406,7 +1428,7 @@ export class MeadowRenderer {
       dt,
     );
     this.staticShadows.enforceStaticCasters();
-    this.nature.update(dt, { dog, animals: level.animals, camera: this.camera, time: this.time, paused: dt <= 0 });
+    const natureStep = this.nature.advanceWeather(dt, dt <= 0);
     const weather = this.nature.weather;
     this.waterEffects.update(dt, {
       weather,
@@ -1417,6 +1439,7 @@ export class MeadowRenderer {
       ],
       paused: dt <= 0,
     });
+    this.nature.updateEffects(natureStep, { dog, animals: level.animals, camera: this.camera, paused: dt <= 0 });
     this.sun.intensity = PRESENTATION.lighting.sunIntensity * weather.daylight + weather.lightningFlash;
     this.hemisphere.intensity =
       PRESENTATION.lighting.hemisphereIntensity * weather.daylight +

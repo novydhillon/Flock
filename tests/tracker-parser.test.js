@@ -142,7 +142,7 @@ test('active duplicate wins, escaped pipes do not shift fields, CRLF is accepted
   assert.equal(tasks[0].depends, '—');
 });
 
-test('real main tracker rows remain unique, complete and historically scoped', () => {
+test('repository tracker rows remain unique, complete and historically scoped', () => {
   const active = readFileSync(new URL('../docs/ISSUES.md', import.meta.url), 'utf8');
   const closed = readFileSync(new URL('../docs/ISSUES_CLOSED.md', import.meta.url), 'utf8');
   const tasks = parseTracker(active, closed);
@@ -162,6 +162,8 @@ test('real main tracker rows remain unique, complete and historically scoped', (
   assert.ok(map.get('F-053').branches.includes('pip_update'));
   assert.ok(map.get('F-033').branches.includes('stone_wall'));
   assert.ok(!map.get('F-053').branches.includes('stone_wall'));
-  assert.deepEqual(map.get('F-BIRD-001').branches, []);
+  for (const id of ['001', '002', '003', '005', '009', '010'])
+    assert.deepEqual(map.get(`F-BIRD-${id}`).branches, ['feat/bird-behavior']);
+  assert.deepEqual(map.get('F-BIRD-004').branches, []);
   assert.match(map.get('F-BIRD-001').details, /reproducible/);
 });

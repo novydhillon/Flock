@@ -1,5 +1,6 @@
 import { canOccupy } from '../../world/world.js';
 import { createWeatherState } from '../weather/weather.js';
+import { birdLandingPositionSafe as safeBirdLanding, stepBird } from './bird-behavior.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -102,239 +103,9 @@ export function wildlifePositionSafe(level, p, threats = [], margin = 0.45) {
   );
 }
 
-/** Landing checks include the full river footprint, even where gameplay permits
- * bridge traversal. Birds forage on dry ground, never on a water surface. */
-export function birdLandingPositionSafe(level, p, threats = [], occupancy = wildlifeGroundPositionSafe) {
-  if (!occupancy(level, p, 0) || threats.some((threat) => distance(p, threat) < 12)) return false;
-  for (const river of level.rivers || []) {
-    for (let i = 1; i < river.points.length; i++) {
-      const a = river.points[i - 1],
-        b = river.points[i],
-        dx = b.x - a.x,
-        dz = b.z - a.z;
-      const t = clamp(((p.x - a.x) * dx + (p.z - a.z) * dz) / (dx * dx + dz * dz || 1), 0, 1);
-      if (Math.hypot(p.x - a.x - dx * t, p.z - a.z - dz * t) < river.width / 2 + 0.5) return false;
-    }
-  }
-  return true;
-}
-
-const smooth = (t) => t * t * (3 - 2 * t);
-function birdRandom(level, bird) {
-  bird.birdSeed =
-    (Math.imul(
-      bird.birdSeed ?? (level.seed || 42) ^ 0x42495244 ^ Math.imul((bird.slot || 0) + 1, 1013904223),
-      1664525,
-    ) +
-      1013904223) >>>
-    0;
-  return bird.birdSeed / 4294967296;
-}
-function birdTakeoff(level, bird) {
-  bird.birdState = 'takeoff';
-  bird.birdStateTime = 0;
-  bird.altitude = Math.max(bird.altitude || 0, bird.hopHeight || 0);
-  bird.takeoffAltitude = bird.altitude;
-  bird.cruiseAltitude = Math.max(bird.altitude, 2.6 + birdRandom(level, bird) * 0.8);
-  bird.flightRemaining = 3.5 + birdRandom(level, bird) * 3;
-  bird.landingX = bird.landingZ = undefined;
-  bird.hopElapsed = undefined;
-  bird.hopHeight = 0;
-  bird.peckElapsed = undefined;
-  bird.peck = 0;
-}
-function birdForage(level, bird) {
-  bird.birdState = 'forage';
-  bird.birdStateTime = 0;
-  bird.altitude = 0;
-  bird.forageRemaining = 5 + birdRandom(level, bird) * 7;
-  bird.gestureWait = 0.3 + birdRandom(level, bird) * 1.2;
-  bird.hopHeight = 0;
-  bird.peck = 0;
-  bird.hopElapsed = bird.peckElapsed = undefined;
-  bird.landingX = bird.landingZ = undefined;
-}
-function birdFlightMove(level, bird, dt, dx, dz, speed) {
-  const b = level.bounds;
-  if (bird.x < b.minX + 2 || bird.x > b.maxX - 2 || bird.z < b.minZ + 2 || bird.z > b.maxZ - 2) {
-    dx += ((b.minX + b.maxX) / 2 - bird.x) * 0.5;
-    dz += ((b.minZ + b.maxZ) / 2 - bird.z) * 0.5;
-  }
-  if (Math.hypot(dx, dz) < 0.01) {
-    dx = Math.sin(bird.heading || 0);
-    dz = Math.cos(bird.heading || 0);
-  }
-  const desired = Math.atan2(dx, dz),
-    heading = bird.heading || 0;
-  const turn = Math.atan2(Math.sin(desired - heading), Math.cos(desired - heading));
-  bird.heading = heading + clamp(turn, -dt * 4.5, dt * 4.5);
-  bird.x = clamp(bird.x + Math.sin(bird.heading) * speed * dt, b.minX + 0.6, b.maxX - 0.6);
-  bird.z = clamp(bird.z + Math.cos(bird.heading) * speed * dt, b.minZ + 0.6, b.maxZ - 0.6);
-}
-function birdLandingSite(level, bird, threats, occupancy) {
-  // Failed searches leave the bird flying and defer the next bounded search.
-  for (let i = 0; i < 24; i++) {
-    const angle = (bird.heading || 0) + (birdRandom(level, bird) - 0.5) * 1.8,
-      radius = 2.5 + birdRandom(level, bird) * 6;
-    const p = { x: bird.x + Math.sin(angle) * radius, z: bird.z + Math.cos(angle) * radius };
-    let safe = birdLandingPositionSafe(level, p, threats, occupancy);
-    const steps = Math.ceil(radius / 0.5);
-    for (let j = 1; j < steps && safe; j++)
-      safe = birdLandingPositionSafe(
-        level,
-        { x: bird.x + ((p.x - bird.x) * j) / steps, z: bird.z + ((p.z - bird.z) * j) / steps },
-        threats,
-        occupancy,
-      );
-    if (safe) return p;
-  }
-  return null;
-}
-function stepBird(level, bird, dt, threats, weather, occupancy) {
-  if (!bird.birdState) birdForage(level, bird);
-  bird.altitude ??= bird.birdState === 'forage' ? 0 : 3;
-  bird.birdStateTime = (bird.birdStateTime || 0) + dt;
-  const oldX = bird.x,
-    oldZ = bird.z,
-    severity = clamp(Number(weather?.severity) || 0, 0, 1);
-  if (severity >= 0.64) bird.sheltering = true;
-  else if (severity < 0.52) bird.sheltering = false;
-  let dx = 0,
-    dz = 0,
-    flee = false;
-  for (const threat of threats) {
-    const d = distance(bird, threat);
-    if (d >= 10) continue;
-    flee = true;
-    dx += ((bird.x - threat.x) / Math.max(0.1, d)) * (10 - d);
-    dz += ((bird.z - threat.z) / Math.max(0.1, d)) * (10 - d);
-  }
-  if (flee) {
-    bird.alertTimer = 1.15;
-    bird.clearTime = 0;
-    bird.shelter = Math.max(0, (bird.shelter || 0) - dt * 3.5);
-    bird.hidden = false;
-    if (bird.birdState === 'forage' || bird.birdState === 'landing') birdTakeoff(level, bird);
-  } else {
-    bird.alertTimer = Math.max(0, (bird.alertTimer || 0) - dt);
-    bird.clearTime = (bird.clearTime || 0) + dt;
-    bird.shelter = clamp((bird.shelter || 0) + dt * (bird.sheltering ? 0.32 : -0.48), 0, 1);
-    if (bird.sheltering) {
-      const point = shelterPoint(level, bird);
-      dx = point.x - bird.x;
-      dz = point.z - bird.z;
-      if (bird.birdState === 'forage' || bird.birdState === 'landing') birdTakeoff(level, bird);
-    }
-  }
-  bird.fleeing = flee;
-  bird.alert = flee || bird.alertTimer > 0;
-  bird.hidden = bird.shelter >= 0.995 && !flee;
-  if (bird.birdState === 'forage') {
-    if (!birdLandingPositionSafe(level, bird, [], occupancy) || (bird.forageRemaining -= dt) <= 0)
-      birdTakeoff(level, bird);
-    else if (bird.hopElapsed !== undefined) {
-      bird.hopElapsed += dt;
-      const t = clamp(bird.hopElapsed / 0.34, 0, 1);
-      bird.x = bird.hopStartX + (bird.hopX - bird.hopStartX) * t;
-      bird.z = bird.hopStartZ + (bird.hopZ - bird.hopStartZ) * t;
-      bird.hopHeight = Math.sin(t * Math.PI) * 0.17;
-      if (t === 1) {
-        bird.hopElapsed = undefined;
-        bird.hopHeight = 0;
-        bird.gestureWait = 0.3 + birdRandom(level, bird) * 0.9;
-      }
-    } else if (bird.peckElapsed !== undefined) {
-      bird.peckElapsed += dt;
-      const t = clamp(bird.peckElapsed / 0.48, 0, 1);
-      bird.peck = Math.sin(t * Math.PI) ** 2;
-      if (t === 1) {
-        bird.peckElapsed = undefined;
-        bird.peck = 0;
-        bird.gestureWait = 0.35 + birdRandom(level, bird) * 1.2;
-      }
-    } else if ((bird.gestureWait -= dt) <= 0) {
-      if (birdRandom(level, bird) < 0.4) {
-        const heading = (bird.heading || 0) + (birdRandom(level, bird) - 0.5) * 2,
-          length = 0.45 + birdRandom(level, bird) * 0.55;
-        const p = { x: bird.x + Math.sin(heading) * length, z: bird.z + Math.cos(heading) * length };
-        // Sample the entire short hop so it cannot cross a narrow wet/solid strip.
-        let safe = true;
-        for (let i = 1; i <= 5 && safe; i++)
-          safe = birdLandingPositionSafe(
-            level,
-            { x: bird.x + ((p.x - bird.x) * i) / 5, z: bird.z + ((p.z - bird.z) * i) / 5 },
-            threats,
-            occupancy,
-          );
-        if (safe) {
-          bird.hopStartX = bird.x;
-          bird.hopStartZ = bird.z;
-          bird.hopX = p.x;
-          bird.hopZ = p.z;
-          bird.hopElapsed = 0;
-          bird.heading = heading;
-        } else bird.gestureWait = 0.6;
-      } else bird.peckElapsed = 0;
-    }
-  }
-  if (bird.birdState === 'takeoff') {
-    const t = clamp(bird.birdStateTime / 0.75, 0, 1);
-    bird.altitude = bird.takeoffAltitude + (bird.cruiseAltitude - bird.takeoffAltitude) * smooth(t);
-    birdFlightMove(level, bird, dt, dx, dz, 2.8 + t * 2.4);
-    if (t === 1) {
-      bird.birdState = 'flight';
-      bird.birdStateTime = 0;
-    }
-  } else if (bird.birdState === 'flight') {
-    bird.altitude += ((bird.cruiseAltitude || 3) - bird.altitude) * Math.min(1, dt * 3);
-    bird.courseRemaining = (bird.courseRemaining || 0) - dt;
-    if (bird.courseRemaining <= 0) {
-      bird.course = (bird.heading || 0) + (birdRandom(level, bird) - 0.5) * 1.8;
-      bird.courseRemaining = 1 + birdRandom(level, bird) * 2;
-    }
-    if (!flee && !bird.sheltering) {
-      dx = Math.sin(bird.course);
-      dz = Math.cos(bird.course);
-    }
-    birdFlightMove(level, bird, dt, dx, dz, flee ? 5.2 : 3.2);
-    bird.flightRemaining = (bird.flightRemaining ?? 4) - dt;
-    bird.landingRetry = Math.max(0, (bird.landingRetry || 0) - dt);
-    if (!flee && !bird.sheltering && bird.clearTime >= 2.5 && bird.flightRemaining <= 0 && bird.landingRetry === 0) {
-      const point = birdLandingSite(level, bird, threats, occupancy);
-      bird.landingRetry = 1.5;
-      if (point) {
-        bird.birdState = 'landing';
-        bird.birdStateTime = 0;
-        bird.landingX = point.x;
-        bird.landingZ = point.z;
-        bird.landingStartX = bird.x;
-        bird.landingStartZ = bird.z;
-        bird.landingAltitude = bird.altitude;
-        bird.landingDuration = Math.max(1.5, (distance(bird, point) * 2) / 3.2);
-      }
-    }
-  } else if (bird.birdState === 'landing') {
-    if (!birdLandingPositionSafe(level, { x: bird.landingX, z: bird.landingZ }, threats, occupancy))
-      birdTakeoff(level, bird);
-    else {
-      const t = clamp(bird.birdStateTime / bird.landingDuration, 0, 1),
-        travel = 1 - (1 - t) ** 2;
-      const desired = Math.atan2(bird.landingX - bird.landingStartX, bird.landingZ - bird.landingStartZ),
-        turn = Math.atan2(Math.sin(desired - bird.heading), Math.cos(desired - bird.heading));
-      bird.heading += clamp(turn, -dt * 4.5, dt * 4.5);
-      bird.x = bird.landingStartX + (bird.landingX - bird.landingStartX) * travel;
-      bird.z = bird.landingStartZ + (bird.landingZ - bird.landingStartZ) * travel;
-      bird.altitude = bird.landingAltitude * (1 - smooth(t));
-      if (t === 1) birdForage(level, bird);
-    }
-  }
-  bird.moving = Math.hypot(bird.x - oldX, bird.z - oldZ) > 0.001;
-  return bird;
-}
-
 // The thresholds leave ordinary wind and light rain populated. Small
 // invertebrates retreat first, followed by squirrels, birds, then rabbits.
-const shelterThreshold = { butterfly: 0.54, squirrel: 0.58, bird: 0.64, rabbit: 0.76 };
+const shelterThreshold = { butterfly: 0.54, squirrel: 0.58, rabbit: 0.76 };
 function shelterPoint(level, animal) {
   let nearest = null,
     nearestDistance = 18;
@@ -362,6 +133,10 @@ function randomizeWaypoint(animal) {
   animal.waitTimer = 0;
 }
 
+export function birdLandingPositionSafe(level, point, threats = [], occupancy = wildlifeGroundPositionSafe) {
+  return safeBirdLanding(level, point, threats, occupancy);
+}
+
 /** Pausable, deterministic wander/alert/shelter motion. Fauna never pushes
  * flock members; regular fence lines and dry roads are traversable. */
 export function stepWildlife(
@@ -372,6 +147,7 @@ export function stepWildlife(
   time = 0,
   weather = level.weather,
   occupancy = wildlifeGroundPositionSafe,
+  birdFrame,
 ) {
   // Keep the former sixth-argument occupancy hook working for existing callers.
   const legacyOccupancy = typeof weather === 'function';
@@ -388,6 +164,8 @@ export function stepWildlife(
       threats,
       weather,
       legacyOccupancy ? (l, p) => occupancy(l, p.x, p.z, 0.4) : occupancy,
+      shelterPoint,
+      birdFrame,
     );
   const oldX = animal.x,
     oldZ = animal.z;
@@ -395,7 +173,7 @@ export function stepWildlife(
   const threshold = shelterThreshold[animal.kind] ?? 0.64;
   if (severity >= threshold) animal.sheltering = true;
   else if (severity < threshold - 0.12) animal.sheltering = false;
-  const threatRadius = animal.kind === 'bird' ? 10 : animal.kind === 'butterfly' ? 6 : 7.5;
+  const threatRadius = animal.kind === 'butterfly' ? 6 : 7.5;
   let flee = false,
     dx = 0,
     dz = 0;
