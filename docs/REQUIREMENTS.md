@@ -736,3 +736,10 @@ F-TERRAIN-BANK-001 preserves the requested compact raised bridge approaches, var
 ## Odd vegetation clumps — 9 November 2026
 
 F-VEG-001: modeled grass and reeds always form odd clumps of3–11 stems, with mixed heights within and between clumps. Applies to field, bank, rough pasture and water vegetation. Broaden water-grass bank distance variation while retaining edge preference. Eligible water bodies get denser grass/reed coverage (30-clump cap,22m² per target clump); retain independent seeded20% eligibility, shadow-free plants, curved downstream reeds, bridge/footprint safety and bounded resources.
+
+## Dog roster requirement references
+
+- F-DOG-001 records the model and animation requirements for Pip and Buddy.
+- F-DOG-002 records ten additional breeds, including pug, Chihuahua and Newfoundland, with distinct speeds and capabilities, upgrades and boosts.
+
+See the [active issue tracker](ISSUES.md) for acceptance criteria.
