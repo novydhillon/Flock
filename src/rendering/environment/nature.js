@@ -333,21 +333,22 @@ export class MeadowNature {
           );
         }
       } else {
+        const size = 0.75 * visibility;
         this.pose(
           this.batches[`${a.kind}Body`],
           a.slot,
           a.x,
           y,
           a.z,
-          0.075 * visibility,
-          0.06 * visibility,
-          0.12 * visibility,
+          0.075 * size,
+          0.06 * size,
+          0.12 * size,
           a.heading,
         );
         const flap = 0.25 + Math.sin(now * 18 + a.phase) * 0.8;
-        const wingLength = 0.22 * visibility;
-        const hingeX = 0.054 * visibility;
-        const hingeY = y + 0.025 * visibility;
+        const wingLength = 0.22 * size;
+        const hingeX = 0.054 * size;
+        const hingeY = y + 0.025 * size;
         const reach = hingeX + Math.cos(flap) * wingLength;
         const yawX = Math.cos(a.heading);
         const yawZ = -Math.sin(a.heading);
@@ -361,8 +362,8 @@ export class MeadowNature {
             hingeY + Math.sin(flap) * wingLength,
             a.z + sign * yawZ * reach,
             wingLength,
-            0.025 * visibility,
-            0.16 * visibility,
+            0.025 * size,
+            0.16 * size,
             a.heading,
             sign * flap,
           );

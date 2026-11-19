@@ -354,13 +354,21 @@ test('butterfly wings reverse in phase about body-local hinges and freeze on pau
     nature.time = time;
     nature.update(0);
     body.getMatrixAt(a.slot, matrix);
+    const expectedSize = new THREE.Vector3(0.075, 0.06, 0.12).multiplyScalar(0.75);
+    assert.ok(new THREE.Vector3().setFromMatrixScale(matrix).distanceTo(expectedSize) < 1e-6);
     const center = new THREE.Vector3().setFromMatrixPosition(matrix);
     return [-1, 1].map((sign, side) => {
       wing.getMatrixAt(a.slot * 2 + side, matrix);
+      const expectedWingSize = new THREE.Vector3(0.22, 0.025, 0.16).multiplyScalar(0.75);
+      assert.ok(new THREE.Vector3().setFromMatrixScale(matrix).distanceTo(expectedWingSize) < 1e-6);
       const root = new THREE.Vector3(-sign, 0, 0).applyMatrix4(matrix);
       const expected = center
         .clone()
-        .add(new THREE.Vector3(sign * 0.054 * Math.cos(heading), 0.025, -sign * 0.054 * Math.sin(heading)));
+        .add(
+          new THREE.Vector3(sign * 0.054 * Math.cos(heading), 0.025, -sign * 0.054 * Math.sin(heading)).multiplyScalar(
+            0.75,
+          ),
+        );
       assert.ok(root.distanceTo(expected) < 1e-5, 'wing stays attached through the stroke and heading changes');
       return new THREE.Vector3(sign, 0, 0).applyMatrix4(matrix).y - root.y;
     });
@@ -368,8 +376,8 @@ test('butterfly wings reverse in phase about body-local hinges and freeze on pau
   for (const heading of [0, Math.PI / 2, -2.1]) {
     const up = sample(heading, Math.PI / 36);
     const down = sample(heading, (3 * Math.PI) / 36);
-    assert.ok(up.every((height) => height > 0.3));
-    assert.ok(down.every((height) => height < -0.18));
+    assert.ok(up.every((height) => height > 0.225));
+    assert.ok(down.every((height) => height < -0.135));
   }
   const frozen = wing.instanceMatrix.array.slice();
   nature.update(0.065, { paused: true });

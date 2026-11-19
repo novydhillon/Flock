@@ -98,7 +98,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 **User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
 
-**Accept when:** Both wings visibly flap back and forth around their body attachments during flight. Preserve movement and pause/resume. Include yellow, orange, blue, purple and pink butterflies.
+**Accept when:** Both wings visibly flap back and forth around their body attachments during flight. Preserve movement and pause/resume. Include yellow, orange, blue, purple and pink butterflies. Scale the body and wings to 75% of the initial Dev preview size, including the wing hinge offsets.
 
 **Validation:** Matrix tests verify attached, bounded strokes at several flight headings, pause/resume and seeded color pairs. On a meadow with active butterflies, inspect at normal gameplay zoom for visible flapping and readable colors. Rendered acceptance remains pending.
 
