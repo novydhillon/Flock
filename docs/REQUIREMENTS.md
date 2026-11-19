@@ -695,7 +695,7 @@ Some in-water reeds now have a gentle quadratic bend in the local downstream dir
 
 ## Butterfly wing motion — 29 October 2026
 
-F-BUTTERFLY-001 remains Open: butterfly wings should flap back and forth about their body attachments rather than continuously spin. Preserve flight and pause/resume; rendered verification remains pending. This records the existing main tracker requirement without implementing the fix.
+F-BUTTERFLY-001 requires bounded, alternating flaps around the butterfly's body attachments during flight. Preserve movement and pause/resume. Use the seeded yellow, orange, blue, purple and pink palette. Rendered verification remains pending.
 
 ## Rolling terrain design agreement — 29 October 2026
 

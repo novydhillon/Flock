@@ -4,6 +4,7 @@ import { createWeatherState, stepWeather, weatherForLevel } from '../weather/wea
 import { wildlifePopulation, wildlifePositionSafe, stepWildlife } from './wildlife.js';
 import { wildlifeParts, wildlifeBodyGeometry, birdWingGeometry } from './wildlife-models.js';
 import { RainView } from '../weather/rain-view.js';
+const butterflyColors = ['#f6da4f', '#f28a35', '#4d9eee', '#9962d9', '#ed79af'];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function seeded(seed) {
   let s = seed >>> 0;
@@ -125,12 +126,26 @@ export class MeadowNature {
         this.own(new THREE.MeshStandardMaterial({ color: '#65523f', roughness: 1 })),
         counts.butterfly,
       );
-      this.batch(
+      const wings = this.batch(
         'butterflyWing',
         sphere,
-        this.own(new THREE.MeshStandardMaterial({ color: '#f2ac75', roughness: 1 })),
+        this.own(new THREE.MeshStandardMaterial({ roughness: 1 })),
         counts.butterfly * 2,
       );
+      // Shuffle once per meadow on a separate stream so colors do not alter wildlife placement.
+      const palette = [...butterflyColors];
+      const colorRandom = seeded((level.seed ?? 42) ^ 0x42555454);
+      for (let i = palette.length - 1; i > 0; i--) {
+        const j = Math.floor(colorRandom() * (i + 1));
+        [palette[i], palette[j]] = [palette[j], palette[i]];
+      }
+      const tint = new THREE.Color();
+      for (let i = 0; i < counts.butterfly; i++) {
+        tint.set(palette[i % palette.length]);
+        wings.setColorAt(i * 2, tint);
+        wings.setColorAt(i * 2 + 1, tint);
+      }
+      wings.instanceColor.needsUpdate = true;
     }
     for (const kind of ['squirrel', 'rabbit']) {
       const count = counts[kind] || 0;
@@ -329,19 +344,27 @@ export class MeadowNature {
           0.12 * visibility,
           a.heading,
         );
+        const flap = 0.25 + Math.sin(now * 18 + a.phase) * 0.8;
+        const wingLength = 0.22 * visibility;
+        const hingeX = 0.054 * visibility;
+        const hingeY = y + 0.025 * visibility;
+        const reach = hingeX + Math.cos(flap) * wingLength;
+        const yawX = Math.cos(a.heading);
+        const yawZ = -Math.sin(a.heading);
         for (let side = 0; side < 2; side++) {
-          const flap = Math.sin(now * 18 + a.phase) * 0.85;
+          const sign = side === 0 ? -1 : 1;
+          // Rotate each wing about its inner edge in body space, then apply flight heading.
           this.pose(
-            this.batches[`${a.kind}Wing`],
+            this.batches.butterflyWing,
             a.slot * 2 + side,
-            a.x + (side ? 1 : -1) * 0.15,
-            y + 0.04,
-            a.z,
-            0.22 * visibility,
+            a.x + sign * yawX * reach,
+            hingeY + Math.sin(flap) * wingLength,
+            a.z + sign * yawZ * reach,
+            wingLength,
             0.025 * visibility,
             0.16 * visibility,
             a.heading,
-            (side ? 1 : -1) * flap,
+            sign * flap,
           );
         }
       }

@@ -27,7 +27,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Open | Existing dog gameplay |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
-| F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
+| F-BUTTERFLY-001 | P2 | Animation bug | Hinged wing flaps and five butterfly colors | Review | Existing butterfly presentation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
@@ -90,17 +90,17 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 **Scope:** Tracker addition only; implementation and device validation remain pending.
 
 
-### F-BUTTERFLY-001 — Butterfly wings should flap instead of spinning
+### F-BUTTERFLY-001 — Butterfly wing flaps and colors
 
-**Status:** Open. Owner: Unassigned.
+**Status:** Review. Owner: Codex.
 
-**Branch:** `unassigned`
+**Branch:** `feat/butterfly-wing-flap`
 
 **User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
 
-**Accept when:** Wings visibly flap back and forth around their attachment to the body, with bounded alternating motion rather than continuous full rotation. Verify at normal gameplay zoom and during butterfly flight, preserving existing movement and pause/resume behavior.
+**Accept when:** Both wings visibly flap back and forth around their body attachments during flight. Preserve movement and pause/resume. Include yellow, orange, blue, purple and pink butterflies.
 
-**Scope:** Tracker addition only; animation fix and rendered verification remain pending.
+**Validation:** Matrix tests verify attached, bounded strokes at several flight headings, pause/resume and seeded color pairs. On a meadow with active butterflies, inspect at normal gameplay zoom for visible flapping and readable colors. Rendered acceptance remains pending.
 
 
 ### F-015 — Performance verification gap

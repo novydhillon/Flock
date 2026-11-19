@@ -1,5 +1,10 @@
 # Flock revision quality record
 
+## Butterfly wing flap and palette — 18 November 2026
+
+F-BUTTERFLY-001 uses body-local hinges and a bounded mirrored stroke. A seeded shuffle assigns yellow, orange, blue, purple and pink tints within the existing wing instance batch. The first five slots use distinct colors without advancing the wildlife placement random stream. The focused nature suite passed 20 tests, including hinge attachment under changing headings, full flap reversal, pause/resume and reproducible paired colors. Implementation used the session model. Its exact model and effort metadata were unavailable. Rendered appearance and device acceptance remain pending.
+
+
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
 
 Branch: `feat/double-terrain-height`, base `3ac0dd95eaef7844ffe172e6527e60c54ddd7984`. Implementation: session model, identifier not recorded because the environment does not expose a verifiable root model identifier or effort setting; bounded camera configuration tuning. Lower Y from 36 to 27 and solve the Z offset from the original radius including the existing lookOffsetZ -2. No renderer algorithm, orthographic scale or follow-target changes. Same-session source inspection; independent blind review is not required for this bounded settings change and no independent score is claimed.
