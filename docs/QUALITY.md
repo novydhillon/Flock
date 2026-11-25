@@ -6,6 +6,10 @@ Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4
 
 
 
+### Meadow 16 regression correction
+
+Initial source CI run 45692080420 failed one of 623 game tests (45/50 animals delivered, level 16 seed 202). Astra Medium corrected aligned movement to use the exact normalized input vector after the turn; this removes lateral floating-point drift without changing speed-dependent steering or braking. Sol Medium independent review scored 9/10. It verified 80/80 targeted tests on each of Node 22.23.5 and Node 24.22.3, including all 50 deliveries in the original scenario. Final full checked build and source CI remain deployment prerequisites.
+
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
 
 Branch: `feat/double-terrain-height`, base `3ac0dd95eaef7844ffe172e6527e60c54ddd7984`. Implementation: session model, identifier not recorded because the environment does not expose a verifiable root model identifier or effort setting; bounded camera configuration tuning. Lower Y from 36 to 27 and solve the Z offset from the original radius including the existing lookOffsetZ -2. No renderer algorithm, orthographic scale or follow-target changes. Same-session source inspection; independent blind review is not required for this bounded settings change and no independent score is claimed.

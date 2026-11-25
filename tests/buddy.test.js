@@ -691,6 +691,21 @@ test('Pip and Buddy take wider ground arcs at running speed and retain their str
   }
 });
 
+test('aligned horizontal input moves Pip in either direction without drifting on the released axis', () => {
+  for (const direction of [-1, 1]) {
+    const level = meadow([]);
+    const dog = level.dog;
+    dog.heading = direction * (Math.PI / 2);
+    const startZ = dog.z;
+    for (let frame = 0; frame < 60; frame++) {
+      const previousX = dog.x;
+      stepSimulation(level, dog, { x: direction * 0.5 }, 1 / 60);
+      assert.ok(direction * (dog.x - previousX) > 0);
+      assert.equal(dog.z, startZ);
+    }
+  }
+});
+
 test('Pip can pivot on slight reverse input, release cleanly, and reach each unlocked upgrade speed', () => {
   const level = meadow([]);
   const dog = level.dog;

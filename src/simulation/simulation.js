@@ -82,7 +82,8 @@ function movePlayer(level, dog, input, dt, speedBoost) {
   const z = Number(input.z ?? input.y) || 0;
   const length = Math.hypot(x, z);
   const magnitude = Number.isFinite(length) ? Math.min(1, length) : 0;
-  let travel = 0;
+  let dx = 0,
+    dz = 0;
   if (magnitude > 0) {
     const target = Math.atan2(x, z);
     const speed = Math.hypot(dog.vx || 0, dog.vz || 0);
@@ -93,18 +94,20 @@ function movePlayer(level, dog, input, dt, speedBoost) {
     // moving into a sharp turn while it sheds speed and comes around.
     const requested = magnitude * (tuning.dogSpeed + speedBoost);
     const aligned = Math.max(0, Math.cos(target - dog.heading));
-    travel = Math.min(requested, Math.max(requested * aligned, speed - tuning.dogTurnBraking * dt)) * dt;
+    if (aligned === 1) {
+      // Once facing the stick, use its direction directly to avoid lateral drift.
+      dx = (x / length) * requested * dt;
+      dz = (z / length) * requested * dt;
+    } else {
+      const travel = Math.min(requested, Math.max(requested * aligned, speed - tuning.dogTurnBraking * dt)) * dt;
+      dx = Math.sin(dog.heading) * travel;
+      dz = Math.cos(dog.heading) * travel;
+    }
   }
   dog.heading ??= 0;
   const oldX = dog.x,
     oldZ = dog.z;
-  const collision = moveBody(
-    level,
-    dog,
-    Math.sin(dog.heading) * travel,
-    Math.cos(dog.heading) * travel,
-    tuning.dogRadius,
-  );
+  const collision = moveBody(level, dog, dx, dz, tuning.dogRadius);
   dog.vx = (dog.x - oldX) / dt;
   dog.vz = (dog.z - oldZ) / dt;
   return collision;

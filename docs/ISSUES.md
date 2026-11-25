@@ -68,6 +68,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 **Implementation — 25 November 2026:** Shared clay collie rig, grounded gait blend and idle poses, speed-dependent steering, puppy behavior, dog UI and regenerated icons. Independent review reached 9/10 after fixes for ground clipping, steady-turn paw drift and abrupt reversals. Native phone animation and performance remain awaiting playtest and sign-off.
 
+**Regression correction — 25 November 2026:** Source CI for the initial dog revision passed 622/623 tests; Meadow 16 seed 202 saved 45 of 50 under Node 22. Once Pip has completed a turn, movement now uses the normalized input vector directly, avoiding lateral floating-point drift while preserving turn arcs and braking. The original full-delivery assertions remain intact. Independent review scored 9/10; 80/80 targeted tests passed on both Node 22 and Node 24. Final full checked build and source CI are required before deployment.
+
 ### F-DOG-002 — Ten additional dog breeds and progression
 
 **Status:** Open. Owner: Unassigned.
