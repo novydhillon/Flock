@@ -24,7 +24,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Open | Existing dog gameplay |
+| F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Review | Existing dog gameplay |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
@@ -56,13 +56,17 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ### F-DOG-001 — Pip and Buddy dog models and animation
 
-**Status:** Open. Owner: Unassigned.
+**Status:** Review. Owner: Codex.
 
-**Branch:** `unassigned`
+**Branch:** `feat/clay-border-collies`
 
 **Request — 11 November 2026:** Replace Pip's robot model with a real dog in the claymation style, guided by [picture 1: model reference](https://chatgpt.com/library?file_id=libfile_8f164349a58c8191b78718b7d419d134&account_id=personal) and [picture 2: animation reference](https://chatgpt.com/library?file_id=libfile_9730d5a24fd081918e890bae9499b20b&account_id=personal). Buddy is a smaller, younger and more feisty version.
 
 **Accept when:** Pip's appearance follows the model reference, and expressive animations draw on the barking, sitting, rolled-over and play poses in the animation reference. Buddy reads as younger, smaller and feistier while remaining recognizable and readable at gameplay scale. Grounded locomotion and transitions suit the new dogs; preserve existing controls, herding behavior, collision and progression. Coordinate with F-COMP-004–006 and F-COMP-008. Verify animation, terrain contact and mobile performance in gameplay.
+
+**25 November 2026 reference clarification:** Use the multi-view turnaround (picture 2) for body proportions and the four-pose sheet (picture 1) for animation. Both dogs walk, run, blend gaits and make tighter turns at low speed. Idle actions include sitting, lying down, play bows, scratching and rolling. Buddy has a lower top speed and more energetic mannerisms.
+
+**Implementation — 25 November 2026:** Shared clay collie rig, grounded gait blend and idle poses, speed-dependent steering, puppy behavior, dog UI and regenerated icons. Independent review reached 9/10 after fixes for ground clipping, steady-turn paw drift and abrupt reversals. Native phone animation and performance remain awaiting playtest and sign-off.
 
 ### F-DOG-002 — Ten additional dog breeds and progression
 

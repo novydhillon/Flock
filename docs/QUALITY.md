@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## F-DOG-001 — Clay border collies — 25 November 2026
+
+Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4. Implementation delegated to GPT-6.2 Astra High, with the final fixes on Astra Medium; coordination by GPT-6.2 Sol. Independent review by GPT-6.1 Sol Medium: 7.5, 8.5, 7.5, then 9/10. Ground penetration, steady-turn contact and abrupt reversals were corrected. The recheck passed 58 targeted tests and measured drift below 9e-13 m/s at 30/60/120 Hz. Earlier checks: 119 locomotion tests, 16 tracker tests, 7 documentation tests. Release and development artifact guards passed. The game rendered on a headless Chromium portrait viewport before the final contact fixes. Native phone FPS, terrain contact in motion and visual acceptance remain pending. Full aggregate regression run was still pending at record time.
+
+
+
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
 
 Branch: `feat/double-terrain-height`, base `3ac0dd95eaef7844ffe172e6527e60c54ddd7984`. Implementation: session model, identifier not recorded because the environment does not expose a verifiable root model identifier or effort setting; bounded camera configuration tuning. Lower Y from 36 to 27 and solve the Z offset from the original radius including the existing lookOffsetZ -2. No renderer algorithm, orthographic scale or follow-target changes. Same-session source inspection; independent blind review is not required for this bounded settings change and no independent score is claimed.

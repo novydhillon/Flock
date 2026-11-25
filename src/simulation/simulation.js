@@ -22,6 +22,7 @@ import {
 } from '../world/world.js';
 import { flockGroups, updateBuddy } from './companions/buddy.js';
 import { canGrazeAt } from '../rendering/animation/grazing.js';
+import { turnToward } from './navigation/buddy-navigation.js';
 import { bridgeCrossing } from './navigation/bridge-crossing.js';
 import { yieldAtOpening } from './navigation/chokepoints.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
@@ -75,6 +76,40 @@ function clearSignal(level, a, b, radius = 0.15) {
   return hasClearGroundPath(level, a, b, radius);
 }
 
+function movePlayer(level, dog, input, dt, speedBoost) {
+  const tuning = GAMEPLAY.simulation;
+  const x = Number(input.x) || 0;
+  const z = Number(input.z ?? input.y) || 0;
+  const length = Math.hypot(x, z);
+  const magnitude = Number.isFinite(length) ? Math.min(1, length) : 0;
+  let travel = 0;
+  if (magnitude > 0) {
+    const target = Math.atan2(x, z);
+    const speed = Math.hypot(dog.vx || 0, dog.vz || 0);
+    const running = Math.min(1, speed / Math.max(0.01, tuning.dogSpeed));
+    const rate = tuning.dogPivotRate + (tuning.dogRunTurnRate - tuning.dogPivotRate) * running;
+    dog.heading = turnToward(dog.heading ?? target, target, rate, dt);
+    // Small stick deflections can pivot a resting dog. A running dog keeps
+    // moving into a sharp turn while it sheds speed and comes around.
+    const requested = magnitude * (tuning.dogSpeed + speedBoost);
+    const aligned = Math.max(0, Math.cos(target - dog.heading));
+    travel = Math.min(requested, Math.max(requested * aligned, speed - tuning.dogTurnBraking * dt)) * dt;
+  }
+  dog.heading ??= 0;
+  const oldX = dog.x,
+    oldZ = dog.z;
+  const collision = moveBody(
+    level,
+    dog,
+    Math.sin(dog.heading) * travel,
+    Math.cos(dog.heading) * travel,
+    tuning.dogRadius,
+  );
+  dog.vx = (dog.x - oldX) / dt;
+  dog.vz = (dog.z - oldZ) / dt;
+  return collision;
+}
+
 export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {}) {
   const effects = upgradeEffects(upgrades, level.index + 1);
   dt = clamp(Number(dt) || 0, 0, GAMEPLAY.simulation.maximumStepSeconds);
@@ -85,22 +120,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   const wanderCohort = prepareWanderCohort(level);
   roamSavedAnimals(level, dt, level.time);
   const events = [];
-  const ix = Number(input.x) || 0,
-    iz = Number(input.z ?? input.y) || 0;
-  const magnitude = Math.min(1, Math.hypot(ix, iz));
-  const direction = normal(ix, iz),
-    speed = GAMEPLAY.simulation.dogSpeed + effects.speedBoost;
-  const before = { x: dog.x, z: dog.z };
-  const dogCollision = moveBody(
-    level,
-    dog,
-    direction.x * magnitude * speed * dt,
-    direction.z * magnitude * speed * dt,
-    GAMEPLAY.simulation.dogRadius,
-  );
-  dog.vx = dt ? (dog.x - before.x) / dt : 0;
-  dog.vz = dt ? (dog.z - before.z) / dt : 0;
-  dog.heading = magnitude > 0.03 ? Math.atan2(direction.x, direction.z) : dog.heading || 0;
+  const dogCollision = movePlayer(level, dog, input, dt, effects.speedBoost);
   level.dog = dog;
   const active = level.animals.filter((a) => !a.saved);
   const companions = companionState(level, active, effects, dt);

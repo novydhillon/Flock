@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## F-DOG-001 — 25 November 2026
+
+Pip is an adult black-and-white clay border collie. Buddy is a smaller, livelier puppy with a lower sprint speed. Both blend from walking to running, turn more tightly at low speed, and can bark, sit, lie down, play bow, scratch and roll.
+
 ## Source organization - 10 November 2026
 
 F-ARCH-002: organize runtime source into folders by system and responsibility. Preserve the accepted F-PERF-002 code and performance, module behavior/dependency relationships, seeded outcomes, progress storage and graphics quality. Update imports, dynamic QA entry, CSS, HTML entry, tests, tools and current source links. Keep JavaScript formatted, Dev readable and live minified, with game/tracker delivery separate. Source-only work; no main merge or new deployment requested.

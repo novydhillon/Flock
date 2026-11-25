@@ -41,7 +41,7 @@ export function meadowSelectorHTML(profile, page) {
   return `<p id="meadow-range" role="status" aria-live="polite">Levels ${data.start}–${data.end} of 100</p><div class="meadow-key"><span>✓ Completed</span><span>● Current</span><span>🔒 Locked</span></div><div class="meadow-grid">${data.levels.map((item) => `<button data-level="${item.index}" class="${item.current ? 'current ' : ''}${item.completed ? 'completed' : ''}" aria-label="${item.label}" ${item.current ? 'aria-current="step"' : ''} ${item.locked ? 'disabled' : ''}>${item.index + 1}<small aria-hidden="true">${item.locked ? '🔒' : item.completed ? '✓' : item.current ? '●' : '·'}</small></button>`).join('')}</div><nav class="meadow-pagination" aria-label="Meadow pages"><button id="meadows-prev" ${data.page === 0 ? 'disabled' : ''}>Previous</button><span>${data.page + 1} / 5</span><button id="meadows-next" ${data.page === 4 ? 'disabled' : ''}>Next</button></nav>`;
 }
 const baseBenefits = {
-  speed: 'Standard paw motors',
+  speed: 'Standard running speed',
   flock: 'Standard herding range',
   helper: 'No Buddy companion',
   bark: 'Standard bark · one bark before cooldown',
@@ -241,6 +241,6 @@ function stepRestingActor(level, dog, state, dt, companions) {
   Object.assign(dog, next);
   if (distance < 0.15) {
     state.target = null;
-    state.rest = 2 + state.random() * 4;
+    state.rest = dog.type === 'helper' ? 2 + state.random() * 4 : 4 + state.random() * 6;
   }
 }

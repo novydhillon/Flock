@@ -70,6 +70,10 @@ export const CONFIG_CONTRACTS = freeze({
     simulation: {
       maximumStepSeconds: 'number',
       dogSpeed: 'number',
+      dogPivotRate: 'number',
+      dogRunTurnRate: 'number',
+      dogTurnBraking: 'number',
+      buddySpeedFraction: 'number',
       dogRadius: 'number',
       signalRadius: 'number',
       barkRadiusBoost: 'number',

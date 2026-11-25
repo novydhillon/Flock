@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## F-DOG-001 — 25 November 2026
+
+The dogs share an articulated clay rig. Rendering reads movement and bark state from gameplay to pose the legs, body, head, jaw, ears and tail. Each dog owns its animation clock. Buddy uses puppy proportions, a shorter stride and shorter idle intervals.
+
 ## Allocation cleanup without visual changes - 10 November 2026
 
 F-PERF-002 updates glow once after current Pip/Buddy transforms instead of twice. Rain reuses five vectors while retaining expression order, random draws, wrap logic and all drop counts. Goal-pointer rotation reuses renderer-owned quaternion/axis. No geometry density, shader quality, graphics settings or simulation step is reduced. Rain regression checks compare exact Float32 buffers/random state against the previous algorithm across 400 frames.

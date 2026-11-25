@@ -12,6 +12,30 @@
       "min": 0,
       "max": 30
     },
+    "dogPivotRate": {
+      "value": 12,
+      "_comment": "Maximum Pip turning rate near standstill, in radians per second.",
+      "min": 0.1,
+      "max": 24
+    },
+    "dogRunTurnRate": {
+      "value": 8,
+      "_comment": "Maximum Pip turning rate at base running speed and above, in radians per second.",
+      "min": 0.1,
+      "max": 24
+    },
+    "dogTurnBraking": {
+      "value": 30,
+      "_comment": "Maximum speed lost per second while turning sharply at a held stick magnitude, in world units per second squared.",
+      "min": 1,
+      "max": 100
+    },
+    "buddySpeedFraction": {
+      "value": 0.94,
+      "_comment": "Buddy's maximum ground speed as a fraction of Pip's base speed. Turbo paws upgrades Pip alone.",
+      "min": 0,
+      "max": 0.99
+    },
     "dogRadius": {
       "value": 0.62,
       "_comment": "Pip collision radius in world units; preserve generated passage clearance.",
