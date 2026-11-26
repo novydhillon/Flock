@@ -201,7 +201,7 @@ import { gateButtons, updateGateContacts } from '../src/simulation/gates.js';
 
 // This exercises actual scene/model/matrix construction. It substitutes the
 // GPU and Canvas drawing surface; it is not a rendered-pixel or FPS test.
-function setup({ width = 390, height = 844, treeYaw = true, settings = presentationSettings } = {}) {
+function setup({ width = 390, height = 844, pixelRatio = 2, treeYaw = true, settings = presentationSettings } = {}) {
   const draw = new Proxy(
     {
       createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4) }),
@@ -219,7 +219,11 @@ function setup({ width = 390, height = 844, treeYaw = true, settings = presentat
     setPixelRatio(ratio) {
       this.pixelRatio = ratio;
     }
-    setSize() {}
+    setSize(width, height, updateStyle) {
+      this.drawingBufferWidth = Math.floor(width * this.pixelRatio);
+      this.drawingBufferHeight = Math.floor(height * this.pixelRatio);
+      this.updateStyle = updateStyle;
+    }
     render(scene) {
       scene.updateMatrixWorld(true);
     }
@@ -281,7 +285,7 @@ function setup({ width = 390, height = 844, treeYaw = true, settings = presentat
     document,
     innerWidth: width,
     innerHeight: height,
-    devicePixelRatio: 2,
+    devicePixelRatio: pixelRatio,
     performance: { now: () => 1000 },
     requestAnimationFrame() {},
   };
@@ -2045,7 +2049,7 @@ test('both species lower complete instanced heads near grass, freeze, lift on pa
 
 test('presentation settings reach the real renderer budget, exposure and camera projection', () => {
   const settings = structuredClone(presentationSettings);
-  settings.renderer.pixelRatioCap.value = 0.9;
+  settings.renderer.renderScale.value = 0.45;
   settings.renderer.exposure.value = 1.3;
   settings.camera.playLandscapeHeight.value = 40;
   const renderer = setup({ width: 844, height: 390, settings }),
@@ -2055,6 +2059,18 @@ test('presentation settings reach the real renderer budget, exposure and camera 
   assert.equal(renderer.renderer.pixelRatio, 0.9);
   assert.equal(renderer.renderer.toneMappingExposure, 1.3);
   assert.equal(renderer.camera.top - renderer.camera.bottom, 40);
+});
+
+test('a 1080 by 1920 native viewport renders at half width and height with the existing shadow sizes', () => {
+  const renderer = setup({ width: 360, height: 640, pixelRatio: 3 });
+  renderer.resize();
+  assert.equal(renderer.renderer.drawingBufferWidth, 540);
+  assert.equal(renderer.renderer.drawingBufferHeight, 960);
+  assert.equal(renderer.renderer.updateStyle, false);
+  assert.equal(renderer.aspect, 360 / 640);
+  assert.deepEqual(renderer.sun.shadow.mapSize.toArray(), [1024, 1024]);
+  renderer.setLevel(createLevel(0));
+  assert.equal(renderer.staticShadows.mapSize, 4096);
 });
 
 test('environment saturation preserves actor materials and existing surface hooks', () => {

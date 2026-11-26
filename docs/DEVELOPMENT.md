@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Half-resolution rendering smoke check — 25 November 2026
+
+On a phone, open a meadow and compare the canvas drawing buffer against the viewport CSS dimensions multiplied by the device pixel ratio. The buffer should be half that size per dimension in portrait and landscape. Check that the canvas fills the viewport and HUD placement and shadow appearance remain consistent. Physical device check pending.
+
 ## F-DOG-001 — 25 November 2026
 
 Check both dogs at normal camera zoom on flat ground, a slope and a bridge. Compare a slow circle with a sprint turn, release the stick, wait through the idle poses, then resume movement mid-pose. Check bark, pause/resume and Buddy pursuit in portrait and landscape.

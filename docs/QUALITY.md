@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
+
+On `feat/half-render-resolution`, based on `9c08372`, the WebGL canvas uses one half of the native viewport width and height. The existing 1024-square real-time sun shadow map and 4096-square baked map budget are preserved. Implementation model: GPT-6.2 Sol (session effort unavailable). The focused renderer regression exercises the 540 × 960 drawing buffer dimensions through a WebGL substitute and checks both map sizes. Formatting, documentation, release and development build checks passed. Physical phone rendering remains unverified.
+
 ## F-DOG-001 — Clay border collies — 25 November 2026
 
 Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4. Implementation delegated to GPT-6.2 Astra High, with the final fixes on Astra Medium; coordination by GPT-6.2 Sol. Independent review by GPT-6.1 Sol Medium: 7.5, 8.5, 7.5, then 9/10. Ground penetration, steady-turn contact and abrupt reversals were corrected. The recheck passed 58 targeted tests and measured drift below 9e-13 m/s at 30/60/120 Hz. Earlier checks: 119 locomotion tests, 16 tracker tests, 7 documentation tests. Release and development artifact guards passed. The game rendered on a headless Chromium portrait viewport before the final contact fixes. Native phone FPS, terrain contact in motion and visual acceptance remain pending. Full aggregate regression run was still pending at record time.

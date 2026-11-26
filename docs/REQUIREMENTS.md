@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
+
+Render the main 3D canvas at 50% of the browser viewport's native pixel width and height. A 1080 × 1920 native viewport renders at 540 × 960. Preserve the CSS viewport layout, camera aspect ratio, and existing real-time and baked shadow map sizes.
+
 ## F-DOG-001 — 25 November 2026
 
 The gallop follows the running references: a lowered head and long body during extension, followed by the fore and hind paws nearly passing beneath the belly during collection. Both dogs have a faster top gait. Touch input reserves more radial travel for walking and fast walking, and caps speed throughout the outer 10% of the radius. This supersedes the 85% cap in the historical F-INPUT-001 entry.
