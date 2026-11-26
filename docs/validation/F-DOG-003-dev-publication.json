@@ -1,0 +1,204 @@
+{
+  "issue": "F-DOG-003",
+  "date": "2026-11-26",
+  "branch": "feat/idle-flock-dispersal",
+  "sourceSha": "fbfa2c7646bfcf4cc9aa8298f22b33e87bb52d13",
+  "pagesParent": "6643422a32bfa22e45eab0649041f672985f4e28",
+  "pagesSha": "f854112e8b2fdaa9e95c036b02e02cf4f56a7ae7",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "sourceCI": 45890247170,
+  "sourceCIUrl": "https://github.com/novydhillon/Flock/actions/runs/45890247170",
+  "nativePagesRun": 45891275242,
+  "nativePagesRunUrl": "https://github.com/novydhillon/Flock/actions/runs/45891275242",
+  "method": "Connector-only scoped gh-pages publication. Workflow dispatch was unavailable.",
+  "verification": {
+    "gameTestsPassed": 643,
+    "trackerTestsPassed": 16,
+    "documentationTestsPassed": 7,
+    "independentReviewScore": 9,
+    "releaseArtifactGuardPassed": true,
+    "devArtifactGuardPassed": true,
+    "checkedBuildMatchesStagedFiles": true,
+    "nativePages": "success",
+    "liveFiles": 35,
+    "allHashesMatch": true
+  },
+  "limits": "Simulation, build and live asset checks passed. Rendered phone playtesting and user sign-off are pending.",
+  "files": [
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "gitSha": "e9a3b306ccda71d80293dcad2c4b070420601244"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "gitSha": "0b8bc556cf4b4cbd5c82418947a159f9aaa3c6cc"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "gitSha": "5e39dbc959ff4cb85134d5666d5251aa54b430ad"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "gitSha": "4a8bb66121cec0835bc077cb683f1d97b67c1a98"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "gitSha": "5c43e6490f991913c0752e98be1b8e1ef7d48e59"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "gitSha": "26edc56c122261f14290330af50bbff92e0a17b4"
+    },
+    {
+      "path": "dev/assets/index-DKLpqXXU.js",
+      "sha256": "34359a6ba7ad491ff9e58697ab0c78a8427390f09c78d253697d385b24bfe11c",
+      "gitSha": "8a9d12bd2fbb0061ef1623f069023a204344241a"
+    },
+    {
+      "path": "dev/assets/index-Dc98lgwP.css",
+      "sha256": "2d07f1f6eaa7d4eeba6bf772f23631f21e5a4d3d314566ac903210d2ea0500c7",
+      "gitSha": "3c97c3d583643c214f6a0e5e2d6320e8295f4ec2"
+    },
+    {
+      "path": "dev/assets/main-DJ1EZ2Xa.js",
+      "sha256": "f0ed889f2491e9c7b6ba284ca5cba14e1a116208bd3a98b6cc5e3e9973f3b4ad",
+      "gitSha": "08ea837132b89979dca17b362a4d1f1a26a14a0d"
+    },
+    {
+      "path": "dev/assets/main-ixC2KjWI.css",
+      "sha256": "568d7ea347deff6142147b7eca406b0da7d7075511ab87936f169f1fcc441eb6",
+      "gitSha": "d44343defda98f3bed4d026f7ac843be8e6fba47"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "gitSha": "aa32da2408ba303cef78ff1c3dc36cbf88983ef1"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "gitSha": "87b8e187f0431a4c523be6191b66e31c50e0359b"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "gitSha": "8674e73594a26b7670d3ba93e42063f39e11c3ee"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "gitSha": "3e31399123c1a3b6df33f166d2def8d03bd797b1"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "gitSha": "768bdf9e42de69adb8d99aa0e784bc26e363c22d"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "gitSha": "14b81de6eb97b8a53156e0beb15747a595e56349"
+    },
+    {
+      "path": "dev/assets/qa-B6I3MhmG.js",
+      "sha256": "b6b3b5a3df74a1c96d5e7a1f15e1885008d46dc24e34653d28bee6854ff6c402",
+      "gitSha": "b07aa7fcec767f401a228aa425253cd1930ce97b"
+    },
+    {
+      "path": "dev/assets/qa-Bd_Xqfoe.css",
+      "sha256": "57ef5a5c448592435c04d907a4c3e0be2ede331a34c0884af2ff8d8ef6ad9c2c",
+      "gitSha": "995a527cfc755261fd3281d6326c084d2d1b718c"
+    },
+    {
+      "path": "dev/audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0",
+      "gitSha": "8f16787c52baeea7ed7e3e74232978ede99fafd3"
+    },
+    {
+      "path": "dev/audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34",
+      "gitSha": "dce2e656910d7c6a3a10d6bb27fb0978f7336c55"
+    },
+    {
+      "path": "dev/audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b",
+      "gitSha": "f66052a7088623cbf567d0347929207ca2e3732e"
+    },
+    {
+      "path": "dev/audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac",
+      "gitSha": "816d9359cfb1487aa334af1b4fd39bdc7ed1f08c"
+    },
+    {
+      "path": "dev/icons/pip-120.png",
+      "sha256": "9a695821386b3411b9b8c5d6e88cbc29af8e34c5e26665c8ee11b94e5ff825ba",
+      "gitSha": "8623fd35dbef54bc18b1b7431992d60eec9a95c8"
+    },
+    {
+      "path": "dev/icons/pip-152.png",
+      "sha256": "54475227feb0930cb9a8d454bfada159a2dacae394c52f663fc486c0b4070cab",
+      "gitSha": "160174fbb6e5e2ba167fc0baf9ede4f3ba2bd23c"
+    },
+    {
+      "path": "dev/icons/pip-16.png",
+      "sha256": "600fe8379c974210fa9086c38ede431b2811d68613dbaf814ef9cab3ad0ef269",
+      "gitSha": "cfa43b93f02949fa37f5cbfe85fd2f5d49f020e2"
+    },
+    {
+      "path": "dev/icons/pip-167.png",
+      "sha256": "f2c804e57379e8f39a287d96a1fca15797e7b6de3399802a10620f73bb311631",
+      "gitSha": "81b65abbdf0408703ccb76dd626c3cbf3d37d619"
+    },
+    {
+      "path": "dev/icons/pip-180.png",
+      "sha256": "7d0227e421d69859cd70089660d4775170dab271493e03e148b81717bed0214c",
+      "gitSha": "a8b5280406cc3e81c7e00128065892b1aa19c0d3"
+    },
+    {
+      "path": "dev/icons/pip-192.png",
+      "sha256": "f4825ffe75a6a6d261ef683f4f59c3b71318a711344400b8c681201d727dcae7",
+      "gitSha": "830d1f7d95f13e882b9aaaf0ec63d920d5e1d01f"
+    },
+    {
+      "path": "dev/icons/pip-32.png",
+      "sha256": "ee50f96b681f9d6048fcfe2a49db59da88fe4653dbdab142e16e59744c430d72",
+      "gitSha": "5a613943e8226e1f037c4e32b260e1d53fe1abd2"
+    },
+    {
+      "path": "dev/icons/pip-48.png",
+      "sha256": "1b0bf9745d2f1a3fd5ba39875a2a380305fdaa73afa7cdcd4b39cc1ed1ef55af",
+      "gitSha": "3fedd0e4d41059120b45991878ffae1de599d1d3"
+    },
+    {
+      "path": "dev/icons/pip-512.png",
+      "sha256": "463ecba5b86728d66bbb7fc70691fe519fa40c6292183ed34b4a26711dbdffbe",
+      "gitSha": "c96759ec2ef18b37ca604c7eafaceb8ef520c2a3"
+    },
+    {
+      "path": "dev/icons/pip-96.png",
+      "sha256": "af7ef8925d599d19bc32c8599ebfe96356daa945a38832b1114015bca7467e83",
+      "gitSha": "be50e43f892b2ffe38a8d4ce4edc17bd11f6f7c4"
+    },
+    {
+      "path": "dev/icons/pip.svg",
+      "sha256": "85c2d5159332f6ed50dac1d1531c5686dd48a62ca0dfcda6cd1b5a6150a0f40a",
+      "gitSha": "9acb8b6bcf984dc2a9c1ae3a278cef1882655a32"
+    },
+    {
+      "path": "dev/index.html",
+      "sha256": "0cf1c250ccd9c50fdad922f6d29697ceb82a7ad3739b7edacb76b0f59dc76839",
+      "gitSha": "1330a12621c3e5d7cdf9a2e5eb680a8401586e46"
+    },
+    {
+      "path": "dev/site.webmanifest",
+      "sha256": "3a9f0515c8a5e2a78ea89ebaa72c60710c6cd2a26fbc0c56963528d71ec8cd89",
+      "gitSha": "89eada19054c872be485b3a17f261b412a454604"
+    }
+  ]
+}
