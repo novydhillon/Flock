@@ -30,12 +30,76 @@
 </tr>
 </thead>
 <tbody><tr>
+<td>F-KENNEL-001</td>
+<td>P1</td>
+<td>Progression/economy</td>
+<td>Buy meadow slots and earn Buddy</td>
+<td>Open</td>
+<td>Existing Buddy gate and bolt ledger</td>
+</tr>
+<tr>
+<td>F-KENNEL-002</td>
+<td>P1</td>
+<td>Progression/collection</td>
+<td>Adopt and manage individual dogs</td>
+<td>Open</td>
+<td>F-DOG-001; F-KENNEL-001</td>
+</tr>
+<tr>
+<td>F-KENNEL-003</td>
+<td>P1</td>
+<td>Gameplay/progression</td>
+<td>Assign and play a lineup of up to four dogs</td>
+<td>Open</td>
+<td>F-KENNEL-001; F-KENNEL-002; F-046</td>
+</tr>
+<tr>
+<td>F-KENNEL-004</td>
+<td>P1</td>
+<td>Gameplay/progression</td>
+<td>Train each dog&#39;s speed, agility, influence and bark</td>
+<td>Open</td>
+<td>F-KENNEL-002; F-KENNEL-003</td>
+</tr>
+<tr>
+<td>F-KENNEL-005</td>
+<td>P1</td>
+<td>UI/progression</td>
+<td>Manage the kennel from pause and rewards</td>
+<td>Open</td>
+<td>F-KENNEL-001–004</td>
+</tr>
+<tr>
+<td>F-KENNEL-006</td>
+<td>P1</td>
+<td>Art/animation</td>
+<td>Animate and illustrate the ten-entry roster</td>
+<td>Open</td>
+<td>F-DOG-001; F-KENNEL-002; F-KENNEL-005</td>
+</tr>
+<tr>
+<td>F-KENNEL-007</td>
+<td>P1</td>
+<td>Persistence/gameplay</td>
+<td>Preserve campaign progress and retire marketplace upgrades</td>
+<td>Open</td>
+<td>F-KENNEL-001–005</td>
+</tr>
+<tr>
+<td>F-KENNEL-008</td>
+<td>P1</td>
+<td>Validation</td>
+<td>Verify the kennel progression loop</td>
+<td>Open</td>
+<td>F-KENNEL-001–007</td>
+</tr>
+<tr>
 <td>F-DOG-002</td>
 <td>P2</td>
 <td>Gameplay/progression</td>
 <td>Add ten dog breeds with distinct abilities, upgrades and boosts</td>
 <td>Open</td>
-<td>F-DOG-001; existing progression</td>
+<td>F-KENNEL-006; existing progression</td>
 </tr>
 <tr>
 <td>F-QA-CAMERA-001</td>
@@ -217,9 +281,9 @@
 <td>F-047</td>
 <td>P4</td>
 <td>Gameplay/companions/economy</td>
-<td>Second Buddy after meadow 40 with independent leveling and max tier by meadow 70</td>
-<td>Open</td>
-<td>F-046</td>
+<td>Earlier second-Buddy milestone proposal</td>
+<td>Deferred</td>
+<td>F-KENNEL-001–004</td>
 </tr>
 <tr>
 <td>F-049</td>
@@ -231,10 +295,100 @@
 </tr>
 </tbody></table></div>
 <h2 id="acceptance-criteria-and-planned-work">Acceptance criteria and planned work<a class="heading-link" href="#acceptance-criteria-and-planned-work" aria-label="Link to Acceptance criteria and planned work">#</a></h2>
+<p>All eight kennel stories are planning-only and unclaimed. See the <a href="requirements.html#dog-kennel-and-meadow-lineups--26-november-2026">design and delivery plan</a> for proposed defaults and open decisions.</p>
+<h3 id="f-kennel-001--buy-meadow-slots-and-earn-buddy">F-KENNEL-001 — Buy meadow slots and earn Buddy<a class="heading-link" href="#f-kennel-001--buy-meadow-slots-and-earn-buddy" aria-label="Link to F-KENNEL-001 — Buy meadow slots and earn Buddy">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>A new save starts with Slot 1 open, Pip assigned and no bolt charge. Slot 2 is gated until meadow 20, Slot 3 until 40 and Slot 4 until 60.</li>
+<li>Reaching a gate makes the slot purchasable. Buying it charges the configured bolt price once and permanently opens the slot. Buying Slot 2 also grants exactly one Buddy in the same transaction. Slots 3 and 4 grant lineup space.</li>
+<li>Locked, unaffordable, available and opened states are distinguishable. Failed or repeated purchases leave the balance and roster consistent. Reloading preserves ownership and the Buddy reward.</li>
+<li>Once a slot opens, it stays available in every meadow, including replays that precede its purchase milestone.</li>
+</ul>
+<h3 id="f-kennel-002--adopt-and-manage-individual-dogs">F-KENNEL-002 — Adopt and manage individual dogs<a class="heading-link" href="#f-kennel-002--adopt-and-manage-individual-dogs" aria-label="Link to F-KENNEL-002 — Adopt and manage individual dogs">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>An eligible adoption spends bolts and adds one dog with a persistent identity, name, coat and fresh attribute tiers. The same dog entry can be adopted repeatedly, including Pip and Buddy when eligible.</li>
+<li>Define stable catalog identities for Pip, Buddy and the eight placeholders, with configurable adoption gates, base models and supported coats. Adoption rules operate independently of portrait and preview artwork.</li>
+<li>After Slot 2 opens and grants Buddy, one additional entry becomes adoptable per five-meadow milestone from 25 through 60. Entry 3 costs 600 bolts and each later entry adds 200 bolts, through 2,000 for entry 10. Each additional adoption of a given entry uses its listed price. Use the highest unlocked campaign meadow to evaluate its gate, including while replaying an earlier meadow.</li>
+<li>Two copies can have different names, coats, stats and assignments. Editing or upgrading one leaves the other intact. An unavailable or unaffordable adoption leaves the kennel and bolt balance intact.</li>
+<li>Owned dogs, their names, coat selections and upgrades survive reload. Unassigned dogs remain owned and can be selected later.</li>
+</ul>
+<h3 id="f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs">F-KENNEL-003 — Assign and play a lineup of up to four dogs<a class="heading-link" href="#f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs" aria-label="Link to F-KENNEL-003 — Assign and play a lineup of up to four dogs">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want to choose which dogs work with me so I can lead with my favorite and bring helpers as slots open.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Assign owned dogs to open slots and replace or remove CPU assignments. Slot 1 always has a valid owned dog. Only Slot 1 responds to player movement and bark input and drives the gameplay camera.</li>
+<li>Purchased and assigned slots 2–4 independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or unopened slots spawn no actor.</li>
+<li>Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.</li>
+<li>An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.</li>
+</ul>
+<h3 id="f-kennel-004--train-speed-agility-influence-and-bark">F-KENNEL-004 — Train speed, agility, influence and bark<a class="heading-link" href="#f-kennel-004--train-speed-agility-influence-and-bark" aria-label="Link to F-KENNEL-004 — Train speed, agility, influence and bark">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want to train a particular dog so its strengths carry into the role I assign it.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>The starting dog supports walk and light jog. Speed training raises the maximum gait through fast jog, light run and all-out run while retaining access to slower gaits.</li>
+<li>At comparable movement speeds, each agility tier reduces the turn radius. A standing movement turn requires travel at every tier. Verify the same rules for the player-controlled dog and CPU dogs.</li>
+<li>Influence preserves Friendly signal&#39;s three levels, costs and range increases. Bark intensity applies only to that dog&#39;s bark and follows the agreed pressure and charge rules.</li>
+<li>One successful purchase charges the listed cost and advances exactly one attribute tier on the selected owned dog. Gated and maxed attributes, insufficient bolts and repeat input cannot create extra tiers or charges.</li>
+</ul>
+<h3 id="f-kennel-005--manage-the-kennel-from-pause-and-rewards">F-KENNEL-005 — Manage the kennel from pause and rewards<a class="heading-link" href="#f-kennel-005--manage-the-kennel-from-pause-and-rewards" aria-label="Link to F-KENNEL-005 — Manage the kennel from pause and rewards">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want to browse and manage my dogs when I pause so I can prepare a lineup and spend bolts in one place.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.</li>
+<li>The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.</li>
+<li>The opposite side from the preview shows stacked running-dog, turning-dog, signal-rings and barking-dog icons. Each available upgrade has a green plus next to the icon and the bolt price below it. Locked, unaffordable and maximum-tier states remain legible.</li>
+<li>The screen supports adoption, selecting and managing an owned dog, buying an eligible slot, and assigning or replacing a lineup dog. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.</li>
+</ul>
+<h3 id="f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006 — Animate and illustrate the ten-entry roster<a class="heading-link" href="#f-kennel-006--animate-and-illustrate-the-ten-entry-roster" aria-label="Link to F-KENNEL-006 — Animate and illustrate the ten-entry roster">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want to see each dog&#39;s coat and personality before I adopt it or take it into a meadow.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.</li>
+<li>The larger preview above the strip uses the selected dog&#39;s coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.</li>
+<li>A turnaround ends with the dog&#39;s head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.</li>
+</ul>
+<h3 id="f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades">F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades<a class="heading-link" href="#f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades" aria-label="Link to F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want my campaign progress to persist when the kennel replaces the Workshop.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Unspent bolts, campaign unlocks, earned score and reward records, and sound settings survive. Replaying a previously rewarded meadow cannot pay it again except for the existing improved-result difference.</li>
+<li>The marketplace and purchased Flock harmony effect are absent after cutover. Normal flock behavior and unrelated menus still work. Review help text, first-run guidance and rewards copy for obsolete unlock language.</li>
+</ul>
+<p><strong>Deferred decision — 26 November 2026:</strong> Decide later whether and how to convert or credit legacy Workshop purchases, including prior Buddy, attribute, Scout drone and Flock harmony purchases. Legacy purchase conversion and refund tests are outside this delivery story.</p>
+<h3 id="f-kennel-008--verify-the-kennel-progression-loop">F-KENNEL-008 — Verify the kennel progression loop<a class="heading-link" href="#f-kennel-008--verify-the-kennel-progression-loop" aria-label="Link to F-KENNEL-008 — Verify the kennel progression loop">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p>As a player, I want the kennel and lineup to work consistently through the campaign so I can trust purchases and take my dogs into any eligible meadow.</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Check fresh and continuing saves, exact slot gates and all eight adoption gates at the meadow before and at each threshold. Verify the listed prices, a late Slot 2 purchase, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes and reload after purchases.</li>
+<li>Replay meadow 1 with a meadow-60 dog, four opened slots and four assignments. Confirm all four participate and the replay does not change their eligibility or the campaign reward ledger rules.</li>
+<li>Verify the economy with attainable bolt earnings and mixed purchase paths. Playtest split herds, gates, bridges, goal admission, movement and bark behavior at baseline and max tiers.</li>
+<li>With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.</li>
+<li>Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.</li>
+</ul>
 <h3 id="f-dog-002--ten-additional-dog-breeds-and-progression">F-DOG-002 — Ten additional dog breeds and progression<a class="heading-link" href="#f-dog-002--ten-additional-dog-breeds-and-progression" aria-label="Link to F-DOG-002 — Ten additional dog breeds and progression">#</a></h3>
 <p><strong>Status:</strong> Open. Owner: Unassigned.</p>
 <p><strong>Branch:</strong> <code>unassigned</code></p>
 <p><strong>Request — 11 November 2026:</strong> Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts. Breeds should vary in size, including small breeds such as a pug and a Chihuahua through to a Newfoundland. Include both pug and Chihuahua in the ten additional breeds.</p>
+<p><strong>26 November 2026:</strong> Distinct breeds follow the placeholder roster in <a href="#f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006</a>. Keep the later breed work scoped separately.</p>
 <p><strong>Accept when:</strong> Ten additional recognizable breeds offer distinguishable movement speeds and capabilities inspired by their breeds, and support upgrades and boosts. Define breed selection, unlocks, costs, upgrade and boost behavior, balancing and persistence before implementation; these details are not yet specified. Preserve existing saves and progression with an appropriate migration if needed. Verify capabilities, balance, controls and mobile performance across breeds.</p>
 <p><strong>Scope:</strong> Planning only. Neither item has been implemented or visually validated.</p>
 <h3 id="f-qa-camera-001--qa-camera-orbit-controls">F-QA-CAMERA-001 — QA camera orbit controls<a class="heading-link" href="#f-qa-camera-001--qa-camera-orbit-controls" aria-label="Link to F-QA-CAMERA-001 — QA camera orbit controls">#</a></h3>
@@ -256,7 +410,8 @@
 </ul>
 <p><strong>Migration source:</strong> <a href="https://github.com/novydhillon/Flock/issues/5">GitHub #5</a>; moved to this document without implementing or completing the request.</p>
 <h3 id="f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)<a class="heading-link" href="#f-047---second-buddy-dog-with-independent-progression-p4" aria-label="Link to F-047 - Second Buddy dog with independent progression (P4)">#</a></h3>
-<p><strong>Status:</strong> Open, queued only; unassigned.</p>
+<p><strong>Status:</strong> Deferred, unassigned.</p>
+<p><strong>26 November 2026:</strong> The kennel plan supplies the meadow-40 slot and repeat Buddy adoptions with individual training. Review the older fixed-Buddy and level-70 proposal against the kennel economy before considering this story again.</p>
 <p><strong>Requirement:</strong> after meadow level 40, make a second Buddy dog available with its own independent leveling. Its purchase and upgrade costs should reflect the later stage of the game. Its maximum upgrade tier should be available by meadow level 70.</p>
 <p><strong>Accept when:</strong></p>
 <ul>
@@ -378,5 +533,5 @@
 <p>All four items are Open and unassigned. Rough-ground appearance is P3 polish; navigable relief, aligned boundaries and terrain-aware water are linked P2 features that must be coordinated before a rolling-terrain release. This adds planned work only; no terrain, physics, water or game deployment changes are implemented.</p>
 <h2 id="water-vegetation-acceptance--29-october-2026">Water vegetation acceptance — 29 October 2026<a class="heading-link" href="#water-vegetation-acceptance--29-october-2026" aria-label="Link to Water vegetation acceptance — 29 October 2026">#</a></h2>
 <p>Novy accepted <code>feat/water-vegetation</code> with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to <a href="issues-closed.html#water-vegetation-user-acceptance--29-october-2026">Closed issues</a>. Source revision <code>d2bae96da0ed1b59f1d389616b64a0b53e45842c</code> is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.</p>
-</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#tracker-closures--18-november-2026">Tracker closures — 18 November 2026</a><a class="toc-level-2" href="#p2-ui-acceptance--28-october-2026">P2 UI acceptance — 28 October 2026</a><a class="toc-level-2" href="#tracker-lifecycle-and-ownership">Tracker lifecycle and ownership</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#acceptance-criteria-and-planned-work">Acceptance criteria and planned work</a><a class="toc-level-3" href="#f-dog-002--ten-additional-dog-breeds-and-progression">F-DOG-002 — Ten additional dog breeds and progression</a><a class="toc-level-3" href="#f-qa-camera-001--qa-camera-orbit-controls">F-QA-CAMERA-001 — QA camera orbit controls</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-2" href="#bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)</a><a class="toc-level-3" href="#f-bird-001--bird-states-and-seeded-population-p2">F-BIRD-001 — Bird states and seeded population (P2)</a><a class="toc-level-3" href="#f-bird-002--clay-birds-and-animated-transitions-p2">F-BIRD-002 — Clay birds and animated transitions (P2)</a><a class="toc-level-3" href="#f-bird-003--safe-ground-and-elevated-landing-sites-p2">F-BIRD-003 — Safe ground and elevated landing sites (P2)</a><a class="toc-level-3" href="#f-bird-004--conditional-ground-bird-fleeing-p2">F-BIRD-004 — Conditional ground-bird fleeing (P2)</a><a class="toc-level-3" href="#f-bird-005--perched-chirping-and-quiet-sitting-p2">F-BIRD-005 — Perched chirping and quiet sitting (P2)</a><a class="toc-level-3" href="#f-bird-006--rare-tree-nest-p2">F-BIRD-006 — Rare tree nest (P2)</a><a class="toc-level-3" href="#f-bird-007--weather-lifecycle-and-resource-integration-p2">F-BIRD-007 — Weather, lifecycle and resource integration (P2)</a><a class="toc-level-3" href="#f-bird-008--validation-blind-review-and-dev-sign-off-p2">F-BIRD-008 — Validation, blind review and dev sign-off (P2)</a><a class="toc-level-2" href="#bird-feature-additions--18-october-2026-2147-americacreston">Bird feature additions — 18 October 2026, 21:47 America/Creston</a><a class="toc-level-3" href="#f-bird-009--small-social-foraging-groups-p2">F-BIRD-009 — Small social foraging groups (P2)</a><a class="toc-level-3" href="#f-bird-010--ground-hops-and-perched-idle-gestures-p2">F-BIRD-010 — Ground hops and perched idle gestures (P2)</a><a class="toc-level-3" href="#f-bird-011--react-to-pip-and-buddy-barking-p2">F-BIRD-011 — React to Pip and Buddy barking (P2)</a><a class="toc-level-3" href="#f-bird-012--occasional-visits-to-the-nest-p2">F-BIRD-012 — Occasional visits to the nest (P2)</a><a class="toc-level-3" href="#f-bird-013--two-or-three-recognizable-bird-varieties-p2">F-BIRD-013 — Two or three recognizable bird varieties (P2)</a><a class="toc-level-3" href="#f-bird-014--gradual-return-after-the-meadow-settles-p2">F-BIRD-014 — Gradual return after the meadow settles (P2)</a><a class="toc-level-2" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston</a><a class="toc-level-3" href="#f-comp-004--clear-attention-and-working-intent-p2">F-COMP-004 — Clear attention and working intent (P2)</a><a class="toc-level-3" href="#f-comp-005--bark-pose-and-recovery-gesture-p2">F-COMP-005 — Bark pose and recovery gesture (P2)</a><a class="toc-level-3" href="#f-comp-006--distinct-pip-and-buddy-personalities-p2">F-COMP-006 — Distinct Pip and Buddy personalities (P2)</a><a class="toc-level-3" href="#f-comp-008--brief-shared-arrival-celebration-p2">F-COMP-008 — Brief shared arrival celebration (P2)</a><a class="toc-level-2" href="#tracker-archive-maintenance--18-october-2026-2204-americacreston">Tracker archive maintenance — 18 October 2026, 22:04 America/Creston</a><a class="toc-level-2" href="#main-integration--18-october-2026-2217-americacreston">Main integration — 18 October 2026, 22:17 America/Creston</a><a class="toc-level-2" href="#delivery-fallback-integration--19-october-2026">Delivery fallback integration — 19 October 2026</a><a class="toc-level-2" href="#buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026</a><a class="toc-level-2" href="#accepted-p1-branch--25-october-2026">Accepted P1 branch — 25 October 2026</a><a class="toc-level-3" href="#f-audio-002--existing-bolt-voice-steal-hard-cut-risk">F-AUDIO-002 — Existing bolt voice-steal hard-cut risk</a><a class="toc-level-2" href="#rough-pasture-and-rolling-terrain--25-october-2026">Rough pasture and rolling terrain — 25 October 2026</a><a class="toc-level-2" href="#water-vegetation-acceptance--29-october-2026">Water vegetation acceptance — 29 October 2026</a></nav></aside></div>
+</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#tracker-closures--18-november-2026">Tracker closures — 18 November 2026</a><a class="toc-level-2" href="#p2-ui-acceptance--28-october-2026">P2 UI acceptance — 28 October 2026</a><a class="toc-level-2" href="#tracker-lifecycle-and-ownership">Tracker lifecycle and ownership</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#acceptance-criteria-and-planned-work">Acceptance criteria and planned work</a><a class="toc-level-3" href="#f-kennel-001--buy-meadow-slots-and-earn-buddy">F-KENNEL-001 — Buy meadow slots and earn Buddy</a><a class="toc-level-3" href="#f-kennel-002--adopt-and-manage-individual-dogs">F-KENNEL-002 — Adopt and manage individual dogs</a><a class="toc-level-3" href="#f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs">F-KENNEL-003 — Assign and play a lineup of up to four dogs</a><a class="toc-level-3" href="#f-kennel-004--train-speed-agility-influence-and-bark">F-KENNEL-004 — Train speed, agility, influence and bark</a><a class="toc-level-3" href="#f-kennel-005--manage-the-kennel-from-pause-and-rewards">F-KENNEL-005 — Manage the kennel from pause and rewards</a><a class="toc-level-3" href="#f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006 — Animate and illustrate the ten-entry roster</a><a class="toc-level-3" href="#f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades">F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades</a><a class="toc-level-3" href="#f-kennel-008--verify-the-kennel-progression-loop">F-KENNEL-008 — Verify the kennel progression loop</a><a class="toc-level-3" href="#f-dog-002--ten-additional-dog-breeds-and-progression">F-DOG-002 — Ten additional dog breeds and progression</a><a class="toc-level-3" href="#f-qa-camera-001--qa-camera-orbit-controls">F-QA-CAMERA-001 — QA camera orbit controls</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-2" href="#bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)</a><a class="toc-level-3" href="#f-bird-001--bird-states-and-seeded-population-p2">F-BIRD-001 — Bird states and seeded population (P2)</a><a class="toc-level-3" href="#f-bird-002--clay-birds-and-animated-transitions-p2">F-BIRD-002 — Clay birds and animated transitions (P2)</a><a class="toc-level-3" href="#f-bird-003--safe-ground-and-elevated-landing-sites-p2">F-BIRD-003 — Safe ground and elevated landing sites (P2)</a><a class="toc-level-3" href="#f-bird-004--conditional-ground-bird-fleeing-p2">F-BIRD-004 — Conditional ground-bird fleeing (P2)</a><a class="toc-level-3" href="#f-bird-005--perched-chirping-and-quiet-sitting-p2">F-BIRD-005 — Perched chirping and quiet sitting (P2)</a><a class="toc-level-3" href="#f-bird-006--rare-tree-nest-p2">F-BIRD-006 — Rare tree nest (P2)</a><a class="toc-level-3" href="#f-bird-007--weather-lifecycle-and-resource-integration-p2">F-BIRD-007 — Weather, lifecycle and resource integration (P2)</a><a class="toc-level-3" href="#f-bird-008--validation-blind-review-and-dev-sign-off-p2">F-BIRD-008 — Validation, blind review and dev sign-off (P2)</a><a class="toc-level-2" href="#bird-feature-additions--18-october-2026-2147-americacreston">Bird feature additions — 18 October 2026, 21:47 America/Creston</a><a class="toc-level-3" href="#f-bird-009--small-social-foraging-groups-p2">F-BIRD-009 — Small social foraging groups (P2)</a><a class="toc-level-3" href="#f-bird-010--ground-hops-and-perched-idle-gestures-p2">F-BIRD-010 — Ground hops and perched idle gestures (P2)</a><a class="toc-level-3" href="#f-bird-011--react-to-pip-and-buddy-barking-p2">F-BIRD-011 — React to Pip and Buddy barking (P2)</a><a class="toc-level-3" href="#f-bird-012--occasional-visits-to-the-nest-p2">F-BIRD-012 — Occasional visits to the nest (P2)</a><a class="toc-level-3" href="#f-bird-013--two-or-three-recognizable-bird-varieties-p2">F-BIRD-013 — Two or three recognizable bird varieties (P2)</a><a class="toc-level-3" href="#f-bird-014--gradual-return-after-the-meadow-settles-p2">F-BIRD-014 — Gradual return after the meadow settles (P2)</a><a class="toc-level-2" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston</a><a class="toc-level-3" href="#f-comp-004--clear-attention-and-working-intent-p2">F-COMP-004 — Clear attention and working intent (P2)</a><a class="toc-level-3" href="#f-comp-005--bark-pose-and-recovery-gesture-p2">F-COMP-005 — Bark pose and recovery gesture (P2)</a><a class="toc-level-3" href="#f-comp-006--distinct-pip-and-buddy-personalities-p2">F-COMP-006 — Distinct Pip and Buddy personalities (P2)</a><a class="toc-level-3" href="#f-comp-008--brief-shared-arrival-celebration-p2">F-COMP-008 — Brief shared arrival celebration (P2)</a><a class="toc-level-2" href="#tracker-archive-maintenance--18-october-2026-2204-americacreston">Tracker archive maintenance — 18 October 2026, 22:04 America/Creston</a><a class="toc-level-2" href="#main-integration--18-october-2026-2217-americacreston">Main integration — 18 October 2026, 22:17 America/Creston</a><a class="toc-level-2" href="#delivery-fallback-integration--19-october-2026">Delivery fallback integration — 19 October 2026</a><a class="toc-level-2" href="#buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026</a><a class="toc-level-2" href="#accepted-p1-branch--25-october-2026">Accepted P1 branch — 25 October 2026</a><a class="toc-level-3" href="#f-audio-002--existing-bolt-voice-steal-hard-cut-risk">F-AUDIO-002 — Existing bolt voice-steal hard-cut risk</a><a class="toc-level-2" href="#rough-pasture-and-rolling-terrain--25-october-2026">Rough pasture and rolling terrain — 25 October 2026</a><a class="toc-level-2" href="#water-vegetation-acceptance--29-october-2026">Water vegetation acceptance — 29 October 2026</a></nav></aside></div>
 <dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>
