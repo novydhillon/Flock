@@ -67,6 +67,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ### F-DOG-001 — Pip and Buddy dog models and animation
 
+**Idle feedback:** Hold poses for randomly selected durations from three to six times the original, extending lying to eight times. Blend directly between poses. Scratching runs one to three times its original duration and returns to sitting. Nearby animals can invite play bows while the dogs sit or lie down. The dogs also take short walks between landing-screen rests. During play, Pip may take a short local walk after a tunable 60-second release delay.
+
 **Playtest feedback — 25 November 2026:** Lower the head at a gallop, extend the body and legs in flight and gather the feet beneath the belly. Increase top speed, expand walking control and hold full run from 90% of the stick radius. Recheck planted contact, full-flock journeys and gameplay-scale readability.
 
 **Status:** Review. Owner: Codex.

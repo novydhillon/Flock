@@ -10,6 +10,10 @@ Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4
 
 
 
+### Idle poses and strolls — 25 November 2026
+
+Pip and Buddy blend directly between randomized idle poses. Individual livestock entering six world units can prompt a play bow. Scratching begins seated and returns to sitting. Pip's optional gameplay stroll begins after more than 60 seconds of released input and stays near the release point. Player input resumes control on the same simulation step. Walk routes avoid livestock and gate switch zones. The half-resolution rendering merge was integrated before validation. Independent review progressed from 8/10 to 8.5/10 to 9/10 after correcting detection of additional approaching livestock and preventing gate activation. The final reviewer passed 35 focused checks and reproduced safe gate-side wandering at 10/30/60/120 Hz. Native touch and device visuals remain for playtesting.
+
 ### Meadow 16 regression correction
 
 Initial source CI run 45692080420 failed one of 623 game tests (45/50 animals delivered, level 16 seed 202). Astra Medium corrected aligned movement to use the exact normalized input vector after the turn; this removes lateral floating-point drift without changing speed-dependent steering or braking. Sol Medium independent review scored 9/10. It verified 80/80 targeted tests on each of Node 22.23.5 and Node 24.22.3, including all 50 deliveries in the original scenario. Final full checked build and source CI remain deployment prerequisites.

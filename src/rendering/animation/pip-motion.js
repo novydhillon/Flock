@@ -14,12 +14,19 @@ const smooth = (x) => {
   return u * u * (3 - 2 * u);
 };
 const follow = (value, target, dt, tau) => mix(value, target, -Math.expm1(-dt / tau));
-const poses = ['sit', 'bow', 'lay', 'scratch', 'roll'];
+const STAND = -1,
+  SIT = 0,
+  BOW = 1,
+  LIE = 2,
+  SCRATCH = 3,
+  ROLL = 4;
 const durations = [3.8, 2.15, 4.4, 2.8, 3.45];
+const poseBlend = 0.52;
+const moveBlend = 0.38;
 const tau = Math.PI * 2;
 const strideLengthAt = (run) => mix(0.97, 2.4, run);
 
-export function createPipMotionState(puppy = false) {
+export function createPipMotionState(puppy = false, random = null) {
   return {
     puppy,
     time: 0,
@@ -31,13 +38,96 @@ export function createPipMotionState(puppy = false) {
     effort: 0,
     run: 0,
     idle: 0,
-    poseIndex: puppy ? 1 : 0,
+    poseIndex: STAND,
+    poseWeights: durations.map(() => 0),
+    blendFrom: durations.map(() => 0),
+    blendTime: moveBlend,
     poseTime: 0,
+    poseDuration: 0,
+    bowReturn: STAND,
     idleWeight: 0,
+    nearAnimal: false,
+    nearbyAnimals: new Set(),
+    random,
+    randomSeed: puppy ? 0x84e1752d : 0x9e3779b9,
     bark: 0,
     barkTime: 0,
     barking: false,
   };
+}
+
+function idleRandom(state) {
+  if (state.random) return state.random();
+  let seed = state.randomSeed;
+  seed ^= seed << 13;
+  seed ^= seed >>> 17;
+  seed ^= seed << 5;
+  state.randomSeed = seed >>> 0;
+  return state.randomSeed / 0x100000000;
+}
+
+function startPose(state, pose, bowReturn = STAND) {
+  for (let i = 0; i < state.poseWeights.length; i++) state.blendFrom[i] = state.poseWeights[i];
+  state.poseIndex = pose;
+  state.blendTime = 0;
+  state.poseTime = 0;
+  state.poseDuration = 0;
+  state.bowReturn = bowReturn;
+  if (pose === STAND) return;
+  const min = pose === SCRATCH ? 1 : 3;
+  const max = pose === SCRATCH ? 3 : pose === LIE ? 8 : 6;
+  state.poseDuration = durations[pose] * (state.puppy ? 0.82 : 1) * mix(min, max, idleRandom(state));
+}
+
+function nextIdlePose(state) {
+  if (state.poseIndex === SCRATCH) return SIT;
+  if (state.poseIndex === BOW && state.bowReturn !== STAND) return state.bowReturn;
+  const poses = [SIT, LIE, ROLL];
+  if (state.nearAnimal) poses.push(BOW);
+  if (state.poseIndex === SIT) poses.push(SCRATCH);
+  const choices = poses.filter((pose) => pose !== state.poseIndex);
+  return choices[Math.floor(idleRandom(state) * choices.length)];
+}
+
+function updateIdle(state, sample, dt, activity) {
+  const nearbyAnimals = sample.nearbyAnimals;
+  const nearAnimal = nearbyAnimals ? nearbyAnimals.length > 0 : sample.nearAnimal === true;
+  const arrived = nearbyAnimals
+    ? nearbyAnimals.some((id) => !state.nearbyAnimals.has(id))
+    : nearAnimal && !state.nearAnimal;
+  state.nearAnimal = nearAnimal;
+  state.nearbyAnimals.clear();
+  if (nearbyAnimals) {
+    for (const id of nearbyAnimals) state.nearbyAnimals.add(id);
+  }
+  const pose = state.poseIndex;
+  if (activity > 0.12 || sample.barking) {
+    state.idle = 0;
+    if (pose !== STAND) startPose(state, STAND);
+  } else if (pose === STAND) {
+    if (state.blendTime >= moveBlend) state.idle += dt;
+    if (state.idle > (state.puppy ? 0.75 : 1.7)) startPose(state, state.puppy && nearAnimal ? BOW : SIT);
+  } else if (pose === BOW && !nearAnimal) {
+    startPose(state, nextIdlePose(state));
+  } else if (arrived && (pose === SIT || pose === LIE) && state.poseWeights[SCRATCH] === 0) {
+    startPose(state, BOW, pose === SIT ? LIE : SIT);
+  }
+
+  const duration = state.poseIndex === STAND ? moveBlend : poseBlend;
+  if (state.blendTime < duration) {
+    const previousTime = state.blendTime;
+    state.blendTime = Math.min(previousTime + dt, duration);
+    const weight = smooth(state.blendTime / duration);
+    state.idleWeight = 0;
+    for (let i = 0; i < state.poseWeights.length; i++) {
+      state.poseWeights[i] = mix(state.blendFrom[i], i === state.poseIndex ? 1 : 0, weight);
+      state.idleWeight += state.poseWeights[i];
+    }
+    dt -= state.blendTime - previousTime;
+  }
+  if (state.poseIndex === STAND) return;
+  state.poseTime += dt;
+  if (state.poseTime >= state.poseDuration) startPose(state, nextIdlePose(state));
 }
 
 export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? 0.82 : 1) {
@@ -46,7 +136,8 @@ export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? 0.
   const speed = Math.hypot(sample.vx || 0, sample.vz || 0);
   const prev = state.previous;
   if (prev && Math.hypot(x - prev.x, z - prev.z) > 3) {
-    Object.assign(state, createPipMotionState(state.puppy));
+    const { random, randomSeed } = state;
+    Object.assign(state, createPipMotionState(state.puppy, random), { randomSeed });
     state.previous = { x, z, heading };
     return state;
   }
@@ -66,24 +157,7 @@ export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? 0.
   const strideLength = strideLengthAt(state.run);
   state.stride = (state.stride + (dt * activity) / strideLength) % 1;
   state.time += dt;
-  if (activity > 0.12 || sample.barking || (state.idle === 0 && state.idleWeight > 0.002)) {
-    state.idle = 0;
-    state.idleWeight = follow(state.idleWeight, 0, dt, 0.085);
-    if (state.idleWeight < 0.002) state.poseTime = 0;
-  } else {
-    state.idle += dt;
-    const wait = state.puppy ? 0.75 : 1.7;
-    if (state.idle > wait) {
-      state.poseTime += dt;
-      const duration = durations[state.poseIndex] * (state.puppy ? 0.82 : 1);
-      // Enter and leave through neutral before the next activity is selected.
-      state.idleWeight = smooth(Math.min(state.poseTime, duration - state.poseTime) / 0.52);
-      if (state.poseTime >= duration) {
-        state.poseIndex = (state.poseIndex + 1) % poses.length;
-        state.poseTime = state.idle = 0;
-      }
-    }
-  }
+  updateIdle(state, sample, dt, activity);
   if (sample.barking && !state.barking) state.barkTime = 0;
   if (sample.barking) state.barkTime += dt;
   state.barking = Boolean(sample.barking);
@@ -198,13 +272,8 @@ function plantLeg(leg, x, y, z, rig, fold, scratch, scratchBeat) {
 export function applyDogPose(dog) {
   const s = dog.userData.motion;
   const { rig, body, head, jaw, tail, ears, legs } = dog.userData.parts;
-  const pose = poses[s.poseIndex],
-    w = s.idleWeight;
-  const scratch = pose === 'scratch' ? w : 0;
-  const sit = pose === 'sit' ? w : scratch;
-  const lay = pose === 'lay' ? w : 0;
-  const bow = pose === 'bow' ? w : 0;
-  const roll = pose === 'roll' ? w : 0;
+  const [seated, bow, lay, scratch, roll] = s.poseWeights;
+  const sit = seated + scratch;
   const fold = smooth(roll / 0.7);
   const beat = s.stride * tau,
     scratchBeat = Math.sin(s.time * 21);

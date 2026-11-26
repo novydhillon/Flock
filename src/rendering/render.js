@@ -1440,7 +1440,16 @@ export class MeadowRenderer {
       mesh.rotation.z = Math.atan(grade(z, -x) * Math.cos(mesh.rotation.x));
     }
     const barking = this.barkEffects.some((effect) => effect.buddy === buddy);
-    const sample = { ...actor, heading, barking };
+    // Track individuals so a second animal can invite a bow while the first stays nearby.
+    let nearbyAnimals;
+    if (dt > 0 && !barking) {
+      for (const [index, animal] of (level.animals || []).entries()) {
+        if ((animal.x - actor.x) ** 2 + (animal.z - actor.z) ** 2 < 6 ** 2) {
+          (nearbyAnimals ??= []).push(animal.id ?? index);
+        }
+      }
+    }
+    const sample = { ...actor, heading, barking, nearbyAnimals };
     if (level.completed) sample.vx = sample.vz = 0;
     updatePipPose(mesh, sample, dt);
   }

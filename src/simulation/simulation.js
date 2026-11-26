@@ -9,6 +9,7 @@ import { companionState, companionAssist } from './companions/companion-herd.js'
 import { roamSavedAnimals } from './saved-roaming.js';
 export { stepSavedRoaming } from './saved-roaming.js';
 import { animalRadius } from './animal-size.js';
+import { idleDogInput } from './idle-dog.js';
 import { temperament, familiarNeighbor, updateRelaxation, unattendedBrowse } from './herd-behavior.js';
 import { UPGRADE_CATALOG, purchaseUpgrade, upgradeEffects } from '../progression/progression.js';
 import {
@@ -123,7 +124,8 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   const wanderCohort = prepareWanderCohort(level);
   roamSavedAnimals(level, dt, level.time);
   const events = [];
-  const dogCollision = movePlayer(level, dog, input, dt, effects.speedBoost);
+  const wanderInput = idleDogInput(level, dog, input, dt, GAMEPLAY.simulation, effects);
+  const dogCollision = movePlayer(level, dog, wanderInput || input, dt, effects.speedBoost);
   level.dog = dog;
   const active = level.animals.filter((a) => !a.saved);
   const companions = companionState(level, active, effects, dt);

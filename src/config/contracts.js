@@ -69,6 +69,7 @@ export const CONFIG_CONTRACTS = freeze({
   gameplay: {
     simulation: {
       maximumStepSeconds: 'number',
+      dogIdleWanderSeconds: 'number',
       dogSpeed: 'number',
       dogPivotRate: 'number',
       dogRunTurnRate: 'number',

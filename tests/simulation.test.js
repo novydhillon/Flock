@@ -1,3 +1,4 @@
+import { gateButtons } from '../src/simulation/gates.js';
 import { animalRadius } from '../src/simulation/animal-size.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,6 +23,55 @@ import {
   navigationTarget,
   destinationApproach,
 } from '../src/world/world.js';
+
+test('Pip wanders only after 60 released seconds and yields immediately to the player', () => {
+  const level = createLevel(0, 201);
+  const dog = level.dog;
+  const start = { x: dog.x, z: dog.z };
+  const released = { allowIdleWander: true };
+  for (let frame = 0; frame < 610; frame++) stepSimulation(level, dog, {}, 0.1);
+  assert.equal(distance(start, dog), 0);
+  for (let frame = 0; frame < 600; frame++) stepSimulation(level, dog, released, 0.1);
+  assert.equal(distance(start, dog), 0);
+  stepSimulation(level, dog, released, 0);
+  assert.equal(distance(start, dog), 0);
+  for (let frame = 0; frame < 750; frame++) {
+    const previous = { x: dog.x, z: dog.z };
+    stepSimulation(level, dog, released, 0.1);
+    assert.ok(distance(previous, dog) <= 0.08 + 1e-8);
+    assert.ok(distance(start, dog) <= 3 + 1e-8);
+    assert.ok(canOccupy(level, dog.x, dog.z, 0.62));
+  }
+  assert.ok(distance(start, dog) > 1);
+  const heading = dog.heading;
+  const previous = { x: dog.x, z: dog.z };
+  stepSimulation(level, dog, { ...released, x: Math.sin(heading), z: Math.cos(heading) }, 0.1);
+  assert.ok(distance(previous, dog) > 0.8);
+  const returned = { x: dog.x, z: dog.z };
+  for (let frame = 0; frame < 600; frame++) stepSimulation(level, dog, released, 0.1);
+  assert.equal(distance(returned, dog), 0);
+  assert.equal(level.animals.filter((animal) => animal.saved).length, 0);
+});
+
+test('Pip can stroll near a gate without activating its switch', () => {
+  const level = createLevel(19, 200);
+  const { dog } = level;
+  const gate = level.gates.find((candidate) => candidate.operable);
+  const button = gateButtons(gate)[0];
+  const angle = (18 * Math.PI) / 15;
+  Object.assign(dog, { x: button.x + 2.7 * Math.sin(angle), z: button.z + 2.7 * Math.cos(angle) });
+  assert.ok(canOccupy(level, dog.x, dog.z, 0.62));
+  const initialOpen = gate.open;
+  let traveled = 0;
+  for (let frame = 0; frame < 1500; frame++) {
+    const previous = { x: dog.x, z: dog.z };
+    const result = stepSimulation(level, dog, { allowIdleWander: true }, 0.1);
+    assert.ok(result.events.every((event) => event.type !== 'gateToggled'));
+    traveled += distance(previous, dog);
+  }
+  assert.ok(traveled > 1);
+  assert.equal(gate.open, initialOpen);
+});
 
 test('idle waiting cannot finish the tutorial, but player herding can', () => {
   const idle = createLevel(0);

@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPipMotionState, updatePipMotion } from '../src/rendering/animation/pip-motion.js';
 
-function step(s, speed, heading = 0, dt = 1 / 60, barking = false) {
+const [stand, sit, bow, lie, scratch, roll] = [-1, 0, 1, 2, 3, 4];
+
+function step(s, speed, heading = 0, dt = 1 / 60, barking = false, nearAnimal = false, nearbyAnimals) {
   return updatePipMotion(
     s,
     {
@@ -12,6 +14,8 @@ function step(s, speed, heading = 0, dt = 1 / 60, barking = false) {
       vz: speed * Math.cos(heading),
       heading,
       barking,
+      nearAnimal,
+      nearbyAnimals,
     },
     dt,
   );
@@ -51,25 +55,131 @@ test('positive and negative heading wrap produce mirrored, bounded turn rates', 
   assert.ok(left.turnRate > 0.98);
 });
 
-test('idle poses have time to settle and release; Buddy initiates play earlier', () => {
+test('Buddy settles earlier, and play bows require a nearby animal', () => {
   const adult = createPipMotionState(),
-    puppy = createPipMotionState(true);
+    puppy = createPipMotionState(true),
+    playful = createPipMotionState(true);
   for (let i = 0; i < 90; i++) {
     step(adult, 0);
     step(puppy, 0);
+    step(playful, 0, 0, 1 / 60, false, true);
   }
-  assert.equal(adult.idleWeight, 0);
-  assert.ok(puppy.idleWeight > 0.95);
-  const held = new Set();
-  for (let i = 0; i < 2300; i++) {
-    const pose = adult.poseIndex;
-    step(adult, 0);
-    if (adult.idleWeight > 0.99) held.add(adult.poseIndex);
-    if (adult.poseIndex !== pose) assert.equal(adult.idleWeight, 0);
+  assert.equal(adult.poseIndex, stand);
+  assert.equal(puppy.poseIndex, sit);
+  assert.equal(playful.poseIndex, bow);
+  assert.ok(playful.idleWeight > 0.95);
+  step(playful, 0);
+  assert.notEqual(playful.poseIndex, bow);
+  assert.ok(playful.poseWeights[bow] > 0 && playful.poseWeights[bow] < 1);
+  step(playful, 0, 0, 0.52);
+  for (let i = 0; i < 600; i++) {
+    step(playful, 0, 0, 0.5);
+    assert.notEqual(playful.poseIndex, bow);
+    assert.equal(playful.poseWeights[bow], 0);
   }
-  assert.equal(held.size, 5);
   for (let i = 0; i < 50; i++) step(puppy, 3, 0, 1 / 60, i < 15);
-  assert.ok(puppy.idleWeight < 0.001 && puppy.bark < 0.001);
+  assert.equal(puppy.poseIndex, stand);
+  assert.equal(puppy.idleWeight, 0);
+  assert.ok(puppy.bark < 0.001);
+});
+
+for (const puppy of [false, true]) {
+  test(`${puppy ? 'Buddy' : 'Pip'} idle dwells vary within their old-duration multipliers and blend directly`, () => {
+    const previousDuration = [3.8, 2.15, 4.4, 2.8, 3.45];
+    const s = createPipMotionState(puppy);
+    const twin = createPipMotionState(puppy);
+    const held = new Map();
+    const advance = () => {
+      step(s, 0, 0, 0.05, false, true);
+      step(twin, 0, 0, 0.05, false, true);
+      assert.equal(s.poseIndex, twin.poseIndex);
+      assert.equal(s.poseDuration, twin.poseDuration);
+    };
+    for (let i = 0; i < 24000; i++) {
+      const { poseIndex, poseTime, poseDuration } = s;
+      advance();
+      if (poseIndex === s.poseIndex || poseIndex === stand) continue;
+
+      const multiplier = poseDuration / (previousDuration[poseIndex] * (puppy ? 0.82 : 1));
+      const min = poseIndex === scratch ? 1 : 3;
+      const max = poseIndex === scratch ? 3 : poseIndex === lie ? 8 : 6;
+      assert.ok(multiplier >= min && multiplier <= max);
+      assert.ok(poseTime >= poseDuration - 0.051);
+      if (!held.has(poseIndex)) held.set(poseIndex, new Set());
+      held.get(poseIndex).add(poseDuration);
+      assert.equal(s.idleWeight, 1);
+      if (s.poseIndex === scratch) assert.equal(poseIndex, sit);
+      if (poseIndex === scratch) assert.equal(s.poseIndex, sit);
+      advance();
+      assert.ok(s.poseWeights[s.poseIndex] > 0 && s.poseWeights[poseIndex] < 1);
+      assert.ok(Math.abs(s.idleWeight - 1) < 1e-12);
+    }
+    for (const pose of [sit, bow, lie, scratch, roll]) assert.ok(held.get(pose)?.size > 1, `pose ${pose}`);
+  });
+}
+
+test('animal arrivals prompt a bow from sit and lie, then blend into the other rest pose', () => {
+  const s = createPipMotionState(false, () => 0);
+  const advance = (nearAnimal = false) => step(s, 0, 0, 0.05, false, nearAnimal);
+  for (let i = 0; i < 50; i++) advance();
+  for (const [from, to] of [
+    [sit, lie],
+    [lie, sit],
+  ]) {
+    assert.equal(s.poseWeights[from], 1);
+    advance(true);
+    assert.equal(s.poseIndex, bow);
+    assert.ok(s.poseWeights[bow] > 0 && s.poseWeights[from] > 0);
+    for (let i = 0; i < 150 && s.poseIndex === bow; i++) advance(true);
+    assert.equal(s.poseIndex, to);
+    for (let i = 0; i < 20; i++) advance();
+  }
+  assert.equal(s.poseWeights[sit], 1);
+});
+
+test('a new nearby animal ID prompts a bow while other animals remain in range', () => {
+  const s = createPipMotionState(false, () => 0);
+  const advance = (ids) => step(s, 0, 0, 0.05, false, true, ids);
+  for (let i = 0; i < 50; i++) advance(['sheep-1']);
+  assert.equal(s.poseWeights[sit], 1);
+
+  const animals = ['sheep-1', 'cow-2'];
+  advance(animals);
+  assert.equal(s.poseIndex, bow);
+  for (let i = 0; i < 150 && s.poseIndex === bow; i++) advance(animals);
+  assert.equal(s.poseIndex, lie);
+
+  for (let i = 0; i < 20; i++) advance(['cow-2', 'sheep-1']);
+  assert.equal(s.poseWeights[lie], 1);
+  advance(['cow-2']);
+  assert.equal(s.poseIndex, lie);
+  advance(['cow-2', 'sheep-1']);
+  assert.equal(s.poseIndex, bow);
+
+  advance([]);
+  assert.equal(s.poseIndex, sit);
+  assert.equal(s.nearAnimal, false);
+});
+
+test('scratch keeps a seated base through animal arrival and can be paused or interrupted', () => {
+  const s = createPipMotionState(false, () => 0.99);
+  const advance = (nearAnimal = false) => step(s, 0, 0, 0.05, false, nearAnimal);
+  for (let i = 0; i < 550 && s.poseIndex !== scratch; i++) advance();
+  assert.equal(s.poseIndex, scratch);
+  advance(true);
+  assert.equal(s.poseIndex, scratch);
+  for (let i = 0; i < 200 && s.poseIndex === scratch; i++) {
+    assert.ok(Math.abs(s.poseWeights[sit] + s.poseWeights[scratch] - 1) < 1e-12);
+    advance(true);
+  }
+  assert.equal(s.poseIndex, sit);
+  assert.equal(s.poseWeights[scratch], 1);
+  const weights = [...s.poseWeights];
+  step(s, 3, 0, 0);
+  assert.deepEqual(s.poseWeights, weights);
+  step(s, 3);
+  assert.equal(s.poseIndex, stand);
+  assert.ok(s.poseWeights[scratch] > 0 && s.poseWeights[scratch] < 1);
 });
 
 test('pause freezes history and relocation resets interrupted activities, gait and bark', () => {

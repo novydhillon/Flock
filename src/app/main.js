@@ -704,7 +704,12 @@ function frame(now) {
     const result = stepSimulation(
       level,
       dog,
-      { x: ix, z: iz, bark: barkState.burstRemaining > 0 },
+      {
+        x: ix,
+        z: iz,
+        bark: barkState.burstRemaining > 0,
+        allowIdleWander: pointer === null && !document.hidden && pageFocused,
+      },
       dt,
       profile.upgrades,
     );

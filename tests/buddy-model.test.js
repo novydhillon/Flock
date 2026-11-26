@@ -55,18 +55,27 @@ test('both dogs have independent joints, a forward muzzle and a readable puppy s
   assert.deepEqual(transforms(adult), before);
 });
 
-test('entire sculpt touches ground through sit, play bow, lie, scratch and rollover transitions', () => {
+test('both sculpts touch the ground through idle transitions, including direct pose blends', () => {
+  const [stand, sit, bow, lie, scratch, roll] = [-1, 0, 1, 2, 3, 4];
+  const poses = [stand, sit, bow, lie, scratch, roll];
   for (const dog of [createPip(), createBuddy()]) {
     dog.scale.setScalar(1.0125 * dog.userData.suggestedScale);
     const s = dog.userData.motion;
-    for (let pose = 0; pose < 5; pose++) {
-      s.poseIndex = pose;
-      for (let frame = 0; frame <= 60; frame++) {
-        s.time = frame / 15;
-        s.idleWeight = (1 - Math.cos((frame * Math.PI) / 30)) / 2;
-        applyDogPose(dog);
-        const y = minimumHeight(dog);
-        assert.ok(Math.abs(y) < 0.002, `${dog.name} pose ${pose}, weight ${s.idleWeight}: bottom ${y}`);
+    for (const from of poses) {
+      for (const to of poses) {
+        if (from === to) continue;
+        if (to === scratch && from !== sit) continue;
+        if (from === scratch && to !== sit && to !== stand) continue;
+        for (let frame = 0; frame <= 30; frame++) {
+          s.time = frame / 15;
+          const weight = (1 - Math.cos((frame * Math.PI) / 30)) / 2;
+          s.poseWeights.fill(0);
+          if (from !== stand) s.poseWeights[from] = 1 - weight;
+          if (to !== stand) s.poseWeights[to] = weight;
+          applyDogPose(dog);
+          const y = minimumHeight(dog);
+          assert.ok(Math.abs(y) < 0.002, `${dog.name} ${from} -> ${to} at ${weight}: bottom ${y}`);
+        }
       }
     }
   }
