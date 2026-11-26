@@ -24,7 +24,15 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
+| F-KENNEL-001 | P1 | Progression/economy | Buy meadow slots and earn Buddy | Open | Existing Buddy gate and bolt ledger |
+| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | Open | F-DOG-001; F-KENNEL-001 |
+| F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | Open | F-KENNEL-001; F-KENNEL-002; F-046 |
+| F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
+| F-KENNEL-005 | P1 | UI/progression | Manage the kennel from pause and rewards | Open | F-KENNEL-001–004 |
+| F-KENNEL-006 | P1 | Art/animation | Animate and illustrate the ten-entry roster | Open | F-DOG-001; F-KENNEL-002; F-KENNEL-005 |
+| F-KENNEL-007 | P1 | Persistence/gameplay | Migrate progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
+| F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
+| F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-KENNEL-006; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
@@ -47,10 +55,129 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-BIRD-008 | P2 | Validation | Regression, blind review and development acceptance | Open | F-BIRD-007 |
 | F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
 | F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
-| F-047 | P4 | Gameplay/companions/economy | Second Buddy after meadow 40 with independent leveling and max tier by meadow 70 | Open | F-046 |
+| F-047 | P4 | Gameplay/companions/economy | Earlier second-Buddy milestone proposal | Deferred | F-KENNEL-001–004 |
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
 ## Acceptance criteria and planned work
+
+All eight kennel stories are planning-only and unclaimed. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
+
+### F-KENNEL-001 — Buy meadow slots and earn Buddy
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.
+
+**Accept when:**
+
+- A new save starts with Slot 1 open, Pip assigned and no bolt charge. Slot 2 is gated until meadow 20, Slot 3 until 40 and Slot 4 until 60.
+- Reaching a gate makes the slot purchasable. Buying it charges the configured bolt price once and permanently opens the slot. Buying Slot 2 also grants exactly one Buddy in the same transaction. Slots 3 and 4 grant lineup space.
+- Locked, unaffordable, available and opened states are distinguishable. Failed or repeated purchases leave the balance and roster consistent. Reloading preserves ownership and the Buddy reward.
+
+### F-KENNEL-002 — Adopt and manage individual dogs
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.
+
+**Accept when:**
+
+- An eligible adoption spends bolts and adds one dog with a persistent identity, name, coat and fresh attribute tiers. The same dog entry can be adopted repeatedly, including Pip and Buddy when eligible.
+- Define stable catalog identities for Pip, Buddy and the eight placeholders, with configurable adoption gates, base models and supported coats. Adoption rules operate independently of portrait and preview artwork.
+- Two copies can have different names, coats, stats and assignments. Editing or upgrading one leaves the other intact. An unavailable or unaffordable adoption leaves the kennel and bolt balance intact.
+- Owned dogs, their names, coat selections and upgrades survive reload. Unassigned dogs remain owned and can be selected later.
+
+### F-KENNEL-003 — Assign and play a lineup of up to four dogs
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want to choose which dogs work with me so I can lead with my favorite and bring helpers as slots open.
+
+**Accept when:**
+
+- Assign owned dogs to open slots and replace or remove CPU assignments. Slot 1 always has a valid owned dog. Only Slot 1 responds to player movement and bark input and drives the gameplay camera.
+- Slots 2–4, when eligible and assigned, independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or gated slots spawn no actor.
+- Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
+- An approved lineup persists across saves and is applied at the agreed boundary. Pause, resume, restart and replay preserve the expected controls and eligibility.
+
+### F-KENNEL-004 — Train speed, agility, influence and bark
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want to train a particular dog so its strengths carry into the role I assign it.
+
+**Accept when:**
+
+- The starting dog supports walk and light jog. Speed training raises the maximum gait through fast jog, light run and all-out run while retaining access to slower gaits.
+- At comparable movement speeds, each agility tier reduces the turn radius. A standing movement turn requires travel at every tier. Verify the same rules for the player-controlled dog and CPU dogs.
+- Influence preserves Friendly signal's three levels, costs and range increases. Bark intensity applies only to that dog's bark and follows the agreed pressure and charge rules.
+- One successful purchase charges the listed cost and advances exactly one attribute tier on the selected owned dog. Gated and maxed attributes, insufficient bolts and repeat input cannot create extra tiers or charges.
+
+### F-KENNEL-005 — Manage the kennel from pause and rewards
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want to browse and manage my dogs when I pause so I can prepare a lineup and spend bolts in one place.
+
+**Accept when:**
+
+- The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.
+- The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
+- The opposite side from the preview shows stacked running-dog, turning-dog, signal-rings and barking-dog icons. Each available upgrade has a green plus next to the icon and the bolt price below it. Locked, unaffordable and maximum-tier states remain legible.
+- The screen supports adoption, selecting and managing an owned dog, buying an eligible slot, and assigning or replacing a lineup dog. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
+
+### F-KENNEL-006 — Animate and illustrate the ten-entry roster
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want to see each dog's coat and personality before I adopt it or take it into a meadow.
+
+**Accept when:**
+
+- Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.
+- The larger preview above the strip uses the selected dog's coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.
+- A turnaround ends with the dog's head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.
+
+### F-KENNEL-007 — Migrate progress and retire marketplace upgrades
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a returning player, I want to keep my earned progress and receive fair value for old purchases so I can continue with the kennel.
+
+**Accept when:**
+
+- The approved versioned migration retains the save key and writes all new entitlements and refunds together. Check legacy boolean and tiered saves, preserved Buddy abilities and bark charges, full and partial reward ledgers, reload and interrupted or repeated migration.
+- Unspent bolts, campaign unlocks, earned score and reward records, and sound settings survive. Replaying a previously rewarded meadow cannot pay it again except for the existing improved-result difference.
+- The marketplace and purchased Flock harmony effect are absent after cutover. Existing Scout drone ownership and effects follow the approved migration decision. Normal flock behavior and unrelated menus still work. Review help text, first-run guidance and rewards copy for obsolete unlock language.
+
+### F-KENNEL-008 — Verify the kennel progression loop
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want the kennel and lineup to work consistently through the campaign so I can trust purchases and take my dogs into any eligible meadow.
+
+**Accept when:**
+
+- Check fresh saves and migrated saves, exact threshold pairs 19/20, 39/40 and 59/60, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes, early-meadow replay and reload after purchases.
+- Verify the economy with attainable bolt earnings and mixed purchase paths. Playtest split herds, gates, bridges, goal admission, movement and bark behavior at baseline and max tiers.
+- With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.
+- Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.
 
 ### F-DOG-002 — Ten additional dog breeds and progression
 
@@ -59,6 +186,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 **Branch:** `unassigned`
 
 **Request — 11 November 2026:** Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts. Breeds should vary in size, including small breeds such as a pug and a Chihuahua through to a Newfoundland. Include both pug and Chihuahua in the ten additional breeds.
+
+**26 November 2026:** Distinct breeds follow the placeholder roster in [F-KENNEL-006](#f-kennel-006--animate-and-illustrate-the-ten-entry-roster). Keep the later breed work scoped separately.
 
 **Accept when:** Ten additional recognizable breeds offer distinguishable movement speeds and capabilities inspired by their breeds, and support upgrades and boosts. Define breed selection, unlocks, costs, upgrade and boost behavior, balancing and persistence before implementation; these details are not yet specified. Preserve existing saves and progression with an appropriate migration if needed. Verify capabilities, balance, controls and mobile performance across breeds.
 
@@ -99,7 +228,9 @@ Acceptance criteria:
 
 ### F-047 - Second Buddy dog with independent progression (P4)
 
-**Status:** Open, queued only; unassigned.
+**Status:** Deferred, unassigned.
+
+**26 November 2026:** The kennel plan supplies the meadow-40 slot and repeat Buddy adoptions with individual training. Review the older fixed-Buddy and level-70 proposal against the kennel economy before considering this story again.
 
 **Requirement:** after meadow level 40, make a second Buddy dog available with its own independent leveling. Its purchase and upgrade costs should reflect the later stage of the game. Its maximum upgrade tier should be available by meadow level 70.
 
