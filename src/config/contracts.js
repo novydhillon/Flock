@@ -279,7 +279,7 @@ export const CONFIG_CONTRACTS = freeze({
       reedHeight: 'number',
     },
     renderer: {
-      pixelRatioCap: 'number',
+      renderScale: 'number',
       exposure: 'number',
       environmentSaturation: 'number',
       shadowMapSize: 'integer',

@@ -1,10 +1,10 @@
 {
   "renderer": {
-    "pixelRatioCap": {
-      "value": 1.6,
-      "_comment": "Maximum device pixel ratio used by WebGL.",
-      "min": 0.5,
-      "max": 3
+    "renderScale": {
+      "value": 0.5,
+      "_comment": "Fraction of native viewport pixels used per dimension by the WebGL canvas.",
+      "min": 0.25,
+      "max": 1
     },
     "exposure": {
       "value": 1.05,

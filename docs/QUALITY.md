@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
+
+On `feat/half-render-resolution`, based on `9c08372`, the WebGL canvas uses one half of the native viewport width and height. The existing 1024-square real-time sun shadow map and 4096-square baked map budget are preserved. Implementation model: GPT-6.2 Sol (session effort unavailable). The focused renderer regression exercises the 540 × 960 drawing buffer dimensions through a WebGL substitute and checks both map sizes. Formatting, documentation, release and development build checks passed. Physical phone rendering remains unverified.
+
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
 
 Branch: `feat/double-terrain-height`, base `3ac0dd95eaef7844ffe172e6527e60c54ddd7984`. Implementation: session model, identifier not recorded because the environment does not expose a verifiable root model identifier or effort setting; bounded camera configuration tuning. Lower Y from 36 to 27 and solve the Z offset from the original radius including the existing lookOffsetZ -2. No renderer algorithm, orthographic scale or follow-target changes. Same-session source inspection; independent blind review is not required for this bounded settings change and no independent score is claimed.

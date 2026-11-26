@@ -218,7 +218,7 @@ function label(text, color = '#45684d') {
 export class MeadowRenderer {
   constructor(canvas) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, PRESENTATION.renderer.pixelRatioCap));
+    this.renderer.setPixelRatio(devicePixelRatio * PRESENTATION.renderer.renderScale);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;

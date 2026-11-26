@@ -1,5 +1,9 @@
 # Flock product requirements
 
+## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
+
+Render the main 3D canvas at 50% of the browser viewport's native pixel width and height. A 1080 × 1920 native viewport renders at 540 × 960. Preserve the CSS viewport layout, camera aspect ratio, and existing real-time and baked shadow map sizes.
+
 ## Source organization - 10 November 2026
 
 F-ARCH-002: organize runtime source into folders by system and responsibility. Preserve the accepted F-PERF-002 code and performance, module behavior/dependency relationships, seeded outcomes, progress storage and graphics quality. Update imports, dynamic QA entry, CSS, HTML entry, tests, tools and current source links. Keep JavaScript formatted, Dev readable and live minified, with game/tracker delivery separate. Source-only work; no main merge or new deployment requested.

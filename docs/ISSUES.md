@@ -24,6 +24,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-RENDER-002 | P2 | Rendering | Render the 3D canvas at half native viewport resolution | Review | — |
 | F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Open | Existing dog gameplay |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
@@ -53,6 +54,16 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
 ## Acceptance criteria and planned work
+
+### F-RENDER-002 — Half-resolution 3D rendering
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feat/half-render-resolution`
+
+**Accept when:** The main 3D canvas uses half the native viewport width and height (1080 × 1920 → 540 × 960), and the real-time and baked shadow maps retain their existing sizes.
+
+**Validation:** Renderer regression covers a high-density portrait viewport and both shadow map sizes. Device smoke check and user sign-off are pending.
 
 ### F-DOG-001 — Pip and Buddy dog models and animation
 
