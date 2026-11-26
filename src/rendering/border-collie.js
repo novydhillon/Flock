@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { createPipMotionState, applyDogPose } from './animation/pip-motion.js';
+import { BUDDY_BODY_SCALE, createPipMotionState, applyDogPose } from './animation/pip-motion.js';
 
 // All colours are baked into the clay. Each moving joint needs only one draw,
 // even for the eyes, facial markings, white socks and two-tone tail.
@@ -236,7 +236,7 @@ function borderCollie(puppy) {
   const legs = [];
   for (const fore of [true, false]) for (const side of [-1, 1]) legs.push(makeLeg(rig, side, fore));
   dog.userData.parts = { rig, body, tail, legs, ...makeHead(rig, puppy) };
-  dog.userData.suggestedScale = puppy ? 0.82 : 1;
+  dog.userData.suggestedScale = puppy ? BUDDY_BODY_SCALE : 1;
   dog.userData.motion = createPipMotionState(puppy);
   applyDogPose(dog);
   return dog;

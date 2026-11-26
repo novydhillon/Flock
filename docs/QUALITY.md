@@ -14,6 +14,10 @@ Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4
 
 The playtest range is interpreted as eight world units. Livestock approach idle dogs on clear ground, settle at a comfortable distance, and respond to player control immediately. Existing companion work and committed crossings take precedence. Play bows remain occasional and standard idle holds use 2–5×. Lying and scratching retain their separately specified timings. Focused checks cover approach, sustained rest, immediate herding response, gate behavior and pose timing. Native phone playtesting remains pending.
 
+### Size-scaled livestock spacing bands — 26 November 2026
+
+Livestock IDs are assigned to stable bands in groups of four. Two stop at the original boundary, one can reach two-thirds of it and one can reach one-third, subject to body clearance. Buddy’s band distances use the same 0.82 scale as his rendered model. Tests measure the four distances around Pip and Buddy and retain the crowding and player-takeover checks. In-game visibility remains for playtesting.
+
 ### Crowd spacing and bow direction — 26 November 2026
 
 Idle livestock settle about four world units plus their body radius from a resting dog. Animals inside that space back out, and separation between livestock cannot push them into it. Pip and Buddy visually face the nearest reachable livestock when bowing. The animation follows the animal's position while preserving the dog's steering heading. Focused tests cover clearing a close animal, following a moving bow target, and returning to the steering heading. Phone playtesting remains pending.

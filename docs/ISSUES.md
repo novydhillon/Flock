@@ -67,6 +67,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ### F-DOG-001 — Pip and Buddy dog models and animation
 
+**Banded spacing:** Use Pip’s clearance as the reference and scale the boundary with each dog’s body size. Half the herd can enter the outer third, including the quarter that can enter the next third. Keep the innermost third clear.
+
 **Crowd readability feedback:** Preserve a clear space around each resting dog, including when livestock are already close. A play bow aims toward nearby livestock along clear ground.
 
 **Idle feedback:** Hold poses for randomly selected durations from two to five times the original, extending lying to eight times. Blend directly between poses. Scratching runs one to three times its original duration and returns to sitting. Nearby livestock can occasionally invite play bows while the dogs sit or lie down. Animals within eight world units approach idle dogs along clear ground and stay nearby until the player takes control. The dogs also take short walks between landing-screen rests. During play, Pip may take a short local walk after a tunable 60-second release delay.

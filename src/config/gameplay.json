@@ -42,6 +42,12 @@
       "min": 1,
       "max": 100
     },
+    "buddyBodyScale": {
+      "value": 0.82,
+      "_comment": "Buddy's body size relative to Pip for rendering and idle livestock spacing.",
+      "min": 0.5,
+      "max": 2
+    },
     "buddySpeedFraction": {
       "value": 0.94,
       "_comment": "Buddy's maximum ground speed as a fraction of Pip's base speed. Turbo paws upgrades Pip alone.",

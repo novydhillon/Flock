@@ -75,6 +75,7 @@ export const CONFIG_CONTRACTS = freeze({
       dogPivotRate: 'number',
       dogRunTurnRate: 'number',
       dogTurnBraking: 'number',
+      buddyBodyScale: 'number',
       buddySpeedFraction: 'number',
       dogRadius: 'number',
       signalRadius: 'number',

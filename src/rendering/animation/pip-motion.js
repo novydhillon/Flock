@@ -5,6 +5,7 @@ import { resolveConfig } from '../../config/resolve.js';
 
 const GAMEPLAY = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
 export const DOG_SOCIAL_RADIUS = GAMEPLAY.simulation.dogSocialRadius;
+export const BUDDY_BODY_SCALE = GAMEPLAY.simulation.buddyBodyScale;
 const arrivalBowChance = 0.35;
 
 // Animation reads authoritative movement in world units/second; only joint-local
@@ -134,7 +135,7 @@ function updateIdle(state, sample, dt, activity) {
   if (state.poseTime >= state.poseDuration) startPose(state, nextIdlePose(state));
 }
 
-export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? 0.82 : 1) {
+export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? BUDDY_BODY_SCALE : 1) {
   if (!(dt > 0) || !Number.isFinite(dt)) return state;
   const { x, z, heading = Math.PI / 2 } = sample;
   const speed = Math.hypot(sample.vx || 0, sample.vz || 0);

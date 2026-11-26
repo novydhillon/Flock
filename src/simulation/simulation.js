@@ -478,14 +478,23 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       desiredX = browse.x + sx * 0.3;
       desiredZ = browse.z + sz * 0.3;
     }
+    let socialApproach;
     if (socialDog) {
       const dx = socialDog.x - old.x,
         dz = socialDog.z - old.z,
         gap = Math.hypot(dx, dz);
       const angle = animal.id * 2.39996;
       const toward = gap > 0.01 ? normal(dx, dz) : { x: Math.sin(angle), z: Math.cos(angle) };
-      const space = Math.min(4 + physicalRadius, GAMEPLAY.simulation.dogSocialRadius * 0.8);
+      const { buddyBodyScale, dogRadius, dogSocialRadius } = GAMEPLAY.simulation;
+      const dogScale = socialDog === dog ? 1 : buddyBodyScale;
+      const boundary = Math.min(4 + physicalRadius, dogSocialRadius * 0.8);
+      // Assign one inner, one middle and two outer places in each group of
+      // four livestock IDs. Eligibility stays stable as the herd moves.
+      const band = (animal.id + (level.seed ?? 0)) & 3;
+      const fraction = (1 + Math.min(band, 2)) / 3;
+      const space = Math.max(boundary * fraction * dogScale, dogRadius * dogScale + physicalRadius);
       const pace = clamp((gap - space) * 0.65, -0.85, 0.65);
+      socialApproach = { toward, remaining: Math.max(0, gap - space) };
       desiredX = toward.x * pace + sx * 0.65;
       desiredZ = toward.z * pace + sz * 0.65;
       // A packed outer row must not push the inner animals into the dog's space.
@@ -576,6 +585,14 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       );
     animal.vx += (desiredX - animal.vx) * smoothing;
     animal.vz += (desiredZ - animal.vz) * smoothing;
+    if (socialApproach) {
+      // Limit inward travel after smoothing so momentum cannot cross the band's edge.
+      const { toward, remaining } = socialApproach;
+      const inwardSpeed = animal.vx * toward.x + animal.vz * toward.z;
+      const excess = Math.max(0, inwardSpeed - remaining / dt);
+      animal.vx -= toward.x * excess;
+      animal.vz -= toward.z * excess;
+    }
     const home = !holding && animal.wanderHome;
     const outsideHome = home && Math.hypot(animal.x + animal.vx * dt - home.x, animal.z + animal.vz * dt - home.z) > 3;
     const collision = moveBody(
