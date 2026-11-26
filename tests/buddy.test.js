@@ -652,3 +652,84 @@ test('autonomous barking begins at Buddy tier two, with tier gates and no tier-t
   assert.equal(buddy(level).targetId, null);
   assert.ok(stray.wanderHome);
 });
+
+test('Pip and Buddy take wider ground arcs at running speed and retain their straight-line limits', (t) => {
+  for (const dt of [1 / 30, 1 / 60, 1 / 120]) {
+    for (const helper of [false, true]) {
+      const radii = [];
+      for (const fraction of [0.2, 1]) {
+        const level = meadow([]);
+        const actor = helper ? buddy(level) : level.dog;
+        const step = (angle) => {
+          const x = Math.sin(angle),
+            z = Math.cos(angle);
+          if (helper) moveBuddy(level, actor, { x: actor.x + x * 30, z: actor.z + z * 30 }, dt, 9 * fraction);
+          else stepSimulation(level, actor, { x: x * fraction, z: z * fraction }, dt);
+        };
+        for (let i = 0; i < Math.round(1 / dt); i++) step(0);
+        const straightSpeed = Math.hypot(actor.vx, actor.vz);
+        assert.ok(Math.abs(straightSpeed - (helper ? Math.min(8.272, 9 * fraction) : 8.8 * fraction)) < 1e-6);
+        // Fit the circle through three successive physical positions after
+        // steering settles. This catches sideways translation under a rotating model.
+        for (let i = 0; i < Math.round(1 / dt); i++) step(actor.heading + 0.4);
+        const a = { ...actor };
+        step(actor.heading + 0.4);
+        const b = { ...actor };
+        step(actor.heading + 0.4);
+        const cross = (b.x - a.x) * (actor.z - b.z) - (b.z - a.z) * (actor.x - b.x);
+        assert.ok(cross < 0, 'right turn curves clockwise in the x/z plane');
+        const radius = (distance(a, b) * distance(b, actor) * distance(a, actor)) / (2 * Math.abs(cross));
+        assert.ok(Number.isFinite(radius) && radius > 0.05 && radius < 3);
+        radii.push(radius);
+      }
+      assert.ok(radii[1] > radii[0] * 3);
+      if (dt === 1 / 60)
+        t.diagnostic(
+          `${helper ? 'Buddy' : 'Pip'} walk/run measured radii: ${radii.map((v) => v.toFixed(3)).join(' / ')} m`,
+        );
+    }
+  }
+});
+
+test('aligned horizontal input moves Pip in either direction without drifting on the released axis', () => {
+  for (const direction of [-1, 1]) {
+    const level = meadow([]);
+    const dog = level.dog;
+    dog.heading = direction * (Math.PI / 2);
+    const startZ = dog.z;
+    for (let frame = 0; frame < 60; frame++) {
+      const previousX = dog.x;
+      stepSimulation(level, dog, { x: direction * 0.5 }, 1 / 60);
+      assert.ok(direction * (dog.x - previousX) > 0);
+      assert.equal(dog.z, startZ);
+    }
+  }
+});
+
+test('Pip can pivot on slight reverse input, release cleanly, and reach each unlocked upgrade speed', () => {
+  const level = meadow([]);
+  const dog = level.dog;
+  dog.heading = Math.PI - 0.01;
+  const start = { ...dog };
+  stepSimulation(level, dog, { z: 0.02 }, 1 / 60);
+  assert.ok(dog.heading < start.heading && dog.heading > start.heading - 0.4);
+  assert.equal(distance(dog, start), 0, 'faces the new direction before creeping forward');
+  for (let i = 0; i < 60; i++) stepSimulation(level, dog, { z: 0.02 }, 1 / 60);
+  assert.ok(dog.z > start.z && Math.abs(dog.heading) < 1e-8);
+  for (const [tier, expected] of [8.8, 10.6, 11.5, 12.3].entries()) {
+    stepSimulation(level, dog, { y: 1 }, 1 / 60, { speed: tier });
+    assert.ok(Math.abs(dog.vz - expected) < 1e-6);
+  }
+  const before = { ...dog };
+  stepSimulation(level, dog, { x: -1 }, 0);
+  assert.deepEqual(dog, before);
+  stepSimulation(level, dog, {}, 1 / 60);
+  assert.equal(distance(dog, before), 0);
+  assert.equal(Math.hypot(dog.vx, dog.vz), 0);
+
+  dog.heading = Math.PI - 0.03;
+  const target = -Math.PI + 0.03;
+  stepSimulation(level, dog, { x: Math.sin(target), z: Math.cos(target) }, 1 / 60);
+  assert.ok(Math.abs(dog.heading - (Math.PI + 0.03)) < 1e-8, 'takes the short turn across the heading seam');
+  assert.ok(dog.vx < 0 && dog.vz < -7, 'displacement follows the wrapped heading');
+});

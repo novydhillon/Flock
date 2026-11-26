@@ -1,5 +1,39 @@
 # Flock revision quality record
 
+## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
+
+On `feat/half-render-resolution`, based on `9c08372`, the WebGL canvas uses one half of the native viewport width and height. The existing 1024-square real-time sun shadow map and 4096-square baked map budget are preserved. Implementation model: GPT-6.2 Sol (session effort unavailable). The focused renderer regression exercises the 540 × 960 drawing buffer dimensions through a WebGL substitute and checks both map sizes. Formatting, documentation, release and development build checks passed. Physical phone rendering remains unverified.
+
+## F-DOG-001 — Clay border collies — 25 November 2026
+
+Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4. Implementation delegated to GPT-6.2 Astra High, with the final fixes on Astra Medium; coordination by GPT-6.2 Sol. Independent review by GPT-6.1 Sol Medium: 7.5, 8.5, 7.5, then 9/10. Ground penetration, steady-turn contact and abrupt reversals were corrected. The recheck passed 58 targeted tests and measured drift below 9e-13 m/s at 30/60/120 Hz. Earlier checks: 119 locomotion tests, 16 tracker tests, 7 documentation tests. Release and development artifact guards passed. The game rendered on a headless Chromium portrait viewport before the final contact fixes. Native phone FPS, terrain contact in motion and visual acceptance remain pending. Full aggregate regression run was still pending at record time.
+
+
+
+### Resting dogs and livestock — 26 November 2026
+
+The playtest range is interpreted as eight world units. Livestock approach idle dogs on clear ground, settle at a comfortable distance, and respond to player control immediately. Existing companion work and committed crossings take precedence. Play bows remain occasional and standard idle holds use 2–5×. Lying and scratching retain their separately specified timings. Focused checks cover approach, sustained rest, immediate herding response, gate behavior and pose timing. Native phone playtesting remains pending.
+
+### Size-scaled livestock spacing bands — 26 November 2026
+
+Livestock IDs are assigned to stable bands in groups of four. Two stop at the original boundary, one can reach two-thirds of it and one can reach one-third, subject to body clearance. Buddy’s band distances use the same 0.82 scale as his rendered model. Tests measure the four distances around Pip and Buddy and retain the crowding and player-takeover checks. In-game visibility remains for playtesting.
+
+### Crowd spacing and bow direction — 26 November 2026
+
+Idle livestock settle about four world units plus their body radius from a resting dog. Animals inside that space back out, and separation between livestock cannot push them into it. Pip and Buddy visually face the nearest reachable livestock when bowing. The animation follows the animal's position while preserving the dog's steering heading. Focused tests cover clearing a close animal, following a moving bow target, and returning to the steering heading. Phone playtesting remains pending.
+
+### Idle poses and strolls — 25 November 2026
+
+Pip and Buddy blend directly between randomized idle poses. Individual livestock entering six world units can prompt a play bow. Scratching begins seated and returns to sitting. Pip's optional gameplay stroll begins after more than 60 seconds of released input and stays near the release point. Player input resumes control on the same simulation step. Walk routes avoid livestock and gate switch zones. The half-resolution rendering merge was integrated before validation. Independent review progressed from 8/10 to 8.5/10 to 9/10 after correcting detection of additional approaching livestock and preventing gate activation. The final reviewer passed 35 focused checks and reproduced safe gate-side wandering at 10/30/60/120 Hz. Native touch and device visuals remain for playtesting.
+
+### Meadow 16 regression correction
+
+Initial source CI run 45692080420 failed one of 623 game tests (45/50 animals delivered, level 16 seed 202). Astra Medium corrected aligned movement to use the exact normalized input vector after the turn; this removes lateral floating-point drift without changing speed-dependent steering or braking. Sol Medium independent review scored 9/10. It verified 80/80 targeted tests on each of Node 22.23.5 and Node 24.22.3, including all 50 deliveries in the original scenario. Final full checked build and source CI remain deployment prerequisites.
+
+### Gallop and joystick playtest follow-up — 25 November 2026
+
+Pip and Buddy stretch and lower their heads during the airborne gallop, then bring their paws together under the torso. Pip reaches 8.8 m/s and Buddy reaches 8.272 m/s when sprinting. The 1.65 joystick response exponent opens up walking speeds. The cap begins at 90% of radial travel. The higher initial speed candidates failed seeded journeys under Node 22, so the final cap was selected after all nine journeys passed on both Node 22 and Node 24. A 105 ms paw-release blend corrected the 30 Hz reversal regression. Independent review improved from 8.5 to 9.2 after the correction, with 148 targeted passes. Isolated side-view poses were rendered and inspected. Native touch and phone playtesting remain pending.
+
 ## Butterfly wing flap and palette — 18 November 2026
 
 F-BUTTERFLY-001 uses body-local hinges and a bounded mirrored stroke. A seeded shuffle assigns yellow, orange, blue, purple and pink tints within the existing wing instance batch. The first five slots use distinct colors without advancing the wildlife placement random stream. The focused nature suite passed 20 tests, including hinge attachment under changing headings, full flap reversal, pause/resume and reproducible paired colors. Implementation used the session model. Its exact model and effort metadata were unavailable. Novy accepted the completed flap, palette, and 25% size reduction on 19 November 2026. The resized source passed [CI](https://github.com/novydhillon/Flock/actions/runs/44471801038). See the [archived issue](ISSUES_CLOSED.md#f-butterfly-001--butterfly-wing-flaps-and-colors) for validation scope.

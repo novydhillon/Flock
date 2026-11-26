@@ -2,180 +2,216 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPipMotionState, updatePipMotion } from '../src/rendering/animation/pip-motion.js';
 
-const radians = (degrees) => (degrees * Math.PI) / 180;
-const sample = (speed = 0, heading = 0, x = 0, z = 0) => ({
-  x,
-  z,
-  heading,
-  vx: Math.sin(heading) * speed,
-  vz: Math.cos(heading) * speed,
-});
-const channels = (state) => [state.hover, state.headYaw, state.roll, state.pitch, state.time];
-function start(speed = 0, heading = 0) {
-  const state = createPipMotionState();
-  updatePipMotion(state, sample(speed, heading), 0);
-  return state;
-}
-function run(state, seconds, pose, dt = 1 / 60) {
-  for (let i = 1; i <= Math.round(seconds / dt); i++) updatePipMotion(state, pose(i * dt), dt);
-  return state;
-}
-function bounded(state) {
-  assert.ok(channels(state).every(Number.isFinite), 'pose channels remain finite');
-  assert.ok(Math.abs(state.roll) <= radians(20) + 1e-10, 'bank is capped at 20 degrees');
-  assert.ok(Math.abs(state.pitch) <= radians(10) + 1e-10, 'pitch is capped at 10 degrees');
+const [stand, sit, bow, lie, scratch, roll] = [-1, 0, 1, 2, 3, 4];
+
+function step(s, speed, heading = 0, dt = 1 / 60, barking = false, nearAnimal = false, nearbyAnimals) {
+  return updatePipMotion(
+    s,
+    {
+      x: (s.previous?.x ?? 0) + dt * speed * Math.sin(heading),
+      z: (s.previous?.z ?? 0) + dt * speed * Math.cos(heading),
+      vx: speed * Math.sin(heading),
+      vz: speed * Math.cos(heading),
+      heading,
+      barking,
+      nearAnimal,
+      nearbyAnimals,
+    },
+    dt,
+  );
 }
 
-test('idle Pip keeps a small smooth float while remaining level', () => {
-  const state = start(),
-    heights = [];
+test('pace blends continuously during acceleration and deceleration without restarting the stride', () => {
+  for (const puppy of [false, true]) {
+    const s = createPipMotionState(puppy);
+    let blended = 0,
+      fastest = 0;
+    for (let i = 0; i < 480; i++) {
+      const speed = i < 240 ? i / 24 : (480 - i) / 24;
+      const lastBlend = s.run,
+        lastPhase = s.stride;
+      step(s, speed);
+      if (s.run > 0 && s.run < 1) blended++;
+      fastest = Math.max(s.run, fastest);
+      assert.ok(Math.abs(lastBlend - s.run) < 0.025);
+      assert.ok((s.stride - lastPhase + 1) % 1 < 0.13);
+    }
+    assert.ok(blended > 50);
+    assert.equal(fastest, 1);
+    assert.equal(s.run, 0);
+  }
+});
+
+test('positive and negative heading wrap produce mirrored, bounded turn rates', () => {
+  const left = createPipMotionState(),
+    right = createPipMotionState();
+  for (let i = 0; i < 120; i++) {
+    const angle = Math.atan2(Math.sin(3 + i / 60), Math.cos(3 + i / 60));
+    step(left, 3, angle);
+    step(right, 3, -angle);
+    assert.ok(Math.abs(left.turnRate + right.turnRate) < 1e-9);
+    assert.ok(Math.abs(left.turnRate) < 1.001);
+  }
+  assert.ok(left.turnRate > 0.98);
+});
+
+test('Buddy settles earlier, and play bows require a nearby animal', () => {
+  const adult = createPipMotionState(),
+    puppy = createPipMotionState(true),
+    playful = createPipMotionState(true, () => 0);
+  for (let i = 0; i < 90; i++) {
+    step(adult, 0);
+    step(puppy, 0);
+    step(playful, 0, 0, 1 / 60, false, true);
+  }
+  assert.equal(adult.poseIndex, stand);
+  assert.equal(puppy.poseIndex, sit);
+  assert.equal(playful.poseIndex, bow);
+  assert.ok(playful.idleWeight > 0.95);
+  step(playful, 0);
+  assert.notEqual(playful.poseIndex, bow);
+  assert.ok(playful.poseWeights[bow] > 0 && playful.poseWeights[bow] < 1);
+  step(playful, 0, 0, 0.52);
   for (let i = 0; i < 600; i++) {
-    updatePipMotion(state, sample(), 1 / 60);
-    bounded(state);
-    heights.push(state.hover);
-    assert.equal(state.pitch, 0);
-    assert.equal(state.roll, 0);
-    assert.equal(state.headYaw, 0);
+    step(playful, 0, 0, 0.5);
+    assert.notEqual(playful.poseIndex, bow);
+    assert.equal(playful.poseWeights[bow], 0);
   }
-  const range = Math.max(...heights) - Math.min(...heights);
-  assert.ok(range > 0.01 && range < 0.2, `visible slight idle hover, range=${range}`);
-  assert.ok(
-    heights.some((y, i) => i > 0 && y > heights[i - 1]) && heights.some((y, i) => i > 0 && y < heights[i - 1]),
-    'hover rises and falls continuously',
-  );
-  const differences = heights.slice(1).map((y, i) => y - heights[i]);
-  assert.ok(Math.max(...differences.map(Math.abs)) < 0.01, 'no steps in floating height');
-  // A sine sampled at constant intervals has constant second-difference / value.
-  const mean = (Math.max(...heights) + Math.min(...heights)) / 2;
-  const estimates = heights
-    .slice(1, -1)
-    .flatMap((y, i) => (Math.abs(y - mean) > 0.02 ? [(heights[i] + heights[i + 2] - 2 * y) / (y - mean)] : []));
-  assert.ok(estimates.length > 20);
-  assert.ok(
-    Math.max(...estimates) - Math.min(...estimates) < 0.0002,
-    'float follows a sine rather than random or stepped bobbing',
-  );
+  for (let i = 0; i < 50; i++) step(puppy, 3, 0, 1 / 60, i < 15);
+  assert.equal(puppy.poseIndex, stand);
+  assert.equal(puppy.idleWeight, 0);
+  assert.ok(puppy.bark < 0.001);
 });
 
-test('turn anticipation leads into the turn and banking scales with tightness', () => {
-  const turn = (rate) => {
-    const state = start(4);
-    run(state, 0.5, (t) => sample(4, rate * t));
-    bounded(state);
-    return state;
-  };
-  const gentle = turn(0.25),
-    tight = turn(1.5),
-    left = turn(-1.5),
-    extreme = turn(40);
-  assert.ok(gentle.headYaw > 0 && tight.headYaw > 0, 'head points into positive yaw');
-  assert.ok(gentle.roll < 0 && tight.roll < 0, 'body top leans into the turn');
-  assert.ok(Math.abs(tight.roll) > Math.abs(gentle.roll) * 1.5, 'tighter turns create stronger banks');
-  assert.ok(left.headYaw < 0 && left.roll > 0, 'opposite turn mirrors anticipation and bank');
-  assert.ok(Math.abs(tight.roll + left.roll) < 1e-8);
-  assert.ok(Math.abs(tight.headYaw + left.headYaw) < 1e-8);
-  assert.ok(Math.abs(extreme.roll) > radians(10), 'large turn input exercises the cap');
-});
+for (const puppy of [false, true]) {
+  test(`${puppy ? 'Buddy' : 'Pip'} idle dwells vary within their old-duration multipliers and blend directly`, () => {
+    const previousDuration = [3.8, 2.15, 4.4, 2.8, 3.45];
+    const s = createPipMotionState(puppy);
+    const twin = createPipMotionState(puppy);
+    const held = new Map();
+    const advance = () => {
+      step(s, 0, 0, 0.05, false, true);
+      step(twin, 0, 0, 0.05, false, true);
+      assert.equal(s.poseIndex, twin.poseIndex);
+      assert.equal(s.poseDuration, twin.poseDuration);
+    };
+    for (let i = 0; i < 24000; i++) {
+      const { poseIndex, poseTime, poseDuration } = s;
+      advance();
+      if (poseIndex === s.poseIndex || poseIndex === stand) continue;
 
-test('acceleration leans back proportional to rate, cruise levels in about two seconds, and stopping leans forward', () => {
-  const accelerate = (rate) => run(start(), 0.5, (t) => sample(rate * t, 0, 0, (rate * t * t) / 2));
-  const mild = accelerate(1),
-    strong = accelerate(6);
-  bounded(mild);
-  bounded(strong);
-  assert.ok(mild.pitch < 0 && strong.pitch < 0, 'acceleration raises the forward-facing nose');
-  assert.ok(
-    Math.abs(strong.pitch) > Math.abs(mild.pitch) * 1.5,
-    'pitch responds to acceleration rather than speed alone',
-  );
-  const peak = Math.abs(strong.pitch);
-  run(strong, 2, (t) => sample(3, 0, 0, 0.75 + 3 * t));
-  assert.ok(
-    Math.abs(strong.pitch) < radians(1) && Math.abs(strong.pitch) < peak * 0.1,
-    'cruising is effectively level after two seconds',
-  );
-  run(strong, 0.5, (t) => sample(3 - 6 * t, 0, 0, 6.75 + 3 * t - 3 * t * t));
-  bounded(strong);
-  assert.ok(strong.pitch > 0, 'braking lowers the forward-facing nose');
-  run(strong, 2, () => sample(0, 0, 0, 7.5));
-  assert.ok(Math.abs(strong.pitch) < radians(1), 'stopped Pip returns to level');
-  for (const rate of [100, -100]) {
-    const state = start(rate < 0 ? 50 : 0);
-    run(state, 0.2, (t) => sample(rate < 0 ? 50 + rate * t : rate * t));
-    bounded(state);
+      const multiplier = poseDuration / (previousDuration[poseIndex] * (puppy ? 0.82 : 1));
+      const min = poseIndex === scratch ? 1 : poseIndex === lie ? 3 : 2;
+      const max = poseIndex === scratch ? 3 : poseIndex === lie ? 8 : 5;
+      assert.ok(multiplier >= min && multiplier <= max);
+      assert.ok(poseTime >= poseDuration - 0.051);
+      if (!held.has(poseIndex)) held.set(poseIndex, new Set());
+      held.get(poseIndex).add(poseDuration);
+      assert.equal(s.idleWeight, 1);
+      if (s.poseIndex === scratch) assert.equal(poseIndex, sit);
+      if (poseIndex === scratch) assert.equal(s.poseIndex, sit);
+      advance();
+      assert.ok(s.poseWeights[s.poseIndex] > 0 && s.poseWeights[poseIndex] < 1);
+      assert.ok(Math.abs(s.idleWeight - 1) < 1e-12);
+    }
+    for (const pose of [sit, bow, lie, scratch, roll]) assert.ok(held.get(pose)?.size > 1, `pose ${pose}`);
+  });
+}
+
+test('animal arrivals prompt a bow from sit and lie, then blend into the other rest pose', () => {
+  const s = createPipMotionState(false, () => 0);
+  const advance = (nearAnimal = false) => step(s, 0, 0, 0.05, false, nearAnimal);
+  for (let i = 0; i < 50; i++) advance();
+  for (const [from, to] of [
+    [sit, lie],
+    [lie, sit],
+  ]) {
+    assert.equal(s.poseWeights[from], 1);
+    advance(true);
+    assert.equal(s.poseIndex, bow);
+    assert.ok(s.poseWeights[bow] > 0 && s.poseWeights[from] > 0);
+    for (let i = 0; i < 150 && s.poseIndex === bow; i++) advance(true);
+    assert.equal(s.poseIndex, to);
+    for (let i = 0; i < 20; i++) advance();
   }
+  assert.equal(s.poseWeights[sit], 1);
 });
 
-test('heading wrap takes the short turn and stationary yaw does not bank like a moving turn', () => {
-  const wrapped = start(4, Math.PI - 0.01),
-    plain = start(4, -0.01);
-  updatePipMotion(wrapped, sample(4, -Math.PI + 0.01), 1 / 60);
-  updatePipMotion(plain, sample(4, 0.01), 1 / 60);
-  assert.ok(wrapped.headYaw > 0 && wrapped.roll < 0);
-  assert.ok(Math.abs(wrapped.headYaw - plain.headYaw) < 1e-9);
-  assert.ok(Math.abs(wrapped.roll - plain.roll) < 1e-9, 'crossing +/-pi does not create a full-turn spike');
-  const stationary = run(start(), 0.5, (t) => sample(0, t));
-  assert.ok(Math.abs(stationary.roll) < radians(0.1), 'yaw in place has no lateral bank');
+test('a nearby arrival does not always interrupt rest with a play bow', () => {
+  const s = createPipMotionState(false, () => 0.8);
+  for (let i = 0; i < 50; i++) step(s, 0, 0, 0.05);
+  step(s, 0, 0, 0.05, false, true, ['sheep-1']);
+  assert.equal(s.poseIndex, sit);
 });
 
-test('pause and negative frame deltas freeze pose and derivative history', () => {
-  const state = run(start(), 0.4, (t) => sample(t * 4, t, 0, t * t * 2));
-  const snapshot = structuredClone(state);
-  updatePipMotion(state, sample(80, -2, 100, -100), 0);
-  assert.deepEqual(state, snapshot, 'zero dt is a true freeze');
-  updatePipMotion(state, sample(80, -2, 100, -100), -0.5);
-  assert.deepEqual(state, snapshot, 'negative dt cannot rewind phase or poison previous sample');
+test('a new nearby animal ID prompts a bow while other animals remain in range', () => {
+  const s = createPipMotionState(false, () => 0);
+  const advance = (ids) => step(s, 0, 0, 0.05, false, true, ids);
+  for (let i = 0; i < 50; i++) advance(['sheep-1']);
+  assert.equal(s.poseWeights[sit], 1);
+
+  const animals = ['sheep-1', 'cow-2'];
+  advance(animals);
+  assert.equal(s.poseIndex, bow);
+  for (let i = 0; i < 150 && s.poseIndex === bow; i++) advance(animals);
+  assert.equal(s.poseIndex, lie);
+
+  for (let i = 0; i < 20; i++) advance(['cow-2', 'sheep-1']);
+  assert.equal(s.poseWeights[lie], 1);
+  advance(['cow-2']);
+  assert.equal(s.poseIndex, lie);
+  advance(['cow-2', 'sheep-1']);
+  assert.equal(s.poseIndex, bow);
+
+  advance([]);
+  assert.equal(s.poseIndex, sit);
+  assert.equal(s.nearAnimal, false);
 });
 
-test('teleports clear turn and acceleration transients; fresh state has no inherited pose', () => {
-  const state = run(start(), 0.4, (t) => sample(8 * t, 2 * t, 0, t * t * 4));
-  assert.ok(Math.abs(state.roll) > 0 && Math.abs(state.pitch) > 0);
-  updatePipMotion(state, sample(0, -2, 100, 100), 1 / 60);
-  bounded(state);
-  assert.equal(state.pitch, 0);
-  assert.equal(state.roll, 0);
-  assert.equal(state.headYaw, 0);
-  updatePipMotion(state, sample(0, -2, 100, 100), 1 / 60);
-  assert.equal(state.pitch, 0);
-  assert.equal(state.roll, 0);
-  const fresh = start();
-  assert.equal(fresh.pitch, 0);
-  assert.equal(fresh.roll, 0);
-  assert.equal(fresh.headYaw, 0);
-  assert.equal(fresh.time, 0);
-});
-
-test('pose is stable across common frame sizes and a long frame remains bounded', () => {
-  const trace = (dt) => run(start(), 2, (t) => sample(t < 1 ? t * 3 : 3, 0.7 * t, 0.25 * t * t, t * t), dt);
-  const states = [1 / 30, 1 / 60, 1 / 120].map(trace);
-  for (const state of states) bounded(state);
-  for (const key of ['hover', 'pitch', 'roll', 'headYaw']) {
-    assert.ok(
-      Math.max(...states.map((s) => s[key])) - Math.min(...states.map((s) => s[key])) < 0.025,
-      `${key} converges at 30/60/120 Hz`,
-    );
+test('scratch keeps a seated base through animal arrival and can be paused or interrupted', () => {
+  const s = createPipMotionState(false, () => 0.99);
+  const advance = (nearAnimal = false) => step(s, 0, 0, 0.05, false, nearAnimal);
+  for (let i = 0; i < 550 && s.poseIndex !== scratch; i++) advance();
+  assert.equal(s.poseIndex, scratch);
+  advance(true);
+  assert.equal(s.poseIndex, scratch);
+  for (let i = 0; i < 200 && s.poseIndex === scratch; i++) {
+    assert.ok(Math.abs(s.poseWeights[sit] + s.poseWeights[scratch] - 1) < 1e-12);
+    advance(true);
   }
-  const state = start();
-  updatePipMotion(state, sample(100, 2, 1, 1), 0.75);
-  bounded(state);
+  assert.equal(s.poseIndex, sit);
+  assert.equal(s.poseWeights[scratch], 1);
+  const weights = [...s.poseWeights];
+  step(s, 3, 0, 0);
+  assert.deepEqual(s.poseWeights, weights);
+  step(s, 3);
+  assert.equal(s.poseIndex, stand);
+  assert.ok(s.poseWeights[scratch] > 0 && s.poseWeights[scratch] < 1);
 });
 
-test('step starts and step stops have a visible brief pitch response', () => {
-  const state = start(),
-    acceleration = [],
-    braking = [];
-  for (let i = 0; i < 120; i++) {
-    updatePipMotion(state, sample(5, 0, 0, ((i + 1) * 5) / 60), 1 / 60);
-    acceleration.push(state.pitch);
-    bounded(state);
+test('pause freezes history and relocation resets interrupted activities, gait and bark', () => {
+  const s = createPipMotionState(true);
+  for (let i = 0; i < 100; i++) step(s, 6, i / 25, 1 / 60, true);
+  const before = structuredClone(s);
+  const elsewhere = { x: 90, z: 56, heading: -2, vx: 0, vz: 0 };
+  for (const dt of [0, -1, NaN, Infinity]) {
+    updatePipMotion(s, elsewhere, dt);
+    assert.deepEqual(s, before);
   }
-  assert.ok(Math.min(...acceleration) < -radians(2), 'a start has a visible backward lean');
-  assert.ok(Math.abs(state.pitch) < radians(1), 'step start settles within two seconds');
-  for (let i = 0; i < 120; i++) {
-    updatePipMotion(state, sample(0, 0, 0, 10), 1 / 60);
-    braking.push(state.pitch);
-    bounded(state);
+  updatePipMotion(s, elsewhere, 1 / 60);
+  assert.deepEqual(s, { ...createPipMotionState(true), previous: { x: 90, z: 56, heading: -2 } });
+});
+
+test('walk and gallop phase converge at 30, 60 and 120 Hz', () => {
+  for (const speed of [1.3, 7]) {
+    const states = [30, 60, 120].map((hz) => {
+      const s = createPipMotionState();
+      for (let i = 0; i < 3 * hz; i++) step(s, speed, 0, 1 / hz);
+      return s;
+    });
+    for (const s of states) {
+      const phase = (s.stride - states[2].stride) * 2 * Math.PI;
+      assert.ok(Math.abs(Math.atan2(Math.sin(phase), Math.cos(phase))) < 0.75);
+    }
   }
-  assert.ok(Math.max(...braking) > radians(2), 'a stop has a visible forward lean');
-  assert.ok(Math.abs(state.pitch) < radians(1), 'step stop settles within two seconds');
 });

@@ -69,7 +69,14 @@ export const CONFIG_CONTRACTS = freeze({
   gameplay: {
     simulation: {
       maximumStepSeconds: 'number',
+      dogIdleWanderSeconds: 'number',
+      dogSocialRadius: 'number',
       dogSpeed: 'number',
+      dogPivotRate: 'number',
+      dogRunTurnRate: 'number',
+      dogTurnBraking: 'number',
+      buddyBodyScale: 'number',
+      buddySpeedFraction: 'number',
       dogRadius: 'number',
       signalRadius: 'number',
       barkRadiusBoost: 'number',
@@ -279,7 +286,7 @@ export const CONFIG_CONTRACTS = freeze({
       reedHeight: 'number',
     },
     renderer: {
-      pixelRatioCap: 'number',
+      renderScale: 'number',
       exposure: 'number',
       environmentSaturation: 'number',
       shadowMapSize: 'integer',
@@ -418,7 +425,7 @@ export const CONFIG_CONTRACTS = freeze({
     pointer: {
       joystickRangePixels: 'number',
       joystickFullSpeedFraction: 'number',
-      joystickLogStrength: 'number',
+      joystickSpeedExponent: 'number',
       tapMovementPixels: 'number',
       doubleTapDistancePixels: 'number',
       doubleTapMs: 'number',

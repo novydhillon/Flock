@@ -1524,7 +1524,7 @@ test('control settings change joystick movement and cap the live controller fram
   await ui.click('play');
   ui.emit('pointerdown', { pointerId: 1, clientX: 100, clientY: 100 });
   ui.emit('pointermove', { pointerId: 1, clientX: 184, clientY: 100 });
-  assert.ok(ui.app.state().input.x > 0.5 && ui.app.state().input.x < 1);
+  assert.ok(ui.app.state().input.x > 0 && ui.app.state().input.x < 1);
   assert.equal(ui.el('stick').style.transform, 'translate(84px,0px)');
   ui.tick();
   assert.equal(ui.app.state().renderer.lastDt, 0.01);
@@ -1574,33 +1574,33 @@ test('bark readiness accent matches restored charges, expires and stays quiet ac
   assert.equal(ui.el('bark').classList.contains('ready-accent'), false);
 });
 
-test('joystick radial speed is logarithmic, continuous, and saturated over the outer 15 percent', async () => {
+test('joystick radial speed is progressive, continuous, and saturated over the outer 10 percent', async () => {
   const ui = launch();
   await ui.click('play');
   const gesture = { pointerId: 1, clientX: 100, clientY: 100 };
   ui.emit('pointerdown', gesture);
   let previous = 0;
-  for (const fraction of [0, 0.01, 0.1, 0.3, 0.5, 0.7, 0.849, 0.85, 0.9, 1, 2]) {
+  for (const fraction of [0, 0.01, 0.1, 0.3, 0.5, 0.7, 0.85, 0.899, 0.9, 1, 2]) {
     ui.emit('pointermove', { ...gesture, clientX: 100 + 84 * fraction });
     const speed = ui.app.state().input.x;
     assert.ok(Number.isFinite(speed) && speed >= previous && speed <= 1);
     if (fraction === 0) assert.equal(speed, 0);
-    else if (fraction < 0.85) assert.ok(speed > fraction / 0.85 && speed < 1);
+    else if (fraction < 0.9) assert.ok(speed > 0 && speed < fraction / 0.9);
     else assert.ok(Math.abs(speed - 1) < 1e-12);
     previous = speed;
   }
-  // A half-threshold drag yields log10(5.5), independent of heading.
+  // A half-threshold drag stays in the lower speed range in every direction.
   for (const angle of [0, Math.PI / 4, Math.PI, -Math.PI / 2]) {
-    const distance = 84 * 0.85 * 0.5;
+    const distance = 84 * 0.9 * 0.5;
     ui.emit('pointermove', {
       ...gesture,
       clientX: 100 + distance * Math.cos(angle),
       clientY: 100 + distance * Math.sin(angle),
     });
     const input = ui.app.state().input;
-    assert.ok(Math.abs(Math.hypot(input.x, input.z) - Math.log10(5.5)) < 1e-12);
-    assert.ok(Math.abs(input.x - Math.cos(angle) * Math.log10(5.5)) < 1e-12);
-    assert.ok(Math.abs(input.z - Math.sin(angle) * Math.log10(5.5)) < 1e-12);
+    assert.ok(Math.abs(Math.hypot(input.x, input.z) - 0.5 ** 1.65) < 1e-12);
+    assert.ok(Math.abs(input.x - Math.cos(angle) * 0.5 ** 1.65) < 1e-12);
+    assert.ok(Math.abs(input.z - Math.sin(angle) * 0.5 ** 1.65) < 1e-12);
   }
   ui.emit('pointerup', gesture);
   assert.equal(ui.app.state().input.x, 0);

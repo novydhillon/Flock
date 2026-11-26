@@ -1,5 +1,9 @@
 # Presentation: renderer, nature and audio
 
+## F-DOG-001 — 25 November 2026
+
+The dogs share an articulated clay rig. Rendering reads movement and bark state from gameplay to pose the legs, body, head, jaw, ears and tail. Each dog owns its animation clock. Buddy uses puppy proportions, a shorter stride and shorter idle intervals.
+
 ## Allocation cleanup without visual changes - 10 November 2026
 
 F-PERF-002 updates glow once after current Pip/Buddy transforms instead of twice. Rain reuses five vectors while retaining expression order, random draws, wrap logic and all drop counts. Goal-pointer rotation reuses renderer-owned quaternion/axis. No geometry density, shader quality, graphics settings or simulation step is reduced. Rain regression checks compare exact Float32 buffers/random state against the previous algorithm across 400 frames.
@@ -212,7 +216,7 @@ this.waterEffects.update(dt, { weather, movers, paused: dt <= 0 });
 
 ## Scene construction and materials
 
-`MeadowRenderer` configures antialiasing, pixel ratio capped at `1.6`, sRGB output, ACES filmic tone mapping and exposure `1.05`. A hemisphere light and moving directional sun light the scene. The sun has a 1024-square PCF soft shadow map and an orthographic shadow volume of ±30 units. Background and fog share a pale blue color; fog spans 95–195 world units. These are configuration values, not measured quality/performance guarantees.
+`MeadowRenderer` configures antialiasing, a drawing buffer scaled to 50% of the native viewport width and height, sRGB output, ACES filmic tone mapping and exposure `1.05`. A hemisphere light and moving directional sun light the scene. The sun has a 1024-square PCF soft shadow map and an orthographic shadow volume of ±30 units. Background and fog share a pale blue color; fog spans 95–195 world units. These are configuration values, not measured quality/performance guarantees.
 
 `setLevel` builds a plane larger than the bounds, decorative hills, road/river ribbons, bridge meshes, target marker, fences, structures, obstacle trees and bounded decorative details. Roads and rivers use sampled centerlines supplied by the world. Road shoulders may wander cosmetically; river width follows the physical half-width. Fence/gate/target segments come from world collision geometry. Selected fence segments render as stone masonry; level-20+ closed gate panels render and slide open from the contextual action. Seeded bush clusters sit outside routes, water, obstacles, fence lines, spawn and target. `WaterEffects` clones each river ribbon geometry and projects its vertices to local centerline arc-length UVs; the generated streak texture advances along local V, so flow follows bends independently of map compass heading. Each cloned texture uses repeat `1×1`; the overlay owns its geometry, texture and material while preserving the source river mesh/material. `surfaces.js` builds ribbons by unioning convex stroke pieces into disjoint trapezoids, then upward triangles with world-coordinate UVs. Bevel center fans bound sharp joins. The union removes stacked coplanar pieces at turns, reversals and self-crossings. Headless topology checks support the repair; Novy accepted the path repair on 14 October 2026.
 

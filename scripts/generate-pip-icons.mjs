@@ -32,13 +32,29 @@ const fill = new THREE.DirectionalLight(0xa6e6ff, 0.25);
 fill.position.set(4, 2, 1);
 scene.add(fill);
 const pip = createPip();
-scene.add(pip);
-pip.userData.parts.body.visible = false;
-pip.userData.parts.tail.visible = false;
-for (const rings of pip.userData.parts.rings) for (const ring of rings) ring.visible = false;
-const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
-camera.position.set(0.7, 1.67, 3.15);
-camera.lookAt(0, 1.43, 0.62);
+// Frame the articulated head itself so changes in body proportions do not shift the crop.
+const head = pip.userData.parts.head;
+scene.attach(head);
+// SVGRenderer uses the first vertex colour for an entire face. Average the three
+// samples to keep the collie's blaze and ear markings continuous in the portrait.
+head.traverse((mesh) => {
+  if (!mesh.isMesh || !mesh.geometry.attributes.color) return;
+  if (mesh.geometry.index) mesh.geometry = mesh.geometry.toNonIndexed();
+  const colors = mesh.geometry.attributes.color;
+  for (let i = 0; i < colors.count; i += 3) {
+    const r = (colors.getX(i) + colors.getX(i + 1) + colors.getX(i + 2)) / 3;
+    const g = (colors.getY(i) + colors.getY(i + 1) + colors.getY(i + 2)) / 3;
+    const b = (colors.getZ(i) + colors.getZ(i + 1) + colors.getZ(i + 2)) / 3;
+    colors.setXYZ(i, r, g, b);
+  }
+});
+const bounds = new THREE.Box3().setFromObject(head);
+const center = bounds.getCenter(new THREE.Vector3());
+const extent = bounds.getSize(new THREE.Vector3());
+const half = Math.max(extent.x, extent.y, extent.z) * 0.59;
+const camera = new THREE.OrthographicCamera(-half, half, half, -half, 0.01, 20);
+camera.position.copy(center).add(new THREE.Vector3(0.24, 0.12, 1).normalize().multiplyScalar(half * 4));
+camera.lookAt(center);
 const renderer = new SVGRenderer();
 renderer.setSize(512, 512);
 renderer.setPrecision(2);
@@ -46,7 +62,7 @@ renderer.render(scene, camera);
 const svg = renderer.domElement;
 svg.removeAttribute('style');
 svg.setAttribute('role', 'img');
-svg.setAttribute('aria-label', 'Pip the robot sheepdog');
+svg.setAttribute('aria-label', 'Pip the border collie');
 const backdrop = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
 for (const [key, value] of Object.entries({ x: -256, y: -256, width: 512, height: 512, fill: '#779c4d' }))
   backdrop.setAttribute(key, String(value));

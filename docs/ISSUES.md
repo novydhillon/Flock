@@ -24,7 +24,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Open | Existing dog gameplay |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
@@ -52,16 +51,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
 ## Acceptance criteria and planned work
-
-### F-DOG-001 — Pip and Buddy dog models and animation
-
-**Status:** Open. Owner: Unassigned.
-
-**Branch:** `unassigned`
-
-**Request — 11 November 2026:** Replace Pip's robot model with a real dog in the claymation style, guided by [picture 1: model reference](https://chatgpt.com/library?file_id=libfile_8f164349a58c8191b78718b7d419d134&account_id=personal) and [picture 2: animation reference](https://chatgpt.com/library?file_id=libfile_9730d5a24fd081918e890bae9499b20b&account_id=personal). Buddy is a smaller, younger and more feisty version.
-
-**Accept when:** Pip's appearance follows the model reference, and expressive animations draw on the barking, sitting, rolled-over and play poses in the animation reference. Buddy reads as younger, smaller and feistier while remaining recognizable and readable at gameplay scale. Grounded locomotion and transitions suit the new dogs; preserve existing controls, herding behavior, collision and progression. Coordinate with F-COMP-004–006 and F-COMP-008. Verify animation, terrain contact and mobile performance in gameplay.
 
 ### F-DOG-002 — Ten additional dog breeds and progression
 

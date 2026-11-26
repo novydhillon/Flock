@@ -1,5 +1,11 @@
 import { navigationTarget, hasClearGroundPath, canOccupy, segmentDistance, moveBody } from '../../world/world.js';
 
+import { CONFIG_CONTRACTS } from '../../config/contracts.js';
+import { resolveConfig } from '../../config/resolve.js';
+import settings from '../../config/gameplay.json' with { type: 'json' };
+
+const { simulation } = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
+const buddyTopSpeed = simulation.dogSpeed * simulation.buddySpeedFraction;
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 
 /** Resolve the actual standing goal separately from intermediate route waypoints. */
@@ -220,7 +226,7 @@ export function turnToward(current, target, rate, dt) {
 }
 
 /** Turn before reversing. Slow near the waypoint rather than shuttling through it. */
-export function moveBuddy(level, buddy, waypoint, dt, speed) {
+export function moveBuddy(level, buddy, waypoint, dt, speed = buddyTopSpeed) {
   if (!(dt > 0) || !Number.isFinite(dt)) return;
   const dx = waypoint.x - buddy.x,
     dz = waypoint.z - buddy.z,
@@ -237,7 +243,7 @@ export function moveBuddy(level, buddy, waypoint, dt, speed) {
     // bounded acceleration instead, so both pursuit and stopping are smooth.
     const response = 5,
       acceleration = 10;
-    const desiredSpeed = Math.min(Math.max(0, speed), d * response) * alignment;
+    const desiredSpeed = Math.min(buddyTopSpeed, Math.max(0, speed), d * response) * alignment;
     const currentSpeed = Math.max(0, buddy.moveSpeed ?? Math.hypot(buddy.vx || 0, buddy.vz || 0));
     const nextSpeed =
       currentSpeed + Math.max(-acceleration * dt, Math.min(acceleration * dt, desiredSpeed - currentSpeed));

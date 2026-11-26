@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createDog, createTree, createBush, createMaterials } from '../src/rendering/models.js';
-import { setTailLightBarking } from '../src/rendering/animation/tail-light.js';
+import { createTree, createBush, createMaterials } from '../src/rendering/models.js';
 import { generateBushClusters } from '../src/rendering/environment/vegetation.js';
 import { createLevel, canOccupy } from '../src/world/world.js';
 
@@ -30,28 +29,6 @@ function lineDistance(point, points) {
   }
   return result;
 }
-
-test('dog bark light is isolated from shared cyan and restores from simulation state', () => {
-  installCanvasStub();
-  const sharedCyan = createMaterials().cyan,
-    cyanBefore = sharedCyan.color.getHexString();
-  const pip = createDog(),
-    buddy = createDog();
-  assert.ok(pip.userData.parts.tailLight.isMesh);
-  assert.notEqual(
-    pip.userData.parts.tailLight.material,
-    buddy.userData.parts.tailLight.material,
-    'each dog owns its independently animated feedback material',
-  );
-  assert.equal(pip.userData.parts.tailLight.material.color.getHexString(), '9ceeff');
-  assert.equal(setTailLightBarking(pip, true), true);
-  assert.equal(pip.userData.parts.tailLight.material.color.getHexString(), 'ff7062');
-  assert.equal(buddy.userData.parts.tailLight.material.color.getHexString(), '9ceeff');
-  assert.equal(setTailLightBarking(pip.userData.parts, false), true);
-  assert.equal(pip.userData.parts.tailLight.material.color.getHexString(), '9ceeff');
-  assert.equal(sharedCyan.color.getHexString(), cyanBefore);
-  assert.equal(setTailLightBarking({}, true), false);
-});
 
 test('trees use seamless wood while bushes retain bark and both keep fuller handmade forms', () => {
   installCanvasStub();
@@ -114,14 +91,4 @@ test('bush clusters are deterministic, bounded decorations that preserve safe ro
     assert.ok(placements.length > 0, `at least some safe habitat exists at index ${index}`);
   }
   assert.equal(generateBushClusters(createLevel(99, 203), { maxClusters: 0 }).length, 0);
-});
-
-test('bark light is the actual wagging tail tip, behind the body', () => {
-  const dog = createDog(),
-    parts = dog.userData.parts;
-  assert.equal(parts.tailLight.parent, parts.tail);
-  dog.updateMatrixWorld(true);
-  const position = new THREE.Vector3();
-  parts.tailLight.getWorldPosition(position);
-  assert.ok(position.z < 0);
 });

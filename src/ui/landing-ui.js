@@ -41,7 +41,7 @@ export function meadowSelectorHTML(profile, page) {
   return `<p id="meadow-range" role="status" aria-live="polite">Levels ${data.start}–${data.end} of 100</p><div class="meadow-key"><span>✓ Completed</span><span>● Current</span><span>🔒 Locked</span></div><div class="meadow-grid">${data.levels.map((item) => `<button data-level="${item.index}" class="${item.current ? 'current ' : ''}${item.completed ? 'completed' : ''}" aria-label="${item.label}" ${item.current ? 'aria-current="step"' : ''} ${item.locked ? 'disabled' : ''}>${item.index + 1}<small aria-hidden="true">${item.locked ? '🔒' : item.completed ? '✓' : item.current ? '●' : '·'}</small></button>`).join('')}</div><nav class="meadow-pagination" aria-label="Meadow pages"><button id="meadows-prev" ${data.page === 0 ? 'disabled' : ''}>Previous</button><span>${data.page + 1} / 5</span><button id="meadows-next" ${data.page === 4 ? 'disabled' : ''}>Next</button></nav>`;
 }
 const baseBenefits = {
-  speed: 'Standard paw motors',
+  speed: 'Standard running speed',
   flock: 'Standard herding range',
   helper: 'No Buddy companion',
   bark: 'Standard bark · one bark before cooldown',
@@ -177,13 +177,17 @@ export function createShowcase(profile, seed = Math.floor(Math.random() * 0x1000
   return { level, dog };
 }
 
+function showcaseRestSeconds(dog, random) {
+  return (dog.type === 'helper' ? 30 : 36) + random() * 10;
+}
+
 /** Both decorative dogs wander independently; livestock never receive pressure. */
 export function stepShowcase(level, dog, dt) {
   if (!(dt > 0) || !Number.isFinite(dt) || !level.showcase) return;
   for (const actor of [dog, ...(level.helpers || [])]) {
     let state = level.showcase.wanderers.get(actor);
     if (!state) {
-      state = { random: level.showcase.random, rest: 1 + level.showcase.random() * 3, target: null };
+      state = { random: level.showcase.random, rest: showcaseRestSeconds(actor, level.showcase.random), target: null };
       level.showcase.wanderers.set(actor, state);
     }
     stepRestingActor(level, actor, state, dt, [dog, ...(level.helpers || [])]);
@@ -241,6 +245,6 @@ function stepRestingActor(level, dog, state, dt, companions) {
   Object.assign(dog, next);
   if (distance < 0.15) {
     state.target = null;
-    state.rest = 2 + state.random() * 4;
+    state.rest = showcaseRestSeconds(dog, state.random);
   }
 }

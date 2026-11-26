@@ -15,12 +15,10 @@ import { updateGrazing, grazingAngle } from './animation/grazing.js';
 import * as THREE from 'three';
 import { animalScale } from '../simulation/animal-size.js';
 import { generateBushClusters } from './environment/vegetation.js';
-import { setTailLightBarking } from './animation/tail-light.js';
 import { WaterEffects } from './water/water-effects.js';
 import { MeadowNature } from './environment/nature.js';
 import { createGateView, createStoneWallView } from './gate-view.js';
 import { StructureCutaway } from './cutaway.js';
-import { ThrusterGroundGlow } from './animation/thruster-glow.js';
 import { ViewShadows, treeDepthMaterial } from './view-shadows.js';
 import { StaticShadows } from './static-shadows.js';
 import {
@@ -31,6 +29,7 @@ import {
   targetFootprint,
   gateSegment,
   canOccupy,
+  hasClearGroundPath,
 } from '../world/world.js';
 import {
   installSlopeSoil,
@@ -57,7 +56,7 @@ import {
   createAnimalGestureGeometry,
   createPip,
   updatePipPose,
-  updatePipHover,
+  DOG_SOCIAL_RADIUS,
   createBuddy,
   createAnimal,
   createCowCoatMaterial,
@@ -218,7 +217,7 @@ function label(text, color = '#45684d') {
 export class MeadowRenderer {
   constructor(canvas) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, PRESENTATION.renderer.pixelRatioCap));
+    this.renderer.setPixelRatio(devicePixelRatio * PRESENTATION.renderer.renderScale);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -278,8 +277,6 @@ export class MeadowRenderer {
     this.terrainReliefEnabled = { value: 0 };
     for (const material of [this.grass, this.path, this.pathShoulder])
       installTerrainRelief(material, this.terrainReliefEnabled);
-    this.thrusterGlow = new ThrusterGroundGlow();
-    for (const material of [this.grass, this.path, this.pathShoulder]) this.thrusterGlow.install(material);
     this.water = new THREE.MeshStandardMaterial({
       color: '#4b9fae',
       roughness: 0.29,
@@ -457,7 +454,6 @@ export class MeadowRenderer {
     const riverViews = [];
     for (const river of level.rivers) {
       const bankMat = new THREE.MeshStandardMaterial({ color: '#6c8960', roughness: 1, side: THREE.DoubleSide });
-      this.thrusterGlow.install(bankMat);
       const bank = surface(ribbon(river.points, river.width + 0.8, { y: 0.002 }), bankMat);
       bank.userData.ownedMaterial = true;
       const waterHeight = (x, z) => riverSurfaceHeight(level, river, x, z);
@@ -486,18 +482,9 @@ export class MeadowRenderer {
               );
             }
           : null;
-        const g = createBridge(bridge.width, bridge.length, support),
-          glowMaterials = new Map();
+        const g = createBridge(bridge.width, bridge.length, support);
         g.name = 'Bridge';
         g.userData.bridge = bridge;
-        // Bridge wood is shared with fences: keep this surface effect local.
-        g.traverse((mesh) => {
-          if (!mesh.isMesh) return;
-          const source = mesh.material;
-          if (!glowMaterials.has(source)) glowMaterials.set(source, this.thrusterGlow.install(source.clone()));
-          mesh.material = glowMaterials.get(source);
-          mesh.userData.ownedMaterial = true;
-        });
         g.rotation.y = bridge.heading;
         this.place(g, bridge.x, bridge.z, 1, true);
         if (level.terrain?.enabled) g.position.y = 0;
@@ -812,7 +799,9 @@ export class MeadowRenderer {
     this.batchScenery();
     this.dog = createPip();
     this.dog.scale.setScalar(1.35 * 0.75);
-    this.actors.add(this.dog);
+    this.dogGuides = new THREE.Group();
+    this.dogGuides.scale.copy(this.dog.scale);
+    this.actors.add(this.dog, this.dogGuides);
     const halo = new THREE.Mesh(
       new THREE.RingGeometry(0.82, 0.95, 40),
       new THREE.MeshBasicMaterial({
@@ -827,7 +816,7 @@ export class MeadowRenderer {
     halo.rotation.x = -Math.PI / 2;
     halo.position.y = 0.03 / 0.75;
     halo.userData.ownedGeometry = halo.userData.ownedMaterial = true;
-    this.dog.add(halo);
+    this.dogGuides.add(halo);
     this.dogHalo = halo;
     const arrowShape = new THREE.Shape();
     arrowShape.moveTo(0, 1.45);
@@ -841,7 +830,7 @@ export class MeadowRenderer {
     this.goalPointer.scale.setScalar(1 / 0.75);
     this.goalPointer.rotation.x = Math.PI / 2;
     this.goalPointer.userData.ownedGeometry = this.goalPointer.userData.ownedMaterial = true;
-    this.dog.add(this.goalPointer);
+    this.dogGuides.add(this.goalPointer);
     for (const a of level.animals) {
       const pose = new THREE.Object3D();
       pose.position.set(a.x, 0, a.z);
@@ -1313,25 +1302,22 @@ export class MeadowRenderer {
     this.sun.target.position.set(this.center.x, this.center.y, this.center.z);
     this.sun.target.updateMatrixWorld();
     this.viewShadows.fit(this.camera, this.sun);
-    this.dog.position.set(dog.x, terrainHeight(level, dog.x, dog.z), dog.z);
-    this.dog.rotation.y = dog.heading ?? Math.PI / 2;
-    // Cancel the dog's heading so the triangle always faces the goal in world space.
+    this.updateBarks(dt);
+    this.updateDog(this.dog, dog, dt, false);
+    // Ground guides have their own level frame so the dog's terrain tilt cannot lift the arrow.
+    this.dogGuides.position.copy(this.dog.position);
     this.goalPointer.rotation.set(Math.PI / 2, 0, 0);
     this.goalPointer.quaternion.premultiply(
       this.goalPointerTurn.setFromAxisAngle(
         this.goalPointerAxis,
-        Math.atan2(level.target.x - dog.x, level.target.z - dog.z) - this.dog.rotation.y,
+        Math.atan2(level.target.x - dog.x, level.target.z - dog.z),
       ),
     );
     this.goalPointer.position.y = 0.04 / 0.75;
     this.goalPointer.visible = !preview;
     drapeGroundGuide(this.dogHalo, level, this.dog.position.y);
     drapeGroundGuide(this.goalPointer, level, this.dog.position.y);
-    const parts = this.dog.userData.parts;
     const poseTime = Math.floor(this.time * 12) / 12;
-    updatePipPose(this.dog, dog, dt);
-    updatePipHover(this.dog, dt);
-    parts.tail.rotation.z = Math.sin(poseTime * 7) * 0.3;
     level.animals.forEach((a, i) => {
       const m = this.animalMeshes[i];
       m.scale.setScalar(animalScale(a));
@@ -1356,7 +1342,6 @@ export class MeadowRenderer {
       alignAnimalToTerrain(m, a, level);
       m.updateMatrix();
     });
-    this.updateBarks(dt);
     for (const m of this.helperMeshes.values()) m.visible = false;
     for (const h of level.helpers || []) {
       let m = this.helperMeshes.get(h.type);
@@ -1372,32 +1357,11 @@ export class MeadowRenderer {
         });
       }
       m.visible = true;
-      m.position.set(
-        h.x,
-        h.type === 'drone'
-          ? terrainHeight(level, h.x, h.z) + 2 + Math.sin(this.time * 4) * 0.18
-          : terrainHeight(level, h.x, h.z),
-        h.z,
-      );
-      if (h.type === 'drone') m.userData.parts.propellers.forEach((p) => (p.rotation.y = this.time * 35));
-      else {
-        if (Number.isFinite(h.heading)) m.rotation.y = h.heading;
-        updatePipPose(m, { ...h, heading: m.rotation.y }, dt);
-        updatePipHover(m, dt);
-        m.userData.parts.tail.rotation.z = Math.sin(poseTime * 7) * 0.3;
-        setTailLightBarking(
-          m,
-          (this.barkEffects || []).some((e) => e.buddy),
-        );
-      }
+      if (h.type === 'drone') {
+        m.position.set(h.x, terrainHeight(level, h.x, h.z) + 2 + Math.sin(this.time * 4) * 0.18, h.z);
+        m.userData.parts.propellers.forEach((p) => (p.rotation.y = this.time * 35));
+      } else this.updateDog(m, h, dt, true);
     }
-    // A missing helper must clear its previous illuminated footprints.
-    const buddy = (level.helpers || []).some((h) => h.type === 'helper') ? this.helperMeshes.get('helper') : null;
-    this.thrusterGlow.update(this.dog, (x, z) => terrainHeight(level, x, z), buddy);
-    setTailLightBarking(
-      this.dog,
-      (this.barkEffects || []).some((e) => !e.buddy),
-    );
     this.gateView?.update();
     this.goal.material.opacity = 0.38 + Math.sin(this.time * 2) * 0.09;
     this.cutaway?.update(
@@ -1458,8 +1422,48 @@ export class MeadowRenderer {
       });
     }
   }
+  updateDog(mesh, actor, dt, buddy) {
+    const level = this.level;
+    const height = terrainHeight(level, actor.x, actor.z);
+    const heading =
+      actor.heading ?? (buddy ? (mesh.userData.motion?.previous?.heading ?? mesh.rotation.y) : Math.PI / 2);
+    mesh.position.set(actor.x, height, actor.z);
+    const barking = this.barkEffects.some((effect) => effect.buddy === buddy);
+    let nearbyAnimals, bowHeading;
+    if (dt > 0 && !barking && Math.hypot(actor.vx || 0, actor.vz || 0) < 0.12) {
+      let nearest = DOG_SOCIAL_RADIUS ** 2;
+      for (const [index, animal] of (level.animals || []).entries()) {
+        const dx = animal.x - actor.x,
+          dz = animal.z - actor.z;
+        const gap = dx * dx + dz * dz;
+        if (gap < 0.0001 || gap >= DOG_SOCIAL_RADIUS ** 2 || !hasClearGroundPath(level, actor, animal, 0.15)) continue;
+        (nearbyAnimals ??= []).push(animal.id ?? index);
+        if (gap < nearest) {
+          nearest = gap;
+          bowHeading = Math.atan2(dx, dz);
+        }
+      }
+    }
+    const sample = { ...actor, heading, barking, nearbyAnimals, bowHeading };
+    if (level.completed) sample.vx = sample.vz = 0;
+    updatePipPose(mesh, sample, dt);
+    const visualHeading = heading + (mesh.userData.motion?.bowYaw || 0);
+    mesh.rotation.set(0, visualHeading, 0, 'YXZ');
+    if (level.terrain?.enabled || height !== 0) {
+      const span = 0.3 * mesh.scale.x;
+      const grade = (dx, dz) => {
+        const ahead = terrainHeight(level, actor.x + dx, actor.z + dz) - height;
+        const behind = height - terrainHeight(level, actor.x - dx, actor.z - dz);
+        // At a deck edge one probe can hit the channel bed. Use the continuous side.
+        return (Math.abs(ahead) <= Math.abs(behind) ? ahead : behind) / span;
+      };
+      const x = Math.sin(visualHeading) * span;
+      const z = Math.cos(visualHeading) * span;
+      mesh.rotation.x = -Math.atan(grade(x, z));
+      mesh.rotation.z = Math.atan(grade(z, -x) * Math.cos(mesh.rotation.x));
+    }
+  }
   bark(source) {
-    if (!source) setTailLightBarking(this.dog, true);
     const origin = source ? { x: source.x, z: source.z } : { x: this.dog.position.x, z: this.dog.position.z };
     const mesh = new THREE.Mesh(
       barkSurface(this.level, origin),

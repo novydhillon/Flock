@@ -1,3 +1,4 @@
+import { gateButtons } from '../src/simulation/gates.js';
 import { animalRadius } from '../src/simulation/animal-size.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -21,7 +22,127 @@ import {
   containsTarget,
   navigationTarget,
   destinationApproach,
+  hasClearGroundPath,
 } from '../src/world/world.js';
+
+test('livestock approach a resting Pip, stay nearby, and respond immediately when the player moves', () => {
+  const level = createLevel(0, 201);
+  const dog = level.dog;
+  const animal = level.animals[0];
+  level.animals = [animal];
+  Object.assign(animal, { id: 1, x: dog.x + 7.8, z: dog.z, vx: 0, vz: 0 });
+  assert.ok(hasClearGroundPath(level, animal, dog, animalRadius(animal)));
+  for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
+  assert.ok(distance(animal, dog) > 4 && distance(animal, dog) < 5);
+  const resting = { x: animal.x, z: animal.z };
+  for (let frame = 0; frame < 1600; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
+  assert.ok(distance(animal, resting) < 0.1);
+  assert.equal(animal.alert, 0);
+  assert.equal(animal.saved, false);
+  stepSimulation(level, dog, { allowIdleWander: true, x: 0.1 }, 0.05);
+  assert.ok(animal.alert > 0 && animal.pushed);
+});
+
+test('livestock already crowding an idle dog back out and keep a visible gap', () => {
+  const level = createLevel(0, 201);
+  const { dog } = level;
+  const animal = level.animals[0];
+  level.animals = [animal];
+  Object.assign(animal, { id: 1, x: dog.x + 1, z: dog.z, vx: 0, vz: 0 });
+  for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
+  assert.ok(distance(animal, dog) > 4 && distance(animal, dog) < 5);
+  assert.equal(animal.alert, 0);
+});
+
+test('a group of four livestock settles in stable nested bands scaled to the resting dog', () => {
+  for (const buddy of [false, true]) {
+    for (let id = 0; id < 4; id++) {
+      // A separate approach for each ID isolates its assigned band from crowd forces.
+      const level = createLevel(0, 201);
+      const { dog } = level;
+      const resting = buddy ? { type: 'helper', x: dog.x + 5, z: dog.z } : dog;
+      if (buddy) {
+        level.index = 19; // Unlock Buddy in the otherwise flat test meadow.
+        level.helpers = [resting];
+        level.buddyHerd = { standby: { x: resting.x, z: resting.z } };
+      }
+      const animal = { ...level.animals[0], id, x: resting.x + 7.5, z: resting.z, vx: 0, vz: 0 };
+      assert.ok(hasClearGroundPath(level, animal, resting, animalRadius(animal)));
+      level.animals = [animal];
+      for (let frame = 0; frame < 360; frame++) {
+        stepSimulation(level, dog, { allowIdleWander: true }, 0.05, { helper: buddy ? 1 : 0 });
+      }
+      const base = 4 + animalRadius(animal);
+      const expected = base * (buddy ? 0.82 : 1) * [2 / 3, 1, 1, 1 / 3][id];
+      assert.ok(
+        Math.abs(distance(animal, resting) - expected) < 0.025,
+        `id ${id}, Buddy ${buddy}: ${distance(animal, resting)}`,
+      );
+    }
+  }
+});
+
+test('approach momentum cannot carry livestock across its assigned band edge', () => {
+  const level = createLevel(0, 201);
+  const { dog } = level;
+  const animal = { ...level.animals[0], type: 'cow', scale: 1.25, id: 3 };
+  level.animals = [animal];
+  const boundary = Math.max((4 + animalRadius(animal)) / 3, 0.62 + animalRadius(animal));
+  Object.assign(animal, { x: dog.x + boundary + 0.01, z: dog.z, vx: -3, vz: 0 });
+  for (let frame = 0; frame < 90; frame++) {
+    stepSimulation(level, dog, { allowIdleWander: true }, 1 / 60);
+    assert.ok(distance(animal, dog) >= boundary - 1e-8);
+  }
+});
+
+test('Pip wanders only after 60 released seconds and yields immediately to the player', () => {
+  const level = createLevel(0, 201);
+  const dog = level.dog;
+  const start = { x: dog.x, z: dog.z };
+  const released = { allowIdleWander: true };
+  for (let frame = 0; frame < 610; frame++) stepSimulation(level, dog, {}, 0.1);
+  assert.equal(distance(start, dog), 0);
+  for (let frame = 0; frame < 600; frame++) stepSimulation(level, dog, released, 0.1);
+  assert.equal(distance(start, dog), 0);
+  stepSimulation(level, dog, released, 0);
+  assert.equal(distance(start, dog), 0);
+  for (let frame = 0; frame < 750; frame++) {
+    const previous = { x: dog.x, z: dog.z };
+    stepSimulation(level, dog, released, 0.1);
+    assert.ok(distance(previous, dog) <= 0.08 + 1e-8);
+    assert.ok(distance(start, dog) <= 3 + 1e-8);
+    assert.ok(canOccupy(level, dog.x, dog.z, 0.62));
+  }
+  assert.ok(distance(start, dog) > 1);
+  const heading = dog.heading;
+  const previous = { x: dog.x, z: dog.z };
+  stepSimulation(level, dog, { ...released, x: Math.sin(heading), z: Math.cos(heading) }, 0.1);
+  assert.ok(distance(previous, dog) > 0.8);
+  const returned = { x: dog.x, z: dog.z };
+  for (let frame = 0; frame < 600; frame++) stepSimulation(level, dog, released, 0.1);
+  assert.equal(distance(returned, dog), 0);
+  assert.equal(level.animals.filter((animal) => animal.saved).length, 0);
+});
+
+test('Pip can stroll near a gate without activating its switch', () => {
+  const level = createLevel(19, 200);
+  const { dog } = level;
+  const gate = level.gates.find((candidate) => candidate.operable);
+  const button = gateButtons(gate)[0];
+  const angle = (18 * Math.PI) / 15;
+  Object.assign(dog, { x: button.x + 2.7 * Math.sin(angle), z: button.z + 2.7 * Math.cos(angle) });
+  assert.ok(canOccupy(level, dog.x, dog.z, 0.62));
+  const initialOpen = gate.open;
+  let traveled = 0;
+  for (let frame = 0; frame < 1500; frame++) {
+    const previous = { x: dog.x, z: dog.z };
+    const result = stepSimulation(level, dog, { allowIdleWander: true }, 0.1);
+    assert.ok(result.events.every((event) => event.type !== 'gateToggled'));
+    traveled += distance(previous, dog);
+  }
+  assert.ok(traveled > 1);
+  assert.equal(gate.open, initialOpen);
+});
 
 test('idle waiting cannot finish the tutorial, but player herding can', () => {
   const idle = createLevel(0);

@@ -20,7 +20,7 @@ const catalog = [
     name: 'Turbo paws',
     icon: 'paw',
     ...CONFIG.upgrades.speed,
-    description: 'Circle a roaming flock faster with upgraded paw motors.',
+    description: 'Train Pip to circle a roaming flock faster.',
     tierNames: ['Quick paws', 'Trail runner', 'Meadow racer'],
     tierDescriptions: ['+1.8 m/s running speed', '+2.7 m/s running speed', '+3.5 m/s running speed'],
   },

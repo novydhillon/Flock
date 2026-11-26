@@ -31,16 +31,16 @@
       "max": 2000
     },
     "joystickFullSpeedFraction": {
-      "value": 0.85,
-      "_comment": "Fraction of joystick radius at which movement reaches maximum speed; outer 15% remains at maximum.",
+      "value": 0.9,
+      "_comment": "Fraction of joystick radius at which movement reaches maximum speed; outer 10% remains at maximum.",
       "min": 0.01,
       "max": 1
     },
-    "joystickLogStrength": {
-      "value": 9,
-      "_comment": "Positive logarithmic speed curvature: log1p(strength * normalized travel) / log1p(strength).",
-      "min": 0.01,
-      "max": 100
+    "joystickSpeedExponent": {
+      "value": 1.65,
+      "_comment": "Raise normalized radial travel to this power to give slow and brisk walking more thumb travel.",
+      "min": 1,
+      "max": 4
     }
   },
   "frame": {

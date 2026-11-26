@@ -8,11 +8,11 @@ body>#loading{position:fixed;inset:0;z-index:100;display:flex;align-items:center
 #loading-retry[hidden]{display:none}
 #loading-retry:focus-visible{outline:3px solid #b78649;outline-offset:4px}
 .loading-vignette{width:min(290px,76vw);height:145px;flex-shrink:0;overflow:visible}
-.loading-pip{animation:loading-hover 2.8s ease-in-out infinite;transform-origin:85px 80px}
+.loading-tail{animation:loading-wag .8s ease-in-out infinite alternate;transform-origin:56px 84px}
 .loading-sheep{animation:loading-graze 3.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
 .loading-sheep:last-child{animation-delay:-1.5s}
 .loading-paused .loading-vignette *, .loading-failed .loading-vignette *{animation-play-state:paused}
-@keyframes loading-hover{50%{transform:translateY(-5px)}}
+@keyframes loading-wag{to{transform:rotate(16deg)}}
 @keyframes loading-graze{50%{transform:rotate(2deg) translateY(1px)}}
 @media(prefers-reduced-motion:reduce){body>#loading{transition:none}.loading-vignette *{animation:none!important}}
 @media(max-height:420px){body>#loading{gap:5px}#loading .brand{font-size:28px}.loading-vignette{height:90px}#loading #loading-status{margin:0}}

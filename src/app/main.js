@@ -492,13 +492,13 @@ function pointerMove(e) {
   const dx = e.clientX - origin.x;
   const dy = e.clientY - origin.y;
   const distance = Math.hypot(dx, dy);
-  const { joystickRangePixels: radius, joystickFullSpeedFraction, joystickLogStrength } = CONTROLS.pointer;
+  const { joystickRangePixels: radius, joystickFullSpeedFraction, joystickSpeedExponent } = CONTROLS.pointer;
   moved ||= distance > CONTROLS.pointer.tapMovementPixels;
 
   // Shape radial speed only, preserving direction and a finger-tracking thumb.
-  // Saturating at 85% leaves the outer 15% at maximum speed in every direction.
+  // Saturating at 90% leaves the outer 10% at maximum speed in every direction.
   const travel = Math.min(1, distance / (radius * joystickFullSpeedFraction));
-  const speed = Math.log1p(joystickLogStrength * travel) / Math.log1p(joystickLogStrength);
+  const speed = travel ** joystickSpeedExponent;
   const directionX = distance > 0 ? dx / distance : 0;
   const directionZ = distance > 0 ? dy / distance : 0;
   input.x = directionX * speed;
@@ -704,7 +704,12 @@ function frame(now) {
     const result = stepSimulation(
       level,
       dog,
-      { x: ix, z: iz, bark: barkState.burstRemaining > 0 },
+      {
+        x: ix,
+        z: iz,
+        bark: barkState.burstRemaining > 0,
+        allowIdleWander: pointer === null && !document.hidden && pageFocused,
+      },
       dt,
       profile.upgrades,
     );

@@ -173,6 +173,7 @@ test('Pip and guest Buddy both wander/rest without granting ownership or moving 
       const distance = Math.hypot(a.x - previous[j].x, a.z - previous[j].z);
       totals[j] += distance;
       if (distance === 0) rests[j]++;
+      if (i < 30 * 60) assert.equal(distance, 0, 'the initial rest leaves time for a full idle pose');
       assert.ok(canOccupy(level, a.x, a.z, 0.65));
     });
   }

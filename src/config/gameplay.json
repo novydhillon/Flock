@@ -6,11 +6,53 @@
       "min": 0.001,
       "max": 0.25
     },
+    "dogIdleWanderSeconds": {
+      "value": 60,
+      "_comment": "Seconds with released controls before Pip may take a short idle walk.",
+      "min": 1,
+      "max": 600
+    },
+    "dogSocialRadius": {
+      "value": 8,
+      "_comment": "Distance at which livestock and idle dogs can socialize (world units).",
+      "min": 3,
+      "max": 24
+    },
     "dogSpeed": {
-      "value": 7.8,
+      "value": 8.8,
       "_comment": "Base Pip running speed in world units per second before upgrades.",
       "min": 0,
       "max": 30
+    },
+    "dogPivotRate": {
+      "value": 12,
+      "_comment": "Maximum Pip turning rate near standstill, in radians per second.",
+      "min": 0.1,
+      "max": 24
+    },
+    "dogRunTurnRate": {
+      "value": 8,
+      "_comment": "Maximum Pip turning rate at base running speed and above, in radians per second.",
+      "min": 0.1,
+      "max": 24
+    },
+    "dogTurnBraking": {
+      "value": 30,
+      "_comment": "Maximum speed lost per second while turning sharply at a held stick magnitude, in world units per second squared.",
+      "min": 1,
+      "max": 100
+    },
+    "buddyBodyScale": {
+      "value": 0.82,
+      "_comment": "Buddy's body size relative to Pip for rendering and idle livestock spacing.",
+      "min": 0.5,
+      "max": 2
+    },
+    "buddySpeedFraction": {
+      "value": 0.94,
+      "_comment": "Buddy's maximum ground speed as a fraction of Pip's base speed. Turbo paws upgrades Pip alone.",
+      "min": 0,
+      "max": 0.99
     },
     "dogRadius": {
       "value": 0.62,
@@ -197,10 +239,7 @@
   },
   "wander": {
     "checkRange": {
-      "value": [
-        5,
-        8
-      ],
+      "value": [5, 8],
       "_comment": "Minimum/maximum independent wander opportunity interval in seconds.",
       "min": 0.01,
       "max": 60
@@ -236,47 +275,31 @@
       "max": 100
     },
     "wanderChance": {
-      "value": [
-        0.33,
-        0.2,
-        0.25
-      ],
+      "value": [0.33, 0.2, 0.25],
       "_comment": "Early/middle/late success chance preserving existing strict comparisons.",
       "min": 0,
       "max": 1
     },
     "boltChance": {
-      "value": [
-        0.1,
-        0.2
-      ],
+      "value": [0.1, 0.2],
       "_comment": "Early/late conditional bolt chance for a successful opportunity.",
       "min": 0,
       "max": 1
     },
     "boltDurationEarly": {
-      "value": [
-        3,
-        5
-      ],
+      "value": [3, 5],
       "_comment": "Early minimum/maximum bolt duration in seconds.",
       "min": 0.01,
       "max": 60
     },
     "boltDurationMiddle": {
-      "value": [
-        4,
-        6
-      ],
+      "value": [4, 6],
       "_comment": "Middle minimum/maximum bolt duration in seconds.",
       "min": 0.01,
       "max": 60
     },
     "boltDurationLate": {
-      "value": [
-        5,
-        10
-      ],
+      "value": [5, 10],
       "_comment": "Late minimum/maximum bolt duration in seconds.",
       "min": 0.01,
       "max": 60
@@ -288,10 +311,7 @@
       "max": 60
     },
     "ordinaryDistance": {
-      "value": [
-        4,
-        7
-      ],
+      "value": [4, 7],
       "_comment": "Minimum/maximum ordinary target reach in world units.",
       "min": 0.01,
       "max": 50

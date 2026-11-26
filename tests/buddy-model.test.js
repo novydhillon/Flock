@@ -1,107 +1,308 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createBuddy, createPip, updatePipPose, updatePipHover } from '../src/rendering/models.js';
+import { createBuddy, createPip, updatePipPose } from '../src/rendering/models.js';
+import { applyDogPose } from '../src/rendering/animation/pip-motion.js';
+import { createLevel, stepSimulation } from '../src/simulation/simulation.js';
+import { MeadowRenderer } from '../src/rendering/render.js';
 
-function installCanvasStub() {
-  const context = {
-    createImageData: (width, height) => ({ data: new Uint8ClampedArray(width * height * 4) }),
-    putImageData() {},
-  };
-  globalThis.document = { createElement: () => ({ width: 0, height: 0, getContext: () => context }) };
+const v = new THREE.Vector3();
+function minimumHeight(root) {
+  let floor = Infinity;
+  root.updateWorldMatrix(true, true);
+  root.traverse((mesh) => {
+    if (!mesh.isMesh) return;
+    const pos = mesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++)
+      floor = Math.min(floor, v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld).y);
+  });
+  return floor;
+}
+function transforms(dog) {
+  const values = [];
+  dog.traverse((joint) => {
+    joint.updateMatrix();
+    values.push(...joint.matrix.elements);
+  });
+  return values;
+}
+const stationary = { x: 0, z: 0, vx: 0, vz: 0, heading: 0 };
+
+test('play bows aim the rendered dog at visible livestock without changing its steering heading', () => {
+  const level = createLevel(0, 201);
+  for (const [create, buddy] of [
+    [createPip, false],
+    [createBuddy, true],
+  ]) {
+    const dog = create();
+    dog.userData.motion.random = () => 0;
+    const actor = { ...level.dog, heading: 0, vx: 0, vz: 0 };
+    const view = { level, barkEffects: [] };
+    const render = () => MeadowRenderer.prototype.updateDog.call(view, dog, actor, 1 / 60, buddy);
+    level.animals = [];
+    for (let frame = 0; frame < 150; frame++) render();
+    level.animals = [{ id: 1, x: actor.x + 5, z: actor.z }];
+    for (let frame = 0; frame < 90; frame++) render();
+    assert.ok(Math.abs(dog.rotation.y - Math.PI / 2) < 0.02);
+    assert.equal(actor.heading, 0);
+    level.animals[0].z += 4;
+    for (let frame = 0; frame < 60; frame++) render();
+    assert.ok(Math.abs(dog.rotation.y - Math.atan2(5, 4)) < 0.02);
+    actor.vz = 1;
+    for (let frame = 0; frame < 90; frame++) render();
+    assert.ok(Math.abs(dog.rotation.y) < 0.02);
+  }
+});
+
+test('both dogs have independent joints, a forward muzzle and a readable puppy silhouette at game scale', () => {
+  const adult = createPip(),
+    pup = createBuddy();
+  for (const dog of [adult, pup]) {
+    const { head, jaw, legs, tail } = dog.userData.parts;
+    assert.equal(legs.length, 4);
+    assert.ok(head.position.z > 0 && jaw.parent === head && tail.position.z < 0);
+    let meshes = 0,
+      triangles = 0;
+    dog.traverse((mesh) => {
+      if (!mesh.isMesh) return;
+      meshes++;
+      triangles += mesh.geometry.index.count / 3;
+      assert.ok(mesh.userData.ownedGeometry && mesh.castShadow && mesh.receiveShadow);
+      assert.ok(mesh.geometry.attributes.color && mesh.material.roughness > 0.8);
+    });
+    assert.ok(meshes <= 20 && triangles < 11000);
+    dog.scale.setScalar(1.0125 * dog.userData.suggestedScale);
+  }
+  const size = (d) => new THREE.Box3().setFromObject(d, true).getSize(new THREE.Vector3());
+  assert.ok(size(pup).y / size(adult).y > 0.72 && size(pup).y / size(adult).y < 0.92);
+  assert.ok(pup.userData.parts.head.scale.x > adult.userData.parts.head.scale.x);
+  const before = transforms(adult);
+  for (let i = 0; i < 100; i++) updatePipPose(pup, { ...stationary, barking: true }, 1 / 60);
+  assert.deepEqual(transforms(adult), before);
+});
+
+test('both sculpts touch the ground through idle transitions, including direct pose blends', () => {
+  const [stand, sit, bow, lie, scratch, roll] = [-1, 0, 1, 2, 3, 4];
+  const poses = [stand, sit, bow, lie, scratch, roll];
+  for (const dog of [createPip(), createBuddy()]) {
+    dog.scale.setScalar(1.0125 * dog.userData.suggestedScale);
+    const s = dog.userData.motion;
+    for (const from of poses) {
+      for (const to of poses) {
+        if (from === to) continue;
+        if (to === scratch && from !== sit) continue;
+        if (from === scratch && to !== sit && to !== stand) continue;
+        for (let frame = 0; frame <= 30; frame++) {
+          s.time = frame / 15;
+          const weight = (1 - Math.cos((frame * Math.PI) / 30)) / 2;
+          s.poseWeights.fill(0);
+          if (from !== stand) s.poseWeights[from] = 1 - weight;
+          if (to !== stand) s.poseWeights[to] = weight;
+          applyDogPose(dog);
+          const y = minimumHeight(dog);
+          assert.ok(Math.abs(y) < 0.002, `${dog.name} ${from} -> ${to} at ${weight}: bottom ${y}`);
+        }
+      }
+    }
+  }
+});
+
+test('both collies lengthen and lower the head in flight, then gather the paws under the body', () => {
+  for (const [dog, speed] of [
+    [createPip(), 8.8],
+    [createBuddy(), 8.272],
+  ]) {
+    const { body, head, legs } = dog.userData.parts;
+    const standingHead = head.getWorldPosition(v).y;
+    let widest = { span: 0 };
+    let smallestGap = Infinity;
+    for (let frame = 0; frame < 240; frame++) {
+      updatePipPose(dog, { ...stationary, z: (frame * speed) / 240, vz: speed }, 1 / 240);
+      const paws = legs.map(({ paw }) => paw.getWorldPosition(v).z);
+      const span = Math.max(...paws.slice(0, 2)) - Math.min(...paws.slice(2));
+      if (span > widest.span) {
+        widest = {
+          span,
+          back: body.scale.z,
+          head: head.getWorldPosition(v).y,
+          lowestPaw: Math.min(...legs.map(({ paw }) => paw.getWorldPosition(v).y)),
+        };
+      }
+      if (body.scale.z < 0.96) {
+        smallestGap = Math.min(smallestGap, Math.abs(paws[0] - paws[2]), Math.abs(paws[1] - paws[3]));
+      }
+    }
+    assert.ok(widest.span > 1.9 && widest.back > 1.12);
+    assert.ok(widest.head < standingHead - 0.2);
+    assert.ok(widest.lowestPaw > 0.079, `lowest paw at extension: ${widest.lowestPaw}`);
+    assert.ok(smallestGap < 0.08, `gathered paw gap: ${smallestGap}`);
+  }
+});
+
+test('planted paws hold world contact at walk, blended and galloping speeds, including on a curved path', () => {
+  for (const dog of [createPip(), createBuddy()]) {
+    dog.scale.setScalar(1.0125 * dog.userData.suggestedScale);
+    for (const [speed, rate] of [
+      [1.25, 0],
+      [3.55, 0],
+      [7.8, 0],
+      [4, 1.2],
+    ]) {
+      const history = new Map();
+      let contacts = 0,
+        lift = 0,
+        peakDrift = 0,
+        maxHeightError = 0;
+      for (let frame = 0; frame < 360; frame++) {
+        const dt = 1 / 120,
+          heading = (dog.rotation.y += dt * rate),
+          vx = speed * Math.sin(heading),
+          vz = speed * Math.cos(heading);
+        dog.position.x += vx * dt;
+        dog.position.z += vz * dt;
+        updatePipPose(dog, { x: dog.position.x, z: dog.position.z, heading, vx, vz }, dt);
+        for (const leg of dog.userData.parts.legs) {
+          const paw = leg.paw.getWorldPosition(v);
+          lift = Math.max(lift, paw.y / dog.scale.y);
+          if (frame > 120 && leg.planted && history.has(leg)) {
+            maxHeightError = Math.max(maxHeightError, Math.abs(paw.y / dog.scale.y - 0.074));
+            peakDrift = Math.max(peakDrift, paw.distanceTo(history.get(leg)) / dt);
+            contacts++;
+          }
+          if (leg.planted) history.set(leg, paw.clone());
+          else history.delete(leg);
+        }
+      }
+      assert.ok(contacts > 150 && lift > 0.17);
+      assert.ok(maxHeightError < 0.002, `stance height error ${maxHeightError}`);
+      assert.ok(peakDrift < 0.015, `${dog.name} ${speed} m/s, ${rate} rad/s: drift ${peakDrift}`);
+    }
+  }
+});
+
+for (const hz of [60, 120]) {
+  for (const lead of [-0.15, 0.15]) {
+    test(`Pip holds planted paws through a full-stick turn at ${hz} Hz with ${lead} rad lead`, (t) => {
+      const level = createLevel(0, 201);
+      const actor = level.dog;
+      const dog = createPip();
+      dog.scale.setScalar(1.0125);
+      const view = { level, barkEffects: [] };
+      const history = new Map();
+      let peakDrift = 0;
+      let contacts = 0;
+      let minSpeed = Infinity;
+      let minYaw = Infinity;
+      for (let frame = 0; frame < 3 * hz; frame++) {
+        const heading = actor.heading ?? 0;
+        const aim = heading + lead;
+        stepSimulation(level, actor, { x: Math.sin(aim), z: Math.cos(aim) }, 1 / hz);
+        MeadowRenderer.prototype.updateDog.call(view, dog, actor, 1 / hz, false);
+
+        const delta = actor.heading - heading;
+        if (frame > 0) minYaw = Math.min(minYaw, Math.sign(lead) * Math.atan2(Math.sin(delta), Math.cos(delta)) * hz);
+        minSpeed = Math.min(minSpeed, Math.hypot(actor.vx, actor.vz));
+        for (const leg of dog.userData.parts.legs) {
+          if (leg.planted) {
+            const paw = leg.paw.getWorldPosition(v);
+            if (history.has(leg)) {
+              peakDrift = Math.max(peakDrift, paw.distanceTo(history.get(leg)) * hz);
+              contacts++;
+            }
+            history.set(leg, paw.clone());
+          } else history.delete(leg);
+        }
+      }
+      t.diagnostic(
+        `speed >= ${minSpeed.toFixed(3)} m/s, yaw >= ${minYaw.toFixed(3)} rad/s, ${contacts} contact intervals, peak drift ${peakDrift.toExponential(3)} m/s`,
+      );
+      assert.ok(minSpeed > 7.7 && minYaw > 7.9 && contacts > hz);
+      assert.ok(peakDrift < 0.015, `planted paw drift ${peakDrift} m/s`);
+    });
+  }
 }
 
-test('Buddy uses an independent Pip-compatible floating rig and a smaller readable puppy silhouette', () => {
-  installCanvasStub();
-  const buddy = createBuddy(),
-    pip = createPip(),
-    parts = buddy.userData.parts;
-  assert.equal(buddy.name, 'Buddy the hovering robot puppy');
-  assert.equal(buddy.userData.modelContract, 'pip-pose-hover-v1');
-  assert.equal(buddy.userData.suggestedScale, 0.82);
-  assert.ok(parts.rig && parts.head && parts.tail && parts.tailLight);
-  assert.equal(parts.rig.parent, buddy);
-  assert.equal(parts.head.parent, parts.rig);
-  assert.equal(parts.legs.length, 0, 'Buddy floats on hover pods rather than inheriting Pip legs');
-  assert.equal(parts.pods.length, 4);
-  assert.equal(parts.rings.length, 4);
-  assert.equal(parts.rings.flat().length, 12);
-  assert.ok(parts.rings.flat().every((r) => r.parent === buddy && r.geometry.type === 'TorusGeometry'));
-  assert.notEqual(buddy.userData.motion, pip.userData.motion, 'Buddy owns separate turn/acceleration history');
-  assert.notEqual(buddy.userData.hover, pip.userData.hover, 'Buddy owns separate ground-trail animation history');
-
-  buddy.updateMatrixWorld(true);
-  pip.updateMatrixWorld(true);
-  const buddyBounds = new THREE.Box3().setFromObject(buddy),
-    pipBounds = new THREE.Box3().setFromObject(pip);
-  const heightRatio = (buddyBounds.max.y - buddyBounds.min.y) / (pipBounds.max.y - pipBounds.min.y);
-  assert.ok(
-    heightRatio > 0.72 && heightRatio < 1.08,
-    `native silhouette remains in the same camera framing (${heightRatio})`,
-  );
-  const scaledBuddy = buddy.clone();
-  scaledBuddy.scale.setScalar(buddy.userData.suggestedScale);
-  const scaledBounds = new THREE.Box3().setFromObject(scaledBuddy);
-  const pipHeight = pipBounds.max.y - pipBounds.min.y,
-    scaledHeight = scaledBounds.max.y - scaledBounds.min.y;
-  assert.ok(
-    scaledHeight / pipHeight > 0.72 && scaledHeight / pipHeight < 0.9,
-    'recommended rendered Buddy size is smaller than Pip but remains legible',
-  );
+test('barking opens the jaw, pause holds every joint, and relocation clears the pose', () => {
+  const dog = createBuddy(),
+    { jaw } = dog.userData.parts;
+  for (let i = 0; i < 85; i++) updatePipPose(dog, stationary, 1 / 60);
+  const closed = jaw.rotation.x;
+  for (let i = 0; i < 6; i++) updatePipPose(dog, { ...stationary, barking: true }, 1 / 60);
+  assert.ok(jaw.rotation.x > closed + 0.3);
+  const before = transforms(dog);
+  updatePipPose(dog, { ...stationary, x: 100 }, 0);
+  assert.deepEqual(transforms(dog), before);
+  updatePipPose(dog, { ...stationary, x: 100 }, 1 / 60);
+  assert.deepEqual(transforms(dog), transforms(createBuddy()));
 });
 
-test('Buddy supports smooth head/turn/hover pose updates without moving its simulation root or lifting glow anchors', () => {
-  installCanvasStub();
-  const buddy = createBuddy(),
-    parts = buddy.userData.parts;
-  updatePipPose(buddy, { x: 0, z: 0, heading: 0, vx: 0, vz: 0 }, 0);
-  const anchorBefore = parts.pods.map((p) => p.clone());
-  updatePipPose(buddy, { x: 0, z: 0, heading: 0.3, vx: Math.sin(0.3) * 2, vz: Math.cos(0.3) * 2 }, 1 / 60);
-  assert.equal(buddy.position.y, 0);
-  assert.ok(parts.rig.position.y > 0.83, 'only the local rig performs the gentle hover');
-  assert.ok(parts.head.rotation.y !== 0, 'head can look into the turn');
-  assert.ok(parts.rig.rotation.z !== 0, 'body banks smoothly into the turn');
-  assert.ok(
-    parts.pods.some((p, i) => !p.equals(anchorBefore[i])),
-    'ground-effect anchors follow the body bank',
-  );
-  parts.rings.forEach((group) => group.forEach((r) => (r.material.opacity = 1)));
-  updatePipHover(buddy, 1 / 60);
-  assert.ok(
-    parts.rings.flat().every((r) => Number.isFinite(r.position.y) && r.position.y < parts.pods[0].y),
-    'the hover plume remains below pod level for ground/deck illumination',
-  );
-});
-
-test('Buddy exposes only private baked meshes and feedback resources for instance cleanup', () => {
-  installCanvasStub();
-  const buddy = createBuddy(),
-    meshes = [];
-  buddy.traverse((object) => {
-    if (object.isMesh) meshes.push(object);
+for (const hz of [30, 60, 120]) {
+  test(`Pip holds or lifts through abrupt turns, reversals and braking at ${hz} Hz`, (t) => {
+    const scripts = [
+      [
+        [0, 1],
+        [0, -1],
+        [-1, 0],
+        [1, 0],
+      ],
+      [
+        [0, 0.45],
+        [0, -0.45],
+        [-0.45, 0],
+        [0.45, 0],
+      ],
+      [
+        [0, 1],
+        [0, 0.19],
+        [0, 0],
+        [0, -0.45],
+        [0, -1],
+      ],
+    ];
+    for (const script of scripts) {
+      const level = createLevel(0, 201);
+      const dog = createPip();
+      dog.scale.setScalar(1.0125);
+      const view = { level, barkEffects: [] };
+      const history = new Map();
+      let peakDrift = 0;
+      let releases = 0;
+      let minLift = Infinity;
+      let peakReleaseTravel = 0;
+      for (const [x, z] of script) {
+        let contacts = 0;
+        for (let frame = 0; frame < hz; frame++) {
+          stepSimulation(level, level.dog, { x, z }, 1 / hz);
+          MeadowRenderer.prototype.updateDog.call(view, dog, level.dog, 1 / hz, false);
+          for (const leg of dog.userData.parts.legs) {
+            const paw = leg.paw.getWorldPosition(v);
+            const height = paw.y - dog.position.y - 0.074 * dog.scale.y;
+            if (leg.planted) {
+              assert.ok(Math.abs(height) < 0.002);
+              if (history.has(leg)) {
+                peakDrift = Math.max(peakDrift, paw.distanceTo(history.get(leg)));
+                contacts++;
+              }
+              history.set(leg, paw.clone());
+            } else {
+              if (leg.liftOff != null && history.has(leg)) {
+                minLift = Math.min(minLift, height);
+                const last = history.get(leg);
+                peakReleaseTravel = Math.max(peakReleaseTravel, Math.hypot(paw.x - last.x, paw.z - last.z));
+                releases++;
+              }
+              history.delete(leg);
+            }
+          }
+        }
+        if (x || z) assert.ok(contacts > hz / 2, 'sustained support during each moving segment');
+      }
+      assert.ok(peakDrift * hz < 0.015, `loaded paw moved ${peakDrift} m in one frame`);
+      assert.ok(peakReleaseTravel < 0.15, `first airborne step traveled ${peakReleaseTravel} m`);
+      assert.ok(releases > 0 && minLift > 0.015, 'paw clears ground on early release');
+      t.diagnostic(
+        `stick ${JSON.stringify(script)}: peak planted step ${peakDrift.toExponential(2)} m, ${releases} early lifts, minimum ${minLift.toFixed(3)} m, first airborne travel <= ${peakReleaseTravel.toFixed(3)} m`,
+      );
+    }
   });
-  const baked = [];
-  buddy.userData.parts.body.traverse((object) => {
-    if (object.isMesh) baked.push(object);
-  });
-  buddy.userData.parts.head.traverse((object) => {
-    if (object.isMesh) baked.push(object);
-  });
-  assert.ok(
-    baked.length > 1 && baked.every((mesh) => mesh.userData.ownedGeometry),
-    'baked chassis/head geometries are explicitly marked as instance-owned',
-  );
-  assert.ok(
-    baked.some((mesh) => mesh.userData.ownedMaterial),
-    'Buddy-only shell/pod materials can be released with the instance',
-  );
-  assert.ok(
-    buddy.userData.parts.rings.flat().every((r) => r.userData.ownedMaterial),
-    'ring materials can be released per Buddy',
-  );
-  assert.ok(buddy.userData.parts.tailLight.userData.ownedMaterial, 'tail feedback material is not shared with Pip');
-  assert.ok(
-    meshes.every((mesh) => mesh.geometry),
-    'every visible part has valid geometry',
-  );
-});
+}
