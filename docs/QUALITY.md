@@ -34,6 +34,11 @@ Initial source CI run 45692080420 failed one of 623 game tests (45/50 animals de
 
 Pip and Buddy stretch and lower their heads during the airborne gallop, then bring their paws together under the torso. Pip reaches 8.8 m/s and Buddy reaches 8.272 m/s when sprinting. The 1.65 joystick response exponent opens up walking speeds. The cap begins at 90% of radial travel. The higher initial speed candidates failed seeded journeys under Node 22, so the final cap was selected after all nine journeys passed on both Node 22 and Node 24. A 105 ms paw-release blend corrected the 30 Hz reversal regression. Independent review improved from 8.5 to 9.2 after the correction, with 148 targeted passes. Isolated side-view poses were rendered and inspected. Native touch and phone playtesting remain pending.
 
+## Butterfly wing flap and palette — 18 November 2026
+
+F-BUTTERFLY-001 uses body-local hinges and a bounded mirrored stroke. A seeded shuffle assigns yellow, orange, blue, purple and pink tints within the existing wing instance batch. The first five slots use distinct colors without advancing the wildlife placement random stream. The focused nature suite passed 20 tests, including hinge attachment under changing headings, full flap reversal, pause/resume and reproducible paired colors. Implementation used the session model. Its exact model and effort metadata were unavailable. Novy accepted the completed flap, palette, and 25% size reduction on 19 November 2026. The resized source passed [CI](https://github.com/novydhillon/Flock/actions/runs/44471801038). See the [archived issue](ISSUES_CLOSED.md#f-butterfly-001--butterfly-wing-flaps-and-colors) for validation scope.
+
+
 ## F-CAMERA-001 — Lower camera at fixed radius — 9 November 2026
 
 Branch: `feat/double-terrain-height`, base `3ac0dd95eaef7844ffe172e6527e60c54ddd7984`. Implementation: session model, identifier not recorded because the environment does not expose a verifiable root model identifier or effort setting; bounded camera configuration tuning. Lower Y from 36 to 27 and solve the Z offset from the original radius including the existing lookOffsetZ -2. No renderer algorithm, orthographic scale or follow-target changes. Same-session source inspection; independent blind review is not required for this bounded settings change and no independent score is claimed.

@@ -8,6 +8,9 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-RENDER-002~~ | ~~P2~~ | ~~Rendering~~ | ~~Render the 3D canvas at half native viewport resolution~~ | ~~Done~~ | ~~—~~ |
+| ~~F-DOG-001~~ | ~~P2~~ | ~~Character art/animation~~ | ~~Replace Pip and Buddy with expressive dogs~~ | ~~Done~~ | ~~Existing dog gameplay~~ |
+| ~~F-BUTTERFLY-001~~ | ~~P2~~ | ~~Animation bug~~ | ~~Hinged wing flaps and five butterfly colors~~ | ~~Done~~ | ~~Existing butterfly presentation~~ |
 | ~~F-TERRAIN-BANK-001~~ | ~~P2~~ | ~~Terrain/bridges~~ | ~~Compact steep riverbanks and slope-based bank textures~~ | ~~Done~~ | ~~Accepted rolling terrain and elevated crossings~~ |
 | ~~F-SHADOW-001~~ | ~~P2~~ | ~~Rendering~~ | ~~Bake all static environment shadows once per meadow~~ | ~~Done~~ | ~~Existing shadow renderer~~ |
 | ~~F-ARCH-002~~ | ~~P2~~ | ~~Architecture~~ | ~~Organize source into system and functionality folders~~ | ~~Done~~ | ~~Accepted F-PERF-002~~ |
@@ -2303,3 +2306,57 @@ F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Clo
 ## Main merged into bank work — 9 November 2026
 
 Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.
+
+
+### F-BUTTERFLY-001 — ~~Butterfly wing flaps and colors~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/butterfly-wing-flap`
+
+**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
+
+**Accept when:** Both wings visibly flap back and forth around their body attachments during flight. Preserve movement and pause/resume. Include yellow, orange, blue, purple and pink butterflies. Scale the body and wings to 75% of the initial Dev preview size, including the wing hinge offsets.
+
+**Validation:** Matrix tests verify attached, bounded strokes at several flight headings, pause/resume, seeded color pairs, and the body and wing scale. The [earlier dev publication](validation/F-BUTTERFLY-001-dev-publication.json) covers the wing and palette revision. User sign-off covers the completed feature. Independent rendered and device measurements were not recorded.
+
+**Closed:** 19 November 2026. Novy approved the wing flaps, five-color palette, and 25% size reduction. The accepted source is [5b78e07](https://github.com/novydhillon/Flock/commit/5b78e07c85f4bf753396f07ccb65078b9e889f5c) and passed [source CI](https://github.com/novydhillon/Flock/actions/runs/44471801038).
+
+
+### F-RENDER-002 — ~~Half-resolution 3D rendering~~
+
+**User acceptance — 26 November 2026:** Novy approved the changes and authorized merging the integrated branch into main. The validation notes below record the checks at the time they were run.
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/half-render-resolution`
+
+**Accept when:** The main 3D canvas uses half the native viewport width and height (1080 × 1920 → 540 × 960), and the real-time and baked shadow maps retain their existing sizes.
+
+**Validation:** Renderer regression covers a high-density portrait viewport and both shadow map sizes. Device smoke check and user sign-off are pending.
+
+### F-DOG-001 — ~~Pip and Buddy dog models and animation~~
+
+**User acceptance — 26 November 2026:** Novy approved the changes and authorized merging the integrated branch into main. The validation notes below record the checks at the time they were run.
+
+**Banded spacing:** Use Pip’s clearance as the reference and scale the boundary with each dog’s body size. Half the herd can enter the outer third, including the quarter that can enter the next third. Keep the innermost third clear.
+
+**Crowd readability feedback:** Preserve a clear space around each resting dog, including when livestock are already close. A play bow aims toward nearby livestock along clear ground.
+
+**Idle feedback:** Hold poses for randomly selected durations from two to five times the original, extending lying to eight times. Blend directly between poses. Scratching runs one to three times its original duration and returns to sitting. Nearby livestock can occasionally invite play bows while the dogs sit or lie down. Animals within eight world units approach idle dogs along clear ground and stay nearby until the player takes control. The dogs also take short walks between landing-screen rests. During play, Pip may take a short local walk after a tunable 60-second release delay.
+
+**Playtest feedback — 25 November 2026:** Lower the head at a gallop, extend the body and legs in flight and gather the feet beneath the belly. Increase top speed, expand walking control and hold full run from 90% of the stick radius. Recheck planted contact, full-flock journeys and gameplay-scale readability.
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/clay-border-collies`
+
+**Request — 11 November 2026:** Replace Pip's robot model with a real dog in the claymation style, guided by [picture 1: model reference](https://chatgpt.com/library?file_id=libfile_8f164349a58c8191b78718b7d419d134&account_id=personal) and [picture 2: animation reference](https://chatgpt.com/library?file_id=libfile_9730d5a24fd081918e890bae9499b20b&account_id=personal). Buddy is a smaller, younger and more feisty version.
+
+**Accept when:** Pip's appearance follows the model reference, and expressive animations draw on the barking, sitting, rolled-over and play poses in the animation reference. Buddy reads as younger, smaller and feistier while remaining recognizable and readable at gameplay scale. Grounded locomotion and transitions suit the new dogs; preserve existing controls, herding behavior, collision and progression. Coordinate with F-COMP-004–006 and F-COMP-008. Verify animation, terrain contact and mobile performance in gameplay.
+
+**25 November 2026 reference clarification:** Use the multi-view turnaround (picture 2) for body proportions and the four-pose sheet (picture 1) for animation. Both dogs walk, run, blend gaits and make tighter turns at low speed. Idle actions include sitting, lying down, play bows, scratching and rolling. Buddy has a lower top speed and more energetic mannerisms.
+
+**Implementation — 25 November 2026:** Shared clay collie rig, grounded gait blend and idle poses, speed-dependent steering, puppy behavior, dog UI and regenerated icons. Independent review reached 9/10 after fixes for ground clipping, steady-turn paw drift and abrupt reversals. Native phone animation and performance remain awaiting playtest and sign-off.
+
+**Regression correction — 25 November 2026:** Source CI for the initial dog revision passed 622/623 tests; Meadow 16 seed 202 saved 45 of 50 under Node 22. Once Pip has completed a turn, movement now uses the normalized input vector directly, avoiding lateral floating-point drift while preserving turn arcs and braking. The original full-delivery assertions remain intact. Independent review scored 9/10; 80/80 targeted tests passed on both Node 22 and Node 24. Final full checked build and source CI are required before deployment.

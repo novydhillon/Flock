@@ -24,11 +24,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-RENDER-002 | P2 | Rendering | Render the 3D canvas at half native viewport resolution | Review | — |
-| F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Review | Existing dog gameplay |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
-| F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
@@ -55,40 +52,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
-### F-RENDER-002 — Half-resolution 3D rendering
-
-**Status:** Review. Owner: Codex.
-
-**Branch:** `feat/half-render-resolution`
-
-**Accept when:** The main 3D canvas uses half the native viewport width and height (1080 × 1920 → 540 × 960), and the real-time and baked shadow maps retain their existing sizes.
-
-**Validation:** Renderer regression covers a high-density portrait viewport and both shadow map sizes. Device smoke check and user sign-off are pending.
-
-### F-DOG-001 — Pip and Buddy dog models and animation
-
-**Banded spacing:** Use Pip’s clearance as the reference and scale the boundary with each dog’s body size. Half the herd can enter the outer third, including the quarter that can enter the next third. Keep the innermost third clear.
-
-**Crowd readability feedback:** Preserve a clear space around each resting dog, including when livestock are already close. A play bow aims toward nearby livestock along clear ground.
-
-**Idle feedback:** Hold poses for randomly selected durations from two to five times the original, extending lying to eight times. Blend directly between poses. Scratching runs one to three times its original duration and returns to sitting. Nearby livestock can occasionally invite play bows while the dogs sit or lie down. Animals within eight world units approach idle dogs along clear ground and stay nearby until the player takes control. The dogs also take short walks between landing-screen rests. During play, Pip may take a short local walk after a tunable 60-second release delay.
-
-**Playtest feedback — 25 November 2026:** Lower the head at a gallop, extend the body and legs in flight and gather the feet beneath the belly. Increase top speed, expand walking control and hold full run from 90% of the stick radius. Recheck planted contact, full-flock journeys and gameplay-scale readability.
-
-**Status:** Review. Owner: Codex.
-
-**Branch:** `feat/clay-border-collies`
-
-**Request — 11 November 2026:** Replace Pip's robot model with a real dog in the claymation style, guided by [picture 1: model reference](https://chatgpt.com/library?file_id=libfile_8f164349a58c8191b78718b7d419d134&account_id=personal) and [picture 2: animation reference](https://chatgpt.com/library?file_id=libfile_9730d5a24fd081918e890bae9499b20b&account_id=personal). Buddy is a smaller, younger and more feisty version.
-
-**Accept when:** Pip's appearance follows the model reference, and expressive animations draw on the barking, sitting, rolled-over and play poses in the animation reference. Buddy reads as younger, smaller and feistier while remaining recognizable and readable at gameplay scale. Grounded locomotion and transitions suit the new dogs; preserve existing controls, herding behavior, collision and progression. Coordinate with F-COMP-004–006 and F-COMP-008. Verify animation, terrain contact and mobile performance in gameplay.
-
-**25 November 2026 reference clarification:** Use the multi-view turnaround (picture 2) for body proportions and the four-pose sheet (picture 1) for animation. Both dogs walk, run, blend gaits and make tighter turns at low speed. Idle actions include sitting, lying down, play bows, scratching and rolling. Buddy has a lower top speed and more energetic mannerisms.
-
-**Implementation — 25 November 2026:** Shared clay collie rig, grounded gait blend and idle poses, speed-dependent steering, puppy behavior, dog UI and regenerated icons. Independent review reached 9/10 after fixes for ground clipping, steady-turn paw drift and abrupt reversals. Native phone animation and performance remain awaiting playtest and sign-off.
-
-**Regression correction — 25 November 2026:** Source CI for the initial dog revision passed 622/623 tests; Meadow 16 seed 202 saved 45 of 50 under Node 22. Once Pip has completed a turn, movement now uses the normalized input vector directly, avoiding lateral floating-point drift while preserving turn arcs and braking. The original full-delivery assertions remain intact. Independent review scored 9/10; 80/80 targeted tests passed on both Node 22 and Node 24. Final full checked build and source CI are required before deployment.
-
 ### F-DOG-002 — Ten additional dog breeds and progression
 
 **Status:** Open. Owner: Unassigned.
@@ -113,19 +76,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 **Accept when:** Vertical dragging moves the camera smoothly along an arc from a 90-degree top-down view to a 0-degree view parallel to the ground, clamped to that range. Horizontal dragging rotates around the target continuously through 360 degrees in either direction. Horizontal rotation speed increases with finger distance from the center on a logarithmic scale, reaching a maximum of 60 degrees per second at the screen edge. The direction follows the drag direction. Clicking the camera icon again exits camera modification and returns to regular gameplay. Disabling camera modification in the QA menu turns off and removes the camera icon; if camera mode is active, exit it and return to regular gameplay. Confirm the toggle and icon work on supported screen sizes, gameplay stays paused during camera modification, and normal controls and pause/resume behavior work when leaving the mode.
 
 **Scope:** Tracker addition only; implementation and device validation remain pending.
-
-
-### F-BUTTERFLY-001 — Butterfly wings should flap instead of spinning
-
-**Status:** Open. Owner: Unassigned.
-
-**Branch:** `unassigned`
-
-**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
-
-**Accept when:** Wings visibly flap back and forth around their attachment to the body, with bounded alternating motion rather than continuous full rotation. Verify at normal gameplay zoom and during butterfly flight, preserving existing movement and pause/resume behavior.
-
-**Scope:** Tracker addition only; animation fix and rendered verification remain pending.
 
 
 ### F-015 — Performance verification gap
