@@ -33,7 +33,7 @@ test('livestock approach a resting Pip, stay nearby, and respond immediately whe
   Object.assign(animal, { x: dog.x + 7.8, z: dog.z, vx: 0, vz: 0 });
   assert.ok(hasClearGroundPath(level, animal, dog, animalRadius(animal)));
   for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
-  assert.ok(distance(animal, dog) > 2 && distance(animal, dog) < 3);
+  assert.ok(distance(animal, dog) > 4 && distance(animal, dog) < 5);
   const resting = { x: animal.x, z: animal.z };
   for (let frame = 0; frame < 1600; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
   assert.ok(distance(animal, resting) < 0.1);
@@ -41,6 +41,17 @@ test('livestock approach a resting Pip, stay nearby, and respond immediately whe
   assert.equal(animal.saved, false);
   stepSimulation(level, dog, { allowIdleWander: true, x: 0.1 }, 0.05);
   assert.ok(animal.alert > 0 && animal.pushed);
+});
+
+test('livestock already crowding an idle dog back out and keep a visible gap', () => {
+  const level = createLevel(0, 201);
+  const { dog } = level;
+  const animal = level.animals[0];
+  level.animals = [animal];
+  Object.assign(animal, { x: dog.x + 1, z: dog.z, vx: 0, vz: 0 });
+  for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
+  assert.ok(distance(animal, dog) > 4 && distance(animal, dog) < 5);
+  assert.equal(animal.alert, 0);
 });
 
 test('Pip wanders only after 60 released seconds and yields immediately to the player', () => {

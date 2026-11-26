@@ -47,6 +47,7 @@ export function createPipMotionState(puppy = false, random = null) {
     poseTime: 0,
     poseDuration: 0,
     bowReturn: STAND,
+    bowYaw: 0,
     idleWeight: 0,
     nearAnimal: false,
     nearbyAnimals: new Set(),
@@ -161,6 +162,13 @@ export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? 0.
   state.stride = (state.stride + (dt * activity) / strideLength) % 1;
   state.time += dt;
   updateIdle(state, sample, dt, activity);
+  const bowHeading = sample.bowHeading;
+  const deltaToAnimal = Number.isFinite(bowHeading) ? bowHeading - heading : state.bowYaw;
+  const facing = Math.atan2(Math.sin(deltaToAnimal), Math.cos(deltaToAnimal));
+  const visualTurn = state.poseWeights[BOW] > 0 ? facing * smooth(state.poseWeights[BOW] * 2) : 0;
+  // Aim the visual rig without rotating the simulation body or steering input.
+  const visualDelta = visualTurn - state.bowYaw;
+  state.bowYaw += Math.atan2(Math.sin(visualDelta), Math.cos(visualDelta)) * -Math.expm1(-dt / 0.085);
   if (sample.barking && !state.barking) state.barkTime = 0;
   if (sample.barking) state.barkTime += dt;
   state.barking = Boolean(sample.barking);

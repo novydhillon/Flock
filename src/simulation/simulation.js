@@ -482,10 +482,18 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       const dx = socialDog.x - old.x,
         dz = socialDog.z - old.z,
         gap = Math.hypot(dx, dz);
-      const toward = normal(dx, dz);
-      const pace = clamp((gap - (2 + physicalRadius)) * 0.65, 0, 0.65);
-      desiredX = toward.x * pace + sx * 0.35;
-      desiredZ = toward.z * pace + sz * 0.35;
+      const angle = animal.id * 2.39996;
+      const toward = gap > 0.01 ? normal(dx, dz) : { x: Math.sin(angle), z: Math.cos(angle) };
+      const space = Math.min(4 + physicalRadius, GAMEPLAY.simulation.dogSocialRadius * 0.8);
+      const pace = clamp((gap - space) * 0.65, -0.85, 0.65);
+      desiredX = toward.x * pace + sx * 0.65;
+      desiredZ = toward.z * pace + sz * 0.65;
+      // A packed outer row must not push the inner animals into the dog's space.
+      if (gap <= space) {
+        const inward = Math.max(0, desiredX * toward.x + desiredZ * toward.z - pace);
+        desiredX -= toward.x * inward;
+        desiredZ -= toward.z * inward;
+      }
       pressure = 0;
     }
     const preparation = browse?.preparing

@@ -29,6 +29,7 @@ import {
   targetFootprint,
   gateSegment,
   canOccupy,
+  hasClearGroundPath,
 } from '../world/world.js';
 import {
   installSlopeSoil,
@@ -1424,9 +1425,30 @@ export class MeadowRenderer {
   updateDog(mesh, actor, dt, buddy) {
     const level = this.level;
     const height = terrainHeight(level, actor.x, actor.z);
-    const heading = actor.heading ?? (buddy ? mesh.rotation.y : Math.PI / 2);
+    const heading =
+      actor.heading ?? (buddy ? (mesh.userData.motion?.previous?.heading ?? mesh.rotation.y) : Math.PI / 2);
     mesh.position.set(actor.x, height, actor.z);
-    mesh.rotation.set(0, heading, 0, 'YXZ');
+    const barking = this.barkEffects.some((effect) => effect.buddy === buddy);
+    let nearbyAnimals, bowHeading;
+    if (dt > 0 && !barking && Math.hypot(actor.vx || 0, actor.vz || 0) < 0.12) {
+      let nearest = DOG_SOCIAL_RADIUS ** 2;
+      for (const [index, animal] of (level.animals || []).entries()) {
+        const dx = animal.x - actor.x,
+          dz = animal.z - actor.z;
+        const gap = dx * dx + dz * dz;
+        if (gap < 0.0001 || gap >= DOG_SOCIAL_RADIUS ** 2 || !hasClearGroundPath(level, actor, animal, 0.15)) continue;
+        (nearbyAnimals ??= []).push(animal.id ?? index);
+        if (gap < nearest) {
+          nearest = gap;
+          bowHeading = Math.atan2(dx, dz);
+        }
+      }
+    }
+    const sample = { ...actor, heading, barking, nearbyAnimals, bowHeading };
+    if (level.completed) sample.vx = sample.vz = 0;
+    updatePipPose(mesh, sample, dt);
+    const visualHeading = heading + (mesh.userData.motion?.bowYaw || 0);
+    mesh.rotation.set(0, visualHeading, 0, 'YXZ');
     if (level.terrain?.enabled || height !== 0) {
       const span = 0.3 * mesh.scale.x;
       const grade = (dx, dz) => {
@@ -1435,24 +1457,11 @@ export class MeadowRenderer {
         // At a deck edge one probe can hit the channel bed. Use the continuous side.
         return (Math.abs(ahead) <= Math.abs(behind) ? ahead : behind) / span;
       };
-      const x = Math.sin(heading) * span;
-      const z = Math.cos(heading) * span;
+      const x = Math.sin(visualHeading) * span;
+      const z = Math.cos(visualHeading) * span;
       mesh.rotation.x = -Math.atan(grade(x, z));
       mesh.rotation.z = Math.atan(grade(z, -x) * Math.cos(mesh.rotation.x));
     }
-    const barking = this.barkEffects.some((effect) => effect.buddy === buddy);
-    // Track individuals so a second animal can invite a bow while the first stays nearby.
-    let nearbyAnimals;
-    if (dt > 0 && !barking) {
-      for (const [index, animal] of (level.animals || []).entries()) {
-        if ((animal.x - actor.x) ** 2 + (animal.z - actor.z) ** 2 < DOG_SOCIAL_RADIUS ** 2) {
-          (nearbyAnimals ??= []).push(animal.id ?? index);
-        }
-      }
-    }
-    const sample = { ...actor, heading, barking, nearbyAnimals };
-    if (level.completed) sample.vx = sample.vz = 0;
-    updatePipPose(mesh, sample, dt);
   }
   bark(source) {
     const origin = source ? { x: source.x, z: source.z } : { x: this.dog.position.x, z: this.dog.position.z };

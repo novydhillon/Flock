@@ -37,6 +37,7 @@ import {
   containsTarget,
   gateSegment,
   canOccupy,
+  hasClearGroundPath,
 } from '../src/world/world.js';
 import { goalSurface, goalOutline, drawGoalMap } from '../src/rendering/goal-view.js';
 import { generateBushClusters } from '../src/rendering/environment/vegetation.js';
@@ -271,6 +272,7 @@ function setup({ width = 390, height = 844, pixelRatio = 2, treeYaw = true, sett
     terrainHeight,
     targetFootprint,
     canOccupy,
+    hasClearGroundPath,
     goalSurface,
     goalOutline,
     drawGoalMap,

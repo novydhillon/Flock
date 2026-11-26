@@ -28,6 +28,32 @@ function transforms(dog) {
 }
 const stationary = { x: 0, z: 0, vx: 0, vz: 0, heading: 0 };
 
+test('play bows aim the rendered dog at visible livestock without changing its steering heading', () => {
+  const level = createLevel(0, 201);
+  for (const [create, buddy] of [
+    [createPip, false],
+    [createBuddy, true],
+  ]) {
+    const dog = create();
+    dog.userData.motion.random = () => 0;
+    const actor = { ...level.dog, heading: 0, vx: 0, vz: 0 };
+    const view = { level, barkEffects: [] };
+    const render = () => MeadowRenderer.prototype.updateDog.call(view, dog, actor, 1 / 60, buddy);
+    level.animals = [];
+    for (let frame = 0; frame < 150; frame++) render();
+    level.animals = [{ id: 1, x: actor.x + 5, z: actor.z }];
+    for (let frame = 0; frame < 90; frame++) render();
+    assert.ok(Math.abs(dog.rotation.y - Math.PI / 2) < 0.02);
+    assert.equal(actor.heading, 0);
+    level.animals[0].z += 4;
+    for (let frame = 0; frame < 60; frame++) render();
+    assert.ok(Math.abs(dog.rotation.y - Math.atan2(5, 4)) < 0.02);
+    actor.vz = 1;
+    for (let frame = 0; frame < 90; frame++) render();
+    assert.ok(Math.abs(dog.rotation.y) < 0.02);
+  }
+});
+
 test('both dogs have independent joints, a forward muzzle and a readable puppy silhouette at game scale', () => {
   const adult = createPip(),
     pup = createBuddy();
