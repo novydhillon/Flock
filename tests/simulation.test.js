@@ -25,22 +25,76 @@ import {
   hasClearGroundPath,
 } from '../src/world/world.js';
 
-test('livestock approach a resting Pip, stay nearby, and respond immediately when the player moves', () => {
+test('a quiet flock spreads at a walk and responds immediately when the player moves', () => {
   const level = createLevel(0, 201);
-  const dog = level.dog;
+  const { dog } = level;
+  const animals = level.animals.slice(0, 6);
+  level.animals = animals;
+  animals.forEach((animal, i) => {
+    Object.assign(animal, { x: dog.x + 4.8 + (i % 2), z: dog.z + (Math.floor(i / 2) - 1) * 1.2, vx: 0, vz: 0 });
+    assert.ok(hasClearGroundPath(level, animal, dog, animalRadius(animal)));
+  });
+  const spread = () =>
+    animals.reduce(
+      (sum, animal, i) => sum + animals.slice(i + 1).reduce((total, other) => total + distance(animal, other), 0),
+      0,
+    ) / 15;
+  const initial = spread();
+  const departures = new Map();
+  const idle = { allowIdleWander: true };
+  for (let frame = 0; frame < 440; frame++) {
+    stepSimulation(level, dog, idle, 0.05);
+    assert.ok(animals.every((animal) => Math.hypot(animal.vx, animal.vz) <= 0.85 + 1e-8));
+    for (const animal of animals) {
+      if (animal.ordinaryAnticipation && !departures.has(animal.id)) departures.set(animal.id, level.time);
+    }
+  }
+  const times = [...departures.values()];
+  assert.ok(times.length >= 4 && Math.max(...times) - Math.min(...times) > 1);
+  assert.ok(spread() > initial + 1.5, `initial ${initial}, final ${spread()}`);
+  assert.ok(animals.every((animal) => !animal.saved && animal.alert === 0));
+  const nearby = animals.find((animal) => distance(animal, dog) < 8);
+  assert.ok(nearby);
+  stepSimulation(level, dog, { ...idle, x: 0.1 }, 0.05);
+  assert.ok(nearby.alert > 0 && nearby.pushed);
+});
+
+test('idle livestock can browse away from a blocked field corner', () => {
+  const level = createLevel(0, 201);
   const animal = level.animals[0];
   level.animals = [animal];
-  Object.assign(animal, { id: 1, x: dog.x + 7.8, z: dog.z, vx: 0, vz: 0 });
-  assert.ok(hasClearGroundPath(level, animal, dog, animalRadius(animal)));
-  for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
-  assert.ok(distance(animal, dog) > 4 && distance(animal, dog) < 5);
-  const resting = { x: animal.x, z: animal.z };
-  for (let frame = 0; frame < 1600; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
-  assert.ok(distance(animal, resting) < 0.1);
-  assert.equal(animal.alert, 0);
-  assert.equal(animal.saved, false);
-  stepSimulation(level, dog, { allowIdleWander: true, x: 0.1 }, 0.05);
-  assert.ok(animal.alert > 0 && animal.pushed);
+  const start = {
+    x: level.bounds.minX + animalRadius(animal) + 0.5,
+    z: level.bounds.minZ + animalRadius(animal) + 0.5,
+  };
+  Object.assign(animal, start, { vx: 0, vz: 0 });
+  for (let frame = 0; frame < 1160; frame++) {
+    stepSimulation(level, level.dog, { allowIdleWander: true }, 0.05);
+  }
+  assert.ok(distance(animal, start) > 1, `distance from the corner: ${distance(animal, start)}`);
+});
+
+test('idle browsing at a bridge mouth keeps the animal on the same bank', () => {
+  for (const offset of [0.45, 0.1]) {
+    const level = createLevel(23, 200);
+    const { dog } = level;
+    const bridge = level.rivers[0].bridges[0];
+    const animal = level.animals[0];
+    level.animals = [animal];
+    Object.assign(animal, targetWorldPoint(bridge, -bridge.length / 2 - offset, 0), {
+      type: 'sheep',
+      scale: 1,
+      vx: 0,
+      vz: 0,
+    });
+    Object.assign(dog, targetWorldPoint(bridge, -bridge.length / 2 - 8, 0));
+    const idle = { allowIdleWander: true };
+    for (let frame = 0; frame < 440; frame++) {
+      stepSimulation(level, dog, idle, 0.05);
+      assert.ok(!animal.bridgeCrossing || animal.bridgeCrossing.sign < 0, `offset ${offset}`);
+      assert.ok(targetLocalPoint(bridge, animal).forward < -bridge.length / 2, `offset ${offset}`);
+    }
+  }
 });
 
 test('livestock already crowding an idle dog back out and keep a visible gap', () => {
@@ -50,23 +104,22 @@ test('livestock already crowding an idle dog back out and keep a visible gap', (
   level.animals = [animal];
   Object.assign(animal, { id: 1, x: dog.x + 1, z: dog.z, vx: 0, vz: 0 });
   for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
-  assert.ok(distance(animal, dog) > 4 && distance(animal, dog) < 5);
+  assert.ok(distance(animal, dog) > 4);
   assert.equal(animal.alert, 0);
 });
 
-test('a group of four livestock settles in stable nested bands scaled to the resting dog', () => {
+test('quiet livestock retain the size-scaled clearance bands around Pip and Buddy', () => {
   for (const buddy of [false, true]) {
     for (let id = 0; id < 4; id++) {
-      // A separate approach for each ID isolates its assigned band from crowd forces.
       const level = createLevel(0, 201);
       const { dog } = level;
       const resting = buddy ? { type: 'helper', x: dog.x + 5, z: dog.z } : dog;
       if (buddy) {
-        level.index = 19; // Unlock Buddy in the otherwise flat test meadow.
+        level.index = 19;
         level.helpers = [resting];
         level.buddyHerd = { standby: { x: resting.x, z: resting.z } };
       }
-      const animal = { ...level.animals[0], id, x: resting.x + 7.5, z: resting.z, vx: 0, vz: 0 };
+      const animal = { ...level.animals[0], id, x: resting.x + 0.9, z: resting.z, vx: 0, vz: 0 };
       assert.ok(hasClearGroundPath(level, animal, resting, animalRadius(animal)));
       level.animals = [animal];
       for (let frame = 0; frame < 360; frame++) {
@@ -75,14 +128,14 @@ test('a group of four livestock settles in stable nested bands scaled to the res
       const base = 4 + animalRadius(animal);
       const expected = base * (buddy ? 0.82 : 1) * [2 / 3, 1, 1, 1 / 3][id];
       assert.ok(
-        Math.abs(distance(animal, resting) - expected) < 0.025,
+        distance(animal, resting) >= expected - 0.025,
         `id ${id}, Buddy ${buddy}: ${distance(animal, resting)}`,
       );
     }
   }
 });
 
-test('approach momentum cannot carry livestock across its assigned band edge', () => {
+test('residual herd momentum cannot carry livestock across its assigned band edge', () => {
   const level = createLevel(0, 201);
   const { dog } = level;
   const animal = { ...level.animals[0], type: 'cow', scale: 1.25, id: 3 };

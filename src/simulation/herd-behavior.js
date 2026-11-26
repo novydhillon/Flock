@@ -1,3 +1,4 @@
+import { entersBridge } from './navigation/bridge-crossing.js';
 import { animalRadius } from './animal-size.js';
 import { canOccupy, hasClearGroundPath, targetFootprint, targetLocalPoint } from '../world/world.js';
 
@@ -42,44 +43,53 @@ function outsideDestination(level, p, margin) {
 }
 // A slow browse followed by a long rest. Nearby candidate paths stay in the
 // current usable field, never request a crossing, and keep clear of delivery.
-export function unattendedBrowse(level, animal, controlled, dt) {
+export function unattendedBrowse(level, animal, controlled, dt, idleDogs = false, restingDog) {
   const states = (level.unattendedBrowse ||= new Map());
   if (controlled) {
     states.delete(animal.id);
     return null;
   }
   let state = states.get(animal.id);
-  if (!state) {
-    state = { since: level.time, cycle: 0 };
+  if (!state || state.idleDogs !== idleDogs) {
+    state = { since: level.time, cycle: 0, idleDogs };
     states.set(animal.id, state);
   }
-  if (level.time - state.since < 8) return null;
+  // Stagger departures so the flock relaxes in place before individuals peel away.
+  const delay = idleDogs ? 2 + hash(level.seed, animal.id, 0xb02) * 5 : 8;
+  if (level.time - state.since < delay) return idleDogs ? { x: 0, z: 0, resting: true } : null;
   const radius = animalRadius(animal),
     traits = temperament(level, animal);
   if (!state.next || level.time >= state.next) {
     const cycle = state.cycle++,
       salt = Math.imul(cycle + 1, 7919);
-    state.next = level.time + 24 + hash(level.seed, animal.id, salt ^ 0xb01) * 10;
+    state.next = level.time + (idleDogs ? 14 : 24) + hash(level.seed, animal.id, salt ^ 0xb01) * 10;
     state.departAt = level.time + 0.35;
     state.walkUntil = state.departAt + 10;
     state.target = null;
-    for (let attempt = 0; attempt < 8; attempt++) {
-      let angle = hash(level.seed, animal.id, salt ^ Math.imul(attempt + 1, 0x1f123bb5)) * Math.PI * 2;
-      // Explore outward from the original spawn/field center, rather than
-      // randomly closing an intentionally open split. This uses no remote
-      // animal positions, so independent flocks remain independent.
-      const origin = level.spawn || {
+    // Give a nearby resting dog room. Use shorter routes in other directions
+    // if the outward side of a paddock or corner leaves no clear route.
+    const origin = restingDog ||
+      level.spawn || {
         x: (level.bounds.minX + level.bounds.maxX) / 2,
         z: (level.bounds.minZ + level.bounds.maxZ) / 2,
       };
-      const outward = { x: animal.x - origin.x, z: animal.z - origin.z };
-      if (Math.hypot(outward.x, outward.z) > 0.5 && Math.sin(angle) * outward.x + Math.cos(angle) * outward.z < 0)
+    const outward = { x: animal.x - origin.x, z: animal.z - origin.z };
+    const reach = (4 + hash(level.seed, animal.id, salt ^ 0xc01) * 5) * traits.curiosity;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      let angle = hash(level.seed, animal.id, salt ^ Math.imul(attempt + 1, 0x1f123bb5)) * Math.PI * 2;
+      const fallback = idleDogs && attempt >= 4;
+      if (
+        !fallback &&
+        Math.hypot(outward.x, outward.z) > 0.5 &&
+        Math.sin(angle) * outward.x + Math.cos(angle) * outward.z < 0
+      )
         angle += Math.PI;
-      const reach = (4 + hash(level.seed, animal.id, salt ^ 0xc01) * 5) * traits.curiosity;
-      const p = { x: animal.x + Math.sin(angle) * reach, z: animal.z + Math.cos(angle) * reach };
+      const leg = fallback ? reach / 2 : reach;
+      const p = { x: animal.x + Math.sin(angle) * leg, z: animal.z + Math.cos(angle) * leg };
       if (
         outsideDestination(level, p, radius + 2) &&
         outsideDestination(level, animal, radius + 2) &&
+        (!idleDogs || !entersBridge(level, animal, p)) &&
         canOccupy(level, p.x, p.z, radius) &&
         hasClearGroundPath(level, animal, p, radius)
       ) {

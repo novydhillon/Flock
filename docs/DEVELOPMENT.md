@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## F-DOG-003 mobile smoke check — 26 November 2026
+
+Gather a flock in open grass and release the stick. Watch for staggered departures and slow spreading over 20 seconds. Resume steering mid-walk and check the immediate response. Repeat with Buddy, near a fence and near the destination. Phone playtesting is pending.
+
 ## Half-resolution rendering smoke check — 25 November 2026
 
 On a phone, open a meadow and compare the canvas drawing buffer against the viewport CSS dimensions multiplied by the device pixel ratio. The buffer should be half that size per dimension in portrait and landscape. Check that the canvas fills the viewport and HUD placement and shadow appearance remain consistent. Physical device check pending.

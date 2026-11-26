@@ -1,11 +1,34 @@
 import { animalRadius } from '../animal-size.js';
-import { canOccupy, navigationTarget, hasClearGroundPath } from '../../world/world.js';
+import { canOccupy, navigationTarget, hasClearGroundPath, targetLocalPoint } from '../../world/world.js';
 
 const radiusOf = (a) => animalRadius(a);
 /** Approach distance before a deck end where pressured walkers commit. */
 export const COMMIT_DEPTH = 3;
 const axes = (b) => ({ x: Math.sin(b.heading), z: Math.cos(b.heading) });
 const along = (p, b, f) => (p.x - b.x) * f.x + (p.z - b.z) * f.z;
+
+const deckEnd = (bridge) => bridge.length / 2 + 0.15;
+
+// Test entry against the same deck ends that commit crossings. Allow an
+// animal already at a deck end to head back toward its nearest bank.
+export function entersBridge(level, from, to) {
+  return (level.rivers || []).some((river) =>
+    river.bridges.some((bridge) => {
+      const start = targetLocalPoint(bridge, from);
+      const finish = targetLocalPoint(bridge, to);
+      const end = deckEnd(bridge);
+      const bank = start.forward >= 0 ? 1 : -1;
+      if (Math.abs(start.forward) <= end) {
+        return Math.abs(start.lateral) <= bridge.width / 2 && (finish.forward - start.forward) * bank < 0;
+      }
+      const entry = bank * end;
+      const t = (entry - start.forward) / (finish.forward - start.forward);
+      if (!(t > 0 && t <= 1)) return false;
+      const lateral = start.lateral + t * (finish.lateral - start.lateral);
+      return Math.abs(lateral) <= bridge.width / 2;
+    }),
+  );
+}
 
 /** Walking onto a deck commits this animal to its far bank. This is local
  * traversal intent, never destination selection or permission to score. */
@@ -33,7 +56,7 @@ export function bridgeCrossing(level, animal, old) {
         // Approach commitment needs direct Pip/Buddy pressure, and never sends an
         // animal back over a deck it already crossed; walking on still commits.
         const back = animal.lastBridge?.bridge === b && Math.sign(motion) !== animal.lastBridge.sign;
-        const onDeck = Math.abs(u) <= b.length / 2 + 0.15,
+        const onDeck = Math.abs(u) <= deckEnd(b),
           approaching = !onDeck && !back && old.pushed && Math.abs(u) <= b.length / 2 + COMMIT_DEPTH && motion * u < 0;
         if (
           (!onDeck && !approaching) ||

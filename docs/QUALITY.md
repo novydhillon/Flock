@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## F-DOG-003 — Idle flock dispersal — 26 November 2026
+
+Branch: `feat/idle-flock-dispersal`, based on the approved collie changes at `5afe97a`. Implementation and independent review used session models, identifiers and effort unavailable. The initial review scored 7/10 and reproduced an unintended idle crossing and a stationary corner animal. Added shorter browse routes, staggered-departure coverage and a bridge-entry guard. The 8/10 recheck identified a bridge-end tolerance case. The final recheck scored 9/10 after the guard covered inward movement from that strip. It reproduced safe idle movement at both ends across 32 seeded placements and verified that a crossing begun under pressure finished after release. Headless validation covers simulation only. Physical phone playtesting is pending.
+
 ## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
 
 On `feat/half-render-resolution`, based on `9c08372`, the WebGL canvas uses one half of the native viewport width and height. The existing 1024-square real-time sun shadow map and 4096-square baked map budget are preserved. Implementation model: GPT-6.2 Sol (session effort unavailable). The focused renderer regression exercises the 540 × 960 drawing buffer dimensions through a WebGL substitute and checks both map sizes. Formatting, documentation, release and development build checks passed. Physical phone rendering remains unverified.

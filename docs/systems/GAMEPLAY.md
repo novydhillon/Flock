@@ -1,5 +1,9 @@
 # Gameplay and progression
 
+## Idle flock dispersal — 26 November 2026
+
+When a dog is resting after input release, unattended livestock use the seeded browsing routine with staggered departures and shorter rests. Candidate walks favor clear ground away from a nearby resting dog. The existing size-scaled clearance bands constrain inward movement. Active dog pressure, companion work and committed crossings retain priority.
+
 ## P1 herd and bark contracts — 24 October 2026
 
 `herd-behavior.js` derives confidence, curiosity and following traits from a separate seed hash; it does not consume world or wander randomness. Small familiar-neighbor weights remain limited to visible local members of the same flock, with the accepted total cohesion cap and front-motion protection. Cows retain slower response and slightly larger personal space. Existing turn caps, collision, bridge commitment, wandering opportunities and Buddy ownership remain authoritative.

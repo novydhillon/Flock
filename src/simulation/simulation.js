@@ -24,7 +24,7 @@ import {
 import { flockGroups, updateBuddy } from './companions/buddy.js';
 import { canGrazeAt } from '../rendering/animation/grazing.js';
 import { turnToward } from './navigation/buddy-navigation.js';
-import { bridgeCrossing } from './navigation/bridge-crossing.js';
+import { bridgeCrossing, entersBridge } from './navigation/bridge-crossing.js';
 import { yieldAtOpening } from './navigation/chokepoints.js';
 import { nextWanderOpportunity, evaluateWanderOpportunity, prepareWanderCohort } from './wandering.js';
 import { updateGateContacts } from './gates.js';
@@ -309,21 +309,19 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       !dogActivelyHerding &&
       pressure < 0.03 &&
       (Boolean(buddyPosition) || (companions.hold && companions.memberIds.has(animal.id)));
-    // Crossings and active companion tasks retain priority over social visits.
-    let socialDog;
-    if (!crossing && !holding && !helperActivelyHerding) {
+    // Dispersal yields to active herding and committed navigation.
+    const idleDispersal =
+      restingDogs.length > 0 && !dogActivelyHerding && !helperActivelyHerding && !holding && !crossing;
+    let nearbyRestingDog;
+    if (idleDispersal) {
       let nearest = GAMEPLAY.simulation.dogSocialRadius;
       for (const restingDog of restingDogs) {
         const d = distance(old, restingDog);
         if (d < nearest && hasClearGroundPath(level, old, restingDog, physicalRadius)) {
-          socialDog = restingDog;
+          nearbyRestingDog = restingDog;
           nearest = d;
         }
       }
-    }
-    if (socialDog) {
-      delete animal.wander;
-      delete animal.wanderHome;
     }
     const settle = () => {
       animal.wanderHome = { x: old.x, z: old.z };
@@ -331,7 +329,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     };
     if (animal.wander && (level.time >= animal.wander.until || !wanderCohort.has(animal.id))) settle();
     const opportunity = nextWanderOpportunity(level, animal, dt);
-    if (opportunity !== null && !socialDog && pressure < 0.03) {
+    if (opportunity !== null && !idleDispersal && pressure < 0.03) {
       const center = companions.centroid || centerOf(snapshot);
       const candidate = evaluateWanderOpportunity(
         level,
@@ -466,44 +464,18 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       dogActivelyHerding ||
         helperActivelyHerding ||
         watchingBuddy ||
-        Boolean(socialDog) ||
         holding ||
         Boolean(crossing) ||
         Boolean(wander) ||
         Boolean(animal.wanderHome) ||
         pressure > 0.03,
       dt,
+      idleDispersal,
+      nearbyRestingDog,
     );
     if (browse) {
       desiredX = browse.x + sx * 0.3;
       desiredZ = browse.z + sz * 0.3;
-    }
-    let socialApproach;
-    if (socialDog) {
-      const dx = socialDog.x - old.x,
-        dz = socialDog.z - old.z,
-        gap = Math.hypot(dx, dz);
-      const angle = animal.id * 2.39996;
-      const toward = gap > 0.01 ? normal(dx, dz) : { x: Math.sin(angle), z: Math.cos(angle) };
-      const { buddyBodyScale, dogRadius, dogSocialRadius } = GAMEPLAY.simulation;
-      const dogScale = socialDog === dog ? 1 : buddyBodyScale;
-      const boundary = Math.min(4 + physicalRadius, dogSocialRadius * 0.8);
-      // Assign one inner, one middle and two outer places in each group of
-      // four livestock IDs. Eligibility stays stable as the herd moves.
-      const band = (animal.id + (level.seed ?? 0)) & 3;
-      const fraction = (1 + Math.min(band, 2)) / 3;
-      const space = Math.max(boundary * fraction * dogScale, dogRadius * dogScale + physicalRadius);
-      const pace = clamp((gap - space) * 0.65, -0.85, 0.65);
-      socialApproach = { toward, remaining: Math.max(0, gap - space) };
-      desiredX = toward.x * pace + sx * 0.65;
-      desiredZ = toward.z * pace + sz * 0.65;
-      // A packed outer row must not push the inner animals into the dog's space.
-      if (gap <= space) {
-        const inward = Math.max(0, desiredX * toward.x + desiredZ * toward.z - pace);
-        desiredX -= toward.x * inward;
-        desiredZ -= toward.z * inward;
-      }
-      pressure = 0;
     }
     const preparation = browse?.preparing
       ? browse
@@ -560,14 +532,40 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       desiredX += steer.x;
       desiredZ += steer.z;
     }
+    const restingClearance = [];
+    if (nearbyRestingDog) {
+      const { buddyBodyScale, dogRadius, dogSocialRadius } = GAMEPLAY.simulation;
+      const boundary = Math.min(4 + physicalRadius, dogSocialRadius * 0.8);
+      // Each group of four IDs shares one inner, one middle and two outer bands.
+      const band = (animal.id + (level.seed ?? 0)) & 3;
+      const fraction = (1 + Math.min(band, 2)) / 3;
+      for (const restingDog of restingDogs) {
+        const dx = old.x - restingDog.x,
+          dz = old.z - restingDog.z,
+          gap = Math.hypot(dx, dz);
+        const scale = restingDog === dog ? 1 : buddyBodyScale;
+        const space = Math.max(boundary * fraction * scale, dogRadius * scale + physicalRadius);
+        if (gap > space + 0.3 || !hasClearGroundPath(level, old, restingDog, physicalRadius)) continue;
+        const angle = animal.id * 2.39996;
+        const outward = gap > 0.01 ? normal(dx, dz) : { x: Math.sin(angle), z: Math.cos(angle) };
+        const remaining = gap - space;
+        const outwardSpeed = desiredX * outward.x + desiredZ * outward.z;
+        const correction = Math.max(0, clamp(-remaining * 0.65, -0.85, 0.85) - outwardSpeed);
+        desiredX += outward.x * correction;
+        desiredZ += outward.z * correction;
+        restingClearance.push({ outward, remaining });
+      }
+    }
     const maxSpeed =
-        animal.wanderHome && !holding
-          ? GAMEPLAY.simulation.homeSpeed
-          : wander?.bolting
-            ? GAMEPLAY.simulation.boltSpeed
-            : animal.type === 'cow'
-              ? GAMEPLAY.simulation.cowSpeed
-              : GAMEPLAY.simulation.sheepSpeed,
+        browse && idleDispersal
+          ? 0.85
+          : animal.wanderHome && !holding
+            ? GAMEPLAY.simulation.homeSpeed
+            : wander?.bolting
+              ? GAMEPLAY.simulation.boltSpeed
+              : animal.type === 'cow'
+                ? GAMEPLAY.simulation.cowSpeed
+                : GAMEPLAY.simulation.sheepSpeed,
       desiredSpeed = Math.hypot(desiredX, desiredZ);
     if (desiredSpeed > maxSpeed) {
       desiredX *= maxSpeed / desiredSpeed;
@@ -585,16 +583,20 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       );
     animal.vx += (desiredX - animal.vx) * smoothing;
     animal.vz += (desiredZ - animal.vz) * smoothing;
-    if (socialApproach) {
-      // Limit inward travel after smoothing so momentum cannot cross the band's edge.
-      const { toward, remaining } = socialApproach;
-      const inwardSpeed = animal.vx * toward.x + animal.vz * toward.z;
-      const excess = Math.max(0, inwardSpeed - remaining / dt);
-      animal.vx -= toward.x * excess;
-      animal.vz -= toward.z * excess;
+    for (const { outward, remaining } of restingClearance) {
+      // Old velocity cannot carry an animal inward across its assigned band.
+      const outwardSpeed = animal.vx * outward.x + animal.vz * outward.z;
+      const correction = Math.max(0, -Math.max(0, remaining) / dt - outwardSpeed);
+      animal.vx += outward.x * correction;
+      animal.vz += outward.z * correction;
     }
     const home = !holding && animal.wanderHome;
-    const outsideHome = home && Math.hypot(animal.x + animal.vx * dt - home.x, animal.z + animal.vz * dt - home.z) > 3;
+    const next = { x: old.x + animal.vx * dt, z: old.z + animal.vz * dt };
+    if (browse && idleDispersal && entersBridge(level, old, next)) {
+      animal.vx = 0;
+      animal.vz = 0;
+    }
+    const outsideHome = home && distance(next, home) > 3;
     const collision = moveBody(
       level,
       animal,

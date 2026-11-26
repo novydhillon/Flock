@@ -24,6 +24,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| F-DOG-003 | P2 | Gameplay | Let the flock disperse when the dogs rest | Review | F-DOG-001 |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
@@ -51,6 +52,14 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
 
 ## Acceptance criteria and planned work
+
+### F-DOG-003 — Idle flock dispersal
+
+**Status:** Review. Owner: Codex.
+
+**Branch:** `feat/idle-flock-dispersal`
+
+**Accept when:** Once the dogs rest, unattended livestock gradually spread and browse at a walk. Preserve size-scaled dog clearance, immediate response to renewed input, and priority for companion work, crossings and delivery.
 
 ### F-DOG-002 — Ten additional dog breeds and progression
 
