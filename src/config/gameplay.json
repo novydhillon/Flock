@@ -12,6 +12,12 @@
       "min": 1,
       "max": 600
     },
+    "dogSocialRadius": {
+      "value": 8,
+      "_comment": "Distance at which livestock and idle dogs can socialize (world units).",
+      "min": 3,
+      "max": 24
+    },
     "dogSpeed": {
       "value": 8.8,
       "_comment": "Base Pip running speed in world units per second before upgrades.",

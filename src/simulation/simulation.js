@@ -127,11 +127,20 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   const wanderInput = idleDogInput(level, dog, input, dt, GAMEPLAY.simulation, effects);
   const dogCollision = movePlayer(level, dog, wanderInput || input, dt, effects.speedBoost);
   level.dog = dog;
+  const released = input.allowIdleWander && !input.bark && !input.x && !(input.z ?? input.y);
   const active = level.animals.filter((a) => !a.saved);
   const companions = companionState(level, active, effects, dt);
   const support = companionAssist(level, companions, dog, effects);
   const buddy = updateBuddy(level, active, effects, dt, events);
   events.push(...updateGateContacts(level, dog));
+  const restingDogs = [];
+  if (released) {
+    if (!wanderInput && Math.hypot(dog.vx, dog.vz) < 0.1) restingDogs.push(dog);
+    for (const helper of level.helpers) {
+      if (helper.type === 'helper' && helper.mode === 'standby' && Math.hypot(helper.vx || 0, helper.vz || 0) < 0.1)
+        restingDogs.push(helper);
+    }
+  }
   const radius =
     GAMEPLAY.simulation.signalRadius + effects.signalBoost + (input.bark ? GAMEPLAY.simulation.barkRadiusBoost : 0);
   const snapshot = active.map((a) => ({ ...a }));
@@ -151,7 +160,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   const playerSignals = new Map(
     snapshot.map((animal) => {
       const d = distance(animal, dog),
-        active = d < radius && hasClearPlayerSignal(level, animal, dog);
+        active = !released && d < radius && hasClearPlayerSignal(level, animal, dog);
       const urgency = active
         ? Math.pow(1 - d / radius, GAMEPLAY.simulation.pressureExponent) * (input.bark ? effects.barkMultiplier : 1)
         : 0;
@@ -293,13 +302,29 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       !dogActivelyHerding &&
       pressure < 0.03 &&
       (Boolean(buddyPosition) || (companions.hold && companions.memberIds.has(animal.id)));
+    // Crossings and active companion tasks retain priority over social visits.
+    let socialDog;
+    if (!crossing && !holding && !helperActivelyHerding) {
+      let nearest = GAMEPLAY.simulation.dogSocialRadius;
+      for (const restingDog of restingDogs) {
+        const d = distance(old, restingDog);
+        if (d < nearest && hasClearGroundPath(level, old, restingDog, physicalRadius)) {
+          socialDog = restingDog;
+          nearest = d;
+        }
+      }
+    }
+    if (socialDog) {
+      delete animal.wander;
+      delete animal.wanderHome;
+    }
     const settle = () => {
       animal.wanderHome = { x: old.x, z: old.z };
       delete animal.wander;
     };
     if (animal.wander && (level.time >= animal.wander.until || !wanderCohort.has(animal.id))) settle();
     const opportunity = nextWanderOpportunity(level, animal, dt);
-    if (opportunity !== null && pressure < 0.03) {
+    if (opportunity !== null && !socialDog && pressure < 0.03) {
       const center = companions.centroid || centerOf(snapshot);
       const candidate = evaluateWanderOpportunity(
         level,
@@ -434,6 +459,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       dogActivelyHerding ||
         helperActivelyHerding ||
         watchingBuddy ||
+        Boolean(socialDog) ||
         holding ||
         Boolean(crossing) ||
         Boolean(wander) ||
@@ -444,6 +470,16 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     if (browse) {
       desiredX = browse.x + sx * 0.3;
       desiredZ = browse.z + sz * 0.3;
+    }
+    if (socialDog) {
+      const dx = socialDog.x - old.x,
+        dz = socialDog.z - old.z,
+        gap = Math.hypot(dx, dz);
+      const toward = normal(dx, dz);
+      const pace = clamp((gap - (2 + physicalRadius)) * 0.65, 0, 0.65);
+      desiredX = toward.x * pace + sx * 0.35;
+      desiredZ = toward.z * pace + sz * 0.35;
+      pressure = 0;
     }
     const preparation = browse?.preparing
       ? browse
@@ -566,6 +602,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     if (
       dt > 0 &&
       playerAtDestination &&
+      !socialDog &&
       !holding &&
       containsTarget(level.target, animal, physicalRadius) &&
       clearSignal(level, dog, animal)

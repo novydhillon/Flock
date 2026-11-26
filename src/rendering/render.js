@@ -55,6 +55,7 @@ import {
   createAnimalGestureGeometry,
   createPip,
   updatePipPose,
+  DOG_SOCIAL_RADIUS,
   createBuddy,
   createAnimal,
   createCowCoatMaterial,
@@ -1444,7 +1445,7 @@ export class MeadowRenderer {
     let nearbyAnimals;
     if (dt > 0 && !barking) {
       for (const [index, animal] of (level.animals || []).entries()) {
-        if ((animal.x - actor.x) ** 2 + (animal.z - actor.z) ** 2 < 6 ** 2) {
+        if ((animal.x - actor.x) ** 2 + (animal.z - actor.z) ** 2 < DOG_SOCIAL_RADIUS ** 2) {
           (nearbyAnimals ??= []).push(animal.id ?? index);
         }
       }

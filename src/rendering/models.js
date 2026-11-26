@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createTreeWood, configureTreeMaterial } from './environment/tree-geometry.js';
 export { createPip, createPip as createDog, createBuddy } from './border-collie.js';
-export { updatePipPose } from './animation/pip-motion.js';
+export { DOG_SOCIAL_RADIUS, updatePipPose } from './animation/pip-motion.js';
 export { deformTreeGeometry } from './environment/tree-geometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 

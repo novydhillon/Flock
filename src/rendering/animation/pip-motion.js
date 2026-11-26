@@ -4,6 +4,8 @@ import { CONFIG_CONTRACTS } from '../../config/contracts.js';
 import { resolveConfig } from '../../config/resolve.js';
 
 const GAMEPLAY = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
+export const DOG_SOCIAL_RADIUS = GAMEPLAY.simulation.dogSocialRadius;
+const arrivalBowChance = 0.35;
 
 // Animation reads authoritative movement in world units/second; only joint-local
 // transforms are written. Feet and torso share a +Z-forward, ground-level frame.
@@ -74,8 +76,8 @@ function startPose(state, pose, bowReturn = STAND) {
   state.poseDuration = 0;
   state.bowReturn = bowReturn;
   if (pose === STAND) return;
-  const min = pose === SCRATCH ? 1 : 3;
-  const max = pose === SCRATCH ? 3 : pose === LIE ? 8 : 6;
+  const min = pose === SCRATCH ? 1 : pose === LIE ? 3 : 2;
+  const max = pose === SCRATCH ? 3 : pose === LIE ? 8 : 5;
   state.poseDuration = durations[pose] * (state.puppy ? 0.82 : 1) * mix(min, max, idleRandom(state));
 }
 
@@ -106,11 +108,12 @@ function updateIdle(state, sample, dt, activity) {
     if (pose !== STAND) startPose(state, STAND);
   } else if (pose === STAND) {
     if (state.blendTime >= moveBlend) state.idle += dt;
-    if (state.idle > (state.puppy ? 0.75 : 1.7)) startPose(state, state.puppy && nearAnimal ? BOW : SIT);
+    if (state.idle > (state.puppy ? 0.75 : 1.7))
+      startPose(state, state.puppy && nearAnimal && idleRandom(state) < arrivalBowChance ? BOW : SIT);
   } else if (pose === BOW && !nearAnimal) {
     startPose(state, nextIdlePose(state));
   } else if (arrived && (pose === SIT || pose === LIE) && state.poseWeights[SCRATCH] === 0) {
-    startPose(state, BOW, pose === SIT ? LIE : SIT);
+    if (idleRandom(state) < arrivalBowChance) startPose(state, BOW, pose === SIT ? LIE : SIT);
   }
 
   const duration = state.poseIndex === STAND ? moveBlend : poseBlend;

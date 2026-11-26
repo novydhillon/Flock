@@ -6,7 +6,7 @@ Render the main 3D canvas at 50% of the browser viewport's native pixel width an
 
 ## F-DOG-001 — 25 November 2026
 
-Idle dogs can move directly from one pose to another. Typical holds last 3–6× the original duration, lying lasts up to 8×, and scratching lasts 1–3× within a sit-to-scratch-to-sit sequence. A livestock animal within six world units can invite a play bow. The decorative dogs wander in the landing meadow between rests. During play, Pip may walk at 0.8 m/s within three world units of the release point after 60 seconds of released input. The delay is tunable. Joystick, keyboard movement, and bark immediately interrupt the idle walk.
+Idle dogs can move directly from one pose to another. Typical holds last 2–5× the original duration, lying lasts up to 8×, and scratching lasts 1–3× within a sit-to-scratch-to-sit sequence. A livestock animal within eight world units can occasionally invite a play bow. Nearby livestock approach resting dogs, settle with space around them, and respond to herding as soon as control resumes. The decorative dogs wander in the landing meadow between rests. During play, Pip may walk at 0.8 m/s within three world units of the release point after 60 seconds of released input. The delay is tunable. Joystick, keyboard movement, and bark immediately interrupt the idle walk.
 
 The gallop follows the running references: a lowered head and long body during extension, followed by the fore and hind paws nearly passing beneath the belly during collection. Both dogs have a faster top gait. Touch input reserves more radial travel for walking and fast walking, and caps speed throughout the outer 10% of the radius. This supersedes the 85% cap in the historical F-INPUT-001 entry.
 

@@ -10,6 +10,10 @@ Branch: feat/clay-border-collies. Base: 9c083722777bb39405636980dfcb8a71a0912ed4
 
 
 
+### Resting dogs and livestock — 26 November 2026
+
+The playtest range is interpreted as eight world units. Livestock approach idle dogs on clear ground, settle at a comfortable distance, and respond to player control immediately. Existing companion work and committed crossings take precedence. Play bows remain occasional and standard idle holds use 2–5×. Lying and scratching retain their separately specified timings. Focused checks cover approach, sustained rest, immediate herding response, gate behavior and pose timing. Native phone playtesting remains pending.
+
 ### Idle poses and strolls — 25 November 2026
 
 Pip and Buddy blend directly between randomized idle poses. Individual livestock entering six world units can prompt a play bow. Scratching begins seated and returns to sitting. Pip's optional gameplay stroll begins after more than 60 seconds of released input and stays near the release point. Player input resumes control on the same simulation step. Walk routes avoid livestock and gate switch zones. The half-resolution rendering merge was integrated before validation. Independent review progressed from 8/10 to 8.5/10 to 9/10 after correcting detection of additional approaching livestock and preventing gate activation. The final reviewer passed 35 focused checks and reproduced safe gate-side wandering at 10/30/60/120 Hz. Native touch and device visuals remain for playtesting.

@@ -22,7 +22,26 @@ import {
   containsTarget,
   navigationTarget,
   destinationApproach,
+  hasClearGroundPath,
 } from '../src/world/world.js';
+
+test('livestock approach a resting Pip, stay nearby, and respond immediately when the player moves', () => {
+  const level = createLevel(0, 201);
+  const dog = level.dog;
+  const animal = level.animals[0];
+  level.animals = [animal];
+  Object.assign(animal, { x: dog.x + 7.8, z: dog.z, vx: 0, vz: 0 });
+  assert.ok(hasClearGroundPath(level, animal, dog, animalRadius(animal)));
+  for (let frame = 0; frame < 400; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
+  assert.ok(distance(animal, dog) > 2 && distance(animal, dog) < 3);
+  const resting = { x: animal.x, z: animal.z };
+  for (let frame = 0; frame < 1600; frame++) stepSimulation(level, dog, { allowIdleWander: true }, 0.05);
+  assert.ok(distance(animal, resting) < 0.1);
+  assert.equal(animal.alert, 0);
+  assert.equal(animal.saved, false);
+  stepSimulation(level, dog, { allowIdleWander: true, x: 0.1 }, 0.05);
+  assert.ok(animal.alert > 0 && animal.pushed);
+});
 
 test('Pip wanders only after 60 released seconds and yields immediately to the player', () => {
   const level = createLevel(0, 201);

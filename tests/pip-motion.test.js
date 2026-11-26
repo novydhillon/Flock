@@ -58,7 +58,7 @@ test('positive and negative heading wrap produce mirrored, bounded turn rates', 
 test('Buddy settles earlier, and play bows require a nearby animal', () => {
   const adult = createPipMotionState(),
     puppy = createPipMotionState(true),
-    playful = createPipMotionState(true);
+    playful = createPipMotionState(true, () => 0);
   for (let i = 0; i < 90; i++) {
     step(adult, 0);
     step(puppy, 0);
@@ -101,8 +101,8 @@ for (const puppy of [false, true]) {
       if (poseIndex === s.poseIndex || poseIndex === stand) continue;
 
       const multiplier = poseDuration / (previousDuration[poseIndex] * (puppy ? 0.82 : 1));
-      const min = poseIndex === scratch ? 1 : 3;
-      const max = poseIndex === scratch ? 3 : poseIndex === lie ? 8 : 6;
+      const min = poseIndex === scratch ? 1 : poseIndex === lie ? 3 : 2;
+      const max = poseIndex === scratch ? 3 : poseIndex === lie ? 8 : 5;
       assert.ok(multiplier >= min && multiplier <= max);
       assert.ok(poseTime >= poseDuration - 0.051);
       if (!held.has(poseIndex)) held.set(poseIndex, new Set());
@@ -135,6 +135,13 @@ test('animal arrivals prompt a bow from sit and lie, then blend into the other r
     for (let i = 0; i < 20; i++) advance();
   }
   assert.equal(s.poseWeights[sit], 1);
+});
+
+test('a nearby arrival does not always interrupt rest with a play bow', () => {
+  const s = createPipMotionState(false, () => 0.8);
+  for (let i = 0; i < 50; i++) step(s, 0, 0, 0.05);
+  step(s, 0, 0, 0.05, false, true, ['sheep-1']);
+  assert.equal(s.poseIndex, sit);
 });
 
 test('a new nearby animal ID prompts a bow while other animals remain in range', () => {
