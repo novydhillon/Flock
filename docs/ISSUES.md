@@ -30,7 +30,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
 | F-KENNEL-005 | P1 | UI/progression | Manage the kennel from pause and rewards | Open | F-KENNEL-001–004 |
 | F-KENNEL-006 | P1 | Art/animation | Animate and illustrate the ten-entry roster | Open | F-DOG-001; F-KENNEL-002; F-KENNEL-005 |
-| F-KENNEL-007 | P1 | Persistence/gameplay | Migrate progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
+| F-KENNEL-007 | P1 | Persistence/gameplay | Preserve campaign progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
 | F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-KENNEL-006; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
@@ -75,6 +75,7 @@ As a player, I want to grow my lineup at campaign milestones so I can take more 
 - A new save starts with Slot 1 open, Pip assigned and no bolt charge. Slot 2 is gated until meadow 20, Slot 3 until 40 and Slot 4 until 60.
 - Reaching a gate makes the slot purchasable. Buying it charges the configured bolt price once and permanently opens the slot. Buying Slot 2 also grants exactly one Buddy in the same transaction. Slots 3 and 4 grant lineup space.
 - Locked, unaffordable, available and opened states are distinguishable. Failed or repeated purchases leave the balance and roster consistent. Reloading preserves ownership and the Buddy reward.
+- Once a slot opens, it stays available in every meadow, including replays that precede its purchase milestone.
 
 ### F-KENNEL-002 — Adopt and manage individual dogs
 
@@ -88,6 +89,7 @@ As a collector, I want to adopt and identify individual dogs so I can build a ke
 
 - An eligible adoption spends bolts and adds one dog with a persistent identity, name, coat and fresh attribute tiers. The same dog entry can be adopted repeatedly, including Pip and Buddy when eligible.
 - Define stable catalog identities for Pip, Buddy and the eight placeholders, with configurable adoption gates, base models and supported coats. Adoption rules operate independently of portrait and preview artwork.
+- After Slot 2 opens and grants Buddy, one additional entry becomes adoptable per five-meadow milestone from 25 through 60. Entry 3 costs 600 bolts and each later entry adds 200 bolts, through 2,000 for entry 10. Each additional adoption of a given entry uses its listed price. Use the highest unlocked campaign meadow to evaluate its gate, including while replaying an earlier meadow.
 - Two copies can have different names, coats, stats and assignments. Editing or upgrading one leaves the other intact. An unavailable or unaffordable adoption leaves the kennel and bolt balance intact.
 - Owned dogs, their names, coat selections and upgrades survive reload. Unassigned dogs remain owned and can be selected later.
 
@@ -102,9 +104,9 @@ As a player, I want to choose which dogs work with me so I can lead with my favo
 **Accept when:**
 
 - Assign owned dogs to open slots and replace or remove CPU assignments. Slot 1 always has a valid owned dog. Only Slot 1 responds to player movement and bark input and drives the gameplay camera.
-- Slots 2–4, when eligible and assigned, independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or gated slots spawn no actor.
+- Purchased and assigned slots 2–4 independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or unopened slots spawn no actor.
 - Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
-- An approved lineup persists across saves and is applied at the agreed boundary. Pause, resume, restart and replay preserve the expected controls and eligibility.
+- An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
 
 ### F-KENNEL-004 — Train speed, agility, influence and bark
 
@@ -150,19 +152,20 @@ As a player, I want to see each dog's coat and personality before I adopt it or 
 - The larger preview above the strip uses the selected dog's coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.
 - A turnaround ends with the dog's head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.
 
-### F-KENNEL-007 — Migrate progress and retire marketplace upgrades
+### F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades
 
 **Status:** Open. Owner unassigned.
 
 **Branch:** Unassigned
 
-As a returning player, I want to keep my earned progress and receive fair value for old purchases so I can continue with the kennel.
+As a player, I want my campaign progress to persist when the kennel replaces the Workshop.
 
 **Accept when:**
 
-- The approved versioned migration retains the save key and writes all new entitlements and refunds together. Check legacy boolean and tiered saves, preserved Buddy abilities and bark charges, full and partial reward ledgers, reload and interrupted or repeated migration.
 - Unspent bolts, campaign unlocks, earned score and reward records, and sound settings survive. Replaying a previously rewarded meadow cannot pay it again except for the existing improved-result difference.
-- The marketplace and purchased Flock harmony effect are absent after cutover. Existing Scout drone ownership and effects follow the approved migration decision. Normal flock behavior and unrelated menus still work. Review help text, first-run guidance and rewards copy for obsolete unlock language.
+- The marketplace and purchased Flock harmony effect are absent after cutover. Normal flock behavior and unrelated menus still work. Review help text, first-run guidance and rewards copy for obsolete unlock language.
+
+**Deferred decision — 26 November 2026:** Decide later whether and how to convert or credit legacy Workshop purchases, including prior Buddy, attribute, Scout drone and Flock harmony purchases. Legacy purchase conversion and refund tests are outside this delivery story.
 
 ### F-KENNEL-008 — Verify the kennel progression loop
 
@@ -174,7 +177,8 @@ As a player, I want the kennel and lineup to work consistently through the campa
 
 **Accept when:**
 
-- Check fresh saves and migrated saves, exact threshold pairs 19/20, 39/40 and 59/60, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes, early-meadow replay and reload after purchases.
+- Check fresh and continuing saves, exact slot gates and all eight adoption gates at the meadow before and at each threshold. Verify the listed prices, a late Slot 2 purchase, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes and reload after purchases.
+- Replay meadow 1 with a meadow-60 dog, four opened slots and four assignments. Confirm all four participate and the replay does not change their eligibility or the campaign reward ledger rules.
 - Verify the economy with attainable bolt earnings and mixed purchase paths. Playtest split herds, gates, bridges, goal admission, movement and bark behavior at baseline and max tiers.
 - With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.
 - Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.

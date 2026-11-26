@@ -1,5 +1,9 @@
 # Documentation review record
 
+## Kennel adoption prices and replay access — 26 November 2026
+
+The follow-up plan records eight adoption milestones at meadows 25–60 priced at 600–2,000 bolts, permanent replay access to owned dogs and opened slots, and the deferred decision on prior Workshop purchases. The earlier migration proposal below records the previous planning pass. The current requirements and acceptance criteria govern the planned cutover. Documentation and tracker checks cover the updated plan. Runtime behavior remains unimplemented.
+
 ## Kennel plan and stories — 26 November 2026
 
 Planning only, based on main `1fd1d2b91f52eb47b8a606f0b4b395ce39bb2c2f`. The [plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) and [eight P1 stories](ISSUES.md#f-kennel-001--buy-meadow-slots-and-earn-buddy) describe the next gameplay initiative. Session model, identifier not recorded. An independent critic reviewed an isolated candidate and scored the first pass 8.3/10. The plan now documents concrete proposed migration defaults, links the migration story to cutover, gives adoption ownership of the catalog data, marks Scout retirement as proposed, and adds a three-helper crossing check. The new unassigned tickets also omit placeholder branch links.
