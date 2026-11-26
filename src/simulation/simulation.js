@@ -133,11 +133,18 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   const support = companionAssist(level, companions, dog, effects);
   const buddy = updateBuddy(level, active, effects, dt, events);
   events.push(...updateGateContacts(level, dog));
+  const attendanceRange = level.target.radius + GAMEPLAY.simulation.admissionAttendance;
+  const playerAtDestination = distance(dog, level.target) < attendanceRange;
   const restingDogs = [];
   if (released) {
-    if (!wanderInput && Math.hypot(dog.vx, dog.vz) < 0.1) restingDogs.push(dog);
+    if (!playerAtDestination && !wanderInput && Math.hypot(dog.vx, dog.vz) < 0.1) restingDogs.push(dog);
     for (const helper of level.helpers) {
-      if (helper.type === 'helper' && helper.mode === 'standby' && Math.hypot(helper.vx || 0, helper.vz || 0) < 0.1)
+      if (
+        helper.type === 'helper' &&
+        helper.mode === 'standby' &&
+        distance(helper, level.target) >= attendanceRange &&
+        Math.hypot(helper.vx || 0, helper.vz || 0) < 0.1
+      )
         restingDogs.push(helper);
     }
   }
@@ -595,14 +602,11 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
     } else animal.heading ||= 0;
     animal.alert = pressure;
     animal.pushed = dogActivelyHerding || buddyActivelyHerding;
-    const playerAtDestination =
-      distance(dog, level.target) < level.target.radius + GAMEPLAY.simulation.admissionAttendance;
     // Admission uses the same attendance decision as companion herding. A
     // parked herd's residual movement must not deliver it while Pip is away.
     if (
       dt > 0 &&
       playerAtDestination &&
-      !socialDog &&
       !holding &&
       containsTarget(level.target, animal, physicalRadius) &&
       clearSignal(level, dog, animal)
