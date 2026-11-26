@@ -422,7 +422,7 @@ export const CONFIG_CONTRACTS = freeze({
     pointer: {
       joystickRangePixels: 'number',
       joystickFullSpeedFraction: 'number',
-      joystickLogStrength: 'number',
+      joystickSpeedExponent: 'number',
       tapMovementPixels: 'number',
       doubleTapDistancePixels: 'number',
       doubleTapMs: 'number',

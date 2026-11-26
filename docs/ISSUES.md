@@ -56,6 +56,8 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ### F-DOG-001 — Pip and Buddy dog models and animation
 
+**Playtest feedback — 25 November 2026:** Lower the head at a gallop, extend the body and legs in flight and gather the feet beneath the belly. Increase top speed, expand walking control and hold full run from 90% of the stick radius. Recheck planted contact, full-flock journeys and gameplay-scale readability.
+
 **Status:** Review. Owner: Codex.
 
 **Branch:** `feat/clay-border-collies`

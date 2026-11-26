@@ -14,6 +14,8 @@ import {
 import { stepSimulation } from '../src/simulation/simulation.js';
 import { upgradeEffects } from '../src/progression/progression.js';
 
+import gameplay from '../src/config/gameplay.json' with { type: 'json' };
+
 const unit = (x, z) => {
   const length = Math.hypot(x, z) || 1;
   return { x: x / length, z: z / length };
@@ -77,8 +79,8 @@ function aroundDestination(level, desired) {
 // not a claim that this policy solves every campaign seed or every route.
 function herdThroughLevel(level, seconds = 400, upgrades = { speed: 3, flock: 3, drone: 3 }) {
   const routeId = 'route-0';
-  const speed = 7.8 + upgradeEffects(upgrades, level.index + 1).speedBoost;
-  const fineMovementDivisor = speed * 0.1 > 1 ? 1.3 : 1;
+  const speed = gameplay.simulation.dogSpeed.value + upgradeEffects(upgrades, level.index + 1).speedBoost;
+  const fineMovementDivisor = Math.max(1, speed * 0.1);
   let desired;
   for (let frame = 0; frame < seconds * 10 && !level.completed; frame++) {
     if (frame % 3 === 0) {
@@ -122,8 +124,8 @@ function herdThroughLevel(level, seconds = 400, upgrades = { speed: 3, flock: 3,
     }
     const x = desired.x - level.dog.x,
       z = desired.z - level.dog.z;
-    // Fine positioning must not overshoot a short rear offset: upgraded
-    // paws can otherwise move 1.13 times the remaining distance at 10Hz.
+    // Fine positioning must not overshoot a short rear offset: limit the requested step
+    // to the distance left at the journey controller’s 10 Hz update rate.
     const divisor = Math.max(fineMovementDivisor, Math.hypot(x, z));
     stepSimulation(level, level.dog, { x: x / divisor, z: z / divisor }, 0.1, upgrades);
   }

@@ -72,6 +72,38 @@ test('entire sculpt touches ground through sit, play bow, lie, scratch and rollo
   }
 });
 
+test('both collies lengthen and lower the head in flight, then gather the paws under the body', () => {
+  for (const [dog, speed] of [
+    [createPip(), 8.8],
+    [createBuddy(), 8.272],
+  ]) {
+    const { body, head, legs } = dog.userData.parts;
+    const standingHead = head.getWorldPosition(v).y;
+    let widest = { span: 0 };
+    let smallestGap = Infinity;
+    for (let frame = 0; frame < 240; frame++) {
+      updatePipPose(dog, { ...stationary, z: (frame * speed) / 240, vz: speed }, 1 / 240);
+      const paws = legs.map(({ paw }) => paw.getWorldPosition(v).z);
+      const span = Math.max(...paws.slice(0, 2)) - Math.min(...paws.slice(2));
+      if (span > widest.span) {
+        widest = {
+          span,
+          back: body.scale.z,
+          head: head.getWorldPosition(v).y,
+          lowestPaw: Math.min(...legs.map(({ paw }) => paw.getWorldPosition(v).y)),
+        };
+      }
+      if (body.scale.z < 0.96) {
+        smallestGap = Math.min(smallestGap, Math.abs(paws[0] - paws[2]), Math.abs(paws[1] - paws[3]));
+      }
+    }
+    assert.ok(widest.span > 1.9 && widest.back > 1.12);
+    assert.ok(widest.head < standingHead - 0.2);
+    assert.ok(widest.lowestPaw > 0.079, `lowest paw at extension: ${widest.lowestPaw}`);
+    assert.ok(smallestGap < 0.08, `gathered paw gap: ${smallestGap}`);
+  }
+});
+
 test('planted paws hold world contact at walk, blended and galloping speeds, including on a curved path', () => {
   for (const dog of [createPip(), createBuddy()]) {
     dog.scale.setScalar(1.0125 * dog.userData.suggestedScale);

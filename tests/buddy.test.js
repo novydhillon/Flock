@@ -668,7 +668,7 @@ test('Pip and Buddy take wider ground arcs at running speed and retain their str
         };
         for (let i = 0; i < Math.round(1 / dt); i++) step(0);
         const straightSpeed = Math.hypot(actor.vx, actor.vz);
-        assert.ok(Math.abs(straightSpeed - (helper ? Math.min(7.332, 9 * fraction) : 7.8 * fraction)) < 1e-6);
+        assert.ok(Math.abs(straightSpeed - (helper ? Math.min(8.272, 9 * fraction) : 8.8 * fraction)) < 1e-6);
         // Fit the circle through three successive physical positions after
         // steering settles. This catches sideways translation under a rotating model.
         for (let i = 0; i < Math.round(1 / dt); i++) step(actor.heading + 0.4);
@@ -716,7 +716,7 @@ test('Pip can pivot on slight reverse input, release cleanly, and reach each unl
   assert.equal(distance(dog, start), 0, 'faces the new direction before creeping forward');
   for (let i = 0; i < 60; i++) stepSimulation(level, dog, { z: 0.02 }, 1 / 60);
   assert.ok(dog.z > start.z && Math.abs(dog.heading) < 1e-8);
-  for (const [tier, expected] of [7.8, 9.6, 10.5, 11.3].entries()) {
+  for (const [tier, expected] of [8.8, 10.6, 11.5, 12.3].entries()) {
     stepSimulation(level, dog, { y: 1 }, 1 / 60, { speed: tier });
     assert.ok(Math.abs(dog.vz - expected) < 1e-6);
   }

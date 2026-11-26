@@ -1,4 +1,9 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
+import settings from '../../config/gameplay.json' with { type: 'json' };
+import { CONFIG_CONTRACTS } from '../../config/contracts.js';
+import { resolveConfig } from '../../config/resolve.js';
+
+const GAMEPLAY = resolveConfig(settings, 'gameplay', CONFIG_CONTRACTS.gameplay);
 
 // Animation reads authoritative movement in world units/second; only joint-local
 // transforms are written. Feet and torso share a +Z-forward, ground-level frame.
@@ -12,6 +17,7 @@ const follow = (value, target, dt, tau) => mix(value, target, -Math.expm1(-dt / 
 const poses = ['sit', 'bow', 'lay', 'scratch', 'roll'];
 const durations = [3.8, 2.15, 4.4, 2.8, 3.45];
 const tau = Math.PI * 2;
+const strideLengthAt = (run) => mix(0.97, 2.4, run);
 
 export function createPipMotionState(puppy = false) {
   return {
@@ -54,9 +60,10 @@ export function updatePipMotion(state, sample, dt, modelScale = state.puppy ? 0.
   state.localSpeed = gaitSpeed / modelScale;
   const activity = state.localSpeed + pivotSpeed;
   state.effort = smooth(activity / 0.65);
-  state.run = smooth((gaitSpeed - (state.puppy ? 1.9 : 2.25)) / 2.7);
+  const runSpeed = GAMEPLAY.simulation.dogSpeed * (state.puppy ? GAMEPLAY.simulation.buddySpeedFraction : 1);
+  state.run = smooth((gaitSpeed / runSpeed - 0.42) / 0.58);
   // World stride length grows from a four-beat walk into a gathered gallop.
-  const strideLength = mix(0.97, 2.07, state.run);
+  const strideLength = strideLengthAt(state.run);
   state.stride = (state.stride + (dt * activity) / strideLength) % 1;
   state.time += dt;
   if (activity > 0.12 || sample.barking || (state.idle === 0 && state.idleWeight > 0.002)) {
@@ -112,7 +119,7 @@ function groundRoll(dog, rig) {
   rig.position.y -= lowest;
 }
 
-const recoveryDuration = 0.09;
+const recoveryDuration = 0.105;
 
 // Keep a loaded paw at touchdown while the torso accelerates or changes heading.
 // Carry the placement correction out through swing so lift-off stays continuous.
@@ -190,7 +197,7 @@ function plantLeg(leg, x, y, z, rig, fold, scratch, scratchBeat) {
 
 export function applyDogPose(dog) {
   const s = dog.userData.motion;
-  const { rig, head, jaw, tail, ears, legs } = dog.userData.parts;
+  const { rig, body, head, jaw, tail, ears, legs } = dog.userData.parts;
   const pose = poses[s.poseIndex],
     w = s.idleWeight;
   const scratch = pose === 'scratch' ? w : 0;
@@ -204,17 +211,26 @@ export function applyDogPose(dog) {
   const turn = clamp(s.turnRate / 4, -1, 1);
   const lean = -turn * smooth(s.speed / 4) * 0.25;
   const bounce = s.effort * (0.019 * Math.cos(2 * beat) + s.run * 0.049 * Math.sin(beat));
+  // The back lengthens between hind push-off and fore touchdown.
+  const extension = (1 + Math.cos(beat - tau * 0.4)) / 2;
+  const backLength = 1 + s.run * mix(-0.08, 0.18, extension);
+  body.scale.z = backLength;
+  tail.position.z = -0.54 * backLength;
   rig.position.y =
     0.736 +
     bounce -
-    0.065 * s.run -
+    0.11 * s.run -
     sit * 0.22 -
     lay * 0.4 -
     bow * 0.177 -
     0.255 * roll -
     0.125 * Math.sin(Math.PI * roll) ** 2;
   rig.rotation.set(-0.53 * sit + 0.49 * bow + 0.085 * s.run * Math.sin(beat), 0, lean + roll * Math.PI);
-  head.position.set(0, 0.245 - roll * 0.16 - scratch * 0.09, 0.42 - scratch * 0.16);
+  head.position.set(
+    0,
+    0.245 - s.run * (0.12 + 0.06 * extension) - roll * 0.16 - scratch * 0.09,
+    0.42 * backLength + 0.105 * s.run - scratch * 0.16,
+  );
   head.rotation.set(
     -rig.rotation.x * 0.66 + 0.16 * s.run - 0.3 * s.bark + 0.24 * lay + 0.94 * fold,
     turn * 0.44 + 1.42 * scratch + 0.4 * roll,
@@ -234,30 +250,33 @@ export function applyDogPose(dog) {
 
   inverse.copy(rig.quaternion).invert();
   for (const leg of legs) {
+    leg.upper.position.z = leg.restZ * backLength;
     const left = leg.side < 0;
     // Lateral-sequence walk (hind then fore); gallop gathers the hind pair
     // and extends the fore pair, retaining a small left/right lead.
     const walkOffset = (left ? 0 : 0.5) + (leg.fore ? 0.75 : 0);
-    const gallopOffset = (leg.fore ? 0.53 : 0) + (left ? 0 : 0.13);
+    const gallopOffset = (leg.fore ? 0.5 : 0) + (left ? 0 : 0.09);
     const phaseDelta = gallopOffset - walkOffset;
     const offset = walkOffset + s.run * (phaseDelta - Math.round(phaseDelta));
     const phase = (s.stride + offset + 2) % 1;
-    const stance = mix(0.63, 0.41, s.run);
+    const stance = mix(0.63, 0.32, s.run);
     const swing = clamp((phase - stance) / (1 - stance));
     // Shorten the inside stride on arcs. A pivot sends the inside feet backwards.
     const travel = s.localSpeed - leg.side * 0.22 * s.turnRate;
     const activity = Math.max(0.01, s.localSpeed + Math.abs(s.turnRate) * 0.27);
     const strideRatio = clamp(travel / activity, -1, 1.4);
-    const stanceTravel = mix(0.97, 2.07, s.run) * stance * s.effort;
+    const stanceTravel = strideLengthAt(s.run) * stance * s.effort;
     const placement = stanceTravel * (phase < stance ? 0.5 - phase / stance : smooth(swing) - 0.5);
     // Yaw sweeps the fore and hind hips sideways in opposite directions.
     const footX = leg.upper.position.x + (placement * leg.upper.position.z * s.turnRate) / activity;
     const arc = Math.sin(Math.PI * swing);
+    // Follow through after lift-off, then reach past touchdown during swing.
+    const followThrough = -0.33 * Math.sin(tau * swing) * s.run * s.effort;
     const footZ =
       leg.upper.position.z +
-      placement * strideRatio +
+      (placement + followThrough) * strideRatio +
       (leg.fore ? 0.1 * sit + 0.075 * lay + 0.052 * bow : 0.18 * sit + 0.13 * lay - 0.07 * bow);
-    const lift = arc * arc * s.effort * mix(0.13, 0.27, s.run);
+    const lift = arc * arc * s.effort * mix(0.13, leg.fore ? 0.28 : 0.38, s.run);
     const foot = leg.target.set(footX + leg.side * (0.035 * lay + 0.035 * sit), 0.074 + lift, footZ);
     holdContact(leg, s, dog.scale.x, phase < stance, swing);
     // Lower the shoulders just enough to keep the outside paw reachable on a

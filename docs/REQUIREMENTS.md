@@ -2,6 +2,8 @@
 
 ## F-DOG-001 — 25 November 2026
 
+The gallop follows the running references: a lowered head and long body during extension, followed by the fore and hind paws nearly passing beneath the belly during collection. Both dogs have a faster top gait. Touch input reserves more radial travel for walking and fast walking, and caps speed throughout the outer 10% of the radius. This supersedes the 85% cap in the historical F-INPUT-001 entry.
+
 Pip is an adult black-and-white clay border collie. Buddy is a smaller, livelier puppy with a lower sprint speed. Both blend from walking to running, turn more tightly at low speed, and can bark, sit, lie down, play bow, scratch and roll.
 
 ## Source organization - 10 November 2026

@@ -226,7 +226,7 @@ export function turnToward(current, target, rate, dt) {
 }
 
 /** Turn before reversing. Slow near the waypoint rather than shuttling through it. */
-export function moveBuddy(level, buddy, waypoint, dt, speed) {
+export function moveBuddy(level, buddy, waypoint, dt, speed = buddyTopSpeed) {
   if (!(dt > 0) || !Number.isFinite(dt)) return;
   const dx = waypoint.x - buddy.x,
     dz = waypoint.z - buddy.z,

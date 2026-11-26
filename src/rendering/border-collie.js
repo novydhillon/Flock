@@ -180,6 +180,7 @@ function makeLeg(rig, side, fore) {
     upper,
     lower,
     paw,
+    restZ: upper.position.z,
     upperLength,
     lowerLength,
     side,

@@ -23,7 +23,7 @@ test('pace blends continuously during acceleration and deceleration without rest
     let blended = 0,
       fastest = 0;
     for (let i = 0; i < 480; i++) {
-      const speed = i < 240 ? i / 30 : (480 - i) / 30;
+      const speed = i < 240 ? i / 24 : (480 - i) / 24;
       const lastBlend = s.run,
         lastPhase = s.stride;
       step(s, speed);
