@@ -8,6 +8,7 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-BUTTERFLY-001~~ | ~~P2~~ | ~~Animation bug~~ | ~~Hinged wing flaps and five butterfly colors~~ | ~~Done~~ | ~~Existing butterfly presentation~~ |
 | ~~F-TERRAIN-BANK-001~~ | ~~P2~~ | ~~Terrain/bridges~~ | ~~Compact steep riverbanks and slope-based bank textures~~ | ~~Done~~ | ~~Accepted rolling terrain and elevated crossings~~ |
 | ~~F-SHADOW-001~~ | ~~P2~~ | ~~Rendering~~ | ~~Bake all static environment shadows once per meadow~~ | ~~Done~~ | ~~Existing shadow renderer~~ |
 | ~~F-ARCH-002~~ | ~~P2~~ | ~~Architecture~~ | ~~Organize source into system and functionality folders~~ | ~~Done~~ | ~~Accepted F-PERF-002~~ |
@@ -2303,3 +2304,19 @@ F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Clo
 ## Main merged into bank work — 9 November 2026
 
 Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.
+
+
+### F-BUTTERFLY-001 — ~~Butterfly wing flaps and colors~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/butterfly-wing-flap`
+
+**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
+
+**Accept when:** Both wings visibly flap back and forth around their body attachments during flight. Preserve movement and pause/resume. Include yellow, orange, blue, purple and pink butterflies. Scale the body and wings to 75% of the initial Dev preview size, including the wing hinge offsets.
+
+**Validation:** Matrix tests verify attached, bounded strokes at several flight headings, pause/resume, seeded color pairs, and the body and wing scale. The [earlier dev publication](validation/F-BUTTERFLY-001-dev-publication.json) covers the wing and palette revision. User sign-off covers the completed feature. Independent rendered and device measurements were not recorded.
+
+**Closed:** 19 November 2026. Novy approved the wing flaps, five-color palette, and 25% size reduction. The accepted source is [5b78e07](https://github.com/novydhillon/Flock/commit/5b78e07c85f4bf753396f07ccb65078b9e889f5c) and passed [source CI](https://github.com/novydhillon/Flock/actions/runs/44471801038).
+

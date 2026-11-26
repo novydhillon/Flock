@@ -27,7 +27,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-DOG-001 | P2 | Character art/animation | Replace Pip and Buddy with expressive dogs | Open | Existing dog gameplay |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-DOG-001; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
-| F-BUTTERFLY-001 | P2 | Animation bug | Butterfly wings should flap instead of spinning | Open | Existing butterfly presentation |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
 | F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
 | F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
@@ -88,19 +87,6 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 **Accept when:** Vertical dragging moves the camera smoothly along an arc from a 90-degree top-down view to a 0-degree view parallel to the ground, clamped to that range. Horizontal dragging rotates around the target continuously through 360 degrees in either direction. Horizontal rotation speed increases with finger distance from the center on a logarithmic scale, reaching a maximum of 60 degrees per second at the screen edge. The direction follows the drag direction. Clicking the camera icon again exits camera modification and returns to regular gameplay. Disabling camera modification in the QA menu turns off and removes the camera icon; if camera mode is active, exit it and return to regular gameplay. Confirm the toggle and icon work on supported screen sizes, gameplay stays paused during camera modification, and normal controls and pause/resume behavior work when leaving the mode.
 
 **Scope:** Tracker addition only; implementation and device validation remain pending.
-
-
-### F-BUTTERFLY-001 — Butterfly wings should flap instead of spinning
-
-**Status:** Open. Owner: Unassigned.
-
-**Branch:** `unassigned`
-
-**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
-
-**Accept when:** Wings visibly flap back and forth around their attachment to the body, with bounded alternating motion rather than continuous full rotation. Verify at normal gameplay zoom and during butterfly flight, preserving existing movement and pause/resume behavior.
-
-**Scope:** Tracker addition only; animation fix and rendered verification remain pending.
 
 
 ### F-015 — Performance verification gap

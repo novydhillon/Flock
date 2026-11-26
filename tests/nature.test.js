@@ -340,3 +340,70 @@ test('wildlife population follows effective weather unlocks rather than a raw st
       assert.ok(Object.values(wildlifePopulation(level)).every((count) => count === 0));
   }
 });
+
+test('butterfly wings reverse in phase about body-local hinges and freeze on pause', () => {
+  const nature = new MeadowNature(new THREE.Scene());
+  const level = { ...meadow(), weather: 'sun' };
+  nature.setLevel(level);
+  const a = nature.wildlife.find((animal) => animal.kind === 'butterfly');
+  const { butterflyBody: body, butterflyWing: wing } = nature.batches;
+  a.phase = 0;
+  const matrix = new THREE.Matrix4();
+  const sample = (heading, time) => {
+    a.heading = heading;
+    nature.time = time;
+    nature.update(0);
+    body.getMatrixAt(a.slot, matrix);
+    const expectedSize = new THREE.Vector3(0.075, 0.06, 0.12).multiplyScalar(0.75);
+    assert.ok(new THREE.Vector3().setFromMatrixScale(matrix).distanceTo(expectedSize) < 1e-6);
+    const center = new THREE.Vector3().setFromMatrixPosition(matrix);
+    return [-1, 1].map((sign, side) => {
+      wing.getMatrixAt(a.slot * 2 + side, matrix);
+      const expectedWingSize = new THREE.Vector3(0.22, 0.025, 0.16).multiplyScalar(0.75);
+      assert.ok(new THREE.Vector3().setFromMatrixScale(matrix).distanceTo(expectedWingSize) < 1e-6);
+      const root = new THREE.Vector3(-sign, 0, 0).applyMatrix4(matrix);
+      const expected = center
+        .clone()
+        .add(
+          new THREE.Vector3(sign * 0.054 * Math.cos(heading), 0.025, -sign * 0.054 * Math.sin(heading)).multiplyScalar(
+            0.75,
+          ),
+        );
+      assert.ok(root.distanceTo(expected) < 1e-5, 'wing stays attached through the stroke and heading changes');
+      return new THREE.Vector3(sign, 0, 0).applyMatrix4(matrix).y - root.y;
+    });
+  };
+  for (const heading of [0, Math.PI / 2, -2.1]) {
+    const up = sample(heading, Math.PI / 36);
+    const down = sample(heading, (3 * Math.PI) / 36);
+    assert.ok(up.every((height) => height > 0.225));
+    assert.ok(down.every((height) => height < -0.135));
+  }
+  const frozen = wing.instanceMatrix.array.slice();
+  nature.update(0.065, { paused: true });
+  assert.deepEqual(wing.instanceMatrix.array, frozen);
+  nature.update(0.065);
+  assert.notDeepEqual(wing.instanceMatrix.array, frozen);
+  nature.dispose();
+});
+
+test('butterfly wings share the requested palette in one batch with reproducible pairs', () => {
+  const nature = new MeadowNature(new THREE.Scene());
+  const colors = (seed) => {
+    nature.setLevel({ ...meadow(), seed, weather: 'sun' });
+    const wings = nature.batches.butterflyWing;
+    const tint = new THREE.Color();
+    return Array.from({ length: wings.count / 2 }, (_, i) => {
+      wings.getColorAt(i * 2, tint);
+      const left = tint.getHexString();
+      wings.getColorAt(i * 2 + 1, tint);
+      assert.equal(left, tint.getHexString());
+      return left;
+    });
+  };
+  const original = colors(42);
+  assert.deepEqual([...new Set(original)].sort(), ['4d9eee', '9962d9', 'ed79af', 'f28a35', 'f6da4f']);
+  assert.notDeepEqual(colors(37), original);
+  assert.deepEqual(colors(42), original);
+  nature.dispose();
+});
