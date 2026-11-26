@@ -1,7 +1,7 @@
 {
   "environment": "dev",
-  "branch": "feat/clay-border-collies",
-  "sourceSha": "9f5388eb1012ed7a8d0affc8a42812ac261756c9",
+  "branch": "feat/idle-flock-dispersal",
+  "sourceSha": "fbfa2c7646bfcf4cc9aa8298f22b33e87bb52d13",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,16 +30,16 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-BufUkOov.js",
-      "sha256": "63268a4b5fff5fb53a900af901497418af3df09da482cfa20dbc325eb0c3b278"
+      "path": "dev/assets/index-DKLpqXXU.js",
+      "sha256": "34359a6ba7ad491ff9e58697ab0c78a8427390f09c78d253697d385b24bfe11c"
     },
     {
       "path": "dev/assets/index-Dc98lgwP.css",
       "sha256": "2d07f1f6eaa7d4eeba6bf772f23631f21e5a4d3d314566ac903210d2ea0500c7"
     },
     {
-      "path": "dev/assets/main-BjWhFdpA.js",
-      "sha256": "4358a847e4ab94dcc7fdbf07d6d06a561403fa9fa888ad9d384086d956548bbe"
+      "path": "dev/assets/main-DJ1EZ2Xa.js",
+      "sha256": "f0ed889f2491e9c7b6ba284ca5cba14e1a116208bd3a98b6cc5e3e9973f3b4ad"
     },
     {
       "path": "dev/assets/main-ixC2KjWI.css",
@@ -70,8 +70,8 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-BVOf-O-3.js",
-      "sha256": "60f227ff34b44c01b189b0cba174d90170e8d8cb78a31460992a594e53154dbe"
+      "path": "dev/assets/qa-B6I3MhmG.js",
+      "sha256": "b6b3b5a3df74a1c96d5e7a1f15e1885008d46dc24e34653d28bee6854ff6c402"
     },
     {
       "path": "dev/assets/qa-Bd_Xqfoe.css",
@@ -139,7 +139,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "3c03b6a4ab6a9dee557d3d34d23903d203e49c03fc15d0ceaf9f69dfb1f8adf1"
+      "sha256": "0cf1c250ccd9c50fdad922f6d29697ceb82a7ad3739b7edacb76b0f59dc76839"
     },
     {
       "path": "dev/site.webmanifest",
