@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## F-KENNEL-001–003 — Campaign profile foundation — 26 November 2026
+
+Branch `feat/kennel-progression`, based on main `c496dc82ce58a412d1e9da96f914e7b4fccd8ffd`. Session model and effort identifier not recorded. This slice covers the kennel catalog, slot and adoption transactions, per-dog identity, coat selection within a model, and lineup persistence. Slot prices are supplied explicitly until product pricing is set. The existing Workshop and game actors still use their current path.
+
+The independent reviewer reproduced a malformed-save case in which the slot gate could accept a purchase later discarded by validation. Slot queries, purchases, assignments and validation now share the same opened-slot normalization. Follow-up scored 9.2/10 with no material blocker. Twelve focused profile tests passed, including the exact adoption thresholds, rejected transactions, saved coats and ownership, and reward ledger retention. An independent headless check retained a meadow-60 dog and all four assignments through a meadow-1 reward and reload. The tracker suite passed all 16 tests. No device or live build was exercised for this slice.
+
 ## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
 
 On `feat/half-render-resolution`, based on `9c08372`, the WebGL canvas uses one half of the native viewport width and height. The existing 1024-square real-time sun shadow map and 4096-square baked map budget are preserved. Implementation model: GPT-6.2 Sol (session effort unavailable). The focused renderer regression exercises the 540 × 960 drawing buffer dimensions through a WebGL substitute and checks both map sizes. Formatting, documentation, release and development build checks passed. Physical phone rendering remains unverified.

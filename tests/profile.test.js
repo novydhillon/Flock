@@ -7,6 +7,13 @@ import {
   loadProfile,
   saveProfile,
 } from '../src/progression/profile.js';
+import {
+  adoptionAvailability,
+  adoptKennelDog,
+  assignKennelDog,
+  buyKennelSlot,
+  slotAvailability,
+} from '../src/progression/kennel.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from '../src/simulation/delivery.js';
 import {
   UPGRADE_CATALOG,
@@ -30,7 +37,9 @@ test('profile defaults own fresh state and malformed saves cannot introduce tran
   first.upgrades.speed = 1;
   first.bestEarnedBolts[0] = 16;
   first.completedLevels.push(0);
-  assert.deepEqual(second, {
+  first.kennel.dogs[0].name = 'Renamed';
+  const { kennel, ...campaign } = second;
+  assert.deepEqual(campaign, {
     version: 2,
     points: 0,
     upgrades: {},
@@ -40,6 +49,11 @@ test('profile defaults own fresh state and malformed saves cannot introduce tran
     highestLevel: 0,
     music: true,
   });
+  assert.equal(kennel.openedSlots, 1);
+  assert.equal(kennel.dogs.length, 1);
+  assert.equal(kennel.dogs[0].catalogId, 'pip');
+  assert.equal(kennel.dogs[0].name, 'Pip');
+  assert.deepEqual(kennel.lineup, [kennel.dogs[0].id, null, null, null]);
   for (const value of [null, undefined, false, 12, 'profile', [], {}]) assert.deepEqual(validateProfile(value), second);
   const result = validateProfile({
     version: 2,
@@ -56,6 +70,154 @@ test('profile defaults own fresh state and malformed saves cannot introduce tran
   assert.equal(Object.hasOwn(result, 'delivery'), false);
   for (const points of [-1, NaN, Infinity, '100']) assert.equal(validateProfile({ points }).points, 0);
   assert.equal(validateProfile({ points: 1e12 }).points, 1e9);
+});
+
+test('kennel slots open at the campaign milestones and grant Buddy only on the first successful purchase', () => {
+  const profile = defaultProfile();
+  const price = 100;
+  profile.points = 360;
+
+  for (const [slot, meadow] of [
+    [2, 20],
+    [3, 40],
+    [4, 60],
+  ]) {
+    profile.highestLevel = meadow - 2;
+    assert.equal(slotAvailability(profile, slot).available, false);
+    const beforeGate = structuredClone(profile);
+    buyKennelSlot(profile, slot, price);
+    assert.deepEqual(profile, beforeGate);
+
+    profile.highestLevel = meadow - 1;
+    assert.equal(slotAvailability(profile, slot).available, true);
+    const balance = profile.points;
+    profile.points = price - 1;
+    const beforeFunds = structuredClone(profile);
+    buyKennelSlot(profile, slot, price);
+    assert.deepEqual(profile, beforeFunds);
+
+    profile.points = balance;
+    buyKennelSlot(profile, slot, price);
+    assert.equal(profile.points, balance - price);
+    assert.equal(profile.kennel.openedSlots, slot);
+    const buddies = profile.kennel.dogs.filter((dog) => dog.catalogId === 'buddy');
+    assert.equal(buddies.length, 1);
+    assert.equal(profile.kennel.lineup[1], buddies[0].id);
+    assert.deepEqual(profile.kennel.lineup.slice(2), [null, null]);
+
+    const purchased = structuredClone(profile);
+    buyKennelSlot(profile, slot, price);
+    assert.deepEqual(profile, purchased);
+  }
+});
+
+test('invalid opened-slot data cannot spend bolts or create assignments that validation discards', () => {
+  for (const openedSlots of [0, 9, '2']) {
+    const profile = defaultProfile();
+    profile.highestLevel = 59;
+    profile.points = 2_000;
+    profile.kennel.openedSlots = openedSlots;
+    assert.equal(buyKennelSlot(profile, 1, 600).ok, false);
+    assert.equal(adoptKennelDog(profile, 'dog-3').ok, false);
+    assert.equal(assignKennelDog(profile, 4, 'pip').ok, false);
+    assert.equal(profile.points, 2_000);
+    assert.equal(buyKennelSlot(profile, 2, 600).ok, true);
+    assert.equal(profile.kennel.openedSlots, 2);
+    assert.equal(profile.points, 1_400);
+  }
+});
+
+test('each adoption price becomes available at its public meadow, even after a late Buddy purchase', () => {
+  for (let index = 0; index < 8; index++) {
+    const profile = defaultProfile();
+    const meadow = 25 + 5 * index;
+    const cost = 600 + 200 * index;
+    const catalogId = `dog-${index + 3}`;
+    profile.points = 5_000;
+    profile.highestLevel = meadow - 2;
+    assert.equal(buyKennelSlot(profile, 2, 600).ok, true);
+    assert.equal(adoptionAvailability(profile, catalogId).available, false);
+    profile.highestLevel = meadow - 1;
+    assert.equal(adoptionAvailability(profile, catalogId).available, true);
+    assert.equal(adoptKennelDog(profile, catalogId).ok, true);
+    assert.equal(profile.points, 5_000 - 600 - cost);
+  }
+
+  const late = defaultProfile();
+  late.highestLevel = 59;
+  late.points = 5_000;
+  assert.equal(adoptionAvailability(late, 'dog-3').available, false);
+  assert.equal(buyKennelSlot(late, 2, 600).ok, true);
+  assert.equal(adoptionAvailability(late, 'dog-3').available, true);
+  assert.equal(adoptionAvailability(late, 'dog-10').available, true);
+});
+
+test('duplicate kennel adoptions and lineup changes persist alongside campaign rewards', () => {
+  const profile = defaultProfile();
+  profile.highestLevel = 24;
+  profile.points = 10_000;
+  profile.music = false;
+  assert.equal(applyLevelReward(profile, finishedRun(2)), 32);
+  assert.equal(adoptionAvailability(profile, 'dog-3').available, false);
+  const beforeSlot = structuredClone(profile);
+  adoptKennelDog(profile, 'dog-3', 'Early');
+  assert.deepEqual(profile, beforeSlot);
+
+  buyKennelSlot(profile, 2, 100);
+  profile.highestLevel = 23;
+  assert.equal(adoptionAvailability(profile, 'dog-3').available, false);
+  const beforeGate = structuredClone(profile);
+  adoptKennelDog(profile, 'dog-3', 'Early');
+  assert.deepEqual(profile, beforeGate);
+
+  profile.highestLevel = 24;
+  const balance = profile.points;
+  const { available, cost } = adoptionAvailability(profile, 'dog-3');
+  assert.equal(available, true);
+  assert.ok(cost > 0);
+
+  profile.points = cost - 1;
+  assert.equal(adoptionAvailability(profile, 'dog-3').available, false);
+  const beforeFunds = structuredClone(profile);
+  adoptKennelDog(profile, 'dog-3', 'Unfunded');
+  assert.deepEqual(profile, beforeFunds);
+
+  profile.points = balance;
+  adoptKennelDog(profile, 'dog-3', 'Fern');
+  adoptKennelDog(profile, 'dog-3', 'Hazel', 'auburn-white');
+  assert.equal(profile.points, balance - 2 * cost);
+  const copies = profile.kennel.dogs.filter((dog) => dog.catalogId === 'dog-3');
+  assert.deepEqual(
+    copies.map((dog) => dog.name),
+    ['Fern', 'Hazel'],
+  );
+  assert.notEqual(copies[0].id, copies[1].id);
+  assert.deepEqual(
+    copies.map((dog) => dog.coat),
+    ['blonde-white', 'auburn-white'],
+  );
+
+  const [fern, hazel] = copies;
+  const beforeLockedAssignment = structuredClone(profile);
+  assignKennelDog(profile, 3, hazel.id);
+  assignKennelDog(profile, 1, null);
+  assert.deepEqual(profile, beforeLockedAssignment);
+  assignKennelDog(profile, 1, fern.id);
+  assignKennelDog(profile, 2, hazel.id);
+  assert.deepEqual(profile.kennel.lineup, [fern.id, hazel.id, null, null]);
+
+  const saved = new Map();
+  const storage = {
+    setItem: (key, value) => saved.set(key, value),
+    getItem: (key) => saved.get(key),
+  };
+  assert.equal(saveProfile(profile, storage), true);
+  assert.ok(saved.has('flock-foundry-v1'));
+  const reloaded = loadProfile(storage);
+  assert.deepEqual(reloaded, profile);
+  assert.equal(applyLevelReward(reloaded, finishedRun(2)), 0);
+  assert.deepEqual(reloaded.kennel.lineup, [fern.id, hazel.id, null, null]);
+  assert.deepEqual(reloaded.bestEarnedBolts, { 0: 32 });
 });
 
 test('v2 ledger alone rebuilds caches, rejects malformed keys and caps campaign rewards', () => {

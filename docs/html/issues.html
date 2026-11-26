@@ -34,7 +34,7 @@
 <td>P1</td>
 <td>Progression/economy</td>
 <td>Buy meadow slots and earn Buddy</td>
-<td>Open</td>
+<td>In progress</td>
 <td>Existing Buddy gate and bolt ledger</td>
 </tr>
 <tr>
@@ -42,7 +42,7 @@
 <td>P1</td>
 <td>Progression/collection</td>
 <td>Adopt and manage individual dogs</td>
-<td>Open</td>
+<td>In progress</td>
 <td>F-DOG-001; F-KENNEL-001</td>
 </tr>
 <tr>
@@ -50,7 +50,7 @@
 <td>P1</td>
 <td>Gameplay/progression</td>
 <td>Assign and play a lineup of up to four dogs</td>
-<td>Open</td>
+<td>In progress</td>
 <td>F-KENNEL-001; F-KENNEL-002; F-046</td>
 </tr>
 <tr>
@@ -295,10 +295,10 @@
 </tr>
 </tbody></table></div>
 <h2 id="acceptance-criteria-and-planned-work">Acceptance criteria and planned work<a class="heading-link" href="#acceptance-criteria-and-planned-work" aria-label="Link to Acceptance criteria and planned work">#</a></h2>
-<p>All eight kennel stories are planning-only and unclaimed. See the <a href="requirements.html#dog-kennel-and-meadow-lineups--26-november-2026">design and delivery plan</a> for proposed defaults and open decisions.</p>
+<p>F-KENNEL-001 to F-KENNEL-003 are in progress on the feature branch. See the <a href="requirements.html#dog-kennel-and-meadow-lineups--26-november-2026">design and delivery plan</a> for proposed defaults and open decisions.</p>
 <h3 id="f-kennel-001--buy-meadow-slots-and-earn-buddy">F-KENNEL-001 — Buy meadow slots and earn Buddy<a class="heading-link" href="#f-kennel-001--buy-meadow-slots-and-earn-buddy" aria-label="Link to F-KENNEL-001 — Buy meadow slots and earn Buddy">#</a></h3>
-<p><strong>Status:</strong> Open. Owner unassigned.</p>
-<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Status:</strong> In progress. Owner Codex.</p>
+<p><strong>Branch:</strong> <code>feat/kennel-progression</code></p>
 <p>As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.</p>
 <p><strong>Accept when:</strong></p>
 <ul>
@@ -308,8 +308,8 @@
 <li>Once a slot opens, it stays available in every meadow, including replays that precede its purchase milestone.</li>
 </ul>
 <h3 id="f-kennel-002--adopt-and-manage-individual-dogs">F-KENNEL-002 — Adopt and manage individual dogs<a class="heading-link" href="#f-kennel-002--adopt-and-manage-individual-dogs" aria-label="Link to F-KENNEL-002 — Adopt and manage individual dogs">#</a></h3>
-<p><strong>Status:</strong> Open. Owner unassigned.</p>
-<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Status:</strong> In progress. Owner Codex.</p>
+<p><strong>Branch:</strong> <code>feat/kennel-progression</code></p>
 <p>As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.</p>
 <p><strong>Accept when:</strong></p>
 <ul>
@@ -320,8 +320,8 @@
 <li>Owned dogs, their names, coat selections and upgrades survive reload. Unassigned dogs remain owned and can be selected later.</li>
 </ul>
 <h3 id="f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs">F-KENNEL-003 — Assign and play a lineup of up to four dogs<a class="heading-link" href="#f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs" aria-label="Link to F-KENNEL-003 — Assign and play a lineup of up to four dogs">#</a></h3>
-<p><strong>Status:</strong> Open. Owner unassigned.</p>
-<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Status:</strong> In progress. Owner Codex.</p>
+<p><strong>Branch:</strong> <code>feat/kennel-progression</code></p>
 <p>As a player, I want to choose which dogs work with me so I can lead with my favorite and bring helpers as slots open.</p>
 <p><strong>Accept when:</strong></p>
 <ul>
@@ -330,6 +330,7 @@
 <li>Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.</li>
 <li>An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.</li>
 </ul>
+<p><strong>26 November 2026:</strong> The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The kennel UI, slot price policy and simulation entry points are pending.</p>
 <h3 id="f-kennel-004--train-speed-agility-influence-and-bark">F-KENNEL-004 — Train speed, agility, influence and bark<a class="heading-link" href="#f-kennel-004--train-speed-agility-influence-and-bark" aria-label="Link to F-KENNEL-004 — Train speed, agility, influence and bark">#</a></h3>
 <p><strong>Status:</strong> Open. Owner unassigned.</p>
 <p><strong>Branch:</strong> Unassigned</p>

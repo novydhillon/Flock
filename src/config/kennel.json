@@ -1,0 +1,16 @@
+{
+  "_comment": "Public meadow gates and approved per-adoption bolt prices. Pip and Buddy grant rules are handled by the kennel.",
+  "slotMeadows": [1, 20, 40, 60],
+  "dogs": [
+    { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 1, "cost": null },
+    { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 20, "cost": null },
+    { "id": "dog-3", "model": "pip", "coat": "blonde-white", "meadow": 25, "cost": 600 },
+    { "id": "dog-4", "model": "buddy", "coat": "brown-white", "meadow": 30, "cost": 800 },
+    { "id": "dog-5", "model": "pip", "coat": "auburn-white", "meadow": 35, "cost": 1000 },
+    { "id": "dog-6", "model": "buddy", "coat": "black-blonde", "meadow": 40, "cost": 1200 },
+    { "id": "dog-7", "model": "pip", "coat": "black-brown-white", "meadow": 45, "cost": 1400 },
+    { "id": "dog-8", "model": "buddy", "coat": "blonde-auburn", "meadow": 50, "cost": 1600 },
+    { "id": "dog-9", "model": "pip", "coat": "brown-auburn", "meadow": 55, "cost": 1800 },
+    { "id": "dog-10", "model": "buddy", "coat": "black-auburn-white", "meadow": 60, "cost": 2000 }
+  ]
+}

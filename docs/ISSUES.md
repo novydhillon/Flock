@@ -24,9 +24,9 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-KENNEL-001 | P1 | Progression/economy | Buy meadow slots and earn Buddy | Open | Existing Buddy gate and bolt ledger |
-| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | Open | F-DOG-001; F-KENNEL-001 |
-| F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | Open | F-KENNEL-001; F-KENNEL-002; F-046 |
+| F-KENNEL-001 | P1 | Progression/economy | Buy meadow slots and earn Buddy | In progress | Existing Buddy gate and bolt ledger |
+| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | In progress | F-DOG-001; F-KENNEL-001 |
+| F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | In progress | F-KENNEL-001; F-KENNEL-002; F-046 |
 | F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
 | F-KENNEL-005 | P1 | UI/progression | Manage the kennel from pause and rewards | Open | F-KENNEL-001–004 |
 | F-KENNEL-006 | P1 | Art/animation | Animate and illustrate the ten-entry roster | Open | F-DOG-001; F-KENNEL-002; F-KENNEL-005 |
@@ -60,13 +60,13 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
-All eight kennel stories are planning-only and unclaimed. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
+F-KENNEL-001 to F-KENNEL-003 are in progress on the feature branch. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
 
 ### F-KENNEL-001 — Buy meadow slots and earn Buddy
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.
 
@@ -79,9 +79,9 @@ As a player, I want to grow my lineup at campaign milestones so I can take more 
 
 ### F-KENNEL-002 — Adopt and manage individual dogs
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.
 
@@ -95,9 +95,9 @@ As a collector, I want to adopt and identify individual dogs so I can build a ke
 
 ### F-KENNEL-003 — Assign and play a lineup of up to four dogs
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a player, I want to choose which dogs work with me so I can lead with my favorite and bring helpers as slots open.
 
@@ -107,6 +107,8 @@ As a player, I want to choose which dogs work with me so I can lead with my favo
 - Purchased and assigned slots 2–4 independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or unopened slots spawn no actor.
 - Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
 - An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
+
+**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The kennel UI, slot price policy and simulation entry points are pending.
 
 ### F-KENNEL-004 — Train speed, agility, influence and bark
 

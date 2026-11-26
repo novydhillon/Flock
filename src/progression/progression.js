@@ -132,7 +132,7 @@ export function nextUnlockLevel(upgrades, id) {
 }
 
 /** Saved level indexes are zero-based; public level numbers are one-based. */
-function progressionLevel(profileOrLevelNumber) {
+export function progressionLevel(profileOrLevelNumber) {
   if (typeof profileOrLevelNumber === 'number') {
     return Number.isInteger(profileOrLevelNumber) ? Math.max(1, Math.min(MAX_LEVEL_NUMBER, profileOrLevelNumber)) : 1;
   }

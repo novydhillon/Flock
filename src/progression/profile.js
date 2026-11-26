@@ -1,6 +1,7 @@
 import { CONFIG_CONTRACTS } from '../config/contracts.js';
 import settings from '../config/delivery.json' with { type: 'json' };
 import { resolveConfig } from '../config/resolve.js';
+import { defaultKennel, validateKennel } from './kennel.js';
 import { validateUpgrades } from './progression.js';
 import { deliveryScore, maximumLevelReward, MAX_LEVEL_INDEX } from '../simulation/delivery.js';
 
@@ -13,6 +14,7 @@ export function defaultProfile() {
     version: 2,
     points: 0,
     upgrades: {},
+    kennel: defaultKennel(),
     completedLevels: [],
     bestScores: {},
     bestEarnedBolts: {},
@@ -46,6 +48,7 @@ export function validateProfile(value) {
   if (!value || typeof value !== 'object') return result;
   result.points = Number.isFinite(value.points) ? clamp(Math.floor(value.points), 0, CONFIG.profile.maximumPoints) : 0;
   result.upgrades = validateUpgrades(value.upgrades);
+  result.kennel = validateKennel(value.kennel);
   const legacyCompleted = [
     ...new Set(
       (Array.isArray(value.completedLevels) ? value.completedLevels : []).filter(
