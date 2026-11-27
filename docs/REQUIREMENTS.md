@@ -1,5 +1,11 @@
 # Flock product requirements
 
+## Replaceable 3D assets and animation — 27 November 2026
+
+All 3D models and authored animation data must come from versioned, replaceable files. Assets should have editable sources and validated runtime outputs for both Dev and production. Compatible asset swaps require only replacing files and rebuilding. Gameplay still controls when motions play, how actors respond to input and where generated scenery appears. The migration must preserve visual, gameplay and mobile performance budgets.
+
+[F-ASSET-001](ISSUES.md#f-asset-001--inventory-3d-assets-and-define-the-replacement-contract), F-ASSET-002, F-ASSET-003, F-ASSET-004 and F-ASSET-005 cover the inventory, build pipeline, actor migration, scenery migration and final verification.
+
 ## Dog kennel and meadow lineups — 26 November 2026
 
 This is the next P1 gameplay initiative. The [kennel stories](ISSUES.md#f-kennel-001--buy-meadow-slots-and-earn-buddy) are open for planning. The kennel replaces the Workshop marketplace. The campaign still awards bolts through its existing reward ledger, and players spend them on slot openings, adoptions and individual dog upgrades.

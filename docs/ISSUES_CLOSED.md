@@ -8,6 +8,8 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
+| ~~F-KENNEL-005~~ | ~~P1~~ | ~~UI/progression~~ | ~~Manage the kennel from pause and rewards~~ | ~~Done~~ | ~~F-KENNEL-001–004~~ |
+| ~~F-KENNEL-006~~ | ~~P1~~ | ~~Art/animation~~ | ~~Animate and illustrate the ten-entry roster~~ | ~~Done~~ | ~~F-DOG-001; F-KENNEL-002; F-KENNEL-005~~ |
 | ~~F-RENDER-002~~ | ~~P2~~ | ~~Rendering~~ | ~~Render the 3D canvas at half native viewport resolution~~ | ~~Done~~ | ~~—~~ |
 | ~~F-DOG-001~~ | ~~P2~~ | ~~Character art/animation~~ | ~~Replace Pip and Buddy with expressive dogs~~ | ~~Done~~ | ~~Existing dog gameplay~~ |
 | ~~F-BUTTERFLY-001~~ | ~~P2~~ | ~~Animation bug~~ | ~~Hinged wing flaps and five butterfly colors~~ | ~~Done~~ | ~~Existing butterfly presentation~~ |
@@ -141,6 +143,45 @@ Archived 18 October 2026 (America/Creston), from planning branch revision `2358b
 | ~~F-WORLD-001~~ | ~~P2~~ | ~~World generation~~ | ~~Room to breathe between the last bridge and the gate for large herds~~ | ~~Done~~ | ~~F-HERD-005 findings; F-038~~ |
 
 ## Preserved acceptance and execution records
+
+## Kennel interface and dog preview acceptance — 27 November 2026
+
+Novy approved the current kennel and meadow crew changes and authorized the main merge. F-KENNEL-005 and F-KENNEL-006 are Done for the approved revision `e8585db` on Dev. The [deployment record](validation/kennel-head-height-dev-publication.json) records 665 passing game tests and 35 verified live files. Physical phone validation remains under [F-KENNEL-008](ISSUES.md#f-kennel-008--verify-the-kennel-progression-loop).
+
+### F-KENNEL-005 — ~~Manage the kennel from pause and rewards~~
+
+**Status:** Done. Owner Codex.
+
+**Branch:** `feat/kennel-progression`
+
+As a player, I want to browse, adopt and train dogs in the kennel so I can bring them to meadow entry.
+
+**Accept when:**
+
+- The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.
+- The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
+- The stats show running, turning, signaling and barking dog icons with three green or grey paws each. Show the next bolt price, disable it when the purchase is blocked, and hide it at max. Locked, unaffordable and maximum-tier states remain legible.
+- The kennel supports adoption, selection and training of individual dogs. At meadow entry, choose a player or partner position and select an owned dog by portrait. The 3D crew reflects the staged lineup as it changes. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
+
+**26 November 2026:** The feature branch exposes roster browsing, slot purchases and lineup management from pause and results. Slot prices are provisional. Workshop cutover, training controls and final preview art are pending.
+
+**27 November 2026:** The compact roster selects the specific dog for preview and training. Named color portraits replace coat labels and the redundant owned-dog menu. Paw meters replace tier text, and tapping a stat shows its effect or purchase requirement.
+
+### F-KENNEL-006 — ~~Animate and illustrate the ten-entry roster~~
+
+**Status:** Done. Owner Codex.
+
+**Branch:** `feat/kennel-progression`
+
+As a player, I want to see each dog's coat and personality before I adopt it or take it into a meadow.
+
+**Accept when:**
+
+- Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.
+- The larger preview above the strip uses the selected dog's coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.
+- A turnaround ends with the dog's head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.
+
+**27 November 2026:** The kennel and meadow crew previews now frame the dogs from standing head height and use higher-detail geometry. The original model meshes remain in use during gameplay.
 
 ## Level-5 pacing concern closed for now — 28 October 2026
 

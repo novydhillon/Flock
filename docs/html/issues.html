@@ -2,6 +2,8 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="FLOCK development documentation: Issue tracker"><title>Issue tracker · FLOCK docs</title><link rel="stylesheet" href="assets/docs.css"><script defer src="assets/search-index.js"></script><script defer src="assets/mermaid.min.js"></script><script defer src="assets/docs.js"></script></head>
 <body><a class="skip-link" href="#content">Skip to content</a><header class="top"><a class="wordmark" href="index.html">FLOCK <span>FIELD GUIDE</span></a><div class="header-actions"><button id="open-search" type="button">Search docs <kbd>/</kbd></button><button id="theme-toggle" type="button" aria-label="Toggle dark appearance">Appearance</button></div></header>
 <div class="layout"><aside class="sidebar"><nav aria-label="Documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="issues-closed.html" >Closed issues</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav><p class="sidebar-note">Markdown is the source.<br>HTML is generated locally.</p></aside><div class="reading"><details class="mobile-navigation"><summary>Browse documentation</summary><nav aria-label="Mobile documentation"><span class="nav-group">Overview</span><a href="index.html" >Start here</a><span class="nav-group">Product</span><a href="requirements.html" >Requirements</a><span class="nav-group">Systems</span><a href="architecture.html" >Architecture</a><a href="gameplay.html" >Gameplay &amp; progression</a><a href="world.html" >World &amp; navigation</a><a href="presentation.html" >Rendering, nature &amp; audio</a><span class="nav-group">Delivery</span><a href="development.html" >Development &amp; release</a><a href="p0-p1-validation.html" >P0 / P1 validation</a><a href="issues.html" aria-current="page">Issue tracker</a><a href="issues-closed.html" >Closed issues</a><a href="quality.html" >Quality record</a><a href="review.html" >Documentation reviews</a><span class="nav-group">Reference</span><a href="project.html" >Project README</a></nav></details><div class="page-meta">Delivery <span>Documentation · 14 October 2026</span></div><main id="content" tabindex="-1"><h1 id="flock--active-issue-tracker">FLOCK — Active issue tracker<a class="heading-link" href="#flock--active-issue-tracker" aria-label="Link to FLOCK — Active issue tracker">#</a></h1>
+<h2 id="kennel-interface-and-dog-preview-acceptance--27-november-2026">Kennel interface and dog preview acceptance — 27 November 2026<a class="heading-link" href="#kennel-interface-and-dog-preview-acceptance--27-november-2026" aria-label="Link to Kennel interface and dog preview acceptance — 27 November 2026">#</a></h2>
+<p>The approved kennel interface and dog previews are archived under <a href="issues-closed.html#kennel-interface-and-dog-preview-acceptance--27-november-2026">F-KENNEL-005 and F-KENNEL-006</a>. The remaining campaign, economy and device validation criteria stay in the active tracker.</p>
 <h2 id="tracker-closures--18-november-2026">Tracker closures — 18 November 2026<a class="heading-link" href="#tracker-closures--18-november-2026" aria-label="Link to Tracker closures — 18 November 2026">#</a></h2>
 <p>Novy requested closure for <a href="issues-closed.html#f-terrain-bank-001--compact-steep-riverbanks-and-slope-based-bank-textures">F-TERRAIN-BANK-001</a> and <a href="issues-closed.html#f-shadow-001--baked-static-environment-shadows">F-SHADOW-001</a>. Both implementations previously merged to main.</p>
 <h2 id="p2-ui-acceptance--28-october-2026">P2 UI acceptance — 28 October 2026<a class="heading-link" href="#p2-ui-acceptance--28-october-2026" aria-label="Link to P2 UI acceptance — 28 October 2026">#</a></h2>
@@ -62,22 +64,6 @@
 <td>F-KENNEL-002; F-KENNEL-003</td>
 </tr>
 <tr>
-<td>F-KENNEL-005</td>
-<td>P1</td>
-<td>UI/progression</td>
-<td>Manage the kennel from pause and rewards</td>
-<td>In progress</td>
-<td>F-KENNEL-001–004</td>
-</tr>
-<tr>
-<td>F-KENNEL-006</td>
-<td>P1</td>
-<td>Art/animation</td>
-<td>Animate and illustrate the ten-entry roster</td>
-<td>Open</td>
-<td>F-DOG-001; F-KENNEL-002; F-KENNEL-005</td>
-</tr>
-<tr>
 <td>F-KENNEL-007</td>
 <td>P1</td>
 <td>Persistence/gameplay</td>
@@ -92,6 +78,46 @@
 <td>Verify the kennel progression loop</td>
 <td>Open</td>
 <td>F-KENNEL-001–007</td>
+</tr>
+<tr>
+<td>F-ASSET-001</td>
+<td>P2</td>
+<td>Production/asset inventory</td>
+<td>Inventory 3D assets and define the replacement contract</td>
+<td>Open</td>
+<td>Current rendering and content</td>
+</tr>
+<tr>
+<td>F-ASSET-002</td>
+<td>P2</td>
+<td>Tooling/CI</td>
+<td>Build and validate 3D assets for Dev and production</td>
+<td>Open</td>
+<td>F-ASSET-001</td>
+</tr>
+<tr>
+<td>F-ASSET-003</td>
+<td>P2</td>
+<td>Character art/animation</td>
+<td>Move animated actors and their clips into replaceable files</td>
+<td>Open</td>
+<td>F-ASSET-001; F-ASSET-002</td>
+</tr>
+<tr>
+<td>F-ASSET-004</td>
+<td>P2</td>
+<td>Environment art/animation</td>
+<td>Move scenery, props and effects into replaceable files</td>
+<td>Open</td>
+<td>F-ASSET-001; F-ASSET-002</td>
+</tr>
+<tr>
+<td>F-ASSET-005</td>
+<td>P2</td>
+<td>Validation/cutover</td>
+<td>Verify asset swaps and retire embedded 3D content</td>
+<td>Open</td>
+<td>F-ASSET-003; F-ASSET-004</td>
 </tr>
 <tr>
 <td>F-DOG-002</td>
@@ -295,7 +321,7 @@
 </tr>
 </tbody></table></div>
 <h2 id="acceptance-criteria-and-planned-work">Acceptance criteria and planned work<a class="heading-link" href="#acceptance-criteria-and-planned-work" aria-label="Link to Acceptance criteria and planned work">#</a></h2>
-<p>F-KENNEL-001 to F-KENNEL-003 and F-KENNEL-005 are in progress on the feature branch. See the <a href="requirements.html#dog-kennel-and-meadow-lineups--26-november-2026">design and delivery plan</a> for proposed defaults and open decisions.</p>
+<p>F-KENNEL-001 to F-KENNEL-003 track the remaining slot, adoption and lineup work. See the <a href="requirements.html#dog-kennel-and-meadow-lineups--26-november-2026">design and delivery plan</a> for proposed defaults and open decisions.</p>
 <h3 id="f-kennel-001--buy-meadow-slots-and-earn-buddy">F-KENNEL-001 — Buy meadow slots and earn Buddy<a class="heading-link" href="#f-kennel-001--buy-meadow-slots-and-earn-buddy" aria-label="Link to F-KENNEL-001 — Buy meadow slots and earn Buddy">#</a></h3>
 <p><strong>Status:</strong> In progress. Owner Codex.</p>
 <p><strong>Branch:</strong> <code>feat/kennel-progression</code></p>
@@ -342,30 +368,6 @@
 <li>Influence preserves Friendly signal&#39;s three levels, costs and range increases. Bark intensity applies only to that dog&#39;s bark and follows the agreed pressure and charge rules.</li>
 <li>One successful purchase charges the listed cost and advances exactly one attribute tier on the selected owned dog. Gated and maxed attributes, insufficient bolts and repeat input cannot create extra tiers or charges.</li>
 </ul>
-<h3 id="f-kennel-005--manage-the-kennel-from-pause-and-rewards">F-KENNEL-005 — Manage the kennel from pause and rewards<a class="heading-link" href="#f-kennel-005--manage-the-kennel-from-pause-and-rewards" aria-label="Link to F-KENNEL-005 — Manage the kennel from pause and rewards">#</a></h3>
-<p><strong>Status:</strong> In progress. Owner Codex.</p>
-<p><strong>Branch:</strong> <code>feat/kennel-progression</code></p>
-<p>As a player, I want to browse, adopt and train dogs in the kennel so I can bring them to meadow entry.</p>
-<p><strong>Accept when:</strong></p>
-<ul>
-<li>The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.</li>
-<li>The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.</li>
-<li>The stats show running, turning, signaling and barking dog icons with three green or grey paws each. Show the next bolt price, disable it when the purchase is blocked, and hide it at max. Locked, unaffordable and maximum-tier states remain legible.</li>
-<li>The kennel supports adoption, selection and training of individual dogs. At meadow entry, choose a player or partner position and select an owned dog by portrait. The 3D crew reflects the staged lineup as it changes. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.</li>
-</ul>
-<p><strong>26 November 2026:</strong> The feature branch exposes roster browsing, slot purchases and lineup management from pause and results. Slot prices are provisional. Workshop cutover, training controls and final preview art are pending.</p>
-<p><strong>27 November 2026:</strong> The compact roster selects the specific dog for preview and training. Named color portraits replace coat labels and the redundant owned-dog menu. Paw meters replace tier text, and tapping a stat shows its effect or purchase requirement.</p>
-<h3 id="f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006 — Animate and illustrate the ten-entry roster<a class="heading-link" href="#f-kennel-006--animate-and-illustrate-the-ten-entry-roster" aria-label="Link to F-KENNEL-006 — Animate and illustrate the ten-entry roster">#</a></h3>
-<p><strong>Status:</strong> Open. Owner unassigned.</p>
-<p><strong>Branch:</strong> Unassigned</p>
-<p>As a player, I want to see each dog&#39;s coat and personality before I adopt it or take it into a meadow.</p>
-<p><strong>Accept when:</strong></p>
-<ul>
-<li>Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.</li>
-<li>The larger preview above the strip uses the selected dog&#39;s coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.</li>
-<li>A turnaround ends with the dog&#39;s head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.</li>
-</ul>
-<p><strong>27 November 2026:</strong> The kennel and meadow crew previews now frame the dogs from standing head height and use higher-detail geometry. The original model meshes remain in use during gameplay.</p>
 <h3 id="f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades">F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades<a class="heading-link" href="#f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades" aria-label="Link to F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades">#</a></h3>
 <p><strong>Status:</strong> Open. Owner unassigned.</p>
 <p><strong>Branch:</strong> Unassigned</p>
@@ -388,11 +390,56 @@
 <li>With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.</li>
 <li>Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.</li>
 </ul>
+<h3 id="f-asset-001--inventory-3d-assets-and-define-the-replacement-contract">F-ASSET-001 — Inventory 3D assets and define the replacement contract<a class="heading-link" href="#f-asset-001--inventory-3d-assets-and-define-the-replacement-contract" aria-label="Link to F-ASSET-001 — Inventory 3D assets and define the replacement contract">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Inventory every 3D model, material dependency and authored animation across gameplay, previews, wildlife, scenery and effects. Map each to a stable asset ID, current source, consumers and migration ticket.</li>
+<li>Define editable source and runtime formats, units, axes, pivots, sockets, rig and clip names, level-of-detail rules, variants, and licensing metadata. Specify which meshes are built from replaceable source data, including procedural terrain and water templates.</li>
+<li>Document the contract between presentation assets and simulation, including collision, navigation, attachment points and animation events.</li>
+</ul>
+<h3 id="f-asset-002--build-and-validate-3d-assets-for-dev-and-production">F-ASSET-002 — Build and validate 3D assets for Dev and production<a class="heading-link" href="#f-asset-002--build-and-validate-3d-assets-for-dev-and-production" aria-label="Link to F-ASSET-002 — Build and validate 3D assets for Dev and production">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Provide a repeatable local and CI command that converts versioned editable sources into runtime assets and a manifest. Evaluate Blender and glTF/GLB and record the chosen formats.</li>
+<li>Pin tool versions and validate IDs, dependencies, licenses, material references, required clips, pivots, sockets and mobile size budgets. Report errors against the editable source.</li>
+<li>Verify clean and incremental builds, content-hashed outputs and correct packaging under both Dev and production paths. Document how to swap an asset, preview the result and roll back.</li>
+</ul>
+<h3 id="f-asset-003--move-animated-actors-and-their-clips-into-replaceable-files">F-ASSET-003 — Move animated actors and their clips into replaceable files<a class="heading-link" href="#f-asset-003--move-animated-actors-and-their-clips-into-replaceable-files" aria-label="Link to F-ASSET-003 — Move animated actors and their clips into replaceable files">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Migrate Pip, Buddy, kennel variants, livestock, birds, butterflies and every other animated actor from the inventory. Store editable rigs, meshes and authored clips as versioned assets, with gameplay and preview detail levels where needed.</li>
+<li>Connect clips to current gait, turn, idle, bark, grazing and wildlife states. Preserve blending, foot contact, event timing, coat variants, preview choreography and reduced-motion behavior. Drive animation state and runtime adjustments from existing gameplay logic.</li>
+<li>Verify that changing a compatible model or clip requires only an asset replacement and a rebuild.</li>
+</ul>
+<h3 id="f-asset-004--move-scenery-props-and-effects-into-replaceable-files">F-ASSET-004 — Move scenery, props and effects into replaceable files<a class="heading-link" href="#f-asset-004--move-scenery-props-and-effects-into-replaceable-files" aria-label="Link to F-ASSET-004 — Move scenery, props and effects into replaceable files">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Migrate all remaining 3D content from the inventory, including vegetation, rocks, bridges, fences, gates, buildings, terrain and water render inputs, and reusable effect meshes and animation data.</li>
+<li>Source authored geometry and motion from files or file-backed templates while retaining seeded placement, terrain conformity, weather response, collisions and navigation. Preserve the existing baked and dynamic shadow behavior.</li>
+<li>Verify that replacing a compatible scenery asset or moving prop requires only an asset replacement and a rebuild.</li>
+</ul>
+<h3 id="f-asset-005--verify-asset-swaps-and-retire-embedded-3d-content">F-ASSET-005 — Verify asset swaps and retire embedded 3D content<a class="heading-link" href="#f-asset-005--verify-asset-swaps-and-retire-embedded-3d-content" aria-label="Link to F-ASSET-005 — Verify asset swaps and retire embedded 3D content">#</a></h3>
+<p><strong>Status:</strong> Open. Owner unassigned.</p>
+<p><strong>Branch:</strong> Unassigned</p>
+<p><strong>Accept when:</strong></p>
+<ul>
+<li>Account for every entry in the inventory. Demonstrate an independent model swap, animation swap and scenery swap from editable files through Dev and release builds.</li>
+<li>Check appearance, animation timing, collision and gameplay on representative meadows and physical phones. Compare frame pacing, memory, startup, draw calls and download size against the baseline.</li>
+<li>Remove superseded in-code model and animation definitions after parity checks. Verify that a missing or invalid dependency fails the build with a useful error.</li>
+</ul>
 <h3 id="f-dog-002--ten-additional-dog-breeds-and-progression">F-DOG-002 — Ten additional dog breeds and progression<a class="heading-link" href="#f-dog-002--ten-additional-dog-breeds-and-progression" aria-label="Link to F-DOG-002 — Ten additional dog breeds and progression">#</a></h3>
 <p><strong>Status:</strong> Open. Owner: Unassigned.</p>
 <p><strong>Branch:</strong> <code>unassigned</code></p>
 <p><strong>Request — 11 November 2026:</strong> Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts. Breeds should vary in size, including small breeds such as a pug and a Chihuahua through to a Newfoundland. Include both pug and Chihuahua in the ten additional breeds.</p>
-<p><strong>26 November 2026:</strong> Distinct breeds follow the placeholder roster in <a href="#f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006</a>. Keep the later breed work scoped separately.</p>
+<p><strong>26 November 2026:</strong> Distinct breeds follow the placeholder roster in <a href="issues-closed.html#f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006</a>. Keep the later breed work scoped separately.</p>
 <p><strong>Accept when:</strong> Ten additional recognizable breeds offer distinguishable movement speeds and capabilities inspired by their breeds, and support upgrades and boosts. Define breed selection, unlocks, costs, upgrade and boost behavior, balancing and persistence before implementation; these details are not yet specified. Preserve existing saves and progression with an appropriate migration if needed. Verify capabilities, balance, controls and mobile performance across breeds.</p>
 <p><strong>Scope:</strong> Planning only. Neither item has been implemented or visually validated.</p>
 <h3 id="f-qa-camera-001--qa-camera-orbit-controls">F-QA-CAMERA-001 — QA camera orbit controls<a class="heading-link" href="#f-qa-camera-001--qa-camera-orbit-controls" aria-label="Link to F-QA-CAMERA-001 — QA camera orbit controls">#</a></h3>
@@ -537,5 +584,5 @@
 <p>All four items are Open and unassigned. Rough-ground appearance is P3 polish; navigable relief, aligned boundaries and terrain-aware water are linked P2 features that must be coordinated before a rolling-terrain release. This adds planned work only; no terrain, physics, water or game deployment changes are implemented.</p>
 <h2 id="water-vegetation-acceptance--29-october-2026">Water vegetation acceptance — 29 October 2026<a class="heading-link" href="#water-vegetation-acceptance--29-october-2026" aria-label="Link to Water vegetation acceptance — 29 October 2026">#</a></h2>
 <p>Novy accepted <code>feat/water-vegetation</code> with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to <a href="issues-closed.html#water-vegetation-user-acceptance--29-october-2026">Closed issues</a>. Source revision <code>d2bae96da0ed1b59f1d389616b64a0b53e45842c</code> is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.</p>
-</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#tracker-closures--18-november-2026">Tracker closures — 18 November 2026</a><a class="toc-level-2" href="#p2-ui-acceptance--28-october-2026">P2 UI acceptance — 28 October 2026</a><a class="toc-level-2" href="#tracker-lifecycle-and-ownership">Tracker lifecycle and ownership</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#acceptance-criteria-and-planned-work">Acceptance criteria and planned work</a><a class="toc-level-3" href="#f-kennel-001--buy-meadow-slots-and-earn-buddy">F-KENNEL-001 — Buy meadow slots and earn Buddy</a><a class="toc-level-3" href="#f-kennel-002--adopt-and-manage-individual-dogs">F-KENNEL-002 — Adopt and manage individual dogs</a><a class="toc-level-3" href="#f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs">F-KENNEL-003 — Assign and play a lineup of up to four dogs</a><a class="toc-level-3" href="#f-kennel-004--train-speed-agility-influence-and-bark">F-KENNEL-004 — Train speed, agility, influence and bark</a><a class="toc-level-3" href="#f-kennel-005--manage-the-kennel-from-pause-and-rewards">F-KENNEL-005 — Manage the kennel from pause and rewards</a><a class="toc-level-3" href="#f-kennel-006--animate-and-illustrate-the-ten-entry-roster">F-KENNEL-006 — Animate and illustrate the ten-entry roster</a><a class="toc-level-3" href="#f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades">F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades</a><a class="toc-level-3" href="#f-kennel-008--verify-the-kennel-progression-loop">F-KENNEL-008 — Verify the kennel progression loop</a><a class="toc-level-3" href="#f-dog-002--ten-additional-dog-breeds-and-progression">F-DOG-002 — Ten additional dog breeds and progression</a><a class="toc-level-3" href="#f-qa-camera-001--qa-camera-orbit-controls">F-QA-CAMERA-001 — QA camera orbit controls</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-2" href="#bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)</a><a class="toc-level-3" href="#f-bird-001--bird-states-and-seeded-population-p2">F-BIRD-001 — Bird states and seeded population (P2)</a><a class="toc-level-3" href="#f-bird-002--clay-birds-and-animated-transitions-p2">F-BIRD-002 — Clay birds and animated transitions (P2)</a><a class="toc-level-3" href="#f-bird-003--safe-ground-and-elevated-landing-sites-p2">F-BIRD-003 — Safe ground and elevated landing sites (P2)</a><a class="toc-level-3" href="#f-bird-004--conditional-ground-bird-fleeing-p2">F-BIRD-004 — Conditional ground-bird fleeing (P2)</a><a class="toc-level-3" href="#f-bird-005--perched-chirping-and-quiet-sitting-p2">F-BIRD-005 — Perched chirping and quiet sitting (P2)</a><a class="toc-level-3" href="#f-bird-006--rare-tree-nest-p2">F-BIRD-006 — Rare tree nest (P2)</a><a class="toc-level-3" href="#f-bird-007--weather-lifecycle-and-resource-integration-p2">F-BIRD-007 — Weather, lifecycle and resource integration (P2)</a><a class="toc-level-3" href="#f-bird-008--validation-blind-review-and-dev-sign-off-p2">F-BIRD-008 — Validation, blind review and dev sign-off (P2)</a><a class="toc-level-2" href="#bird-feature-additions--18-october-2026-2147-americacreston">Bird feature additions — 18 October 2026, 21:47 America/Creston</a><a class="toc-level-3" href="#f-bird-009--small-social-foraging-groups-p2">F-BIRD-009 — Small social foraging groups (P2)</a><a class="toc-level-3" href="#f-bird-010--ground-hops-and-perched-idle-gestures-p2">F-BIRD-010 — Ground hops and perched idle gestures (P2)</a><a class="toc-level-3" href="#f-bird-011--react-to-pip-and-buddy-barking-p2">F-BIRD-011 — React to Pip and Buddy barking (P2)</a><a class="toc-level-3" href="#f-bird-012--occasional-visits-to-the-nest-p2">F-BIRD-012 — Occasional visits to the nest (P2)</a><a class="toc-level-3" href="#f-bird-013--two-or-three-recognizable-bird-varieties-p2">F-BIRD-013 — Two or three recognizable bird varieties (P2)</a><a class="toc-level-3" href="#f-bird-014--gradual-return-after-the-meadow-settles-p2">F-BIRD-014 — Gradual return after the meadow settles (P2)</a><a class="toc-level-2" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston</a><a class="toc-level-3" href="#f-comp-004--clear-attention-and-working-intent-p2">F-COMP-004 — Clear attention and working intent (P2)</a><a class="toc-level-3" href="#f-comp-005--bark-pose-and-recovery-gesture-p2">F-COMP-005 — Bark pose and recovery gesture (P2)</a><a class="toc-level-3" href="#f-comp-006--distinct-pip-and-buddy-personalities-p2">F-COMP-006 — Distinct Pip and Buddy personalities (P2)</a><a class="toc-level-3" href="#f-comp-008--brief-shared-arrival-celebration-p2">F-COMP-008 — Brief shared arrival celebration (P2)</a><a class="toc-level-2" href="#tracker-archive-maintenance--18-october-2026-2204-americacreston">Tracker archive maintenance — 18 October 2026, 22:04 America/Creston</a><a class="toc-level-2" href="#main-integration--18-october-2026-2217-americacreston">Main integration — 18 October 2026, 22:17 America/Creston</a><a class="toc-level-2" href="#delivery-fallback-integration--19-october-2026">Delivery fallback integration — 19 October 2026</a><a class="toc-level-2" href="#buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026</a><a class="toc-level-2" href="#accepted-p1-branch--25-october-2026">Accepted P1 branch — 25 October 2026</a><a class="toc-level-3" href="#f-audio-002--existing-bolt-voice-steal-hard-cut-risk">F-AUDIO-002 — Existing bolt voice-steal hard-cut risk</a><a class="toc-level-2" href="#rough-pasture-and-rolling-terrain--25-october-2026">Rough pasture and rolling terrain — 25 October 2026</a><a class="toc-level-2" href="#water-vegetation-acceptance--29-october-2026">Water vegetation acceptance — 29 October 2026</a></nav></aside></div>
+</main><footer><a href="../ISSUES.md">Markdown source</a><a href="index.html">Documentation home</a><a href="#content">Back to top ↑</a></footer></div><aside class="toc"><nav aria-label="On this page"><h2>On this page</h2><a class="toc-level-2" href="#kennel-interface-and-dog-preview-acceptance--27-november-2026">Kennel interface and dog preview acceptance — 27 November 2026</a><a class="toc-level-2" href="#tracker-closures--18-november-2026">Tracker closures — 18 November 2026</a><a class="toc-level-2" href="#p2-ui-acceptance--28-october-2026">P2 UI acceptance — 28 October 2026</a><a class="toc-level-2" href="#tracker-lifecycle-and-ownership">Tracker lifecycle and ownership</a><a class="toc-level-2" href="#work-overview">Work overview</a><a class="toc-level-2" href="#acceptance-criteria-and-planned-work">Acceptance criteria and planned work</a><a class="toc-level-3" href="#f-kennel-001--buy-meadow-slots-and-earn-buddy">F-KENNEL-001 — Buy meadow slots and earn Buddy</a><a class="toc-level-3" href="#f-kennel-002--adopt-and-manage-individual-dogs">F-KENNEL-002 — Adopt and manage individual dogs</a><a class="toc-level-3" href="#f-kennel-003--assign-and-play-a-lineup-of-up-to-four-dogs">F-KENNEL-003 — Assign and play a lineup of up to four dogs</a><a class="toc-level-3" href="#f-kennel-004--train-speed-agility-influence-and-bark">F-KENNEL-004 — Train speed, agility, influence and bark</a><a class="toc-level-3" href="#f-kennel-007--preserve-campaign-progress-and-retire-marketplace-upgrades">F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades</a><a class="toc-level-3" href="#f-kennel-008--verify-the-kennel-progression-loop">F-KENNEL-008 — Verify the kennel progression loop</a><a class="toc-level-3" href="#f-asset-001--inventory-3d-assets-and-define-the-replacement-contract">F-ASSET-001 — Inventory 3D assets and define the replacement contract</a><a class="toc-level-3" href="#f-asset-002--build-and-validate-3d-assets-for-dev-and-production">F-ASSET-002 — Build and validate 3D assets for Dev and production</a><a class="toc-level-3" href="#f-asset-003--move-animated-actors-and-their-clips-into-replaceable-files">F-ASSET-003 — Move animated actors and their clips into replaceable files</a><a class="toc-level-3" href="#f-asset-004--move-scenery-props-and-effects-into-replaceable-files">F-ASSET-004 — Move scenery, props and effects into replaceable files</a><a class="toc-level-3" href="#f-asset-005--verify-asset-swaps-and-retire-embedded-3d-content">F-ASSET-005 — Verify asset swaps and retire embedded 3D content</a><a class="toc-level-3" href="#f-dog-002--ten-additional-dog-breeds-and-progression">F-DOG-002 — Ten additional dog breeds and progression</a><a class="toc-level-3" href="#f-qa-camera-001--qa-camera-orbit-controls">F-QA-CAMERA-001 — QA camera orbit controls</a><a class="toc-level-3" href="#f-015--performance-verification-gap">F-015 — Performance verification gap</a><a class="toc-level-3" href="#f-045---add-rain-impacts-and-splashes-on-water-during-heavy-rain-or-stronger-p4">F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)</a><a class="toc-level-3" href="#f-047---second-buddy-dog-with-independent-progression-p4">F-047 - Second Buddy dog with independent progression (P4)</a><a class="toc-level-3" href="#f-049---keep-the-qa-level-dropdown-unfocused-on-menu-opening-p4">F-049 - Keep the QA level dropdown unfocused on menu opening (P4)</a><a class="toc-level-2" href="#bird-behavior-feature-plan--18-october-2026-americacreston">Bird behavior feature plan — 18 October 2026 (America/Creston)</a><a class="toc-level-3" href="#f-bird-001--bird-states-and-seeded-population-p2">F-BIRD-001 — Bird states and seeded population (P2)</a><a class="toc-level-3" href="#f-bird-002--clay-birds-and-animated-transitions-p2">F-BIRD-002 — Clay birds and animated transitions (P2)</a><a class="toc-level-3" href="#f-bird-003--safe-ground-and-elevated-landing-sites-p2">F-BIRD-003 — Safe ground and elevated landing sites (P2)</a><a class="toc-level-3" href="#f-bird-004--conditional-ground-bird-fleeing-p2">F-BIRD-004 — Conditional ground-bird fleeing (P2)</a><a class="toc-level-3" href="#f-bird-005--perched-chirping-and-quiet-sitting-p2">F-BIRD-005 — Perched chirping and quiet sitting (P2)</a><a class="toc-level-3" href="#f-bird-006--rare-tree-nest-p2">F-BIRD-006 — Rare tree nest (P2)</a><a class="toc-level-3" href="#f-bird-007--weather-lifecycle-and-resource-integration-p2">F-BIRD-007 — Weather, lifecycle and resource integration (P2)</a><a class="toc-level-3" href="#f-bird-008--validation-blind-review-and-dev-sign-off-p2">F-BIRD-008 — Validation, blind review and dev sign-off (P2)</a><a class="toc-level-2" href="#bird-feature-additions--18-october-2026-2147-americacreston">Bird feature additions — 18 October 2026, 21:47 America/Creston</a><a class="toc-level-3" href="#f-bird-009--small-social-foraging-groups-p2">F-BIRD-009 — Small social foraging groups (P2)</a><a class="toc-level-3" href="#f-bird-010--ground-hops-and-perched-idle-gestures-p2">F-BIRD-010 — Ground hops and perched idle gestures (P2)</a><a class="toc-level-3" href="#f-bird-011--react-to-pip-and-buddy-barking-p2">F-BIRD-011 — React to Pip and Buddy barking (P2)</a><a class="toc-level-3" href="#f-bird-012--occasional-visits-to-the-nest-p2">F-BIRD-012 — Occasional visits to the nest (P2)</a><a class="toc-level-3" href="#f-bird-013--two-or-three-recognizable-bird-varieties-p2">F-BIRD-013 — Two or three recognizable bird varieties (P2)</a><a class="toc-level-3" href="#f-bird-014--gradual-return-after-the-meadow-settles-p2">F-BIRD-014 — Gradual return after the meadow settles (P2)</a><a class="toc-level-2" href="#pip-and-buddy-teamwork-and-personality-plan--18-october-2026-2152-americacreston">Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston</a><a class="toc-level-3" href="#f-comp-004--clear-attention-and-working-intent-p2">F-COMP-004 — Clear attention and working intent (P2)</a><a class="toc-level-3" href="#f-comp-005--bark-pose-and-recovery-gesture-p2">F-COMP-005 — Bark pose and recovery gesture (P2)</a><a class="toc-level-3" href="#f-comp-006--distinct-pip-and-buddy-personalities-p2">F-COMP-006 — Distinct Pip and Buddy personalities (P2)</a><a class="toc-level-3" href="#f-comp-008--brief-shared-arrival-celebration-p2">F-COMP-008 — Brief shared arrival celebration (P2)</a><a class="toc-level-2" href="#tracker-archive-maintenance--18-october-2026-2204-americacreston">Tracker archive maintenance — 18 October 2026, 22:04 America/Creston</a><a class="toc-level-2" href="#main-integration--18-october-2026-2217-americacreston">Main integration — 18 October 2026, 22:17 America/Creston</a><a class="toc-level-2" href="#delivery-fallback-integration--19-october-2026">Delivery fallback integration — 19 October 2026</a><a class="toc-level-2" href="#buddy-user-acceptance--22-october-2026">Buddy user acceptance — 22 October 2026</a><a class="toc-level-2" href="#accepted-p1-branch--25-october-2026">Accepted P1 branch — 25 October 2026</a><a class="toc-level-3" href="#f-audio-002--existing-bolt-voice-steal-hard-cut-risk">F-AUDIO-002 — Existing bolt voice-steal hard-cut risk</a><a class="toc-level-2" href="#rough-pasture-and-rolling-terrain--25-october-2026">Rough pasture and rolling terrain — 25 October 2026</a><a class="toc-level-2" href="#water-vegetation-acceptance--29-october-2026">Water vegetation acceptance — 29 October 2026</a></nav></aside></div>
 <dialog id="search-dialog" aria-labelledby="search-title"><form method="dialog" class="search-top"><h2 id="search-title">Search documentation</h2><button aria-label="Close search">×</button></form><label for="search-input">Find a system, requirement, issue ID or code symbol</label><input id="search-input" type="search" placeholder="Try bridge, F-025, or saveProfile" autocomplete="off"><p id="search-count" role="status">Type to search all documents.</p><ul id="search-results"></ul></dialog><div id="copy-status" role="status" class="sr-only"></div><noscript><p class="no-script">JavaScript is off: navigation, text and code still work. Use your browser’s Find for this page; diagram source is available beneath each diagram.</p></noscript></body></html>
