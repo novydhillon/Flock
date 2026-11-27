@@ -51,7 +51,8 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   }
 
   let kennel = validateKennel(profile.kennel);
-  let selection = { entry: KENNEL_CATALOG[0], dog: kennel.dogs.find((dog) => dog.id === 'pip') };
+  const lead = kennel.dogs.find((dog) => dog.id === kennel.lineup[0]);
+  let selection = { entry: KENNEL_CATALOG.find((entry) => entry.id === lead.catalogId), dog: lead };
   let chosenCoat = selection.dog.coat;
 
   const panel = node('div', 'kennel-management');
@@ -85,7 +86,8 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   const adopt = button('kennel-action kennel-adopt', 'Adopt');
   adopt.type = 'submit';
   const adoptionPrice = node('span');
-  adopt.append(icon('add'), icon('bolt'), adoptionPrice);
+  const adoptionBolt = icon('bolt');
+  adopt.append(icon('add'), adoptionBolt, adoptionPrice);
   adoption.append(name, coats, adopt);
   const training = node('section', 'kennel-training');
   training.setAttribute('aria-label', 'Training');
@@ -124,7 +126,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     for (const entry of KENNEL_CATALOG) {
       const copies = kennel.dogs.filter((dog) => dog.catalogId === entry.id);
       const cards = copies.map((dog) => ({ dog, label: dog.name }));
-      if (!copies.length || entry.cost !== null) cards.push({ label: entry.name });
+      if (!copies.length || (entry.cost !== null && !entry.once)) cards.push({ label: entry.name });
       const availability = adoptionAvailability(profile, entry.id);
       for (const { dog, label } of cards) {
         const locked = !dog && (entry.cost === null || availability.reason === 'locked');
@@ -173,19 +175,16 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     if (entry.id === 'buddy' || state.reason === 'locked') {
       adoptionState.hidden = false;
       adoptionState.textContent =
-        entry.id === 'buddy'
-          ? 'Joins with the second crew position · Meadow 20'
-          : kennel.openedSlots < 2
-            ? `Meadow ${state.meadow} · Open the second crew position first`
-            : `Meadow ${state.meadow}`;
+        entry.id === 'buddy' ? 'Joins with the second crew position · Meadow 20' : `Meadow ${state.meadow}`;
       return;
     }
 
     adoption.hidden = false;
     name.placeholder = entry.name;
-    adoptionPrice.textContent = state.cost.toLocaleString();
+    adoptionBolt.toggleAttribute('hidden', state.cost === 0);
+    adoptionPrice.textContent = state.cost === 0 ? 'Free' : state.cost.toLocaleString();
     adopt.disabled = !state.available;
-    adopt.setAttribute('aria-label', `Adopt ${entry.name} for ${boltPrice(state.cost)}`);
+    adopt.setAttribute('aria-label', `Adopt ${entry.name} for ${state.cost === 0 ? 'free' : boltPrice(state.cost)}`);
     adopt.title = adopt.getAttribute('aria-label');
     if (state.reason === 'points') {
       adoptionState.textContent = boltShortfall(state.cost - profile.points);

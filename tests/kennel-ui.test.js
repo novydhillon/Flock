@@ -21,14 +21,14 @@ function kennelFixture(profile = defaultProfile()) {
   return { window, root, changes, previews };
 }
 
-test('kennel defaults to Pip and keyboard browsing exposes unavailable dogs without changing the profile', () => {
+test('kennel defaults to Buddy and keyboard browsing exposes unavailable dogs without changing the profile', () => {
   const { root, window, changes, previews } = kennelFixture();
   const cards = Array.from(root.querySelectorAll('[data-kennel-catalog]'));
   assert.equal(cards.length, 10);
-  assert.equal(previews.at(-1).dogs[0].id, 'pip');
+  assert.equal(previews.at(-1).dogs[0].id, 'buddy');
   assert.equal(previews.at(-1).options.solo, true);
-  assert.equal(cards[0].textContent, 'Pip');
-  assert.equal(cards[0].getAttribute('aria-pressed'), 'true');
+  assert.equal(cards[0].textContent, 'Buddy');
+  assert.equal(root.querySelector('[data-kennel-dog="buddy"]').getAttribute('aria-pressed'), 'true');
   assert.equal(cards.at(-1).textContent, 'Rosie');
   assert.match(cards.at(-1).getAttribute('aria-label'), /locked/);
   assert.equal(cards.at(-1).querySelector('.kennel-portrait').dataset.coat, 'black-auburn-white');
@@ -38,13 +38,36 @@ test('kennel defaults to Pip and keyboard browsing exposes unavailable dogs with
   assert.equal(root.ownerDocument.activeElement, cards.at(-1));
   assert.deepEqual(previews.at(-1).dogs, [{ id: 'dog-10', model: 'buddy', coat: 'black-auburn-white' }]);
   assert.equal(cards.at(-1).getAttribute('aria-pressed'), 'true');
-  assert.match(root.querySelector('.kennel-adoption-state').textContent, /Meadow 60.*second crew position/);
+  assert.match(root.querySelector('.kennel-adoption-state').textContent, /Meadow 45/);
   assert.equal(root.querySelector('form').hidden, true);
   assert.deepEqual(changes, []);
 });
 
-test('Buddy explains the meadow entry grant and has no position or standalone purchase controls', () => {
-  const profile = { ...defaultProfile(), highestLevel: 19, points: 600 };
+test('Pip shows the meadow-three gate and can be adopted once for free before buying a slot', () => {
+  const locked = kennelFixture({ ...defaultProfile(), highestLevel: 1 }).root;
+  locked.querySelector('[data-kennel-offer="pip"]').click();
+  assert.match(locked.querySelector('.kennel-adoption-state').textContent, /Meadow 3/);
+  assert.equal(locked.querySelector('form').hidden, true);
+
+  const profile = { ...defaultProfile(), highestLevel: 2 };
+  const { root, changes } = kennelFixture(profile);
+  root.querySelector('[data-kennel-offer="pip"]').click();
+  assert.match(root.querySelector('.kennel-adopt').textContent, /Free/);
+  root.querySelector('.kennel-adopt').click();
+  assert.equal(profile.points, 0);
+  assert.equal(profile.kennel.openedSlots, 1);
+  assert.equal(root.querySelector('[data-kennel-offer="pip"]'), null);
+  assert.equal(root.querySelector('[data-kennel-dog="pip"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(changes.length, 1);
+});
+
+test('legacy Pip saves show how Buddy joins without a standalone purchase', () => {
+  const profile = {
+    ...defaultProfile(),
+    highestLevel: 19,
+    points: 600,
+    kennel: { dogs: [{ id: 'pip', catalogId: 'pip' }], lineup: ['pip'] },
+  };
   const { root, changes } = kennelFixture(profile);
   root.querySelector('[data-kennel-catalog="buddy"]').click();
   assert.match(root.querySelector('.kennel-adoption-state').textContent, /second crew position.*Meadow 20/);

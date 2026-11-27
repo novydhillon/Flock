@@ -1,5 +1,5 @@
 {
-  "_comment": "Public meadow gates and approved per-adoption bolt prices. Pip and Buddy grant rules are handled by the kennel.",
+  "_comment": "Public meadow gates and approved per-adoption bolt prices. Buddy starts in Slot 1 and Pip can be adopted once.",
   "slotMeadows": [1, 20, 40, 60],
   "_slotBoltPricesComment": "Provisional playtest values based on the old Buddy tier prices.",
   "slotBoltPrices": [0, 600, 850, 1200],
@@ -10,15 +10,15 @@
     "agility": { "costs": [80, 130, 210], "unlockLevels": [3, 7, 12] }
   },
   "dogs": [
-    { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 1, "cost": null },
-    { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 20, "cost": null },
-    { "id": "dog-3", "name": "Daisy", "model": "pip", "coat": "blonde-white", "meadow": 25, "cost": 600 },
-    { "id": "dog-4", "name": "Cooper", "model": "buddy", "coat": "brown-white", "meadow": 30, "cost": 800 },
-    { "id": "dog-5", "name": "Ruby", "model": "pip", "coat": "auburn-white", "meadow": 35, "cost": 1000 },
-    { "id": "dog-6", "name": "Scout", "model": "buddy", "coat": "black-blonde", "meadow": 40, "cost": 1200 },
-    { "id": "dog-7", "name": "Clover", "model": "pip", "coat": "black-brown-white", "meadow": 45, "cost": 1400 },
-    { "id": "dog-8", "name": "Maple", "model": "buddy", "coat": "blonde-auburn", "meadow": 50, "cost": 1600 },
-    { "id": "dog-9", "name": "Rusty", "model": "pip", "coat": "brown-auburn", "meadow": 55, "cost": 1800 },
-    { "id": "dog-10", "name": "Rosie", "model": "buddy", "coat": "black-auburn-white", "meadow": 60, "cost": 2000 }
+    { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 1, "cost": null },
+    { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 3, "cost": 0, "once": true },
+    { "id": "dog-3", "name": "Daisy", "model": "pip", "coat": "blonde-white", "meadow": 10, "cost": 600 },
+    { "id": "dog-4", "name": "Cooper", "model": "buddy", "coat": "brown-white", "meadow": 15, "cost": 800 },
+    { "id": "dog-5", "name": "Ruby", "model": "pip", "coat": "auburn-white", "meadow": 20, "cost": 1000 },
+    { "id": "dog-6", "name": "Scout", "model": "buddy", "coat": "black-blonde", "meadow": 25, "cost": 1200 },
+    { "id": "dog-7", "name": "Clover", "model": "pip", "coat": "black-brown-white", "meadow": 30, "cost": 1400 },
+    { "id": "dog-8", "name": "Maple", "model": "buddy", "coat": "blonde-auburn", "meadow": 35, "cost": 1600 },
+    { "id": "dog-9", "name": "Rusty", "model": "pip", "coat": "brown-auburn", "meadow": 40, "cost": 1800 },
+    { "id": "dog-10", "name": "Rosie", "model": "buddy", "coat": "black-auburn-white", "meadow": 45, "cost": 2000 }
   ]
 }

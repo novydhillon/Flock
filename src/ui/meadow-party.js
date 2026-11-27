@@ -80,9 +80,10 @@ export function mountMeadowParty(root, { profile, onConfirm, onCancel, mountPrev
     const open = position <= draft.kennel.openedSlots;
     const card = action('party-position', '', () => {
       if (!open) {
-        if (!buyKennelSlot(draft, position).ok) return;
+        const result = buyKennelSlot(draft, position);
+        if (!result.ok) return;
         pickPosition(position);
-        notice.textContent = position === 2 ? 'Buddy joined your party.' : `${role} opened.`;
+        notice.textContent = result.grantedBuddy ? 'Buddy joined your party.' : `${role} opened.`;
       } else pickPosition(position);
     });
     card.dataset.partyPosition = String(position);
@@ -102,7 +103,7 @@ export function mountMeadowParty(root, { profile, onConfirm, onCancel, mountPrev
       }[state.reason];
       card.append(element('span', '', `Open for ${bolts(state.cost)}`));
       if (reason) card.append(element('small', '', reason));
-      if (position === 2) card.append(element('small', '', 'Includes Buddy'));
+      if (state.grantsBuddy) card.append(element('small', '', 'Includes Buddy'));
     }
     return card;
   }

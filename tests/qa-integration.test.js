@@ -154,7 +154,8 @@ test('QA kennel and party use the tested meadow and test wallet without charging
     assert.equal(buddy.disabled, false);
     buddy.click();
     doc.querySelector('.party-actions .primary').click();
-    assert.equal(ui.app.state().level.helpers[0].id, 'buddy');
+    assert.equal(ui.app.state().level.dog.id, 'buddy');
+    assert.deepEqual(ui.app.state().level.helpers, []);
     assert.equal(ui.app.state().profile.points, 80);
     click('wallet');
     doc.querySelector('[data-kennel-train="speed"]').click();

@@ -828,7 +828,7 @@ export async function initializeMeadow(loading) {
   await paint();
   requireWebGL2($('world'));
   renderer = new MeadowRenderer($('world'));
-  loading.stage('Preparing Pip and the flock...');
+  loading.stage('Preparing the dogs and flock...');
   await paint();
   setupShowcase();
   updateWallet();

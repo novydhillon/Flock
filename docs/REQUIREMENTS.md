@@ -8,7 +8,7 @@ The migration covers the [F-ASSET-001 asset inventory and replacement contract](
 
 ## Dog kennel and meadow lineups — 26 November 2026
 
-This is the next P1 gameplay initiative. The [kennel stories](ISSUES.md#f-kennel-001--buy-meadow-slots-and-earn-buddy) are open for planning. The kennel replaces the Workshop marketplace. The campaign still awards bolts through its existing reward ledger, and players spend them on slot openings, adoptions and individual dog upgrades.
+This is the next P1 gameplay initiative. The [kennel stories](ISSUES.md#f-kennel-001--start-with-buddy-and-buy-meadow-slots) are open for planning. The kennel replaces the Workshop marketplace. The campaign still awards bolts through its existing reward ledger, and players spend them on slot openings, adoptions and individual dog upgrades.
 
 ### Slot progression
 
@@ -16,8 +16,8 @@ All numbers below are public meadow numbers. Reaching a milestone makes the slot
 
 | Slot | Available from | Control | How the player fills it |
 | --- | --- | --- | --- |
-| 1 | Meadow 1 | Player | Already open with Pip. Assign another owned dog from the kennel when desired. |
-| 2 | Meadow 20, the existing first Buddy milestone | CPU | Buy the slot with bolts and receive Buddy as the reward. Proposed default is to assign him automatically. |
+| 1 | Meadow 1 | Player | Already open with Buddy. Assign another owned dog from the kennel when desired. |
+| 2 | Meadow 20 | CPU | Buy the slot with bolts. Existing Pip-start saves without Buddy still receive Buddy with this purchase. |
 | 3 | Meadow 40 | CPU | Buy the slot with bolts and assign an owned dog. |
 | 4 | Meadow 60 | CPU | Buy the slot with bolts and assign an owned dog. |
 
@@ -27,22 +27,22 @@ Players can own more dogs than they have opened slots. Proposed defaults are seq
 
 ### Owned dogs and training
 
-The initial roster has ten dog entries. Pip is the starter, Buddy is the slot-2 reward, and entries 3–10 use Pip and Buddy models with distinct combinations of white, blonde, brown, black and auburn. Each entry gets a matching 2D portrait. A bolt adoption creates a separate owned dog with its own name, coat, upgrades and assignment. Players can own multiple copies of each dog. The placeholder roster precedes the distinct breeds in [F-DOG-002](ISSUES.md#f-dog-002--ten-additional-dog-breeds-and-progression).
+The initial roster has ten dog entries. Buddy is the starter, Pip is a free one-time adoption at meadow 3, and entries 3–10 use Pip and Buddy models with distinct combinations of white, blonde, brown, black and auburn. Each entry gets a matching 2D portrait. A bolt adoption creates a separate owned dog with its own name, coat, upgrades and assignment. Players can own multiple copies of each paid catalog dog. The placeholder roster precedes the distinct breeds in [F-DOG-002](ISSUES.md#f-dog-002--ten-additional-dog-breeds-and-progression).
 
-The eight additional entries become adoptable one at a time every five meadows after the meadow-20 slot milestone. The first paid entry costs 600 bolts, the current first-tier Buddy price. Each successive entry costs 200 bolts more. Prices are per adoption of that catalog entry. The Slot 2 purchase and Buddy grant open this sequence. If the player buys Slot 2 later, every adoption milestone already reached becomes available at that point. Coats in the table are proposed defaults for the preview and portraits.
+The eight additional entries become adoptable at meadow 10 and one at a time every five meadows through meadow 45. The first paid entry costs 600 bolts, the existing price for the first paid dog. Each successive entry costs 200 bolts more. Prices are per adoption of that catalog entry. Adoption gates follow the highest unlocked campaign meadow independently of slot purchases. Coats in the table are proposed defaults for the preview and portraits.
 
 | Entry | Base model | Default coat | First availability | Adoption cost |
 | --- | --- | --- | --- | ---: |
-| 1 | Pip | Existing Pip coat | Meadow 1 starter | Starter included |
-| 2 | Buddy | Existing Buddy coat | Slot 2 purchase, available from meadow 20 | First Buddy included with slot purchase |
-| 3 | Pip | Blonde and white | Meadow 25 | 600 bolts |
-| 4 | Buddy | Brown and white | Meadow 30 | 800 bolts |
-| 5 | Pip | Auburn and white | Meadow 35 | 1,000 bolts |
-| 6 | Buddy | Black and blonde | Meadow 40 | 1,200 bolts |
-| 7 | Pip | Black, brown and white | Meadow 45 | 1,400 bolts |
-| 8 | Buddy | Blonde and auburn | Meadow 50 | 1,600 bolts |
-| 9 | Pip | Brown and auburn | Meadow 55 | 1,800 bolts |
-| 10 | Buddy | Black, auburn and white | Meadow 60 | 2,000 bolts |
+| 1 | Buddy | Existing Buddy coat | Meadow 1 starter | Starter included |
+| 2 | Pip | Existing Pip coat | Meadow 3 | Free, once |
+| 3 | Pip | Blonde and white | Meadow 10 | 600 bolts |
+| 4 | Buddy | Brown and white | Meadow 15 | 800 bolts |
+| 5 | Pip | Auburn and white | Meadow 20 | 1,000 bolts |
+| 6 | Buddy | Black and blonde | Meadow 25 | 1,200 bolts |
+| 7 | Pip | Black, brown and white | Meadow 30 | 1,400 bolts |
+| 8 | Buddy | Blonde and auburn | Meadow 35 | 1,600 bolts |
+| 9 | Pip | Brown and auburn | Meadow 40 | 1,800 bolts |
+| 10 | Buddy | Black, auburn and white | Meadow 45 | 2,000 bolts |
 
 | Attribute | In-meadow effect | Proposed icon |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ Apply trained attributes to the actual dog assigned to each slot. Player input, 
 ### Kennel screen
 
 - Open the kennel from pause in place of the Workshop. Route any existing Workshop entry, including the end-of-meadow reward screen, to the kennel and return players to the screen they came from.
-- Dock a single, horizontally scrolling row of square 2D dog portraits at the bottom center. Default to Pip on first entry. Keep each portrait in its coat colors and mark unavailable dogs with a lock. Name each dog. Give each owned copy its own roster card so a single selection controls the preview and training.
+- Dock a single, horizontally scrolling row of square 2D dog portraits at the bottom center. Default to the dog assigned to Slot 1 on entry. Keep each portrait in its coat colors and mark unavailable dogs with a lock. Name each dog. Give each owned copy its own roster card so a single selection controls the preview and training.
 - Above the row, show the selected dog from head height in a higher-detail 3D preview. Use the same camera and model detail in the meadow crew preview. Reuse the in-game random idle poses and hold timing. The dog occasionally play-bows toward the player as it would toward nearby livestock. When it turns around, its head finishes facing the player and its body settles within 30° left or right. Show a playful, happy demeanor.
 - On a change of selection, the outgoing dog runs offscreen right and the incoming dog runs in from the left. Rapid selection changes must settle on the latest selection with one visible dog. Keep the preview separate from paused meadow actors and timing.
 - Stack the four attribute icons on the opposite side of the preview. Use dog illustrations for speed, agility, influence and bark. Show three paws per stat, green for earned upgrades and grey for unearned upgrades. Show the next bolt price, grey out blocked purchases, and hide the price when all paws are green. On phones, reserve space for the dog, portrait strip, controls and safe areas in portrait and landscape.
@@ -67,7 +67,7 @@ Apply trained attributes to the actual dog assigned to each slot. Player input, 
 | Order | Work | Exit criteria |
 | --- | --- | --- |
 | 1 | Complete the economy and saved lineup rules. See F-KENNEL-001, F-KENNEL-002 and F-KENNEL-004. | Validate the adoption ladder and tune the remaining bolt prices against attainable earnings. |
-| 2 | Wire the gameplay loop in stages. Prove Pip, then the Buddy reward and two-slot lineup, then three and four actors. See F-KENNEL-003. | Each slot uses its assigned dog and control source. Personal upgrades, helper behavior and pause/restart work on the relevant meadow gates. |
+| 2 | Wire the gameplay loop in stages. Prove Buddy as the starter, Pip adoption, and two-, three- and four-slot lineups. See F-KENNEL-003. | Each slot uses its assigned dog and control source. Personal upgrades, helper behavior and pause/restart work on the relevant meadow gates. |
 | 3 | Deliver the kennel UI and art. Build selection, adoption, assignment, stats and previews. Cut over every Workshop entry and preserve campaign progress under the new rules. See F-KENNEL-005, F-KENNEL-006 and F-KENNEL-007. | Players can reach the core actions, with readable price, ownership and lock states. |
 | 4 | Validate the full loop in Dev once implementation is authorized. See F-KENNEL-008. | Review gameplay, economy, saved progress, mobile presentation and performance. Record evidence for playtest and sign-off. |
 
