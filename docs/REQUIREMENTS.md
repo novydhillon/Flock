@@ -4,7 +4,7 @@
 
 All 3D models and authored animation data must come from versioned, replaceable files. Assets should have editable sources and validated runtime outputs for both Dev and production. Compatible asset swaps require only replacing files and rebuilding. Gameplay still controls when motions play, how actors respond to input and where generated scenery appears. The migration must preserve visual, gameplay and mobile performance budgets.
 
-[F-ASSET-001](ISSUES.md#f-asset-001--inventory-3d-assets-and-define-the-replacement-contract), F-ASSET-002, F-ASSET-003, F-ASSET-004 and F-ASSET-005 cover the inventory, build pipeline, actor migration, scenery migration and final verification.
+The migration covers the [F-ASSET-001 asset inventory and replacement contract](ISSUES.md#f-asset-001--inventory-3d-assets-and-define-the-replacement-contract), [F-ASSET-002 build pipeline](ISSUES.md#f-asset-002--build-and-validate-3d-assets-for-dev-and-production), [F-ASSET-003 animated actors](ISSUES.md#f-asset-003--move-animated-actors-and-their-clips-into-replaceable-files), [F-ASSET-004 environment assets](ISSUES.md#f-asset-004--move-scenery-props-and-effects-into-replaceable-files) and [F-ASSET-005 cutover verification](ISSUES.md#f-asset-005--verify-asset-swaps-and-retire-embedded-3d-content).
 
 ## Dog kennel and meadow lineups — 26 November 2026
 

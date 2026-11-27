@@ -171,7 +171,7 @@ As a player, I want the kennel and lineup to work consistently through the campa
 
 **Accept when:**
 
-- Inventory every 3D model, material dependency and authored animation across gameplay, previews, wildlife, scenery and effects. Map each to a stable asset ID, current source, consumers and migration ticket.
+- Inventory every 3D model, material dependency and animation across gameplay, previews, wildlife, scenery and effects, including pose curves, timing and templates embedded in procedural animation code. Map each to a stable asset ID, current source, consumers and migration ticket.
 - Define editable source and runtime formats, units, axes, pivots, sockets, rig and clip names, level-of-detail rules, variants, and licensing metadata. Specify which meshes are built from replaceable source data, including procedural terrain and water templates.
 - Document the contract between presentation assets and simulation, including collision, navigation, attachment points and animation events.
 
@@ -196,7 +196,7 @@ As a player, I want the kennel and lineup to work consistently through the campa
 **Accept when:**
 
 - Migrate Pip, Buddy, kennel variants, livestock, birds, butterflies and every other animated actor from the inventory. Store editable rigs, meshes and authored clips as versioned assets, with gameplay and preview detail levels where needed.
-- Connect clips to current gait, turn, idle, bark, grazing and wildlife states. Preserve blending, foot contact, event timing, coat variants, preview choreography and reduced-motion behavior. Drive animation state and runtime adjustments from existing gameplay logic.
+- Connect clips to current gait, turn, idle, bark, grazing and wildlife states. Preserve blending, foot contact, event timing, coat variants, preview choreography and reduced-motion behavior. Move editable pose curves, timing and motion templates into asset files. Keep state selection and runtime adjustments such as foot placement in gameplay and animation logic.
 - Verify that changing a compatible model or clip requires only an asset replacement and a rebuild.
 
 ### F-ASSET-004 — Move scenery, props and effects into replaceable files
@@ -220,7 +220,7 @@ As a player, I want the kennel and lineup to work consistently through the campa
 **Accept when:**
 
 - Account for every entry in the inventory. Demonstrate an independent model swap, animation swap and scenery swap from editable files through Dev and release builds.
-- Check appearance, animation timing, collision and gameplay on representative meadows and physical phones. Compare frame pacing, memory, startup, draw calls and download size against the baseline.
+- Before cutover, record the baseline revision, representative devices and meadows, and permitted changes in frame pacing, memory, startup, draw calls and download size. Verify the replacement build meets those limits and preserves appearance, animation timing, collisions and gameplay on those devices.
 - Remove superseded in-code model and animation definitions after parity checks. Verify that a missing or invalid dependency fails the build with a useful error.
 
 ### F-DOG-002 — Ten additional dog breeds and progression
