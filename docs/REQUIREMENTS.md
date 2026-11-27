@@ -1,5 +1,11 @@
 # Flock product requirements
 
+## Replaceable 3D assets and animation — 27 November 2026
+
+All 3D models and authored animation data must come from versioned, replaceable files. Assets should have editable sources and validated runtime outputs for both Dev and production. Compatible asset swaps require only replacing files and rebuilding. Gameplay still controls when motions play, how actors respond to input and where generated scenery appears. The migration must preserve visual, gameplay and mobile performance budgets.
+
+The migration covers the [F-ASSET-001 asset inventory and replacement contract](ISSUES.md#f-asset-001--inventory-3d-assets-and-define-the-replacement-contract), [F-ASSET-002 build pipeline](ISSUES.md#f-asset-002--build-and-validate-3d-assets-for-dev-and-production), [F-ASSET-003 animated actors](ISSUES.md#f-asset-003--move-animated-actors-and-their-clips-into-replaceable-files), [F-ASSET-004 environment assets](ISSUES.md#f-asset-004--move-scenery-props-and-effects-into-replaceable-files) and [F-ASSET-005 cutover verification](ISSUES.md#f-asset-005--verify-asset-swaps-and-retire-embedded-3d-content).
+
 ## Dog kennel and meadow lineups — 26 November 2026
 
 This is the next P1 gameplay initiative. The [kennel stories](ISSUES.md#f-kennel-001--buy-meadow-slots-and-earn-buddy) are open for planning. The kennel replaces the Workshop marketplace. The campaign still awards bolts through its existing reward ledger, and players spend them on slot openings, adoptions and individual dog upgrades.
@@ -17,7 +23,7 @@ All numbers below are public meadow numbers. Reaching a milestone makes the slot
 
 The highest unlocked campaign meadow determines purchase eligibility. Reaching the threshold, paying for a slot, owning a dog and assigning a dog are distinct steps. Every opened slot can be used in an earlier meadow replay, and any owned dog can be assigned to an opened slot regardless of when it became adoptable. A player with four opened slots can take a full lineup into meadow 1. The preview shows the lineup that will play.
 
-Players can own more dogs than they have opened slots. Proposed defaults are sequential slot purchases, an optional empty CPU slot, and one assignment per owned dog. Multiple copies of the same dog can play together. The proposed timing for lineup swaps is at meadow start or restart.
+Players can own more dogs than they have opened slots. Proposed defaults are sequential slot purchases, an optional empty CPU slot, and one assignment per owned dog. Multiple copies of the same dog can play together. Every meadow entry, including restart and replay, opens team selection. Choose Player or a numbered Partner, then choose an owned dog by portrait. Enter meadow commits the displayed team and any position purchases. Cancel discards the draft. The animated 3D crew preview mirrors the staged assignments and uses each dog’s model and coat. The kennel handles adoption and individual training.
 
 ### Owned dogs and training
 
@@ -50,10 +56,10 @@ Apply trained attributes to the actual dog assigned to each slot. Player input, 
 ### Kennel screen
 
 - Open the kennel from pause in place of the Workshop. Route any existing Workshop entry, including the end-of-meadow reward screen, to the kennel and return players to the screen they came from.
-- Dock a single, horizontally scrolling row of square 2D dog portraits at the bottom center. Default to Pip on first entry. Gray out dogs that are currently unavailable and show the reason when inspected. Make ownership, adoption availability and lineup assignment readable when multiple copies share a portrait.
-- Above the row, show the selected dog in a large 3D preview. Reuse the in-game random idle poses and hold timing. The dog occasionally play-bows toward the player as it would toward nearby livestock. When it turns around, its head finishes facing the player and its body settles within 30° left or right. Show a playful, happy demeanor.
+- Dock a single, horizontally scrolling row of square 2D dog portraits at the bottom center. Default to Pip on first entry. Keep each portrait in its coat colors and mark unavailable dogs with a lock. Name each dog. Give each owned copy its own roster card so a single selection controls the preview and training.
+- Above the row, show the selected dog from head height in a higher-detail 3D preview. Use the same camera and model detail in the meadow crew preview. Reuse the in-game random idle poses and hold timing. The dog occasionally play-bows toward the player as it would toward nearby livestock. When it turns around, its head finishes facing the player and its body settles within 30° left or right. Show a playful, happy demeanor.
 - On a change of selection, the outgoing dog runs offscreen right and the incoming dog runs in from the left. Rapid selection changes must settle on the latest selection with one visible dog. Keep the preview separate from paused meadow actors and timing.
-- Stack the four attribute icons on the opposite side of the preview. Place a green plus beside each available upgrade and the bolt cost under its icon. Show gated, unaffordable and maxed-out states clearly. On phones, reserve space for the dog, portrait strip, controls and safe areas in portrait and landscape.
+- Stack the four attribute icons on the opposite side of the preview. Use dog illustrations for speed, agility, influence and bark. Show three paws per stat, green for earned upgrades and grey for unearned upgrades. Show the next bolt price, grey out blocked purchases, and hide the price when all paws are green. On phones, reserve space for the dog, portrait strip, controls and safe areas in portrait and landscape.
 - Replace all marketplace items with kennel functions. Remove Flock harmony and its purchased effect. Keep ordinary baseline flock behavior. Handling older Scout drone and other Workshop purchases is a deferred decision.
 
 ### Delivery plan

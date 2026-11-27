@@ -1,5 +1,11 @@
 # Gameplay and progression
 
+## Kennel progression foundation — 26 November 2026
+
+On the kennel feature branch, the campaign profile stores the kennel's owned dog instances, count of opened slots and four lineup assignments. The profile validator supplies Pip and Slot 1 to older profiles without a kennel record. The existing campaign reward ledger and Workshop purchases retain their current load and reward behavior. Legacy purchase conversion remains deferred.
+
+Slot eligibility uses the highest unlocked campaign meadow and slots are purchased in sequence. A successful Slot 2 purchase grants and assigns Buddy in the same profile update. The additional catalog entries become adoptable from meadow 25 through 60 after Slot 2 opens, and an adoption spends the configured price and creates a separate dog instance. Assignments consult ownership and opened slots, so they require no replay-meadow check. The feature-branch kennel uses provisional slot prices of 600, 850 and 1,200 bolts, based on the old Buddy upgrade costs. The pause and results menus open the kennel and return to the same screen. Successful changes save to the current campaign profile. The Workshop remains accessible while actor spawning and training still use the current gameplay path.
+
 ## P1 herd and bark contracts — 24 October 2026
 
 `herd-behavior.js` derives confidence, curiosity and following traits from a separate seed hash; it does not consume world or wander randomness. Small familiar-neighbor weights remain limited to visible local members of the same flock, with the accepted total cohesion cap and front-motion protection. Cows retain slower response and slightly larger personal space. Existing turn caps, collision, bridge commitment, wandering opportunities and Buddy ownership remain authoritative.

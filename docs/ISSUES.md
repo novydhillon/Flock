@@ -1,5 +1,9 @@
 # FLOCK — Active issue tracker
 
+## Kennel interface and dog preview acceptance — 27 November 2026
+
+The approved kennel interface and dog previews are archived under [F-KENNEL-005 and F-KENNEL-006](ISSUES_CLOSED.md#kennel-interface-and-dog-preview-acceptance--27-november-2026). The remaining campaign, economy and device validation criteria stay in the active tracker.
+
 ## Tracker closures — 18 November 2026
 
 Novy requested closure for [F-TERRAIN-BANK-001](ISSUES_CLOSED.md#f-terrain-bank-001--compact-steep-riverbanks-and-slope-based-bank-textures) and [F-SHADOW-001](ISSUES_CLOSED.md#f-shadow-001--baked-static-environment-shadows). Both implementations previously merged to main.
@@ -24,14 +28,17 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-KENNEL-001 | P1 | Progression/economy | Buy meadow slots and earn Buddy | Open | Existing Buddy gate and bolt ledger |
-| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | Open | F-DOG-001; F-KENNEL-001 |
-| F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | Open | F-KENNEL-001; F-KENNEL-002; F-046 |
+| F-KENNEL-001 | P1 | Progression/economy | Buy meadow slots and earn Buddy | In progress | Existing Buddy gate and bolt ledger |
+| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | In progress | F-DOG-001; F-KENNEL-001 |
+| F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | In progress | F-KENNEL-001; F-KENNEL-002; F-046 |
 | F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
-| F-KENNEL-005 | P1 | UI/progression | Manage the kennel from pause and rewards | Open | F-KENNEL-001–004 |
-| F-KENNEL-006 | P1 | Art/animation | Animate and illustrate the ten-entry roster | Open | F-DOG-001; F-KENNEL-002; F-KENNEL-005 |
 | F-KENNEL-007 | P1 | Persistence/gameplay | Preserve campaign progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
 | F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
+| F-ASSET-001 | P2 | Production/asset inventory | Inventory 3D assets and define the replacement contract | Open | Current rendering and content |
+| F-ASSET-002 | P2 | Tooling/CI | Build and validate 3D assets for Dev and production | Open | F-ASSET-001 |
+| F-ASSET-003 | P2 | Character art/animation | Move animated actors and their clips into replaceable files | Open | F-ASSET-001; F-ASSET-002 |
+| F-ASSET-004 | P2 | Environment art/animation | Move scenery, props and effects into replaceable files | Open | F-ASSET-001; F-ASSET-002 |
+| F-ASSET-005 | P2 | Validation/cutover | Verify asset swaps and retire embedded 3D content | Open | F-ASSET-003; F-ASSET-004 |
 | F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-KENNEL-006; existing progression |
 | F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
 | F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
@@ -60,13 +67,13 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
-All eight kennel stories are planning-only and unclaimed. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
+F-KENNEL-001 to F-KENNEL-003 track the remaining slot, adoption and lineup work. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
 
 ### F-KENNEL-001 — Buy meadow slots and earn Buddy
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.
 
@@ -79,9 +86,9 @@ As a player, I want to grow my lineup at campaign milestones so I can take more 
 
 ### F-KENNEL-002 — Adopt and manage individual dogs
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.
 
@@ -95,9 +102,9 @@ As a collector, I want to adopt and identify individual dogs so I can build a ke
 
 ### F-KENNEL-003 — Assign and play a lineup of up to four dogs
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a player, I want to choose which dogs work with me so I can lead with my favorite and bring helpers as slots open.
 
@@ -107,6 +114,8 @@ As a player, I want to choose which dogs work with me so I can lead with my favo
 - Purchased and assigned slots 2–4 independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or unopened slots spawn no actor.
 - Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
 - An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
+
+**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The original preview saved selections from pause and results. The revised flow stages assignments at meadow entry, where players select a role and then an owned dog by portrait. Simulation integration is pending.
 
 ### F-KENNEL-004 — Train speed, agility, influence and bark
 
@@ -122,35 +131,6 @@ As a player, I want to train a particular dog so its strengths carry into the ro
 - At comparable movement speeds, each agility tier reduces the turn radius. A standing movement turn requires travel at every tier. Verify the same rules for the player-controlled dog and CPU dogs.
 - Influence preserves Friendly signal's three levels, costs and range increases. Bark intensity applies only to that dog's bark and follows the agreed pressure and charge rules.
 - One successful purchase charges the listed cost and advances exactly one attribute tier on the selected owned dog. Gated and maxed attributes, insufficient bolts and repeat input cannot create extra tiers or charges.
-
-### F-KENNEL-005 — Manage the kennel from pause and rewards
-
-**Status:** Open. Owner unassigned.
-
-**Branch:** Unassigned
-
-As a player, I want to browse and manage my dogs when I pause so I can prepare a lineup and spend bolts in one place.
-
-**Accept when:**
-
-- The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.
-- The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
-- The opposite side from the preview shows stacked running-dog, turning-dog, signal-rings and barking-dog icons. Each available upgrade has a green plus next to the icon and the bolt price below it. Locked, unaffordable and maximum-tier states remain legible.
-- The screen supports adoption, selecting and managing an owned dog, buying an eligible slot, and assigning or replacing a lineup dog. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
-
-### F-KENNEL-006 — Animate and illustrate the ten-entry roster
-
-**Status:** Open. Owner unassigned.
-
-**Branch:** Unassigned
-
-As a player, I want to see each dog's coat and personality before I adopt it or take it into a meadow.
-
-**Accept when:**
-
-- Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.
-- The larger preview above the strip uses the selected dog's coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.
-- A turnaround ends with the dog's head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.
 
 ### F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades
 
@@ -183,6 +163,66 @@ As a player, I want the kennel and lineup to work consistently through the campa
 - With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.
 - Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.
 
+### F-ASSET-001 — Inventory 3D assets and define the replacement contract
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Inventory every 3D model, material dependency and animation across gameplay, previews, wildlife, scenery and effects, including pose curves, timing and templates embedded in procedural animation code. Map each to a stable asset ID, current source, consumers and migration ticket.
+- Define editable source and runtime formats, units, axes, pivots, sockets, rig and clip names, level-of-detail rules, variants, and licensing metadata. Specify which meshes are built from replaceable source data, including procedural terrain and water templates.
+- Document the contract between presentation assets and simulation, including collision, navigation, attachment points and animation events.
+
+### F-ASSET-002 — Build and validate 3D assets for Dev and production
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Provide a repeatable local and CI command that converts versioned editable sources into runtime assets and a manifest. Evaluate Blender and glTF/GLB and record the chosen formats.
+- Pin tool versions and validate IDs, dependencies, licenses, material references, required clips, pivots, sockets and mobile size budgets. Report errors against the editable source.
+- Verify clean and incremental builds, content-hashed outputs and correct packaging under both Dev and production paths. Document how to swap an asset, preview the result and roll back.
+
+### F-ASSET-003 — Move animated actors and their clips into replaceable files
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Migrate Pip, Buddy, kennel variants, livestock, birds, butterflies and every other animated actor from the inventory. Store editable rigs, meshes and authored clips as versioned assets, with gameplay and preview detail levels where needed.
+- Connect clips to current gait, turn, idle, bark, grazing and wildlife states. Preserve blending, foot contact, event timing, coat variants, preview choreography and reduced-motion behavior. Move editable pose curves, timing and motion templates into asset files. Keep state selection and runtime adjustments such as foot placement in gameplay and animation logic.
+- Verify that changing a compatible model or clip requires only an asset replacement and a rebuild.
+
+### F-ASSET-004 — Move scenery, props and effects into replaceable files
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Migrate all remaining 3D content from the inventory, including vegetation, rocks, bridges, fences, gates, buildings, terrain and water render inputs, and reusable effect meshes and animation data.
+- Source authored geometry and motion from files or file-backed templates while retaining seeded placement, terrain conformity, weather response, collisions and navigation. Preserve the existing baked and dynamic shadow behavior.
+- Verify that replacing a compatible scenery asset or moving prop requires only an asset replacement and a rebuild.
+
+### F-ASSET-005 — Verify asset swaps and retire embedded 3D content
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Account for every entry in the inventory. Demonstrate an independent model swap, animation swap and scenery swap from editable files through Dev and release builds.
+- Before cutover, record the baseline revision, representative devices and meadows, and permitted changes in frame pacing, memory, startup, draw calls and download size. Verify the replacement build meets those limits and preserves appearance, animation timing, collisions and gameplay on those devices.
+- Remove superseded in-code model and animation definitions after parity checks. Verify that a missing or invalid dependency fails the build with a useful error.
+
 ### F-DOG-002 — Ten additional dog breeds and progression
 
 **Status:** Open. Owner: Unassigned.
@@ -191,7 +231,7 @@ As a player, I want the kennel and lineup to work consistently through the campa
 
 **Request — 11 November 2026:** Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts. Breeds should vary in size, including small breeds such as a pug and a Chihuahua through to a Newfoundland. Include both pug and Chihuahua in the ten additional breeds.
 
-**26 November 2026:** Distinct breeds follow the placeholder roster in [F-KENNEL-006](#f-kennel-006--animate-and-illustrate-the-ten-entry-roster). Keep the later breed work scoped separately.
+**26 November 2026:** Distinct breeds follow the placeholder roster in [F-KENNEL-006](ISSUES_CLOSED.md#f-kennel-006--animate-and-illustrate-the-ten-entry-roster). Keep the later breed work scoped separately.
 
 **Accept when:** Ten additional recognizable breeds offer distinguishable movement speeds and capabilities inspired by their breeds, and support upgrades and boosts. Define breed selection, unlocks, costs, upgrade and boost behavior, balancing and persistence before implementation; these details are not yet specified. Preserve existing saves and progression with an appropriate migration if needed. Verify capabilities, balance, controls and mobile performance across breeds.
 

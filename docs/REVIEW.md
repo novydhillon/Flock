@@ -1,5 +1,9 @@
 # Documentation review record
 
+## Replaceable 3D asset tickets and kennel sign-off — 27 November 2026
+
+Implementation and independent review used the session model. Exact model and effort identifiers were unavailable. The independent review scored the plan 9.2/10. It identified three refinements: define the cutover baseline and performance limits, include embedded animation curves and timing, and link all five requirements to their tracker items. During follow-up, the documentation checker caught missing visible ticket IDs in the link labels. The labels now retain those IDs. The reviewer scored the corrected plan 9.7/10 with no remaining findings. Documentation checks and all 16 tracker tests passed. The asset migration and physical phone validation remain open.
+
 ## Kennel adoption prices and replay access — 26 November 2026
 
 The follow-up plan records eight adoption milestones at meadows 25–60 priced at 600–2,000 bolts, permanent replay access to owned dogs and opened slots, and the deferred decision on prior Workshop purchases. The earlier migration proposal below records the previous planning pass. The current requirements and acceptance criteria govern the planned cutover. Documentation and tracker checks cover the updated plan. Runtime behavior remains unimplemented.

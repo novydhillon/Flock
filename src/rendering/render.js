@@ -70,6 +70,16 @@ import {
   createMaterials,
 } from './models.js';
 
+const DOG_MODEL_SCALE = 1.35 * 0.75;
+function assignedDogMesh(actor, fallbackModel) {
+  const factory = (actor?.model ?? fallbackModel) === 'buddy' ? createBuddy : createPip;
+  const mesh = factory(actor?.coat);
+  mesh.scale.setScalar(DOG_MODEL_SCALE * mesh.userData.suggestedScale);
+  if (actor?.name) mesh.name = actor.name;
+  return mesh;
+}
+const helperKey = (helper) => (helper.id == null ? helper.type : `dog:${helper.id}`);
+
 function rng(seed) {
   let s = seed;
   return () => {
@@ -797,10 +807,9 @@ export class MeadowRenderer {
     this.terrain.updateMatrixWorld(true);
     this.viewShadows.maxHeight = Math.max(12, new THREE.Box3().setFromObject(this.terrain).max.y + 1);
     this.batchScenery();
-    this.dog = createPip();
-    this.dog.scale.setScalar(1.35 * 0.75);
+    this.dog = assignedDogMesh(level.dog, 'pip');
     this.dogGuides = new THREE.Group();
-    this.dogGuides.scale.copy(this.dog.scale);
+    this.dogGuides.scale.setScalar(DOG_MODEL_SCALE);
     this.actors.add(this.dog, this.dogGuides);
     const halo = new THREE.Mesh(
       new THREE.RingGeometry(0.82, 0.95, 40),
@@ -1344,11 +1353,11 @@ export class MeadowRenderer {
     });
     for (const m of this.helperMeshes.values()) m.visible = false;
     for (const h of level.helpers || []) {
-      let m = this.helperMeshes.get(h.type);
+      const key = helperKey(h);
+      let m = this.helperMeshes.get(key);
       if (!m) {
-        m = h.type === 'drone' ? createDrone() : createBuddy();
-        if (h.type === 'helper') m.scale.setScalar(this.dog.scale.x * (m.userData.suggestedScale ?? 0.82));
-        this.helperMeshes.set(h.type, m);
+        m = h.type === 'drone' ? createDrone() : assignedDogMesh(h, 'buddy');
+        this.helperMeshes.set(key, m);
         this.actors.add(m);
         m.traverse((object) => {
           if (object.isMesh && object.receiveShadow)
@@ -1377,7 +1386,7 @@ export class MeadowRenderer {
       movers: [
         { ...dog, id: 'pip' },
         ...level.animals.map((a) => ({ ...a, id: `flock-${a.id}` })),
-        ...(level.helpers || []).filter((h) => h.type !== 'drone').map((h) => ({ ...h, id: `helper-${h.type}` })),
+        ...(level.helpers || []).filter((h) => h.type !== 'drone').map((h) => ({ ...h, id: `helper-${helperKey(h)}` })),
       ],
       paused: dt <= 0,
     });
@@ -1428,7 +1437,8 @@ export class MeadowRenderer {
     const heading =
       actor.heading ?? (buddy ? (mesh.userData.motion?.previous?.heading ?? mesh.rotation.y) : Math.PI / 2);
     mesh.position.set(actor.x, height, actor.z);
-    const barking = this.barkEffects.some((effect) => effect.buddy === buddy);
+    const barkKey = buddy ? helperKey(actor) : 'player';
+    const barking = this.barkEffects.some((effect) => effect.actorKey === barkKey);
     let nearbyAnimals, bowHeading;
     if (dt > 0 && !barking && Math.hypot(actor.vx || 0, actor.vz || 0) < 0.12) {
       let nearest = DOG_SOCIAL_RADIUS ** 2;
@@ -1480,7 +1490,8 @@ export class MeadowRenderer {
     mesh.userData.ownedGeometry = mesh.userData.ownedMaterial = true;
     this.actors.add(mesh);
     this.barkEffects ??= [];
-    this.barkEffects.push({ mesh, origin, age: 0, buddy: Boolean(source) });
+    const actorKey = source ? helperKey({ type: 'helper', id: source.dogId ?? source.id }) : 'player';
+    this.barkEffects.push({ mesh, origin, age: 0, actorKey });
     // Cooldowns normally limit this to one; retain a hard cap for QA/repeated input.
     while (this.barkEffects.length > PRESENTATION.effects.maxBarkRings) {
       const old = this.barkEffects.shift();

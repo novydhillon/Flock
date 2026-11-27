@@ -1,5 +1,30 @@
 # Flock revision quality record
 
+## Head-height dog previews and compact kennel — 27 November 2026
+
+Branch `feat/kennel-progression`, base `b7fd3342116bbe9253942546f0bec08e1d006191`. Sol High handled preview modeling and independent review. Both previews use a near-horizontal standing-head-height view and denser dog geometry built only for the preview. The kennel uses one roster for named, full-color dog portraits and four icon-led training rows. Short portrait viewports use a two-column training grid. Independent review scored 9/10 after fixes to color, duplicate names, touch help and short-screen layout. All 111 focused tests passed. Physical iOS safe-area fit and rendering performance remain pending.
+
+
+## Animated dog and crew previews — 27 November 2026
+
+The kennel displays the selected catalog coat or owned dog. Meadow entry displays the staged crew. Both previews reuse the gameplay dog rigs and idle timing. The kennel runs the outgoing dog off right before the latest selection enters from the left. The preview releases its geometry and WebGL context when the modal closes. A renderer-double test covers animation, context loss and reduced motion. Sol High source review scored 9/10 after corrections to bow aim, coat selection and static pose. Rendered phone validation remains pending.
+
+## Meadow entry team selection — 27 November 2026
+
+Astra Medium implemented and reviewed the position-first picker, separate kennel and saved team integration. Blind source review scored 9/10 after fixes to keyboard bark focus, lead dog tutorial naming and per-model bark audio. DOM tests exercise staging, cancellation and individual training. Simulation checks cover four dogs replaying an early meadow. Physical phone playtesting remains pending.
+
+## F-KENNEL-005 — Kennel management preview — 26 November 2026
+
+Branch `feat/kennel-progression`, based on `0e1fa2ad9cb6c621aac5d4cd24eeae8a401873f9`. Session model and effort identifiers not recorded. The pause and results menus open the kennel preview. Players can browse ten placeholder portraits, buy slots, adopt named dogs with individual coats, and save or clear lineup assignments. Slot prices are provisional. Meadows continue to use the existing actor setup and the Workshop remains accessible.
+
+Blind review scored 8/10, then 9/10 after adding explicit assignment confirmation, labeling the incomplete gameplay hookup and provisional prices, and distinguishing Buddy's portrait. Rejected assignments return focus to their picker. Focused profile, UI, controller and source-layout checks and both compiled artifact guards passed. Mobile touch and rendered appearance remain unverified.
+
+## F-KENNEL-001–003 — Campaign profile foundation — 26 November 2026
+
+Branch `feat/kennel-progression`, based on main `c496dc82ce58a412d1e9da96f914e7b4fccd8ffd`. Session model and effort identifier not recorded. This slice covers the kennel catalog, slot and adoption transactions, per-dog identity, coat selection within a model, and lineup persistence. Slot prices are supplied explicitly until product pricing is set. The existing Workshop and game actors still use their current path.
+
+The independent reviewer reproduced a malformed-save case in which the slot gate could accept a purchase later discarded by validation. Slot queries, purchases, assignments and validation now share the same opened-slot normalization. Follow-up scored 9.2/10 with no material blocker. Twelve focused profile tests passed, including the exact adoption thresholds, rejected transactions, saved coats and ownership, and reward ledger retention. An independent headless check retained a meadow-60 dog and all four assignments through a meadow-1 reward and reload. The tracker suite passed all 16 tests. No device or live build was exercised for this slice.
+
 ## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
 
 On `feat/half-render-resolution`, based on `9c08372`, the WebGL canvas uses one half of the native viewport width and height. The existing 1024-square real-time sun shadow map and 4096-square baked map budget are preserved. Implementation model: GPT-6.2 Sol (session effort unavailable). The focused renderer regression exercises the 540 × 960 drawing buffer dimensions through a WebGL substitute and checks both map sizes. Formatting, documentation, release and development build checks passed. Physical phone rendering remains unverified.

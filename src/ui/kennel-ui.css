@@ -1,0 +1,466 @@
+.modal:has(.kennel-management) {
+  --kennel-top: max(10px, env(safe-area-inset-top));
+  --kennel-bottom: max(10px, env(safe-area-inset-bottom));
+  padding: var(--kennel-top) max(10px, env(safe-area-inset-right)) var(--kennel-bottom)
+    max(10px, env(safe-area-inset-left));
+  min-height: 0;
+}
+
+.modal-card:has(.kennel-management) {
+  box-sizing: border-box;
+  width: min(740px, 100%);
+  max-height: calc(100dvh - var(--kennel-top) - var(--kennel-bottom));
+  padding: 12px 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal-card:has(.kennel-management) h2 {
+  font-size: 27px;
+  margin: 4px 52px 4px 0;
+}
+
+.modal-card:has(.kennel-management) #kennel-back {
+  margin-top: 6px;
+  padding-block: 8px;
+}
+
+.kennel-management {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  text-align: left;
+}
+
+.kennel-management [hidden] {
+  display: none !important;
+}
+
+.kennel-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kennel-wallet,
+.kennel-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kennel-wallet {
+  font:
+    700 16px Outfit,
+    sans-serif;
+  color: #765328;
+}
+
+.kennel-wallet svg,
+.kennel-action svg {
+  width: 15px;
+  height: 15px;
+}
+
+.kennel-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.kennel-detail,
+.kennel-actions {
+  min-width: 0;
+  padding: 8px;
+  border-radius: 13px;
+  background: #eef0e1;
+}
+
+.kennel-actions:has(.kennel-training[hidden]):has(.kennel-adoption[hidden]):has(.kennel-adoption-state[hidden]) {
+  display: none;
+}
+
+.kennel-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kennel-heading {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font:
+    700 18px/1.15 Outfit,
+    sans-serif;
+}
+
+.kennel-management .kennel-adoption-state {
+  margin: 2px 0;
+  color: #52674c;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.kennel-adoption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.kennel-adoption input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 5px 9px;
+  border: 1px solid #b7c0aa;
+  border-radius: 9px;
+  background: #fbf8ed;
+  color: #294939;
+  font: inherit;
+  font-size: 16px;
+}
+
+.kennel-coats {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.kennel-coat {
+  flex: 0 0 44px;
+  min-height: 44px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  padding: 2px;
+}
+
+.kennel-coat[aria-pressed='true'] {
+  border-color: #537557;
+}
+
+.kennel-action {
+  justify-content: center;
+  padding: 4px 10px;
+  min-height: 44px;
+  min-width: 68px;
+  border-radius: 9px;
+  background: #42674e;
+  color: #fff8e9;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kennel-action:disabled {
+  opacity: 1;
+  background: #d7dbd4;
+  color: #4f5852;
+}
+
+.kennel-training-row,
+.kennel-training-info {
+  display: flex;
+  align-items: center;
+}
+
+.kennel-training-row {
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 1px 0;
+}
+
+.kennel-training-row + .kennel-training-row {
+  border-top: 1px solid #dce2cb;
+}
+
+.kennel-training {
+  position: relative;
+}
+
+.kennel-training-info {
+  min-height: 42px;
+  border-radius: 8px;
+  gap: clamp(3px, 1vw, 8px);
+  color: #34573f;
+}
+
+.kennel-stat-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 3px;
+}
+
+.kennel-paw {
+  width: 18px;
+  height: 18px;
+  color: #a5aba4;
+}
+
+.kennel-paw.is-trained {
+  color: #278348;
+}
+
+.kennel-catalog {
+  display: flex;
+  justify-content: safe center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 3px 2px 6px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y;
+}
+
+.kennel-catalog-card {
+  display: grid;
+  flex: 0 0 clamp(62px, 18vw, 82px);
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid #dce2cb;
+  border-radius: 10px;
+  background: #f4f3e7;
+  text-align: center;
+}
+
+.kennel-catalog-card[aria-pressed='true'] {
+  border-color: #537557;
+  background: #e4ebd6;
+  box-shadow: inset 0 0 0 1px #537557;
+}
+
+.kennel-catalog-card:focus-visible,
+.kennel-coat:focus-visible {
+  outline-offset: 0;
+}
+
+.kennel-card-label {
+  display: flex;
+  justify-content: safe center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.kennel-card-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kennel-card-number {
+  flex: 0 0 auto;
+  color: #49654a;
+}
+
+.kennel-management .kennel-stat-tip {
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 0;
+  margin: 0 0 4px;
+  padding: 6px 9px;
+  border: 1px solid #cbd7bf;
+  border-radius: 8px;
+  background: #fbf8ed;
+  color: #345238;
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.kennel-roster-badge {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  border-radius: 50%;
+  background: #fbf8ed;
+  color: #294939;
+}
+
+@media (max-width: 520px) {
+  .kennel-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .kennel-actions {
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 520px) and (max-height: 700px) {
+  .kennel-training {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 6px;
+  }
+
+  .kennel-training-row {
+    gap: 2px;
+    border: 0;
+  }
+
+  .kennel-training-row + .kennel-training-row {
+    border: 0;
+  }
+
+  .kennel-stat-icon {
+    width: 23px;
+    height: 23px;
+    margin-right: 1px;
+  }
+
+  .kennel-training-info {
+    gap: 2px;
+  }
+
+  .kennel-paw {
+    width: 11px;
+    height: 11px;
+  }
+
+  .kennel-training .kennel-action {
+    min-width: 44px;
+    padding-inline: 3px;
+    gap: 2px;
+    font-size: 11px;
+  }
+
+  .kennel-training .kennel-action svg {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+@media (max-height: 460px) and (orientation: landscape) {
+  .kennel-catalog-card {
+    flex-basis: 56px;
+  }
+}
+.kennel-portrait {
+  --fur: #332e2d;
+  --patch: #332e2d;
+  --muzzle: #f5eee0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  background: #dce7d0;
+  border-radius: 8px;
+}
+
+.kennel-portrait-featured {
+  flex: 0 0 74px;
+  border-radius: 12px;
+}
+
+.kennel-portrait[data-coat='buddy-original'] {
+  --fur: #332e2d;
+  --patch: #332e2d;
+  --muzzle: #f8e8ca;
+}
+.kennel-portrait[data-coat='brown-white'] {
+  --fur: #875840;
+  --patch: #875840;
+}
+
+.kennel-portrait[data-coat='blonde-white'] {
+  --fur: #b6894b;
+  --patch: #c7a465;
+}
+
+.kennel-portrait[data-coat='auburn-white'] {
+  --fur: #a7523b;
+  --patch: #9c4836;
+}
+
+.kennel-portrait[data-coat='black-blonde'] {
+  --muzzle: #c7a465;
+}
+
+.kennel-portrait[data-coat='black-brown-white'] {
+  --patch: #875840;
+}
+
+.kennel-portrait[data-coat='blonde-auburn'] {
+  --fur: #c7a465;
+  --patch: #b6894b;
+  --muzzle: #a7523b;
+}
+
+.kennel-portrait[data-coat='brown-auburn'] {
+  --fur: #875840;
+  --patch: #84553d;
+  --muzzle: #aa5a44;
+}
+
+.kennel-portrait[data-coat='black-auburn-white'] {
+  --patch: #a7523b;
+}
+
+.kennel-portrait-head {
+  position: relative;
+  isolation: isolate;
+  width: 57%;
+  height: 48%;
+  margin-top: 11%;
+  border-radius: 45% 45% 52% 52%;
+  background:
+    radial-gradient(circle at 26% 47%, #221e1c 0 8%, #eee0bd 9% 12%, transparent 13%),
+    radial-gradient(circle at 74% 47%, #221e1c 0 8%, #eee0bd 9% 12%, transparent 13%),
+    linear-gradient(102deg, var(--fur) 41%, var(--muzzle) 43% 56%, var(--patch) 58%);
+}
+
+.kennel-portrait-ear {
+  position: absolute;
+  z-index: -1;
+  top: -28%;
+  left: -2%;
+  width: 32%;
+  height: 60%;
+  border-radius: 60% 90% 26% 38%;
+  transform: rotate(-18deg);
+  background: var(--fur);
+}
+
+.kennel-portrait-ear + .kennel-portrait-ear {
+  left: auto;
+  right: -2%;
+  transform: scaleX(-1) rotate(-18deg);
+  background: var(--patch);
+}
+
+.kennel-portrait[data-model='buddy'] .kennel-portrait-ear {
+  top: -14%;
+  height: 58%;
+  border-radius: 58% 75% 38% 62%;
+}
+
+.kennel-portrait-muzzle {
+  position: absolute;
+  bottom: 2%;
+  left: 25%;
+  width: 50%;
+  height: 47%;
+  border-radius: 48% 48% 55% 55%;
+  background:
+    radial-gradient(ellipse at 50% 25%, #2b2423 0 19%, transparent 21%),
+    radial-gradient(ellipse at 50% 40%, transparent 37%, #3b2b28 40% 51%, transparent 55%) center 86% / 45% 40%
+      no-repeat,
+    var(--muzzle);
+}

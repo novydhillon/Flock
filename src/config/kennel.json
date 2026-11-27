@@ -1,0 +1,24 @@
+{
+  "_comment": "Public meadow gates and approved per-adoption bolt prices. Pip and Buddy grant rules are handled by the kennel.",
+  "slotMeadows": [1, 20, 40, 60],
+  "_slotBoltPricesComment": "Provisional playtest values based on the old Buddy tier prices.",
+  "slotBoltPrices": [0, 600, 850, 1200],
+  "training": {
+    "_comment": "Provisional gait caps (world units/second), agility turn-rate multipliers and agility economy for playtesting. Other costs, gates, signal and bark effects use the existing progression policy.",
+    "maxSpeed": [4.4, 6.2, 8.8, 12.3],
+    "turnMultiplier": [1, 1.2, 1.45, 1.75],
+    "agility": { "costs": [80, 130, 210], "unlockLevels": [3, 7, 12] }
+  },
+  "dogs": [
+    { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 1, "cost": null },
+    { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 20, "cost": null },
+    { "id": "dog-3", "name": "Daisy", "model": "pip", "coat": "blonde-white", "meadow": 25, "cost": 600 },
+    { "id": "dog-4", "name": "Cooper", "model": "buddy", "coat": "brown-white", "meadow": 30, "cost": 800 },
+    { "id": "dog-5", "name": "Ruby", "model": "pip", "coat": "auburn-white", "meadow": 35, "cost": 1000 },
+    { "id": "dog-6", "name": "Scout", "model": "buddy", "coat": "black-blonde", "meadow": 40, "cost": 1200 },
+    { "id": "dog-7", "name": "Clover", "model": "pip", "coat": "black-brown-white", "meadow": 45, "cost": 1400 },
+    { "id": "dog-8", "name": "Maple", "model": "buddy", "coat": "blonde-auburn", "meadow": 50, "cost": 1600 },
+    { "id": "dog-9", "name": "Rusty", "model": "pip", "coat": "brown-auburn", "meadow": 55, "cost": 1800 },
+    { "id": "dog-10", "name": "Rosie", "model": "buddy", "coat": "black-auburn-white", "meadow": 60, "cost": 2000 }
+  ]
+}
