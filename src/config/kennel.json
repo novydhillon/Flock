@@ -3,6 +3,12 @@
   "slotMeadows": [1, 20, 40, 60],
   "_slotBoltPricesComment": "Provisional playtest values based on the old Buddy tier prices.",
   "slotBoltPrices": [0, 600, 850, 1200],
+  "training": {
+    "_comment": "Provisional gait caps (world units/second), agility turn-rate multipliers and agility economy for playtesting. Other costs, gates, signal and bark effects use the existing progression policy.",
+    "maxSpeed": [4.4, 6.2, 8.8, 12.3],
+    "turnMultiplier": [1, 1.2, 1.45, 1.75],
+    "agility": { "costs": [80, 130, 210], "unlockLevels": [3, 7, 12] }
+  },
   "dogs": [
     { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 1, "cost": null },
     { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 20, "cost": null },

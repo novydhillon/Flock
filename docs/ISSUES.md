@@ -108,7 +108,7 @@ As a player, I want to choose which dogs work with me so I can lead with my favo
 - Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
 - An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
 
-**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The kennel now saves selections from the pause and results screens. Simulation integration is pending.
+**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The original preview saved selections from pause and results. The revised flow stages assignments at meadow entry, where players select a role and then an owned dog by portrait. Simulation integration is pending.
 
 ### F-KENNEL-004 — Train speed, agility, influence and bark
 
@@ -131,14 +131,14 @@ As a player, I want to train a particular dog so its strengths carry into the ro
 
 **Branch:** `feat/kennel-progression`
 
-As a player, I want to browse and manage my dogs when I pause so I can prepare a lineup and spend bolts in one place.
+As a player, I want to browse, adopt and train dogs in the kennel so I can bring them to meadow entry.
 
 **Accept when:**
 
 - The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.
 - The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
 - The opposite side from the preview shows stacked running-dog, turning-dog, signal-rings and barking-dog icons. Each available upgrade has a green plus next to the icon and the bolt price below it. Locked, unaffordable and maximum-tier states remain legible.
-- The screen supports adoption, selecting and managing an owned dog, buying an eligible slot, and assigning or replacing a lineup dog. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
+- The kennel supports adoption, selection and training of individual dogs. At meadow entry, choose a player or partner position and select an owned dog by portrait. The 3D crew reflects the staged lineup as it changes. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
 
 **26 November 2026:** The feature branch exposes roster browsing, slot purchases and lineup management from pause and results. Slot prices are provisional. Workshop cutover, training controls and final preview art are pending.
 

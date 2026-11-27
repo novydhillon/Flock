@@ -39,7 +39,7 @@
 }
 
 .kennel-detail,
-.kennel-lineup {
+.kennel-training {
   min-width: 0;
   padding: 14px;
   border-radius: 17px;
@@ -127,56 +127,41 @@
   grid-column: 1 / -1;
 }
 
-.kennel-slots,
-.kennel-owned {
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
+.kennel-training[hidden] {
+  display: none;
 }
-
-.kennel-owned {
-  max-height: 150px;
-  overflow-y: auto;
-  overflow-wrap: anywhere;
+.kennel-training .kennel-field {
+  margin-top: 10px;
 }
-
-.kennel-owned li {
-  display: grid;
-  gap: 1px;
-  padding: 7px 0;
-  border-top: 1px solid var(--kennel-edge);
-  font-size: 13px;
-}
-
-.kennel-owned li span,
-.kennel-slot-status {
+.kennel-management .kennel-owned-coat {
   color: #52674c;
+  margin: 3px 0 7px;
   font-size: 12px;
 }
-
-.kennel-slot {
+.kennel-training-row {
   display: grid;
-  grid-template-columns: minmax(75px, 1fr) minmax(0, 1.65fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  min-height: 58px;
   padding: 6px 0;
-  border-bottom: 1px solid var(--kennel-edge);
-  font-size: 13px;
+  border-top: 1px solid var(--kennel-edge);
 }
-
-.kennel-slot:last-child {
-  border-bottom: 0;
-}
-
-.kennel-slot-controls {
+.kennel-training-info {
   display: grid;
-  gap: 3px;
-  min-width: 0;
+  gap: 2px;
+  font-size: 12px;
 }
-
-.kennel-slot-status:empty {
-  display: none;
+.kennel-training-icon {
+  margin-right: 5px;
+}
+.kennel-training-row strong {
+  font-size: 14px;
+}
+.kennel-training-reason {
+  font-weight: 700;
+}
+.kennel-content:has(.kennel-training[hidden]) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .kennel-catalog {
@@ -251,8 +236,8 @@
 }
 
 .kennel-portrait[data-coat='buddy-original'] {
-  --fur: #5b3a2c;
-  --patch: #5b3a2c;
+  --fur: #332e2d;
+  --patch: #332e2d;
   --muzzle: #f8e8ca;
 }
 .kennel-portrait[data-coat='brown-white'] {
@@ -353,7 +338,7 @@
   }
 
   .kennel-detail,
-  .kennel-lineup {
+  .kennel-training {
     padding: 11px;
   }
 }

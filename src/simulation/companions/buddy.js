@@ -1,3 +1,4 @@
+import { createBarkState, stepBark, triggerBark } from '../bark.js';
 import { animalRadius } from '../animal-size.js';
 import {
   canOccupy,
@@ -128,7 +129,8 @@ function standby(level, buddy, state, dt) {
     !state.standby ||
     distance(state.standby, level.dog) > 7 ||
     distance(state.standby, level.dog) < 2 ||
-    !canOccupy(level, state.standby.x, state.standby.z, 0.6)
+    !canOccupy(level, state.standby.x, state.standby.z, 0.6) ||
+    (buddy.slot && level.helpers.some((other) => other.slot < buddy.slot && distance(other, state.standby) < 1.4))
   ) {
     const candidates = [];
     if (distance(buddy, level.dog) >= 2 && distance(buddy, level.dog) <= 7) candidates.push({ x: buddy.x, z: buddy.z });
@@ -139,6 +141,13 @@ function standby(level, buddy, state, dt) {
       }
     const usable = candidates.filter((p) => {
       if (!canOccupy(level, p.x, p.z, 0.68) || !hasClearGroundPath(level, level.dog, p, 0.6)) return false;
+      if (
+        buddy.slot &&
+        level.helpers.some(
+          (other) => other !== buddy && other.type === 'helper' && distance(other.herd?.standby || other, p) < 1.6,
+        )
+      )
+        return false;
       if (hasClearGroundPath(level, buddy, p, 0.6)) return true;
       // Probe a bounded chain of ordinary physical waypoints. Crossings may
       // need both bridge ends before the final resting point is visible.
@@ -271,7 +280,8 @@ function patrolContainment(level, buddy, state, hold, group, dt, task) {
   if (hold.watchUntil > level.time) {
     buddy.desired = { x: buddy.x, z: buddy.z };
     moveBuddy(level, buddy, buddy.desired, dt, 0);
-    buddy.heading = turnToward(buddy.heading ?? 0, Math.atan2(anchor.x - buddy.x, anchor.z - buddy.z), 1.4, dt);
+    if (!buddy.slot)
+      buddy.heading = turnToward(buddy.heading ?? 0, Math.atan2(anchor.x - buddy.x, anchor.z - buddy.z), 1.4, dt);
     buddy.containmentActivity = 'watch';
     return;
   }
@@ -329,13 +339,50 @@ function patrolContainment(level, buddy, state, hold, group, dt, task) {
  * All influence requires being behind the subject, in range, on clear ground. */
 export function updateBuddy(level, active, effects, dt, events) {
   if (!(dt > 0) || !effects.helper) return { forces: new Map(), memberIds: new Set() };
+  if (level.dog.trainingEffects) {
+    // Earlier slots claim their flock first. Additional dogs can work a second
+    // group or wait near the lead without stacking pressure on the same sheep.
+    const claimed = new Set();
+    const team = { forces: new Map(), memberIds: new Set(), holds: new Map(), herds: new Map() };
+    for (const buddy of level.helpers.filter((actor) => actor.type === 'helper')) {
+      const available = active.filter((animal) => !claimed.has(animal.id));
+      const result = workFlock(level, available, buddy, buddy.herd, 3, 1, dt, events);
+      for (const id of [...buddy.clusterIds, buddy.targetId]) {
+        if (id == null) continue;
+        claimed.add(id);
+        team.herds.set(id, buddy.herd);
+      }
+      for (const [id, force] of result.forces) {
+        team.forces.set(id, force);
+        team.memberIds.add(id);
+      }
+      for (const [id, point] of result.holds || []) team.holds.set(id, point);
+    }
+    return team;
+  }
   let buddy = level.helpers.find((h) => h.type === 'helper');
   if (!buddy) {
     buddy = { type: 'helper', x: level.dog.x, z: level.dog.z };
     level.helpers.push(buddy);
   }
-  const state = (level.buddyHerd ||= {});
-  const tier = effects.helperTier;
+  return workFlock(
+    level,
+    active,
+    buddy,
+    (level.buddyHerd ||= {}),
+    effects.helperTier,
+    effects.helperStrength,
+    dt,
+    events,
+  );
+}
+
+function workFlock(level, active, buddy, state, tier, strengthScale, dt, events) {
+  const training = buddy.trainingEffects;
+  if (training) {
+    buddy.barkState ??= createBarkState(training.barkCharges);
+    stepBark(buddy.barkState, dt);
+  }
   buddy.barking = level.time < (buddy.barkUntil || 0);
   // Keep a retrieval target after our own pressure clears its excursion fields.
   let stray = tier >= 3 && active.find((a) => a.id === state.retrieveId);
@@ -524,20 +571,31 @@ export function updateBuddy(level, active, effects, dt, events) {
     const away = normal(a.x - buddy.x, a.z - buddy.z);
     return (
       away.x * forward.x + away.z * forward.z > 0.6 &&
-      distance(buddy, a) < 8 &&
+      distance(buddy, a) < 8 + (training?.signalBoost ?? 0) &&
       hasClearGroundPath(level, buddy, a, 0.15)
     );
   };
-  if (tier >= 2 && level.time >= (buddy.nextBarkAt || 0) && subjects.some(inPosition)) {
+  if (
+    tier >= 2 &&
+    level.time >= (buddy.nextBarkAt || 0) &&
+    subjects.some(inPosition) &&
+    (!training || triggerBark(buddy.barkState))
+  ) {
     buddy.barkUntil = level.time + 0.65;
-    buddy.nextBarkAt = level.time + 3.2;
+    buddy.nextBarkAt = training ? buddy.barkUntil : level.time + 3.2;
     buddy.barking = true;
-    events.push({ type: 'buddyBark', x: buddy.x, z: buddy.z });
+    events.push({
+      type: 'buddyBark',
+      x: buddy.x,
+      z: buddy.z,
+      ...(buddy.slot ? { dogId: buddy.id, model: buddy.model } : {}),
+    });
   }
   for (const animal of subjects) {
     if (!inPosition(animal)) continue;
     const radius = animalRadius(animal);
-    const strength = (stray ? 3.7 : passage ? 2.4 : 1.15) * effects.helperStrength * (buddy.barking ? 1.45 : 1);
+    const strength =
+      (stray ? 3.7 : passage ? 2.4 : 1.15) * strengthScale * (buddy.barking ? (training?.barkMultiplier ?? 1.45) : 1);
     // Route toward the nearest group when retrieving; flank correction keeps
     // ordinary rear herding compact without choosing a destination.
     const forceDirection = directionFor(animal);

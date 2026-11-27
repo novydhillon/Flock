@@ -234,16 +234,38 @@ export function moveBuddy(level, buddy, waypoint, dt, speed = buddyTopSpeed) {
   const old = { x: buddy.x, z: buddy.z };
   buddy.navigationBlocked = false;
   if (d > 1e-4) {
-    const target = Math.atan2(dx, dz);
-    buddy.heading = turnToward(buddy.heading ?? target, target, 2.8, dt);
-    const alignment = Math.max(0, Math.cos(angleDifference(target, buddy.heading)));
+    let target = Math.atan2(dx, dz);
+    const training = buddy.trainingEffects;
+    if (training) {
+      let avoidX = dx / d,
+        avoidZ = dz / d;
+      for (const other of [level.dog, ...level.helpers]) {
+        if (other === buddy || other.type === 'drone') continue;
+        const gap = distance(buddy, other);
+        if (gap >= 2.2 || gap < 0.001) continue;
+        // Prefer the same passing side when facing each other in a narrow lane.
+        const weight = (2.2 - gap) / gap;
+        const awayX = (buddy.x - other.x) * weight,
+          awayZ = (buddy.z - other.z) * weight;
+        avoidX += awayX - awayZ * 0.55;
+        avoidZ += awayZ + awayX * 0.55;
+      }
+      target = Math.atan2(avoidX, avoidZ);
+    }
+    buddy.heading = turnToward(buddy.heading ?? target, target, 2.8 * (training?.turnMultiplier ?? 1), dt);
+    const alignment = Math.max(training ? 0.2 : 0, Math.cos(angleDifference(target, buddy.heading)));
     // A fixed-speed step plus a .22m dead zone made a moving low-speed
     // waypoint get chased in bursts: stop, let the target drift away, then
     // accelerate toward it again. Use a proportional arrival speed and a
     // bounded acceleration instead, so both pursuit and stopping are smooth.
     const response = 5,
       acceleration = 10;
-    const desiredSpeed = Math.min(buddyTopSpeed, Math.max(0, speed), d * response) * alignment;
+    const desiredSpeed =
+      Math.min(
+        training?.maxSpeed ?? buddyTopSpeed,
+        Math.max(0, training ? (speed * training.maxSpeed) / buddyTopSpeed : speed),
+        d * response,
+      ) * alignment;
     const currentSpeed = Math.max(0, buddy.moveSpeed ?? Math.hypot(buddy.vx || 0, buddy.vz || 0));
     const nextSpeed =
       currentSpeed + Math.max(-acceleration * dt, Math.min(acceleration * dt, desiredSpeed - currentSpeed));

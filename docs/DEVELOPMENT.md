@@ -1,8 +1,10 @@
 # Development, QA and release context
 
-## Kennel management smoke check — 26 November 2026
+## Kennel management smoke check — 27 November 2026
 
-On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster scroll, lock and price labels, adopting with a name, assigning an owned dog, clearing a helper slot, and return focus. At meadow 20 buy the second slot once and verify Buddy and the bolt balance persist after reload. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
+Check that the kennel preview follows the selected dog, owned copy and adoption coat. In the meadow picker, swap two dogs, buy an eligible partner position and clear a partner while watching the 3D crew update. Change kennel selections rapidly and close and reopen both screens. With reduced motion enabled, the previews show standing dogs.
+
+On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster scroll, lock and price labels, adopting with a name, training an individual dog and returning to the originating screen. At meadow entry, check assigning an owned dog, clearing a CPU partner, cancelling a purchase, and confirming the team. At meadow 20 buy the second slot once and verify Buddy and the bolt balance persist after reload. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
 
 ## Half-resolution rendering smoke check — 25 November 2026
 
@@ -289,7 +291,10 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
 | `tests/progression.test.js` | Tier cost/unlock/activation and legacy data validation |
 | `tests/ui.test.js` | Production controller navigation, rewards, restart, input and continuous soundtrack using real FarmAudio with WebAudio substitutes |
-| `tests/kennel-ui.test.js` | Kennel roster, slot purchases, adoptions and lineup management in a DOM substitute |
+| `tests/meadow-party.test.js` | Select roles and dogs, swap partners, stage purchases and cancel |
+| `tests/dog-preview.test.js` | 3D rig animation, selection transitions, reduced motion and preview cleanup with a renderer double |
+| `tests/meadow-lineup.test.js` | Four-dog replay, independent training and CPU control |
+| `tests/kennel-ui.test.js` | Kennel catalog, adoptions and individual training in a DOM substitute |
 | `tests/delivery.test.js` | First-arrival timer, partial score, lifetime earned ledger and legacy migration |
 | `tests/goal-view.test.js` | Shared target highlight/border/floor and projected minimap corners |
 | `tests/world-geometry.test.js` | Perpendicular crossings, deck/path ratio and shared full-body target footprint |

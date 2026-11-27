@@ -77,7 +77,7 @@ function clearSignal(level, a, b, radius = 0.15) {
   return hasClearGroundPath(level, a, b, radius);
 }
 
-function movePlayer(level, dog, input, dt, speedBoost) {
+function movePlayer(level, dog, input, dt, effects) {
   const tuning = GAMEPLAY.simulation;
   const x = Number(input.x) || 0;
   const z = Number(input.z ?? input.y) || 0;
@@ -90,11 +90,11 @@ function movePlayer(level, dog, input, dt, speedBoost) {
     const speed = Math.hypot(dog.vx || 0, dog.vz || 0);
     const running = Math.min(1, speed / Math.max(0.01, tuning.dogSpeed));
     const rate = tuning.dogPivotRate + (tuning.dogRunTurnRate - tuning.dogPivotRate) * running;
-    dog.heading = turnToward(dog.heading ?? target, target, rate, dt);
+    dog.heading = turnToward(dog.heading ?? target, target, rate * (effects.turnMultiplier ?? 1), dt);
     // Small stick deflections can pivot a resting dog. A running dog keeps
     // moving into a sharp turn while it sheds speed and comes around.
-    const requested = magnitude * (tuning.dogSpeed + speedBoost);
-    const aligned = Math.max(0, Math.cos(target - dog.heading));
+    const requested = magnitude * (tuning.dogSpeed + effects.speedBoost);
+    const aligned = Math.max(dog.trainingEffects ? 0.2 : 0, Math.cos(target - dog.heading));
     if (aligned === 1) {
       // Once facing the stick, use its direction directly to avoid lateral drift.
       dx = (x / length) * requested * dt;
@@ -115,7 +115,10 @@ function movePlayer(level, dog, input, dt, speedBoost) {
 }
 
 export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {}) {
-  const effects = upgradeEffects(upgrades, level.index + 1);
+  const trained = dog.trainingEffects;
+  const effects = trained
+    ? { ...trained, speedBoost: trained.maxSpeed - GAMEPLAY.simulation.dogSpeed, cohesionBoost: 0, helper: true }
+    : upgradeEffects(upgrades, level.index + 1);
   dt = clamp(Number(dt) || 0, 0, GAMEPLAY.simulation.maximumStepSeconds);
   if (level.completed || dt <= 0) return deliveryResult(level);
   const expired = advanceDeliveryCountdown(level, dt);
@@ -125,7 +128,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
   roamSavedAnimals(level, dt, level.time);
   const events = [];
   const wanderInput = idleDogInput(level, dog, input, dt, GAMEPLAY.simulation, effects);
-  const dogCollision = movePlayer(level, dog, wanderInput || input, dt, effects.speedBoost);
+  const dogCollision = movePlayer(level, dog, wanderInput || input, dt, effects);
   level.dog = dog;
   const released = input.allowIdleWander && !input.bark && !input.x && !(input.z ?? input.y);
   const active = level.animals.filter((a) => !a.saved);
@@ -299,10 +302,11 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       pressure = Math.max(pressure, 0.45);
     }
     const buddyPosition = buddy.holds?.get(animal.id);
-    if (bridgeIntent?.finished && level.buddyHerd?.containment?.positions[animal.id]) {
-      Object.assign(level.buddyHerd.containment.positions[animal.id], { x: old.x, z: old.z });
+    const attendingHerd = buddy.herds?.get(animal.id) ?? level.buddyHerd;
+    if (bridgeIntent?.finished && attendingHerd?.containment?.positions[animal.id]) {
+      Object.assign(attendingHerd.containment.positions[animal.id], { x: old.x, z: old.z });
       // A completed crossing establishes a safe new holding area on this bank.
-      if (level.buddyHerd?.containment) level.buddyHerd.containment.anchor = { x: old.x, z: old.z };
+      attendingHerd.containment.anchor = { x: old.x, z: old.z };
     }
     const holding =
       !crossing &&
@@ -378,7 +382,7 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
         neighbors &&
         !wander &&
         !animal.wanderHome &&
-        !(buddyActivelyHerding && level.buddyHerd?.retrieveId === animal.id)
+        !(buddyActivelyHerding && attendingHerd?.retrieveId === animal.id)
       ) {
         const dx = cx / socialWeight - old.x,
           dz = cz / socialWeight - old.z,
@@ -486,7 +490,13 @@ export function stepSimulation(level, dog, input = {}, dt = 1 / 60, upgrades = {
       const angle = animal.id * 2.39996;
       const toward = gap > 0.01 ? normal(dx, dz) : { x: Math.sin(angle), z: Math.cos(angle) };
       const { buddyBodyScale, dogRadius, dogSocialRadius } = GAMEPLAY.simulation;
-      const dogScale = socialDog === dog ? 1 : buddyBodyScale;
+      const dogScale = socialDog.model
+        ? socialDog.model === 'buddy'
+          ? buddyBodyScale
+          : 1
+        : socialDog === dog
+          ? 1
+          : buddyBodyScale;
       const boundary = Math.min(4 + physicalRadius, dogSocialRadius * 0.8);
       // Assign one inner, one middle and two outer places in each group of
       // four livestock IDs. Eligibility stays stable as the herd moves.

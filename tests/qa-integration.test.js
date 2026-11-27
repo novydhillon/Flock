@@ -14,6 +14,9 @@ import * as gates from '../src/simulation/gates.js';
 import * as barkAPI from '../src/simulation/bark.js';
 import * as landingUI from '../src/ui/landing-ui.js';
 import * as profileAPI from '../src/progression/profile.js';
+import { mountKennel } from '../src/ui/kennel-ui.js';
+import { mountMeadowParty } from '../src/ui/meadow-party.js';
+import { prepareMeadowLineup } from '../src/progression/meadow-lineup.js';
 import { animalRadius } from '../src/simulation/animal-size.js';
 import { stripModuleSyntax } from './helpers/source.js';
 
@@ -61,6 +64,9 @@ function launch({ music = false } = {}) {
     resolveConfig,
     CONFIG_CONTRACTS,
     animalRadius,
+    mountKennel,
+    mountMeadowParty,
+    prepareMeadowLineup,
     ...simulation,
     ...profileAPI,
     ...progression,
@@ -118,62 +124,53 @@ function submit(ui, id, submitter) {
   ui.document.getElementById(id).dispatchEvent(event);
 }
 
-test('QA workshop uses tested level and test wallet for unlocks, purchases and backward jumps', async () => {
+test('QA kennel and party use the tested meadow and test wallet without charging the campaign', async () => {
   const ui = launch();
   try {
-    const doc = ui.document,
-      buy = (id) => doc.querySelector(`[data-buy="${id}"]`);
+    const doc = ui.document;
+    const click = (id) => doc.getElementById(id).click();
     const jump = async (number) => {
-      doc.getElementById('qa-toggle').click();
+      click('qa-toggle');
       await settle();
       doc.getElementById('qa-level').value = String(number);
       submit(ui, 'qa-jump');
       await settle();
-      doc.getElementById('qa-close').click();
-      doc.getElementById('wallet').click();
+      click('qa-close');
+    };
+    const restartParty = () => {
+      click('pause');
+      click('restart');
+      return doc.querySelector('[data-party-position="2"]');
     };
     await settle();
-    doc.getElementById('qa-toggle').click();
+    click('qa-toggle');
     await settle();
-    doc.getElementById('qa-amount').value = '600';
+    doc.getElementById('qa-amount').value = '680';
     submit(ui, 'qa-bolts');
     await settle();
-    doc.getElementById('qa-level').value = '20';
-    submit(ui, 'qa-jump');
-    await settle();
-    doc.getElementById('qa-close').click();
-    doc.getElementById('wallet').click();
-    assert.equal(buy('helper').disabled, false, 'level 20 unlocks the first buddy tier without campaign progress');
-    buy('helper').click();
-    assert.equal(ui.app.state().profile.upgrades.helper, 1);
+    click('qa-close');
+    await jump(20);
+    const buddy = restartParty();
+    assert.equal(buddy.disabled, false);
+    buddy.click();
+    doc.querySelector('.party-actions .primary').click();
+    assert.equal(ui.app.state().level.helpers[0].id, 'buddy');
+    assert.equal(ui.app.state().profile.points, 80);
+    click('wallet');
+    doc.querySelector('[data-kennel-train="speed"]').click();
+    assert.equal(ui.app.state().profile.kennel.dogs[0].training.speed, 1);
     assert.equal(ui.app.state().profile.points, 0);
-    assert.equal(buy('speed').disabled, true, 'available level still needs enough bolts');
-    doc.getElementById('qa-toggle').click();
-    await settle();
-    doc.getElementById('qa-amount').value = '80';
-    submit(ui, 'qa-bolts');
-    await settle();
-    doc.getElementById('qa-close').click();
-    doc.getElementById('wallet').click();
-    assert.equal(buy('speed').disabled, false);
-    buy('speed').click();
-    assert.equal(ui.app.state().profile.upgrades.speed, 1);
-    assert.equal(ui.app.state().profile.points, 0);
-    // Even test completions at a later meadow cannot unlock early-level purchases.
+    click('kennel-back');
     Object.assign(ui.app.state().profile, { highestLevel: 99, completedLevels: [98], points: 10000 });
     await jump(1);
-    assert.equal(buy('speed').disabled, true);
-    assert.match(doc.getElementById('modal-card').textContent, /level 6/i);
-    assert.equal(buy('helper').disabled, true);
-    assert.match(doc.getElementById('modal-card').textContent, /level 24/i);
-    await jump(24);
-    assert.equal(buy('helper').disabled, false);
-    buy('helper').click();
-    assert.equal(ui.app.state().profile.upgrades.helper, 2);
-    assert.equal(ui.app.state().profile.points, 9150);
-    assert.equal(buy('helper').disabled, true);
-    assert.match(doc.getElementById('modal-card').textContent, /level 28/i);
-    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial, 'QA purchases never alter the normal save');
+    click('wallet');
+    assert.equal(doc.querySelector('[data-kennel-train="speed"]').disabled, true);
+    click('kennel-back');
+    restartParty();
+    const third = doc.querySelector('[data-party-position="3"]');
+    assert.equal(third.disabled, true);
+    assert.match(third.textContent, /Meadow 40/i);
+    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial);
   } finally {
     ui.close();
   }
@@ -184,6 +181,8 @@ test('production controller and QA editor freeze timed delivery and protect the 
   try {
     await settle();
     ui.document.getElementById('play').click();
+    ui.document.querySelector('.party-actions .primary').click();
+    const campaignSave = ui.saved.get('flock-foundry-v1');
     await settle();
     assert.equal(ui.app.state().level.index, 7);
     ui.document.getElementById('qa-toggle').click();
@@ -221,7 +220,7 @@ test('production controller and QA editor freeze timed delivery and protect the 
     submit(ui, 'qa-bolts');
     await settle();
     assert.equal(ui.app.state().profile.points, 500);
-    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial);
+    assert.equal(ui.saved.get('flock-foundry-v1'), campaignSave);
     ui.document.getElementById('qa-close').click();
     assert.equal(ui.app.state().mode, 'playing');
     assert.equal(
@@ -237,7 +236,7 @@ test('production controller and QA editor freeze timed delivery and protect the 
     assert.ok(ui.app.state().profile.points > 500);
     assert.equal(
       ui.saved.get('flock-foundry-v1'),
-      ui.initial,
+      campaignSave,
       'QA completion cannot persist rewards over the real profile',
     );
     const earned = ui.app.state().profile.points,

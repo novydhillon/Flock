@@ -17,7 +17,7 @@ All numbers below are public meadow numbers. Reaching a milestone makes the slot
 
 The highest unlocked campaign meadow determines purchase eligibility. Reaching the threshold, paying for a slot, owning a dog and assigning a dog are distinct steps. Every opened slot can be used in an earlier meadow replay, and any owned dog can be assigned to an opened slot regardless of when it became adoptable. A player with four opened slots can take a full lineup into meadow 1. The preview shows the lineup that will play.
 
-Players can own more dogs than they have opened slots. Proposed defaults are sequential slot purchases, an optional empty CPU slot, and one assignment per owned dog. Multiple copies of the same dog can play together. The proposed timing for lineup swaps is at meadow start or restart.
+Players can own more dogs than they have opened slots. Proposed defaults are sequential slot purchases, an optional empty CPU slot, and one assignment per owned dog. Multiple copies of the same dog can play together. Every meadow entry, including restart and replay, opens team selection. Choose Player or a numbered Partner, then choose an owned dog by portrait. Enter meadow commits the displayed team and any position purchases. Cancel discards the draft. The animated 3D crew preview mirrors the staged assignments and uses each dog’s model and coat. The kennel handles adoption and individual training.
 
 ### Owned dogs and training
 

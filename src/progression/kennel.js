@@ -1,4 +1,5 @@
 import settings from '../config/kennel.json' with { type: 'json' };
+import { validateTraining } from './dog-training.js';
 import { progressionLevel } from './progression.js';
 
 export const KENNEL_CATALOG = Object.freeze(settings.dogs.map(Object.freeze));
@@ -12,11 +13,12 @@ function openedSlots(kennel) {
   return validSlot(kennel?.openedSlots) ? kennel.openedSlots : 1;
 }
 
-function createDog(id, entry, name, coat) {
+function createDog(id, entry, name, coat, training) {
   const cleanName = typeof name === 'string' ? name.trim().slice(0, 40).trim() : '';
   return {
     id,
     catalogId: entry.id,
+    training: validateTraining(training),
     name: cleanName || entry.name || 'Dog',
     coat: coatModels.get(coat) === entry.model ? coat : entry.coat,
   };
@@ -49,7 +51,7 @@ export function validateKennel(raw) {
       (kennel.openedSlots < 2 && entry.id !== 'pip')
     )
       continue;
-    dogs.set(id, createDog(id, entry, dog.name, dog.coat));
+    dogs.set(id, createDog(id, entry, dog.name, dog.coat, dog.training));
   }
   if (!dogs.has('pip')) dogs.set('pip', kennel.dogs[0]);
   if (kennel.openedSlots >= 2 && !dogs.has('buddy')) dogs.set('buddy', createDog('buddy', catalog.get('buddy')));

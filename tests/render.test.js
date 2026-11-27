@@ -1807,6 +1807,38 @@ test('bark events animate the correct dog and reset when the meadow changes', ()
   assert.equal(renderer.helperMeshes.size, 0);
 });
 
+test('the selected lead and three CPU dogs retain individual models, coats and bark animation', () => {
+  const renderer = setup();
+  const level = createLevel(0);
+  Object.assign(level.dog, { id: 'lead', model: 'buddy', coat: 'black-auburn-white', name: 'Fern' });
+  level.helpers = ['brown-white', 'black-blonde', 'blonde-white'].map((coat, index) => ({
+    id: `copy-${index}`,
+    type: 'helper',
+    model: index === 2 ? 'pip' : 'buddy',
+    coat,
+    x: level.dog.x + index + 1,
+    z: level.dog.z,
+  }));
+  renderer.setLevel(level);
+  assert.equal(renderer.dog.name, 'Fern');
+  assert.equal(renderer.dog.userData.motion.puppy, true);
+  const meshes = [...renderer.helperMeshes.values()];
+  assert.equal(meshes.length, 3);
+  assert.ok(meshes[0].userData.motion.puppy && meshes[1].userData.motion.puppy && !meshes[2].userData.motion.puppy);
+  assert.equal(meshes[0].scale.x, renderer.dog.scale.x);
+  assert.ok(meshes[2].scale.x > renderer.dog.scale.x);
+  const colorOfBody = (mesh) => mesh.userData.parts.body.geometry.getAttribute('color').array;
+  assert.notDeepEqual(colorOfBody(meshes[0]), colorOfBody(meshes[1]));
+  const source = level.helpers[1];
+  renderer.bark({ type: 'buddyBark', x: source.x, z: source.z, dogId: source.id });
+  renderer.update(level, level.dog, 0.05);
+  assert.equal(renderer.dog.userData.motion.barking, false);
+  assert.deepEqual(
+    meshes.map((m) => m.userData.motion.barking),
+    [false, true, false],
+  );
+});
+
 test('Buddy rendering preserves simulation heading instead of snapping to tiny reversed displacements', () => {
   const renderer = setup(),
     level = createLevel(23);

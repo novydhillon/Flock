@@ -10,6 +10,7 @@ const palette = {
   cheek: '#49474a',
   muzzle: '#757273',
   cream: '#f4ede1',
+  eyeWhite: '#f4ede1',
   ivory: '#dbd4c9',
   brow: '#97918b',
   leather: '#242225',
@@ -18,12 +19,36 @@ const palette = {
   tongue: '#c98889',
 };
 for (const name of Object.keys(palette)) palette[name] = new THREE.Color(palette[name]);
+const coatColors = {
+  'blonde-white': ['#b6894b', '#c7a465'],
+  'brown-white': ['#875840', '#875840'],
+  'auburn-white': ['#a7523b', '#9c4836'],
+  'black-blonde': ['#35353b', '#49474a', '#c7a465'],
+  'black-brown-white': ['#35353b', '#875840'],
+  'blonde-auburn': ['#c7a465', '#b6894b', '#a7523b'],
+  'brown-auburn': ['#875840', '#84553d', '#aa5a44'],
+  'black-auburn-white': ['#35353b', '#a7523b'],
+};
+function coatPalette(coat) {
+  const colors = coatColors[coat];
+  if (!colors) return palette;
+  const [base, patch, light] = colors.map((color) => new THREE.Color(color));
+  return {
+    ...palette,
+    coat: base,
+    cheek: patch,
+    muzzle: light ?? palette.cream,
+    brow: patch,
+    cream: light ?? palette.cream,
+    ivory: light ?? palette.ivory,
+  };
+}
 const unit = new THREE.SphereGeometry(1, 16, 12);
 const detail = new THREE.SphereGeometry(1, 10, 8);
 
 // Sculpt a soft ellipsoid in joint-local space. Deformations operate on the
 // unit surface, so markings and tapered tips stay attached as joints move.
-function form(tint, position, size, sculpt, rotation = 0) {
+function clayForm(colorsByName, tint, position, size, sculpt, rotation = 0) {
   const geometry = (Math.max(...size) < 0.235 ? detail : unit).clone();
   const points = geometry.attributes.position;
   const colors = [];
@@ -37,7 +62,7 @@ function form(tint, position, size, sculpt, rotation = 0) {
     const grain = Math.sin(7 * x + 3 * z) * Math.cos(6 * y - 2 * x);
     const press = 1 + 0.014 * grain;
     points.setXYZ(i, point.x * size[0] * press, point.y * size[1] * press, point.z * size[2] * press);
-    const color = palette[shade],
+    const color = colorsByName[shade],
       value = 1 + 0.035 * grain;
     colors.push(color.r * value, color.g * value, color.b * value);
   }
@@ -72,7 +97,7 @@ function joint(parent, name, position, pieces) {
   return mesh;
 }
 
-function makeHead(rig, puppy) {
+function makeHead(rig, puppy, form) {
   const skull = [
     form('coat', [0, 0.18, 0.06], [0.295, 0.285, 0.28], (p) => {
       if (p.z > 0.45 && Math.abs(p.x + 0.035) < 0.16 * (1.12 - p.y)) return 'muzzle';
@@ -95,10 +120,10 @@ function makeHead(rig, puppy) {
       }),
     );
     const x = side * 0.145;
-    skull.push(form('cream', [x, 0.239, 0.277], [0.078, 0.086, 0.052]));
+    skull.push(form('eyeWhite', [x, 0.239, 0.277], [0.078, 0.086, 0.052]));
     skull.push(form('eye', [x + side * 0.008, 0.237, 0.312], [0.054, 0.065, 0.029]));
     skull.push(form('leather', [x + side * 0.007, 0.237, 0.334], [0.032, 0.048, 0.014]));
-    skull.push(form('cream', [x - 0.009, 0.26, 0.348], [0.014, 0.017, 0.008]));
+    skull.push(form('eyeWhite', [x - 0.009, 0.26, 0.348], [0.014, 0.017, 0.008]));
     skull.push(
       form('brow', [side * 0.152, 0.336, 0.22], [0.074, 0.026, 0.038], (p) => {
         p.y -= side * 0.52 * p.x;
@@ -139,7 +164,7 @@ function makeHead(rig, puppy) {
   return { head, ears, jaw };
 }
 
-function makeLeg(rig, side, fore) {
+function makeLeg(rig, side, fore, form) {
   const upperLength = 0.385,
     lowerLength = 0.385;
   const upper = joint(
@@ -192,7 +217,9 @@ function makeLeg(rig, side, fore) {
   };
 }
 
-function borderCollie(puppy) {
+function borderCollie(puppy, coat) {
+  const colors = coatPalette(coat);
+  const form = clayForm.bind(null, colors);
   const dog = new THREE.Group();
   dog.name = puppy ? 'Buddy the Border Collie puppy' : 'Pip the Border Collie';
   const rig = new THREE.Group();
@@ -202,6 +229,7 @@ function borderCollie(puppy) {
       const waist = 1 - 0.12 * Math.exp(-((p.z + 0.23) ** 2) / 0.055);
       p.x *= waist;
       p.y = p.y * waist + 0.075 * (1 - waist);
+      if (colors !== palette && p.z < -0.25 + p.x * 0.25 && p.y > -0.25) return 'cheek';
     }),
     form('cream', [0, 0.152, 0.361], [0.273, 0.326, 0.245], (p) => {
       p.z += 0.33 * p.y;
@@ -234,17 +262,17 @@ function borderCollie(puppy) {
     ],
   );
   const legs = [];
-  for (const fore of [true, false]) for (const side of [-1, 1]) legs.push(makeLeg(rig, side, fore));
-  dog.userData.parts = { rig, body, tail, legs, ...makeHead(rig, puppy) };
+  for (const fore of [true, false]) for (const side of [-1, 1]) legs.push(makeLeg(rig, side, fore, form));
+  dog.userData.parts = { rig, body, tail, legs, ...makeHead(rig, puppy, form) };
   dog.userData.suggestedScale = puppy ? BUDDY_BODY_SCALE : 1;
   dog.userData.motion = createPipMotionState(puppy);
   applyDogPose(dog);
   return dog;
 }
 
-export function createPip() {
-  return borderCollie(false);
+export function createPip(coat) {
+  return borderCollie(false, coat);
 }
-export function createBuddy() {
-  return borderCollie(true);
+export function createBuddy(coat) {
+  return borderCollie(true, coat);
 }

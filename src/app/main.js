@@ -9,8 +9,12 @@ const PRESENTATION = resolveConfig(presentationSettings, 'presentation', CONFIG_
 import '../ui/style.css';
 import '../ui/landing-ui.css';
 import '../ui/kennel-ui.css';
+import '../ui/dog-preview.css';
+import '../ui/meadow-party.css';
+import { mountMeadowParty } from '../ui/meadow-party.js';
+import { prepareMeadowLineup } from '../progression/meadow-lineup.js';
 import { mountKennel } from '../ui/kennel-ui.js';
-import { continuation, meadowSelectorHTML, workshopHTML, createShowcase, stepShowcase } from '../ui/landing-ui.js';
+import { continuation, meadowSelectorHTML, createShowcase, stepShowcase } from '../ui/landing-ui.js';
 import '@fontsource/outfit/latin-600.css';
 import '@fontsource/outfit/latin-700.css';
 import '@fontsource/outfit/latin-900.css';
@@ -21,15 +25,6 @@ import { MeadowRenderer } from '../rendering/render.js';
 import { FarmAudio } from '../audio/audio.js';
 import { createLevel, stepSimulation, stepSavedRoaming } from '../simulation/simulation.js';
 import { defaultProfile, loadProfile, saveProfile, applyLevelReward } from '../progression/profile.js';
-import {
-  purchaseUpgrade,
-  UPGRADE_CATALOG,
-  upgradeLevel,
-  upgradeCost,
-  upgradeAvailability,
-  activeUpgrades,
-  upgradeEffects,
-} from '../progression/progression.js';
 import { canOccupy } from '../world/world.js';
 import { createBarkState, stepBark, triggerBark, BARK_COOLDOWN } from '../simulation/bark.js';
 
@@ -50,6 +45,7 @@ let renderer,
   tipManual = false,
   toastTimer,
   modalFocus = null;
+let disposeModalContent;
 const audio = new FarmAudio(),
   input = { x: 0, z: 0 },
   keys = new Set();
@@ -72,8 +68,6 @@ const persist = () => {
   if (qaSession) return;
   if (!saveProfile(profile)) toast('Progress is kept for this session; browser storage is unavailable.');
 };
-const escape = (s) =>
-  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 function toast(message) {
   $('toast').textContent = message;
   visible('toast', true);
@@ -175,10 +169,11 @@ async function begin(index = profile.highestLevel) {
     ...level.dog,
     heading: level.dog.heading ?? Math.atan2(level.spawn.x - level.dog.x, level.spawn.z - level.dog.z),
   };
+  prepareMeadowLineup(level, dog, profile);
   elapsed = 0;
   tipStep = 0;
   tipDismissed = false;
-  barkState = createBarkState(upgradeEffects(profile.upgrades, index + 1).barkCharges);
+  barkState = createBarkState(dog.trainingEffects.barkCharges);
   barkWasCooling = false;
   lastTouchBark = -Infinity;
   audio.resetLivestock?.(level);
@@ -208,7 +203,7 @@ async function begin(index = profile.highestLevel) {
 const TIP_CYCLE = CONTROLS.tips.cycleSeconds;
 function tipsFor(index) {
   return index === 0
-    ? ['Drag to move Pip.', 'Move behind the flock to guide it.', 'Double-tap to woof.']
+    ? [`Drag to move ${dog.name || 'your dog'}.`, 'Move behind the flock to guide it.', 'Double-tap to woof.']
     : [level.routes.length > 1 ? 'Choose a trail on the map.' : 'Gather stragglers before crossing.'];
 }
 function hideTip() {
@@ -225,14 +220,14 @@ function setTip(text) {
   $('tip').querySelector('.tip-number').textContent = `0${tipStep + 1}`;
 }
 function bark() {
-  if (mode !== 'playing' || !triggerBark(barkState, upgradeEffects(profile.upgrades, level.index + 1).barkCharges))
-    return;
+  if (mode !== 'playing' || !triggerBark(barkState, dog.trainingEffects.barkCharges)) return;
   updateBark();
-  audio.play('bark', 'pip');
+  audio.play('bark', dog.model);
   renderer.bark();
   if (navigator.vibrate) navigator.vibrate(CONTROLS.feedback.barkVibrationMs);
 }
 function openModal(html, newMode = 'paused') {
+  clearModalContent();
   previousMode = mode === 'playing' ? 'playing' : mode === 'complete' ? 'complete' : 'intro';
   mode = newMode;
   updateLevelIntroduction();
@@ -249,7 +244,13 @@ function openModal(html, newMode = 'paused') {
     }
   }, CONTROLS.feedback.modalFocusDelayMs);
 }
+function clearModalContent() {
+  disposeModalContent?.();
+  disposeModalContent = undefined;
+}
+
 function closeModal(resume = true) {
+  clearModalContent();
   visible('modal', false);
   if (resume) {
     mode = previousMode;
@@ -260,6 +261,44 @@ function closeModal(resume = true) {
   }
   updateLevelIntroduction();
   resetInput();
+}
+function kennelProfile(index) {
+  // QA purchases follow the meadow under test, even after a backward jump.
+  if (typeof __FLOCK_QA__ !== 'undefined' && __FLOCK_QA__ && qaSession)
+    return { ...profile, highestLevel: index, completedLevels: [] };
+  return profile;
+}
+
+function saveKennel(changed) {
+  profile.kennel = changed.kennel;
+  profile.points = changed.points;
+  persist();
+  updateWallet();
+}
+
+function chooseParty(index, onCancel) {
+  openModal(
+    `<button class="close-modal" id="close" aria-label="Cancel party selection">×</button><div class="eyebrow">MEADOW ${index + 1}</div><h2>Choose your team</h2><div id="party-content"></div>`,
+    'party',
+  );
+  $('close').onclick = onCancel;
+  disposeModalContent = mountMeadowParty($('party-content'), {
+    profile: kennelProfile(index),
+    onCancel,
+    onConfirm: (draft) => {
+      if (mode !== 'party') return;
+      saveKennel(draft);
+      void begin(index);
+      $('world').focus();
+    },
+  });
+}
+function startFromLanding() {
+  chooseParty(continuation(profile).index, () => {
+    previousMode = 'intro';
+    closeModal();
+    $('play').focus();
+  });
 }
 let meadowBrowsePage;
 function chooseMeadow() {
@@ -284,10 +323,17 @@ function chooseMeadow() {
     $('meadows-next').onclick = () => change(1, 'meadows-next');
     $('modal-card')
       .querySelectorAll('[data-level]:not([disabled])')
-      .forEach((button) => (button.onclick = () => begin(Number(button.dataset.level))));
+      .forEach((button) => {
+        button.onclick = () =>
+          chooseParty(Number(button.dataset.level), () => {
+            draw();
+            $('modal-card').querySelector(`[data-level="${button.dataset.level}"]`)?.focus();
+          });
+      });
     if (focusId)
       setTimeout(() => {
         const candidate = $(focusId);
+        if (!candidate) return;
         (candidate.disabled ? $('meadows-back') : candidate).focus();
       }, CONTROLS.feedback.modalFocusDelayMs);
   };
@@ -298,8 +344,8 @@ function menu() {
     $('cancel-reset').onclick();
     return;
   }
-  if (mode === 'shop' || mode === 'kennel') {
-    $(mode === 'shop' ? 'shop-back' : 'kennel-back').onclick();
+  if (mode === 'party' || mode === 'kennel') {
+    $('close').onclick();
     return;
   }
   if (mode === 'meadows') {
@@ -312,16 +358,21 @@ function menu() {
   }
   if (mode === 'complete') return;
   openModal(
-    `<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode === 'intro' ? 'Hello, shepherd.' : 'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode === 'intro' ? 'Back to the meadow' : 'Keep herding'} <span>→</span></button><button class="secondary" id="kennel-menu">Visit the kennel</button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button><button class="secondary" id="choose-meadow-menu">Choose meadow</button>${mode === 'playing' ? '<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>' : ''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music ? 'On' : 'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart whole game</button>`,
+    `<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode === 'intro' ? 'Hello, shepherd.' : 'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode === 'intro' ? 'Back to the meadow' : 'Keep herding'} <span>→</span></button><button class="secondary" id="kennel-menu">Visit the kennel · ${profile.points} bolts</button><button class="secondary" id="choose-meadow-menu">Choose meadow</button>${mode === 'playing' ? '<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>' : ''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music ? 'On' : 'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart whole game</button>`,
   );
   $('close').onclick = () => closeModal();
   $('resume').onclick = () => closeModal();
   $('menu-sound').onclick = toggleSound;
   $('kennel-menu').onclick = kennel;
-  $('upgrades-menu').onclick = shop;
   $('restart-game-menu').onclick = confirmRestart;
   $('choose-meadow-menu').onclick = chooseMeadow;
-  if ($('restart')) $('restart').onclick = () => begin(level.index);
+  if ($('restart'))
+    $('restart').onclick = () =>
+      chooseParty(level.index, () => {
+        mode = 'playing';
+        menu();
+        $('restart').focus();
+      });
   if ($('quit')) $('quit').onclick = quitToLanding;
 }
 function setupShowcase() {
@@ -329,17 +380,17 @@ function setupShowcase() {
   renderer.setLevel(level);
 }
 function quitToLanding() {
-  // Discard this meadow's transient run; the campaign profile is unchanged.
-  closeModal(false);
-  mode = previousMode = 'intro';
-  resetInput();
-  lastTap = -Infinity;
-  lastTapPosition = null;
   if (qaSession && campaignProfile) {
     profile = campaignProfile;
     campaignProfile = null;
     qaSession = false;
   }
+  showLanding();
+}
+function showLanding() {
+  closeModal(false);
+  mode = previousMode = 'intro';
+  resetInput();
   barkState = createBarkState();
   lastTouchBark = -Infinity;
   audio.resetLivestock?.(null);
@@ -375,96 +426,48 @@ function confirmRestart() {
     }
   };
   openModal(
-    `<button class="close-modal" id="close" aria-label="Cancel restart">×</button><div class="eyebrow">A FRESH START</div><h2>Restart the whole game?</h2><p>This clears all level progress, earned bolts, and purchased upgrades and helpers. You’ll start again at level 1. This cannot be undone.</p><button class="secondary" id="cancel-reset">Keep my progress</button><button class="primary" id="confirm-reset">Restart Game <span>↻</span></button>`,
+    `<button class="close-modal" id="close" aria-label="Cancel restart">×</button><div class="eyebrow">A FRESH START</div><h2>Restart the whole game?</h2><p>This clears your meadow progress, bolts, adopted dogs, partner positions and training. You’ll start again at level 1. This cannot be undone.</p><button class="secondary" id="cancel-reset">Keep my progress</button><button class="primary" id="confirm-reset">Restart Game <span>↻</span></button>`,
     'reset-confirm',
   );
   $('close').onclick = cancel;
   $('cancel-reset').onclick = cancel;
-  $('confirm-reset').onclick = async () => {
+  $('confirm-reset').onclick = () => {
     profile = { ...defaultProfile(), music: profile.music };
     meadowBrowsePage = undefined;
-    lastReward = 0;
-    lastTap = -Infinity;
-    lastTapPosition = null;
     persist();
-    updateWallet();
-    await begin(0);
-    if (mode === 'playing') $('pause').focus();
+    showLanding();
+    startFromLanding();
   };
 }
 function kennel() {
-  const fromResults = mode === 'complete';
+  const origin = mode;
   const meadowMode = previousMode;
   openModal(
     '<button class="close-modal" id="close" aria-label="Close kennel">×</button><h2>Dog kennel</h2><div id="kennel-content"></div><button class="secondary" id="kennel-back">Back</button>',
     'kennel',
   );
   const back = () => {
-    if (fromResults) {
+    if (origin === 'complete') {
       complete(false);
       $('reward-kennel').focus();
       return;
     }
-    mode = meadowMode;
-    menu();
-    $('kennel-menu').focus();
-  };
-  $('close').onclick = back;
-  $('kennel-back').onclick = back;
-  mountKennel($('kennel-content'), {
-    profile,
-    onChange: () => {
-      persist();
-      updateWallet();
-    },
-  });
-}
-function shop() {
-  const returnMode = mode === 'complete' ? 'complete' : mode === 'paused' || mode === 'shop' ? previousMode : mode;
-  const shopLevel = qaSession ? level.index + 1 : undefined;
-  const showcase = returnMode === 'intro';
-  const displayLevel = showcase ? continuation(profile).index + 1 : level.index + 1;
-  openModal(
-    `<button class="close-modal" id="close" aria-label="Close workshop">×</button><div class="eyebrow">PIP'S LITTLE WORKSHOP</div><h2>A few clever upgrades.</h2><p>New skills open as you explore.<br>You have <strong>${profile.points} bolts</strong> to spend.${showcase ? ' Benefits shown for your continuation meadow.' : ''}</p><div class="upgrade-grid">${workshopHTML(profile, displayLevel, qaSession)}</div><button class="primary" id="shop-back">${returnMode === 'complete' ? 'Back to your reward' : 'Back to the meadow'} <span>→</span></button>`,
-    'shop',
-  );
-  previousMode = returnMode;
-  const back = () => {
-    if (returnMode === 'complete') complete(false);
-    else {
+    if (origin === 'paused') {
+      mode = meadowMode;
+      menu();
+      $('kennel-menu').focus();
+    } else {
+      previousMode = origin;
       closeModal();
-      if (showcase) setupShowcase();
+      $('wallet').focus();
     }
   };
   $('close').onclick = back;
-  $('shop-back').onclick = back;
-  $('modal-card')
-    .querySelectorAll('[data-preview]')
-    .forEach(
-      (button) =>
-        (button.onclick = () => {
-          const preview = button.previousElementSibling;
-          preview.classList.remove('preview-playing');
-          void preview.offsetWidth;
-          preview.classList.add('preview-playing');
-        }),
-    );
-  $('modal-card')
-    .querySelectorAll('[data-buy]')
-    .forEach(
-      (button) =>
-        (button.onclick = () => {
-          const result = purchaseUpgrade(profile, button.dataset.buy, shopLevel);
-          if (result.ok) {
-            audio.play('purchase');
-            persist();
-            updateWallet();
-            shop();
-            previousMode = returnMode;
-            toast(`${result.upgrade.tierNames[result.level - 1]} purchased.`);
-          }
-        }),
-    );
+  $('kennel-back').onclick = back;
+  disposeModalContent = mountKennel($('kennel-content'), {
+    profile: kennelProfile(level.index),
+    onChange: saveKennel,
+  });
 }
 let lastReward = 0;
 function complete(award = true) {
@@ -480,13 +483,17 @@ function complete(award = true) {
     total = level.animals.length,
     score = level.result?.score ?? 0;
   openModal(
-    `<div class="complete-seal">✦</div><div class="eyebrow">${saved === total ? 'A GOOD DAY’S HERDING' : 'DELIVERY TIME IS UP'}</div><h2>${saved === total ? 'Everyone’s home.' : saved > 0 ? 'A flock brought home.' : 'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index] || 0} / ${level.reward}<br>${Math.floor(elapsed / 60)}m ${Math.floor(elapsed % 60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward ? 'Bolts earned from your improved delivery score.' : 'No extra bolts this time. Deliver more robots to improve your best score.'}${saved > 0 && saved < total ? ' The next meadow is open.' : ''}</p><button class="primary" id="next">${saved === 0 ? 'Try again' : level.index >= 99 ? 'Return to the first meadow' : 'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-kennel">Visit the kennel</button><button class="secondary" id="reward-shop">Visit the workshop</button><button class="secondary" id="replay">Roam this meadow again</button>`,
+    `<div class="complete-seal">✦</div><div class="eyebrow">${saved === total ? 'A GOOD DAY’S HERDING' : 'DELIVERY TIME IS UP'}</div><h2>${saved === total ? 'Everyone’s home.' : saved > 0 ? 'A flock brought home.' : 'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index] || 0} / ${level.reward}<br>${Math.floor(elapsed / 60)}m ${Math.floor(elapsed % 60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward ? 'Bolts earned from your improved delivery score.' : 'No extra bolts this time. Deliver more robots to improve your best score.'}${saved > 0 && saved < total ? ' The next meadow is open.' : ''}</p><button class="primary" id="next">${saved === 0 ? 'Try again' : level.index >= 99 ? 'Return to the first meadow' : 'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-kennel">Visit the kennel</button><button class="secondary" id="replay">Roam this meadow again</button>`,
     'complete',
   );
-  $('next').onclick = () => begin(saved === 0 ? level.index : level.index >= 99 ? 0 : level.index + 1);
+  const selectParty = (index, trigger) =>
+    chooseParty(index, () => {
+      complete(false);
+      $(trigger).focus();
+    });
+  $('next').onclick = () => selectParty(saved === 0 ? level.index : level.index >= 99 ? 0 : level.index + 1, 'next');
   $('reward-kennel').onclick = kennel;
-  $('reward-shop').onclick = shop;
-  $('replay').onclick = () => begin(level.index);
+  $('replay').onclick = () => selectParty(level.index, 'replay');
 }
 
 // Pointer capture means a single thumb can roam without lifting off the glass.
@@ -698,7 +705,7 @@ window.addEventListener('resize', () => {
   resetInput();
   renderer?.resize();
 });
-$('play').onclick = () => begin();
+$('play').onclick = startFromLanding;
 $('choose-meadow').onclick = chooseMeadow;
 $('bark').onclick = () => {
   if (performance.now() - lastTouchBark > CONTROLS.pointer.compatibilityClickMs) bark();
@@ -708,7 +715,7 @@ $('home').onclick = (e) => {
   e.preventDefault();
   menu();
 };
-$('wallet').onclick = shop;
+$('wallet').onclick = kennel;
 $('sound').onclick = toggleSound;
 $('dismiss-tip').onclick = hideTip;
 $('toggle-tip').onclick = () => {
@@ -736,7 +743,7 @@ function frame(now) {
   if (!renderer || !level) return;
   if (mode === 'playing') {
     elapsed += dt;
-    stepBark(barkState, dt, upgradeEffects(profile.upgrades, level.index + 1).barkCharges);
+    stepBark(barkState, dt, dog.trainingEffects.barkCharges);
     const ix = keys.has('arrowright') || keys.has('d') ? 1 : keys.has('arrowleft') || keys.has('a') ? -1 : input.x;
     const iz = keys.has('arrowdown') || keys.has('s') ? 1 : keys.has('arrowup') || keys.has('w') ? -1 : input.z;
     const result = stepSimulation(
@@ -756,7 +763,7 @@ function frame(now) {
     for (const event of result.events) {
       if (event.type === 'animalSaved') audio.play('saved');
       else if (event.type === 'buddyBark') {
-        audio.play('bark', 'buddy');
+        audio.play('bark', event.model ?? 'buddy');
         renderer.bark(event);
       } else if (event.type === 'gateToggled')
         toast(event.open ? 'Gate open — guide the flock through.' : 'Gate closed.');

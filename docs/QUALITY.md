@@ -1,5 +1,13 @@
 # Flock revision quality record
 
+## Animated dog and crew previews — 27 November 2026
+
+The kennel displays the selected catalog coat or owned dog. Meadow entry displays the staged crew. Both previews reuse the gameplay dog rigs and idle timing. The kennel runs the outgoing dog off right before the latest selection enters from the left. The preview releases its geometry and WebGL context when the modal closes. A renderer-double test covers animation, context loss and reduced motion. Sol High source review scored 9/10 after corrections to bow aim, coat selection and static pose. Rendered phone validation remains pending.
+
+## Meadow entry team selection — 27 November 2026
+
+Astra Medium implemented and reviewed the position-first picker, separate kennel and saved team integration. Blind source review scored 9/10 after fixes to keyboard bark focus, lead dog tutorial naming and per-model bark audio. DOM tests exercise staging, cancellation and individual training. Simulation checks cover four dogs replaying an early meadow. Physical phone playtesting remains pending.
+
 ## F-KENNEL-005 — Kennel management preview — 26 November 2026
 
 Branch `feat/kennel-progression`, based on `0e1fa2ad9cb6c621aac5d4cd24eeae8a401873f9`. Session model and effort identifiers not recorded. The pause and results menus open the kennel preview. Players can browse ten placeholder portraits, buy slots, adopt named dogs with individual coats, and save or clear lineup assignments. Slot prices are provisional. Meadows continue to use the existing actor setup and the Workshop remains accessible.

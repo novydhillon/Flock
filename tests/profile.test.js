@@ -14,6 +14,12 @@ import {
   buyKennelSlot,
   slotAvailability,
 } from '../src/progression/kennel.js';
+import {
+  DOG_TRAINING_CATALOG,
+  buyDogTraining,
+  dogTrainingEffects,
+  trainingAvailability,
+} from '../src/progression/dog-training.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from '../src/simulation/delivery.js';
 import {
   UPGRADE_CATALOG,
@@ -454,4 +460,87 @@ test('upgrade config preserves every original effect at every campaign level and
         `owned ${owned}, public level ${levelNumber}`,
       );
     }
+});
+
+test('personal training quotes one tier and rejects gated, unfunded, stale and maxed purchases', () => {
+  for (const skill of DOG_TRAINING_CATALOG) {
+    const profile = defaultProfile();
+    const dog = profile.kennel.dogs[0];
+    for (let tier = 0; tier < 3; tier++) {
+      const cost = skill.costs[tier];
+      const meadow = skill.unlockLevels[tier];
+      profile.points = cost;
+      profile.highestLevel = meadow - 2;
+      assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).reason, 'locked');
+      assert.equal(profile.points, cost);
+      profile.highestLevel++;
+      profile.points--;
+      assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).reason, 'points');
+      assert.equal(dog.training[skill.id], tier);
+      profile.points++;
+      assert.deepEqual(trainingAvailability(profile, dog.id, skill.id), {
+        available: true,
+        reason: null,
+        level: tier,
+        meadow,
+        cost,
+      });
+      assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).ok, true);
+      assert.equal(profile.points, 0);
+      profile.highestLevel = 99;
+      profile.points = 10_000;
+      assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).ok, false);
+      assert.equal(dog.training[skill.id], tier + 1);
+      assert.equal(profile.points, 10_000);
+    }
+    assert.equal(trainingAvailability(profile, dog.id, skill.id).reason, 'max');
+    assert.equal(buyDogTraining(profile, 'missing', skill.id).reason, 'dog');
+    assert.equal(buyDogTraining(profile, dog.id, 'helper').reason, 'unknown');
+  }
+});
+
+test('training survives reload and lineup swaps for individual copies, including runs in earlier meadows', () => {
+  const profile = defaultProfile();
+  profile.highestLevel = 49;
+  profile.points = 10_000;
+  buyKennelSlot(profile, 2);
+  const { dog: fern } = adoptKennelDog(profile, 'dog-3', 'Fern');
+  const { dog: hazel } = adoptKennelDog(profile, 'dog-3', 'Hazel');
+  for (const skill of DOG_TRAINING_CATALOG) {
+    for (let tier = 0; tier < 3; tier++) assert.equal(buyDogTraining(profile, fern.id, skill.id, tier).ok, true);
+  }
+  assignKennelDog(profile, 1, fern.id);
+  assignKennelDog(profile, 2, hazel.id);
+  let stored;
+  const storage = {
+    getItem: () => stored,
+    setItem: (_, value) => {
+      stored = value;
+    },
+  };
+  saveProfile(profile, storage);
+  const reloaded = loadProfile(storage);
+  const [lead, helper] = reloaded.kennel.lineup.map((id) => reloaded.kennel.dogs.find((dog) => dog.id === id));
+  assert.equal(lead.id, fern.id);
+  assert.equal(helper.id, hazel.id);
+  const trained = dogTrainingEffects(lead);
+  const untrained = dogTrainingEffects(helper);
+  assert.ok(trained.maxSpeed > untrained.maxSpeed && trained.turnMultiplier > untrained.turnMultiplier);
+  assert.equal(trained.signalBoost, 4);
+  assert.equal(untrained.signalBoost, 0);
+  assert.ok(trained.barkMultiplier > untrained.barkMultiplier);
+  assert.equal(trained.barkCharges, 2);
+  assert.equal(untrained.barkCharges, 1);
+  assert.deepEqual(reloaded, profile);
+});
+
+test('existing and malformed saved dogs get validated individual tiers without converting Workshop purchases', () => {
+  const profile = defaultProfile();
+  delete profile.kennel.dogs[0].training;
+  profile.upgrades = { speed: 3, flock: 1 };
+  const saved = validateProfile(profile);
+  assert.deepEqual(saved.kennel.dogs[0].training, { speed: 0, agility: 0, influence: 0, bark: 0 });
+  assert.deepEqual(saved.upgrades, profile.upgrades);
+  profile.kennel.dogs[0].training = { speed: true, agility: Infinity, influence: 2, bark: 999, helper: 3 };
+  assert.deepEqual(validateProfile(profile).kennel.dogs[0].training, { speed: 0, agility: 0, influence: 2, bark: 3 });
 });
