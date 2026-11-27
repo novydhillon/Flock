@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Kennel management smoke check — 26 November 2026
+
+On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster scroll, lock and price labels, adopting with a name, assigning an owned dog, clearing a helper slot, and return focus. At meadow 20 buy the second slot once and verify Buddy and the bolt balance persist after reload. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
+
 ## Half-resolution rendering smoke check — 25 November 2026
 
 On a phone, open a meadow and compare the canvas drawing buffer against the viewport CSS dimensions multiplied by the device pixel ratio. The buffer should be half that size per dimension in portrait and landscape. Check that the canvas fills the viewport and HUD placement and shadow appearance remain consistent. Physical device check pending.
@@ -285,6 +289,7 @@ The generator resolves links among the documented pages, creates heading anchors
 | `tests/herding-journey.test.js` | Entire flocks delivered with ordinary simulated dog inputs in selected levels |
 | `tests/progression.test.js` | Tier cost/unlock/activation and legacy data validation |
 | `tests/ui.test.js` | Production controller navigation, rewards, restart, input and continuous soundtrack using real FarmAudio with WebAudio substitutes |
+| `tests/kennel-ui.test.js` | Kennel roster, slot purchases, adoptions and lineup management in a DOM substitute |
 | `tests/delivery.test.js` | First-arrival timer, partial score, lifetime earned ledger and legacy migration |
 | `tests/goal-view.test.js` | Shared target highlight/border/floor and projected minimap corners |
 | `tests/world-geometry.test.js` | Perpendicular crossings, deck/path ratio and shared full-body target footprint |

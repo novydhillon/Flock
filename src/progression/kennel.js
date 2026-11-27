@@ -78,21 +78,22 @@ function priceReason(profile, cost) {
   return null;
 }
 
-/** Omit cost to query campaign eligibility alone. Purchases always require a price. */
-export function slotAvailability(profile, slotNumber, cost) {
-  const meadow = validSlot(slotNumber) ? slotMeadows[slotNumber - 1] : null;
+export function slotAvailability(profile, slotNumber, price) {
+  const index = validSlot(slotNumber) ? slotNumber - 1 : -1;
+  const meadow = slotMeadows[index] ?? null;
+  const cost = price === undefined ? settings.slotBoltPrices[index] : price;
   const opened = openedSlots(profile?.kennel);
   let reason = null;
   if (meadow === null) reason = 'unknown';
   else if (slotNumber <= opened) reason = 'owned';
   else if (progressionLevel(profile) < meadow) reason = 'locked';
   else if (slotNumber !== opened + 1) reason = 'previous-slot';
-  else if (cost !== undefined) reason = priceReason(profile, cost);
+  else reason = priceReason(profile, cost);
   return { available: reason === null, reason, meadow, cost: cost ?? null };
 }
 
 export function buyKennelSlot(profile, slotNumber, cost) {
-  const status = slotAvailability(profile, slotNumber, cost ?? null);
+  const status = slotAvailability(profile, slotNumber, cost);
   if (!status.available) return { ok: false, reason: status.reason };
 
   const kennel = validateKennel(profile.kennel);
@@ -101,7 +102,7 @@ export function buyKennelSlot(profile, slotNumber, cost) {
     kennel.dogs.push(createDog('buddy', catalog.get('buddy')));
     kennel.lineup[1] = 'buddy';
   }
-  Object.assign(profile, { points: profile.points - cost, kennel });
+  Object.assign(profile, { points: profile.points - status.cost, kennel });
   return { ok: true };
 }
 

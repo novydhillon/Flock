@@ -28,7 +28,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | In progress | F-DOG-001; F-KENNEL-001 |
 | F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | In progress | F-KENNEL-001; F-KENNEL-002; F-046 |
 | F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
-| F-KENNEL-005 | P1 | UI/progression | Manage the kennel from pause and rewards | Open | F-KENNEL-001–004 |
+| F-KENNEL-005 | P1 | UI/progression | Manage the kennel from pause and rewards | In progress | F-KENNEL-001–004 |
 | F-KENNEL-006 | P1 | Art/animation | Animate and illustrate the ten-entry roster | Open | F-DOG-001; F-KENNEL-002; F-KENNEL-005 |
 | F-KENNEL-007 | P1 | Persistence/gameplay | Preserve campaign progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
 | F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
@@ -60,7 +60,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 ## Acceptance criteria and planned work
 
-F-KENNEL-001 to F-KENNEL-003 are in progress on the feature branch. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
+F-KENNEL-001 to F-KENNEL-003 and F-KENNEL-005 are in progress on the feature branch. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
 
 ### F-KENNEL-001 — Buy meadow slots and earn Buddy
 
@@ -108,7 +108,7 @@ As a player, I want to choose which dogs work with me so I can lead with my favo
 - Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
 - An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
 
-**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The kennel UI, slot price policy and simulation entry points are pending.
+**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The kennel now saves selections from the pause and results screens. Simulation integration is pending.
 
 ### F-KENNEL-004 — Train speed, agility, influence and bark
 
@@ -127,9 +127,9 @@ As a player, I want to train a particular dog so its strengths carry into the ro
 
 ### F-KENNEL-005 — Manage the kennel from pause and rewards
 
-**Status:** Open. Owner unassigned.
+**Status:** In progress. Owner Codex.
 
-**Branch:** Unassigned
+**Branch:** `feat/kennel-progression`
 
 As a player, I want to browse and manage my dogs when I pause so I can prepare a lineup and spend bolts in one place.
 
@@ -139,6 +139,8 @@ As a player, I want to browse and manage my dogs when I pause so I can prepare a
 - The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
 - The opposite side from the preview shows stacked running-dog, turning-dog, signal-rings and barking-dog icons. Each available upgrade has a green plus next to the icon and the bolt price below it. Locked, unaffordable and maximum-tier states remain legible.
 - The screen supports adoption, selecting and managing an owned dog, buying an eligible slot, and assigning or replacing a lineup dog. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
+
+**26 November 2026:** The feature branch exposes roster browsing, slot purchases and lineup management from pause and results. Slot prices are provisional. Workshop cutover, training controls and final preview art are pending.
 
 ### F-KENNEL-006 — Animate and illustrate the ten-entry roster
 

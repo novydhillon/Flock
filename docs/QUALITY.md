@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## F-KENNEL-005 — Kennel management preview — 26 November 2026
+
+Branch `feat/kennel-progression`, based on `0e1fa2ad9cb6c621aac5d4cd24eeae8a401873f9`. Session model and effort identifiers not recorded. The pause and results menus open the kennel preview. Players can browse ten placeholder portraits, buy slots, adopt named dogs with individual coats, and save or clear lineup assignments. Slot prices are provisional. Meadows continue to use the existing actor setup and the Workshop remains accessible.
+
+Blind review scored 8/10, then 9/10 after adding explicit assignment confirmation, labeling the incomplete gameplay hookup and provisional prices, and distinguishing Buddy's portrait. Rejected assignments return focus to their picker. Focused profile, UI, controller and source-layout checks and both compiled artifact guards passed. Mobile touch and rendered appearance remain unverified.
+
 ## F-KENNEL-001–003 — Campaign profile foundation — 26 November 2026
 
 Branch `feat/kennel-progression`, based on main `c496dc82ce58a412d1e9da96f914e7b4fccd8ffd`. Session model and effort identifier not recorded. This slice covers the kennel catalog, slot and adoption transactions, per-dog identity, coat selection within a model, and lineup persistence. Slot prices are supplied explicitly until product pricing is set. The existing Workshop and game actors still use their current path.

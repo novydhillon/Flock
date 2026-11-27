@@ -8,6 +8,8 @@ const PRESENTATION = resolveConfig(presentationSettings, 'presentation', CONFIG_
 
 import '../ui/style.css';
 import '../ui/landing-ui.css';
+import '../ui/kennel-ui.css';
+import { mountKennel } from '../ui/kennel-ui.js';
 import { continuation, meadowSelectorHTML, workshopHTML, createShowcase, stepShowcase } from '../ui/landing-ui.js';
 import '@fontsource/outfit/latin-600.css';
 import '@fontsource/outfit/latin-700.css';
@@ -240,7 +242,12 @@ function openModal(html, newMode = 'paused') {
   $('modal-card').innerHTML = html;
   visible('modal', true);
   visible('controls', false);
-  setTimeout(() => $('modal-card').querySelector('button')?.focus(), CONTROLS.feedback.modalFocusDelayMs);
+  setTimeout(() => {
+    const card = $('modal-card');
+    if (!$('modal').classList.contains('hidden') && !card.contains(document.activeElement)) {
+      card.querySelector('button')?.focus();
+    }
+  }, CONTROLS.feedback.modalFocusDelayMs);
 }
 function closeModal(resume = true) {
   visible('modal', false);
@@ -291,8 +298,8 @@ function menu() {
     $('cancel-reset').onclick();
     return;
   }
-  if (mode === 'shop') {
-    $('shop-back').onclick();
+  if (mode === 'shop' || mode === 'kennel') {
+    $(mode === 'shop' ? 'shop-back' : 'kennel-back').onclick();
     return;
   }
   if (mode === 'meadows') {
@@ -305,11 +312,12 @@ function menu() {
   }
   if (mode === 'complete') return;
   openModal(
-    `<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode === 'intro' ? 'Hello, shepherd.' : 'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode === 'intro' ? 'Back to the meadow' : 'Keep herding'} <span>→</span></button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button><button class="secondary" id="choose-meadow-menu">Choose meadow</button>${mode === 'playing' ? '<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>' : ''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music ? 'On' : 'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart whole game</button>`,
+    `<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode === 'intro' ? 'Hello, shepherd.' : 'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode === 'intro' ? 'Back to the meadow' : 'Keep herding'} <span>→</span></button><button class="secondary" id="kennel-menu">Visit the kennel</button><button class="secondary" id="upgrades-menu">Visit the workshop · ${profile.points} bolts</button><button class="secondary" id="choose-meadow-menu">Choose meadow</button>${mode === 'playing' ? '<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>' : ''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music ? 'On' : 'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart whole game</button>`,
   );
   $('close').onclick = () => closeModal();
   $('resume').onclick = () => closeModal();
   $('menu-sound').onclick = toggleSound;
+  $('kennel-menu').onclick = kennel;
   $('upgrades-menu').onclick = shop;
   $('restart-game-menu').onclick = confirmRestart;
   $('choose-meadow-menu').onclick = chooseMeadow;
@@ -384,6 +392,33 @@ function confirmRestart() {
     if (mode === 'playing') $('pause').focus();
   };
 }
+function kennel() {
+  const fromResults = mode === 'complete';
+  const meadowMode = previousMode;
+  openModal(
+    '<button class="close-modal" id="close" aria-label="Close kennel">×</button><h2>Dog kennel</h2><div id="kennel-content"></div><button class="secondary" id="kennel-back">Back</button>',
+    'kennel',
+  );
+  const back = () => {
+    if (fromResults) {
+      complete(false);
+      $('reward-kennel').focus();
+      return;
+    }
+    mode = meadowMode;
+    menu();
+    $('kennel-menu').focus();
+  };
+  $('close').onclick = back;
+  $('kennel-back').onclick = back;
+  mountKennel($('kennel-content'), {
+    profile,
+    onChange: () => {
+      persist();
+      updateWallet();
+    },
+  });
+}
 function shop() {
   const returnMode = mode === 'complete' ? 'complete' : mode === 'paused' || mode === 'shop' ? previousMode : mode;
   const shopLevel = qaSession ? level.index + 1 : undefined;
@@ -445,10 +480,11 @@ function complete(award = true) {
     total = level.animals.length,
     score = level.result?.score ?? 0;
   openModal(
-    `<div class="complete-seal">✦</div><div class="eyebrow">${saved === total ? 'A GOOD DAY’S HERDING' : 'DELIVERY TIME IS UP'}</div><h2>${saved === total ? 'Everyone’s home.' : saved > 0 ? 'A flock brought home.' : 'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index] || 0} / ${level.reward}<br>${Math.floor(elapsed / 60)}m ${Math.floor(elapsed % 60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward ? 'Bolts earned from your improved delivery score.' : 'No extra bolts this time. Deliver more robots to improve your best score.'}${saved > 0 && saved < total ? ' The next meadow is open.' : ''}</p><button class="primary" id="next">${saved === 0 ? 'Try again' : level.index >= 99 ? 'Return to the first meadow' : 'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-shop">Visit the workshop</button><button class="secondary" id="replay">Roam this meadow again</button>`,
+    `<div class="complete-seal">✦</div><div class="eyebrow">${saved === total ? 'A GOOD DAY’S HERDING' : 'DELIVERY TIME IS UP'}</div><h2>${saved === total ? 'Everyone’s home.' : saved > 0 ? 'A flock brought home.' : 'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index] || 0} / ${level.reward}<br>${Math.floor(elapsed / 60)}m ${Math.floor(elapsed % 60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward ? 'Bolts earned from your improved delivery score.' : 'No extra bolts this time. Deliver more robots to improve your best score.'}${saved > 0 && saved < total ? ' The next meadow is open.' : ''}</p><button class="primary" id="next">${saved === 0 ? 'Try again' : level.index >= 99 ? 'Return to the first meadow' : 'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-kennel">Visit the kennel</button><button class="secondary" id="reward-shop">Visit the workshop</button><button class="secondary" id="replay">Roam this meadow again</button>`,
     'complete',
   );
   $('next').onclick = () => begin(saved === 0 ? level.index : level.index >= 99 ? 0 : level.index + 1);
+  $('reward-kennel').onclick = kennel;
   $('reward-shop').onclick = shop;
   $('replay').onclick = () => begin(level.index);
 }
@@ -604,7 +640,9 @@ document.addEventListener('keydown', (e) => {
     menu();
   }
   if (e.key === 'Tab' && !$('modal').classList.contains('hidden')) {
-    const focusable = [...$('modal-card').querySelectorAll('button:not([disabled])')];
+    const focusable = [
+      ...$('modal-card').querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled])'),
+    ];
     const first = focusable[0],
       last = focusable.at(-1);
     if (e.shiftKey && document.activeElement === first) {

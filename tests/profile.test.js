@@ -83,13 +83,13 @@ test('kennel slots open at the campaign milestones and grant Buddy only on the f
     [4, 60],
   ]) {
     profile.highestLevel = meadow - 2;
-    assert.equal(slotAvailability(profile, slot).available, false);
+    assert.equal(slotAvailability(profile, slot, price).available, false);
     const beforeGate = structuredClone(profile);
     buyKennelSlot(profile, slot, price);
     assert.deepEqual(profile, beforeGate);
 
     profile.highestLevel = meadow - 1;
-    assert.equal(slotAvailability(profile, slot).available, true);
+    assert.equal(slotAvailability(profile, slot, price).available, true);
     const balance = profile.points;
     profile.points = price - 1;
     const beforeFunds = structuredClone(profile);
@@ -147,7 +147,8 @@ test('each adoption price becomes available at its public meadow, even after a l
   late.highestLevel = 59;
   late.points = 5_000;
   assert.equal(adoptionAvailability(late, 'dog-3').available, false);
-  assert.equal(buyKennelSlot(late, 2, 600).ok, true);
+  assert.equal(buyKennelSlot(late, 2).ok, true);
+  assert.equal(late.points, 4_400);
   assert.equal(adoptionAvailability(late, 'dog-3').available, true);
   assert.equal(adoptionAvailability(late, 'dog-10').available, true);
 });

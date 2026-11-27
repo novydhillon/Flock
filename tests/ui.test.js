@@ -192,6 +192,10 @@ function launch({
     ...gatesAPI,
     ...barkAPI,
     ...landingUI,
+    mountKennel: (_root, { profile, onChange }) => {
+      profile.kennel.dogs[0].name = 'Test Pip';
+      onChange();
+    },
     document,
     window: { addEventListener: (event, handler) => windowEvents.set(event, handler) },
     navigator: {},
@@ -426,6 +430,29 @@ test('completed level rewards once and workshop back preserves the reward screen
   await ui.click('replay');
   ui.completeFlock();
   assert.equal(ui.app.state().profile.points, 0, 'Replay cannot farm the same level reward');
+});
+
+test('kennel round trips through pause and results without resuming or granting a second reward', async () => {
+  const ui = launch();
+  await ui.click('play');
+  ui.app.menu();
+  await ui.click('kennel-menu');
+  assert.equal(ui.app.state().mode, 'kennel');
+  assert.equal(ui.app.state().profile.kennel.dogs[0].name, 'Test Pip');
+  assert.equal(JSON.parse(ui.storage.get('flock-foundry-v1')).kennel.dogs[0].name, 'Test Pip');
+  ui.emit('keydown', { key: 'Escape' });
+  assert.equal(ui.app.state().mode, 'paused');
+  assert.equal(ui.el('kennel-menu').id, 'kennel-menu');
+  await ui.click('resume');
+
+  ui.completeFlock();
+  const points = ui.app.state().profile.points;
+  await ui.click('reward-kennel');
+  assert.equal(ui.app.state().mode, 'kennel');
+  await ui.click('kennel-back');
+  assert.equal(ui.app.state().mode, 'complete');
+  assert.equal(ui.app.state().profile.points, points);
+  assert.ok(ui.el('next'));
 });
 
 test('Escape in a completion workshop restores completion actions', async () => {

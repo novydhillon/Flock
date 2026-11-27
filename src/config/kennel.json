@@ -1,6 +1,8 @@
 {
   "_comment": "Public meadow gates and approved per-adoption bolt prices. Pip and Buddy grant rules are handled by the kennel.",
   "slotMeadows": [1, 20, 40, 60],
+  "_slotBoltPricesComment": "Provisional playtest values based on the old Buddy tier prices.",
+  "slotBoltPrices": [0, 600, 850, 1200],
   "dogs": [
     { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 1, "cost": null },
     { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 20, "cost": null },
