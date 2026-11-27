@@ -21,8 +21,8 @@
 }
 
 .dog-preview-solo {
-  height: clamp(135px, 28svh, 235px);
-  margin-top: 9px;
+  height: clamp(112px, 23svh, 208px);
+  margin-top: 5px;
 }
 
 .dog-preview-crew {
@@ -31,22 +31,4 @@
 
 .kennel-detail:has(.dog-preview-active) .kennel-portrait-featured {
   display: none;
-}
-
-.kennel-management .dog-preview-subject {
-  position: absolute;
-  z-index: 1;
-  top: 8px;
-  left: 8px;
-  max-width: calc(100% - 16px);
-  margin: 0;
-  padding: 3px 7px;
-  overflow: hidden;
-  border-radius: 7px;
-  background: #f6f8e9ed;
-  color: #345238;
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  pointer-events: none;
 }

@@ -1,5 +1,10 @@
 # Flock revision quality record
 
+## Head-height dog previews and compact kennel — 27 November 2026
+
+Branch `feat/kennel-progression`, base `b7fd3342116bbe9253942546f0bec08e1d006191`. Sol High handled preview modeling and independent review. Both previews use a near-horizontal standing-head-height view and denser dog geometry built only for the preview. The kennel uses one roster for named, full-color dog portraits and four icon-led training rows. Short portrait viewports use a two-column training grid. Independent review scored 9/10 after fixes to color, duplicate names, touch help and short-screen layout. All 111 focused tests passed. Physical iOS safe-area fit and rendering performance remain pending.
+
+
 ## Animated dog and crew previews — 27 November 2026
 
 The kennel displays the selected catalog coat or owned dog. Meadow entry displays the staged crew. Both previews reuse the gameplay dog rigs and idle timing. The kennel runs the outgoing dog off right before the latest selection enters from the left. The preview releases its geometry and WebGL context when the modal closes. A renderer-double test covers animation, context loss and reduced motion. Sol High source review scored 9/10 after corrections to bow aim, coat selection and static pose. Rendered phone validation remains pending.

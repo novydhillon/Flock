@@ -137,10 +137,12 @@ As a player, I want to browse, adopt and train dogs in the kennel so I can bring
 
 - The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.
 - The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
-- The opposite side from the preview shows stacked running-dog, turning-dog, signal-rings and barking-dog icons. Each available upgrade has a green plus next to the icon and the bolt price below it. Locked, unaffordable and maximum-tier states remain legible.
+- The stats show running, turning, signaling and barking dog icons with three green or grey paws each. Show the next bolt price, disable it when the purchase is blocked, and hide it at max. Locked, unaffordable and maximum-tier states remain legible.
 - The kennel supports adoption, selection and training of individual dogs. At meadow entry, choose a player or partner position and select an owned dog by portrait. The 3D crew reflects the staged lineup as it changes. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
 
 **26 November 2026:** The feature branch exposes roster browsing, slot purchases and lineup management from pause and results. Slot prices are provisional. Workshop cutover, training controls and final preview art are pending.
+
+**27 November 2026:** The compact roster selects the specific dog for preview and training. Named color portraits replace coat labels and the redundant owned-dog menu. Paw meters replace tier text, and tapping a stat shows its effect or purchase requirement.
 
 ### F-KENNEL-006 — Animate and illustrate the ten-entry roster
 
@@ -155,6 +157,8 @@ As a player, I want to see each dog's coat and personality before I adopt it or 
 - Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.
 - The larger preview above the strip uses the selected dog's coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.
 - A turnaround ends with the dog's head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.
+
+**27 November 2026:** The kennel and meadow crew previews now frame the dogs from standing head height and use higher-detail geometry. The original model meshes remain in use during gameplay.
 
 ### F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades
 

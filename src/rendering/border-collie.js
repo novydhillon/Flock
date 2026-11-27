@@ -43,13 +43,16 @@ function coatPalette(coat) {
     ivory: light ?? palette.ivory,
   };
 }
-const unit = new THREE.SphereGeometry(1, 16, 12);
-const detail = new THREE.SphereGeometry(1, 10, 8);
+const gameplaySpheres = {
+  large: new THREE.SphereGeometry(1, 16, 12),
+  small: new THREE.SphereGeometry(1, 10, 8),
+};
+let previewSpheres;
 
 // Sculpt a soft ellipsoid in joint-local space. Deformations operate on the
 // unit surface, so markings and tapered tips stay attached as joints move.
-function clayForm(colorsByName, tint, position, size, sculpt, rotation = 0) {
-  const geometry = (Math.max(...size) < 0.235 ? detail : unit).clone();
+function clayForm(colorsByName, spheres, tint, position, size, sculpt, rotation = 0) {
+  const geometry = (Math.max(...size) < 0.235 ? spheres.small : spheres.large).clone();
   const points = geometry.attributes.position;
   const colors = [];
   const point = new THREE.Vector3();
@@ -217,9 +220,15 @@ function makeLeg(rig, side, fore, form) {
   };
 }
 
-function borderCollie(puppy, coat) {
+function borderCollie(puppy, coat, highDetail) {
   const colors = coatPalette(coat);
-  const form = clayForm.bind(null, colors);
+  const spheres = highDetail
+    ? (previewSpheres ??= {
+        large: new THREE.SphereGeometry(1, 32, 24),
+        small: new THREE.SphereGeometry(1, 20, 16),
+      })
+    : gameplaySpheres;
+  const form = clayForm.bind(null, colors, spheres);
   const dog = new THREE.Group();
   dog.name = puppy ? 'Buddy the Border Collie puppy' : 'Pip the Border Collie';
   const rig = new THREE.Group();
@@ -270,9 +279,9 @@ function borderCollie(puppy, coat) {
   return dog;
 }
 
-export function createPip(coat) {
-  return borderCollie(false, coat);
+export function createPip(coat, { highDetail = false } = {}) {
+  return borderCollie(false, coat, highDetail);
 }
-export function createBuddy(coat) {
-  return borderCollie(true, coat);
+export function createBuddy(coat, { highDetail = false } = {}) {
+  return borderCollie(true, coat, highDetail);
 }

@@ -1,3 +1,4 @@
+import { kennelIcon } from './kennel-icons.js';
 import { mountDogPreview } from '../rendering/dog-preview.js';
 import { KENNEL_CATALOG, adoptKennelDog, adoptionAvailability, validateKennel } from '../progression/kennel.js';
 
@@ -16,7 +17,6 @@ export const coatNames = new Map([
   ['black-auburn-white', 'Black, auburn and white'],
 ]);
 
-const catalogLabel = (entry) => entry.name ?? coatNames.get(entry.coat);
 const boltLabel = (amount) => (amount === 1 ? 'bolt' : 'bolts');
 const boltPrice = (amount) => `${amount.toLocaleString()} ${boltLabel(amount)}`;
 const boltShortfall = (amount) => `Need ${amount.toLocaleString()} more ${boltLabel(amount)}`;
@@ -42,253 +42,264 @@ export function kennelPortrait(doc, entry, className = '') {
 export function mountKennel(root, { profile, onChange, mountPreview = mountDogPreview }) {
   const doc = root.ownerDocument;
   const node = (tag, className, text) => createNode(doc, tag, className, text);
-  function button(className, text) {
-    const element = node('button', className, text);
+  const icon = (id, classes) => kennelIcon(doc, id, classes);
+  function button(className, label) {
+    const element = node('button', className);
     element.type = 'button';
+    element.setAttribute('aria-label', label);
     return element;
   }
-  function option(value, text) {
-    const element = node('option', '', text);
-    element.value = value;
-    return element;
-  }
-  function labeled(text, control) {
-    const label = node('label', 'kennel-field');
-    label.append(node('span', '', text), control);
-    return label;
-  }
-  let selected = KENNEL_CATALOG[0];
-  let previewOwned = true;
+
   let kennel = validateKennel(profile.kennel);
+  let selection = { entry: KENNEL_CATALOG[0], dog: kennel.dogs.find((dog) => dog.id === 'pip') };
+  let chosenCoat = selection.dog.coat;
 
   const panel = node('div', 'kennel-management');
   const wallet = node('div', 'kennel-wallet');
-  const notice = node('div', 'kennel-notice');
+  wallet.setAttribute('role', 'img');
+  const balance = node('span');
+  wallet.append(icon('bolt'), balance);
+  const notice = node('div', 'kennel-sr-only');
   notice.setAttribute('role', 'status');
   const content = node('div', 'kennel-content');
   const detail = node('section', 'kennel-detail');
-  const selectedArt = kennelPortrait(doc, selected, 'kennel-portrait-featured');
-  const detailHeading = node('div', 'kennel-detail-heading');
+  const heading = node('div', 'kennel-detail-heading');
+  const selectedArt = kennelPortrait(doc, selection.dog, 'kennel-portrait-featured');
   const selectedTitle = node('h3', 'kennel-heading');
-  const adoptionState = node('p', 'kennel-adoption-state');
-  const headingText = node('div');
-  headingText.append(selectedTitle, adoptionState);
-  detailHeading.append(selectedArt, headingText);
+  heading.append(selectedArt, selectedTitle);
   const stage = node('div', 'dog-preview dog-preview-solo');
-  const subject = node('p', 'dog-preview-subject');
-  stage.append(subject);
+  detail.append(heading, stage);
 
+  const actions = node('div', 'kennel-actions');
+  const adoptionState = node('p', 'kennel-adoption-state');
   const adoption = node('form', 'kennel-adoption');
   const name = node('input');
   name.type = 'text';
   name.name = 'dog-name';
   name.maxLength = 40;
   name.autocomplete = 'off';
-  const coat = node('select');
-  coat.name = 'dog-coat';
-  const adopt = button('kennel-action', 'Adopt');
+  name.setAttribute('aria-label', 'Name (optional)');
+  const coats = node('div', 'kennel-coats');
+  coats.setAttribute('role', 'group');
+  coats.setAttribute('aria-label', 'Adoption coat');
+  const adopt = button('kennel-action kennel-adopt', 'Adopt');
   adopt.type = 'submit';
-  adoption.append(labeled('Name (optional)', name), labeled('Adoption coat', coat), adopt);
-  detail.append(detailHeading, stage, adoption);
+  const adoptionPrice = node('span');
+  adopt.append(icon('add'), icon('bolt'), adoptionPrice);
+  adoption.append(name, coats, adopt);
   const training = node('section', 'kennel-training');
-  const dogPicker = node('select', 'kennel-owned');
-  const dogField = labeled('Owned dog', dogPicker);
-  const dogCoat = node('p', 'kennel-owned-coat');
-  const trainingRows = node('div', 'kennel-training-rows');
-  training.append(node('h3', 'kennel-heading', 'Individual training'), dogField, dogCoat, trainingRows);
-  content.append(detail, training);
+  training.setAttribute('aria-label', 'Training');
+  actions.append(training, adoptionState, adoption);
+  content.append(detail, actions);
 
   const catalog = node('div', 'kennel-catalog');
   catalog.setAttribute('role', 'group');
-  catalog.setAttribute('aria-label', 'Dog catalog');
-  const cards = KENNEL_CATALOG.map((entry) => {
-    const card = button('kennel-catalog-card', '');
-    card.dataset.kennelCatalog = entry.id;
-    const status = node('span', 'kennel-card-status');
-    card.append(kennelPortrait(doc, entry, ''), node('span', 'kennel-card-label', catalogLabel(entry)), status);
-    card.addEventListener('click', () => select(entry));
-    catalog.append(card);
-    return { card, entry, status };
-  });
+  catalog.setAttribute('aria-label', 'Dog roster');
   panel.append(wallet, notice, content, catalog);
   root.replaceChildren(panel);
   const preview = mountPreview(stage, { solo: true });
 
-  function availabilityText(entry, state) {
-    if (entry.id === 'pip') return 'Starter dog';
-    if (entry.id === 'buddy')
-      return kennel.openedSlots >= 2
-        ? 'Included with the second party position'
-        : 'Buddy joins when you open the second position at meadow entry, available from meadow 20';
-    if (kennel.openedSlots < 2) return `Open the second position at meadow entry and reach meadow ${state.meadow}`;
-    if (state.reason === 'locked') return `Reach meadow ${state.meadow}`;
-    if (state.reason === 'points') return boltShortfall(state.cost - profile.points);
-    return 'Available to adopt';
+  function currentCard() {
+    return catalog.querySelector('[aria-pressed="true"]');
   }
 
-  function select(entry) {
-    if (selected !== entry) {
-      name.value = '';
-      dogPicker.value = '';
+  function choose(entry, dog) {
+    selection = { entry, dog };
+    chosenCoat = dog?.coat ?? entry.coat;
+    name.value = '';
+    renderSelection();
+    for (const card of catalog.children) {
+      const selected = dog ? card.dataset.kennelDog === dog.id : card.dataset.kennelOffer === entry.id;
+      card.setAttribute('aria-pressed', String(selected));
     }
-    previewOwned = entry.cost === null;
-    selected = entry;
-    coat.replaceChildren(
-      ...KENNEL_CATALOG.filter((candidate) => candidate.model === entry.model).map((candidate) =>
-        option(candidate.coat, coatNames.get(candidate.coat)),
-      ),
-    );
-    coat.value = entry.coat;
-    renderCatalog();
-    renderSelected();
   }
 
   function renderCatalog() {
-    for (const { card, entry, status } of cards) {
-      const count = kennel.dogs.filter((dog) => dog.catalogId === entry.id).length;
+    catalog.replaceChildren();
+    const dogsByName = new Map();
+    for (const dog of kennel.dogs) {
+      if (!dogsByName.has(dog.name)) dogsByName.set(dog.name, []);
+      dogsByName.get(dog.name).push(dog.id);
+    }
+    for (const entry of KENNEL_CATALOG) {
+      const copies = kennel.dogs.filter((dog) => dog.catalogId === entry.id);
+      const cards = copies.map((dog) => ({ dog, label: dog.name }));
+      if (!copies.length || entry.cost !== null) cards.push({ label: entry.name });
       const availability = adoptionAvailability(profile, entry.id);
-      card.setAttribute('aria-pressed', String(entry === selected));
-      card.classList.toggle('kennel-unavailable', count === 0 && !availability.available);
-      status.textContent = count ? `${count} owned` : availabilityText(entry, availability);
+      for (const { dog, label } of cards) {
+        const locked = !dog && (entry.cost === null || availability.reason === 'locked');
+        const matches = dogsByName.get(label);
+        const copy = dog && matches.length > 1 ? matches.indexOf(dog.id) + 1 : null;
+        const ownedLabel = copy === null ? label : `${label}, dog ${copy}`;
+        const card = button('kennel-catalog-card', dog ? ownedLabel : locked ? `${label}, locked` : `Adopt ${label}`);
+        card.dataset.kennelCatalog = entry.id;
+        if (dog) card.dataset.kennelDog = dog.id;
+        else card.dataset.kennelOffer = entry.id;
+        const portrait = kennelPortrait(doc, { model: entry.model, coat: dog?.coat ?? entry.coat });
+        if (!dog) portrait.append(icon(locked ? 'lock' : 'add', 'kennel-roster-badge'));
+        const cardLabel = node('span', 'kennel-card-label');
+        cardLabel.append(node('span', 'kennel-card-name', label));
+        if (copy !== null) cardLabel.append(node('span', 'kennel-card-number', String(copy)));
+        card.append(portrait, cardLabel);
+        card.setAttribute(
+          'aria-pressed',
+          String(dog ? selection.dog?.id === dog.id : !selection.dog && selection.entry === entry),
+        );
+        card.addEventListener('click', () => choose(entry, dog));
+        catalog.append(card);
+      }
     }
   }
 
-  function renderSelected() {
-    const availability = adoptionAvailability(profile, selected.id);
-    selectedTitle.textContent = catalogLabel(selected);
-    adoptionState.textContent = availabilityText(selected, availability);
-    adoption.hidden = selected.cost === null;
-    name.disabled = coat.disabled = adopt.disabled = !availability.available;
-    if (!adoption.hidden) adopt.textContent = `Adopt for ${boltPrice(availability.cost)}`;
-    const copies = kennel.dogs.filter((dog) => dog.catalogId === selected.id);
-    training.hidden = !copies.length;
-    const previousId = dogPicker.value;
-    const nameCounts = new Map();
-    for (const dog of copies) nameCounts.set(dog.name, (nameCounts.get(dog.name) ?? 0) + 1);
-    dogPicker.replaceChildren(
-      ...copies.map((dog, i) => option(dog.id, nameCounts.get(dog.name) > 1 ? `${dog.name} (dog ${i + 1})` : dog.name)),
-    );
-    dogPicker.value = copies.find((dog) => dog.id === previousId)?.id ?? copies[0]?.id ?? '';
-    renderTraining();
+  function showDog() {
+    const { entry, dog } = selection;
+    selectedArt.dataset.coat = chosenCoat;
+    selectedArt.dataset.model = entry.model;
+    preview.show([{ id: dog?.id ?? entry.id, model: entry.model, coat: chosenCoat }]);
   }
 
-  function showDog(dog, coatChoice = dog?.coat ?? selected.coat) {
-    subject.textContent = `${dog?.name ?? 'Adoption preview'} · ${coatNames.get(coatChoice)}`;
-    selectedArt.dataset.coat = coatChoice;
-    selectedArt.dataset.model = selected.model;
-    preview.show([{ id: dog?.id ?? selected.id, model: selected.model, coat: coatChoice }]);
+  function renderSelection() {
+    const { entry, dog } = selection;
+    selectedTitle.textContent = dog?.name ?? entry.name;
+    showDog();
+    training.hidden = !dog;
+    adoptionState.hidden = true;
+    adoption.hidden = true;
+    if (dog) {
+      renderTraining();
+      return;
+    }
+    const state = adoptionAvailability(profile, entry.id);
+    if (entry.id === 'buddy' || state.reason === 'locked') {
+      adoptionState.hidden = false;
+      adoptionState.textContent =
+        entry.id === 'buddy'
+          ? 'Joins with the second crew position · Meadow 20'
+          : kennel.openedSlots < 2
+            ? `Meadow ${state.meadow} · Open the second crew position first`
+            : `Meadow ${state.meadow}`;
+      return;
+    }
+
+    adoption.hidden = false;
+    name.placeholder = entry.name;
+    adoptionPrice.textContent = state.cost.toLocaleString();
+    adopt.disabled = !state.available;
+    adopt.setAttribute('aria-label', `Adopt ${entry.name} for ${boltPrice(state.cost)}`);
+    adopt.title = adopt.getAttribute('aria-label');
+    if (state.reason === 'points') {
+      adoptionState.textContent = boltShortfall(state.cost - profile.points);
+      adoptionState.hidden = false;
+    }
+    coats.replaceChildren();
+    for (const candidate of KENNEL_CATALOG.filter((candidate) => candidate.model === entry.model)) {
+      const swatch = button('kennel-coat', coatNames.get(candidate.coat));
+      swatch.setAttribute('aria-pressed', String(chosenCoat === candidate.coat));
+      swatch.append(kennelPortrait(doc, candidate));
+      swatch.addEventListener('click', () => {
+        chosenCoat = candidate.coat;
+        for (const other of coats.children) other.setAttribute('aria-pressed', String(other === swatch));
+        showDog();
+      });
+      coats.append(swatch);
+    }
   }
 
   function renderTraining() {
-    const dog = kennel.dogs.find((dog) => dog.id === dogPicker.value);
-    showDog(previewOwned ? dog : null, previewOwned && dog ? dog.coat : coat.value || selected.coat);
-    trainingRows.replaceChildren();
-    if (!dog) return;
-    dogCoat.textContent = coatNames.get(dog.coat);
+    const { dog } = selection;
+    training.replaceChildren();
+    const tip = node('p', 'kennel-stat-tip');
+    tip.setAttribute('role', 'status');
+    tip.id = 'kennel-stat-tip';
+    tip.hidden = true;
+    let activeHelp;
     for (const skill of DOG_TRAINING_CATALOG) {
       const state = trainingAvailability(profile, dog.id, skill.id);
       const row = node('div', 'kennel-training-row');
-      const title = node('strong', '', skill.name);
-      const level = node('span', '', `Tier ${state.level} of ${skill.costs.length}`);
-      const description = node(
-        'span',
-        'kennel-training-description',
-        state.reason === 'max' ? 'Fully trained' : skill.tierDescriptions[state.level],
-      );
-      const action = button('kennel-action', state.reason === 'max' ? 'Maximum tier' : `+ ${boltPrice(state.cost)}`);
-      action.dataset.kennelTrain = skill.id;
-      action.setAttribute('aria-label', `Train ${dog.name} in ${skill.name}, ${action.textContent}`);
-      action.disabled = !state.available;
+      const progress = `${skill.name}, ${state.level} of ${skill.costs.length} upgrades`;
+      const nextTier = skill.tierDescriptions[state.level];
       const reason =
         state.reason === 'locked'
           ? `Reach meadow ${state.meadow}`
           : state.reason === 'points'
             ? boltShortfall(state.cost - profile.points)
             : '';
-      const info = node('div', 'kennel-training-info');
-      const icon = node('span', 'kennel-training-icon', skill.icon);
-      icon.setAttribute('aria-hidden', 'true');
-      title.prepend(icon);
-      info.append(title, level, description);
-      if (reason) info.append(node('span', 'kennel-training-reason', reason));
-      action.addEventListener('click', () => {
-        if (!buyDogTraining(profile, dog.id, skill.id, state.level).ok) return;
-        previewOwned = true;
-        commit(`${dog.name} reached tier ${state.level + 1} in ${skill.name}.`);
-        const next = trainingRows.querySelector(`[data-kennel-train="${skill.id}"]`);
-        (next.disabled ? dogPicker : next).focus({ preventScroll: true });
+      const info = button('kennel-training-info', progress);
+      info.setAttribute('aria-controls', tip.id);
+      info.setAttribute('aria-expanded', 'false');
+      info.title = skill.name;
+      info.addEventListener('click', () => {
+        const willShow = activeHelp !== info;
+        activeHelp?.setAttribute('aria-expanded', 'false');
+        activeHelp = willShow ? info : null;
+        info.setAttribute('aria-expanded', String(willShow));
+        tip.hidden = !willShow;
+        tip.textContent = `${skill.name} · ${reason || nextTier || 'Fully trained'}`;
       });
-      row.append(info, action);
-      trainingRows.append(row);
+      info.append(icon(skill.id, 'kennel-stat-icon'));
+      for (let tier = 0; tier < skill.costs.length; tier++) {
+        info.append(icon('paw', tier < state.level ? 'kennel-paw is-trained' : 'kennel-paw'));
+      }
+      row.append(info);
+      if (state.cost !== null) {
+        const label = [`Train ${dog.name} in ${skill.name} for ${boltPrice(state.cost)}`, nextTier, reason]
+          .filter(Boolean)
+          .join('. ');
+        const action = button('kennel-action', label);
+        action.title = label;
+        action.dataset.kennelTrain = skill.id;
+        action.disabled = !state.available;
+        action.append(icon('bolt'), node('span', '', state.cost.toLocaleString()));
+        action.addEventListener('click', () => {
+          if (!buyDogTraining(profile, dog.id, skill.id, state.level).ok) return;
+          save(`${skill.name}, ${state.level + 1} upgrades`);
+          renderTraining();
+          const next = training.querySelector(`[data-kennel-train="${skill.id}"]:not(:disabled)`);
+          (next ?? currentCard())?.focus({ preventScroll: true });
+        });
+        row.append(action);
+      }
+      training.append(row);
     }
-  }
-  function showOwnedDog() {
-    previewOwned = true;
-    showDog(kennel.dogs.find((dog) => dog.id === dogPicker.value));
-  }
-  dogPicker.addEventListener('focus', showOwnedDog);
-  dogPicker.addEventListener('change', () => {
-    showOwnedDog();
-    renderTraining();
-  });
-
-  function refresh() {
-    wallet.textContent = boltPrice(profile.points);
-    renderCatalog();
-    renderSelected();
+    training.append(tip);
   }
 
-  function commit(message) {
-    kennel = validateKennel(profile.kennel);
-    refresh();
+  function save(message) {
+    balance.textContent = profile.points.toLocaleString();
+    wallet.setAttribute('aria-label', boltPrice(profile.points));
     notice.textContent = message;
     onChange?.(profile);
   }
 
   adoption.addEventListener('submit', (event) => {
     event.preventDefault();
-    const result = adoptKennelDog(profile, selected.id, name.value, coat.value);
+    if (selection.dog) return;
+    const { entry } = selection;
+    const result = adoptKennelDog(profile, entry.id, name.value, chosenCoat);
     if (!result.ok) return;
-    name.value = '';
-    commit(`${result.dog.name} joined your kennel.`);
-    dogPicker.value = result.dog.id;
-    previewOwned = true;
-    renderTraining();
-    if (name.disabled) cards.find(({ entry }) => entry === selected).card.focus({ preventScroll: true });
-    else name.focus({ preventScroll: true });
+    kennel = validateKennel(profile.kennel);
+    selection = { entry, dog: result.dog };
+    chosenCoat = result.dog.coat;
+    save(`${result.dog.name} joined your kennel.`);
+    renderCatalog();
+    renderSelection();
+    currentCard()?.focus();
   });
-  function showAdoptionCoat() {
-    previewOwned = false;
-    showDog(null, coat.value);
-  }
-  coat.addEventListener('focus', showAdoptionCoat);
-  coat.addEventListener('change', showAdoptionCoat);
   catalog.addEventListener('keydown', (event) => {
-    const position = cards.findIndex(({ card }) => card === event.target);
+    const cards = [...catalog.children];
+    const position = cards.indexOf(event.target);
     if (position < 0) return;
-    let next;
-    switch (event.key) {
-      case 'ArrowLeft':
-        next = Math.max(0, position - 1);
-        break;
-      case 'ArrowRight':
-        next = Math.min(cards.length - 1, position + 1);
-        break;
-      case 'Home':
-        next = 0;
-        break;
-      case 'End':
-        next = cards.length - 1;
-        break;
-      default:
-        return;
-    }
+    const next = { ArrowLeft: position - 1, ArrowRight: position + 1, Home: 0, End: cards.length - 1 }[event.key];
+    if (next === undefined) return;
     event.preventDefault();
-    select(cards[next].entry);
-    cards[next].card.focus();
+    const card = cards[Math.max(0, Math.min(cards.length - 1, next))];
+    card.click();
+    card.focus();
   });
 
-  select(selected);
-  refresh();
+  balance.textContent = profile.points.toLocaleString();
+  wallet.setAttribute('aria-label', boltPrice(profile.points));
+  renderCatalog();
+  renderSelection();
   return preview.dispose;
 }

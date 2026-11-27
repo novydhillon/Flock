@@ -32,8 +32,9 @@ export function mountDogPreview(
 
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera();
-  camera.position.set(0, 2.55, 7);
-  camera.lookAt(0, 0.66, 0);
+  // Stand at head height and tilt slightly down to frame the full dog.
+  camera.position.set(0, 1.15, 7);
+  camera.lookAt(0, 0.8, 0);
   const sun = new THREE.DirectionalLight(0xfff0d9, 2.25);
   sun.position.set(-3, 5, 4);
   scene.add(new THREE.HemisphereLight(0xf1f9ff, 0x9a855d, 2.1), sun);
@@ -55,7 +56,8 @@ export function mountDogPreview(
   let cameraSpan = 3;
 
   function createActor(dog) {
-    const mesh = dog.model === 'buddy' ? createBuddy(dog.coat) : createPip(dog.coat);
+    const factory = dog.model === 'buddy' ? createBuddy : createPip;
+    const mesh = factory(dog.coat, { highDetail: true });
     mesh.scale.setScalar(mesh.userData.suggestedScale);
     mesh.userData.motion.random = Math.random;
     const shadow = new THREE.Mesh(shadowGeo, shadowMat);

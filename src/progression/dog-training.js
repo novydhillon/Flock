@@ -4,11 +4,10 @@ import { UPGRADE_CATALOG, progressionLevel, upgradeEffects } from './progression
 
 const tuning = settings.training;
 const policies = new Map(UPGRADE_CATALOG.map((item) => [item.id, item]));
-function attribute(id, name, icon, policy, tierDescriptions) {
+function attribute(id, name, policy, tierDescriptions) {
   return Object.freeze({
     id,
     name,
-    icon,
     costs: Object.freeze(policy.costs),
     unlockLevels: Object.freeze(policy.unlockLevels),
     tierDescriptions: Object.freeze(tierDescriptions),
@@ -16,18 +15,17 @@ function attribute(id, name, icon, policy, tierDescriptions) {
 }
 
 export const DOG_TRAINING_CATALOG = Object.freeze([
-  attribute('speed', 'Speed', '🐾', policies.get('speed'), ['Fast jog', 'Light run', 'All-out run']),
+  attribute('speed', 'Speed', policies.get('speed'), ['Fast jog', 'Light run', 'All-out run']),
   attribute(
     'agility',
     'Agility',
-    '↪',
     tuning.agility,
     tuning.turnMultiplier
       .slice(1)
       .map((multiplier) => `Turns ${Math.round((multiplier - 1) * 100)}% faster while moving`),
   ),
-  attribute('influence', 'Influence', '◎', policies.get('flock'), policies.get('flock').tierDescriptions),
-  attribute('bark', 'Bark intensity', '♪', policies.get('bark'), policies.get('bark').tierDescriptions),
+  attribute('influence', 'Influence', policies.get('flock'), policies.get('flock').tierDescriptions),
+  attribute('bark', 'Bark intensity', policies.get('bark'), policies.get('bark').tierDescriptions),
 ]);
 
 function trainingTier(raw, id) {

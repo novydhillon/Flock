@@ -4,7 +4,7 @@
 
 Check that the kennel preview follows the selected dog, owned copy and adoption coat. In the meadow picker, swap two dogs, buy an eligible partner position and clear a partner while watching the 3D crew update. Change kennel selections rapidly and close and reopen both screens. With reduced motion enabled, the previews show standing dogs.
 
-On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster scroll, lock and price labels, adopting with a name, training an individual dog and returning to the originating screen. At meadow entry, check assigning an owned dog, clearing a CPU partner, cancelling a purchase, and confirming the team. At meadow 20 buy the second slot once and verify Buddy and the bolt balance persist after reload. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
+On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster, full-color named portraits and lock badges. Select a dog and confirm that its preview, four paw meters and Back fit above the bottom edge. Buy an upgrade and check that the next paw turns green, gated prices appear grey and the price disappears at full training. Check head-height framing in both previews and return to the originating screen. At meadow entry, check assigning an owned dog, clearing a CPU partner, cancelling a purchase, and confirming the team. At meadow 20 buy the second slot once and verify Buddy and the bolt balance persist after reload. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
 
 ## Half-resolution rendering smoke check — 25 November 2026
 

@@ -1,16 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
+import * as THREE from 'three';
+import { createBuddy, createPip } from '../src/rendering/border-collie.js';
 import { mountDogPreview } from '../src/rendering/dog-preview.js';
 
 const pip = { id: 'pip', model: 'pip', coat: 'black-white' };
 const fern = { id: 'fern', model: 'pip', coat: 'auburn-white' };
 const buddy = { id: 'buddy', model: 'buddy', coat: 'buddy-original' };
 
-function fixture(solo) {
+function fixture(solo, width = 360, height = 160) {
   const { window } = new JSDOM('<main></main>', { pretendToBeVisual: true });
   const stage = window.document.querySelector('main');
-  Object.defineProperties(stage, { clientWidth: { value: 360 }, clientHeight: { value: 160 } });
+  Object.defineProperties(stage, { clientWidth: { value: width }, clientHeight: { value: height } });
   const preference = { matches: false };
   window.WebGL2RenderingContext = true;
   window.matchMedia = () => preference;
@@ -22,14 +24,16 @@ function fixture(solo) {
   };
   window.cancelAnimationFrame = () => (nextFrame = undefined);
   let dogs;
+  let camera;
   let disposalCount = 0;
   const preview = mountDogPreview(stage, {
     solo,
     createRenderer: () => ({
       setPixelRatio() {},
       setSize() {},
-      render(scene) {
+      render(scene, shot) {
         dogs = scene.children.filter((child) => child.userData.motion);
+        camera = shot;
       },
       dispose() {
         disposalCount++;
@@ -44,6 +48,9 @@ function fixture(solo) {
     get dogs() {
       return dogs;
     },
+    get camera() {
+      return camera;
+    },
     get active() {
       return Boolean(nextFrame);
     },
@@ -55,6 +62,46 @@ function fixture(solo) {
     },
   };
 }
+
+function trianglesByPart(dog) {
+  const triangles = [];
+  dog.traverse((part) => {
+    if (part.isMesh) triangles.push(part.geometry.index.count / 3);
+  });
+  return triangles;
+}
+
+test('both previews show the full high-detail models from head height across aspect ratios', (t) => {
+  const gameplay = [trianglesByPart(createPip()), trianglesByPart(createBuddy())];
+  for (const [solo, width, height, selection] of [
+    [true, 300, 235, [pip]],
+    [true, 600, 135, [buddy]],
+    [false, 300, 168, [pip, fern, buddy, { ...buddy, id: 'second-buddy' }]],
+    [false, 600, 105, [pip, buddy]],
+  ]) {
+    const stage = fixture(solo, width, height);
+    t.after(stage.preview.dispose);
+    stage.preference.matches = true;
+    stage.preview.show(selection);
+    stage.tick();
+    const { camera, dogs } = stage;
+    const direction = camera.getWorldDirection(new THREE.Vector3());
+    assert.ok(direction.y < 0 && direction.y > -0.1);
+    assert.equal(dogs.length, selection.length);
+    for (const dog of dogs) {
+      const standard = gameplay[Number(dog.userData.motion.puppy)];
+      const preview = trianglesByPart(dog);
+      assert.equal(preview.length, standard.length);
+      assert.ok(preview.every((triangles, index) => triangles >= 3 * standard[index]));
+      const { min, max } = new THREE.Box3().setFromObject(dog, true);
+      const head = new THREE.Box3().setFromObject(dog.userData.parts.head, true);
+      assert.ok(camera.position.y >= head.min.y && camera.position.y <= head.max.y, dog.name);
+      const bottomLeft = new THREE.Vector3(min.x, min.y, max.z).project(camera);
+      const topRight = new THREE.Vector3(max.x, max.y, min.z).project(camera);
+      assert.ok(bottomLeft.x > -1 && bottomLeft.y > -1 && topRight.x < 1 && topRight.y < 1, dog.name);
+    }
+  }
+});
 
 test('solo preview runs the old dog off right and brings the latest selection in from the left', () => {
   const stage = fixture(true);
