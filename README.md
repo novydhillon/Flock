@@ -1,49 +1,101 @@
-# flock. — Little Big Adventures
+# Flock: Little Robot, Big Pastures
 
-A bright, portrait-first, one-thumb herding game where **Pip**, an original clay-like robotic sheepdog, guides a flock of tiny robotic animals to their new home. Pure HTML, CSS, Canvas 2D, and JavaScript; no game engine, backend, build tool, or third-party runtime dependency.
+View the read-only [work tracker](https://novydhillon.github.io/Flock/tracker/) for priority-sorted active and closed tickets from public main. Source: `tracker/`; publication is separate from the game.
 
-## Play
+## Deployment destinations — standing instruction
 
-**Development site:** [novydhillon.github.io/Flock/flock/dev/](https://novydhillon.github.io/Flock/flock/dev/) — after GitHub Pages is enabled for this repository and its workflow successfully deploys.
+Effective 18 October 2026: deploy every non-`main` branch to **https://novydhillon.github.io/Flock/dev/**. `main` continues to use **https://novydhillon.github.io/Flock/**. Do not use `dev2/` for new branch deployments. Older URLs below are historical; this instruction does not move existing builds. See [AGENTS.md](AGENTS.md) and [development instructions](docs/DEVELOPMENT.md#deployment-policy--effective-18-october-2026).
 
-**Local:** Serve the repository root over HTTP, then open `http://localhost:4173/flock/dev/`:
+## User sign-off - 15 October 2026, 16:34 Vancouver
 
-```bash
-python3 -m http.server 4173
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+
+A cheerful 3D herding game for portrait phones. Guide a robotic sheepdog through handmade-looking countryside and bring your robotic flock home. Start with a small sheep flock, then tackle longer routes, larger groups, bridges, gates, and other destinations. Earn points for upgrades and autonomous helpers.
+
+Production branch: `main`. Develop on feature branches from current main.
+
+Play the production game at [novydhillon.github.io/Flock/](https://novydhillon.github.io/Flock/). The QA-enabled development destination is [Flock/dev](https://novydhillon.github.io/Flock/dev/), and the original 2D game remains at [Flock/flock/dev](https://novydhillon.github.io/Flock/flock/dev/).
+
+Documentation: [Start here](docs/README.md) · [HTML field guide](docs/html/index.html) · [Requirements](docs/REQUIREMENTS.md) · [Issue tracker](docs/ISSUES.md).
+
+Play the standalone development build at [novydhillon.github.io/Flock/dev/](https://novydhillon.github.io/Flock/dev/). The existing `flock/dev/` game is preserved separately.
+
+## Current UI refinement candidate
+
+F-055–F-060 are implemented and independently reviewed on `UI_refinement`, based on production main `8cc4275`. This batch simplifies gameplay chrome, status/countdown, guidance and thumb controls; it does not change flock/economy progression. The dev2 review build is published and hash-verified at source `d47ae6c` / Pages `ce24bf3`; user sign-off is pending and production UI is unchanged. Read [AGENTS.md](AGENTS.md) for the standing project development rules and [the tracker](docs/ISSUES.md) for current progress. Dated release paragraphs below are historical checkpoints.
+
+Latest UI review update, 18 October: larger high-contrast minimap and tighter level panel (F-056/F-057), source `e2f55d2` / Pages `dbdf3c1`, were historically verified live on dev2. Both items remain Review for user sign-off; production is unchanged. [Publication evidence](docs/validation/UI-minimap-followup-publication.json).
+
+## Buddy update integrated for development review
+
+Buddy movement/model work from `buddy_update` is now combined with the `UI_refinement` candidate. Buddy’s former F-056 identifier is reassigned to **F-061** to avoid the UI batch’s existing F-056; earlier Buddy history is retained under the new ID. F-048/F-061 are Done by Novy’s 18 October sign-off on Buddy’s `/Flock/dev/` candidate. Combined integration validation and development-only publication are in progress; UI F-055–F-060 remain Review for user sign-off. Production is unchanged. See [the tracker](docs/ISSUES_CLOSED.md#combined-integration--18-october-2026).
+
+## Engine choice
+
+This build uses **Three.js**, with Vite for packaging. The requested ThreeRust engine at [threerust.com](https://threerust.com/) was investigated first. Its public offering is an early-access Rust/WebAssembly/WebGPU browser editor with RHAI scripting; a reusable runtime SDK suitable for this repository was not available through its public documentation. The user approved the Three.js fallback. This project does not claim to use ThreeRust or the separate `three-rs`/`threers` Rust projects.
+
+Three.js renders the world in true 3D with WebGL. The original characters and scenery use rounded clay-like shapes, colorful metal panels, visible mechanical joints, and glowing robot details.
+
+## Run locally
+
+Use Node.js 22 or newer:
+
+```sh
+npm ci
+npm run dev -- --host 0.0.0.0
 ```
 
-The root `index.html` redirects to `flock/dev/`. On a phone, drag the large thumb joystick or drag anywhere over the meadow to steer Pip. On a computer, use **WASD / arrow keys**. Get behind your flock: the robots shy away from Pip and gradually head toward their destination. Press **WHISTLE** (keyboard: Space) to motivate nearby stragglers. The upper-right arrow points toward the goal. Walk up to gates to open them, and bring the animals onto the bridges to cross rivers.
+Open the local URL printed by Vite. To run the simulation tests and build a standalone site:
 
-Every rescued flock earns coins and up to three stars. Visit the Workshop to buy **Mega Bark**, **Turbo Paws**, **Buddy Bot** (available from level 10), and **Scout Drone** (available from level 20). The camera shows more of the meadow at once. Upgrades and level progress are saved locally. Music is synthesized with Web Audio after a user gesture, can be muted, and uses no downloaded samples.
-
-## Procedural levels
-
-- Level 1: four sheep in an open meadow → safe pen, with in-game tutorial.
-- Level 2: a larger flock, more ground to cover, and a swing gate.
-- Level 3: river, bridge, and gate. Levels 4 onward also introduce robot cows, barns, and destination fields.
-- Subsequent levels deterministically generate larger roaming meadows, new terrain patches, paths, obstacles, and animal group sizes. Deterministic seeds make levels replayable and testable.
-- Flock movement combines local avoidance, goal-directed movement, group cohesion, a player pressure radius, and bridge/path waypoints. Autonomous helpers actively chase and flank stragglers, applying directional herding pressure. Sheep and cows keep personal space with flock-style neighbour avoidance and physical separation.
-
-## Project layout
-
-- [`flock/dev/`](flock/dev/) — standalone static site and installable web app.
-- [`flock/dev/src/world.js`](flock/dev/src/world.js) — deterministic procedural map generation, collision, herd behavior, goal logic.
-- [`flock/dev/src/render.js`](flock/dev/src/render.js) — all original illustrated landscape and character rendering.
-- [`flock/dev/src/main.js`](flock/dev/src/main.js) — mobile controls, screens, save data, progression, helper logic.
-- [`flock/dev/src/audio.js`](flock/dev/src/audio.js) — synthesized background tune and events.
-- [`.github/workflows/deploy-dev.yml`](.github/workflows/deploy-dev.yml) — tests and GitHub Pages artifact deployment when `dev/flock-game` is pushed.
-
-## Verify
-
-```bash
-cd flock/dev
+```sh
 npm test
-node --check src/main.js
-node --check src/render.js
+npm run build
+npm run preview -- --host 0.0.0.0
 ```
 
-## GitHub Pages setup
+The production build is written to `dist/`. Relative asset paths allow it to run beneath `/Flock/` or `/Flock/dev/` without a backend or CDN dependency.
 
-The live `gh-pages` branch publishes the standalone `/flock/dev/` site through GitHub Pages. The `dev/flock-game` branch also runs test and packaging checks on push. In a GitHub **project** Pages site, the canonical path includes the repository name, so the development game appears at **`/Flock/flock/dev/`**. The route `/flock/dev/` at a domain root requires a separate root Pages site or matching custom-domain routing. Private-repository Pages hosting also depends on your GitHub plan and configuration.
+## Playing
 
-This is an original stop-motion-inspired robotic-farm look; it does not reproduce third-party animated characters or licensed assets.
+- Use one thumb on the movement control to steer the robotic dog.
+- Drag anywhere on the meadow to steer, or use WASD/arrow keys on desktop. Double-tap the meadow or tap Woof for a short herding burst.
+- Approach the flock from behind to guide it toward the highlighted destination.
+- Leading animals follow the flock’s movement instead of pulling back to its centre. Animals that walk onto a bridge keep crossing to the far bank.
+- Keep the flock together while following routes through the countryside. Separated flock groups remain independent until you guide them back into contact.
+- Delivered robots keep roaming gently inside the goal enclosure, with full-body confinement even at the entrance. They remain delivered; pause and QA editing freeze their motion.
+- The first attended arrival starts a 30–60 second recovery countdown. Bring everyone home early or finish with a partial score at timeout. Any positive delivery opens the next meadow.
+- Earn bolts equal to improvements in your lifetime best proportional score, then spend them on skills and helpers. Replays at the same or a lower score pay no extra bolts.
+- Six saved skills have three tiers each (Scout drone is hidden from the workshop): Turbo paws, Friendly signal, Scout drone, Buddy dog, Happy bark, and Flock harmony. The workshop shows the next tier's effect, cost, and level requirement. Skills appear throughout the first fifteen levels; the drone starts at level 10, and the more expensive Buddy dog starts at level 20.
+- The drone holds the main herd when Pip leaves. Buddy works from the rear along flock travel; its second tier supports the smaller split flock, guides nearby bridges/goal entrances and barks autonomously; its third tier also retrieves wanderers/bolters to the nearest flock group. Pip still leads admission at the destination.
+- Music starts after a player interaction, following mobile browser audio rules. Use the sound control to mute it.
+
+The opening pasture teaches herding with a small sheep flock and a nearby pen. Later procedural pastures introduce longer routes, rivers and bridges, roads, operable gates from level 20, selected stone walls, more animals and new destinations. Ambient wildlife and scenery scale with meadow size. The new weather candidate removes snow and uses fixed per-level weather: light rain from public level 9, heavy rain from 16 and storms from 24. Each type stays fixed while rain, cloud drift, ground wetness and lightning animate. Eleven other P2 features in the published build were accepted on 15 October 2026 at approximately 10:56 America/Vancouver (Pages `cc13865`, source `b1fdac3`). F-030–F-039 are separately queued enhancements; F-040 is implemented and in Review pending weather acceptance. Progress is stored locally in the browser; clearing site data clears that progress.
+
+## Deployment
+
+Use the shared checked builds: `npm run build:checked:dev` or `npm run build:checked:production`. Each runs documentation checks, full tests and the appropriate QA artifact checks.
+
+For publication, run **Deploy Flock** in GitHub Actions. Select a non-main feature branch and environment `dev` for `/Flock/dev/`. For an explicitly approved production release, select `main`, environment `production`, and confirmation `deploy-production`. The workflow checks the build, preserves unrelated Pages content, rejects concurrent publication, waits for native Pages and verifies every live file hash. It requires the `PAGES_PUBLISH_TOKEN` repository secret and the workflow on default main before manual runs are available. If the session has no workflow dispatch action, use the [connector-only gh-pages fallback](docs/DEVELOPMENT.md#connector-only-gh-pages-fallback--19-october-2026) with the same release gates.
+
+See [the deployment runbook](docs/DEVELOPMENT.md#standard-build-and-deployment-commands--19-october-2026) for setup, evidence and connector-dispatch limitations. Do not use custom shell Git staging helpers: `scripts/deploy-pages.mjs` is now a pure deployment-plan module. Existing `dev2/` and legacy games are preserved; they are not new deployment targets. Dated release records elsewhere are historical evidence.
+
+## Scope
+
+This is a playable development build. It stores progress on-device and uses procedural geometry and generated material textures. It has no account system, online multiplayer, or cloud save service.
+
+The campaign contains 100 deterministic procedural meadows. Flock size increases to a maximum of 65; journey distance continues increasing afterward. Levels 1–5 have compact, single-route lessons. From level 6 the fenced roaming area expands, with one or two trails through level 15 and up to three afterward. Destinations rotate across compass directions, and winding trails connect real bridges and gate openings with clear staging space before the goal. Gates become operable at level 20; selected levels use stone barriers. Rivers continue beyond the perimeter; scenery hills stay outside playable ground.
+
+Sheep and cows use articulated, instanced leg poses at a stop-motion cadence. Grass and dirt have deterministic tileable color and bump textures, with decorative flowers, grasses and reeds. Trees and bushes add procedural bark/leaf detail. Area-scaled rabbits, squirrels, birds and butterflies react to nearby robots; ambient wildlife can cross fences and briefly wander outside the field while water and trees remain obstacles. F-040 replaces changing weather and snow with fixed clear/breezy/light-rain/heavy-rain/storm levels. QA levels 9/16/24 demonstrate the three rain tiers immediately; the mission panel labels the weather. Clouds and their shadows are disabled. Rain covers the full view, storm levels omit wildlife and use slanted rain with paired thunder, and seeded small puddles grow over the level. Other weather retains wildlife shelter; directional river flow, wet ground and bounded footstep splashes remain. Pip's tail light turns red during a bark, and the player can open nearby level-20+ gates. Novy accepted the published squirrel, water-flow, gate, wall, tail-light, wanderer, rabbit, bush, tree-detail and wildlife-edge items on 15 October 2026 at approximately 10:56 America/Vancouver (Pages `cc13865`, source `b1fdac3`). New requirements F-030–F-040 are not part of that acceptance.
+
+Automated checks cover simulation, upgrades, controller navigation, touch cancellation, denied storage, renderer matrices and resource disposal. The renderer tests use real Three.js geometry with a substituted GPU interface; they do not verify rendered pixels or phone frame rates. Actual mobile play, sound balance and GPU performance need device testing.
+
+Prior accepted P2 release is published at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/), runtime source `b1fdac3` / Pages `cc13865`. Independent source reviews meet 8/10; CI and live hashes are verified. Eleven P2 items were accepted for this published build on 15 October; F-030–F-039 remain Open; fixed-weather work F-040 and its related P1 items are in Review. See [tracker](docs/ISSUES.md) and [quality evidence](docs/QUALITY.md).
+
+Latest weather candidate is live at [Flock/dev2](https://novydhillon.github.io/Flock/dev2/): source `878efee`, Pages `27b1bf5`. CI/Pages passed, all 18 intended live files match, and unrelated Pages files are preserved. Test QA levels **9** (light rain), **16** (heavy rain) and **24** (storm). These weather items remain Review; the 11 earlier approvals remain Done, and new non-weather requests F-030–F-039 remain queued.
+
+Clouds are temporarily disabled at Novy’s request on 15 October 2026 (F-008 Deferred), including cloud ground shadows. Rain, fixed-level weather, storm lighting/thunder and wet-ground effects remain active. Test QA 9/16/24 for light/heavy/storm weather; no cloud overlay or cloud shadow should appear.
+
+Current weather repairs: [requirements](docs/REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.
+
+Current flock-behavior candidate: a per-level 20% undelivered cohort gets individual 5-8s checks; wander/bolt outcomes settle near their reached positions until actively herded. Late-level odds and duration bands are in [requirements](docs/REQUIREMENTS.md#flock-wandering-and-bolting-revision---15-october-2026). F-035/F-037/F-039/F-041 are Review, separate from accepted weather/audio.

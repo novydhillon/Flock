@@ -1,0 +1,120 @@
+{
+  "source": "90c334062427b811c38fda3fb3b8ddb4a49395b7",
+  "pages": "e757f50aa68057f4ef1beed019c25e97f6dcc4e6",
+  "sourceCI": 39183715303,
+  "url": "https://novydhillon.github.io/Flock/",
+  "outsideRootArtifactsPreserved": 51,
+  "releaseQAAssets": 0,
+  "userAcceptance": "Approved",
+  "files": {
+    "index.html": "bb95be654ecad983186b760642fd825bcaac212fd0ee4fc60fbc54a00047d4f2",
+    "assets/outfit-latin-900-normal-DBTzQ72N.woff": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+    "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+    "assets/index-BL6CDKMp.css": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+    "assets/outfit-latin-600-normal-B7SfZ07L.woff2": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+    "assets/dm-sans-latin-700-normal-CUSSCpQX.woff": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+    "assets/outfit-latin-700-normal-D4itBLBr.woff": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+    "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+    "assets/outfit-latin-900-normal-D7VxKg29.woff2": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+    "assets/dm-sans-latin-400-normal-BwCSEQnW.woff": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+    "assets/outfit-latin-700-normal-Cu9v6i1X.woff2": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+    "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+    "assets/outfit-latin-600-normal-BEfTtDA7.woff": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+    "assets/index-BIk2aSXZ.js": "c2094962fceddcac988f209dcf148e2c51de2244f43c94e5bfa8488615b9ba30",
+    "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+  },
+  "liveFiles": [
+    {
+      "path": "index.html",
+      "expected": "bb95be654ecad983186b760642fd825bcaac212fd0ee4fc60fbc54a00047d4f2",
+      "actual": "bb95be654ecad983186b760642fd825bcaac212fd0ee4fc60fbc54a00047d4f2",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "expected": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "actual": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "expected": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "actual": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "match": true
+    },
+    {
+      "path": "assets/index-BL6CDKMp.css",
+      "expected": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+      "actual": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "expected": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "actual": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "expected": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "actual": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "expected": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "actual": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "expected": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "actual": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "expected": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "actual": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "expected": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "actual": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "expected": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "actual": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "expected": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "actual": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "expected": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "actual": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "match": true
+    },
+    {
+      "path": "assets/index-BIk2aSXZ.js",
+      "expected": "c2094962fceddcac988f209dcf148e2c51de2244f43c94e5bfa8488615b9ba30",
+      "actual": "c2094962fceddcac988f209dcf148e2c51de2244f43c94e5bfa8488615b9ba30",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "expected": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "actual": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "match": true
+    }
+  ],
+  "nativePages": 39183840335,
+  "nativeConclusion": "success"
+}

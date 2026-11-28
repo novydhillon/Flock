@@ -1,0 +1,47 @@
+name: Flock tracker - checks and standalone build
+on:
+  push:
+    branches-ignore: [gh-pages]
+    paths:
+      - 'tracker/**'
+      - 'tests/tracker-*.test.js'
+      - 'scripts/build-tracker.mjs'
+      - 'scripts/build-checked-tracker.mjs'
+      - 'scripts/test-suite.mjs'
+      - 'scripts/format.mjs'
+      - '.prettierrc*'
+      - '.prettierignore'
+      - 'scripts/npm-command.mjs'
+      - 'scripts/validate-build.mjs'
+      - 'scripts/deployment-targets.cjs'
+      - 'scripts/deploy-pages.mjs'
+      - 'scripts/check-deploy-target.cjs'
+      - 'scripts/publish-pages.cjs'
+      - 'scripts/wait-for-pages.cjs'
+      - 'scripts/verify-deployment.mjs'
+      - 'package*.json'
+      - '.github/workflows/tracker-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: flock-tracker-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build:checked:tracker
+      - uses: actions/upload-artifact@v6
+        with:
+          name: flock-tracker-standalone
+          path: dist-tracker/
+          if-no-files-found: error

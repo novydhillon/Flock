@@ -1,0 +1,66 @@
+{
+  "campaign": {
+    "maximumLevelNumber": {
+      "value": 100,
+      "_comment": "Fixed one-based campaign/save-format boundary; changing it requires coordinated UI, QA and profile migration.",
+      "min": 100,
+      "max": 100
+    }
+  },
+  "reward": {
+    "base": {
+      "value": 80,
+      "_comment": "Maximum bolts available for campaign index 0, independent of saved profile data.",
+      "min": 0
+    },
+    "perLevel": {
+      "value": 25,
+      "_comment": "Additional maximum bolts for each zero-based campaign index.",
+      "min": 0
+    }
+  },
+  "countdown": {
+    "minimumSeconds": {
+      "value": 30,
+      "_comment": "Recovery allowance after the first attended arrival; there is no travel deadline.",
+      "min": 0
+    },
+    "maximumSeconds": {
+      "value": 60,
+      "_comment": "Upper bound on the recovery allowance in simulation seconds.",
+      "min": 0
+    },
+    "baseRobots": {
+      "value": 5,
+      "_comment": "Robots included before the extra-flock-size allowance applies.",
+      "min": 0
+    },
+    "extraRobotsPerSecond": {
+      "value": 5,
+      "_comment": "Each started group of this many extra robots adds one recovery second.",
+      "min": 1
+    },
+    "extraRouteSeconds": {
+      "value": 4,
+      "_comment": "Recovery seconds added for each route after the first.",
+      "min": 0
+    },
+    "journeyMetersPerStep": {
+      "value": 40,
+      "_comment": "Spawn-to-goal distance per complete journey allowance step, in world units.",
+      "min": 1
+    },
+    "journeySecondsPerStep": {
+      "value": 2,
+      "_comment": "Recovery seconds added for each complete journey-distance step.",
+      "min": 0
+    }
+  },
+  "profile": {
+    "maximumPoints": {
+      "value": 1000000000,
+      "_comment": "Maximum whole-number wallet balance accepted while validating an existing save.",
+      "min": 0
+    }
+  }
+}

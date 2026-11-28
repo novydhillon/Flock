@@ -1,0 +1,538 @@
+# FLOCK — Active issue tracker
+
+## Kennel interface and dog preview acceptance — 27 November 2026
+
+The approved kennel interface and dog previews are archived under [F-KENNEL-005 and F-KENNEL-006](ISSUES_CLOSED.md#kennel-interface-and-dog-preview-acceptance--27-november-2026). The remaining campaign, economy and device validation criteria stay in the active tracker.
+
+## Tracker closures — 18 November 2026
+
+Novy requested closure for [F-TERRAIN-BANK-001](ISSUES_CLOSED.md#f-terrain-bank-001--compact-steep-riverbanks-and-slope-based-bank-textures) and [F-SHADOW-001](ISSUES_CLOSED.md#f-shadow-001--baked-static-environment-shadows). Both implementations previously merged to main.
+
+## P2 UI acceptance — 28 October 2026
+
+The 18 implemented UI, water and shadow items on `feat/p2-ui` are accepted and archived in [Closed issues](ISSUES_CLOSED.md#p2-ui-user-acceptance--28-october-2026). Historical Review/pending acceptance statements are superseded for this batch. Terrain work and unrelated open items retain their states.
+
+## Tracker lifecycle and ownership
+
+1. Read [AGENTS.md](../AGENTS.md), [development rules](DEVELOPMENT.md), current requirements and this tracker before implementation. Public level numbers are one-based.
+2. Claim owner, feature branch, status and date. Preserve concurrent changes and separate source completion, publication and user acceptance. Use Open → In progress → Review → Done, with Blocked/Deferred where appropriate. A review score is not user sign-off.
+3. When an item becomes **Done or Closed**, move its complete overview row and detailed section (requirements, acceptance criteria, owner/branch, evidence, remaining limitations and user sign-off) into [ISSUES_CLOSED.md](ISSUES_CLOSED.md) in the same connector commit; remove them from this active file. Move related completed execution/acceptance records too, preserving links and shared evidence. Record closure date and reason/acceptance without inventing missing historical dates.
+4. Strike through every cell of closed overview rows and the detailed title after its ID in the archive. For reopening, move the row/details back here, remove strikethrough and record why and when. Do not duplicate the same issue in both overviews or reuse an ID.
+5. Keep active mixed-work dependencies here; archive completed material without losing evidence required by remaining work. Preserve evidence files in `docs/validation/` and quality history. Update links to moved headings, regenerate HTML and run documentation checks before publication.
+6. Use the **GitHub connector for all repository operations**: reading refs/files, comparing revisions, branches, commits, source publication, PRs, merges and Pages publication. Do not use shell `git` or `gh` commands or direct GitHub HTTP calls as alternatives. Local file editing, builds and checks may use shell tools. If a connector operation is unsupported or fails, report it and retain the prepared work; do not fall back to shell GitHub operations.
+7. Track work here, not in GitHub Issues. Non-main development builds target `/Flock/dev/`; production main merge/root publication requires user authorization. Tracker-only changes do not need a game deployment.
+
+Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/polish; P3 broader validation/optimization; P4 later enhancements. Open items are unassigned unless explicitly claimed.
+
+## Work overview
+
+| ID | Priority | Type | Item | Status | Depends on |
+|---|---|---|---|---|---|
+| F-KENNEL-001 | P1 | Progression/economy | Start with Buddy and buy meadow slots | In progress | Existing crew slot gates and bolt ledger |
+| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | In progress | F-DOG-001; campaign meadow progress |
+| F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | In progress | F-KENNEL-001; F-KENNEL-002; F-046 |
+| F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
+| F-KENNEL-007 | P1 | Persistence/gameplay | Preserve campaign progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
+| F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
+| F-KENNEL-009 | P2 | UI/progression/QA | Show adoption prices and individual paw training | Review | F-KENNEL-002; F-KENNEL-004 |
+| F-ASSET-001 | P2 | Production/asset inventory | Inventory 3D assets and define the replacement contract | Open | Current rendering and content |
+| F-ASSET-002 | P2 | Tooling/CI | Build and validate 3D assets for Dev and production | Open | F-ASSET-001 |
+| F-ASSET-003 | P2 | Character art/animation | Move animated actors and their clips into replaceable files | Open | F-ASSET-001; F-ASSET-002 |
+| F-ASSET-004 | P2 | Environment art/animation | Move scenery, props and effects into replaceable files | Open | F-ASSET-001; F-ASSET-002 |
+| F-ASSET-005 | P2 | Validation/cutover | Verify asset swaps and retire embedded 3D content | Open | F-ASSET-003; F-ASSET-004 |
+| F-DOG-002 | P2 | Gameplay/progression | Add ten dog breeds with distinct abilities, upgrades and boosts | Open | F-KENNEL-006; existing progression |
+| F-QA-CAMERA-001 | P2 | QA/camera | Add paused camera orbit controls | Open | QA menu and gameplay camera |
+| F-AUDIO-002 | P3 | Audio investigation | Soften existing saturated bolt voice stealing without delaying onset | Open | Existing six-call cap |
+| F-COMP-004 | P2 | Animation | Clear attention and working intent | Open | F-061 accepted head/body motion; F-COMP-002 |
+| F-COMP-005 | P2 | Animation/feedback | Bark pose and recovery gesture | Open | Existing actual Pip/Buddy bark events and feedback |
+| F-COMP-006 | P2 | Animation | Distinct Pip and Buddy personalities | Open | F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004 |
+| F-COMP-008 | P2 | Animation/results | Brief shared arrival celebration | Open | F-COMP-006; existing full-completion/results flow |
+| F-BIRD-009 | P2 | Behavior | Small social foraging groups | Open | F-BIRD-001; F-BIRD-004 |
+| F-BIRD-010 | P2 | Animation | Ground hops and perched idle gestures | Open | F-BIRD-002; F-BIRD-003 |
+| F-BIRD-011 | P2 | Behavior/audio | React to Pip and Buddy barking | Open | F-BIRD-004; F-BIRD-005 |
+| F-BIRD-012 | P2 | Behavior | Occasional visits to the nest | Open | F-BIRD-003; F-BIRD-006 |
+| F-BIRD-013 | P2 | Art/audio | Two or three recognizable bird varieties | Open | F-BIRD-002; F-BIRD-005 |
+| F-BIRD-014 | P2 | Behavior | Gradual return after the meadow settles | Open | F-BIRD-003; F-BIRD-004; F-BIRD-009; F-BIRD-011 |
+| F-BIRD-001 | P2 | Behavior | Bird states and seeded population | Open | — |
+| F-BIRD-002 | P2 | Art/animation | Clay birds, flight, landing and peck animations | Open | F-BIRD-001 |
+| F-BIRD-003 | P2 | World/perching | Ground, tree, fence and structure landing sites | Open | F-BIRD-001 |
+| F-BIRD-004 | P2 | Behavior | Pip/Buddy avoidance and speed-sensitive livestock response | Open | F-BIRD-001; F-BIRD-003 |
+| F-BIRD-005 | P2 | Audio | Perched chirping and quiet sitting | Open | F-BIRD-001; F-BIRD-003 |
+| F-BIRD-006 | P2 | World/art | 10% per-level chance of a single tree nest | Open | F-BIRD-003 |
+| F-BIRD-007 | P2 | Integration | Weather, lifecycle and mobile resource limits | Open | F-BIRD-002–006 |
+| F-BIRD-008 | P2 | Validation | Regression, blind review and development acceptance | Open | F-BIRD-007 |
+| F-015 | P3 | Validation gap | Mobile GPU performance and transition stability | Open | Rendering batches |
+| F-045 | P4 | Weather/water | Add rain impacts and splashes on water during heavy rain or stronger | Open | - |
+| F-047 | P4 | Gameplay/companions/economy | Earlier second-Buddy milestone proposal | Deferred | F-KENNEL-001–004 |
+| F-049 | P4 | QA/UI | Prevent automatic level dropdown focus and expansion when opening QA | Open | - |
+
+## Acceptance criteria and planned work
+
+F-KENNEL-001 to F-KENNEL-003 track the remaining slot, adoption and lineup work. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
+
+### F-KENNEL-001 — Start with Buddy and buy meadow slots
+
+**Status:** In progress. Owner Codex.
+
+**Branch:** `feat/buddy-starter-progression`
+
+As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.
+
+**Accept when:**
+
+- A new save starts with Slot 1 open, Buddy assigned and no bolt charge. Slot 2 is gated until meadow 20, Slot 3 until 40 and Slot 4 until 60.
+- Reaching a gate makes the slot purchasable. Buying it charges the configured bolt price once and permanently opens the slot. Slots 2–4 add lineup space. An existing Pip-start save without Buddy still receives Buddy when it buys Slot 2.
+- Locked, unaffordable, available and opened states are distinguishable. Failed or repeated purchases leave the balance and roster consistent. Reloading preserves ownership and crew assignments.
+- Once a slot opens, it stays available in every meadow, including replays that precede its purchase milestone.
+
+### F-KENNEL-002 — Adopt and manage individual dogs
+
+**Status:** In progress. Owner Codex.
+
+**Branch:** `feat/buddy-starter-progression`
+
+As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.
+
+**Accept when:**
+
+- An eligible adoption adds one dog with a persistent identity, name, coat and fresh attribute tiers. Pip is a one-time adoption for 100 bones at meadow 3. Players can adopt the eight paid entries repeatedly at their listed prices in bones.
+- Define stable catalog identities for Pip, Buddy and the eight placeholders, with configurable adoption gates, base models and supported coats. Adoption rules operate independently of portrait and preview artwork.
+- The eight paid entries unlock at meadows 10, 15, 20, 25, 30, 35, 40 and 45, independently of crew-slot purchases. Entry 3 costs 600 bolts and each later entry adds 200 bolts, through 2,000 for entry 10. Each additional adoption of a given entry uses its listed price. Use the highest unlocked campaign meadow to evaluate its gate, including while replaying an earlier meadow.
+- Two copies can have different names, coats, stats and assignments. Editing or upgrading one leaves the other intact. An unavailable or unaffordable adoption leaves the kennel and bolt balance intact.
+- Owned dogs, their names, coat selections and upgrades survive reload. Unassigned dogs remain owned and can be selected later.
+
+**27 November 2026:** The Buddy starter and independent adoption gates are implemented on `feat/buddy-starter-progression`. Prior owned dogs, upgrades and valid assignments carry forward.
+
+### F-KENNEL-003 — Assign and play a lineup of up to four dogs
+
+**Status:** In progress. Owner Codex.
+
+**Branch:** `feat/kennel-progression`
+
+As a player, I want to choose which dogs work with me so I can lead with my favorite and bring helpers as slots open.
+
+**Accept when:**
+
+- Assign owned dogs to open slots and replace or remove CPU assignments. Slot 1 always has a valid owned dog. Only Slot 1 responds to player movement and bark input and drives the gameplay camera.
+- Purchased and assigned slots 2–4 independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or unopened slots spawn no actor.
+- Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
+- An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 45 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
+
+**26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The original preview saved selections from pause and results. The revised flow stages assignments at meadow entry, where players select a role and then an owned dog by portrait. Simulation integration is pending.
+
+### F-KENNEL-004 — Train speed, agility, influence and bark
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want to train a particular dog so its strengths carry into the role I assign it.
+
+**Accept when:**
+
+- The starting dog supports walk and light jog. Speed training raises the maximum gait through fast jog, light run and all-out run while retaining access to slower gaits.
+- At comparable movement speeds, each agility tier reduces the turn radius. A standing movement turn requires travel at every tier. Verify the same rules for the player-controlled dog and CPU dogs.
+- Influence preserves Friendly signal's three levels, costs and range increases. Bark intensity applies only to that dog's bark and follows the agreed pressure and charge rules.
+- One successful purchase charges the listed cost and advances exactly one attribute tier on the selected owned dog. Gated and maxed attributes, insufficient bolts and repeat input cannot create extra tiers or charges.
+
+### F-KENNEL-007 — Preserve campaign progress and retire marketplace upgrades
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want my campaign progress to persist when the kennel replaces the Workshop.
+
+**Accept when:**
+
+- Unspent bolts, campaign unlocks, earned score and reward records, and sound settings survive. Replaying a previously rewarded meadow cannot pay it again except for the existing improved-result difference.
+- The marketplace and purchased Flock harmony effect are absent after cutover. Normal flock behavior and unrelated menus still work. Review help text, first-run guidance and rewards copy for obsolete unlock language.
+
+**Deferred decision — 26 November 2026:** Decide later whether and how to convert or credit legacy Workshop purchases, including prior Buddy, attribute, Scout drone and Flock harmony purchases. Legacy purchase conversion and refund tests are outside this delivery story.
+
+### F-KENNEL-008 — Verify the kennel progression loop
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+As a player, I want the kennel and lineup to work consistently through the campaign so I can trust purchases and take my dogs into any eligible meadow.
+
+**Accept when:**
+
+- Check fresh and continuing saves, exact slot gates and all nine adoption gates at the meadow before and at each threshold. Verify the listed prices, a late Slot 2 purchase, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes and reload after purchases.
+- Replay meadow 1 with a meadow-45 dog, four opened slots and four assignments. Confirm all four participate and the replay does not change their eligibility or the campaign reward ledger rules.
+- Verify the economy with attainable bolt earnings and mixed purchase paths. Playtest split herds, gates, bridges, goal admission, movement and bark behavior at baseline and max tiers.
+- With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.
+- Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.
+
+### F-KENNEL-009 — Show adoption prices and individual paw training
+
+**28 November follow-up:** Buddy and all dogs start with at least two speed paws; the crew picker scrolls horizontally; QA unlock-all shows owned dogs without duplicate offers; and QA opens with focus on its dialog. Implementation is in review; device testing and publication remain pending.
+
+**Status:** Review. Owner Codex.
+
+**Branch:** `feat/buddy-starter-progression`
+
+**Accept when:**
+
+- A paid adoption offer shows its price in bones at the lower-right corner of the kennel preview, including while the offer is gated. Pip costs 100 bones at meadow 3 and remains a one-time adoption. The purchase checks affordability and preserves existing ownership.
+- Each dog and attribute has its own base and cap. Show brown base paws, green purchased paws and gray remaining paws. Each attribute supports three to five purchases. The resulting stats apply to the selected dog in gameplay and in replays. Existing paid upgrades carry over as counts of green paws.
+- Player-facing balances, adoption and training prices, crew purchases and results use bones. Existing balances and the earned reward ledger retain their numeric values.
+- QA can grant one of every missing dog to the isolated test profile. Repeated clicks make no duplicates and normal campaign storage is unaffected.
+
+### F-ASSET-001 — Inventory 3D assets and define the replacement contract
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Inventory every 3D model, material dependency and animation across gameplay, previews, wildlife, scenery and effects, including pose curves, timing and templates embedded in procedural animation code. Map each to a stable asset ID, current source, consumers and migration ticket.
+- Define editable source and runtime formats, units, axes, pivots, sockets, rig and clip names, level-of-detail rules, variants, and licensing metadata. Specify which meshes are built from replaceable source data, including procedural terrain and water templates.
+- Document the contract between presentation assets and simulation, including collision, navigation, attachment points and animation events.
+
+### F-ASSET-002 — Build and validate 3D assets for Dev and production
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Provide a repeatable local and CI command that converts versioned editable sources into runtime assets and a manifest. Evaluate Blender and glTF/GLB and record the chosen formats.
+- Pin tool versions and validate IDs, dependencies, licenses, material references, required clips, pivots, sockets and mobile size budgets. Report errors against the editable source.
+- Verify clean and incremental builds, content-hashed outputs and correct packaging under both Dev and production paths. Document how to swap an asset, preview the result and roll back.
+
+### F-ASSET-003 — Move animated actors and their clips into replaceable files
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Migrate Pip, Buddy, kennel variants, livestock, birds, butterflies and every other animated actor from the inventory. Store editable rigs, meshes and authored clips as versioned assets, with gameplay and preview detail levels where needed.
+- Connect clips to current gait, turn, idle, bark, grazing and wildlife states. Preserve blending, foot contact, event timing, coat variants, preview choreography and reduced-motion behavior. Move editable pose curves, timing and motion templates into asset files. Keep state selection and runtime adjustments such as foot placement in gameplay and animation logic.
+- Verify that changing a compatible model or clip requires only an asset replacement and a rebuild.
+
+### F-ASSET-004 — Move scenery, props and effects into replaceable files
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Migrate all remaining 3D content from the inventory, including vegetation, rocks, bridges, fences, gates, buildings, terrain and water render inputs, and reusable effect meshes and animation data.
+- Source authored geometry and motion from files or file-backed templates while retaining seeded placement, terrain conformity, weather response, collisions and navigation. Preserve the existing baked and dynamic shadow behavior.
+- Verify that replacing a compatible scenery asset or moving prop requires only an asset replacement and a rebuild.
+
+### F-ASSET-005 — Verify asset swaps and retire embedded 3D content
+
+**Status:** Open. Owner unassigned.
+
+**Branch:** Unassigned
+
+**Accept when:**
+
+- Account for every entry in the inventory. Demonstrate an independent model swap, animation swap and scenery swap from editable files through Dev and release builds.
+- Before cutover, record the baseline revision, representative devices and meadows, and permitted changes in frame pacing, memory, startup, draw calls and download size. Verify the replacement build meets those limits and preserves appearance, animation timing, collisions and gameplay on those devices.
+- Remove superseded in-code model and animation definitions after parity checks. Verify that a missing or invalid dependency fails the build with a useful error.
+
+### F-DOG-002 — Ten additional dog breeds and progression
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**Request — 11 November 2026:** Add ten other dog breeds with different speeds and breed-related capabilities, with upgrades and boosts. Breeds should vary in size, including small breeds such as a pug and a Chihuahua through to a Newfoundland. Include both pug and Chihuahua in the ten additional breeds.
+
+**26 November 2026:** Distinct breeds follow the placeholder roster in [F-KENNEL-006](ISSUES_CLOSED.md#f-kennel-006--animate-and-illustrate-the-ten-entry-roster). Keep the later breed work scoped separately.
+
+**Accept when:** Ten additional recognizable breeds offer distinguishable movement speeds and capabilities inspired by their breeds, and support upgrades and boosts. Define breed selection, unlocks, costs, upgrade and boost behavior, balancing and persistence before implementation; these details are not yet specified. Preserve existing saves and progression with an appropriate migration if needed. Verify capabilities, balance, controls and mobile performance across breeds.
+
+**Scope:** Planning only. Neither item has been implemented or visually validated.
+
+
+### F-QA-CAMERA-001 — QA camera orbit controls
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**User request — 29 October 2026:** Add a QA toggle that enables camera modification. When enabled, show a camera icon at the bottom left next to the gear button. Activating the icon pauses gameplay and allows touch dragging to orbit the camera around its existing target while maintaining a constant distance.
+
+**Accept when:** Vertical dragging moves the camera smoothly along an arc from a 90-degree top-down view to a 0-degree view parallel to the ground, clamped to that range. Horizontal dragging rotates around the target continuously through 360 degrees in either direction. Horizontal rotation speed increases with finger distance from the center on a logarithmic scale, reaching a maximum of 60 degrees per second at the screen edge. The direction follows the drag direction. Clicking the camera icon again exits camera modification and returns to regular gameplay. Disabling camera modification in the QA menu turns off and removes the camera icon; if camera mode is active, exit it and return to regular gameplay. Confirm the toggle and icon work on supported screen sizes, gameplay stays paused during camera modification, and normal controls and pause/resume behavior work when leaving the mode.
+
+**Scope:** Tracker addition only; implementation and device validation remain pending.
+
+
+### F-015 — Performance verification gap
+
+Real phone GPU frame rate and level-transition memory stability remain unmeasured. The existing bounded submission/resource tests are useful but do not establish FPS. Historical production JavaScript was roughly **576 kB / 155 kB gzip**, with an advisory Vite chunk-size warning; this is an optimization consideration, not a confirmed gameplay bug.
+
+**Accept when:** measure normal/large/split herds, later expansive worlds, weather/cloud effects and repeated transitions on representative phones. Record frame-time distribution, load behavior and resource growth. Set a device-specific performance target before judging success.
+
+### F-045 - Add rain impacts and splashes on water during heavy rain or stronger (P4)
+
+**Status:** Open, queued only; unassigned.
+
+Add visible raindrop impacts and splashes on rivers, streams, and other water surfaces when heavy rain or stronger rain is falling.
+
+Acceptance criteria:
+- Rivers, streams, and other water surfaces show raindrop impacts/splashes during heavy rain and stronger rainfall, including thunderstorms.
+- The effect is active only at heavy rain intensity or above.
+
+**Migration source:** [GitHub #5](https://github.com/novydhillon/Flock/issues/5); moved to this document without implementing or completing the request.
+
+
+### F-047 - Second Buddy dog with independent progression (P4)
+
+**Status:** Deferred, unassigned.
+
+**26 November 2026:** The kennel plan supplies the meadow-40 slot and repeat Buddy adoptions with individual training. Review the older fixed-Buddy and level-70 proposal against the kennel economy before considering this story again.
+
+**Requirement:** after meadow level 40, make a second Buddy dog available with its own independent leveling. Its purchase and upgrade costs should reflect the later stage of the game. Its maximum upgrade tier should be available by meadow level 70.
+
+**Accept when:**
+- A second Buddy becomes available after meadow 40.
+- Each Buddy has its own saved upgrade level and can be upgraded independently.
+- Purchase and upgrade prices are balanced for later-game bolt earnings; exact prices remain to be tuned.
+- The second Buddy can reach its maximum upgrade tier by meadow 70, with unlock gates and costs supporting that progression.
+
+**Scope:** queued feature request only; no second Buddy or pricing changes implemented by this tracker update. Coordinate with F-046 Buddy behavior tiers.
+
+### F-049 - Keep the QA level dropdown unfocused on menu opening (P4)
+
+**Status:** Open, queued only; unassigned.
+
+**Reported behavior:** Opening the QA menu initially focuses or activates the level dropdown and shows the full level list.
+
+**Requirement:** Open the QA menu without automatically focusing, selecting or expanding the level dropdown. Keep the list collapsed until the player deliberately activates it.
+
+**Accept when:**
+- Opening the QA menu does not automatically focus or activate the level dropdown or show its full list.
+- The level dropdown opens normally when deliberately selected, and the current level value is preserved.
+- Initial focus goes to the QA menu container or a suitable non-dropdown control.
+
+**Scope:** queued QA usability fix only; no implementation or acceptance claimed.
+
+
+## Bird behavior feature plan — 18 October 2026 (America/Creston)
+
+Planning requested by Novy; **all F-BIRD items are Open, unassigned and not implemented**. Planning owner: Codex; documentation branch: `plan/bird-behaviour`, based on main `5fd8cf5`. Runtime implementation branch: to be claimed from current main when scheduled. Bird-scoped IDs avoid collisions with concurrently assigned numeric F-IDs. Proposed priority: P2 for this ambient-life feature. This request authorizes planning/tracker updates; no runtime work or game deployment is included.
+
+**Existing foundation:** `src/rendering/environment/wildlife.js` already supplies seeded, area-scaled birds (currently capped at six), threat response and weather sheltering. `src/rendering/environment/nature.js` renders continuously airborne birds; `src/audio/audio.js` schedules generic ambient calls. Extend these systems rather than introduce a second population/audio loop. New ambient birds do not affect herding, collision admission, scoring or progression.
+
+**Requested behavior:** birds fly, land and peck for food on the ground, land in trees and chirp, and perch on fences/other structures to chirp or sit quietly. Ground birds fly away from Pip and Buddy. Quickly approaching livestock also cause takeoff; grazing or slowly moving livestock alone do not. Each level has a random 10% chance of one nest in one tree.
+
+**Planning assumptions and tunable decisions:** interpret the nest probability as one Bernoulli roll per level, not one roll per tree: zero or one nest, never multiple nests. Select one eligible tree only on success; levels without trees have no nest. Use a dedicated seeded random stream so restart is stable and existing terrain/herd generation is unchanged. Nests are decorative; eggs, chicks, breeding and nest defense are outside the requested scope. Retain current population caps initially. Threat radii, fast-livestock speed threshold, approach prediction, quiet/chirp intervals and ground/perch dwell times are implementation tuning, not user-specified numbers. Existing storm exclusion and heavy-rain shelter policy still apply; a decorative nest may remain in storm levels.
+
+**Implementation order:** first define states and landing-site contracts (001/003); then integrate animated transitions (002) and threat handling (004). Audio (005) and nest decoration (006) can follow independently with disjoint ownership. Add social groups (009), idle gestures (010), bark response (011), nest visits (012), bird varieties (013) and gradual return (014) on their listed foundations. Prioritize 009/010/011 within these additions. Integrate lifecycle/weather/performance (007), then validate and review the complete scope (008). Compare simple discrete takeoff/landing phases with a full flight physics controller; prefer bounded state-driven curved trajectories and reserved landing anchors for this ambient feature. Use terrain/obstacle clearance along the flight path rather than ground navigation for flying birds.
+
+### F-BIRD-001 — Bird states and seeded population (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** one authoritative bird state machine supports flight, approach/landing, ground idle/pecking, perched quiet/chirp and takeoff/flee. States have bounded randomized dwell times and legal transitions, with interrupted landing safely returning to flight. Population and behavior RNG are reproducible without changing existing level/herd streams; no duplicate legacy bird population remains. Threats take precedence over ground pecking. State must be testable separately from rendering and audio.
+
+### F-BIRD-002 — Clay birds and animated transitions (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** birds match the current handmade clay style and remain legible at normal gameplay zoom. Flight has visible wing beats; takeoff gains height and landing decelerates to the actual surface, with wings settling when grounded/perched. Ground pecking visibly lowers the head/beak toward food with pauses. Feet align with the support surface, and silhouettes do not hover, sink or snap between flight and rest. Pause freezes animation. Ordinary phone-scale appearance requires rendered user review.
+
+### F-BIRD-003 — Safe ground and elevated landing sites (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** birds find reachable dry ground for pecking, usable tree branches, fence tops and explicitly supported structure tops (initially stone-wall tops and barn roof edges where present). Support positions use actual world transforms/heights, including rotated/scaled trees and fences. Birds do not land in water, inside trunks/foliage/solid structures, on unsupported air, or through roofs. Air trajectories clear obstacles; invalid/occupied anchors are skipped with bounded search and a safe continue-flying fallback. Reserve elevated anchors to prevent overlapping perched birds. Opening a supporting gate or otherwise losing a support causes safe takeoff rather than floating. Ground birds do not block gameplay actors.
+
+### F-BIRD-004 — Conditional ground-bird fleeing (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** nearby Pip or active Buddy triggers ground-bird takeoff and flight away from the threat, including during pecking/ground landing. Nearby livestock trigger takeoff only when moving quickly toward the bird; grazing or slow movement alone leaves the bird grounded. Use actual velocity and closing direction/proximity so distant, stationary or fast-moving-away livestock do not falsely startle birds. Dog threats override calm livestock; multiple threats produce a safe escape direction. Cooldown/hysteresis prevents immediate relanding beside a threat or repeated takeoff/landing flicker. Verify sheep and all four cow sizes; preserve existing livestock/companion behavior. Elevated birds also respond to barking under F-BIRD-011; other elevated-perch proximity reactions remain unspecified.
+
+### F-BIRD-005 — Perched chirping and quiet sitting (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** tree-perched birds chirp intermittently with natural quiet gaps. Fence/structure birds can chirp or sit quietly. Schedule calls from actual visible, eligible perched birds, with distance-aware audibility and bounded concurrent voices; reconcile the existing generic ambient bird loop to avoid duplicate/orphan calls. Honor sound settings, pause/backgrounding, weather shelter and restart/level disposal. Enabling audio after interaction must not replay a backlog. Source scheduling checks and a listening check are separate evidence.
+
+### F-BIRD-006 — Rare tree nest (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** a dedicated per-level seeded roll succeeds with probability 0.10 and selects exactly one eligible tree; failure or no trees yields zero nests. The rule is independent of tree count and does not make a roll for every tree. Restarting the same level preserves nest presence/location. A nest fits the clay style, rests in a supported branch fork, respects tree size/rotation and can be seen from a useful camera angle without changing the tree mesh or route clearance. Tests cover roll boundaries, zero/one/many trees, restart stability and unchanged original world/herd generation. A random sample is not expected to contain exactly 10% nests.
+
+### F-BIRD-007 — Weather, lifecycle and resource integration (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** fixed storms contain no birds and no bird calls; current light-rain activity/heavy-weather shelter is preserved. All bird states freeze on pause and reset cleanly on restart, level jump, results and disposal, with no stale perch reservations/audio. Shared geometry/materials, capped actors/voices, bounded landing searches and sensible culling keep cost measurable. Offscreen birds and nests do not leak resources. Confirm wildlife additions do not change gameplay collisions, saved progress, delivery or other fauna. Record source resource checks separately from measured phone FPS.
+
+### F-BIRD-008 — Validation, blind review and dev sign-off (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** meaningful state/trajectory/perch/threat/nest/audio/weather tests pass along with full regressions, both build/artifact modes and generated documentation checks. Exercise Pip and Buddy separately, grazing/slow/fast approaching livestock, fast receding livestock, interrupted landings, multiple threats, no valid perch, varied trees/fences/structures, weather and pause/restart. Use independent implementation ownership for substantial work and a fresh blind reviewer under AGENTS.md; resolve blockers and meet the standing 9/10 threshold. Record actual models/effort and validation limits. After development publication is authorized, publish only to `/Flock/dev/` and verify CI, native Pages and live asset hashes. Leave implemented issues in Review for Novy's phone appearance/motion/listening sign-off; only then mark Done and strike through closed rows/headings. Production merge/publication requires separate user authorization.
+
+**Planning evidence:** inspected current main tracker, requirements, development rules and existing bird rendering/behavior/audio entry points. Routine documentation-only plan; no runtime blind review or performance claim. Generated documentation checks are recorded with the documentation commit. Remaining checks: all implementation, runtime tests, rendered/listening review and publication above remain future work.
+
+
+## Bird feature additions — 18 October 2026, 21:47 America/Creston
+
+Novy requested adding all six suggested features to the tracker. F-BIRD-009–014 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026. They extend the original plan and share F-BIRD-007 lifecycle/resource integration and F-BIRD-008 regression, blind review and user acceptance gates. Include group-response timing, gesture interruption, muted bark response, nest-absent levels, seeded varieties and safe delayed return in that validation scope. Birds remain ambient wildlife without feeding chores or rewards.
+
+### F-BIRD-009 — Small social foraging groups (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on:** F-BIRD-001; F-BIRD-004.
+
+**Accept when:** Two or three birds can forage together when the population permits. A startled bird can cause nearby group members to take flight after small varied delays, without synchronizing every bird on the level. Grouping stays within the existing population cap, allows separation, and never overrides safe escape paths, landing reservations or weather shelter.
+
+### F-BIRD-010 — Ground hops and perched idle gestures (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on:** F-BIRD-002; F-BIRD-003.
+
+**Accept when:** Ground birds make occasional short hops between pecks. Perched birds sometimes tilt their heads, preen or ruffle feathers, with varied timing and quiet rests. Feet remain supported, poses remain readable at ordinary gameplay zoom, and threats interrupt gestures immediately. Pause freezes all motion; shared animation resources remain bounded.
+
+### F-BIRD-011 — React to Pip and Buddy barking (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on:** F-BIRD-004; F-BIRD-005.
+
+**Accept when:** Actual bark events from either Pip or active Buddy startle nearby grounded or perched birds into safe flight away from the bark source. Use a tunable finite response radius and existing bark event timing rather than audio playback or a new global polling loop. A group response may follow F-BIRD-009; airborne birds do not repeatedly restart takeoff. Mute does not disable behavioral response, paused play does not trigger it, and normal bark strength, cooldown and livestock effects are unchanged.
+
+### F-BIRD-012 — Occasional visits to the nest (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on:** F-BIRD-003; F-BIRD-006.
+
+**Accept when:** On a level with a nest, an existing bird can occasionally approach it, land safely and settle briefly before leaving. Visits use reserved nest support and natural intervals, yield to threats and weather shelter, and do not spawn extra birds. Levels without nests need no special fallback behavior. Eggs, chicks, breeding, nest defense and player chores remain outside scope.
+
+### F-BIRD-013 — Two or three recognizable bird varieties (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on:** F-BIRD-002; F-BIRD-005.
+
+**Accept when:** Provide two or three stylized bird varieties with distinguishable colors and calls while sharing core geometry/animations where practical. Choose varieties with stable seeded variation; keep the total population cap unchanged. Each remains recognizable in the clay art style at normal phone zoom, with calls balanced against music, bark and livestock audio. This is ambient variety, without collection objectives or progression rewards.
+
+### F-BIRD-014 — Gradual return after the meadow settles (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on:** F-BIRD-003; F-BIRD-004; F-BIRD-009; F-BIRD-011.
+
+**Accept when:** After Pip, Buddy and quickly approaching livestock leave an area, birds can gradually return to safe ground and resume foraging. Require a tunable clear interval and recheck threats before landing; stagger returns so the meadow settles naturally. Calm or grazing livestock do not prevent return. Repeated barking or a renewed threat postpones landing without rapid oscillation. Returns use existing birds, honor weather shelter and cannot teleport or add population.
+
+**Documentation handoff:** the original planning commit is `1fbfe08`; remote publication was blocked by automatic approval review, which required explicit authorization for `novydhillon/Flock`. This follow-up updates the same local planning branch; no new push is attempted without that authorization. Documentation generation/checks cover this addition; runtime implementation and acceptance remain future work.
+
+
+## Pip and Buddy teamwork and personality plan — 18 October 2026, 21:52 America/Creston
+
+**Historical planning record:** the Open/unimplemented status statements in this planning introduction are superseded by the 19 October execution records, current overview and individual issue details. F-COMP-001/002/003/007/009/010 are now Done in [Closed issues](ISSUES_CLOSED.md), accepted 22 October 2026; F-COMP-004/005/006/008 remain Open.
+
+Novy requested tracking all eight suggested improvements. **F-COMP-001–008 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026.** Planning owner: Codex; documentation branch: existing local `plan/bird-behaviour`. Claim runtime owner/feature branch from current main when scheduled. Scoped companion IDs avoid concurrent numeric-ID collisions. Prioritize working space (001), useful herding positions (002) and progress-aware obstacle recovery (003).
+
+Extend accepted F-046/F-048/F-061 behavior and Pip presentation rather than reopening completed fixes. No second Buddy, upgrade pricing, new control scheme, automated Pip navigation or new gameplay resource is included. This request adds tracker scope only; runtime implementation, review and publication remain future work.
+
+### F-COMP-004 — Clear attention and working intent (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on / preserve:** F-061 accepted head/body motion; F-COMP-002.
+
+**Accept when:** Buddy looks toward the actual animal/group he is helping, including during task transitions, with smooth bounded head motion. Idle Pip can glance at nearby livestock without changing player-controlled movement or body heading. Existing turn-directed head motion takes priority during movement; avoid snapping, excessive twisting and gaze flicker between equally close animals. Restore neutral attention when no eligible target exists; reset/freeze correctly on restart/pause.
+
+### F-COMP-005 — Bark pose and recovery gesture (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on / preserve:** Existing actual Pip/Buddy bark events and feedback.
+
+**Accept when:** Briefly accompany each actual Pip/Buddy bark with a readable pose and a subtle recovery gesture. The bark gameplay event remains immediate; preparation animation never delays or creates an additional bark. Preserve cooldowns, strength, double-tap/keyboard inputs, autonomous Buddy eligibility, red-tail/ring feedback and independent cooldown ownership. Animate from the event even when muted, handle repeated permitted barks cleanly, and avoid stuck poses on pause/restart. Coordinate bird bark reactions with F-BIRD-011.
+
+### F-COMP-006 — Distinct Pip and Buddy personalities (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on / preserve:** F-061 accepted puppy proportions; existing Pip/Buddy hover poses; F-COMP-004.
+
+**Accept when:** Pip reads as attentive and purposeful; Buddy as eager and puppy-like through subtle head tilts, Buddy ear gestures and occasional small celebratory motions. Keep accepted reference appearances, relative scales, hover, turn lean, acceleration/braking lean and ground glow. Vary idle timing; task, movement and bark poses take priority. Gestures do not alter navigation, input, rewards or animal pressure, and remain readable at ordinary phone zoom with bounded rendering cost.
+
+### F-COMP-008 — Brief shared arrival celebration (P2)
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Depends on / preserve:** F-COMP-006; existing full-completion/results flow.
+
+**Accept when:** After a successful final delivery, Pip and an active Buddy briefly acknowledge each other with a look or small playful motion. Do not play for partial timeout, an absent/inactive Buddy or duplicate completion events. The celebration is nonblocking: results and Continue remain available immediately, and user input/next level cancels it safely. Preserve finalized delivery counts, rewards and saved progress; no unscripted gameplay movement or repeated celebration after pause/resume/restart.
+
+**Shared validation and acceptance:** test all Buddy tiers, absent/inactive Buddy, split/merged/stopped/reversing flocks, all cow sizes, tree detours, narrow gates, rotated bridges, last-animal passage, stray retrieval, simultaneous barks and transitions among work/standby/results. Verify controller responsiveness, low-speed continuity, physical collisions, Pip-at-goal scoring, bark event ownership, pause/background/resume/restart and clean task/animation state. Resolve pose priorities across attention, idle, bark and celebration before integration. Follow AGENTS.md independent ownership/blind gauntlet for substantial runtime work, meaningful focused/full regressions and both artifact-mode checks. Record source evidence separately from phone motion, touch usability, listening and FPS. Leave implementations in Review until Novy's sign-off. Authorized non-main publication targets `/Flock/dev/`; production merge/publication requires separate authorization.
+
+**Planning handoff:** routine documentation-only additions with generated documentation/link/behavior checks; no runtime implementation, performance claim or runtime blind review. Remote publication remains blocked by the previously reported automatic approval rejection requiring explicit push authorization for `novydhillon/Flock`; no new push is attempted for this local commit.
+
+
+## Tracker archive maintenance — 18 October 2026, 22:04 America/Creston
+
+Moved 48 closed issues and historical acceptance/execution records to [ISSUES_CLOSED.md](ISSUES_CLOSED.md); 59 active items remain, including all 42 new planning items. Current overview statuses and explicit user acceptance control migration; older Review wording is retained only as historical evidence. F-065 had a signed-off detail without an overview row; its closed row is included in the archive. No Open, Review or Deferred issue was closed by this reorganization. Archived source paragraphs are preserved; moved-heading links are updated.
+
+Root AGENTS.md and DEVELOPMENT.md now require connector-only repository operations and same-commit archival on closure. Shell remains available for local files/builds/checks. The docs generator includes the archive in navigation/search; checks enforce active/closed separation, unique scoped IDs, detail/overview coverage and archive strikethrough. No runtime or Pages changes. Independent documentation review and final validation are recorded in QUALITY.md.
+
+
+## Main integration — 18 October 2026, 22:17 America/Creston
+
+Requested integration of main `d2484b9` into planning branch `plan/bird-behaviour` (`6ca2b35`). Main contributes five commits since shared base `5fd8cf5`: accepted surface-aware grazing, its tests and development/production evidence, and a CI branch-trigger change. Runtime, tests, workflow and new validation manifests are imported without competing edits. Shared development/requirements/quality additions are retained alongside this branch's planning/archive rules; generated HTML is rebuilt rather than merged. F-066 is Done by Novy's 22:10 approval and is added directly to [Closed issues](ISSUES_CLOSED.md); 59 active items and all 42 new planning items remain unchanged. Archive now contains 49 closed items.
+
+Preserve connector-only repository operations, same-commit archive-on-closure and all earlier planning scope/exclusions. This integrates source into the planning branch only; no main merge or game deployment is requested. Validation and independent integration review are recorded in QUALITY.md. Runtime is identical to the imported main revision; no new bird/herd/companion/UI features are implemented by this merge.
+
+
+
+
+
+
+
+
+## Delivery fallback integration — 19 October 2026
+
+User requested merging fallback changes to main and integrating main into buddy_behaviour. Main PR #18 merged at c35c466; this integration preserves Buddy runtime/tests and all branch-specific tracker/evidence records, resolves append conflicts and regenerates HTML. No Pages publication is included.
+
+## Buddy user acceptance — 22 October 2026
+
+Novy accepted the development build with “Looks good. Merge to main and close the tickets.” F-COMP-001/002/003/007/009/010 are Done, with their complete details and publication/integration evidence moved to [Closed issues](ISSUES_CLOSED.md#buddy-user-acceptance--22-october-2026). F-COMP-004/005/006/008 and unrelated work retain their current states; F-OPS-004 is not part of this sign-off. Accepted dev source `17f648d`, Pages `45110fa`; source branch `buddy_behaviour` (documentation head before closure `15666f2`). Main merge is authorized, but no production deployment was requested. Historical planning statements are retained as history, not current status.
+
+
+
+
+## Accepted P1 branch — 25 October 2026
+
+The fourteen P1 items and F-POLISH-001/002/003 were accepted by Novy and archived in [Closed issues](ISSUES_CLOSED.md#p1-gameplay-and-follow-up-acceptance--25-october-2026). All other Open/Deferred work retains its state. This updates source acceptance and authorizes main merge only, with no production deployment.
+
+### F-AUDIO-002 — Existing bolt voice-steal hard-cut risk
+
+**Status:** In progress. Owner: Codex rendering team. Branch: not yet claimed.
+
+**Accept when:** Investigate a short release for a livestock voice replaced at the six-call cap, avoiding potential discontinuity while retaining immediate bolt onset, bounded audible/resource ownership, mute/pause/dispose cleanup and no delayed catch-up. Source inspection identifies possible risk, not an observed/listening-confirmed defect.
+
+**25 October provenance:** Independent F-AUDIO-001 review observed existing immediate `_releaseAmbience` stop/disconnect during saturated bolt replacement. Verified unchanged in approved main `1386c7a` and the new patch. Root explicitly keeps this outside current tuning scope and tracks it separately; no implementation or audible click claim.
+
+
+## Rough pasture and rolling terrain — 25 October 2026
+
+Reference photos supplied by Novy: picture 1 `IMG_8450.webp` and picture 2 `IMG_8451.jpeg` guide rough tufted pasture; `IMG_8454.jpeg`, `IMG_8453.jpeg` and `IMG_8452.webp` guide rolling fields, low valleys and terrain-following boundaries. Translate these landscape references into the existing claymation style. References are visual direction, not a request to reproduce photographic textures or watermarks.
+
+All four items are Open and unassigned. Rough-ground appearance is P3 polish; navigable relief, aligned boundaries and terrain-aware water are linked P2 features that must be coordinated before a rolling-terrain release. This adds planned work only; no terrain, physics, water or game deployment changes are implemented.
+
+## Water vegetation acceptance — 29 October 2026
+
+Novy accepted `feat/water-vegetation` with “Looks good. Merge to main and close any tickets.” F-WATER-002 and F-WATER-003 are Done; complete requirements, correction history and validation records moved to [Closed issues](ISSUES_CLOSED.md#water-vegetation-user-acceptance--29-october-2026). Source revision `d2bae96da0ed1b59f1d389616b64a0b53e45842c` is accepted for main merge. Unrelated open work, including F-BUTTERFLY-001, remains active. This authorizes source merge, not production publication.

@@ -1,0 +1,426 @@
+{
+  "schemaVersion": 1,
+  "issue": "F-ARCH-001",
+  "sourceBranch": "refactor/validated-area-config",
+  "sourceSha": "b11d3efe47edff533a709516dacfeb0893e980c5",
+  "sourceCi": {
+    "runId": 40454026992,
+    "url": "https://github.com/novydhillon/Flock/actions/runs/40454026992",
+    "conclusion": "success"
+  },
+  "destinationOverride": {
+    "requestedBy": "user",
+    "request": "Deploy changes to \\dev2 for playtesting",
+    "scope": "This publication only",
+    "standingNonMainDestination": "dev/",
+    "requestedDestination": "dev2/",
+    "reason": "Explicit user destination overrides the repository default for this deployment."
+  },
+  "route": "Documented connector-only gh-pages fallback",
+  "fallbackReason": "GitHub connector exposes no workflow dispatch; standard workflow supports only dev/production.",
+  "url": "https://novydhillon.github.io/Flock/dev2/",
+  "prefix": "dev2/",
+  "environment": "dev2",
+  "buildEnvironment": "dev",
+  "checks": {
+    "npmCi": "passed",
+    "checkedBuild": "npm run build:checked:dev",
+    "checkedBuildResult": "passed",
+    "applicationTests": {
+      "passed": 508,
+      "failed": 0
+    },
+    "documentationTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "releaseArtifact": {
+      "files": 31,
+      "qaFiles": 0
+    },
+    "developmentArtifact": {
+      "files": 33,
+      "qaFiles": 2
+    },
+    "dependencyValidation": "passed via deploymentPlan"
+  },
+  "files": [
+    {
+      "path": "dev2/assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "bytes": 18356,
+      "gitBlobSha": "e9a3b306ccda71d80293dcad2c4b070420601244"
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "bytes": 14200,
+      "gitBlobSha": "0b8bc556cf4b4cbd5c82418947a159f9aaa3c6cc"
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "bytes": 14144,
+      "gitBlobSha": "5e39dbc959ff4cb85134d5666d5251aa54b430ad"
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "bytes": 18320,
+      "gitBlobSha": "4a8bb66121cec0835bc077cb683f1d97b67c1a98"
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "bytes": 18504,
+      "gitBlobSha": "5c43e6490f991913c0752e98be1b8e1ef7d48e59"
+    },
+    {
+      "path": "dev2/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "bytes": 14348,
+      "gitBlobSha": "26edc56c122261f14290330af50bbff92e0a17b4"
+    },
+    {
+      "path": "dev2/assets/index-CTeL47d3.css",
+      "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503",
+      "bytes": 12731,
+      "gitBlobSha": "6840c302e69eee5c0defba0b8efba8726c5dcd92"
+    },
+    {
+      "path": "dev2/assets/index-DrGb2bfy.js",
+      "sha256": "cb1145edcc5a063f458e585f56a1a70e9ca27c93c9cde070dec7d0b53d0b54d8",
+      "bytes": 797121,
+      "gitBlobSha": "cbb8da7d05b9fbb134d0f2ba378d88c29da40994"
+    },
+    {
+      "path": "dev2/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "bytes": 14140,
+      "gitBlobSha": "aa32da2408ba303cef78ff1c3dc36cbf88983ef1"
+    },
+    {
+      "path": "dev2/assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "bytes": 18412,
+      "gitBlobSha": "87b8e187f0431a4c523be6191b66e31c50e0359b"
+    },
+    {
+      "path": "dev2/assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "bytes": 14060,
+      "gitBlobSha": "8674e73594a26b7670d3ba93e42063f39e11c3ee"
+    },
+    {
+      "path": "dev2/assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "bytes": 18344,
+      "gitBlobSha": "3e31399123c1a3b6df33f166d2def8d03bd797b1"
+    },
+    {
+      "path": "dev2/assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "bytes": 13500,
+      "gitBlobSha": "768bdf9e42de69adb8d99aa0e784bc26e363c22d"
+    },
+    {
+      "path": "dev2/assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "bytes": 17752,
+      "gitBlobSha": "14b81de6eb97b8a53156e0beb15747a595e56349"
+    },
+    {
+      "path": "dev2/assets/qa-BfiOSITF.js",
+      "sha256": "7648999b8a08e9aff21f4d5c364c2bd054019f537dceffcc4932cd10bfd098e8",
+      "bytes": 8826,
+      "gitBlobSha": "41da03d756edd85728ad7276bc2aaacd796015b7"
+    },
+    {
+      "path": "dev2/assets/qa-DWlVkWAo.css",
+      "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "bytes": 1910,
+      "gitBlobSha": "263c88480858a675c693bc413b9bfb4cfbbfcc7c"
+    },
+    {
+      "path": "dev2/audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0",
+      "bytes": 1465,
+      "gitBlobSha": "8f16787c52baeea7ed7e3e74232978ede99fafd3"
+    },
+    {
+      "path": "dev2/audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34",
+      "bytes": 14112,
+      "gitBlobSha": "dce2e656910d7c6a3a10d6bb27fb0978f7336c55"
+    },
+    {
+      "path": "dev2/audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b",
+      "bytes": 92384,
+      "gitBlobSha": "f66052a7088623cbf567d0347929207ca2e3732e"
+    },
+    {
+      "path": "dev2/audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac",
+      "bytes": 30176,
+      "gitBlobSha": "816d9359cfb1487aa334af1b4fd39bdc7ed1f08c"
+    },
+    {
+      "path": "dev2/icons/pip-120.png",
+      "sha256": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7",
+      "bytes": 9769,
+      "gitBlobSha": "3a9f30ac12278ccbec76eabc74bb1ebc42789b99"
+    },
+    {
+      "path": "dev2/icons/pip-152.png",
+      "sha256": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec",
+      "bytes": 13117,
+      "gitBlobSha": "bd6105982dbe82dc82ea45f503111367747c3717"
+    },
+    {
+      "path": "dev2/icons/pip-16.png",
+      "sha256": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182",
+      "bytes": 712,
+      "gitBlobSha": "796db7962e3244ded171b4270cd7bff51ca3d3b2"
+    },
+    {
+      "path": "dev2/icons/pip-167.png",
+      "sha256": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662",
+      "bytes": 14808,
+      "gitBlobSha": "eceffc9b8900af7c3868cb81354e52bdf3e5661a"
+    },
+    {
+      "path": "dev2/icons/pip-180.png",
+      "sha256": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107",
+      "bytes": 16430,
+      "gitBlobSha": "cbc7924f1010e847d29092f0ad6ee291e242c4d3"
+    },
+    {
+      "path": "dev2/icons/pip-192.png",
+      "sha256": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e",
+      "bytes": 17674,
+      "gitBlobSha": "c32fa76d4fe18909a6cf6e9290a010687e033e51"
+    },
+    {
+      "path": "dev2/icons/pip-32.png",
+      "sha256": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76",
+      "bytes": 1748,
+      "gitBlobSha": "ff2eb106147d347f47e46ab82bb2bbf58b457b20"
+    },
+    {
+      "path": "dev2/icons/pip-48.png",
+      "sha256": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e",
+      "bytes": 3002,
+      "gitBlobSha": "fcc7d429de0c97fc5d40fdbb0c3bc0c9457c59c5"
+    },
+    {
+      "path": "dev2/icons/pip-512.png",
+      "sha256": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841",
+      "bytes": 40511,
+      "gitBlobSha": "bf90524ec7a76b46156cbbd183016fbdc631cef5"
+    },
+    {
+      "path": "dev2/icons/pip-96.png",
+      "sha256": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758",
+      "bytes": 7295,
+      "gitBlobSha": "c4ca366d1605a053e68fc7af3e3aa97de8bd6793"
+    },
+    {
+      "path": "dev2/icons/pip.svg",
+      "sha256": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6",
+      "bytes": 35484,
+      "gitBlobSha": "2506310a3b9365b7d1f37660d77136497dc924ae"
+    },
+    {
+      "path": "dev2/index.html",
+      "sha256": "587f9d8c7c991c8096582bbfc9019245b42410b702066a212b88f4253bac9b11",
+      "bytes": 4721,
+      "gitBlobSha": "4987ef41e52421d810b0ba309af3ac0f6030c05f"
+    },
+    {
+      "path": "dev2/site.webmanifest",
+      "sha256": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4",
+      "bytes": 417,
+      "gitBlobSha": "1936211d9b245c97b89f54f8f5c61cb728288d41"
+    }
+  ],
+  "limitations": [
+    "No physical phone, touch, audio listening or FPS acceptance is claimed.",
+    "F-AUDIO-003 remains Open; the refactor does not establish a browser launch-audio fix.",
+    "F-ARCH-001 remains Review until user playtest sign-off."
+  ],
+  "pagesPublication": {
+    "parentSha": "18921f22436ae4c437c6becb94aedc618b352516",
+    "sha": "ab24daf4746601c8c9d897db5c1436c2f7f4438b",
+    "treeSha": "b26c9740e8fafef748c071273bc05a866f0ee172",
+    "publishedAt": "2026-10-27T23:50:56.764Z",
+    "lease": {
+      "expectedSha": "18921f22436ae4c437c6becb94aedc618b352516",
+      "force": false
+    },
+    "manifestPath": "dev2/.flock-deployment.json"
+  },
+  "preservation": {
+    "removedPaths": [],
+    "changedBlobPaths": [
+      "dev2/.flock-deployment.json",
+      "dev2/assets/index-CTeL47d3.css",
+      "dev2/assets/index-DrGb2bfy.js",
+      "dev2/assets/qa-BfiOSITF.js",
+      "dev2/audio/CREDITS.md",
+      "dev2/audio/bark.mp3",
+      "dev2/audio/cow.mp3",
+      "dev2/audio/sheep.mp3",
+      "dev2/icons/pip-120.png",
+      "dev2/icons/pip-152.png",
+      "dev2/icons/pip-16.png",
+      "dev2/icons/pip-167.png",
+      "dev2/icons/pip-180.png",
+      "dev2/icons/pip-192.png",
+      "dev2/icons/pip-32.png",
+      "dev2/icons/pip-48.png",
+      "dev2/icons/pip-512.png",
+      "dev2/icons/pip-96.png",
+      "dev2/icons/pip.svg",
+      "dev2/index.html",
+      "dev2/site.webmanifest"
+    ],
+    "allWritesWithin": "dev2/",
+    "outsideDev2Identical": true,
+    "oldDev2FilesRetained": true,
+    "preservedTopLevelEntries": [
+      {
+        "path": ".flock-deployment.json",
+        "sha": "0a50062a8b0a5fc8c5b94952760b88775f121438",
+        "mode": "100644",
+        "type": "blob"
+      },
+      {
+        "path": ".github",
+        "sha": "915f2b945b7dfac7d1720fe74f9eadc107634af6",
+        "mode": "040000",
+        "type": "tree"
+      },
+      {
+        "path": ".nojekyll",
+        "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "mode": "100644",
+        "type": "blob"
+      },
+      {
+        "path": "README.md",
+        "sha": "ef57d22440e19cf57bd71faebd72dc8412eb7ffd",
+        "mode": "100644",
+        "type": "blob"
+      },
+      {
+        "path": "assets",
+        "sha": "d6d19780db131fd70ff7a6dc8fc781d29ed89f1c",
+        "mode": "040000",
+        "type": "tree"
+      },
+      {
+        "path": "audio",
+        "sha": "d201237743ffda788990bff901b28f720457cdee",
+        "mode": "040000",
+        "type": "tree"
+      },
+      {
+        "path": "dev",
+        "sha": "3cae3abce77ac9c1cf78f690494a7094f4363939",
+        "mode": "040000",
+        "type": "tree"
+      },
+      {
+        "path": "flock",
+        "sha": "a920c38a2c640274841c51fddf41c53b7773fc7e",
+        "mode": "040000",
+        "type": "tree"
+      },
+      {
+        "path": "icons",
+        "sha": "f0ff173fb2791e124b7c66d3b90ff55e76f96478",
+        "mode": "040000",
+        "type": "tree"
+      },
+      {
+        "path": "index.html",
+        "sha": "0be8a94217644a8294c02c3a3dc75361d7e7e388",
+        "mode": "100644",
+        "type": "blob"
+      },
+      {
+        "path": "site.webmanifest",
+        "sha": "1936211d9b245c97b89f54f8f5c61cb728288d41",
+        "mode": "100644",
+        "type": "blob"
+      },
+      {
+        "path": "tracker",
+        "sha": "7103d6cbbb85985e4f30572c1aac8f033b7c4bf9",
+        "mode": "040000",
+        "type": "tree"
+      }
+    ]
+  },
+  "nativePages": {
+    "runId": 40604898716,
+    "url": "https://github.com/novydhillon/Flock/actions/runs/40604898716",
+    "headSha": "ab24daf4746601c8c9d897db5c1436c2f7f4438b",
+    "status": "completed",
+    "conclusion": "success",
+    "completedAt": "2026-10-27T23:51:43Z",
+    "jobs": [
+      {
+        "id": 122541841371,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 122541922769,
+        "name": "report-build-status",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 122541922788,
+        "name": "deploy",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "liveVerification": {
+    "status": "passed",
+    "command": "node scripts/verify-deployment.mjs deployment.json",
+    "fileCount": 33,
+    "hashAlgorithm": "SHA-256",
+    "result": "All emitted HTML, JavaScript, CSS, fonts, icons, audio and manifest assets match the checked build byte for byte.",
+    "verifiedAt": "2026-10-27T23:52:52.578Z",
+    "output": "Verified 33 live files for b11d3efe47edff533a709516dacfeb0893e980c5",
+    "additionalChecks": [
+      {
+        "url": "https://novydhillon.github.io/Flock/dev2/.flock-deployment.json",
+        "status": 200,
+        "gitBlobSha": "94aff1c3ec1b61f63a9b6011707377315594cb3a",
+        "bytes": 6122,
+        "sourceSha": "b11d3efe47edff533a709516dacfeb0893e980c5",
+        "environment": "dev2"
+      },
+      {
+        "url": "https://novydhillon.github.io/Flock/",
+        "status": 200,
+        "gitBlobSha": "0be8a94217644a8294c02c3a3dc75361d7e7e388",
+        "bytes": 4721
+      },
+      {
+        "url": "https://novydhillon.github.io/Flock/dev/",
+        "status": 200,
+        "gitBlobSha": "957922e33e0668ed63ba01d4cf4668dec8d0e56d",
+        "bytes": 4721
+      }
+    ]
+  },
+  "status": "deployed-and-live-verified"
+}

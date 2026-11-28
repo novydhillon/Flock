@@ -1,0 +1,2403 @@
+# FLOCK — Closed issues and execution history
+
+[Active tracker](ISSUES.md) · [Development rules](DEVELOPMENT.md)
+
+Archived 18 October 2026 (America/Creston), from planning branch revision `2358bc1`. All overview entries below are closed; dated user acceptance overrides older Review/pending wording in preserved historical notes. This archive retains original requirements, evidence and limitations. Historical notes may mention work still active in [ISSUES.md](ISSUES.md); they do not change its current status. Future closures move their complete row and detailed section here in the same commit, with a closure date/reason. Reopening moves the item back to the active tracker. Evidence files are retained in place.
+
+## Closed work overview
+
+| ID | Priority | Type | Item | Status | Depends on |
+|---|---|---|---|---|---|
+| ~~F-KENNEL-005~~ | ~~P1~~ | ~~UI/progression~~ | ~~Manage the kennel from pause and rewards~~ | ~~Done~~ | ~~F-KENNEL-001–004~~ |
+| ~~F-KENNEL-006~~ | ~~P1~~ | ~~Art/animation~~ | ~~Animate and illustrate the ten-entry roster~~ | ~~Done~~ | ~~F-DOG-001; F-KENNEL-002; F-KENNEL-005~~ |
+| ~~F-RENDER-002~~ | ~~P2~~ | ~~Rendering~~ | ~~Render the 3D canvas at half native viewport resolution~~ | ~~Done~~ | ~~—~~ |
+| ~~F-DOG-001~~ | ~~P2~~ | ~~Character art/animation~~ | ~~Replace Pip and Buddy with expressive dogs~~ | ~~Done~~ | ~~Existing dog gameplay~~ |
+| ~~F-BUTTERFLY-001~~ | ~~P2~~ | ~~Animation bug~~ | ~~Hinged wing flaps and five butterfly colors~~ | ~~Done~~ | ~~Existing butterfly presentation~~ |
+| ~~F-TERRAIN-BANK-001~~ | ~~P2~~ | ~~Terrain/bridges~~ | ~~Compact steep riverbanks and slope-based bank textures~~ | ~~Done~~ | ~~Accepted rolling terrain and elevated crossings~~ |
+| ~~F-SHADOW-001~~ | ~~P2~~ | ~~Rendering~~ | ~~Bake all static environment shadows once per meadow~~ | ~~Done~~ | ~~Existing shadow renderer~~ |
+| ~~F-ARCH-002~~ | ~~P2~~ | ~~Architecture~~ | ~~Organize source into system and functionality folders~~ | ~~Done~~ | ~~Accepted F-PERF-002~~ |
+| ~~F-PERF-002~~ | ~~P2~~ | ~~Engineering~~ | ~~Readable source, separate delivery pipelines and allocation cleanup~~ | ~~Done~~ | ~~Current main~~ |
+| ~~F-008~~ | ~~P1~~ | ~~Art~~ | ~~Cloud visuals temporarily removed at user request~~ | ~~Closed~~ | ~~No runtime clouds or cloud shadows~~ |
+| ~~F-AUDIO-003~~ | ~~P1~~ | ~~Audio regression~~ | ~~Music stays silent on browser/app launch until audio is toggled off/on~~ | ~~Closed~~ | ~~Accepted soundtrack; physical launch investigation~~ |
+| ~~F-VEG-001~~ | ~~P2~~ | ~~Environment~~ | ~~Odd 3–11 stem clumps, varied heights and denser randomized water vegetation~~ | ~~Done~~ | ~~Accepted F-WATER-002/003~~ |
+| ~~F-CAMERA-001~~ | ~~P2~~ | ~~Presentation~~ | ~~Lower camera height 25% at fixed target distance~~ | ~~Done~~ | ~~Current camera framing~~ |
+| ~~F-TERRAIN-HEIGHT-001~~ | ~~P2~~ | ~~Terrain experiment~~ | ~~Double terrain range with unchanged slope limit~~ | ~~Done~~ | ~~Accepted rolling terrain~~ |
+| ~~F-TERRAIN-001~~ | ~~P3~~ | ~~Environment/art~~ | ~~Rough pasture appearance on selected levels~~ | ~~Done~~ | ~~Existing clay grass and ground presentation~~ |
+| ~~F-TERRAIN-002~~ | ~~P2~~ | ~~Terrain/navigation~~ | ~~Navigable undulating fields~~ | ~~Done~~ | ~~Existing world generation, navigation and actor presentation~~ |
+| ~~F-TERRAIN-003~~ | ~~P2~~ | ~~World/structures~~ | ~~Fences and stone walls follow terrain undulations~~ | ~~Done~~ | ~~F-TERRAIN-002; existing fences, stone walls and gates~~ |
+| ~~F-TERRAIN-004~~ | ~~P2~~ | ~~Terrain/water/weather~~ | ~~Lowland rivers and slope-aware rain pooling~~ | ~~Done~~ | ~~F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather~~ |
+| ~~F-OPS-005~~ | ~~P2~~ | ~~Tooling~~ | ~~Save repeatable workflows and extract deployment helpers~~ | ~~Done~~ | ~~Existing delivery tools~~ |
+| ~~F-INPUT-001~~ | ~~P2~~ | ~~Controls~~ | ~~Double joystick radius and add logarithmic speed~~ | ~~Done~~ | ~~Existing floating joystick~~ |
+| ~~F-WATER-002~~ | ~~P2~~ | ~~Environment~~ | ~~Seeded in-water grass and reed clumps on 20% of water bodies~~ | ~~Done~~ | ~~Existing rendered water surfaces~~ |
+| ~~F-WATER-003~~ | ~~P2~~ | ~~Environment~~ | ~~Slender vegetation clumps and natural bank/rock distribution~~ | ~~Done~~ | ~~F-WATER-002; accepted water obstacles~~ |
+| ~~F-UI-017~~ | ~~P2~~ | ~~Minimap~~ | ~~Exterior goal pointer matching Pip~~ | ~~Done~~ | ~~F-UI-014~~ |
+| ~~F-WATER-001~~ | ~~P2~~ | ~~Environment~~ | ~~Weather-driven running water, rocks and obstacle wakes~~ | ~~Done~~ | ~~Existing river effects~~ |
+| ~~F-RENDER-001~~ | ~~P2~~ | ~~Rendering defect~~ | ~~Missing wildlife and environment shadows~~ | ~~Done~~ | ~~Existing lighting; F-015~~ |
+| ~~F-UI-001~~ | ~~P2~~ | ~~Gameplay UI~~ | ~~Clear bark cooldown-to-ready feedback~~ | ~~Done~~ | ~~Existing Woof/cooldown UI; coordinate F-050~~ |
+| ~~F-UI-002~~ | ~~P2~~ | ~~Gameplay UI~~ | ~~Distinct livestock states on the minimap~~ | ~~Done~~ | ~~Accepted top-center minimap; existing delivery/flock state~~ |
+| ~~F-UI-003~~ | ~~P2~~ | ~~Workshop UI~~ | ~~Current-to-next upgrade benefits and previews~~ | ~~Done~~ | ~~Existing tier availability/costs; F-050 descriptions~~ |
+| ~~F-UI-004~~ | ~~P2~~ | ~~Loading~~ | ~~Clay meadow loading vignette~~ | ~~Done~~ | ~~Current loading overlay; F-UI-005/006~~ |
+| ~~F-UI-005~~ | ~~P2~~ | ~~Loading~~ | ~~Honest initialization progress~~ | ~~Done~~ | ~~Actual asset/renderer initialization tasks~~ |
+| ~~F-UI-006~~ | ~~P2~~ | ~~Loading~~ | ~~Smooth reveal of the ready meadow~~ | ~~Done~~ | ~~F-UI-005; existing scene initialization~~ |
+| ~~F-UI-007~~ | ~~P2~~ | ~~Loading/recovery~~ | ~~Retry and clear loading-error recovery~~ | ~~Done~~ | ~~Initialization/error handling; F-UI-005~~ |
+| ~~F-UI-008~~ | ~~P2~~ | ~~Landing~~ | ~~Progress-aware Start or Continue action~~ | ~~Done~~ | ~~Saved campaign progression; existing begin/resume behavior~~ |
+| ~~F-UI-009~~ | ~~P2~~ | ~~Landing~~ | ~~Living showcase meadow~~ | ~~Done~~ | ~~Existing intro simulation; bird/herd/companion future features when available~~ |
+| ~~F-UI-010~~ | ~~P2~~ | ~~Landing/settings~~ | ~~Move full-game reset out of the Play area~~ | ~~Done~~ | ~~Existing reset confirmation; F-UI-011~~ |
+| ~~F-UI-011~~ | ~~P2~~ | ~~Landing/navigation~~ | ~~Clear meadow selector with remembered browsing position~~ | ~~Done~~ | ~~Existing unlocked-level picker and saved progress~~ |
+| ~~F-UI-016~~ | ~~P2~~ | ~~Landing/iOS~~ | ~~Original-scale drifting showcase, both relaxed dogs and flat iOS status bar~~ | ~~Done~~ | ~~F-UI-015~~ |
+| ~~F-UI-015~~ | ~~P2~~ | ~~Landing and presentation~~ | ~~Tips beneath minimap, clear upper screen, randomized restful landing meadow and richer environment color~~ | ~~Done~~ | ~~F-UI-009; F-UI-014~~ |
+| ~~F-UI-014~~ | ~~P2~~ | ~~Controls/layout~~ | ~~Top tips, floating centered joystick, bottom-left QA and circular borderless minimap~~ | ~~Done~~ | ~~Existing controls and minimap~~ |
+| ~~F-UI-012~~ | ~~P2~~ | ~~Landing/content~~ | ~~Introduction copy for sheep, cows, Pip and Buddy~~ | ~~Done~~ | ~~Current landing copy; Buddy ownership/unlock context~~ |
+| ~~F-DOCS-001~~ | ~~P3~~ | ~~Documentation UI~~ | ~~Sort issue tables by ID, Priority, Type and Status~~ | ~~Done~~ | ~~—~~ |
+| ~~F-013~~ | ~~P2~~ | ~~Known review concern~~ | ~~Level-5 pacing spike~~ | ~~Closed~~ | ~~F-005; retest after F-009/F-012~~ |
+| ~~F-ARCH-001~~ | ~~P2~~ | ~~Architecture/configuration~~ | ~~Cohesive runtime owners and validated immutable area settings~~ | ~~Done~~ | ~~Existing simulation, profile and presentation contracts~~ |
+| ~~F-MUSIC-001~~ | ~~P2~~ | ~~Audio~~ | ~~Independent chill lo-fi ambient soundtrack~~ | ~~Done~~ | ~~Accepted animal mix and click removal~~ |
+| ~~F-AUDIO-001~~ | ~~P1~~ | ~~Audio~~ | ~~Rarer sheep calls, subtle flock pitch/duration variation and quieter livestock~~ | ~~Done~~ | ~~Accepted recorded animal audio~~ |
+| ~~F-026~~ | ~~P1~~ | ~~UI~~ | ~~Pause-menu Quit returns to landing page~~ | ~~Done~~ | ~~—~~ |
+| ~~F-030~~ | ~~P1~~ | ~~Environment~~ | ~~Lighter, more contrasting water waves~~ | ~~Done~~ | ~~—~~ |
+| ~~F-036~~ | ~~P1~~ | ~~Gameplay~~ | ~~Unattended flock spreads out in the field~~ | ~~Done~~ | ~~F-012, F-028~~ |
+| ~~F-042~~ | ~~P1~~ | ~~Wildlife/art~~ | ~~Investigate and fix missing back legs on small wild animals~~ | ~~Done~~ | ~~-~~ |
+| ~~F-043~~ | ~~P1~~ | ~~Audio~~ | ~~Make the bark sound resemble a barking dog~~ | ~~Done~~ | ~~-~~ |
+| ~~F-044~~ | ~~P1~~ | ~~Audio~~ | ~~Add sheep and cow calls with state-dependent frequency and volume~~ | ~~Done~~ | ~~-~~ |
+| ~~F-050~~ | ~~P1~~ | ~~Gameplay/upgrades/UI~~ | ~~Level-2 bark +33% strength shown in workshop; level 3 gets two barks before cooldown~~ | ~~Done~~ | ~~-~~ |
+| ~~F-HERD-001~~ | ~~P1~~ | ~~Behavior~~ | ~~Bounded individual temperaments~~ | ~~Done~~ | ~~Existing wander/bolt and pressure behavior~~ |
+| ~~F-HERD-002~~ | ~~P1~~ | ~~Animation/behavior~~ | ~~Anticipation before movement~~ | ~~Done~~ | ~~F-065 accepted turning; existing pressure signals~~ |
+| ~~F-HERD-003~~ | ~~P1~~ | ~~Animation~~ | ~~Natural herd resting gestures~~ | ~~Done~~ | ~~Current sheep/cow articulated models~~ |
+| ~~F-HERD-004~~ | ~~P1~~ | ~~Behavior~~ | ~~Gentle preferred-neighbor relationships~~ | ~~Done~~ | ~~F-HERD-001; accepted forward-flow and local-flock behavior~~ |
+| ~~F-HERD-006~~ | ~~P1~~ | ~~Behavior/animation~~ | ~~Readable relaxation and settling~~ | ~~Done~~ | ~~F-HERD-002; existing F-041 local settling; grass/bush grazing work~~ |
+| ~~F-HERD-007~~ | ~~P1~~ | ~~Behavior~~ | ~~Distinct sheep and cow movement character~~ | ~~Done~~ | ~~F-HERD-001; F-HERD-005; F-065~~ |
+| ~~F-HERD-008~~ | ~~P1~~ | ~~Gameplay/behavior~~ | ~~Spread and settle after arrival~~ | ~~Done~~ | ~~F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006~~ |
+| ~~F-POLISH-001~~ | ~~P1~~ | ~~Audio/water/birds~~ | ~~Sampled animal calls, softer waves and natural bird flight/foraging~~ | ~~Done~~ | ~~P1 gameplay candidate~~ |
+| ~~F-POLISH-002~~ | ~~P1~~ | ~~Audio/music~~ | ~~Quieter rarer livestock, procedural lo-fi chill music and deeper Pip bark~~ | ~~Done~~ | ~~F-POLISH-001 audio~~ |
+| ~~F-POLISH-003~~ | ~~P1~~ | ~~Audio~~ | ~~Remove sharp clicking from lo-fi soundtrack~~ | ~~Done~~ | ~~F-POLISH-002~~ |
+| ~~F-OPS-004~~ | ~~P1~~ | ~~Delivery~~ | ~~Connector-only Pages fallback when dispatch is unavailable~~ | ~~Done~~ | ~~Existing checked builds and deployment planner~~ |
+| ~~F-031~~ | ~~P2~~ | ~~World generation~~ | ~~Gates on 20+ levels, with some ungated alternative paths~~ | ~~Done~~ | ~~F-006~~ |
+| ~~F-032~~ | ~~P3~~ | ~~Gameplay/UI~~ | ~~Fence/wall switch panels on both sides; red closed/green open; Pip/Buddy contact activates~~ | ~~Done~~ | ~~F-031~~ |
+| ~~F-034~~ | ~~P3~~ | ~~World generation~~ | ~~Seeded 15% stone-wall chance per level~~ | ~~Done~~ | ~~F-033~~ |
+| ~~F-038~~ | ~~P2~~ | ~~World generation/gameplay~~ | ~~Progressively larger, multi-directional, less-linear fields with body-clear routes; later difficulty accounts for helpers~~ | ~~Done~~ | ~~F-005, F-006, F-031~~ |
+| ~~F-UI-013~~ | ~~P2~~ | ~~Camera~~ | ~~Keep Pip close to screen center in every movement direction~~ | ~~Done~~ | ~~Existing portrait/landscape camera~~ |
+| ~~F-VIS-002~~ | ~~P2~~ | ~~Presentation~~ | ~~Smooth rounded road turns, shared endings and fading terminals~~ | ~~Done~~ | ~~Existing unioned road surfaces~~ |
+| ~~F-VIS-003~~ | ~~P2~~ | ~~Presentation~~ | ~~Match grass appearance inside and outside playable fields~~ | ~~Done~~ | ~~Existing angular field boundary~~ |
+| ~~F-VIS-001~~ | ~~P2~~ | ~~Presentation~~ | ~~Uniform barn-roof cutaway transparency~~ | ~~Done~~ | ~~Existing structure cutaway~~ |
+| ~~F-COMP-001~~ | ~~P2~~ | ~~Behavior~~ | ~~Buddy gives Pip room to work~~ | ~~Done~~ | ~~F-046 accepted tier behavior; F-048 movement~~ |
+| ~~F-COMP-002~~ | ~~P2~~ | ~~Behavior~~ | ~~More useful Buddy herding positions~~ | ~~Done~~ | ~~F-COMP-001; F-046 accepted roles~~ |
+| ~~F-COMP-003~~ | ~~P2~~ | ~~Navigation~~ | ~~Progress-aware Buddy obstacle recovery~~ | ~~Done~~ | ~~F-048 accepted smooth movement; existing Buddy detours~~ |
+| ~~F-COMP-007~~ | ~~P2~~ | ~~Behavior~~ | ~~Calm useful Buddy standby~~ | ~~Done~~ | ~~F-COMP-001; F-COMP-003; accepted standby resets~~ |
+| ~~F-COMP-009~~ | ~~P2~~ | ~~Behavior~~ | ~~Buddy contains distant or barrier-separated flock; seven-second grazing~~ | ~~Done~~ | ~~F-COMP-001/002/003/007; surface-aware grazing~~ |
+| ~~F-COMP-010~~ | ~~P1~~ | ~~Behavior~~ | ~~Natural containment, varied resting headings and purposeful Buddy movement~~ | ~~Done~~ | ~~F-COMP-009~~ |
+| ~~F-OPS-003~~ | ~~P2~~ | ~~Delivery~~ | ~~Live dev validation of the delivery workflow~~ | ~~Done~~ | ~~F-OPS-001~~ |
+| ~~F-OPS-001~~ | ~~P2~~ | ~~Delivery~~ | ~~Reusable checked builds and deployments~~ | ~~Done~~ | ~~Current deployment policy~~ |
+| ~~F-067~~ | ~~P2~~ | ~~App identity~~ | ~~Pip closeup favicon and iOS Home Screen icons~~ | ~~Done~~ | ~~Current Pip model~~ |
+| ~~F-TRACK-001~~ | ~~P2~~ | ~~Tooling/UI~~ | ~~Read-only public work tracker~~ | ~~Done~~ | ~~Active and closed Markdown trackers on main~~ |
+| ~~F-OPS-002~~ | ~~P2~~ | ~~Agent tooling~~ | ~~Shared agent instructions for Codex, Claude and Gemini~~ | ~~Done~~ | ~~AGENTS.md; F-OPS-001 delivery entry points~~ |
+| ~~F-066~~ | ~~P2~~ | ~~Presentation~~ | ~~Grazing head pose~~ | ~~Done~~ | ~~Novy accepted 18 October 2026, 22:10 America/Creston; livestock_grazing~~ |
+| ~~F-064~~ | ~~P2~~ | ~~Art~~ | ~~Reference clay Holstein cows at 1.5× sheep size~~ | ~~Done~~ | ~~art_update_cow~~ |
+| ~~F-025~~ | ~~P0~~ | ~~Deployment~~ | ~~Correct public deployment URL to /Flock/dev2/~~ | ~~Done~~ | ~~Verified migration~~ |
+| ~~F-001~~ | ~~P1~~ | ~~Reported defect~~ | ~~Path-corner polygon flicker~~ | ~~Done~~ | ~~—~~ |
+| ~~F-002~~ | ~~P1~~ | ~~Reported defect~~ | ~~Bark effect above ground and bridge deck~~ | ~~Done~~ | ~~—~~ |
+| ~~F-003~~ | ~~P2~~ | ~~Art/behavior~~ | ~~Detailed squirrel; species-appropriate motion; no spinning~~ | ~~Done~~ | ~~—~~ |
+| ~~F-004~~ | ~~P2~~ | ~~Art~~ | ~~Flowing-water texture~~ | ~~Done~~ | ~~—~~ |
+| ~~F-005~~ | ~~P1~~ | ~~Geometry/gameplay~~ | ~~Perpendicular crossings; bridges 25% wider than paths~~ | ~~Done~~ | ~~—~~ |
+| ~~F-006~~ | ~~P2~~ | ~~Gameplay~~ | ~~Gates requiring player opening from level 20~~ | ~~Done~~ | ~~F-005~~ |
+| ~~F-007~~ | ~~P2~~ | ~~Environment~~ | ~~Stone walls on selected levels~~ | ~~Done~~ | ~~F-006 interaction contract~~ |
+| ~~F-009~~ | ~~P1~~ | ~~Gameplay/economy~~ | ~~Arrival countdown; partial-delivery scoring~~ | ~~Done~~ | ~~F-010~~ |
+| ~~F-010~~ | ~~P1~~ | ~~Correctness~~ | ~~Goal shape matches enclosure~~ | ~~Done~~ | ~~—~~ |
+| ~~F-011~~ | ~~P2~~ | ~~Feedback~~ | ~~Blue dog-tail light; red bark flash~~ | ~~Done~~ | ~~F-002 shared bark event~~ |
+| ~~F-012~~ | ~~P2~~ | ~~Gameplay~~ | ~~Level-gated wanderers and short bolting~~ | ~~Done~~ | ~~F-005, F-009 balance~~ |
+| ~~F-014~~ | ~~P1~~ | ~~Validation gap~~ | ~~Real-phone controls, appearance and sound~~ | ~~Done~~ | ~~User confirmed 14 Oct 2026~~ |
+| ~~F-016~~ | ~~P1~~ | ~~Visibility~~ | ~~Camera-facing barn/covered-structure cutaway~~ | ~~Done~~ | ~~F-010 shared enclosure geometry~~ |
+| ~~F-017~~ | ~~P2~~ | ~~Wildlife~~ | ~~Detailed hopping rabbits; random size-scaled wildlife counts~~ | ~~Done~~ | ~~F-003, F-022~~ |
+| ~~F-018~~ | ~~P1~~ | ~~QA tooling~~ | ~~Dev-only level, currency and animal-placement menu~~ | ~~Done~~ | ~~—~~ |
+| ~~F-019~~ | ~~P2~~ | ~~Environment~~ | ~~Add bushes~~ | ~~Done~~ | ~~—~~ |
+| ~~F-020~~ | ~~P2~~ | ~~Environment~~ | ~~Increase tree size~~ | ~~Done~~ | ~~—~~ |
+| ~~F-021~~ | ~~P2~~ | ~~Art~~ | ~~Richer bush/tree detail and textures~~ | ~~Done~~ | ~~F-019, F-020~~ |
+| ~~F-022~~ | ~~P1~~ | ~~Wildlife/weather~~ | ~~Species retreat as weather worsens~~ | ~~Done~~ | ~~F-040 fixed-per-level weather contract~~ |
+| ~~F-023~~ | ~~P1~~ | ~~Weather/feedback~~ | ~~Fixed per-level atmosphere, clouds, lightning and thunder~~ | ~~Done~~ | ~~F-040 fixed-per-level weather contract~~ |
+| ~~F-024~~ | ~~P1~~ | ~~Weather/surfaces~~ | ~~Accumulating wetness, puddles, splashes and river response~~ | ~~Done~~ | ~~F-040 fixed-per-level weather contract~~ |
+| ~~F-027~~ | ~~P2~~ | ~~Wildlife~~ | ~~Wildlife can pass through fences and leave/enter the game area~~ | ~~Done~~ | ~~F-017~~ |
+| ~~F-028~~ | ~~P2~~ | ~~Gameplay~~ | ~~Delivered animals roam inside the goal enclosure~~ | ~~Done~~ | ~~F-010 shared footprint~~ |
+| ~~F-029~~ | ~~P2~~ | ~~Gameplay/economy~~ | ~~Pay only lifetime-best score improvements on replay~~ | ~~Done~~ | ~~F-009~~ |
+| ~~F-033~~ | ~~P2~~ | ~~Environment/art~~ | ~~English farm dry-stone wall appearance~~ | ~~Done~~ | ~~F-007~~ |
+| ~~F-035~~ | ~~P2~~ | ~~Gameplay~~ | ~~Baseline bolt duration 3–5 seconds~~ | ~~Done~~ | ~~F-012~~ |
+| ~~F-037~~ | ~~P2~~ | ~~Gameplay~~ | ~~Eligible wander cohort increases from 15% to 20%~~ | ~~Done~~ | ~~F-012~~ |
+| ~~F-039~~ | ~~P2~~ | ~~Gameplay/balance~~ | ~~Late-level wandering/bolting chances and durations~~ | ~~Done~~ | ~~F-012, F-035, F-037~~ |
+| ~~F-040~~ | ~~P1~~ | ~~Weather~~ | ~~Remove snow; choose fixed weather once per level with public-level anchors~~ | ~~Done~~ | ~~Reopens F-008, F-022–F-024~~ |
+| ~~F-041~~ | ~~P2~~ | ~~Gameplay/behavior~~ | ~~Wanderers and bolters settle near their current location instead of returning to the flock~~ | ~~Done~~ | ~~F-012, F-035, F-037, F-039~~ |
+| ~~F-046~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Tiered Buddy rear herding, smaller-flock support, retrieval and autonomous bark~~ | ~~Done~~ | ~~-~~ |
+| ~~F-048~~ | ~~P2~~ | ~~Gameplay/companions~~ | ~~Fix Buddy stuttering movement at low speed~~ | ~~Done~~ | ~~F-046; buddy_update; user accepted 18 Oct 2026~~ |
+| ~~F-061~~ | ~~P2~~ | ~~Presentation/companions~~ | ~~Reference puppy Buddy with Pip-like hovering movement~~ | ~~Done~~ | ~~F-048; buddy_update; user accepted 18 Oct 2026~~ |
+| ~~F-062~~ | ~~P2~~ | ~~Integration~~ | ~~Combine Buddy and UI_refinement candidates; validate and deploy development only~~ | ~~Done~~ | ~~F-048, F-055–F-061~~ |
+| ~~F-063~~ | ~~P2~~ | ~~UI~~ | ~~Centered level-title overlay with fixed-size wrapping and fade~~ | ~~Done~~ | ~~UI_refinement~~ |
+| ~~F-051~~ | ~~P2~~ | ~~UI~~ | ~~Compact mission/map, finite tips with help toggle, circular bark and dog goal pointer~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
+| ~~F-052~~ | ~~P3~~ | ~~QA/UI~~ | ~~Gear QA launcher centered at bottom of viewport~~ | ~~Done~~ | ~~User accepted 16 Oct 2026~~ |
+| ~~F-053~~ | ~~P2~~ | ~~Presentation~~ | ~~Pip reference model, hover rings and floating movement~~ | ~~Done~~ | ~~User signed off 17 October 2026~~ |
+| ~~F-054~~ | ~~P2~~ | ~~Presentation~~ | ~~Oak-like trees with genuinely contiguous, smooth trunks and welded forks, longer curved branches, size-scaled foliage and trunks~~ | ~~Done~~ | ~~Novy accepted dev2 appearance on 17 Oct 2026; Astra high implementation/review~~ |
+| ~~F-055~~ | ~~P2~~ | ~~UI/navigation~~ | ~~Remove gameplay branding/wallet/sound; move sound and currency access into Pause~~ | ~~Done~~ | ~~F-051~~ |
+| ~~F-056~~ | ~~P2~~ | ~~UI/status~~ | ~~Tighter level/delivery/score panel; prominent active-only countdown; compact weather~~ | ~~Done~~ | ~~F-055~~ |
+| ~~F-057~~ | ~~P2~~ | ~~UI/guidance~~ | ~~Larger high-contrast adjacent minimap and concise finite/manual tips~~ | ~~Done~~ | ~~F-056~~ |
+| ~~F-058~~ | ~~P2~~ | ~~UI/controls~~ | ~~Simplify thumb controls and expose bark cooldown progress~~ | ~~Done~~ | ~~F-055~~ |
+| ~~F-059~~ | ~~P2~~ | ~~Presentation/UI~~ | ~~Smaller destination introduction that fades during play~~ | ~~Done~~ | ~~F-056~~ |
+| ~~F-060~~ | ~~P2~~ | ~~Development process~~ | ~~Persistent project agent/model/parallel/blind-gauntlet/sign-off rules~~ | ~~Done~~ | ~~—~~ |
+| ~~F-065~~ | ~~P2~~ | ~~Presentation~~ | ~~Herd pivot presentation~~ | ~~Done~~ | ~~User accepted 18 October 2026; herd_turning_visual~~ |
+| ~~F-HERD-005~~ | ~~P2~~ | ~~Navigation~~ | ~~Yielding at gates and bridge bottlenecks~~ | ~~Done~~ | ~~Existing gate/bridge traversal; F-065~~ |
+| ~~F-WORLD-001~~ | ~~P2~~ | ~~World generation~~ | ~~Room to breathe between the last bridge and the gate for large herds~~ | ~~Done~~ | ~~F-HERD-005 findings; F-038~~ |
+
+## Preserved acceptance and execution records
+
+## Kennel interface and dog preview acceptance — 27 November 2026
+
+Novy approved the current kennel and meadow crew changes and authorized the main merge. F-KENNEL-005 and F-KENNEL-006 are Done for the approved revision `e8585db` on Dev. The [deployment record](validation/kennel-head-height-dev-publication.json) records 665 passing game tests and 35 verified live files. Physical phone validation remains under [F-KENNEL-008](ISSUES.md#f-kennel-008--verify-the-kennel-progression-loop).
+
+### F-KENNEL-005 — ~~Manage the kennel from pause and rewards~~
+
+**Status:** Done. Owner Codex.
+
+**Branch:** `feat/kennel-progression`
+
+As a player, I want to browse, adopt and train dogs in the kennel so I can bring them to meadow entry.
+
+**Accept when:**
+
+- The kennel replaces the Workshop in pause and every other existing entry. Closing it restores the correct pause or results context and gameplay resumes through the normal controls.
+- The bottom-center row scrolls horizontally and shows square 2D portraits. Selection defaults to Pip on first entry. Unavailable entries appear gray and show their gate. The selected dog and its price, ownership and assignment state stay clear when browsing copies.
+- The stats show running, turning, signaling and barking dog icons with three green or grey paws each. Show the next bolt price, disable it when the purchase is blocked, and hide it at max. Locked, unaffordable and maximum-tier states remain legible.
+- The kennel supports adoption, selection and training of individual dogs. At meadow entry, choose a player or partner position and select an owned dog by portrait. The 3D crew reflects the staged lineup as it changes. Check touch scrolling, keyboard navigation, safe areas, small portrait and landscape layouts.
+
+**26 November 2026:** The feature branch exposes roster browsing, slot purchases and lineup management from pause and results. Slot prices are provisional. Workshop cutover, training controls and final preview art are pending.
+
+**27 November 2026:** The compact roster selects the specific dog for preview and training. Named color portraits replace coat labels and the redundant owned-dog menu. Paw meters replace tier text, and tapping a stat shows its effect or purchase requirement.
+
+### F-KENNEL-006 — ~~Animate and illustrate the ten-entry roster~~
+
+**Status:** Done. Owner Codex.
+
+**Branch:** `feat/kennel-progression`
+
+As a player, I want to see each dog's coat and personality before I adopt it or take it into a meadow.
+
+**Accept when:**
+
+- Each of the ten catalog entries from F-KENNEL-002 has a portrait and preview using its assigned model. The eight placeholders use identifiable coat combinations drawn from white, blonde, brown, black and auburn. Their 2D portraits match the preview.
+- The larger preview above the strip uses the selected dog's coat and the same random idle timing as gameplay. Randomly intersperse play bows toward the player among playful idle poses.
+- A turnaround ends with the dog's head facing the player and its body within 30° to either side. Selection sends the current dog out right and brings the new dog in from the left. Rapid selections and dismissal leave no stale model, pose or animation resources.
+
+**27 November 2026:** The kennel and meadow crew previews now frame the dogs from standing head height and use higher-detail geometry. The original model meshes remain in use during gameplay.
+
+## Level-5 pacing concern closed for now — 28 October 2026
+
+### F-013 — ~~Known level-5 pacing concern~~
+
+**Status:** Closed for now at user request.
+
+**Closed:** 28 October 2026 (America/Vancouver). Novy requested “Close F-013 for now and merge to main”. This is an administrative closure; the pacing concern is not claimed fixed, and no human playtest result is claimed. Reopen if new pacing feedback warrants investigation.
+
+**Branch:** `docs/close-f-013`
+
+
+The fresh gameplay critic's unchanged input controller completed default levels 1–5 in **18.2, 17.2, 28.7, 38.7 and 208.0 simulated seconds**. Level 5's jump warrants human playtesting; it is not proof of an impossible level or a measured human time.
+
+**Accept when:** document human attempts, retrieval/chokepoint behavior and difficulty progression; adjust only where evidence supports it. Re-run the existing ordinary-input journey policies after crossing/countdown/wandering changes. Avoid solving pacing by weakening collision or allowing autonomous completion.
+
+## Configuration refactor user acceptance — 28 October 2026
+
+Novy accepted F-ARCH-001 after the verified dev2 playtest publication and explicitly requested its main merge and ticket closure. This is the only active ticket on `refactor/validated-area-config`; unrelated queued work, including F-AUDIO-003, remains active. Source head `e9759c5a3790dde86ad4cf59fc9c3aed6f019898` passed CI [40605309216](https://github.com/novydhillon/Flock/actions/runs/40605309216). Accepted runtime `b11d3efe47edff533a709516dacfeb0893e980c5` remains published on dev2 at Pages `ab24daf4746601c8c9d897db5c1436c2f7f4438b`, with native Pages [40604898716](https://github.com/novydhillon/Flock/actions/runs/40604898716) and all 33 live SHA-256 hashes verified. The complete requirements, 508-test/build evidence, 8/10 initial review and 9/10 approved follow-up, publication records and validation limits follow unchanged. User acceptance does not supply a new independent WebGL, physical-device, listening or FPS measurement.
+
+### F-ARCH-001 — ~~Cohesive runtime modules and validated area configuration~~
+
+**Status:** Done. Owner: Codex.
+
+**Closed:** 28 October 2026 (America/Vancouver), by Novy's explicit acceptance: “looks good. merge to main and close tickets.” This sign-off supersedes the dated Review/pending-acceptance statements preserved below. Main source merge is authorized; its completion will be verified separately. Production deployment was not requested. F-AUDIO-003 remains Open.
+
+**Branch:** `refactor/validated-area-config`
+
+**Accept when:** profile persistence, delivery policy, companion herd grouping and saved-animal roaming have focused owners; the simulation facade retains its public interfaces; gameplay, delivery, progression, audio, music, weather, controls and presentation tunables live in documented bounded JSON areas with startup validation and immutable resolved values. Required keys, types and array lengths must be checked independently of editable bounds. Preserve existing defaults, seeded behavior, saved-profile version/key/reward-ledger semantics, campaign limits, lifecycle behavior and source build checks. Document ownership and the configuration editing/rebuild workflow. Obtain independent review, passing checked source CI and source publication on the new feature branch; user acceptance remains pending until explicit sign-off.
+
+**27 October 2026:** Prepared from main `80212d02412172dfe1dc5c04c08b0a475dd84c94` with the user-requested `gpt-6.1-sol` at extra-high effort. Existing simulation exports remain compatible while focused owners and eight explicit area contracts replace facade coupling and scattered tunables. The campaign remains 100 public levels; changing that limit requires coordinated migration. At preparation, candidate verification and blind review were pending. Source publication and observed validation are recorded below; no game deployment was requested. F-AUDIO-003 remains Open, with no claimed launch fix.
+
+**Verification update — 27 October 2026:** Published source `6ed406f4cd90cfbde83cc00898309d091ac3f177` passes native checked dev and production builds: each passes 508 application tests, four documentation DOM tests, 13 deterministic pages, 1,996 links/anchors, 10 Mermaid sources and the applicable release/development QA artifact checks. The initial blind review scored 8/10 and requested changes; three P2 configuration findings, the P3 ownership-table finding and the multi-diagram DOM assumption were corrected. Same-critic follow-up scores 9/10 with no material blockers and confirms all ten corrected file blobs match its frozen candidate. All engineering and review used `gpt-6.1-sol` at extra-high effort. Remote corrected-source CI [40453590642](https://github.com/novydhillon/Flock/actions/runs/40453590642) completed successfully. Physical-device, WebGL, listening and phone FPS checks remain unmeasured. This batch publishes feature-branch source; no game deployment was requested. See the [quality record](QUALITY.md#cohesive-modules-and-validated-area-configuration--27-october-2026). F-ARCH-001 stays Review and F-AUDIO-003 stays Open.
+
+**Playtest publication — 27 October 2026:** Novy subsequently requested [dev2 deployment for playtesting](https://novydhillon.github.io/Flock/dev2/), authorizing that destination for this publication only while preserving the standing `dev/` policy. Pinned source `b11d3efe47edff533a709516dacfeb0893e980c5` passed source CI [40454026992](https://github.com/novydhillon/Flock/actions/runs/40454026992) and a fresh checked dev build (508 application tests, four documentation DOM tests and both QA artifact-mode checks). The documented connector fallback published Pages `ab24daf4746601c8c9d897db5c1436c2f7f4438b`; native Pages [40604898716](https://github.com/novydhillon/Flock/actions/runs/40604898716) succeeded and all 33 live file hashes match the checked QA-enabled artifact. All writes are within dev2, unrelated Pages entries and old assets are preserved, and no files were deleted. See [publication evidence](validation/F-ARCH-001-dev2-publication.json) and the [quality record](QUALITY.md#configuration-refactor-dev2-playtest-publication--27-october-2026). F-ARCH-001 remains Review pending user playtest sign-off; physical-device, WebGL, listening and phone FPS checks remain unvalidated. F-AUDIO-003 remains Open.
+
+## Map-generation user sign-off — 24 October 2026
+
+Novy signed off all changes in this map-generation work. F-031/F-032/F-034/F-038/F-UI-013/F-VIS-002/F-VIS-003 are Done; barn F-VIS-001 was already accepted. Acceptance includes final gate correction source `00bdda05af2bdbe45bc28d6e19d41d13bf0eb083`. Novy deployed manually: dev Pages `f7cc956bfc690393fe5dd5d36642cb0567e7e8d0`, successful native run [40054866051](https://github.com/novydhillon/Flock/actions/runs/40054866051); all 29 live hashes verified. Source CI [40054183900](https://github.com/novydhillon/Flock/actions/runs/40054183900) succeeded. Both checked builds passed 422 tests; final source review 9/10. Sign-off is not production merge/publication authorization or measured phone FPS. Historical pending statements below are superseded.
+
+### F-031 — ~~Random gates and ungated alternatives (P2)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Requirement:** gates are present on 20+ levels, but not every level; some gate levels offer an alternative route without a gate.
+
+**Accept when:** deterministic per-level generation can produce gated and gate-free levels at 20+, never places gates on levels below 20, and some gated levels have a complete, navigable ungated alternative. Tests cover multiple seeds, route connectivity, body clearance and helper navigation. Preserve the existing approved gate interaction in F-006.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
+
+### F-032 — ~~World-fence gate indicator and dog activation (P3)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Gate-state follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. IMG_8440 exposed static batching detaching the red domes from their updater. Stateful lamp meshes now remain in the live gate view. A full-renderer contact/batching/restart regression fails before the fix (zero live domes) and passes after; both checked builds pass all 422 regressions. Independent fresh review is 9/10 with no source blocker. Prior standalone gate-view tests missed this integration contract. Fix and dev publication continue under the existing follow-up authorization; new phone color-state acceptance remains pending.
+
+**Latest follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Luminous domes, hotspot and depth-tested halo replace edge-on thin lamps from IMG_8438/8439. Red closed/green open state and exposed dome ray coverage pass across 16 headings, both states, wood/stone. Sixteen gate tests and both 421-regression checked builds pass. Independent review 8.5/10 has no material source blocker; actual brightness/device readability remains unverified. Fix and dev deployment authorized; appearance acceptance remains pending.
+
+**Current follow-up, 23 October 2026:** Review, owner Codex, branch `map_generation_improvements`. Vertical fence/wall-mounted panels and red closed/green open lights replace ground pads. Pip and active Buddy contact can toggle; no autonomous gate-seeking is added. Shared held/simultaneous-contact latch and occupied closing guards pass. All 415 regressions and both checked builds pass. The independent 8/10 review found no material source blocker but remains below the usual 9/10 gate due to unavailable rendered/device evidence; phone review and new dev deployment remain pending. Earlier Pip-only ground-pad requirements are superseded by this feedback.
+
+**Requirement:** place an open/close button on each side of every gate so the dog can operate the gate from either approach. Both buttons show red when closed and green when open; touching either button with the dog toggles the same gate open or closed.
+
+**Accept when:** each gate has a reachable button on both sides, including when the gate is closed. Dog contact with either button opens a closed gate or closes an open gate. Both buttons stay synchronized: red when closed and green when open. Each activation reliably updates the same gate and its collision/navigation/minimap state, and provides accessible feedback. It must work on touch and keyboard/mouse without requiring a second thumb. Coordinate with F-031 generated gates.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
+
+### F-034 — ~~Seeded per-level stone-wall chance (P3)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Requirement:** each level has a seeded 15% chance to use stone walls, replacing the existing fixed four-level sequence.
+
+**Accept when:** each level's wall selection is reproducible from its seed and uses a 15% per-level probability; no deterministic every-fourth-level rule remains. Statistical tests assess broad distribution across a large seed set without brittle per-seed expectations; route openings and clearance remain valid.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
+
+### F-038 — ~~Larger, less-linear multi-directional levels (P2)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Current follow-up:** Review source candidate, owner Codex, branch `map_generation_improvements`, 22 October 2026. Mandatory corner routes and offshoot goals, U/Z/abstract shapes, starter groves at 60+, more river/fence separation and meanders are implemented. All 407 regressions, both checked build modes and independent 9.6/10 follow-up passed. Full-flock/helper pacing and user gameplay/appearance acceptance remain pending. Earlier source-review status below is historical for `ed7a2cb`.
+
+**Requirement:** levels should grow progressively larger and less linear, using multiple directions, fields, rivers and tree clusters; routes must preserve body clearance and avoid stuck animals, and later difficulty must account for helpers. Clarified 22 October 2026: later fields and the overall map may use nonrectangular L shapes and other angular, nonorganic shapes. These must be real playable boundaries, with matching collision, fences, ground and minimap. The minimap may show a local viewport scrolling with Pip instead of fitting the entire large/nonrectangular map.
+
+**Accept when:** public level progression includes larger usable fields and more multi-directional route choices across generated fields, rivers and tree clusters. Every route fits the largest applicable animal body and helper footprint, avoids pinches/stalls, and remains connected under gates/walls; later levels are evaluated with helpers present so added companions do not make progression artificially easy. Use seeded route sweeps and ordinary-input journeys while preserving the level-2 bridge retrieval regression. Verify concave/angular map boundaries, including L shapes, against body occupancy and straight-path queries; keep generated routes, spawns, destinations and pads inside the playable shape, and match the ground/minimap outline. Exact size/progression thresholds remain implementation decisions, not user-approved values.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source candidate prepared 22 October 2026 (America/Creston); combined checked build and independent blind review pending. See the current map-generation record in [QUALITY.md](QUALITY.md#map-generation-improvements--22-october-2026). No development deployment or user sign-off is claimed.
+
+### F-UI-013 — ~~Keep Pip centered in every direction (P2)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Source validation: 407 regressions, both checked build modes and independent 9.6/10 follow-up passed. User appearance/gameplay acceptance remains pending.
+
+**Accept when:** gameplay camera follows Pip near the center during sideways, vertical, diagonal and reversing movement, regardless of flock/goal position. Preserve smooth following, portrait/landscape, intro framing, pause/restart and development level jumps. Verify real camera projection, with device appearance/feel checked separately.
+
+### F-VIS-002 — ~~Path ends fade smoothly into grass (P2)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Current follow-up, 23 October 2026:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Novy accepts the terminal fade and requests rounded near-180-degree turns and shared path endings (IMG_8436.jpeg). Unified rounded networks, filled joined endpoints and retained standalone fade are implemented. Eleven surface tests and both 421-regression checked builds pass; 40 river/bank Float32 comparisons are unchanged. Independent review 8.5/10 has no material source blocker, with rendered/device evidence unavailable. Fix and dev deployment authorized; appearance acceptance of the follow-up remains pending. Earlier records below describe the preceding candidate.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Rounded core/shoulder coverage, composed glow/weather and owned replacement resources implemented. Checks and the evidence-constrained 8/10 review are shared with F-VIS-001; rendered fade grain and phone profile remain pending. No new dev publication is included.
+
+**Accept when:** road core and shoulder terminals have smooth rounded ends and a gradual blend into grass, including short/curved routes and shared route starts. Preserve nonoverlapping union geometry, ordinary depth occlusion, bridge/river behavior, barn-floor materials and bounded owned resources. No physical route, collision, grazing or scoring changes are included.
+
+### F-VIS-003 — ~~Matching grass across field boundaries (P2)~~
+
+**Closure:** Done by Novy’s explicit sign-off, 24 October 2026 (America/Creston). **Branch:** `map_generation_improvements`. Preserved requirements and execution history follow.
+
+**Status:** Review. Owner: Codex. **Branch:** `map_generation_improvements`. Shared material and aligned plane/polygon UVs implemented. Both checked builds pass 421 regressions; independent review has no material source blocker, 8.5/10 limited by unavailable rendered/device evidence. User authorized fix and dev deployment; new appearance acceptance remains pending.
+
+**Accept when:** grass outside and inside an angular playable field has matching color, texture scale/alignment, wetness and receiving glow, without the dark boundary strip in IMG_8437.jpeg. Preserve collision/fences/minimap boundary and level replacement ownership. Dev deployment is authorized; rendered/device acceptance remains separate.
+
+**Latest dev publication, 23 October 2026:** F-032/F-VIS-002/F-VIS-003 are live from `4a0b3f0`, Pages `1398236`, after 421-regression checked builds, source CI, native Pages and all 29 live SHA-256 hashes passed. [Evidence](validation/Lamps-grass-road-network-dev-publication.json). Review stays open for phone appearance/readability/performance; independent 8.5/10 review has no material source finding but remains below the usual 9/10 gate due to unavailable device evidence. F-VIS-001 is accepted and archived. The prior publication record below is historical.
+
+
+**Dev publication, 23 October 2026:** F-032/F-VIS-001/F-VIS-002 are published from `d739fa2` at `/Flock/dev/`, Pages `7800a90`. Fresh checked dev build (415 regressions), source CI, native Pages and all 29 live file hashes passed. [Evidence](validation/Gate-roof-path-dev-publication.json). This supersedes the pending-publication statements in the source records below. The disclosed 8/10 review remains limited by unavailable device evidence; Novy authorized this dev deployment, while phone appearance/performance and user acceptance remain pending. Status stays Review; production/main are unchanged.
+
+
+## Map generation validation — 22 October 2026
+
+F-031/F-032/F-034/F-038 on `map_generation_improvements` passed the independent follow-up review at 9.2/10 and all 399 source regressions. Angular playable turf and collision share the same outline; the minimap follows Pip locally on larger maps. See [quality evidence](QUALITY.md#map-generation-improvements--22-october-2026). The four items remain Review for gameplay/appearance acceptance, with later helper balance and device checks pending. No Pages deployment or production merge is included.
+
+## Map generation development deployment — 22 October 2026
+
+Novy authorized dev deployment. F-031/F-032/F-034/F-038 are live at `/Flock/dev/`, pinned source `ed7a2cb` / Pages `0108943`. Source CI, native Pages and all 29 live file hashes passed. See [publication evidence](validation/Map-generation-dev-publication.json). All four remain Review pending user gameplay/appearance acceptance; production/main are unchanged.
+
+## Map layout feedback — 22 October 2026
+
+F-038 returns to In progress on `map_generation_improvements` for Novy's feedback: true corner-requiring L/U/Z/abstract routes with offshoot goals, denser starter-field groves from level 60, wider river-to-fence clearance and varied meandering rivers. F-UI-013 tracks centered camera follow. Owner: Codex. Preserve the prior gate/stone work, early lessons and saved progress. Earlier validation/publication records remain evidence for their pinned revisions, not acceptance of this follow-up.
+
+## Map feedback dev deployment — 22 October 2026
+
+The follow-up for F-038 and F-UI-013 is live at `/Flock/dev/` by Novy's deployment request: source `2356111`, Pages `bb513cd`. Source CI, native Pages and all 29 live SHA-256 file comparisons passed. [Deployment evidence](validation/Map-corner-followup-dev-publication.json). Both items remain Review for user gameplay/appearance acceptance; this supersedes earlier pending-publication statements for the follow-up. Production/main are unchanged.
+
+### F-VIS-001 — ~~Uniform barn-roof cutaway transparency (P2)~~
+
+**Status:** Done. Owner: Codex. **Branch:** `map_generation_improvements`. Closed 23 October 2026 (America/Creston): Novy states “The barn looks good” after testing dev runtime `d739fa2`, Pages `7800a90`.
+
+Continuous single-sheet roof implemented; 415 regressions and both checked builds passed. Independent review was 8/10 with no material source blocker, below the usual 9/10 gate because rendered/device evidence was unavailable at source review. [Quality record](QUALITY.md#gate-panels-roof-coverage-and-road-terminals--23-october-2026). [Verified dev publication](validation/Gate-roof-path-dev-publication.json): source CI, native Pages and all 29 live file hashes passed. User appearance acceptance now closes this scoped barn issue; no phone FPS claim is made.
+
+**Acceptance criteria retained:** the pitched barn roof fades with consistent visual coverage across seams and panels when occupied, without stacked/backface transparency stripes shown in IMG_8435.jpeg. Preserve the accepted 0.7 roof/facing-wall opacity, solid collision, normal opaque appearance/shadows, pause, restoration and disposal. Source geometry/material checks do not replace device appearance review.
+
+# Current UI release status — 18 October 2026
+
+Novy approved all UI changes and authorized merge to main and production deployment in the UI refinement conversation, then requested continuation here. F-055–F-060, F-062 and F-063 are **Done** by user acceptance. This current status supersedes historical Review/pending-sign-off wording below. Accepted behavior includes the animated Level # introduction, weather and livestock-only HUD, top-centered minimap, numbered tips and the combined Buddy fixes. Main Buddy sign-off `396121d` is preserved. Production is verified: source `0e62198`, source CI `39178264323`, Pages `2adab7b`, native deployment `39178339857`. All 15 live files match the release by SHA-256; all 51 unrelated Pages files are preserved. 318 regressions, documentation checks and both artifact modes pass; production excludes QA. [Production publication evidence](validation/UI-production-publication.json). No new runtime changes were introduced for this release.
+
+# FLOCK — Remaining issues and change tracker
+
+## Cow user acceptance — 18 October 2026, 17:30 America/Creston
+
+Novy approved the current cow art and requested merge to main and live production deployment. **F-064 is Done**, including the reference model, 25% longer torso, four sizes, varied coats and forward horns. Accepted dev runtime `b3fb4f5`, Pages `90ee1f5`; historical Review/pending/hold wording below is superseded for F-064. This user acceptance is separate from source/phone FPS measurement.
+
+
+## F-057 ~~top-center minimap — 18 October 2026~~
+
+Published and verified: source `3999228`, CI `39177156337`, Pages `771c93f`, native deployment `39177264534`. All 17 live dev files match the checked artifact; all 49 blobs outside dev are preserved. [Publication evidence](validation/F-057-top-center-map-publication.json). Visual sign-off remains Review.
+
+**Review**, owner Codex on `UI_refinement`: minimap is centered horizontally at the safe top edge, preserving its current size and contrast. At widths below 384px, it sits below the weather/livestock/countdown row to avoid overlap with that row or pause/help. Combined UI/Buddy runtime is preserved. All 318 regression tests, both isolated artifact modes (15 release/no QA, 17 development/two QA) and generated docs pass. Bounded CSS placement edit; no new substantial-change review. Publication evidence follows; retain Review for visual sign-off.
+
+## Minimal gameplay HUD and Level-number animation — 18 October 2026
+
+Published and verified at `/Flock/dev/`: source `94d0b89`, source CI `39175874260`, Pages `6df73af`, native deployment `39175960644`. All 17 live files match the checked build; all 49 files outside dev retain their blobs. [Current publication evidence](validation/F-056-F-063-minimal-hud-publication.json). This supersedes pending-publication wording below; user appearance sign-off remains pending.
+
+F-056/F-063 follow-up, **Review**, owner Codex on `UI_refinement`: center only “Level #”, fading in while scaling toward the camera and then fading out. Level name, objective, reward score, progress bar and white status panel are removed. Weather sits at the top left with delivered/total livestock immediately beside it; the active delivery countdown remains below. Scoring/economy internally and in results, saved progress, minimap and Buddy are preserved. All 318 regressions, 45 focused UI/layout/QA tests, both artifact modes and generated docs pass. Fresh independent `gpt-6.1-sol` medium blind review scored 9.2/10 with 97 focused tests and no material blocker. Source/font geometry supports narrow-screen fit; native phone appearance remains pending. Publication evidence follows; retain Review for user sign-off.
+
+## F-063 — ~~Centered level-title introduction~~
+
+18 October refinement: remove the white/cream background panel and its shadow. Keep the centered fixed-size wrapping text, spacing and existing fade timing. Bounded CSS-only adjustment on `UI_refinement`; remains Review for appearance sign-off. New publication evidence follows.
+
+Verified publication: source `bf44788` passed CI `39173868806`; Pages `34d0160` passed native deployment `39173966107`. All 17 live dev files match the checked final build by SHA-256, and all 49 blobs outside dev are preserved. [F-063 publication evidence](validation/F-063-title-publication.json). This supersedes the pending-publication wording below; appearance sign-off remains Review.
+
+**Status:** Review on `UI_refinement`, owner Codex. Level identity is moved out of the top-left status panel into a temporary overlay centered on screen. It uses nearly the full viewport width with safe side margins, centered text, a fixed 28px title and multiline wrapping for long names. It shows at each level start/restart, holds 2.5 active seconds and fades for 1.25; menus freeze/hide it and input passes through. Combined UI/Buddy behavior is preserved. All 317 regression tests, both artifact modes and generated docs pass; fresh independent `gpt-6.1-sol` medium source review scored 9/10 without material blockers. Native phone appearance and user sign-off remain pending. Target `/Flock/dev/`; publication evidence follows.
+
+## Combined development publication verified — 18 October 2026
+
+UI refinements and accepted Buddy updates are together at [Flock dev](https://novydhillon.github.io/Flock/dev/). Runtime source `1ad8645` passed CI `39160805430`; Pages `079ed98` passed native deployment `39160919364`. All 17 live files match the checked final development build by SHA-256; all 49 files outside dev, including production/dev2/legacy content, retain their blobs. F-062 and UI F-055–F-060 remain Review for user acceptance; Buddy F-048/F-061 remain Done. This supersedes pending-build/publication wording in the integration preparation records below. [Combined publication manifest](validation/UI-Buddy-combined-publication.json).
+
+## Buddy user sign-off — 18 October 2026, 12:45 America/Creston
+
+Novy confirmed “Looks great. Merge to main” for Buddy at `/Flock/dev/`, runtime source `6b5e650`, Pages `2e1ec4c`. **F-048 and F-061 are Done** by user acceptance. This does not authorize production publication; prior live builds remain unchanged. Historical review findings and device/performance evidence limits remain in force.
+
+Buddy's prior publication manifest is retained at [F-048/F-056 publication evidence](validation/F-048-F-056-buddy-publication.json). Its historical F-056 label refers to Buddy; that ID is mapped to current Buddy issue F-061. The manifest is unchanged and its pre-acceptance Review fields are superseded by this sign-off.
+
+## Combined integration — 18 October 2026
+
+The Buddy candidate and `UI_refinement` are combined on `UI_refinement`. **F-062 is Review**; source integration and validation are complete, with development-only deployment at `/Flock/dev/` pending. Post-fix validation passed: 316/316 full regression; release artifact 15 files with no QA and development artifact 17 files with two QA assets. The final dev artifact is being rebuilt for publication. The initial independent runtime review found Buddy movement state could remain stale after entering standby (8.5/10); the no-main reset and a transition regression were added. Same-critic follow-up scored 9.2/10 with no material blocker and 44/44 relevant checks; Buddy tests pass 26/26. Preserve F-048/F-061 Buddy acceptance and the UI batch’s F-055–F-060 Review statuses; no new UI sign-off is implied. Production remains unchanged. Owner: Codex. Integration documentation model: `gpt-6-luna`, medium effort. Publication evidence remains pending.
+
+F-053 30% dimmer glow publication: source `78ed293`, Pages `1262178`; source CI/native deployment succeeded, 288 tests passed, all 17 live files verified and 30 unrelated files preserved. Blind review was waived and not run. Glow appearance remains Review; newer F-054 tree acceptance is unchanged. See QUALITY.md for publication evidence.
+
+F-053 brightness tuning, 17 October: reduce the current glow brightness by 30%, from 0.85 to 0.595. Diffuse radius/falloff, color, Pip size and ground opacity are unchanged. Blind review explicitly waived. Visual acceptance remains Review; validation/publication evidence is in QUALITY.md.
+
+F-053 glow tuning: user requests 50% more transparency and a more diffuse footprint. Strength is halved (1.7 to 0.85), radius widened (0.36 to 0.54) and radial falloff smoothed; ground remains opaque. The user waived further blind review for this tweak. Glow runtime source `ff5e2cd`, Pages `93ea5fe`: CI/native deployment pass, 283 tests pass, all 17 live files verified and 30 unrelated files preserved. Newer tree source is preserved; this evidence covers the glow publication only. Status stays Review for visual acceptance; see QUALITY.md.
+
+F-053 clarification, 16 October 2026 19:16: blue thruster glow must be on the ground. The separate transparent sheet is replaced with illumination in the actual grass/path/river-bank/bridge surface materials. Requested size and hover rings are preserved. Runtime source `84ad352`, Pages `b666edf`: 283 tests pass, source review 9/10, source CI/native Pages succeed, all 17 live files verified and 30 unrelated files preserved. This correction remains Review for native appearance acceptance; see QUALITY.md for evidence and the unavailable WebGL2 visual-check limitation.
+
+## UI refinement — 17 October 2026 (America/Creston)
+
+Current work: `UI_refinement`, based on main `8cc4275`. Owner: Codex with parallel controller/layout agents; root integration owns renderer and documentation. Reference screenshots: IMG_8398.jpeg (before delivery) and IMG_8399.jpeg (active countdown). QA gear is excluded from this design review and stays development-only. User approved the UI proposals and requested tracked progress/sign-offs and permanent development rules. F-055–F-060 below are the current batch; historical sign-offs do not accept these new changes.
+
+Status: **Review**. Source implementation, checks and independent blind gauntlet are complete; development publication is verified at source `d47ae6c` / Pages `ce24bf3`. User appearance/touch sign-off is pending. Production remains unchanged. Project-wide workflow is recorded in [AGENTS.md](../AGENTS.md).
+
+## User sign-off - 16 October 2026, 00:14 Vancouver
+
+Novy signed off all seven items in Review: **F-035, F-037, F-039, F-041, F-046, F-051 and F-052 are Done**. This covers wandering/bolting tuning and local settling, Buddy behavior and the forward-flow/bridge follow-ups, the compact HUD and revised tips/bark/goal pointer, and the bottom-centre development QA gear. No items remain in Review at this checkpoint. Open items (including F-048 low-speed Buddy stutter) and Deferred clouds remain unchanged. This is user acceptance, not a new independent device/performance measurement. Earlier Review/pending wording below is historical and superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+## User sign-off - 15 October 2026, 16:34 Vancouver
+
+Novy explicitly signed off all pending Review items: **F-022, F-023, F-024 and F-040 are Done**. Acceptance applies to the live development build at Pages `bf26e67732434e902fdbaef10cac72d6814c33b0`, runtime source `1909c87bc1f70c4e53f4b38d64beaa2d4bb6d3aa`, including full-view/angled rain, no storm wildlife, accumulating puddles, deeper variable 3-5 second reverberant thunder after lightning, the 50% master volume increase and brighter lightning. This is user acceptance; historical headless checks and device-performance evidence retain their original limits. **At that weather sign-off checkpoint no items remained in Review.** The later flock-behavior batch F-035/F-037/F-039/F-041 is now Review. Open queued items remain Open; F-008 clouds remain Deferred. Older Review/pending wording below describes earlier checkpoints and is superseded by this sign-off. Documentation only; game bytes are unchanged.
+
+
+Current weather repairs: [requirements](REQUIREMENTS.md#weather-follow-up---15-october-2026-1222-vancouver). Weather is Done by user acceptance on 15 October 2026 at 16:34 Vancouver; clouds remain Deferred.
+
+
+
+Updated: 15 October 2026 (America/Vancouver). Repository: `novydhillon/Flock`. Working branch: `flock_3D_chatgpt-work`.
+
+Latest weather follow-up is published: runtime source `8408e74`, Pages `617b4df`; CI and Pages succeeded, all 17 live game files match intended hashes, and only the dev2 entry point/main bundle changed. Rain covers the camera edges, storm fauna are omitted, thunder has music ducking, and seeded puddles grow near the playable journey. Independent rain/storm, puddle follow-up and documentation reviews reached 9/10; 229 source tests pass. F-022/F-023/F-024/F-040 remain Review pending fresh phone appearance/listening acceptance. F-008 remains Deferred. See [quality evidence](QUALITY.md#verified-weather-follow-up-publication).
+
+Source checkpoint: integrated P0/P1 batch (delivery `1fee206`, goal view `984fc64`; see execution record). Canonical live game: https://novydhillon.github.io/Flock/dev2/. F-025 migration is published and verified at Pages `baca95c7ba618d736730194b433254bf5058dd66`; it contains the preceding game revision. The reviewed P1 development build was published at Pages `9346f26c5a145698b34e2c4504236c494023817d` from source `7a8519d37a8f447652f0449e16a050fc76a6d3e0`; all 17 game files plus redirect match live hashes, and all 18 blobs outside `dev2/` are unchanged. This tracker distinguishes source implementation from visual/device acceptance and live release.
+
+Latest bridge/barn follow-up: source `4d3cadc393c9feaedee4e579099110e25f459c31`, Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Node 22 CI [38679079215](https://github.com/novydhillon/Flock/actions/runs/38679079215) and native Pages [38679328953](https://github.com/novydhillon/Flock/actions/runs/38679328953) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final source suite: 162/162; barn blind review 9/10 and final bridge recheck 9.5/10. Novy accepted F-005/F-016 on 14 October 2026 (Vancouver); both are Done. F-014 remains Done.
+
+The original P0/P1 batch was signed off on 14 October 2026; F-008 and F-022–F-024 have since been reopened as P1 work under F-040. On 15 October 2026 at approximately 10:56 America/Vancouver, Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-021 and F-027 for the published Pages build `cc13865` from source `b1fdac3`; these 11 items are Done. F-008 and F-022–F-024 are reopened as P1 work under the new fixed-per-level weather request F-040; they are not accepted as currently implemented. F-013 pacing and P3 statuses remain Open.
+
+Accepted F-028 development release: F-028 is deployed at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` from source `e03ba169be760a4031d2b57887f0d6998eb07187`. Source CI [38681252991](https://github.com/novydhillon/Flock/actions/runs/38681252991) and native Pages [38681359737](https://github.com/novydhillon/Flock/actions/runs/38681359737) succeeded. All 17 game files plus the legacy redirect match live SHA-256 hashes; 18 files outside `dev2/` remain unchanged. Final suite: 165/165 on Node 22.23.3; blind review 9.5/10, with zero escapes in 30,900 independent per-step containment checks. F-028 was accepted by the user on 15 October 2026 at 00:28 America/Vancouver for this deployed build; previous P0/P1 sign-offs stay Done.
+
+## Screenshot evidence
+
+Picture numbers refer to the user's attachment order, including the duplicate uploads.
+
+| Picture | Filename | Evidence visible / reported |
+|---|---|---|
+| 1 | `IMG_8372.jpeg` / `IMG_8372(1).jpeg` | Level 4, 10/14 delivered; black triangular/striped artifacts at path corners. User reports flickering. |
+| 2 | `IMG_8367.jpeg` / `IMG_8367(1).jpeg` | Level 8; bark ring is visible around but hidden beneath bridge planks. |
+| 3 | `IMG_8368.jpeg` / `IMG_8368(1).jpeg` | Level 9; squirrel appears as a simple body and tail. User reports spinning in place. |
+| 4 | `IMG_8364.jpeg` / `IMG_8364(1).jpeg` | Level 8; black triangular artifacts at winding path bends near crossing. |
+
+The images are visible in the conversation. Their advertised local attachment paths were unavailable during earlier reads; binaries are not embedded in this repository. Preserve these filenames and descriptions when handing off. Static images establish visible artifacts, not their temporal behavior or root cause.
+
+### F-025 — ~~Correct the deployment URL (P0 — highest priority)~~
+
+**Requirement:** deploy the standalone game at **https://novydhillon.github.io/Flock/dev2/** instead of **https://novydhillon.github.io/Flock/flock/dev2/**. This issue takes precedence over all other open work.
+
+**Accept when:** the current standalone build loads directly at the required URL, including on a fresh visit/reload, with all JavaScript, styles, fonts and other assets resolving successfully beneath `/Flock/dev2/`. The `gh-pages` output directory is **`dev2/`**, not `flock/dev2/`; `/Flock/` is GitHub Pages' repository URL prefix, not an extra output directory. Verify deployed file hashes against the intended production build and record the Pages commit/workflow result and final URL.
+
+**Implementation scope:** inspect and update `scripts/deploy-pages.mjs`, deployment/build configuration, README, tracker instructions and any other hard-coded publish destinations or game links. Keep relative asset support. Preserve the Pages root, existing `flock/dev/` and all unrelated files. Do not clear or rename saved-profile keys as part of this URL correction; verify existing progress remains available at the new path on the same origin.
+
+**Migration decision:** explicitly record what happens to the previous `/Flock/flock/dev2/` URL (for example, a redirect to the canonical URL). Do not leave two independently maintained game copies or delete unrelated legacy content. Any redirect must retain working navigation and use the correct repository prefix.
+
+**Done evidence:** helper source `6616c41`; published Pages commit `baca95c7ba618d736730194b433254bf5058dd66`; canonical entry and all 15 game files plus redirect hash-verified; 17 unrelated blobs unchanged. Legacy address redirects with query/fragment retained. Independent blind medium review: 9/10 for the bounded P0 migration. This does not score or deploy the P1 batch, verify real pixels or establish phone storage continuity. See [validation](validation/P0-P1.md).
+
+### F-001 — ~~Path-corner polygon flicker~~
+
+**Requirement:** eliminate polygon flickering at path corners (pictures 1 and 4).
+
+**Accept when:** sharp and gentle turns have continuous textured coverage without black triangles, overlapping flicker, holes or abrupt spikes during camera movement. Check default levels 4 and 8 and multiple seeds/directions on a real renderer.
+
+**Implementation evidence:** `eed14e5` replaces stacked ribbon pieces with convex-stroke union, disjoint upward triangles and world UVs in `surfaces.js`; topology/coverage tests include turns, reversals, crossings and reported levels 4/8. Novy accepted F-001 on 14 October 2026; topology tests remain source evidence rather than agent-rendered validation.
+
+### F-002 — ~~Bark effect above ground and bridge deck~~
+
+**Requirement:** bark remains visible above path, grass, ground and bridge planks; fences and railings still occlude it (picture 2).
+
+**Accept when:** bark works on land, center/end of each bridge and both approaches, with no deck clipping and normal occlusion by raised obstacles. Do not force the ring over every object by disabling depth testing globally.
+
+**Implementation evidence:** `eed14e5` splits bark geometry at deck and plank boundaries and lifts each piece above its local surface, with depth testing retained. Renderer-owned .6-second lifetime freezes at zero `dt`, reuses buffers and caps effects at four; replacement clears owned resources. Tests compare against real bridge geometry behind a substituted renderer. Novy accepted F-002 on 14 October 2026.
+
+### F-003 — ~~Squirrel detail and movement~~
+
+**Requirement:** recognizable, more detailed squirrel; it must not spin in place, and must move like a squirrel (expanded user report, 14 October 2026).
+
+**Accept when:** distinct head/ears, face, legs/paws and bushy tail remain readable at game scale; heading follows actual movement, with stable idle/blocked poses and believable short turns. Wildlife still avoids Pip, the robotic flock and helpers and obeys wildlife-specific water/tree/structure collision; ordinary fences and map edges are permeable under F-027. Use recognizable squirrel scurrying/bounding, brief alert pauses and coordinated legs/body/tail motion, rather than a sliding body or continuous circular orbit. Observe idle, blocked, turning and fleeing squirrels, not only open-field movement. Real-renderer observation is needed to judge motion quality.
+
+**Files:** `src/rendering/environment/nature.js`; reusable art may belong in `src/rendering/models.js`. Current heading follows desired direction even when occupancy blocks movement; investigate that distinction without treating it as a proved sole cause.
+
+### F-004 — ~~Flowing water~~
+
+**Requirement:** add water texture conveying running water.
+
+**Accept when:** subtle moving ripples/flow follow each river's local direction across bends; bridges remain clear, banks have no seams, and water continues beyond map bounds. Pause freezes animation. Reuse/dispose resources and assess mobile cost. Collision stays tied to the river geometry.
+
+**Files:** `src/rendering/render.js`, `src/world/world.js`, renderer tests.
+
+### F-005 — ~~Bridge and crossing alignment~~
+
+**Requirement:** bridges and path segments crossing water are perpendicular to the river at the crossing. Bridge width is **1.25 × crossing path width**. Minimize unnecessary bridge extension into dry ground so animals do not get stuck.
+
+**Accept when:** orientation uses the local river tangent, not a global axis; approaching/exiting paths align with the deck; mesh, terrain height, deck occupancy and rails share the same footprint. Retain enough landing overlap to cross both banks safely. Validate cow-sized bodies, helpers, the full initial flock, alternative routes, all campaign levels and representative seeds.
+
+**Files:** `src/world/world.js`, `src/rendering/render.js`, `src/rendering/models.js`, world/journey tests. Preserve the solved level-2 retrieval case; narrower replacement geometry must not reintroduce its stall. The implementation compares usable road width, excluding decorative shoulders. `4887ea7` aligns decks and straight approaches perpendicular to sampled river segments; deck width is 1.25 × road width, including the widened level-2 road/deck. Follow-up shortens decks to river width + 1.5 (0.75 nominal bank overlap per end) without changing width or dry route turning planes. Blocked opening steering follows collision-valid local bridge waypoints using each animal’s actual radius (.55 sheep, .78 cow), rather than pushing sideways through rail/bank corners. Sampled wet-strip coverage and unchanged full-flock journeys support the repair; Novy accepted the reported landing fix on 14 October 2026.
+
+### F-006 — ~~Operable gates from level 20~~
+
+**Requirement:** introduce gates that need to be opened on higher levels (**20+**).
+
+**Accept when:** closed gates visibly and physically block dog/flock/helpers; an accessible single-thumb action opens them; geometry, collision, navigation and minimap agree on state. Levels 1–19 retain their existing accessible openings. Generated routes remain solvable and restart resets gate state.
+
+**Decision to resolve:** proximity action, auto-open interaction or dedicated contextual button; whether gates close again. Do not add a second-thumb requirement. Current gate openings do not implement this requested closed/open state.
+
+### F-007 — ~~Stone wall variants~~
+
+**Requirement:** use stone walls instead of fences on some levels.
+
+**Accept when:** selected deterministic levels have readable stone boundaries, consistent visible/physical footprints and usable entrances. Define whether walls block herding signals and how gates join them; raised walls should occlude effects correctly. Keep goals and route clearance valid.
+
+**Decision to resolve:** level/theme distribution and wall height. Candidate files: `src/world/world.js`, `src/rendering/models.js`, `src/rendering/render.js`, collision tests.
+
+### F-009 — ~~Delivery countdown and score~~
+
+**Requirement:** the first flock animal entering the goal starts a **30–60 second** countdown, chosen by level complexity. End the level when time reaches zero or the last animal arrives. Score reflects animals delivered and displays **score / possible score**.
+
+**Accept when:** a single first valid delivery starts one timer; no pre-arrival timer; duration stays within 30–60 seconds; all-delivered ends early; timeout produces a partial result. Final counts and score settle once, late arrivals cannot change the finalized result, pause freezes gameplay time, and replay/restart clears transient state. Display delivered count and earned/possible score consistently in play and results. Preserve player-attended delivery; helpers cannot complete the level alone.
+
+**Implementation / decisions recorded 14 October 2026:** user approved positive partial unlock, `floor(reward * saved / total)` score/earned entitlement and lifetime best improvement paying only its delta. `1fee206` implements a 30–60 second complexity formula, first-arrival start, timeout-before-admission, early full completion, consistent HUD/results and v2 ledger migration. Legacy completions become fully earned without crediting points again. Replay spending/reload cannot farm duplicate rewards. See [Gameplay](systems/GAMEPLAY.md) for exact formula. Novy accepted F-009 on 14 October 2026; future pacing changes remain tracked separately.
+
+**Files:** `src/simulation/simulation.js`, `src/app/main.js`, `src/progression/progression.js`, UI/style and persistence tests. Depends on F-010 so timer starts only inside the correct goal.
+
+### F-010 — ~~Goal shape matches enclosure~~
+
+**Requirement:** goal areas follow their pen, barn or fenced-field enclosure shape.
+
+**Accept when:** highlight, valid delivery region, minimap and enclosure footprint agree for rotated destinations; animals outside the wall or near a circular corner cannot score. Entrance remains clear and animal body radius is handled consistently. Check all three destination types across seeds.
+
+**Implementation evidence:** world `4887ea7` exports rotated target local/world transforms, footprint and full-body containment. Goal view `984fc64` uses footprint corners for highlight, border, barn floor and minimap. Wall endpoints derive from the same shape. Body-contracted admission includes safe rectangular corners and rejects edge-straddling bodies. Rotated pen/field/barn geometry tests support the contract; Novy accepted F-010 on 14 October 2026.
+
+### F-011 — ~~Dog-tail light feedback~~
+
+**Requirement:** dog's tail light is blue normally and flashes red on bark.
+
+**Accept when:** Pip's blue light visibly flashes red for the bark feedback interval and returns blue reliably. Repeated bark, cooldown, pause and level restart leave no stuck-red state. Decide whether Buddy dog uses the same convention when it has an actual bark event. Do not recolor every shared cyan robotic material.
+
+**Files:** `src/rendering/models.js`, `src/rendering/render.js`, `src/app/main.js`; use the same bark event as F-002.
+
+### F-012 — ~~Wandering and bolting animals~~
+
+**Requirement:** up to **15%** of animals may have a **33%** chance to move randomly away from the flock when not actively herded. This begins at **level 8**. Such an animal has up to **10%** chance to bolt away for **1–3 seconds**; bolting begins **after level 16** (level 17 onward).
+
+**Accept when:** levels 1–7 have no new wandering; levels 1–16 have no bolting. Eligible cohort never exceeds 15% of the flock; document integer rounding. Probabilities are tied to defined behavior opportunities/time, never rolled every frame. No fleeing through rails, walls, river or map fences; saved animals never use this straggler/bolting behavior; their confined goal roaming is F-028. Active herding suppresses this behavior, and brief bolts end within the specified range. Pause/restart reset behavior safely and seeded tests exercise gates, duration, collision and statistical bounds without flaky expectations.
+
+**Decisions required:** selection/rounding, probability evaluation interval, wander distance/speed/cooldown, what counts as active herding (Pip versus companions), and whether the 10% is conditional on a wander event. Do not silently interpret a chance as a per-second or per-frame rate. Balance together with F-009 to avoid unfair late losses.
+
+**Files:** `src/simulation/simulation.js`, `src/world/world.js`, companion/journey/simulation tests.
+
+### F-014 — ~~Real-phone verification gap~~
+
+**Done: Novy confirmed F-014 on 14 October 2026 (America/Vancouver), after the QA-controls release at Pages `50128cdef86c47a383938cc0aac01a29e1f072d2`. This is user acceptance of real-phone controls, appearance and sound; device/browser details and measurements were not supplied. It does not close the separate visual issues or F-015 performance testing.**
+
+**Accept when:** record device/browser, tested source/deployment revision, scenarios, results and screenshot/video evidence. Include restart confirmation/cancellation/persistence. Existing user screenshots provide evidence of specific visual issues; they do not validate every input/audio scenario.
+
+### F-016 — ~~See Pip and the flock under cover~~
+
+**Requirement:** barns and other covered structures must not obscure Pip or flock animals. When any dog or flock animal enters, fade the **entire roof and complete camera-facing wall side(s)** together to **30% transparency (opacity 0.70)**; do not limit fading to individual panels intersecting an actor ray. Restore when the structure is empty.
+
+**Accept when:** a dog alone, a flock animal alone (including delivered animals), partial entry and split groups trigger the whole roof and every panel of camera-facing wall sides at opacity 0.70. Select sides using the current camera direction for rotated structures; keep far wall sides opaque. Restore smoothly only after the last actor leaves, without flicker or rapid threshold toggles. Transparency changes visibility only; collision, goal admission and enclosure boundaries remain intact.
+
+**Implementation evidence:** initial `4cf9719` segmented barn roof/walls are retained. Follow-up `b322e7d` fades all roof panels and full facing wall/trim sides to opacity 0.70 using orthographic camera direction in barn-local coordinates. Pip, helper dogs and all flock animals including saved animals activate coverage; hysteresis/smoothed fades and original material/shadow cleanup remain. Pause freezes fades; collision/admission do not change. Blind source review passed 9/10; Novy accepted F-016 on 14 October 2026.
+
+### F-017 — ~~Rabbits and variable wildlife populations~~
+
+**Requirement:** add rabbits alongside squirrels. Rabbits must be recognizably detailed and move like rabbits. Rabbit and squirrel counts are random and depend on level size.
+
+**Accept when:** ears, face, body, hind legs and tail distinguish rabbits at normal portrait zoom. Hopping has coordinated crouch, push-off, airborne and landing poses, with believable idle/turn/flee transitions; avoid sliding or spinning. Both species avoid Pip/flock/helpers and water/tree/structure barriers; ordinary fences/map edges are permeable under F-027. Population varies with usable level area and randomness, with bounded counts for performance and repeatable seeded fixtures for testing. Weather visibility is handled by F-022, not by permanently deleting a level's base population.
+
+**Decisions to resolve:** area-to-count ranges/caps, whether either species may be absent, and spawn spacing/habitat. Do not silently replace the requested randomness with a fixed count per level.
+
+**Files:** `src/rendering/environment/nature.js`, `src/rendering/models.js`, wildlife/resource tests. Coordinate squirrel motion work with F-003.
+
+### F-018 — ~~Dev-build QA menu~~
+
+**Requirement:** add a QA menu available in development builds. Testers can jump to any level **0–100**, add bolts, remove bolts, and pause the simulation while moving individual flock animals to reproduce scenarios such as animals stuck in game-hindering positions.
+
+**Accept when:** the menu is clearly marked as QA and available in the deployed development build as well as the intended local development configuration. Release builds expose no QA entry point or enabled mutation handlers. Testers can choose a level without campaign unlock restrictions, enter a bolt amount to add/remove, pause gameplay and select/reposition a particular animal. Currency remains finite and nonnegative. Selection and placement work with touch and mouse and identify the selected animal clearly. Editing does not accidentally steer Pip, resume the simulation, advance countdowns, award progress or trigger delivery. Resume uses the edited scenario normally.
+
+**Implementation evidence:** `df1d193` adds a dynamically imported QA module only in local development/explicit `build:dev`; normal production excludes the entry and handlers. User approved QA 0 = tutorial shortcut and public 1–100 = campaign indexes 0–99. First entry starts an isolated default test profile; persistence is suppressed until reload. Dialog pauses gameplay/countdowns/audio, makes background controls inert, permits finite safe bolt edits, identifies animals by species/ID, and edits finite coordinates within bounds. Explicit invalid-placement override bypasses occupancy only; velocity resets and saved state is retained. Reset starts fresh; export downloads a scenario JSON. `7acc632` restores results when resuming a completed QA meadow without another award. QA-enabled live publication is verified. Novy accepted F-018 on 14 October 2026; animal selection/position controls remain temporarily hidden as requested.
+
+**Files:** build configuration, `src/app/main.js`, `src/ui/style.css`, `src/simulation/simulation.js`, controller/profile tests. QA pause must permit manual edits while freezing all normal simulation; gameplay pause alone is insufficient. Exercise development and release builds separately to verify gating.
+
+### F-019 — ~~Bushes~~
+
+**Requirement:** add bushes to the environment.
+
+**Accept when:** organic bush clusters vary in shape/placement and fit fields/woodland edges without hiding critical controls, destinations or crossings. Generation preserves safe spawns, flock staging space and route clearance. Explicitly decide whether bushes are decorative or physical; if physical, mesh and collision footprints must agree and all routes remain traversable. Include visibility/culling and resource cleanup checks.
+
+**Files:** `src/world/world.js`, `src/rendering/models.js`, `src/rendering/render.js`, scenery/world tests. Coordinate appearance with F-021 rather than duplicating the assets.
+
+### F-020 — ~~Larger trees~~
+
+**Requirement:** increase the size of trees.
+
+**Accept when:** trees are visibly larger at the normal camera scale and remain proportionate to Pip, animals and structures. Maintain readable play space and valid routes/entrances. If trunk or canopy dimensions change, update placement clearance, physical footprints where applicable, bounds and shadow/culling data together. Verify that larger near-camera trees do not introduce new actor-visibility problems; F-016 covers structures specifically.
+
+**Decision to resolve:** target scale or size range and variation across levels. `src/rendering/models.js`, `src/world/world.js` and `src/rendering/render.js` are likely touch points.
+
+### F-021 — ~~Bush and tree surface detail~~
+
+**Requirement:** add more detail and textures to bushes and trees.
+
+**Accept when:** foliage has readable volume, color/leaf variation and softened organic forms; trunks/branches have bark detail. Preserve the established cheerful handmade appearance and consistency between new bushes and larger trees. Avoid flat uniform blobs, repetitive obvious tiling and excessive fine-detail shimmer at portrait scale. Assess shader/texture memory, draw submissions, shadows and mobile performance; shared/cached resources must dispose correctly.
+
+**Files:** `src/rendering/models.js`, `src/rendering/render.js`, scenery/resource tests. Dependencies F-019/F-020 establish the base shapes and size targets.
+
+### F-022 — ~~Weather-aware wildlife and shelter~~
+
+**Requirement:** light rain and light wind still allow butterflies, birds, squirrels, rabbits and other wildlife. As weather worsens, smaller animals disappear/hide first; larger animals remain until more extreme conditions, then hide too.
+
+**Accept when:** light conditions do not indiscriminately suppress wildlife. A documented per-species severity threshold/order causes gradual retreat/hiding as weather intensifies, and plausible return after it eases. Avoid abrupt simultaneous despawns, visible animals frozen in place, repeated threshold flicker or frame-rate-dependent population changes. Hiding wildlife still avoids the flock; ground animals retain water/tree/barn/stone-wall barriers while ordinary fences/map edges remain permeable under F-027. Define behavior for airborne species and currently supported weather types, including snow. Coordinate shelter/visibility state with population generation in F-017.
+
+**Decisions required:** species size categories, severity thresholds/hysteresis, shelter/exit behavior and return delay. The user supplied the ordering principle, not exact numeric thresholds.
+
+**Files:** `src/rendering/environment/nature.js`, wildlife tests. Consume the same weather severity/transition state as F-023/F-024.
+
+### F-023 — ~~Fixed per-level atmosphere and storm feedback~~
+
+**Current requirement:** the level retains its selected weather; rain/storm intensity is conveyed through rain, sky/fog/daylight and paired lightning/thunder. Visible clouds and cloud shadows are temporarily removed under F-008 at Novy's request on 15 October 2026. Earlier dynamic weather ramps and cloud-coverage requirements are superseded.
+
+**Accept when:** the selected sunny/breezy/light/heavy/storm condition remains fixed throughout the level; storm flashes and thunder share one bounded event with sensible delay. Rain, lighting and ground state remain readable. Mute, pause, backgrounding, replay and level changes cancel pending/stale effects consistently. No cloud meshes or cloud ground shadows appear. Phone appearance/listening acceptance remains pending for the rain/storm effects.
+
+**Files:** `src/rendering/weather/weather.js`, `src/rendering/environment/nature.js`, `src/rendering/weather/rain-view.js`, `src/rendering/render.js`, `src/audio/audio.js` and relevant tests. `Atmosphere` is dormant and no longer part of the runtime contract.
+
+### F-024 — ~~Rain accumulation, puddles and water response~~
+
+**Requirement:** ground appearance reflects rainfall. Light rain has little effect; sustained heavier rain slowly darkens grass green and dirt tracks brown. Rainstorms produce standing puddles and splashes when animals walk through them. River water also reflects the weather change.
+
+**Accept when:** wetness accumulates with rain amount over simulation time, rather than switching instantly to a fixed dark material. Grass and paths respond distinctly while remaining readable. Storm puddles occupy plausible ground locations without clipping across bridges or raised surfaces, and flock movement through them generates brief localized splashes; stationary animals do not emit continuous splash bursts. River surface appearance responds coherently to rain/storm intensity while retaining directional flow (F-004). These visual effects do not silently alter movement/collision. Pause freezes accumulation and events; restart/level replacement clears transient resources correctly. Preserve mobile performance under large moving flocks.
+
+**Decisions required:** accumulation/saturation and drying rates, puddle formation thresholds/placement, river changes (for example ripples, roughness or color), and whether Pip/helpers/wildlife also splash. Those examples are implementation options, not approved extra mechanics.
+
+**Files:** `src/rendering/environment/nature.js`, `src/rendering/render.js`, `src/world/world.js`, weather/renderer/resource tests. Use shared weather state from F-023 and check material sharing does not leak wetness into the next level.
+
+### F-027 — ~~Wildlife crossing fences and map edges~~
+
+**Requirement:** wildlife can pass through fences and leave and enter the game area. Added directly on GitHub as a second F-025; recorded here as F-027 to preserve the existing P0 deployment issue ID.
+
+**Accept when:** the wildlife movement/spawn rules explicitly support crossing fences and departing/returning at the playable perimeter without permitting the robotic flock or Pip to cross their physical boundaries. Coordinate population budgets and natural entry/exit behavior with F-017. Decide how ground wildlife handles rivers, other obstacles and weather shelter; do not silently remove all wildlife collision checks.
+
+### Acceptance record — P2 items, 15 October 2026
+
+Novy accepted F-003, F-004, F-006, F-007, F-011, F-012, F-017, F-019, F-020, F-021 and F-027 at approximately 10:56 America/Vancouver for the public Pages build `cc13865`, source `b1fdac3`. Mark these issues Done for that deployed revision. This acceptance does not imply new requirements F-030–F-039 are implemented, and does not accept the existing dynamic weather behavior: F-008 and F-022–F-024 are reopened as P1 work tied to F-040.
+
+### F-033 — ~~English dry-stone wall appearance (P2)~~
+
+**Requirement:** stone walls should look like drystone walls built by an English farmhand.
+
+**Accept when:** rendered walls read as hand-laid, irregular dry-stone masonry with plausible varied stones and no visible mortar, while maintaining consistent collision, gates/openings, route clearance and mobile performance. Review at normal game zoom and across wall orientations.
+
+**Status:** Done; Novy signed off the deployed weathered claymation walls on 16 October 2026 at 14:00 America/Vancouver (source `1941302`, Pages `29f48f3`). Reference photos supplied 16 October 2026 guide irregular dry-laid stones, muted warm greys, broad foundations and uneven upright coping. Three instanced sculpted shapes replace rectangular bricks; staggered variable widths and per-stone colors avoid uniform masonry. The .6-unit collision strip, segment endpoints, gates and level selection are preserved. F-034 remains Open. Source bounds/determinism/resource checks do not establish phone appearance or FPS.
+
+### F-035 — ~~Baseline bolt duration (P2)~~
+
+**Requirement:** baseline bolts last 3-5 seconds (public levels 17-39); public 40-69 uses 4-6 seconds and 70+ uses 5-10 seconds under F-039. Durations are seeded and interrupted only by herding, delivery, or loss of cohort eligibility as undelivered count shrinks.
+
+**Status:** Review, implemented with regression coverage; pending user acceptance of the new gameplay build.
+
+
+### F-037 — ~~Per-level eligible wander cohort (P2)~~
+
+**Requirement, clarified 15 October 2026 at 17:03 Vancouver:** each level has its own fresh cohort with no cross-level memory; only undelivered animals participate. Implementation retains a cap of floor(20% of the current undelivered flock) on every level, with stable seeded ranking that is recomputed as deliveries reduce that count. Active player/helper pressure suppresses opportunities. Saved animals retain separate confined goal roaming.
+
+**Status:** Review, implemented; pending user gameplay acceptance.
+
+
+### F-039 — ~~Late-level wander/bolt tuning (P2)~~
+
+**User clarification, 15 October 2026 at 17:03 Vancouver:** replace the earlier 30%/50% figures with 20% chance per check above level 40 and 25% above level 70; randomize checks between 5 and 8 seconds. Each level owns its flock cap and transient state; only undelivered animals participate.
+
+**Implemented bands:** public levels 8-40 retain 33% wander probability per eligible check; levels 41-70 use 20%, and 71+ use 25%. The eligible cohort remains capped at floor(20% of undelivered animals) per F-037. Conditional bolt probability is 10% from public level 17, and 20% at 41+. Bolt duration steps from baseline 3-5 seconds to 4-6 at public 40 and 5-10 at public 70. These are step bands, not interpolated scaling.
+
+Each animal owns a deterministic sequence of independent seeded 5-8 second check intervals. Pause freezes simulation time; delayed calls never replay a backlog. Saved, actively herded and already-settled animals cannot begin an excursion. Fresh levels/restarts reset schedules, eligibility and local roaming.
+
+**Status:** Review, implemented; pending user gameplay/pacing acceptance. The new clarification supersedes the earlier unresolved 30%/50% interpretation.
+
+
+### F-040 — ~~Fixed per-level weather; remove snow (P1)~~
+
+**Requirement:** remove all snow. Choose each level's weather once and retain it for the whole level, beginning with light rain from public level 9; introduce heavy rain and storms later. No within-level switches to sun or another rain tier.
+
+**Accept when:** no snow renders; one seeded kind/intensity/severity/daylight is chosen at level creation and remains fixed. Public level 9 demonstrates light rain. The implementation currently introduces heavy rain at 16 and storms at 24, with those levels guaranteed examples and seeded weighted selection elsewhere; these later thresholds/weights are source tuning choices, not user-specified requirements. Rain/cloud motion, puddle accumulation and paired lightning/thunder may animate without changing weather kind or tier. Rain/clouds must be visible immediately, including the first camera frame; pause/restart/hidden-tab/audio behavior remains deterministic and safe.
+
+**Dependencies and reopened work:** F-008 clouds, F-022 wildlife shelter, F-023 atmosphere/lightning and F-024 wetness/puddles are all P1 candidate work under this contract. Earlier 90-second episodes and snow behavior are superseded.
+
+**Status:** Review. Fixed weather, orthographic rain/cloud projection, first-frame wet ground, labels and bounded storm events are implemented; independent source reviews meet 8/10. Fresh phone appearance/listening acceptance is pending. See the implementation handoff below.
+
+### F-028 — ~~Delivered animals roam inside the goal~~
+
+**Requirement:** once an animal is delivered, let it continue gentle movement within the goal instead of stopping at the entry edge. Its entire body must remain inside the shared rotated enclosure footprint, including the entrance opening. Keep saved state permanent and the score/countdown/result contract unchanged.
+
+**Accept when:** sheep and cows entering at any wall/corner move into and roam around the enclosure without leaving through the entrance, crossing solid obstacles or jittering at boundaries. Saved animals stay excluded from herding, companion membership and additional admission events. Gentle deterministic roaming continues behind completed results without moving Pip/undelivered animals, changing finalized counts/rewards or advancing the recovery clock. Pause, workshop, QA editing and hidden/background state freeze roaming. Restart/level replacement clears transient roaming state. Test rotated pen, field and barn footprints, actual species radii, timeout/full completion and multiple delivered animals.
+
+**Implementation:** source `637111e` uses deterministic per-animal interior targets, gentle movement capped at 0.65 units/second, saved-only separation and full-body rotated-footprint validation after world collision. Saved animals stay excluded from active herding/admission. A saved-only step continues behind visible results and freezes with menus/QA editing/hidden-page state. Normal moving headings and gaits replace fixed saved headings. Node 22.23.3 final source suite passes 165/165; Node 24 journeys pass 5/5. Blind review passed 9.5/10 with 30,900 independent per-step containment checks and zero escapes. User acceptance for deployed build `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d` was recorded 15 October 2026 at 00:28 America/Vancouver.
+
+**Scope:** approved replacement for stationary delivered animals. This is separate from F-012 straggler wandering/bolting. User requested 14 October 2026 (America/Vancouver). Existing P0/P1 sign-offs remain closed.
+
+### F-029 — ~~Lifetime-best score improvement pays only its difference~~
+
+**Requirement:** on each completed level, award only the positive improvement over that level's best previously earned bolts. Equal or lower scores pay zero. Spending bolts, reloading, or replaying must not reset the lifetime best.
+
+**Accept when:** an initial earned score of 32 followed by 64 pays 32 additional bolts; an equal or lower replay pays zero. Spending bolts and reloading preserve the best-earned ledger, so subsequent equal/worse runs still pay zero. The best score and earned-bolt ledger remain consistent.
+
+**Status / evidence:** Done; this was already implemented and verified, not a new economy change. `applyLevelReward` uses `bestEarnedBolts`/`bestScores` to pay only the positive difference. The focused replay tests in `tests/delivery.test.js` cover better, equal and worse replays and persistent ledger behavior. See [Gameplay](systems/GAMEPLAY.md) and [Requirements](REQUIREMENTS.md).
+
+**Report disposition, 15 October 2026 (Vancouver):** the latest P0 “missing bolts on replay” report is withdrawn as invalid because it describes the intended lifetime-best delta rule. No active bug remains. No gameplay or economy code changes are requested or included.
+
+## Previously repaired — retain as regressions
+
+These are not open defects unless reproduced again: drone selecting the largest herd and holding when Pip leaves; no unattended goal completion; unlocks (drone 10, Buddy 20); path variety/map extent/continuous rivers; scenery hill collision alignment; pending audio activation overriding pause; overdue music scheduling burst; the default level-2 bridge stall; full-game restart persistence and delayed-audio focus. See `docs/QUALITY.md` and current tests for scope and limitations.
+
+The latest Restart Game source passed CI tests/build and deployment byte verification. Historical blind scores **9.1 technical / 8.6 gameplay** describe the earlier bounded review, not a review of these newly requested changes. Do not update scores without a new independent assessment.
+
+## Execution record
+
+Copy one row per claimed issue; retain older entries when reopening work.
+
+| Issue | Owner | Status | Branch/worktree | Source commit | Checks and review evidence | Deployment commit | Date / next action |
+|---|---|---|---|---|---|---|---|
+| F-025 | P0 implementation/release | Done | Integrated source | `6616c41` | Asset graph/helper tests; all 15 live game files + redirect hashes; 17 unrelated blobs preserved; independent blind medium 9/10 | `baca95c7ba618d736730194b433254bf5058dd66` | 14 Oct 2026; P1 release separate |
+| F-001 | P1 surfaces | Done | Integrated source | `eed14e5` | Union topology/coverage regressions; final integrated checks tracked in runbook | `9346f26` | 14 Oct 2026; user signed off |
+| F-002 | P1 surfaces | Done | Integrated source | `eed14e5` | Surface/deck geometry, pause and ownership checks | `9346f26` | 14 Oct 2026; user signed off |
+| F-005 | P1 world | Done | Integrated source | `4887ea7`, `185116a` | Short landings, full water-strip/bevel coverage, rotated cow steering and unchanged full-flock journeys; user accepted deployed follow-up | `8a76de3` | 14 Oct 2026; user signed off |
+| F-009 | P1 delivery | Done | Integrated source | `1fee206` | Timer, proportional score, canonical ledger/migration and controller checks | `9346f26` | 14 Oct 2026; user signed off |
+| F-010 | P1 world/presentation | Done | Integrated source | `4887ea7`, `984fc64` | Rotated corners, full-body containment, goal/map/floor geometry | `9346f26` | 14 Oct 2026; user signed off |
+| F-016 | P1 cutaway | Done | Integrated source | `4cf9719`, `b322e7d` | Whole roof/facing sides at .70 opacity, covered actors, pause and clone cleanup; user accepted deployed follow-up | `8a76de3` | 14 Oct 2026; user signed off |
+| F-018 | P1 QA | Done | Integrated source | `df1d193` | Isolated session, mapping, pause/edit validation, bundle gating | `9346f26` | 14 Oct 2026; user signed off |
+| F-028 | Goal roaming | Done | Integrated source | `e03ba16` | 165 tests, per-step mixed-species confinement, blind 9.5/10 | `639a9b4` | 15 Oct 2026 00:28 Vancouver; user accepted deployed build |
+| F-029 | Best-score replay reward | Done | Existing implementation; docs-only record | `c4422cd` | Focused replay tests in `tests/delivery.test.js`; best improvement pays difference, equal/worse pay zero, ledger survives spending/reload | — | 15 Oct 2026; withdrawn P0 report was invalid |
+| F-014 | Device QA | Done | User acceptance | `b663de7` | Novy confirmed real-phone QA; device/browser details not supplied | `50128cd` | 14 Oct 2026 (Vancouver); retain separate visual/performance issues |
+| F-003/004/006/007/011/012/017/019/020/021/027 | Published P2 acceptance | Done | Deployed Pages build | `b1fdac3` | User accepted these 11 items; new weather contract explicitly remains open | `cc13865` | 15 Oct 2026 approx. 10:56 Vancouver; F-008/F-022–F-024 reopened under F-040 |
+
+## Decisions and session handoff
+
+Record approved answers to the decisions above here, with date and source. At session end list changed issue IDs, remaining blockers, commands/results, branch heads and the next reproducible action. A blocked design decision does not prevent independent visual repairs.
+
+Current handoff, 15 October 2026: F-025 migration and F-005/F-016 are Done. The P1 source and development release are published and live hashes verified (17 game files plus redirect). Source CI and native Pages publication succeeded. F-001/F-002/F-009/F-010/F-018 are Done by user sign-off; F-014 is Done by user confirmation. F-028 goal roaming is Done by user acceptance at 00:28 America/Vancouver for deployed Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d`. That was the pre-P2 release checkpoint. The published P2 candidate added squirrel motion, rabbits, vegetation and linked weather systems. Eleven items were accepted at approximately 10:56 Vancouver for Pages `cc13865` / source `b1fdac3`. F-008 and F-022–F-024 are now P1 and reopened under F-040 because the user requested fixed weather and no snow. F-030–F-040 are newly queued and Open; P3 and F-013 work remains Open. F-029 records the existing, tested lifetime-best replay reward rule as Done; the latest missing-bolts P0 report was withdrawn as invalid. Historical reviews are retained as historical evidence, not current game scores. The 15 October 10:56 acceptance applies to the already published build only; no F-030–F-040 implementation or newer publication is implied.
+
+Approved user decisions today: any positive partial delivery opens the next level; earned entitlement is proportional floor score; later lifetime-best improvements pay only the delta; QA 0 shortcuts the tutorial while public campaign remains 1–100. Source balance choices (duration formula, usable road-width comparison/landing overlap) are documented in Gameplay/World and remain subject to review. QA isolation, bounds-limited invalid placement, reset/export and production exclusion are implemented and await applicable device checks. See [P0/P1 validation](validation/P0-P1.md) for exact scenarios and limitations.
+
+Integration note, 14 October 2026: remote commit `6ac8eb7` added Quit (F-026) and wildlife crossing fences/edges under a duplicate F-025. Both requests are preserved; the latter is now F-027. Neither P2/P3 feature is included in this P0/P1 implementation batch.
+
+P1 medium-effort blind review: first pass gameplay 9.0/10 and technical 8.5/10; follow-up at `f0a87a1` gameplay 9.4/10 and technical 9.0/10. Confirmed QA-results, grass/bark composition and CI-artifact issues were fixed. Final source checks: 159/159 tests, release/dev artifact mode checks and documentation checks passed. Pixel/device acceptance remains open.
+
+
+## Follow-up device reports — 14 October 2026 (Vancouver)
+
+- `IMG_8375.jpeg` (level 4): user confirmed deck width and reported excessive length into land and animals caught near the bank/rail ends. Shorter landing follow-up was deployed and accepted; F-005 is Done.
+- `IMG_8376.jpeg` (level 3 barn): roof remained opaque over Pip. Whole-roof/camera-facing-side fade was deployed and accepted; F-016 is Done.
+- F-014 remains Done by user confirmation; these specific follow-up reports retain their own acceptance checks.
+
+## Follow-up acceptance — 14 October 2026 (Vancouver)
+
+Novy replied “Looks good” to the deployed bridge (F-005) and barn cutaway (F-016) follow-up at Pages `8a76de36bbb61ba824bc9371f85971667f786c35`. Mark F-005 and F-016 Done by user acceptance. The historical blind reviews and device limitation records above remain historical evidence; this acceptance applies to the deployed reported fixes only. F-014 was already Done.
+
+## Final P1 user acceptance — 14 October 2026
+
+Novy signed off all remaining P1 review items (F-001, F-002, F-009, F-010 and F-018) on 14 October 2026 at 21:10 America/Vancouver, following F-005/F-016 acceptance at 21:08. All P0 and P1 issues are Done. Acceptance applies to the deployed development build at Pages `8a76de36bbb61ba824bc9371f85971667f786c35`, including the approved temporarily hidden animal-position controls. This is user acceptance; it does not expand the measured scope of source tests or close P2/P3 work.
+
+
+## Current follow-up — F-028
+
+F-028 delivered goal roaming is Done by user acceptance on 15 October 2026 at 00:28 America/Vancouver for the deployed build at Pages `639a9b45608fa0ad6aaa8189dd91dd7ba24b082d`, source `e03ba169be760a4031d2b57887f0d6998eb07187`. The acceptance covers the reported goal-roaming behavior on that build; source review, test counts and device evidence retain their recorded scope. Existing P0/P1 sign-offs remain Done.
+
+## P2 candidate handoff — 15 October 2026
+
+F-003/F-004/F-006/F-007/F-008/F-011/F-012/F-017/F-019/F-020/F-021/F-022/F-023/F-024/F-027 are candidate changes in **Review**, not user sign-off. Code is developed in isolated workstreams and integrated on `flock_3D_chatgpt-work`. Do not reopen prior P0/P1 acceptance. F-013 remains Open: historical simulated pacing is not a substitute for human level-5 attempts. F-015/F-026 remain Open P3 work.
+
+| Workstream | Owner / worktree | Source evidence |
+| --- | --- | --- |
+| Gates / stone walls | p2_gates_walls / `flock-gates` | `fb63a6b`; public level20 closed gates, nearby independent Open gate control; deterministic stone variants from level8 every fourth level |
+| Weather / cloud / thunder | p2_weather / `flock-p2-weather` | `c6e877d`; one shared deterministic weather state, 90-second episodes with 18-second ramps, bounded paired lightning/thunder |
+| Ground/water effects | p2_water / `Flock-water-fix`, integration root | `32fc389`, integrated local arc-length UV and persistent-puddle corrections in `b431cfe` |
+| Vegetation / tail feedback | p2_vegetation / `flock-p2-vegetation` | `979f27b`; safe decorative clusters, larger detailed trees, isolated blue/red tail material |
+| Stragglers | p2_wandering / `Flock-f012-wanderers` | `3fdd2be`; fixed seeded cohort and five-second probability opportunities, with integrated duration follow-up `8ac64a8` |
+| Wildlife | p2_wildlife / `Flock-p2-wildlife` | `b648670`, shelter/motion follow-up `a6e8cb2`, actual stone-material and hysteresis integration fixes |
+
+Weather effects are visual and ambient; collisions, rewards and robotic movement do not consume weather severity. No weather opacity exception: cloud materials stay .10–.12, with worsening cover through puff area. Weather, ground wetness and puddles evolve in unpaused presentation time (playing, intro and results) and restart dry; menus/QA freeze them. Delivery and straggler behavior advance only during gameplay. Bushes are decorative. Wildlife-specific permeability never applies to Pip, helpers or flock.
+
+Blind source review results and test limitations are recorded in [QUALITY.md](QUALITY.md). This batch needs fresh phone appearance/motion/listening acceptance; earlier F-014 acceptance does not automatically validate these new visuals. Source-test scores are not a rendered game rating. Runtime deployment evidence is recorded separately after publication.
+
+Node 22 integration follow-up `30abd2a` repairs actual-radius route fallback and pressured enclosure-corner retrieval exposed by stone geometry. Five unchanged journeys pass on Node 22 and Node 24; F-013 still needs human pacing attempts.
+
+
+## Verified P2 development publication — 15 October 2026
+
+Live game: **https://novydhillon.github.io/Flock/dev2/**. Runtime source snapshot `b1fdac3697de6dd597cfb6f98e8d1fbbda1be5a8`; Pages `cc138652cc55f5c88cc36c336f575aa26120ebee`. Source CI [38703120954](https://github.com/novydhillon/Flock/actions/runs/38703120954) and native Pages [38703297030](https://github.com/novydhillon/Flock/actions/runs/38703297030) both succeeded. All 17 development-game files plus the legacy redirect match live SHA-256 hashes; all 18 blobs outside `dev2/` are unchanged. Main runtime asset: `assets/index-BPDTiqRn.js`.
+
+Final source CI passes the 212-test aggregate, generated-documentation checks and both release/development build checks. Local full suites before the final hidden-tab guard passed 211/211 on Node 22 and Node 24; the guard's focused UI/QA tests passed 28/28, and final CI includes its added regression. Blind source reviews meet the 8/10 target; documentation follow-up is 8.5/10. No fresh rendered/device acceptance is claimed.
+
+Implemented P2 items stay **Review** for Novy's acceptance. F-013 remains **Open** pending human level-5 pacing; F-015/F-026 remain **Open** P3 work. Previous P0/P1 and F-028/F-029 sign-offs remain Done. Workstream SHAs elsewhere in this record identify local development evidence; the published runtime snapshot above contains their integrated code. The following documentation-only commit does not change the verified runtime build.
+
+
+## Fixed-weather implementation handoff — 15 October 2026
+
+The 11 accepted P2 items remain Done. F-030–F-039 remain Open, queued enhancements; **none of the new gate/wall/wander/map features are implemented in this weather batch**. F-008/F-022/F-023/F-024/F-040 are **Review** after source fixes and independent review, pending Novy's new weather appearance/listening acceptance. Earlier 90-second transitions and snow are superseded.
+
+| Candidate ownership | Branch/worktree | Evidence |
+| --- | --- | --- |
+| Fixed state / audio | `fix/fixed-weather-state`, `Flock-weather-state` | `58b563c`; no snow, no within-level weather changes, deterministic bounded paired storm events |
+| Cloud/rain projection | `fix/weather-visibility`, `Flock-visible-weather`; `fix/weather-projection`, `Flock-weather-projection` | `2afe4de`, `7b4b515`; actual orthographic rays, visible first-camera rain, moving shadows, three bounded weather draws |
+| Integrated wet ground / labels | main integration | `8afd27e`; initial wet heavy/storm meadow, mission weather label, normalized signed cloud drift, pause/reset tests |
+
+QA public **9** = light rain, **16** = heavy rain, **24** = storm, for every seed unless an explicit permitted weather override is used. Level 9 is the user-specified light-rain start; 16/24 and seeded weights on other levels are initial tuning choices. Each level's kind/intensity/daylight stays fixed. Ground water accumulation, cloud/rain motion and lightning events can animate without changing that weather. No snow render/audio type remains; the legacy `snow` override maps to an allowed light rain/dry state.
+
+Source review: **8/10**, geometry/visibility review: **8.3/10**. These do not establish perceived appearance on a phone. Geometry review used actual camera rays and texture-alpha sampling, found discrete clouds in portrait/landscape across small/large maps, and verified first-camera rain distribution, shadow motion, pauses and disposal. See [quality record](QUALITY.md) for final test/publication evidence.
+
+
+## Verified fixed-weather publication — 15 October 2026
+
+Live candidate: **https://novydhillon.github.io/Flock/dev2/**. Runtime source `878efee1db3c781c7d60c3f0f620ed6a9467dbcd`; Pages `27b1bf535c09642f86d5a6ce032b88906eb695c5`. Source CI [38783755137](https://github.com/novydhillon/Flock/actions/runs/38783755137) and native Pages [38783945804](https://github.com/novydhillon/Flock/actions/runs/38783945804) succeeded. All 17 game files plus legacy redirect match live SHA-256 hashes; 18 blobs outside `dev2/` remain unchanged. Main runtime asset: `assets/index-BLaryV1o.js`.
+
+Final source CI passes 220 tests, documentation checks and release/development QA-exclusion/inclusion builds. Independent source and geometry reviews are 8/10 and 8.3/10; documentation is 8/10. Source publication does not constitute phone appearance/audio acceptance.
+
+The 11 previously approved P2 issues remain Done. F-030–F-039 remain queued Open; F-008/F-022/F-023/F-024/F-040 stay Review pending the new weather test. Public QA levels 9/16/24 demonstrate fixed light/heavy/storm conditions without waiting for a transition; storm lightning starts after 8–12 unpaused presentation seconds. No snow is rendered. The thresholds 16/24 remain tuning choices. Development workstream SHAs identify local evidence; the runtime snapshot above contains the integrated source. The following evidence-only documentation commit does not change the verified build.
+
+
+## Temporary cloud removal — 15 October 2026
+
+At 11:22 Vancouver, Novy requested removing clouds for now. F-008 is Deferred; both cloud puffs and cloud shadows are removed from the game renderer. The `cloudCoverage` weather value still influences sky/fog/lighting and river appearance; it does not create visible cloud objects. Rain/storms and the fixed-level contract remain in Review pending weather acceptance. No new queued P2/P3 request is implemented by this change.
+
+
+### F-041 — ~~Wanderers and bolters adopt their new local area (P2)~~
+
+**Requirement:** an animal finishing a spontaneous wander/bolt calmly roams near the position it reached, rather than automatically returning to its flock.
+
+**Implementation:** excursion motion omits ordinary cohesion/alignment. On expiry or reaching a wander target, save a local home; calm motion remains within 3 metres of it, with normal body collision. It cannot begin another escape while settled. Active clear player pressure or active helper herding clears excursion/home state and restores normal herding. Helper hold behavior remains authoritative. Delivery clears transient excursion fields before confined saved-animal roaming. Cohort shrink may also end a current excursion at its reached position to respect the current undelivered cap.
+
+**Status:** Review, implemented; pending user gameplay acceptance. Test both wander and bolt expiry, nearby herd attraction, collision, player/helper interruption, pause, restart and delivery.
+
+
+## Rain-volume approval - 15 October 2026, 16:46 Vancouver
+
+Novy approved and requested committing the deployed rain-volume update: gentle rain 50% quieter, heavy rain 15% quieter, storm rain unchanged. Runtime source `a26b8aa`, Pages `107f782`. Approval recorded as Done; no new Review item remains. Existing Open/Deferred items retain their status.
+
+
+## Requests migrated from GitHub Issues - 15 October 2026
+
+This document is the authoritative issue tracker. Record future issue requests here, rather than creating GitHub Issues. GitHub copies #2-#5 are closed because tracking moved here; the work remains Open and unassigned.
+
+## QA testing follow-up - 15 October 2026, 17:37 Vancouver
+
+Added the requested single flock-debug toggle: next eligible check countdown above Woof and subtle yellow wander/red bolt tints. This is read-only development QA instrumentation; F-035/F-037/F-039/F-041 remain Review for gameplay acceptance. Prior F-018 acceptance remains historical; the new debug presentation awaits player testing. See [QA usage](DEVELOPMENT.md#qa-flock-behavior-debug---15-october-2026-1737-vancouver).
+
+
+### F-046 - ~~Improve Buddy dog behavior by upgrade tier (P2)~~
+
+**Request (15 October 2026):** Buddy starts at the back of the flock and helps along its actual group direction of travel. From Buddy tier 2, stay with the smaller flock after a split. From tier 3, retrieve wanderers and bolters to the closest flock group and bark autonomously to guide groups or individuals.
+
+**Implementation:** separate Buddy decisions from drone hold/assist. Measure flock velocity, navigate behind the rearmost member, select smaller connected groups from tier 2, and retain tier-3 retrieval targets until reunited. Bark and pressure require a useful local rear position and clear ground; all bodies retain collision and bridge/gate clearance. Bark audio/rings originate at Buddy and its tail flashes independently. Existing tier unlocks, prices, saved profiles and Pip-attended scoring remain unchanged.
+
+**Status:** Review; source/headless checks complete, user gameplay acceptance pending. New tests cover cardinal directions and reversal, idle/remote behavior, smaller-group ties and merge, wander/bolt/settled retrieval to the nearest group, activation gates, barriers, real bridge retrieval with a holding drone, bark cooldown/pause/reset, target invalidation, audio routing and independent tail/ring lifecycle. No rendered/device or listening claim is made.
+
+F-046 clarification at 18:53 Vancouver: bolters are allowed to get away initially; Buddy should catch up through ordinary pursuit. Immediate interception is not an acceptance requirement.
+
+
+### Buddy execution and publication - 15 October 2026
+
+Implemented and published from source `d557d92` to Pages `c30ca36`. Source CI and native Pages deployment succeeded; 254 source tests pass, both release/development artifact checks pass, and all 17 live files match the intended SHA-256 hashes. All 18 unrelated Pages files are unchanged. Test Buddy tiers at public QA 20/24/28. **Review** remains pending user gameplay acceptance. See [publication evidence](QUALITY.md#verified-buddy-behavior-publication). Bolters may escape ahead while Buddy runs to catch up; immediate interception is not required.
+
+
+### Buddy navigation and split-flock follow-up - 15 October 2026, 19:11 Vancouver
+
+F-046 remains **Review** after the user reported tree stalls and instant opposite-facing flicker, requested independent split flocks, and added tier-2 help across nearby bridges/goal entrances. The repaired source adds cached body-clear tree detours (also for retrieved sheep/cows), stable circling sides, bounded movement/facing turns and explicit local passage guidance. Cohesion/alignment only operate within each connected flock; separated groups and single animals no longer attract back together. The old 18m range remains within a connected group so normal herding is not weakened. Local passage help retains the final singleton; ordinary tier-3 stray retrieval and player-attended scoring stay distinct. F-047 remains queued.
+
+Acceptance checks: Buddy gets around a blocking trunk on/off roads; it turns gradually inside a flock and after reversal; split groups stay independent; tier 2 guides an off-axis bridge and a rotated pen/field/barn entrance including the final sheep; all bodies respect clearance and no unattended scoring occurs. User play/device acceptance is pending; this is not sign-off.
+
+Publication completed after resuming at 22:16 Vancouver: source `25c77ff`, Pages `e175cc0`. Source CI and native Pages succeeded; all 17 live files and canonical entry HTML match the checked build, and all 18 unrelated Pages files are preserved. The 263-test suite, release/development checks and generated documentation checks pass. F-046 stays **Review**. Test tree navigation/turning at QA 20, tier-2 passage help at QA 24, and retrieval at QA 28. See [verified publication](QUALITY.md#verified-buddy-navigation-follow-up-publication).
+
+
+### F-061 - ~~Reference puppy Buddy and floating pose (P2)~~
+
+**Status:** Done by user acceptance on 18 October 2026, 12:45 America/Creston. Initial blind source/geometry review 8.5/10; independent integration follow-up 9.1/10 and documentation follow-up 9/10, with review-integrity caveat recorded in REVIEW.md. Development publication was verified before sign-off; source review and device/FPS evidence limits remain as recorded.
+
+**Accept when:** Buddy reads as the silver rounded robot puppy in picture 1, with expressive eyes, short black muzzle, folded ears, panelled torso, four hover pods and blue tail. Buddy remains smaller than Pip but slightly enlarged from picture 2's relative scale for screen legibility. It floats and looks/banks/leans like Pip; pod rings and ground/deck illumination follow the animated nozzles, pause and reset correctly. Gameplay tier rules, body clearance, save data and Pip's appearance stay intact. Development review and user visual sign-off are separate.
+
+**Scope:** Buddy only plus F-048 movement repair. No second Buddy, Pip redesign, unrelated UI or production-root publication. This former Buddy F-056 identifier is now F-061; the UI batch retains F-056.
+
+### F-062 — ~~Combined Buddy and UI integration (P2)~~
+
+**Status:** Review on `UI_refinement`; source integration, independent review follow-up and validation are complete. Buddy source `6b5e650` and its verified development publication/user acceptance are preserved; UI items F-055–F-060 remain Review. The integrated candidate passed 316/316 full regression. Release artifact: 15 files, no QA assets; development artifact: 17 files, two QA assets. The final dev artifact is being rebuilt for the authorized `/Flock/dev/` deployment, which remains pending.
+
+**Accept when:** integrated source regressions, release/development artifact checks and generated documentation checks pass; an independent integrated review has no material blocker; the intended development build is published and verified without changing production; tracker records evidence and retains UI Review status pending user sign-off.
+
+**Execution:** Integration docs recorded with `gpt-6-luna`, medium effort. Initial review found standby movement-state cleanup incomplete; the fix and transition regression are in. Post-fix full regression passes 316/316; release/development artifact-mode checks pass (15 files with zero QA / 17 files with two QA assets). The same critic's 9.2/10 follow-up found no material blocker and passed 44/44 relevant checks; Buddy tests pass 26/26. The final dev build and publication verification remain pending; source Review is not user sign-off.
+
+### F-048 - ~~Buddy stutters when moving slowly (P2)~~
+
+**Status:** Done by user acceptance on 18 October 2026, 12:45 America/Creston, for `/Flock/dev/` source `6b5e650` / Pages `2e1ec4c`.
+
+**Reported behavior:** Buddy dog has stuttering movement when moving slowly. Investigate and fix the low-speed movement so Buddy moves smoothly.
+
+**Accept when:**
+- Buddy moves smoothly at low speed without repeated stop-start jitter.
+- Slow movement, stopping, and resuming remain smooth while preserving intended herding behavior and collision handling.
+
+**Scope:** fix slow-speed stop/start and check turning, obstacle navigation, pause/reset and tiered herding regressions. F-046's previously accepted behavior remains accepted; F-047 second Buddy is out of scope. User acceptance is recorded above.
+
+**Execution:** The old fixed-speed pursuit/dead-zone controller reproducibly waited through 17 frames while following a .25m/s waypoint, then caught up in bursts. Proportional arrival speed plus bounded acceleration removes that repeated stop/start, retaining existing turn limits and body-constrained movement. Tests cover slow pursuit, fixed/fine/variable timestep consistency, zero-time no-op, fresh-level state and the existing tree/reversal/bridge/split/tier-3 retrieval scenarios. No other outstanding Buddy movement ticket was found; F-047 is a separate queued feature. All 306 integrated source tests pass. See the F-048/F-061 validation record in QUALITY.md for review/build/evidence limits.
+
+### Forward flock movement, lower cohesion, tier-2 bark and bridge completion
+
+User follow-ups at 22:33-22:39 Vancouver on 15 October 2026: front animals should keep moving with the flock; back/side animals near the dogs carry pushing pressure forward; lower cohesion; add Buddy barking at tier 2; animals walking onto a bridge should proceed to its opposite side. These extend the current F-046 flock/Buddy behavior work and remain **Review**.
+
+Implemented source: cohesion is 30% weaker; leading members reject backward centre pull while receiving missing forward flow from their own connected group. Direct dog steering is not doubled or overridden, and split flocks stay independent. New per-animal bridge intent commits sheep/cows through the deck to body-clear far-bank ground, with pause/reset and drone far-bank anchors. Bark now starts at tier 2; individual retrieval stays tier 3. Collision, purchase gates/costs and player-attended scoring are unchanged. Human/device play acceptance remains pending.
+
+
+Verified publication: source `bf30342`, Pages `cf41bd1`; source CI [38857616495](https://github.com/novydhillon/Flock/actions/runs/38857616495) and native Pages [38857820963](https://github.com/novydhillon/Flock/actions/runs/38857820963) succeeded. All 17 live development files and canonical entry HTML match the tested build; all 18 unrelated Pages files remain unchanged. All 274 source tests and both build modes pass. See [publication evidence](QUALITY.md#verified-forward-flow-and-bridge-completion-publication). User gameplay/device acceptance remains pending; F-046 stays Review and the separate F-048 low-speed stutter report stays queued.
+
+
+### F-051 - ~~Compact HUD and contextual tips (P2)~~
+
+**Status:** Review. Mission card is narrower with its map immediately to the right. Tips end after the final 14-second display cycle (first-level tips also advance without requiring a delivery). A question-mark toggle appears beside pause after automatic or manual dismissal; reopened tips stay visible until toggled off. Woof is circular with title above the symbol and “double tap” below it inside the button. The route label/distance is removed; a triangle outside Pip’s ring points directly to the goal independently of Pip’s heading. Source regression checks cover completion, reopening, hiding and per-level reset; phone layout acceptance is pending. Development publication follows the restored project workflow; production main/root remain unchanged.
+
+
+F-051 evidence: implementation commit `1e000ce` on `flock_3D_chatgpt-work`; controller/markup/styles are in `src/app/main.js`, `index.html`, `src/ui/style.css`; the goal triangle is in `src/rendering/render.js`. `tests/ui.test.js` exercises tip expiry, reopening, hiding and meadow reset. `npm test` passes 275 tests; `npm run build` plus the release mode check passes with zero QA assets, and `npm run build:dev` plus the development mode check passes with two QA assets. Generated documentation checks pass. These are source/DOM/build checks; there is no dedicated pointer render regression or native phone evidence for halo placement or portrait usability.
+
+F-051 execution: independent source review 9.3/10; documentation 8/10 then 9/10 after evidence fixes. Published reviewed source `20e39cf` to development, Pages `9da398d`; both CI and native deployment succeeded. All 17 live artifacts/canonical HTML match; 32 unrelated Pages files preserved. Production main/root unchanged. See [publication evidence](QUALITY.md#verified-f-051-development-publication). Status remains Review for phone acceptance.
+
+
+F-051 follow-up: every tutorial tip must remain visible for its full display interval. Early animal delivery must not skip tip 02 or shorten its interval. The automatic sequence advances at most once per frame; reopening/dismissing help and final-tip expiry retain their existing behavior. Source regression includes delivery before the second tip.
+
+Tip-02 follow-up execution: runtime source `610fc69` on development passes 275 tests, both artifact-mode checks and documentation checks; blind review 9.4/10. Pages `132ede4` publishes only the development entry/runtime, preserving 32 unrelated files and production main/root. Native Pages and source CI succeeded. Phone acceptance remains pending.
+
+
+F-051 reopened-help refinement: pressing ? to unhide help resets the applicable tip list to 01 and starts a repeating 14-second cycle. After the final tip it returns to 01 until toggled/dismissed; pause freezes this timer. The initial automatic sequence still finishes and hides, exposing ?. New meadows reset help state.
+
+Reopened-help execution: source `24f77f5`, Pages `199c94e`; 277 tests, both builds/mode checks, documentation checks and CI/native deployment pass. All 17 live files/canonical HTML verified; 32 unrelated files preserved. Initial playthrough hides after its last tip; manual reopening resets01 and loops. F-051 remains Review for phone acceptance.
+
+
+### F-052 - ~~Bottom-center QA gear~~
+
+**Status:** Review. Replace the QA text launcher with a gear icon, centered at the bottom of the viewport with safe-area clearance. Retain an accessible QA name and test-session state. Keep existing QA opening/closing, save isolation and production exclusion. Phone appearance remains pending.
+
+F-052 execution: reviewed 9.5/10; source `e8b8e16`, Pages `715b06c`. All 277 tests, both builds/artifact-mode checks, documentation checks and source/native Pages CI pass. All 17 live files and canonical entry verified, 32 unrelated Pages files preserved. Development-only; production unchanged. Phone acceptance pending, status Review.
+
+
+Production publication evidence: main runtime merge `11d6642`, Pages `ee53e9c`; source CI/native Pages succeeded, 277 tests and release/doc checks pass, 15/15 live root files/canonical HTML verified. All 34 unrelated Pages files preserved. QA excluded from production; dev2 unchanged. User sign-off statuses above are preserved.
+
+
+### F-053 - ~~Pip reference model and hover rings~~
+
+**Status: Done.** Novy signed off the current Pip presentation and floating movement on 17 October 2026 at 20:56 America/Creston, accepting runtime source `f0cb0c2` / Pages `c4e275b` on dev2. This supersedes the historical Review wording below for F-053. Existing test and blind-review evidence retains its scope; this user acceptance adds no independent FPS measurement. Other issue statuses are unchanged.
+
+Movement publication: runtime source `f0cb0c2`, Pages `c4e275b`; source CI/native Pages succeeded, 299 tests pass and blind source review scored 9/10. All 17 live files match the checked build; 30 unrelated Pages files, including production, are preserved. Motion remains Review for user feel/appearance acceptance. See QUALITY.md for full evidence.
+
+**Movement follow-up, 17 October 2026:** Pip floats gently on a continuous sinusoid, including at rest. His articulated head looks into turns and his body leans into turn tightness, capped at 20 degrees. Forward acceleration produces backward body lean up to 10 degrees; braking produces forward lean up to 10 degrees, proportional to acceleration/deceleration. He settles level after roughly two seconds at steady speed or once stopped. Motion is smooth, pauses freeze presentation, and level changes/teleports reset history. Preserve simulation/collision, Buddy, size, rings, current ground-glow brightness and guidance graphics. Implementation uses separate model and integration/test worktrees with blind review restored for this motion change. Status remains Review for native appearance acceptance.
+
+**Status:** Review on `pip_update`. Reference-inspired metallic player model with four hover pods and three descending blue rings per pod, no flames. Top ring follows Pip, bottom trails motion, middle sits between. Preserve Buddy and gameplay. Independent source review 9/10 and documentation review 9/10; regression/build checks recorded in QUALITY.md. Development deployment evidence follows there; phone appearance requires user review.
+
+
+F-053 publication: runtime source `bcbff8f`, Pages `7e52478`; source CI/native Pages succeeded, all 17 live files match the checked build and 30 unrelated Pages files are preserved. 278 tests pass; source/documentation reviews each 9/10. Live at [dev2](https://novydhillon.github.io/Flock/dev2/). Status remains Review for phone appearance.
+
+
+F-033 execution (16 October 2026): candidate runtime `b48c2d6` on local `stone_wall`; blind source review 8.5/10, full suite 279/279 and final affected gate tests 7/7, documentation and release/development checks pass. Checked development output is prepared for dev2; automatic approval review blocked the external repository push pending explicit authorization. The candidate has not been published. F-033 remains Review for rendered/mobile acceptance.
+
+
+F-033 publication approved at 13:36 Vancouver: source `673979e` pushed on `stone_wall` and integrated into development; source CI [38963658849](https://github.com/novydhillon/Flock/actions/runs/38963658849) passed. Pages `3a3a97d` deployed successfully via native workflow [38963856575](https://github.com/novydhillon/Flock/actions/runs/38963856575). Live dev2 entry references the expected new runtime. All 32 unrelated Pages files are preserved. All 17/17 live artifacts match the prepared build by SHA-256. Cloud WebGL 2 is unavailable; rendered/mobile acceptance remains pending, F-033 Review.
+
+
+F-033 follow-up (16 October 2026, 13:49 Vancouver): Novy approved the initial appearance and requested more varied, weathered walls. The refinement adds asymmetric worn-corner/wedge shapes, stronger width/height variation, gently tilted stones, a lightly undulating coping line and clay-colored surface mottling with subdued lower moss/damp staining. Rolled stones are fitted to their original slots to preserve endpoints and the .6-unit strip. Retain three instanced batches and at most 44 triangles per stone; no textures, extra scenery meshes or collision changes. Latest appearance remains Review pending user acceptance.
+
+
+F-033 weathering published: source `1941302`, Pages `29f48f3`; source CI [38965423609](https://github.com/novydhillon/Flock/actions/runs/38965423609) and native Pages [38965598338](https://github.com/novydhillon/Flock/actions/runs/38965598338) succeeded. All 17 live artifacts match the checked build; all 32 unrelated Pages files preserved. Blind review 8/10, 279 tests and both build modes pass. Review remains pending acceptance of this added weathering.
+
+
+F-033 user sign-off — 16 October 2026, 14:00 Vancouver: Novy signed off the weathered dry-stone wall change deployed at Pages `29f48f3` (runtime source `1941302`). Marked Done; overview cells and detailed heading struck through under the tracker closure rule. This is user acceptance of the change, not an independent device/FPS measurement. F-034 seeded wall distribution remains Open.
+
+
+### F-054 - ~~Oak-like handmade tree appearance (P2)~~
+
+**Status:** Done. Novy accepted the dev2 tree appearance on 17 October 2026 (America/Creston): “The trees look good in the dev2 build.” The accepted welded-mesh build is Pages `6dddee1`, from source `b6ef52f` and reviewed runtime `29f7fcc`. Source CI and native Pages deployment succeeded; all 17 live artifact hashes matched. This closes F-054 appearance acceptance; it does not establish measured mobile FPS. Earlier source/review/publication evidence remains historical in [QUALITY.md](QUALITY.md#f-054-organic-tree-validation).
+
+**Requirement:** Replace the segmented-looking tree mesh shown in phone references IMG8395 and IMG8396 with one genuinely contiguous, smooth trunk-and-branch surface. The trunk must remain continuously tapered and slightly bent through welded forks, with no detached rings, chunk steps, seams, caps or visibly separate branch pieces. Keep the oak-like silhouette, warm-brown clay bark and multiple rounded green foliage clusters. Branches bend or curve and emerge at staggered heights; the first fork is around mid-height of the trunk, with further forks staggered upward. At a fork, use Leonardo's branching rule with exponent 2: parent radius squared equals the sum of the squared radii of the child branches, including the continuing trunk as a child. This is the geometric branching rule described in [PLOS ONE](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093535). Apply seeded yaw variation across all trees so their silhouettes do not repeat. Vary overlapping foliage shapes and distribute several clusters around the tree center instead of one large crown ball; larger trees should carry more foliage. Reduce trunk thickness by 30% at the smallest supported rendered tree size and by 10% at the largest supported rendered tree size, interpolating linearly between those sizes. Vary crown mesh size by radial distance from the trunk centerline: larger near the axis and smaller farther away. Retain the small pressed oval leaf texture and handmade details such as exposed roots, grooves and knots.
+
+**Accept when:**
+- Trunks read as continuously tapered, slightly bent oaks, with no flat stump-cap or thin central-stem silhouette.
+- Trunk and branches form a single contiguous smooth surface through welded forks, with no detached rings, chunk steps, seams, caps or separate-looking branch segments; the trunk continues through staggered curved forks, the first around mid-height, and branch radii satisfy parent² = sum(child²), counting the continuing trunk among the children.
+- Seeded rotations vary the silhouette across all tree instances. Foliage uses varied, overlapping shapes in several central clusters rather than one large crown ball; larger trees carry more foliage.
+- Crown mesh size decreases with distance from the trunk centerline, and branches are longer.
+- Trunk thickness follows the requested size rule: 30% reduction at the smallest supported rendered tree size, 10% at the largest supported rendered tree size, with a continuous linear transition between them.
+- Small pressed oval leaf texture and handmade roots, grooves and knots are visible at ordinary play scale.
+- Tree placement, gameplay collision, route clearance and actor visibility remain sound.
+- Texture/shadow cost and mobile performance are assessed within available evidence.
+- Novy reviews the intended development build and signs off the appearance.
+
+**Scope:** tree visual update only. The numeric trunk-thickness endpoints, interpolation and fork exponent are specified above; other numeric geometry, collision changes and performance thresholds remain unspecified. Preserve prior F-020/F-021 acceptance. Novy's dev2 visual sign-off closes this refinement; prior publication and validation remain historical.
+
+**Follow-up request:** The earlier segmented wood mesh fails the phone visual check in IMG8395 and IMG8396. Implementation and final mesh/visual review are to use `gpt-6-astra` at high effort, as selected by the user. Previous F-054 scores and tests reviewed source/geometry only; they did not establish rendered phone pixels. The new implementation uses one closed welded wood surface per tree, with smooth width-dependent normals and seam-free vertex grain. Source tests and offscreen mesh-shader diagnostics are recorded in QUALITY.md; deployment and native visual acceptance are recorded separately.
+
+F-053 follow-up (16 October 2026): latest request is a 25% reduction from published Pip scale 1.35, replacing the unfinished earlier 33% size change. Worktree branch `pip_thruster_glow` uses scale 1.0125, retains the pending lighter silver finish and adds four soft ground-following blue thruster glows. Halo/pointer world size, Buddy and gameplay are unchanged. Source `ddae15b`, Pages `934fd37`: CI/native deployment passed, 282 tests, source review 9.2/10, all 17 live files verified and 30 unrelated Pages files preserved. Status remains Review for native visual acceptance; see QUALITY.md.
+
+
+### F-064 - ~~Reference clay Holstein cows at 1.5× sheep size (P2)~~
+
+**Status: Done.** Owner: Codex. Branch: `art_update_cow`, based on main `396121d`. Requested 18 October 2026 (America/Creston).
+
+Acceptance: follow IMG_8387 reference with rounded cream/black patchwork, broad pink muzzle/nostrils, expressive eyes, dark ears, small ivory horns, cloven feet and tail in the established clay style. Cow linear body size is 1.5× sheep; sheep appearance stays unchanged. Retain instanced rendering, animated legs, collision/bridge/delivery behavior, bounded resource use and pause/restart safety. Run independent blind review and full checks, hold deployment at user request (18 October: dev is being used for another review), leave Review pending user appearance acceptance.
+
+Approach: extend the existing procedural, material-baked model rather than add an imported asset; this retains shared geometry, clay materials and existing gait pivots. Cow model implementation and integration/documentation proceed independently with disjoint file ownership.
+
+Deployment hold: Novy explicitly requested no dev publication while another review is in progress. Commit/push source only; await a new deployment instruction. No Pages changes have been made.
+
+F-064 source validation: 310/310 tests, both build/artifact-mode checks and generated documentation checks pass. Independent blind source review: 9/10, no confirmed functional blocker. Minor unverified art concern: existing blue-gray enamel head/ears/hooves contrast with matte coat; decide in rendered review. Deployment held by user; visual acceptance pending.
+
+F-064 handoff: source implementation is committed locally as `7cc7035`. Automatic approval review rejected the push to the configured `novydhillon/Flock` remote, stating explicit authorization to publish the branch is required. No workaround attempted. Remote branch publication/CI are blocked pending user authorization; local checks passed. Deployment remains explicitly held and Pages unchanged.
+
+F-064 push authorization: Novy explicitly approved pushing `art_update_cow` on 18 October 2026 at 15:54 America/Creston. Deployment remains held. The earlier approval block above is historical. Source publication uses the connected GitHub service because shell git has no HTTPS credentials.
+
+## UI refinement acceptance — F-055–F-060
+
+18 October 2026 follow-up: F-056/F-057 remain **Review** on `UI_refinement` at Novy's request. The minimap is larger and higher contrast; level information is narrower with compact numeric rows and a reserved heading countdown. Owner: Codex with parallel minimap-renderer and HUD ownership. Acceptance: larger high-contrast map, discernible actors/routes/goal, compact status, no narrow-phone/landscape collisions, and new user sign-off. Source checks: 307 tests and both clean artifact modes pass; measured map-feature/actor contrast is at least 3:1. Independent blind reviews initially scored 8.5/10; CSS consolidation and metric verification resolve the concrete maintenance/fit concerns, with workhorse follow-up 9/10. Native phone appearance remains unverified. Follow-up publication is verified: source `e2f55d2`, source CI `39113239224`, Pages `dbdf3c1`, native deployment `39113364683`; 17 live files match and 32 unrelated Pages blobs are unchanged. [Follow-up publication evidence](validation/UI-minimap-followup-publication.json). Earlier publication evidence is historical for this request.
+
+Owner: Codex; branch `UI_refinement`; started 17 October 2026 America/Creston. Changes preserve saved progress, economy, flock behavior, movement, destination outline/pointer and development QA exclusion. Each item has independent acceptance; no item becomes Done without user sign-off.
+
+### F-055 — ~~Gameplay chrome and pause settings~~
+
+Hide the title, wallet and music control after starting. Reclaim the header's vertical space. Pause retains workshop/currency access and gains a clearly labelled sound toggle with persisted state, correct mute/async-activation behavior and usable focus. Landing and results retain their appropriate progression actions. Review portrait/landscape, pause/workshop/back, background/resume and restart. Do not merge/publish production until authorized.
+
+### F-056 — ~~Compact status and useful countdown~~
+
+Show a short level heading, a weather icon with accessible full description, readable Delivered and Score values, and a secondary delivery progress strip. The destination remains in the accessible mission label and brief objective. Show the objective briefly at level start. Remove the first-arrival explanation; the timer is absent before delivery and becomes large once running. At ten seconds or less, use a clear static urgency treatment. Pause freezes time; restart/next level resets objective/timer/urgency. Phone sign-off requires legible values without clipping or collisions.
+
+### F-057 — ~~Minimap and tips~~
+
+Keep the minimap beside status, align edges and simplify its frame/caption without losing map information. Shorten tips to one action, retain the numbered badge, and retain finite automatic tips plus restart-from-first manual looping through ?. Help and dismiss retain clear accessible identities and adequate hit areas. Verify short/narrow screens, live timer, gate action, toasts and manually reopened tips.
+
+18 October tip-number follow-up — Review, owner Codex, branch `UI_refinement`: restored the visible 01/02/03 badge requested in the reference photo. Tip timing, cycling and dismissal are unchanged. All 307 regression tests, both build-mode checks and generated docs pass. Publication target is `/Flock/dev/`; publication verification and visual sign-off remain separate.
+
+### F-058 — ~~Movement and bark controls~~
+
+Simplify joystick artwork, remove persistent instruction captions and preserve generous thumb targets and drag-anywhere behavior. Keep a circular Woof control with a legible visual cooldown ring; preserve double-tap and keyboard barking, cooldown timing, pointer cancellation and menu-safe input. QA launcher behavior is outside this UI refinement.
+
+### F-059 — ~~Destination introduction~~
+
+Reduce destination billboard scale by 25%; introduce it for four active gameplay seconds and fade it over 1.2 seconds. Level reset restores it, pauses freeze it, and goal floor/outline and Pip's directional pointer remain available afterward. Headless scene checks do not establish rendered likeness.
+
+### F-060 — ~~Permanent development rules~~
+
+Root AGENTS.md is the automatic project-wide entry point for branch hygiene, model/effort selection, parallel ownership, independent blind gauntlet (default >=9/10, no material blockers), documentation/tests, review vs user acceptance, development publication/live verification and production authorization. Link it from development and the documentation home; maintain it when explicit user decisions supersede defaults. This records the established workflow; it does not retroactively claim missing validation.
+
+### UI refinement execution record
+
+- Planning: compare smaller text/panels with removing secondary gameplay chrome. Choose removal and a compact information hierarchy so important values can grow while total occupied space falls.
+- Parallel implementation: `gpt-6.1-sol`, medium effort for independent controller/tests and markup/layout ownership. Root integration uses the session model. Routine documentation review may use `gpt-6-luna`, medium effort; a fresh workhorse critic checks integrated source without writer reasoning/history/scores.
+- Final source checks: 306/306 tests; both artifact modes pass (15 release files, zero QA assets; 17 development files, two QA assets). Generated documentation and four DOM behavior checks pass.
+- Blind source review: gpt-6.1-sol medium, initial 8/10 for a 568×320 landscape collision; corrected compact lanes cover widths from 480px. Same-critic follow-up 9/10 with no source blocker and 63 focused tests independently passed. Blind documentation review: gpt-6-luna medium, 8/10 initially; stale current summary corrected; follow-up 9.5/10. See QUALITY.md.
+- Development publication verified: source `d47ae6c`, CI [39096990195](https://github.com/novydhillon/Flock/actions/runs/39096990195); Pages `ce24bf3`, native workflow [39097086089](https://github.com/novydhillon/Flock/actions/runs/39097086089). All 17 live files match; 32 unrelated Pages blobs, including production root, are unchanged. [Machine-readable evidence](validation/UI-refinement-publication.json). User visual/touch sign-off pending; no production UI publication. Native WebGL2 screenshots and phone touch checks remain unavailable to the agent; source/DOM/scene checks do not establish those.
+
+
+## Cow integration and deployment authorization — 18 October 2026
+
+Novy requested merging current main into `art_update_cow` and publishing to dev at 16:54 America/Creston; this supersedes the prior deployment hold. Merge main `0e62198` with cow source `e8c3c34`, preserving the accepted minimal HUD/top-center minimap and Buddy updates. Cow tracking is renumbered **F-064** because main already owns F-057 for minimap improvements. F-064 stays Review pending appearance sign-off. Source checks/publication evidence will be recorded separately.
+
+
+F-064 integrated cow development publication: runtime source `04ce8eb` merges main `0e62198` into `art_update_cow`. All 321 tests, generated documentation checks and release/development artifact-mode checks pass. Independent blind integration review: 9/10 with 95 focused checks; no blocker. Source CI [39178525673](https://github.com/novydhillon/Flock/actions/runs/39178525673) succeeded. Pages candidate `d9b8ee8` changes only dev entry/main bundle, preserving all 49 outside-dev blobs. Deployment is authorized by the latest request; earlier hold/block paragraphs are historical. Native Pages/live hashes are recorded in `docs/validation/F-064-cow-publication.json`. Appearance acceptance remains Review; source checks do not establish phone likeness or FPS.
+
+
+## F-064 ~~cow proportions and herd size variation — 18 October 2026~~
+
+Requested follow-up on `art_update_cow`: lengthen the cow torso 25% along its forward/back axis, moving attached anatomy to suit. Then assign each cow one of four uniform sizes: 100%, 108⅓%, 116⅔%, 125% of that revised base cow. These are linear scale factors, not volume percentages. Assign using a separate seeded random stream at herd creation; preserve layout, sheep and stable sizes during animation/pause/restart. Each choice has equal probability; small herds need not contain all four. Share the same baked mesh/materials, scaling both body and articulated hip transforms per instance and conservative culling bounds. Physical clearance/separation, bridge traversal, delivery and QA placement must honor the selected cow size. Status: Review; final appearance sign-off pending.
+
+Approach: adjust the procedural cow anatomy and scale existing instanced poses; avoid four duplicate geometry sets. Geometry/rendering and generation/physical sizing use disjoint agent ownership. Follow established independent source review and full build/check process before dev publication.
+
+
+F-064 size variation validation: 325/325 integrated tests pass before the additional explicit largest-cow bridge/gate fixture; all four cow-size tests pass afterward. Release/development builds and artifact-mode checks pass. Source QA import harnesses and the fixed-radius delivery fixture were corrected rather than weakening selected-size admission. Sheep geometry checksum and all terrain/sheep generation fields across 400 seed/meadow comparisons remain unchanged. Initial reviewer identified a quantized-gait timing mismatch in the new test; same-critic follow-up independently passed all five targeted size/render checks and scored 9/10 with no source blocker. User appearance acceptance remains Review.
+
+
+F-064 longer-body/size-variation runtime source `e46d5cb` passed source CI [39179684108](https://github.com/novydhillon/Flock/actions/runs/39179684108), including the final 326-test suite, docs and both artifact modes. Independent source review reached 9/10 after the test timing correction. Development Pages revision `0681cff` contains the checked 17-file build, preserving 49 blobs outside dev. Native Pages/live verification evidence is in [F-064 size publication](validation/F-064-cow-size-publication.json). This supersedes the prior runtime-only cow publication; user appearance sign-off remains Review.
+
+
+## F-064 ~~varied cow coats and horn placement — 18 October 2026~~
+
+On `art_update_cow`, vary the black/cream patch layout between herd cows while retaining the organic Holstein clay appearance. Patterns must remain stable for each animal across animation, camera culling, pause and level restart, and vary independently from the four existing body sizes. Move both horns slightly toward the front of the head (+0.05 local forward Z); preserve body proportions, size range, sheep and physical gameplay. Keep geometry/material resource use bounded and avoid duplicating every cow body/limb batch just for coat variation. Source implementation and fresh blind review precede development publication; user rendered acceptance remains Review.
+
+
+F-064 coat/horn source validation: full existing regression suite 326/326 and both release/development build artifact-mode checks pass. New coat/horn/compaction/size checks pass 5/5, including four distinct pixel hashes, bounded black/cream coverage, shared materials/geometry, forward horn roots, ID-stable culling/reorder/restart and actual QA tint/reset. Generated documentation checks pass. Independent review and publication evidence are recorded below; rendered acceptance remains Review.
+
+F-064 coat/horn independent source review: 9/10, no material blocker. Initial candidate review found a test-fixture frustum was not restored before restart; final fixture restores it and reviewer independently passed corrected horn/coat checks. Production code had no corresponding defect. Publication remains a separate milestone and user appearance sign-off remains Review.
+
+
+F-064 varied-coat/forward-horn runtime source `b3fb4f5` passed source CI [39180629102](https://github.com/novydhillon/Flock/actions/runs/39180629102), including all 329 tests, docs and both artifact modes. Independent source review: 9/10. Development Pages `90ee1f5` contains the checked 17-file build, preserving 49 blobs outside dev. Native Pages/live hashes are recorded in [coat publication evidence](validation/F-064-cow-coat-publication.json). Source implementation/publication does not establish rendered acceptance; F-064 remains Review.
+
+
+F-064 approved production release: main runtime `3301a54` merges accepted cow branch `e05bf79` and preserves reviewed runtime bytes. All 329 regressions, generated documentation checks and the release artifact check pass; 15 emitted files include zero QA assets. Main CI [39181194506](https://github.com/novydhillon/Flock/actions/runs/39181194506) succeeded. Production Pages `2e807ae` replaces only root entry/main bundle and preserves all 51 unrelated blobs, including dev/dev2/legacy builds. Native Pages and live SHA-256 evidence is recorded in [F-064 production manifest](validation/F-064-cow-production-publication.json). F-064 remains Done by Novy's approval; prior Review/hold notes are historical.
+
+
+## F-065 — ~~Herd pivot presentation~~
+
+Branch `herd_turning_visual`, owner Codex. Review: cap visible turning at 180°/s for sheep and 120°/s for cows, following the shortest angular path. Keep walking legs active during stationary turns and freeze presentation on pause. Initialize facing from the level; retain simulation-owned movement, collisions and heading targets. User visual sign-off and development publication pending.
+
+
+F-065 **Done** by Novy’s dev approval on 18 October 2026, 18:03 America/Creston. Merge to main and production publication authorized. Dev source `1f96a37`, Pages `718e56c`; all 17 live files verified and source CI/native Pages passed. Historical pending-sign-off/publication wording is superseded. Production evidence follows.
+
+
+## Planning branch publication authorization — 18 October 2026, 21:59 America/Creston
+
+Novy confirmed publication of `plan/bird-behaviour` to `https://github.com/novydhillon/Flock`, covering all bird, herd, companion and selected UI planning updates. This supersedes earlier pending-push-authorization notes; all proposed items remain Open. Shell git has no HTTPS credentials, so source publication uses the connected GitHub service. No runtime implementation, main merge or game deployment is included. Generated documentation and its four behavior checks pass.
+
+
+## F-066 — ~~Grazing head pose~~
+
+**Done** by Novy's approval on 18 October 2026, 22:10 America/Creston. Merge to main and production publication are authorized. This acceptance supersedes the historical pending-sign-off wording below; production evidence follows separately.
+
+Published and verified at `/Flock/dev/`: source `54cc8c5`, Pages `d3bc2b8`; source CI/native Pages succeeded, 338 regressions pass, both artifact modes pass, all 17 live files match and 49 unrelated Pages blobs are preserved. Final source review 9/10 without material blockers. [Publication evidence](validation/F-066-grazing-publication.json). User appearance sign-off remains pending.
+
+**Done**, owner Codex, branch `livestock_grazing` from main `5fd8cf5`.
+Acceptance: calm livestock lower their complete heads to eat on grass/bushes; never on paths, bridge decks or barn floors. Smoothly lift when moving, turning or pressured; freeze on pause, reset on restart, preserve cow variants and instancing. Head, hoof-boundary and spatial-query checks pass; independent source review accepted the hoof fix at 9/10. Development publication evidence follows separately; native appearance requires user review.
+
+
+Production publication evidence imported with main `d2484b9`: [F-066 production manifest](validation/F-066-grazing-production-publication.json). The dated Done/user-acceptance record above supersedes older Review/pending wording.
+
+
+### F-TRACK-001 — ~~Read-only public work tracker~~
+
+**Status:** Done. **Owner:** Codex. **Branch:** `feature/work-tracker`, based on main `61bea8720ef1acb7519f5de9de679077b5753624`. Requested 18 October 2026 (America/Creston).
+
+**Requirement:** Deploy a modern minimalist viewing-only website at `/Flock/tracker/`. Load authoritative overview items and ticket details from public main `docs/ISSUES.md` and `docs/ISSUES_CLOSED.md`. Show Open, In progress, In review and Closed columns; sort each by ascending numeric priority. Add vertical priority markers: P0 red, P1 orange, P2 yellow, P3 purple, P4 blue, all others white. Clicking a card opens its details and recorded working/completed branch; missing historical branch metadata must be stated honestly. No dragging or editing. Preserve original Blocked/Deferred status in Open.
+
+**Acceptance:** Accessible keyboard cards and detail dialog, mobile layout, safe rendering of repository text, loading/error/retry behavior and consistent main snapshot. Parser tests cover real documents, statuses, priority order, historical closed details and missing branches. Independent blind review, generated docs checks and scoped publication preserve all existing game/Pages content. User explicitly requested this standalone `/tracker` deployment; game builds remain untouched. Keep Review pending user acceptance.
+
+F-TRACK-001 implementation: four-column board, search/priority filters, safe text details, recorded branches, consistent SHA-pinned public main reads, five-minute visible-tab refresh, atomic error/retry handling and keyboard dialog/focus. Twelve focused tests pass; independent blind first pass found bold branch metadata and malformed-archive handling defects, both fixed and rechecked at 9/10 with no material source blockers. Rendered browser/device appearance and native dialog interaction remain unverified. Source and scoped Pages publication evidence follows separately; keep Review pending Novy’s sign-off.
+
+**Closed 18 October 2026, 22:45 America/Creston:** Novy signed off the deployed tracker and explicitly authorized pushing and merging to main. This acceptance supersedes the historical Review/pending-sign-off wording above. Branch: `feature/work-tracker`; [publication and validation evidence](validation/F-TRACK-001-publication.json). Existing independent verification limits remain accurate.
+
+
+### F-067 — ~~Pip favicon and Home Screen icons~~
+
+**Owner:** Codex
+**Branch:** `feature/pip-icons`
+**Status:** Review. Source implemented and deployed to `/Flock/dev/`; device acceptance pending.
+
+Use the current silver Pip model in a readable closeup, grass-green PNG icons in browser and Apple touch sizes, and relative links that work at production and dev paths. Verify dimensions, alpha, build output and docs. Device Home Screen appearance awaits user review.
+
+F-067 validation: all 350 regression tests pass; release/development builds and artifact checks pass; PNG dimensions/alpha and output link existence checked. Exact game head mesh projected with SVGRenderer, simplified material shading. Independent review recorded in QUALITY.md; no iOS device claim.
+
+F-067 development publication authorized 18 October 2026 at 23:03 America/Creston. Runtime source `805025de1f8d354b36783605a1d960adb7821ff5`; source CI [39207762707](https://github.com/novydhillon/Flock/actions/runs/39207762707) passed. Pages `46ce3a75220b372a4cdc67f9bb5f9f9c80924936`, native deployment [39207932067](https://github.com/novydhillon/Flock/actions/runs/39207932067) succeeded; 53 unrelated blobs preserved. See [publication evidence](validation/F-067-publication.json). Still Review pending user/device acceptance.
+
+F-067 revision, 18 October 2026: user requested grass-green rather than transparent background. SVG now includes a full-square #779c4d backdrop and every PNG is regenerated opaque; icon URLs use v=2 to refresh browser caches. Device acceptance pending.
+
+F-067 green revision deployed to dev: source c76e29a92a182fdffdebb168d7e6c6cda7af6203; CI 39208378316 passed, Pages c598f2064d407a8c31f0331c3fe70d56366047bd / workflow 39208561127 passed. All 53 unrelated blobs preserved. Current green icon appearance still awaits user acceptance.
+
+**Closed:** 18 October 2026, 23:15 America/Creston. Novy approved the green icon candidate and authorized merge to main and production deployment. This acceptance supersedes pending wording in retained historical records above. Production publication evidence is recorded separately.
+
+
+### F-OPS-002 — ~~Shared agent instructions for Codex, Claude and Gemini~~
+
+**Status:** Done. Owner: Claude Code.
+
+**Branch:** `claude/project-documentation-md-4kf197`
+
+**Accept when:** AGENTS.md is the one instruction file for Codex, Claude Code, Gemini CLI and other agents, and keeps every existing rule. `CLAUDE.md` and `GEMINI.md` are symlinks to it at the root and beside folder guides `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. AGENTS.md adds tool-neutral guidance with per-tool mappings: read order, verified commands, connector operations and their limits, model tiers, the blind review procedure, and easily-missed invariants. Folder guides are accurate against source, scripts and tests. The Claude Code blind-critic subagent definition follows the gauntlet's packet rules. No file contradicts DEVELOPMENT.md or the current deployment policy. Tracker, requirements, development, quality and review records and the generated HTML are updated, and `npm run docs:check` passes. The change passes the AGENTS.md blind review gauntlet. No runtime or game-build change.
+
+**Execution — 19 October 2026:** No earlier Claude guidance existed on any branch. The Claude account's Flock project content was not reachable from this session, so the files were written fresh from the repository. Added `CLAUDE.md`, `src/CLAUDE.md`, `tests/CLAUDE.md`, `docs/CLAUDE.md` and `.claude/agents/flock-blind-critic.md`. Review and validation evidence is recorded in [QUALITY.md](QUALITY.md#f-ops-002--claude-code-guidance-19-october-2026) and [REVIEW.md](REVIEW.md#f-ops-002-claude-code-guidance-review--19-october-2026). Blind review: 8/10 first pass, then 9/10 on follow-up with no material blocker. Docs checks and all 341 regression tests pass. Superseded the same day by the shared layout below.
+
+**Execution — 19 October 2026, shared layout:** At Novy's request, AGENTS.md now serves every agent. The Claude-only guide content moved into AGENTS.md as tool-neutral rules with per-tool tables. The folder notes were renamed to `src/AGENTS.md`, `tests/AGENTS.md` and `docs/AGENTS.md`. `CLAUDE.md` and `GEMINI.md` symlinks were added at the root and in each of those folders. Review and validation are recorded in QUALITY.md and REVIEW.md. Remains Review pending user sign-off. No game deployment is needed.
+
+**Connector waiver — 19 October 2026:** Regenerating the HTML rewrites `docs/html/assets/search-index.js` (about 600 KB), which is too large to send through the connector's `push_files`. Novy explicitly authorized a one-time shell `git commit`/`git push` for this branch and task only. The first push attempt was refused by GitHub (HTTP 403, no write access for the Claude app). The connector-only rule stays in force for all other work.
+
+**Source CI — 19 October 2026:** "Flock 3D — checks and standalone build" run [39323862997](https://github.com/novydhillon/Flock/actions/runs/39323862997) passed on `d3a1058a514d95307620c96a8b05400effd6ab62`: docs checks, the full regression suite and both build-mode checks. Documentation and agent configuration only; no game build was published.
+
+**Closed 19 October 2026, 14:03 America/Creston:** Novy signed off and approved F-OPS-002. This acceptance supersedes the Review and pending-sign-off wording above. Merging to `main` is a separate step that needs its own pull request and approval.
+
+### F-OPS-001 — ~~Reusable checked builds and deployments~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feature/build-deploy-runbook`
+
+**Accept when:** Use shared scripts for checked development/production builds and scoped Pages publication, enforce non-main dev and main-only production, preserve unrelated Pages content, exclude production QA, reject concurrent publication, verify all live hashes and document future use. No production publication or merge is authorized by this tooling request.
+
+**Execution — 19 October 2026:** Implemented shared checked-build commands, all-source-branch CI, manual guarded deployment workflow, API publisher with non-force concurrent-parent guard, pure dependency-validating plan module and full live-file hash verifier. Updated AGENTS, README, requirements and development runbook; retired the shell Git/dev2 helper. Full checked dev run: 340 regression tests and 4 documentation behavior tests pass; release 27 files/0 QA assets, development 29 files/2 QA assets. Expanded deployment suite subsequently passes 10/10, including publisher preservation/concurrent-head rejection. Independent blind review followed by fixes/recheck: 9/10, no material blockers. Docs regenerated/checked. Source implementation complete; no game publication, workflow dispatch or production merge. Requires PAGES_PUBLISH_TOKEN setup, workflow present on main, real Actions/native Pages/live-hash execution and user sign-off. Connector has no workflow dispatch capability; use the documented Actions UI. Binary icon reads are unsupported by the connector in this session; local build inputs were regenerated using the existing icon generator, and no regenerated art is included in this source change.
+
+**Execution — 19 October 2026 (F-OPS-003):** The first real Deploy Flock run passed on a fresh branch from main: `PAGES_PUBLISH_TOKEN` is configured, the workflow is dispatchable from main, and native Pages plus live-hash verification succeeded for `/Flock/dev/`. The connector does expose workflow dispatch (`actions_run_trigger`). See F-OPS-003 for the evidence and the follow-up fixes. User sign-off is still pending.
+
+**Closed 19 October 2026, 14:47 America/Creston:** Novy signed off F-OPS-001 and F-OPS-003 after the live dev deployments. This acceptance supersedes the Review and pending-sign-off wording above. The workflow fixes are on `claude/build-deployment-scripts-6p1dnt`; merging to `main` and any production deployment are separate steps that need their own approval.
+
+### F-OPS-003 — ~~Live dev validation of the delivery workflow~~
+
+**Status:** Done. Owner: Claude Code.
+
+**Branch:** `claude/build-deployment-scripts-6p1dnt`
+
+**Accept when:** A fresh branch from main runs the standard checked build and **Deploy Flock** to `/Flock/dev/` through the connector. All published files match the checked build, every non-`dev/` Pages path is preserved, and any defect or warning the run exposes is fixed and redeployed on the fixed revision with recorded evidence. No production publication or merge.
+
+**Execution — 19 October 2026:** Requested by Novy: test-build and deploy a new branch from main to dev, test the output and fix any issues. Branch created from main `6edfa57` with the connector. Local `npm run build:checked:dev` passed: docs check, 341/341 tests, release 27 files/0 QA assets, development 29 files/2 QA assets. A mocked dev publication of the real `dist/` planned 29 `dev/` files plus the manifest. Deploy Flock run [39327138760](https://github.com/novydhillon/Flock/actions/runs/39327138760) (connector dispatch, `environment: dev`, source `6edfa57`) passed every step. Pages commit `d9e93aa` (parent `83125c0`) changed only `dev/`. Native Pages run 39327359949 succeeded, and the workflow verified 29 live files by SHA-256. Connector tree comparison: every `dev/` blob equals the local build's git blob SHA; root `index.html`, `assets/`, `icons/`, `dev2/`, `flock/` and `tracker/` SHAs are unchanged. Headless Chromium (SwiftShader WebGL2) rendered the dev build under `/Flock/dev/` and started level 1 in portrait and landscape with no page errors or failed requests. Cosmetic observation, not fixed here: in landscape the dev-only QA gear overlaps the first tip card. Found and fixed: Node.js 20 action deprecation in both workflows (actions bumped to Node 24 majors), a silent wait loop (now logs each attempt) and stale runbook text claiming no connector dispatch. The live site is not reachable from this cloud container, so live checks rely on the workflow's hash verification. Phone appearance, touch, FPS and audio are not verified.
+
+**Execution — 19 October 2026, fixed revision:** Workflow fixes committed through the connector as `eed872a`, then `032f03e`. Run 39328324058 on `eed872a` (Pages `db53e53`) passed and verified 29 live files, but `upload-artifact@v5` still targeted Node.js 20, so it moved to `@v6`. Run [39328751422](https://github.com/novydhillon/Flock/actions/runs/39328751422) on `032f03e` (Pages `6f9b3b9`) passed with no deprecation warning. Its log shows the new attempt lines: not listed, building, then built, then 29 live files verified. Source CI 39328751141 is green on `032f03e`. Every non-`dev/` Pages tree SHA is unchanged; in `dev/` only the deployment manifest changed, because the runtime is identical. Evidence: [validation/F-OPS-003-dev-publication.json](validation/F-OPS-003-dev-publication.json). Awaiting Novy's sign-off. No production publication or merge.
+
+**Shell git waiver — 19 October 2026:** Novy authorized shell git for larger files during this session ("Use the git shell for larger files if necessary during this session"), scoped to branch `claude/build-deployment-scripts-6p1dnt` and this task. It was used only for the documentation commit, because the regenerated `docs/html/assets/search-index.js` (about 613 KB) exceeds what one connector call can carry. Workflow commits and all Pages publication went through the connector and Deploy Flock.
+
+**Closed 19 October 2026, 14:47 America/Creston:** Novy signed off F-OPS-001 and F-OPS-003 after the live dev deployments. This acceptance supersedes the Review and pending-sign-off wording above. The workflow fixes are on `claude/build-deployment-scripts-6p1dnt`; merging to `main` and any production deployment are separate steps that need their own approval.
+
+
+### F-HERD-005 — ~~Yielding at gates and bridge bottlenecks (P2)~~
+
+**Status:** Done. Owner: Claude Code. Source complete; blind review 9/10 after fixes (see [QUALITY.md](QUALITY.md#f-herd-005-and-f-world-001--crossing-bottlenecks-20-october-2026)); awaiting device smoke checks and user sign-off.
+
+**Branch:** `feature/herd-bottlenecks`
+
+**Depends on / preserve:** Existing gate/bridge traversal; F-065.
+
+**Accept when:** Animals locally yield and take turns at narrow gates and bridge entries instead of piling up or repeatedly reversing. Use actual body sizes, including all cow size variants, and bounded yielding with an escape from deadlock/starvation. Preserve committed onward bridge crossing, physical barriers, closed-gate rules and player ability to steer or deliberately reverse a flock. No teleporting, collision bypass or global queue stalls. Verify mixed herds, opposing approaches, stopped leaders, dog pressure, pause and restart.
+
+**Investigation — 20 October 2026:** A scripted player herded seeded levels 6–81 (20–65 animals, all cow sizes) while every bridge, gate and pen entrance recorded reversals (forward-to-backward turns in the approach) and stalls under pressure. 144 runs compared the current game with wider openings, more spacing and a smaller personal-space radius. Findings: herds rarely stall (under 0.2 s per animal) but reverse repeatedly in the last metres before a bridge deck: about 1.9 reversals per animal on levels 6–13 and 5.4 at the second bridge on levels 16+, worst 23. Bridges, not gates, are the bottleneck. No animal reversed once on a deck, so committed crossing works. The strongest backward forces at a reversal were the fixed 2 m separation radius, convergence of every pressured animal on the bridge centre (`openingSteer`), cohesion and player pressure. Wider decks and a smaller separation radius each cut the worst bridge by about 25%; extra spacing mainly helped the gate. The approved fix is behavioural (lanes, yielding, an approach commit zone, a deadlock escape), with spacing tracked separately as F-WORLD-001. Scripted-player counts are directional; they are not human playtesting or device evidence.
+
+**Connector waiver — 20 October 2026:** Regenerated docs HTML (about 600 KB) is too large for the connector. Novy explicitly authorized shell `git commit`/`git push` for F-HERD-005 and F-WORLD-001 on the new branch `feature/herd-bottlenecks`. The connector-only rule stays in force for other work.
+
+**Execution — 20 October 2026:** Implemented in `src/simulation/navigation/chokepoints.js`, `src/simulation/navigation/bridge-crossing.js`, `src/simulation/simulation.js` and `openingSteer` in `src/world/world.js`, with F-WORLD-001 spacing. Pressured animals with direct Pip or Buddy intent take lanes at bridge deck ends, open gates and the destination entrance, follow rather than shove the animal ahead, slide into a lane when pinned beside a deck end, and stop yielding after 3 s for a 2 s escape. Pushed animals lined up with a deck commit from 3 m before it, never back over a deck they already crossed. 10 new tests in `tests/chokepoints.test.js`; full suite 351/351. `npm run measure:chokepoints` on 36 seeded layouts (levels 6–81, four seeds each), before and after, with the same scripted player:
+
+| Measure (mean per animal, finished runs) | Levels 6–13, before | Levels 6–13, after | Levels 16–81, before | Levels 16–81, after |
+|---|---|---|---|---|
+| Layouts finished | 12/12 | 11/12 | 17/24 | 21/24 |
+| Median time to finish | 95 s | 83 s | 264 s | 242 s |
+| First bridge reversals | 1.70 | 0.77 | 2.03 | 1.34 |
+| Last bridge reversals | 1.70 | 0.77 | 4.85 | 2.44 |
+| Worst bridge reversals in any layout | 2.66 | 1.66 | 14.42 | 9.35 |
+| Last bridge stalled seconds | 0.12 | 0.03 | 0.21 | 0.14 |
+| Gate reversals | 1.13 | 1.36 | 0.66 | 0.23 |
+| Gate stalled seconds | 0.02 | 0.02 | 0.04 | 0.01 |
+| Entrance reversals | 0.38 | 0.80 | 1.01 | 1.23 |
+
+These are the final figures, measured after the review fixes with the corrected scripted player (it no longer treats an animal far off the trail ahead as rearmost, and keeps its target unless another animal is clearly further back); both columns use the same player. Queuing applies only to openings narrower than 9 m: bridge decks, the 7 m destination entrance and the 8 m gates of levels 3–5. The 10 m gates from level 6 measured better with normal flocking (an all-openings version scored 2.13 gate reversals on levels 6–13). Bridges improved in every band and more large-herd layouts finished. Trade-offs: gate reversals on levels 6–13 (1.13 → 1.36) and entrance reversals rose slightly, with stalls under 0.1 s per animal; a version without entrance queuing failed two existing journey tests. Unfinished runs in both columns are scripted-player failures, not herd stalls: in the checked cases the flock rests past every bridge and the gate while Pip dithers or paths back and forth behind it (level 10 default: Pip oscillates 14 m behind the gate from 80 s).
+
+**Closed 19 October 2026, 21:03 America/Creston:** Novy deployed the branch to dev, tested it and signed off F-HERD-005 and F-WORLD-001, and authorized the merge to main scheduled for 23:30 PT that day. This acceptance supersedes the Review and pending-sign-off wording above. Production publication is a separate step.
+
+
+### F-WORLD-001 — ~~Room to breathe between crossings (P2)~~
+
+**Status:** Done. Owner: Claude Code. Source complete with F-HERD-005; awaiting device smoke checks and user sign-off.
+
+**Branch:** `feature/herd-bottlenecks`
+
+**Depends on / preserve:** F-HERD-005 findings; F-038 (larger fields) remains the broader layout item.
+
+**Execution — 20 October 2026:** `createLevel` adds 0.4 m of trail per animal above 30 (capped at 14 m) before the gate on non-early levels, keeping rivers at the same distance from the spawn. The last bridge exit to gate distance on 50–65 animal levels grows from about 22 m to 28–37 m; single-river levels 6–15 already have 41–49 m; levels 1–5 are unchanged. Measured gate reversals on levels 16–81 fell from 0.65 to 0.29 per animal with stalls 0.06 → 0.02 s (see F-HERD-005).
+
+**Accept when:** On levels with large herds, the trail distance between the last bridge exit and the gate grows with herd size so a flock can leave the deck before reaching the gate. Spawn-to-first-river distance and early levels (1–5) stay unchanged. Generated routes keep full-body clearance for the largest cow and stay connected with gates open or closed. Seeded route sweeps, existing journeys and bridge regressions pass, and the chokepoint measurement shows lower gate reversals without new stalls. No teleporting or collision bypass.
+
+**Closed 19 October 2026, 21:03 America/Creston:** Novy deployed the branch to dev, tested it and signed off F-HERD-005 and F-WORLD-001, and authorized the merge to main scheduled for 23:30 PT that day. This acceptance supersedes the Review and pending-sign-off wording above. Production publication is a separate step.
+
+## Buddy user acceptance — 22 October 2026
+
+Novy’s “Looks good. Merge to main and close the tickets” accepts F-COMP-001/002/003/007/009/010 after the dev playtest. Accepted runtime `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`, source branch `buddy_behaviour`. Evidence: [merged-candidate publication](validation/Buddy-natural-integration-publication.json), source CI and native Pages success, all 29 emitted files hash-matched. Older Review/pending/not-deployed paragraphs below are preserved historical evidence and are superseded by this acceptance. No unrelated work is accepted. Main merge is authorized; production publication is not requested. No new independent native-device/FPS/audio measurement is claimed.
+
+### F-COMP-001 — ~~Buddy gives Pip room to work (P2)~~
+
+**Closed:** 22 October 2026 (America/Creston). Novy accepted the dev playtest with “Looks good. Merge to main and close the tickets.” Accepted source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`; implementation branch `buddy_behaviour`. This dated acceptance supersedes historical Review/pending/not-deployed statements below. Main merge is authorized; production publication is not requested. User acceptance adds no independent phone-FPS, touch, audio or rendered measurement.
+
+**Status:** Done. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
+
+**Depends on / preserve:** F-046 accepted tier behavior; F-048 movement.
+
+**Accept when:** Buddy avoids crowding Pip and repositions when both approach the same side of the flock. Maintain a tunable comfortable working gap without steering Pip or allowing Buddy through barriers. Yield predictably with hysteresis so brief crossings do not cause jitter or alternating sides. Preserve actual herd selection, tier rules, bridge commitment and the last-animal passage assistance. A constrained gate/bridge must not create a permanent avoidance deadlock.
+
+### F-COMP-002 — ~~More useful Buddy herding positions (P2)~~
+
+**Closed:** 22 October 2026 (America/Creston). Novy accepted the dev playtest with “Looks good. Merge to main and close the tickets.” Accepted source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`; implementation branch `buddy_behaviour`. This dated acceptance supersedes historical Review/pending/not-deployed statements below. Main merge is authorized; production publication is not requested. User acceptance adds no independent phone-FPS, touch, audio or rendered measurement.
+
+**Status:** Done. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
+
+**Depends on / preserve:** F-COMP-001; F-046 accepted roles.
+
+**Accept when:** Buddy selects a useful position behind or beside the actual chosen flock travel direction, with sufficient standoff to guide rather than repeatedly scatter animals. Retain separate-flock selection, tier-2 smaller-group support and tier-3 retrieval of a stray through ordinary pursuit. Existing local navigation and barriers override preferred geometry; stabilize side changes. Verify moving/stopped/reversing flocks, mixed sizes, splits and final singletons without changing accepted livestock cohesion or bolting rules.
+
+### F-COMP-003 — ~~Progress-aware Buddy obstacle recovery (P2)~~
+
+**Closed:** 22 October 2026 (America/Creston). Novy accepted the dev playtest with “Looks good. Merge to main and close the tickets.” Accepted source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`; implementation branch `buddy_behaviour`. This dated acceptance supersedes historical Review/pending/not-deployed statements below. Main merge is authorized; production publication is not requested. User acceptance adds no independent phone-FPS, touch, audio or rendered measurement.
+
+**Status:** Done. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
+
+**Depends on / preserve:** F-048 accepted smooth movement; existing Buddy detours.
+
+**Accept when:** Detect sustained lack of meaningful progress toward a valid task, then choose another feasible route or back out of a tight spot with bounded recovery attempts and a safe wait/retry fallback. Do not treat intentional arrival, standby, pause or a temporarily yielding animal as stuck. Respect trees, walls, water, gates, bridges and body clearance, with no teleportation, collision bypass or repeated pushing into the same obstacle. Clear stale path/recovery history on task changes and level reset; preserve low-speed smoothness.
+
+### F-COMP-007 — ~~Calm useful Buddy standby (P2)~~
+
+**Closed:** 22 October 2026 (America/Creston). Novy accepted the dev playtest with “Looks good. Merge to main and close the tickets.” Accepted source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`; implementation branch `buddy_behaviour`. This dated acceptance supersedes historical Review/pending/not-deployed statements below. Main merge is authorized; production publication is not requested. User acceptance adds no independent phone-FPS, touch, audio or rendered measurement.
+
+**Status:** Done. Owner: Codex. Claimed 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
+
+**Implementation evidence:** Working-gap/selected-flock positioning, bounded recovery and reachable calm standby are implemented together. See `tests/buddy-behaviour.test.js`, `tests/buddy-recovery.test.js`, the existing Buddy regressions and the 19 October quality record. Development publication was authorized 19 October 2026; publication evidence is recorded below. Phone motion and user sign-off remain pending.
+
+**Depends on / preserve:** F-COMP-001; F-COMP-003; accepted standby resets.
+
+**Accept when:** When no valid help task exists, Buddy waits calmly near Pip in a reachable, useful location, keeping gate/bridge throats and the destination entrance clear when space permits. Avoid continuous circling, low-speed stutter and rapid alternation between standby/work. Resume a valid tier-appropriate task promptly; clear stale target, path and pose state on transitions. Never autonomously move Pip or herd delivered animals. Narrow spaces use a safe bounded fallback rather than a blocked entrance or collision bypass.
+
+### F-COMP-009 — ~~Contain an unattended flock and settle into grazing (P2)~~
+
+**Closed:** 22 October 2026 (America/Creston). Novy accepted the dev playtest with “Looks good. Merge to main and close the tickets.” Accepted source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`; implementation branch `buddy_behaviour`. This dated acceptance supersedes historical Review/pending/not-deployed statements below. Main merge is authorized; production publication is not requested. User acceptance adds no independent phone-FPS, touch, audio or rendered measurement.
+
+**Status:** Done. Owner: Codex. 19 October 2026 (America/Creston).
+
+**Branch:** `buddy_behaviour`
+
+**Requirement:** When Pip is far from the selected flock or separated by a river/fence, Buddy moves around the flock to keep it together and in place rather than drive it in any direction. Livestock staying in relatively the same area settle into grazing after approximately seven seconds.
+
+**Accept when:** Distance/structural separation triggers stable containment, with hysteresis when Pip returns. Buddy patrols physically navigable perimeter positions around a retained local holding area; no net intentional travel drive, remote teleportation, collision bypass or unattended scoring. Prevent residual velocity/alignment and Buddy barks from continually translating the group. Preserve tier selection, physical tier-3 retrieval, saved-animal exclusion, current passage safety (animals already committed to a bridge finish to safe ground), body clearance, Pip input priority and task/reset/pause safety. Nearby clear Pip support resumes normal herding. Structural separation considers actual rivers/closed fences and openings, not a tree mistaken for a fence. Grazing takes ~7 seconds of relative stationarity, resets for meaningful displacement/pressure/travel and remains grass/bush only, excluding paths, bridges and barn floors. Record source tests, independent review and device limits; leave Review pending user sign-off.
+
+
+**Source evidence:** local Buddy acquisition, connected-flock rest and bounded structural attendance prevent directional drift during perimeter patrol. Grazing uses a seven-second fixed-area timer. Focused tests cover nine-sheep and 65mixed long patrols, all cow scales, physical remote arrival, Pip/barrier transitions, completed crossings and pose integration. Fresh blind review found wide-flock contact expiry; the corrected connected-flock approach passed follow-up at9/10 with no remaining material defect. Native phone gameplay/sign-off remain pending. Updated development publication evidence follows separately.
+
+### F-COMP-010 — ~~Natural containment and purposeful movement (P1)~~
+
+**Closed:** 22 October 2026 (America/Creston). Novy accepted the dev playtest with “Looks good. Merge to main and close the tickets.” Accepted source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`; implementation branch `buddy_behaviour`. This dated acceptance supersedes historical Review/pending/not-deployed statements below. Main merge is authorized; production publication is not requested. User acceptance adds no independent phone-FPS, touch, audio or rendered measurement.
+
+**Status:** Done. Owner: Codex. 19 October 2026.
+
+**Branch:** `buddy_behaviour`
+
+**User report:** containment makes the flock face the same direction and stop completely, while a robot dog circles mechanically. Uploaded phone screenshot shows a tightly packed mixed herd. Investigate actual Pip control separately; do not assume which robot the user means.
+
+**Accept when:** contained animals remain locally together without freezing into a synchronized heading/pose. Allow bounded individual shuffling/settling/resting orientation and surface-aware grazing around seven seconds, without continual forced walking or group travel drift. Buddy performs purposeful calm perimeter checks, changes position to attend drifting edges, and pauses/looks toward the herd rather than continuously orbiting. Preserve physical navigation, no initial remote influence, tier roles/retrieval, Pip control priority, bridge completion, collisions and scoring. Check touch release/cancellation and idle Pip so no autonomous Pip circling is introduced or left uninvestigated. Validate wide/large/mixed herds over long runs, visible diversity, grazing, reset/pause and transitions; obtain independent review and leave Review for user acceptance.
+
+
+
+**Source evidence:** individual bounded browse/rest cycles and hard-surface resting turns replace statue-like pinning and shared inherited heading. Buddy now alternates calm checks with 4–7s watching. Lost pointer capture clears Pip input and cannot create a bark; no autonomous Pip orbit was found. Fresh independent movement review scored 9/10 with no material defect; final standard checked build passed 375/375 regressions, both QA build modes and docs checks. Native phone appearance/fun and user sign-off remain pending.
+
+**Publication:** this correction is prepared on `buddy_behaviour`, not yet deployed. The current dev build still predates F-COMP-010. Main's standard delivery tooling is imported. Historical dispatch limitation: the connector then had no workflow-dispatch operation. Superseded by F-OPS-004: prefer Deploy Flock where available; otherwise use the connector-only gh-pages fallback in DEVELOPMENT.md.
+
+## Buddy retained publication and integration history
+
+## Buddy development publication — 19 October 2026
+
+F-COMP-001, F-COMP-002, F-COMP-003 and F-COMP-007 are deployed for review at https://novydhillon.github.io/Flock/dev/ from source `f1e31a6`, Pages `af7333a`. Source CI and native Pages succeeded; all 29 live files hash-match the checked build. Full evidence: [Buddy publication](validation/Buddy-behaviour-publication.json). This supersedes earlier not-deployed statements for this batch. Status remains Review; user playtest/sign-off and native phone motion/FPS validation are pending. Production and all unrelated Pages paths were preserved.
+
+## Buddy containment development publication — 19 October 2026
+
+F-COMP-009 is deployed at https://novydhillon.github.io/Flock/dev/ from source `cf6e182`, Pages `83125c0`. Source CI and native Pages succeeded; all 29 live files match the checked build. All 379 local regressions passed; blind review follow-up scored 9/10 with no material blocker. [Publication evidence](validation/Buddy-containment-publication.json). Status remains Review pending user playtest/sign-off; native phone appearance/FPS unmeasured. Production and all unrelated Pages paths remain unchanged.
+
+## Main integration — 19 October 2026, 17:43 America/Creston
+
+Requested main `7d848bc` into `buddy_behaviour` at `753159a`. The previously incorporated main revision is `3ccc8db`; this update brings ten later main commits with shared agent guides/symlinks, current Actions versions, improved native Pages logging, live delivery evidence and accepted delivery archival. Preserve F-COMP-001/002/003/007/009/010 in Review and their source/publication history. F-OPS-001/002/003 are accepted and remain only in the closed tracker. No runtime source or behavior tests change. Generated HTML, combined validation and independent integration review follow before the connector creates the two-parent merge. This request integrates source only; it does not deploy or merge to production.
+
+
+
+
+## Buddy/chokepoint main integration — 20 October 2026
+
+User requested latest main into `buddy_behaviour` and a fresh blind review. Integrate main `75ad6e1` with Buddy head `368c452`, preserving F-COMP-001/002/003/007/009/010 in Review and main's accepted F-HERD-005/F-WORLD-001 archive. Keep the new crossing-pressure flag alongside individual resting headings; containment remains outside approach queuing and committed crossings finish before dry-bank resting positions update. Add a combined bridge/gate containment regression, regenerate documentation and validate the combined source. This is source integration only, with no deployment or production merge.
+
+**Validation:** final checked dev and production builds each pass 388/388 regressions, documentation checks and artifact-mode guards (release 27 files/zero QA; dev 29 files/two QA). Fresh blind review 9.3/10 found no material blocker and one delivery-cleanup coverage gap; the strengthened actual-admission regression passed independent follow-up at 9.4/10 with no remaining findings. See the dated integration record in QUALITY.md. Phone gameplay, touch/fun and FPS checks remain unverified; Buddy items remain Review pending user acceptance. Source integration does not publish the candidate.
+
+## Buddy merged-candidate development publication — 20 October 2026
+
+Novy authorized development publication after the main merge. F-COMP-001/002/003/007/009/010 are now available for playtest at https://novydhillon.github.io/Flock/dev/ from source `17f648d16a33a4114f529b398dc67ece78b8a5bc`, Pages `45110fa71db2922ed1cd6efe62d2f75984b8e886`. This supersedes earlier not-deployed/current-dev-predates-correction statements. The connector-only fallback was used because this session exposes no workflow dispatch; no Deploy Flock run is claimed. Source CI and native Pages succeeded; the shared checked dev build passed 388/388 regressions and all 29 live files match by SHA-256. Production, unrelated Pages files and old hashed assets are unchanged. [Publication evidence](validation/Buddy-natural-integration-publication.json). Buddy items remain Review pending user gameplay acceptance; native phone appearance, touch/fun, audio and FPS remain unverified.
+
+
+
+### F-OPS-004 — ~~Connector-only Pages fallback~~
+
+**Status:** Done. Owner: Codex. **Branch:** `feature/connector-pages-fallback`.
+
+**Accept when:** Prefer Deploy Flock when connector dispatch exists; otherwise publish the approved checked build using connector Git Data blobs/tree/commit/ref to gh-pages. Preserve destination/production authorization, binary bytes, unrelated files and old assets; reject concurrent updates; wait for exact native Pages success and live hashes. Do not bypass a started/failed workflow.
+
+19 October 2026: Updated root and documentation guides plus current development runbook. Uses existing deploymentPlan and verifier; no runtime/workflow behavior changed. Connector schemas expose base64 blobs, base trees, commits and expected-head non-force ref updates in this session. Documentation checks and independent review are recorded in REVIEW.md. No fallback deployment or production publication is claimed by this policy change; user acceptance was pending at implementation; superseded by the sign-off below.
+
+**User sign-off — 24 October 2026 (America/Creston):** Novy explicitly requested “Sign off on F-OPS-004”. Accepted and closed. The policy was already merged to main in PR #18 (`c35c466`). This acceptance does not claim a new fallback deployment or production publication; existing evidence and validation limits remain as recorded above and in REVIEW.md.
+
+
+
+## P1 gameplay and follow-up acceptance — 25 October 2026
+
+Novy approved the current dev build and requested merging to main. All seventeen accepted items below are Done: fourteen P1 items and F-POLISH-001/002/003. Earlier pending/listening language is historical and superseded by this user acceptance; native phone FPS and causal proof beyond the recorded click analysis are not invented by sign-off. Accepted runtime source `5bd85e08b87d2d6e09e216d476cb953387cea50d`, Pages `cae3a6f304236612abcd60f22af81e3e23bebb29`; source branch acceptance head `2d591c3`. Main merge is authorized; production publication is not.
+
+Publication evidence: [initial P1](validation/P1-gameplay-dev-publication.json), [recorded audio/birds/waves](validation/F-POLISH-001-dev-publication.json), [lo-fi mix](validation/F-POLISH-002-dev-publication.json), [click follow-up](validation/F-POLISH-003-dev-publication.json). Current accepted source CI passed 462/462 tests and release/development artifact guards; all 33 live files hash-match. Independent review and investigation history remain in QUALITY.md.
+
+### F-026 — ~~Quit to landing page~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Requirement:** the pause menu should include a Quit button that returns to the landing page. Added directly on GitHub while this batch was in progress; retained as an Open P3 item.
+
+**Accept when:** Quit returns to the intro/landing screen with movement stopped and transient gameplay/audio handled consistently. Normal saved progress and earned money are preserved. Define whether the current in-progress meadow is discarded or can be resumed; do not treat Quit as Restart Game.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-030 — ~~Lighter, more contrasting water waves (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Requirement:** make river waves lighter and more contrasting.
+
+**Accept when:** wave detail is visibly lighter and has stronger contrast against the river base at normal portrait zoom, follows the local river direction through bends, remains seamless at banks/bridges and stays readable in all fixed weather types. Check pause and mobile rendering cost.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-036 — ~~Unattended flock spreads across the field (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Requirement:** when unattended, the flock spreads out across the field.
+
+**Accept when:** with Pip and helpers not actively controlling the herd, eligible undelivered animals disperse across usable field area; spread remains bounded by gameplay barriers and field edges, does not cause stuck animals or autonomous goal delivery, and stops/reverses appropriately when herding resumes. Saved animals continue to follow F-028's enclosure roaming contract. Define measurable spread/coverage during implementation without presenting a chosen metric as user-approved.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-042 - ~~Investigate and fix missing back legs on small wild animals (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+Small wild animals appear to be missing their back legs. Investigate the cause and fix their appearance.
+
+Acceptance criteria:
+- Identify why the back legs are not visible.
+- Ensure small wild animals display their back legs correctly while idle and moving.
+
+**Migration source:** [GitHub #2](https://github.com/novydhillon/Flock/issues/2); moved to this document without implementing or completing the request.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-043 - ~~Make the bark sound resemble a barking dog (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+The current bark sound does not sound like a barking dog. Update or replace it so the bark is clearly recognizable as a dog barking.
+
+Acceptance criteria:
+- Triggering the bark plays a recognizable dog bark.
+
+**Migration source:** [GitHub #3](https://github.com/novydhillon/Flock/issues/3); moved to this document without implementing or completing the request.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-044 - ~~Add sheep and cow calls with state-dependent frequency and volume (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+Add recognizable sheep bleats ("bahhh") and cow moos. Each individual animal should vocalize intermittently at random intervals, so the combined calls sound like a flock/herd rather than synchronized playback.
+
+Behavior by state:
+- Wandering: more frequent calls at baseline volume.
+- Being herded / flocked: less frequent calls, 25% louder than baseline.
+- Bolting: use the same sound behavior as being herded / flocked (less frequent calls, 25% louder than baseline), with a call starting immediately when the animal begins bolting. Subsequent calls occur intermittently at random intervals.
+
+Acceptance criteria:
+- Sheep sound recognizably like sheep and cows sound recognizably like cows.
+- Each animal calls occasionally on its own randomized schedule; combined calls create a natural flock/herd sound.
+- Wandering calls occur more frequently than herding calls and use baseline volume.
+- Herding calls occur less frequently and are 25% louder than baseline.
+- Bolting immediately triggers a call and then follows the herding call frequency and volume.
+
+**Migration source:** [GitHub #4](https://github.com/novydhillon/Flock/issues/4); moved to this document without implementing or completing the request.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-050 - ~~Bark strength and two-bark upgrade tiers (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Requirement:** Bark level 2 increases bark strength by 33%, and the workshop displays that percentage. Bark level 3 allows two barks before the cooldown.
+
+**Accept when:**
+- Bark level 2 applies a 33% strength increase relative to level 1.
+- The workshop clearly displays the level-2 bark strength bonus as +33%.
+- Bark level 3 allows two barks before entering cooldown.
+
+**Scope:** queued bark upgrade request only; no implementation or acceptance claimed. Exact cooldown duration and charge-recovery details are not specified by this request.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-001 — ~~Bounded individual temperaments (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** Existing wander/bolt and pressure behavior.
+
+**Accept when:** Give animals small, stable seeded differences in confidence, curiosity and willingness to follow. Keep variation bounded and readable: every animal remains responsive to appropriate herding pressure, with no unbeatable stubbornness or new uncontrolled bolting. Preserve accepted wander/bolt frequencies, local settling and weak cohesion unless a separately reviewed adjustment is necessary. Restart preserves traits without altering original world/herd random streams.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-002 — ~~Anticipation before movement (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** F-065 accepted turning; existing pressure signals.
+
+**Accept when:** Animals look toward a disturbance, lift their heads and visibly shift weight before ordinary movement or flight. Strong nearby pressure or an actual bark still produces an immediate gameplay response: anticipation must not add input latency or stall escape. Blend out of grazing safely and coordinate head, body and legs with current turn limits; preserve simulation-owned movement and collisions.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-003 — ~~Natural herd resting gestures (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** Current sheep/cow articulated models.
+
+**Accept when:** Add occasional ear flicks, tail swishes, blinking and chewing with varied timing and restful gaps. Species-appropriate gestures remain subtle and legible in the clay style at gameplay zoom. They do not synchronize the entire herd or change gameplay state; locomotion and threats take precedence. Respect grass/bush-only head-down grazing and its exclusions for paths, bridges and barns. Keep shared geometry/materials and bounded instance cost.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-004 — ~~Gentle preferred-neighbor relationships (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** F-HERD-001; accepted forward-flow and local-flock behavior.
+
+**Accept when:** Animals may prefer a few familiar nearby neighbors, helping small groups form naturally. Relationships are stable and seeded, use bounded local influence and do not strengthen the accepted overall cohesion, pull front animals backward, reunite intentionally separated flocks across barriers or cause remote attraction. Dog pressure, barrier navigation and bridge commitment override social preference. Distinguish this feature from F-036 unattended spreading; preserve that item as separate work.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-006 — ~~Readable relaxation and settling (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** F-HERD-002; existing F-041 local settling; grass/bush grazing work.
+
+**Accept when:** After pressure ends, transition progressively from alert to walking to calm/grazing, with varied timing and hysteresis that prevents rapid state flicker. Renewed pressure interrupts relaxation immediately. Keep accepted local settling locations and wander/bolt rules; do not reset their schedules just for presentation. Graze only where the separately requested surface eligibility allows it, with no head-down feeding on paths, bridges or in barns.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-007 — ~~Distinct sheep and cow movement character (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** F-HERD-001; F-HERD-005; F-065.
+
+**Accept when:** Sheep read as a somewhat tighter group; cows move more deliberately with somewhat greater personal space, using bounded species tuning. Preserve sheep turning at no more than 180 degrees/second and cows at no more than 120 degrees/second, with walking legs during stationary turns. Do not reintroduce stronger flock-wide magnetic attraction or rear-to-front pushing. Validate route clearance, delivery pacing and all cow sizes; any tuning values are proposed implementation choices requiring gameplay review.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-HERD-008 — ~~Spread and settle after arrival (P1)~~
+
+**Historical execution — 24 October 2026:** Review. Owner: Codex. **Branch:** `p1_gameplay_polish`. High-effort independent blind review required. Earlier queued status below is historical.
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Depends on / preserve:** F-028 delivered-animal containment/roaming; F-HERD-005; F-HERD-006.
+
+**Accept when:** Delivered animals move toward available space inside the destination and settle naturally, keeping the entrance clear for arrivals when space permits. Retain accepted F-028 roaming and strict goal containment; avoid overlap and test full/mixed herds and all cow sizes. Do not force grazing inside a barn or on ineligible surfaces. Preserve Pip-at-goal scoring, delivery counts/timer/rewards, and one-time delivery registration; no exits, teleportation or scoring from the arrival animation.
+
+**Shared validation and acceptance:** test sheep, every cow size, mixed herds, open/closed gates, rotated bridges, split groups, Pip/Buddy pressure, destination capacity, pause/resume/restart and stable seeded behavior. Source checks must verify no collision escape, deadlock or delivery/progression regression. Follow AGENTS.md independent ownership/blind-review requirements for substantial runtime work, full relevant regressions and both artifact modes. Record measured resource costs separately from phone FPS. Phone appearance, animation readability and herding feel require rendered/play testing; leave implementations in Review until Novy's sign-off. Regenerate/check documentation. Publish future authorized development builds only to `/Flock/dev/`; production merge/publication requires separate authorization.
+
+**Planning handoff:** documentation-only scope, with no runtime tests or blind review claim. Generated documentation and link/behavior checks are run for this update. All runtime implementation and acceptance remain outstanding. The earlier automatic approval rejection still blocks remote publication without explicit push authorization; these additions are committed locally without retrying the blocked action.
+
+**Source completion — 24 October 2026:** Implemented and independently reviewed at high effort. See the P1 gameplay record in [QUALITY.md](QUALITY.md). Awaiting user appearance/listening/gameplay sign-off; no dev deployment or production merge is claimed.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-POLISH-001 — ~~Animal sound, waves and bird follow-up~~
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Accept when:** Lower animal volume/frequency, narrow sheep pitch and slightly raise cows; use real recorded dog/sheep/cow samples where suitable licensed files are obtainable. Bark should sound realistic. Reduce wave brightness and add varied crests while retaining local flow, bank containment and pause. Clay-style birds flap hinged wings instead of spinning, fold grounded wings, land only on dry valid ground, hop and peck, and take off coherently. Preserve bounded resources, storms, seed/restart, lifecycle and save contracts. Fresh high-effort blind review plus focused/full checked builds required. Device listening and rendered appearance remain separate acceptance checks. User authorized escalation for difficult animation work; bird implementation uses xhigh effort.
+
+**24 October source handoff:** Recorded CC0 animal samples, quieter/slower calls, capped sheep/raised cow pitch, subdued varied waves, clay bird states/hinged wings/dry ground foraging implemented. High independent audio/wave review 9.5/10 and bird review 9.2/10 after fixes. Checked dev build passes457 tests and both artifact modes. Listening/phone appearance and user sign-off remain pending; no follow-up deployment is claimed. See QUALITY.md and public/audio/CREDITS.md.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-POLISH-002 — ~~Livestock mix, lo-fi music and deeper Pip bark~~
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Accept when:** Reduce livestock call frequency further; reduce livestock volume exactly25% relative to current mix while preserving state gain ratio and immediate bolt transitions. Replace background music with procedural generated lo-fi chill music; preserve sound toggle, activation/race guards, pause/background/restart/dispose and bounded sources/scheduling. Deepen Pip bark only, retaining current Buddy bark sound. Retain real local recorded animals and existing sample fallback/loader contracts. High independent blind review and checked build required; listening approval remains distinct. No deployment or main merge authorized by this change request.
+
+**24 October source handoff:** Livestock gain reduced exactly25% (.077→.05775), independent call intervals doubled, procedural72BPM lo-fi soundtrack generated, Pip recorded bark lowered to.78rate and Buddyretained1.0. Highblindreview9.5/10 aftertestcoverage fixes. Full459runtimechecks plus final70audio/controllerchecks and bothartifactmodes pass. Listening approval remains pending; no deployment/mainmerge claimed. SeeQUALITY.md.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+### F-POLISH-003 — ~~Remove sharp soundtrack clicks~~
+
+**Status:** Done. Owner: Codex. **Branch:** `p1_gameplay_polish`.
+
+**Accept when:** Investigate supplied short screenrecording transient timing/spectrum and remove identified sharp clicking source while preserving mellowlo-fi harmony/bass and animalcalls. Fauna movement visuals must remain; there are no rabbit/squirrel footstep audio events. Distinguish waveform/source inference from unperformed listening. Add meaningful audioevent/envelope regression, high blindreview and checkedbuilds; leave listeningapprovalpending. Sourceonly; no deployment/mainmerge authorization.
+
+**25 October source handoff:** Removed short noise hats/snares and softened music-only attacks; mellowchords/bass/softkick, animals and visuals retained. Suppliedrecording impulses are music-clockaligned, exactcauseinferred ratherthanproved. Highblindreview9.3/10clear; fullcheckedbuild and finalfocusedtests pass. Awaiting listeningconfirmation; notdeployed. SeeQUALITY.md.
+
+**User acceptance — 25 October 2026 (America/Creston):** Novy explicitly approved the current development build and requested “Approved. Merge to main.” Accepted and closed as part of the fourteen P1 items and three follow-ups on this branch. This supersedes earlier Review/pending/sign-off wording retained above. Development source `5bd85e0`, Pages `cae3a6f`, verified all 33 live files. See the [shared acceptance and publication record](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Production publication is not requested.
+
+
+## P1 execution — 24 October 2026
+
+Novy requested work on the reprioritized P1 backlog using the established development process, with high effort for blind critics. This branch starts at main `2655525` and carries forward the explicit P1 priorities from `docs/signoff-f-ops-004` without replacing accepted main map work. Claims: F-026/F-030/F-036/F-042/F-043/F-044/F-050 and F-HERD-001/002/003/004/006/007/008. Clouds (F-008) remain Deferred. Source publication is part of the development handoff; PR, dev deployment and production merge/publication are not requested by this instruction. Separate implementation ownership: herd simulation/presentation, bark/audio, water/wildlife, controller/docs.
+
+## P1 review handoff — 24 October 2026
+
+All fourteen claimed P1 items are implemented and in Review on `p1_gameplay_polish`. Controller/audio review passed at 9.2/10, herd review at 9.2/10 and water/wildlife review at 9.5/10 after confirmed findings were fixed. Final validation evidence is in QUALITY.md and the P1 quality manifest. Novy's previous F-OPS-004 sign-off and P1 priorities from `docs/signoff-f-ops-004` are preserved; no cloud work was resumed. This handoff does not claim dev publication, user acceptance or production merge.
+
+
+## Herd life and readability plan — 18 October 2026, 21:49 America/Creston
+
+**Historical planning record:** The queued/P2/Open statements below are preserved from 18 October and superseded by later implementation, reprioritization and user acceptance above. All eight herd IDs are now closed, including previously accepted F-HERD-005.
+
+Novy requested tracking all eight suggested herd enhancements. **F-HERD-001–008 are P2, Open, unassigned and not implemented.** Planning owner: Codex. Documentation recorded on the existing local `plan/bird-behaviour` planning branch; runtime branch/owner to be claimed from current main when implementation is scheduled. Herd-scoped IDs avoid collisions with concurrently assigned numeric issues. Prioritize bottleneck yielding (005), anticipation (002) and arrival behavior (008); dependencies below describe integration prerequisites, not a requirement to finish every other item first.
+
+These extend accepted behavior rather than reopen signed-off issues. Preserve current collision/navigation, turn caps, weaker cohesion, forward bridge commitment, local settling, delivered-animal containment and progression. The separate requested surface-aware grazing change remains distinct and must be integrated from its actual latest implementation when these items are claimed. No implementation or game deployment is authorized by this tracker update.
+
+
+### F-AUDIO-001 — ~~Livestock call tuning~~
+
+**Status:** Done. Owner: Codex. **Branch:** `feature/flock-call-tuning`.
+
+**Accept when:** Double sheep-only scheduled call intervals (halving sheep frequency again) while cow intervals retain the accepted baseline. Lower current livestock gain by exactly20%. Add subtle varied pitch and duration to sheep/cow calls using existing local realrecordings, preserving cachedloader/fallback, distanceattenuation, state1.25gain ratio and immediateboltonset. Keep Pip/Buddy bark and music unchanged. Lifecycle/mute/pause/restart/disposal and boundedvoices remain safe; no abrupt cuts, dead air or incoherent duration ownership. Highblindreview and checkedbuilds required, listeningapprovalpending. Sourceonly:newbranchfromapprovedmain1386c7a; no merge/deploy authorized.
+
+**F-AUDIO-001 source completion — 25 October 2026:** Sheep-only intervals doubled, cow intervals preserved, livestock gain .0462 (exactly20%lower), bounded individual/per-call pitch and softly faded duration variation implemented on `feature/flock-call-tuning`. Independent high review9.5/10 has no remaining current-patch findings;464broadchecks plus final32audio checks pass, bothartifactmodes verified. F-AUDIO-002 remains separatelyOpen. User listening/sign-off, deployment and any merge remain pending.
+
+**Closure — 25 October 2026:** Novy explicitly requested “Merge to main” for this tuning revision. This acceptance supersedes the historical pending sign-off/merge wording above. Runtime source `5972f503931df8b687bc8c5a3a6464822383ff43` passed [source CI 40245758954](https://github.com/novydhillon/Flock/actions/runs/40245758954): 465 tests, release 31 files/zero QA and development 33 files/two QA. Independent high review reached 9.5/10 with no current-patch findings. F-AUDIO-002 remains Open and outside this closure. No new listening, phone or combined-mix measurement is claimed. Merge is authorized; production publication is not.
+
+
+### F-MUSIC-001 — ~~Independent chill lo-fi ambient soundtrack~~
+
+**Status:** Done. Owner: Codex implementation agent (`gpt-6.1-sol`, medium effort, explicitly requested for browser/iOS launch recovery).
+
+**Branch:** `feature/chill-lofi-music`
+
+**Accept when:** music generation lives in its own JavaScript module imported by `audio.js`; the generated soundtrack has warm mellow chords, relaxed soft rhythm, restrained evolving motifs and no sharp noise clicks. Preserve mute, pause/resume, async activation guards, bounded scheduling, disposal, weather ducking and the accepted livestock/Pip/Buddy tuning. Focused/full checks, both build modes, independent blind review and separate device listening evidence are recorded. Source and development publication are authorized; PR and main merge are not requested. User listening sign-off remains separate.
+
+**25 October 2026:** Open → In progress on current main `1386c7a40880ebcdf4cbe20b812ccd67cb868985`. Implementation completed; own music module and preserved controls/animal mix are covered by focused checks. Initial checked dev/production builds pass 463 regressions. Blind first pass 8.5/10 identified a compatibility release-envelope jump, now corrected with independent gain gates and a no-cancelAndHoldAtTime regression (31/31 focused audio checks). Follow-up review passes 9.3/10 with no material blockers. The final checked dev build passes all 464 regressions, docs checks and both artifact modes. Source `8b19c916db30aa28054d4374bae21e30dfbd40e2` is published and source CI passes. Authorized dev publication is verified: Pages `f49f3b1f067325d35c96e00e314856a271fec3fd`, native run [40278459790](https://github.com/novydhillon/Flock/actions/runs/40278459790) successful and all 33 live file hashes match. [Publication evidence](validation/F-AUDIO-001-dev-publication.json). User listening acceptance remains pending; keep Review.
+
+
+**Continuous music follow-up — 25 October 2026:** Novy requests music on the landing page and uninterrupted playback through Let's Herd, level changes, menus, popups, results and returning to landing. Attempt landing playback where browser autoplay permits it; retry from normal user gestures when restricted, always respecting saved mute. Separate paused gameplay ambience from the music transport; hidden/background pages still silence sound safely. Preserve the 50% louder mix, generation guards, single scheduler and existing campaign behavior. Implementation is complete and focused audio/UI/QA validation passes 82/82, including real FarmAudio transport integration. Fresh independent review passes 9.2/10 with no material blockers; the optional Next meadow/confirmed Restart Game coverage is added without runtime changes. The checked dev build passes all 470 regressions, docs and both artifact modes; final controller coverage passes 46/46. Verified on dev on 26 October: source `cf0258012790f8beec142e64be0dd1b8ddea1413` passed source CI; Pages `dcb6fc08aa50f760a29b310619136fca1b8cea44` passed native deployment and all 33 live hashes match. [Continuous music publication evidence](validation/F-AUDIO-001-continuous-dev-publication.json). User listening acceptance remains pending.
+
+**Browser/iOS launch recovery — 26 October 2026:** Implementation, review and development publication verified; user listening acceptance pending. Owner: Codex (`gpt-6.1-sol`, medium effort, explicitly requested; no Astra). Investigate reported silent launch until Sound is toggled off/on in browser and iOS Home Screen. Accept when permitted autoplay starts promptly, restricted autoplay recovers on the first normal touch/click/key without a settings toggle, pending resumes cannot block a fresh gesture, foreground recovery handles missing focus events, saved mute and the 50% music mix remain intact, and focused/full/build checks plus fresh blind review are recorded. Fresh blind first pass scored 9.0/10 with no material blockers and one minor pending-source cleanup finding. The fix bounds pending unlocks to one source and adds repeated denied/pending regression coverage; same-critic follow-up passes 9.5/10. Focused checks pass 85/85. Final checked dev build passes 476 regressions, docs and release/development artifact-mode checks. Source `7d411fe5ffa8836423d8d3736f7521300c10caff` passed source CI; Pages `6220d1411f4f37e76096a50c3d05b5c76d859d28` passed native deployment and all 33 live file hashes match. [Launch recovery publication evidence](validation/F-AUDIO-001-launch-dev-publication.json). Device listening remains pending.
+
+**Volume follow-up — 25 October 2026:** Novy requested 50% more music volume. Raising the music bus from 0.42 to 0.63 and proportional thunder duck from 0.16 to 0.24; effects, ambience, animal voices and the composition remain unchanged. Focused audio passes 31/31 and the checked dev build passes 464 regressions, docs and release/development artifact checks. The update is verified on dev: source `61bab017bdc0970d9bd1dfc1f865e96531f063e8` passed source CI; Pages `ed7fb9e75d42daa35c1c4c12937162b22921add2` passed native deployment and all 33 live file hashes match. [Volume publication evidence](validation/F-AUDIO-001-volume-dev-publication.json). Keep Review pending listening sign-off.
+
+**Closure — 26 October 2026:** Novy explicitly authorized merging this soundtrack feature to main while reporting the launch defect remains. This acceptance closes the feature scope only; the persistent silent-launch/off-on workaround is separately Open as [F-AUDIO-003](ISSUES_CLOSED.md#f-audio-003--music-requires-audio-offon-after-browser-or-app-launch). The feature branch previously called this music work F-AUDIO-001, which collides with main's different accepted livestock-tuning issue. Its canonical ID is now F-MUSIC-001; historical publication filenames/JSON retain the original identifier. Preserve both issue histories. Previous pending-acceptance wording above is historical; source/test/deployment evidence does not assert a physical launch fix. Main merge is authorized; production publication is not.
+
+
+### F-DOCS-001 — ~~Sort issue overview tables~~
+
+**Status:** Done. Owner: Codex, 28 October 2026.
+
+**Branch:** `feature/docs-issue-sorting`
+
+**Accept when:** both generated issue overview tables support keyboard-accessible ascending/descending ID, Priority, Type and Status sorting, numeric IDs, visible/accessibility direction indicators, stable ties and preserved archived formatting. Other reference tables retain source order. Regeneration and documentation checks pass. User acceptance remains pending.
+
+**28 October evidence:** source implementation and generated assets complete; independent blind review found no material blockers (9/10). See [documentation review](REVIEW.md#issue-table-sorting--28-october-2026). No deployment requested.
+
+**Closure — 28 October 2026:** Novy explicitly signed off and requested merge to main. Acceptance supersedes the pending wording above. Independent follow-up review: 9.5/10, no remaining findings; all seven DOM tests and documentation checks passed. No rendered-browser, screen-reader or physical-device verification is claimed. Main source merge authorized; deployment not requested.
+
+
+## P2 UI user acceptance — 28 October 2026
+
+Novy requested “Merge changes in the feat/p2-ui branch to main and sign off on the work.” All 18 implemented Review items in this batch are accepted. Unfinished terrain items and unrelated defects remain active. Accepted source `92d75228e8e4835e000af96ae7725811c0fa3ae8`; source CI [40820686979](https://github.com/novydhillon/Flock/actions/runs/40820686979) passed. Existing validation manifests and quality records preserve review and dev-publication evidence. This authorizes main source merge; no production publication is included.
+
+### F-UI-001 — ~~Clear bark cooldown-to-ready feedback (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing Woof/cooldown UI; coordinate F-050.
+
+**Accept when:** Make the transition from cooldown to ready unmistakable through a brief restrained visual accent; optional light haptics may supplement it where supported. Preserve the circular Woof button, readable cooldown, existing input/cooldown behavior and independent Buddy bark. Readiness must match actual ability to bark, including any future F-050 multi-bark tier. Unsupported haptics must be harmless and never required; no automatic sound or vibration during loading, pause or backgrounding. Do not change bark balance or add control-preference scope.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-002 — ~~Distinct livestock states on the minimap (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Accepted top-center minimap; existing delivery/flock state.
+
+**Accept when:** Distinguish undelivered, delivered and separated livestock using shape or outline as well as color, readable at normal phone size. Derive separation from actual flock grouping rather than a contradictory UI-only grouping rule. Preserve map size/position, routes, goal and actor contrast, with no extra permanent HUD panel or overlap in narrow portrait/landscape. Delivered counts and markers reflect actual simulation state; do not modify flock behavior.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-003 — ~~Current-to-next upgrade benefits and previews (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing tier availability/costs; F-050 descriptions.
+
+**Accept when:** Show current and next-tier benefits, cost and unlock requirements together with clear maxed/unaffordable/locked states. Add small visual previews for Buddy and bark upgrades without implying ownership or changing gameplay. Keep purchased-but-inactive tier messaging accurate on earlier levels and isolated QA sessions. Values come from actual upgrade definitions; retain hidden drone, existing prices/progression and safe purchase behavior. Previews stop/reset appropriately and do not activate real barks or persist a purchase.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-004 — ~~Clay meadow loading vignette (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Current loading overlay; F-UI-005/006.
+
+**Accept when:** Show a small clay-style vignette of hovering Pip beside a few subtly moving sheep. Display it promptly without depending on the full game renderer or adding a substantial new blocking asset download. A static fallback remains readable if animation/graphics are unavailable. Honor existing reduced-motion preferences, pause animation when hidden and dispose it after load; keep loading status and recovery controls clear.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-005 — ~~Honest initialization progress (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Actual asset/renderer initialization tasks.
+
+**Accept when:** Show meaningful loading stages based on real initialization events. Use a percentage only for a measurable known workload; otherwise show a clear indeterminate state without fake progress or a stalled 99% counter. Announce stage changes accessibly without excessive repetition. Distinguish slow work from failure and do not claim readiness until essential assets, renderer and initial scene are usable.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-006 — ~~Smooth reveal of the ready meadow (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** F-UI-005; existing scene initialization.
+
+**Accept when:** Transition smoothly from loading into the ready landing meadow with no unnecessary minimum wait, blank flash or visibly uninitialized scene. Release the overlay after a usable frame is ready, and prevent clicks passing through it during the transition. Honor reduced motion and work on fast cached loads, slow first loads and narrow/rotated screens. Do not start gameplay or audio without the intended user action.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-007 — ~~Retry and clear loading-error recovery (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Initialization/error handling; F-UI-005.
+
+**Accept when:** Provide a usable Retry action and concise understandable failure explanation. Distinguish unsupported graphics from recoverable loading/initialization failures where evidence allows, avoiding a generic WebGL claim for every error. Retry safely cancels/disposes prior work, avoids duplicate loops/audio/listeners and preserves all saved progress, currency and upgrades. Failure UI works even if the 3D renderer cannot initialize; do not require clearing saves to recover.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-008 — ~~Progress-aware Start or Continue action (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Saved campaign progression; existing begin/resume behavior.
+
+**Accept when:** Show Start herding for a new player and Continue · Level # for a returning player. Label and destination agree with the existing intended campaign continuation rule, not the decorative landing scene or transient QA state. Retain replay/highest-unlocked distinctions and avoid silently promising mid-level resume when no such save exists. Verify fresh, returning, completed-campaign and reset profiles without changing unlocks or saves.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-009 — ~~Living showcase meadow (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing intro simulation; bird/herd/companion future features when available.
+
+**Accept when:** Present a calm showcase of Pip, appropriate grazing livestock, owned/active Buddy where eligible and occasional weather-appropriate wildlife. Do not reveal an unowned Buddy or require unfinished bird/herd features to ship the landing work. Use current systems and integrate later features when available. Maintain text/Play legibility and mobile resource limits; no gameplay timer, delivery rewards, currency or progress advances during the showcase. Keep wildlife storm exclusion and surface-aware grazing restrictions.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-010 — ~~Move full-game reset out of the Play area (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing reset confirmation; F-UI-011.
+
+**Accept when:** Remove Restart Game from directly beneath Play and put it in the settings/menu area while preserving the explicit destructive-action confirmation and cancel path. Use the freed landing space for Choose meadow or workshop access as fits the selected design; no duplicate/confusing primary action. Existing in-menu reset remains discoverable, keyboard accessible and distinct from restarting only the current meadow. Opening settings or browsing never clears progress.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-011 — ~~Clear meadow selector with remembered browsing position (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Existing unlocked-level picker and saved progress.
+
+**Accept when:** Provide a simple selector that clearly distinguishes completed, current and locked meadows using existing recorded progress and accessible labels. Locked levels remain nonplayable in normal play. Remember browsing position when returning from a selection/menu during the session; keep this browsing state separate from campaign continuation and QA state. Support up to 100 levels without clipping, excessive scrolling friction or focus loss on small screens; preserve replay and unlock behavior.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-012 — ~~Introduction copy for sheep, cows, Pip and Buddy (P2)~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**28 October 2026:** Claimed for the P2 UI implementation batch, based on main `0011f9e`; isolated source snapshot and disjoint agent ownership.
+
+**Depends on / preserve:** Current landing copy; Buddy ownership/unlock context.
+
+**Accept when:** Refresh concise landing copy to include both sheep and cows and explain guiding the herd home with Pip and Buddy. Keep an inviting plain tone, acknowledge Buddy as a companion to unlock rather than imply every new player already owns him, and fit existing phone/desktop layouts without crowding Play. Preserve current branding and visual hierarchy; no new tutorial modal or long instructions.
+
+**Shared validation and acceptance:** verify smallest supported phone portrait/landscape, safe areas, long labels, keyboard/focus, touch targets and screen-reader names; fresh/returning/max-progress profiles; workshop purchases/locks; fast/slow/failed loading, retry and unsupported graphics; pause/background/restart and menu transitions. Record actual native-browser/device evidence separately from DOM/source substitutes. Preserve current saved progress keys and state, avoid duplicate renderer/audio loops, and measure loading/resource impact. Follow AGENTS.md independent implementation ownership/blind review for substantial runtime batches, meaningful focused/full regressions, release/development artifact checks and generated documentation validation. Keep implemented items in Review until Novy's appearance/usability sign-off; future authorized non-main publications target `/Flock/dev/`, with production merge/publication separately authorized.
+
+**Planning handoff:** documentation-only scope, no runtime implementation, loading measurements, blind-review score or device-validation claim. Generated documentation/link/behavior checks cover this update. The earlier automatic approval rejection still requires explicit push authorization for `novydhillon/Flock`; commit locally without retrying the blocked publication.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-RENDER-001 — ~~Missing wildlife and environment shadows (P2)~~
+
+**Status:** Done. Owner: Codex rendering team.
+
+**Branch:** `feat/p2-ui`.
+
+**Reported — 28 October 2026:** Rabbits, squirrels, birds on the ground, trees, bushes and other environment objects do not cast shadows.
+
+**Accept when:** Investigate and fix missing cast shadows for the reported wildlife and environment objects. Shadows follow scene lighting and ground height, remain visible at normal phone zoom, and move with wildlife. Preserve the claymation style and mobile performance; do not re-enable intentionally disabled cloud shadows. Confirm visually on a real renderer/device. This is a queued defect, not a claim of reproduction or repair.
+
+
+**28 October 2026:** Standard checked dev build complete: 543 passed, one Windows host symlink-permission skip, zero failures (544 total); release QA exclusion and dev QA inclusion passed. Independent blind review8/10 led to fixes for rock instance-buffer disposal, grass/reed shadow flags and safe-area orbit clearance; follow-up9.2/10 has no material blockers. Source/matrix/resource checks do not establish rendered appearance or phone FPS. Publication evidence is separate; user acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-014 - ~~Touch controls and map layout~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Tips retain numbered badges at the top of the screen; idle joystick is horizontally centered with its center at the vertical center of the bottom third, then relocates under the initial movement touch. Drag displacement continues relative to that touch. Release, cancel, lost capture, resize, pause and backgrounding neutralize input and restore its idle position. QA button is bottom left and remains development-only. Minimap is circular, has no white border, and uses only a drop shadow; maintain safe-area spacing and readable map actors. Preserve bark/double-tap, keyboard, multi-touch and profile behavior.
+
+**28 October 2026:** User requested with the P2 UI batch. Native phone appearance/touch acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-015 - ~~Restful landing meadow and presentation follow-up~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Place numbered tips beneath the minimap rather than above it, with safe-area spacing and no portrait/landscape overlap. Remove the upper-screen color fade identified in the reference screenshot. Generate a random-sized landing field with the full flock appropriate to that field; spread the animals safely across grass, grazing immediately with varied headings. Pip wanders slowly as if taking a break, without applying herding pressure or disturbing the flock. Increase environment vibrancy by 25% while preserving readable HUD, actor contrast, weather behavior and bounded resources. Decorative landing activity must never advance campaign progress, delivery rewards or gameplay timers. Preserve Start/Continue, QA isolation, pause/background behavior and saved profiles.
+
+**28 October 2026:** Follow-up requested after the first P2 UI development publication. This supersedes the uppermost tips placement and fixed eight-animal landing showcase for the new candidate. Prior F-UI items remain Review; no user acceptance is inferred. Implementation, tests and independent review are in progress; no new deployment or rendered-device result is claimed.
+
+**Implementation checkpoint:** The source candidate places tips below the minimap, removes renderer distance fog, applies environment-only 1.25 shader saturation without altering shared actor materials, and uses generated field indexes 2-4 with their full 11, 14 or 17 animals for the landing scene. Independent decorative randomness, safe grass placement, immediate renderer grazing and Pip-only slow wandering preserve campaign and delivery state. Final landing, controller and grazing focused checks passed 64 tests; renderer and configuration checks passed 53 tests. Integrated checks and independent review remain with the integrating owner; no new publication or device acceptance is recorded here.
+
+
+**Focused source checks:** Landing, controller and grazing suites passed 64 tests, including 200 seeded randomized fields and a 120-second decorative wandering check with unchanged flock, delivery, profile and gameplay clock. Renderer and configuration checks passed 53 tests. These support source behavior only; the broader actual-pose seed sweep remains with integration. The candidate is Review pending integration, independent review and user appearance/usability acceptance; source completion is not publication or sign-off.
+
+**Integrated validation:** Final standard checked dev build passes532 tests with one host symlink-permission skip and zero failures; both artifact modes pass. Independent blind source review7.5/10 led to three repairs (exact grazing contacts, compact field range, zero-saturation shader idempotence); same-critic follow-up9/10 has no remaining confirmed material blocker. Independent2000-seed contact checks pass. Native appearance/touch/color/FPS and user acceptance remain pending. Publication evidence is recorded separately; see QUALITY.md for scope and verification limits.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-016 - ~~Landing camera and iOS status-bar correction~~
+
+**Status:** Done. Owner: Codex UI team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Retain original 50m portrait/44m landscape orthographic landing view heights instead of fitting the entire map. Drift slowly over the area occupied by grazing livestock, Pip and Buddy, including multiple fields when present. Both dogs wander/rest independently without herding or moving the flock. Buddy on landing is decorative and does not unlock gameplay ownership. Keep safe grazing, saved progression and background/menu freezing. Address the user-identified fade behind iOS system clock/signal/battery through explicit non-translucent status-bar configuration, not 3D fog. Preserve safe-area HUD spacing. Native iPhone status-bar appearance remains pending physical verification.
+
+**28 October 2026:** User clarified that whole-map framing is incorrect and that the remaining fade is in the iOS system-bar area. This supersedes whole-bounds landing framing and the previous source-only identification of distance fog as the reported fade. Prior items remain Review; no acceptance inferred.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-UI-017 - ~~Exterior minimap goal pointer~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Goal direction arrow tracks the circular minimap perimeter outside its edge, remains unclipped at every bearing and matches the arrow on Pip. Preserve circular borderless map and drop shadow.
+
+**28 October 2026:** Standard checked dev build complete: 543 passed, one Windows host symlink-permission skip, zero failures (544 total); release QA exclusion and dev QA inclusion passed. Independent blind review8/10 led to fixes for rock instance-buffer disposal, grass/reed shadow flags and safe-area orbit clearance; follow-up9.2/10 has no material blockers. Source/matrix/resource checks do not establish rendered appearance or phone FPS. Publication evidence is separate; user acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+### F-WATER-001 - ~~Weather-driven river presentation~~
+
+**Status:** Done. Owner: Codex rendering team.
+
+**Branch:** `feat/p2-ui`
+
+**Accept when:** Sunny water retains its current color; increasing weather severity darkens water and strengthens running ripples. Seeded decorative rocks sit in water; rocks and bridge footings at the ground/water boundary have wakes. Preserve river collision/navigation, pause and bounded per-level resource ownership. Rendered appearance and phone performance require separate observation.
+
+**28 October 2026:** Standard checked dev build complete: 543 passed, one Windows host symlink-permission skip, zero failures (544 total); release QA exclusion and dev QA inclusion passed. Independent blind review8/10 led to fixes for rock instance-buffer disposal, grass/reed shadow flags and safe-area orbit clearance; follow-up9.2/10 has no material blockers. Source/matrix/resource checks do not establish rendered appearance or phone FPS. Publication evidence is separate; user acceptance remains pending.
+
+**Closure — 28 October 2026:** Novy explicitly requested merging `feat/p2-ui` to main and signing off on the work. Accepted and Done. Historical pending acceptance statements above are superseded; automated checks do not establish new device/FPS measurements.
+
+
+## P2 UI batch implementation record - 28 October 2026
+
+F-UI-001–012 and F-UI-014 (thirteen scoped items) are source candidates in Review on `feat/p2-ui`, based on main `0011f9e`. Work used an isolated source snapshot with disjoint implementation ownership. Focused checks passed: loading 5, landing 5, minimap 6, and UI plus QA 55. Full checks are being run by the integrating owner; no full-suite/build outcome, review score or publication is recorded here. A local native-browser preview timed out. Rendered appearance, touch usability, listening and phone FPS have not been observed; user sign-off remains pending.
+
+Implemented contracts: loading is bootstrapped before the renderer and dynamically imports the game; initialization labels reflect stages (indeterminate, without a percentage); a 12-second slow-work prompt offers retry; retry reloads; WebGL2 failures have a specific message and other initialization failures preserve progress; ready overlay uses a 0.3-second CSS transition with a 320 ms cleanup timer and reduced-motion immediate cleanup. The CSS vignette is standalone and pauses while hidden/failing. Landing utilities label Start/Continue from saved highest-level progression, paginate 100 levels by 20 while locking unavailable levels, render current/next workshop benefits and illustrative Buddy/bark motion previews, and build a separate eight-animal showcase with Buddy only when eligible. Full reset is in settings. F-UI-014 moves numbered tips to the top, positions the idle joystick at viewport center/83.333% height and relocates it with movement touch, moves QA to lower left, and styles the minimap as a circular borderless shadowed map. F-UI-001 adds ready feedback; F-UI-002 marks delivered, primary flock and separated animals using distinct shapes as well as colors.
+
+## P2 UI integration checkpoint - 28 October 2026
+
+F-UI-001-012 and F-UI-014 remain Review pending user acceptance. Independent blind source review scored 7.5/10 initially; all four confirmed findings were repaired and the same critic's follow-up scored 9.2/10 with no remaining blocker. Full source checks: 527 passed, one host-permission symlink skip, zero failed. QA installation now waits for the renderer; leaving QA restores campaign continuation and sound preferences without persisting test settings. Novy authorized commit and development deployment after the environment interruption. Final checked-build, source CI and live publication evidence are recorded separately; this checkpoint does not claim deployment or phone acceptance.
+
+
+## Gameplay, loading and landing UI plan — 18 October 2026, 21:57 America/Creston
+
+Novy requested tracking the twelve remaining suggestions and explicitly skipped **contextual gate controls, cleaner results and control preferences**. Those three suggestions are not new work items in this batch; this exclusion does not close or cancel unrelated existing tracker issues. **F-UI-001–012 are P2, implemented and in Review on `feat/p2-ui` as of 28 October 2026.** UI-scoped IDs avoid concurrent numeric-ID collisions; the layout item uses F-UI-014 to preserve the historical F-UI-013 camera record.
+
+Prioritize progress-aware Continue (008), moving full-game reset (010), loading recovery (007) and workshop clarity (003). Retain the approved cream/green/clay visual language, minimal weather/livestock HUD, Level # introduction, top-center minimap, numbered tips, circular Woof and production QA exclusion. Respect existing reduced-motion behavior when animating; this is not authorization to add the skipped control-preference/settings feature. Optional bark haptics remain within the explicitly retained bark-feedback suggestion.
+
+
+
+## Water vegetation user acceptance — 29 October 2026
+
+Closed F-WATER-002 and F-WATER-003 following Novy’s explicit acceptance and request to merge to main and close tickets. Accepted branch `feat/water-vegetation`, source `d2bae96da0ed1b59f1d389616b64a0b53e45842c`. This acceptance supersedes historical pending/Review statements below; automated checks do not establish measured phone FPS. Final reed review 9/10, no blockers; 560 regressions, 7 documentation DOM checks and release/development artifact guards passed. Earlier development publication records remain in `docs/validation/F-WATER-002-shadow-removal-dev-publication.json` and `docs/validation/F-WATER-003-dev-publication.json`; no new production publication is included.
+
+### F-WATER-002 - ~~Standing in-water grass and reed clumps~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/water-vegetation`.
+
+**Accept when:** Each water body independently has a seeded 20% chance of containing standing grass/reed clumps. Eligible bodies receive randomized in-water placements biased toward their edges, with occasional central placements. Keep complete clump footprints inside water and clear of bridge crossings; preserve physical navigation, saved progression and existing bank vegetation. Use bounded instanced geometry with correct shadows and per-level cleanup. Rebuilding the same level must retain placements. Current generated water consists of rivers; the placement contract should operate on water surface geometry for future ponds without claiming pond generation.
+
+**28 October 2026:** Requested by Novy after the P2 UI main merge. Implementation and validation underway; appearance and phone performance require separate device observation. No deployment or main merge requested.
+
+
+**F-WATER-002 follow-up — 28 October 2026:** Every in-water grass/reed clump creates an obstacle wake using the same water-clipped, current-aligned and weather/speed-responsive presentation as existing rocks and bridge footings.
+
+
+**F-WATER-002 validation — 28 October 2026:** Implemented bounded seeded edge-biased grass/reed clumps, configured 20% per-body eligibility and obstacle wakes sharing current/weather response. Focused implementation checks 38/38 passed; fresh blind critic 9.2/10 with no findings, 57 relevant checks passed. Standard checked dev build passes full regressions and release/development artifact guards. Exact counts and limits are in QUALITY.md. User appearance acceptance remains pending; no deployment requested.
+
+
+**F-WATER-002 shadow correction — 28 October 2026:** Novy reports grass/reed shadow flicker while the camera moves (supplied screen recording). Replace realtime shadow participation for static in-water plants and existing grass/bank reeds with camera-independent per-level baked projected shadows. Water shadows must remain clipped to the water and clear of bridge decks. Preserve obstacle wakes, vegetation placement, other scenery and moving animal shadows. Revalidate stability/resources and record actual device checks separately.
+
+
+**F-WATER-002 baked-shadow validation — 28 October 2026:** Static field grass, bank reeds and water clumps now use once-baked fixed-sun silhouettes and neither cast nor receive realtime shadows. Water/deck clipping, camera invariance, owned cleanup and retained wildlife shadows pass focused geometry and actual-renderer lifecycle checks. Blind review and recheck 9/10, no findings. Full checked dev: 556/556 tests, 7 docs DOM checks and both artifact modes pass. User camera-pan appearance/FPS acceptance remains pending; source only, no deployment.
+
+
+## F-WATER-002 - ~~grass/reed shadows removed — 28 October 2026~~
+
+Novy explicitly requested removing grass/reed shadows and deploying to dev, with “No need for blind review.” This is an explicit blind-review waiver for this change. Field grass, bank reeds and in-water clumps neither cast nor receive realtime shadows; all baked vegetation shadow creation and unused helper/configuration are removed. Preserve standing plants, seeded placement, animated obstacle wakes and other scenery/animal shadows. Earlier baked-shadow requirements are superseded by this request. Validate shadow absence through camera travel and level replacement, full regression and both artifact modes; device appearance remains separate. Authorized destination is `/Flock/dev/`, not production or main merge.
+
+
+### F-WATER-003 - ~~Slender clumps and natural bank/rock distribution~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/water-vegetation`.
+
+**Accept when:** Grass and reeds always form multi-blade clumps, with slender grass profiles. Randomize bank clump spacing and offsets instead of paired fixed centerline samples. Preserve 20% water-body eligibility, in-water edge preference and all shadow-free plant behavior. Distribute rocks randomly along water length and across usable wet width rather than regularly spaced center-biased sites; retain full wet footprints, bridge clearance, bounded resources, stable seeded restart and current/weather-responsive wakes. Inspect actual renderer clumps/budgets and disposal. Prior blind-review waiver covered shadow removal only; this substantial presentation follow-up receives independent review. Development publication authorization continues for the same branch; no main/production merge.
+
+
+## F-WATER-003 - ~~downstream reed curvature — 29 October 2026~~
+
+Some in-water reeds now have a gentle quadratic bend in the local downstream direction shared with obstacle wakes. Other stems remain upright; brown heads follow the bent tips. Geometry is created once per level and uses one additional bounded instanced batch, with shadows still disabled and no simulation changes. Check varied river headings, bends, restart, water edges and camera movement on device; appearance and FPS remain pending.
+
+
+
+## Joystick user acceptance — 29 October 2026
+
+### F-INPUT-001 — ~~Larger logarithmic joystick~~
+
+**Status:** Done. Owner: Codex. **Branch:** `feat/logarithmic-joystick`.
+
+**Accept when:** Movement radius doubles from 42 to 84 CSS pixels; visible ring radius doubles in each responsive layout; radial speed is logarithmic and reaches maximum at 85% travel, remaining capped across the outer 15%. Preserve direction, independent thumb position, keyboard controls and cancellation behavior. Physical phone touch/layout checks pending.
+
+Implementation 29 October 2026: radius 84 px, doubled responsive ring, logarithmic radial response and 85% saturation implemented. Focused 65/65 and full 561/561 tests pass; checked dev build passed documentation checks, release QA exclusion and development QA inclusion. Independent blind review 9/10, no blockers; safe-area follow-up reviewed with no blockers. Phone checks/sign-off pending. Source only; not deployed or merged.
+
+Closed 29 October 2026: Novy explicitly approved with “Approved. Merge to main.” This supersedes the historical pending sign-off wording above. Accepted runtime `76284e94eca5d369b0ed31f9f3996bca8432d1e6`; source CI [41014220871](https://github.com/novydhillon/Flock/actions/runs/41014220871) succeeded. Full previous evidence and unobserved-device limits are retained; no new device measurement is claimed. Source merge authorized; production publication is separate.
+
+
+
+### F-OPS-005 — ~~Repeatable workflows and reusable tools~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `chore/reusable-workflows`
+
+**Accept when:** On the fourth occurrence of a task, save a documented workflow and reusable tools rather than reconstructing commands. Inventory existing tools, extract reusable inline deployment logic, retain publication gates, and validate the shared entry points.
+
+**Execution — 6 November 2026:** Rule, folder guidance and [tool catalog](../scripts/README.md) implemented. Existing publication records establish more than three occurrences: [F-OPS-003](validation/F-OPS-003-dev-publication.json), [F-UI-015](validation/F-UI-015-dev-publication.json), [F-UI-016](validation/F-UI-016-dev-publication.json) and [F-WATER-003](validation/F-WATER-003-dev-publication.json). Retained existing build/docs/publication/measurement tools; extracted preflight into `scripts/check-deploy-target.cjs` and exact-commit native Pages polling/CDN retries into `scripts/wait-for-pages.cjs`. Deploy Flock now calls both. Focused deployment checks pass 15/15; documentation checks and both build modes/artifact guards pass. Fresh blind review scored 9.3/10 with no blockers; the test-map and tracker-evidence minor findings were corrected. Final full regression passes 566/566; documentation checks pass 13 pages, 2191 links/anchors, 10 diagrams and 7 DOM tests. No deployment, main merge or user sign-off requested; remains Review.
+
+
+**User acceptance — 6 November 2026 (America/Cambridge_Bay):** Novy requested “Merge to main”, accepting this workflow/tooling batch. Source `adf8c8cc588099c7f8bb8ef9f845721d9e126ef2` passed CI run `42313750618`. Earlier Review/pending acceptance statements above are superseded by this acceptance. Main source merge is authorized; production publication was not requested. Existing validation limits remain.
+
+
+### F-TERRAIN-001 — ~~Rough pasture appearance on selected levels (P3)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Give some levels a rougher ground appearance inspired by reference pictures 1 and 2: uneven tufted grass, patchy pasture and varied natural ground coverage, retaining the game's claymation style.
+
+**Depends on / preserve:** Existing clay grass and ground presentation.
+
+**Accept when:** Selected levels visibly differ from smoother meadows through bounded tufts, patchiness and ground variation, without obscuring animals or routes. Preserve navigable clearance, collision and mobile performance. Do not apply the rough look to every level or invent a user-approved frequency. Coordinate physical height variation with F-TERRAIN-002; visual roughness alone must not silently add blockers.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+### F-TERRAIN-002 — ~~Navigable undulating fields (P2)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Add rolling, undulating ground to fields that Pip, Buddy and livestock can navigate over.
+
+**Depends on / preserve:** Existing world generation, navigation and actor presentation.
+
+**Accept when:** Generate continuous terrain heights with traversable rolling slopes, safe spawn/goal areas and connected routes. Keep simulation, rendering and navigation consistent about surface elevation; livestock stay grounded and Pip/Buddy retain appropriate hover clearance without clipping, floating or becoming stuck. Paths, bridge landings and goal approaches join the terrain cleanly. Verify sheep, all cow sizes, helpers, split herds and terrain edges across seeds. Agree on height, slope limits and which levels use relief before implementation; do not require jumping or change controls.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+### F-TERRAIN-003 — ~~Fences and stone walls follow terrain undulations (P2)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Make fences and stone walls follow the undulating ground instead of remaining on a flat plane.
+
+**Depends on / preserve:** F-TERRAIN-002; existing fences, stone walls and gates.
+
+**Accept when:** Fence posts, rails, stone-wall bases and associated collision follow local terrain with no floating spans, buried sections or unintended gaps. Gates, switch panels, openings and traversable clearances remain usable from both sides on slopes. Preserve the accepted wall appearance, gate states and navigation connectivity. Test changing grades, corners, boundaries and crossings rather than only one straight slope.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+### F-TERRAIN-004 — ~~Lowland rivers and slope-aware rain pooling (P2)~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/rolling-terrain`.
+
+**Requirement:** Route rivers and water through low areas so they do not run uphill. Large rain pools must not form on hillsides or other substantial grades.
+
+**Depends on / preserve:** F-TERRAIN-002; F-TERRAIN-003; existing rivers, puddles and fixed weather.
+
+**Accept when:** Generate watercourses with coherent downstream elevation: flowing river surfaces and channels follow low terrain and do not climb uphill. Standing water has level surfaces in suitable basins. Restrict large rain puddles/pools to sufficiently flat low areas or depressions; reject or limit them on significant slopes and hillsides without floating water sheets or uphill edges. Keep banks, crossings, bridge heights and navigation coherent. Define slope thresholds, drainage/placement rules and pooling limits before implementation; wet ground or small splashes may still appear on slopes. Preserve weather behavior and bounded mobile rendering/resource costs.
+
+**Closed:** 6 November 2026. Novy accepted the deployed terrain/hill readability and QA contour work and requested merge to main. The separate compact/steep bank revision remains Deferred as F-TERRAIN-BANK-001; it is not included in this acceptance.
+
+
+## Rolling terrain user acceptance — 6 November 2026
+
+Novy accepted the deployed result with “Ok, looks good. Merge the main and close tickets.” This closes F-TERRAIN-001–004, including fixed-height camera and QA contours. Existing higher-bank crossings are accepted; the uncommitted compact/steep bank revision remains Deferred under F-TERRAIN-BANK-001. The accepted dev runtime is source 7f675b948a4ac5970e717de87038fd7fd509a0ab, checked CI [42343482401](https://github.com/novydhillon/Flock/actions/runs/42343482401), native Pages [42343941019](https://github.com/novydhillon/Flock/actions/runs/42343941019), with all 35 emitted live hashes verified. Final source tests passed 599/599, docs 7/7, release/development artifact guards, and independent review 9/10 with integration follow-up 9/10. User playtest acceptance does not establish measured phone FPS. Source main merge is authorized; production publication is not.
+
+Historical execution records below retain their original wording and are superseded by this acceptance:
+
+## Hill readability pass — 6 November 2026
+
+F-TERRAIN-002 is Review for a readability correction on `feat/rolling-terrain`, owned by the terrain team. Accept when rounded crests/valleys are more distinct without exceeding 4.5m relief or 30-degree pasture/support grades; lighting and restrained ground/road shading reinforce shape with contours off. Preserve the static camera, smooth surfaces, flat first five levels, coherent structures/water and bounded geometry. Implementation is complete with599/599fullregressions,7/7docschecks,release/developmentartifactchecks and fresh9/10review plus9/10integrationfollow-up. Ground/roadphysical limits and unchangedmobiletrianglecap pass. Device appearance remains pending; no deployment or acceptance is claimed.
+
+## Static camera correction — 29 October 2026
+
+F-TERRAIN-002 correction on feat/rolling-terrain: remove automatic vertical camera movement with terrain elevation. Accept when gameplay and landing cameras keep the same world height/view angle over hills and raised bridges, through pause and level replacement, while horizontal tracking and original scale remain coherent. Actor/deck/terrain heights are unchanged. High implementation, fresh medium review, focused/full checked builds and replacement dev verification are required; user sign-off remains pending.
+
+## Elevated bridge scope — 29 October 2026
+
+Novy additionally permits river bridges from elevated positions that match the bank elevation on both sides. F-TERRAIN-002–004 remain In progress while elevated crossings are integrated and validated. Where needed, extend the shared bridge span to reach raised banks and keep deck, rails, collision, navigation, routes and approach clearances coherent. Earlier field/grid checks describe the pre-elevated-bridge candidate and must be supplemented; no new source or dev publication is claimed.
+
+## Riverbank relief clarification — 29 October 2026
+
+For F-TERRAIN-002/003, Novy permits larger riverbank height differences except at bridges. The current high-effort candidate must allow raised, smoothly graded banks away from crossings while retaining gentle bridge approaches, coherent water and the overall 4.5m/30-degree bounds. Broad mandatory low shelves along every bank are superseded. Implementation, focused checks, fresh medium review and dev replacement are still in progress; earlier published builds do not contain this clarification.
+
+
+## Rolling terrain execution — 29 October 2026
+
+F-TERRAIN-001–004 are claimed on `feat/rolling-terrain`, based on main `3c656ac2d590e0fea58cc02cc47a5963d0cfe0e4`. This supersedes the older unassigned and `feat/p2-ui` ownership statements for terrain only. Implementation uses the session model at high reasoning; independent review uses medium reasoning as explicitly requested.
+
+**Agreed design:** up to 1.5 world units of relief with slopes capped at 12 degrees, on a seeded selection of public levels after level 5. Terrain transitions must be smooth, with no visible triangulation. Spawn areas may lie on any traversable grade. Goals and bridges may have slight slopes; neither requires a perfectly flat pad. Large rain pools require low terrain and grades below 3 degrees; rivers follow coherent downhill channels. Rough pasture uses a separate seeded selection and retains navigable clearance. Frequency and detailed visual tuning are provisional implementation settings, not a user-approved percentage.
+
+**State:** implementation in progress. Source review, automated checks and rendered/device acceptance remain separate; no deployment or main merge requested.
+
+## Rolling terrain source completion — 29 October 2026
+
+F-TERRAIN-001–004 are implemented on `feat/rolling-terrain` and move to Review, awaiting Novy's rendered/playtest sign-off. This supersedes earlier implementation-in-progress and unassigned terrain statements. Smooth analytic rolling support, independently selected rough pasture, graded barriers/structures/actors, downhill channels and horizontal terrain-clipped lowland pools are implemented with documented bounds. Spawn areas retain their terrain grade; goals and bridges may slope gently. Bark feedback, flowers, water rocks/wakes, guidance and hover clearance share elevation contracts.
+
+High-effort implementation; medium independent source reviews scored 9/10 and then 9.2/10, with no outstanding blocker after corrections. Final full regression: 579/579; 113 focused review checks; 8/8 targeted terrain-view checks after the final behavior-preserving cleanup. Release/development artifact checks and documentation checks are recorded in [QUALITY.md](QUALITY.md). Source publication is separate from deployment and user acceptance. No Pages publication or main merge requested.
+
+**Remaining checks:** actual WebGL smooth appearance/no visible triangulation, clay pasture legibility, phone touch/gameplay and native FPS remain unverified because local Chromium startup was blocked. F-015 remains Open: public-level-100 mocked setup measured roughly 2.4 seconds slower with rolling terrain after optimization, and submitted geometry increased. This is a known setup/workload increase, not a measured phone-FPS verdict.
+
+## Terrain visual correction — 29 October 2026
+
+Novy's dev screenshot IMG_8476.jpeg rejects the current visual result: play area reads flat, and rough patches read as flat color with sparse dark blades. F-TERRAIN-001/002 return to In progress on `feat/rolling-terrain`; earlier source scores do not establish appearance acceptance. Increase perceptible smooth relief within the agreed 1.5-unit/12-degree limits; replace polygon-only rough spots with dense tangible overgrown grass and seeded boulders/outcroppings, preserving route/body clearance and bounded resources. Rocks that block actors require shared physical representation. Existing dev deployment source1212bd6/Pages2d42e24 verified35livefiles; this feedback requests correction, not acceptance.
+
+## Terrain visual correction candidate complete — 29 October 2026
+
+F-TERRAIN-001/002 return to Review on `feat/rolling-terrain` after screenshot-driven correction: stronger actual rolling terrain, dimensional dense grass without colored discs/double tint, and physical seeded boulders. Shared pasture config and actual rendered-ground pool clipping are integrated. High implementation / fresh medium independent source review9.1/10; no confirmed source defect or material blocker remains. Rendered phone appearance and FPS still need Novy's playtest; no source score is visual acceptance. Updated dev publication follows successful checked build and source CI, separately from main/production.
+
+
+## Flat meadow black-ground regression — 29 October 2026
+
+F-TERRAIN-002 remains Review on `feat/rolling-terrain`, owner Codex. Screenshot IMG_8478.jpeg reports black grass on public levels 1–5 while roads and props remain visible. **Accept when:** every mesh using the shared vertex-colored grass material supplies a complete RGB color attribute; flat ground and angular playable overlays use neutral white, rolling ground retains its smooth height tint, and rolling-to-flat level replacement preserves this shader contract. Add actual scene regressions covering all first five levels, a later angular flat meadow and repeated level switches. High implementation and a fresh medium blind review apply; keep existing hill dimensions and limits unchanged. Checked dev publication is authorized; visual/device confirmation and user acceptance remain separate.
+
+## Expanded rolling-terrain limits — 29 October 2026
+
+Novy explicitly authorizes up to30-degree slopes and4.5m total height difference in the playable area, superseding the earlier12-degree/1.5-unit limits. This changes the actual generated terrain as well as its supported bounds; it is not approval to claim a larger hill from configuration alone. Retain smooth slope transitions/no visible triangulation, grounded livestock and correct hover clearance, terrain-following fences/gates/structures, safe routes and coherent downhill rivers/level lowland pools. Large standing pools still require grades below3degrees. Keep firstfivelevels flat unless separately requested. Blackflatground vertex-color regression is part of this same candidate. Previous source reviews/builds of the lowerrelief terrain do not validate the expanded scope; rerun focused/full checks and freshmediumreview, with high implementation. New visual/phoneacceptance remains pending.
+
+F-TERRAIN-002–004 are In progress for expanded terrain integration on `feat/rolling-terrain`; F-TERRAIN-001 remains Review for the existing dimensional pasture. Do not close on source review.
+
+
+## Expanded terrain source review — 29 October 2026
+
+F-TERRAIN-002–004 return to Review after higher relief/banks, elevated crossings, full-width plank correction and black-flat-grass regression integration. Public6 demonstrates rolling hills and elevated crossings; public100 is a later example. Fresh independent medium review9.2/10 has no confirmed defect and73/73 focused checks. Full checked build passes; exact counts and deployment evidence are recorded in QUALITY and the publication manifest. This supersedes earlier In-progress scope notes without implying user/device acceptance. New dev publication remains a separate gate until its pinned source CI, native Pages run and live emitted-file hashes pass.
+
+
+## Fixed-height camera correction reviewed — 29 October 2026
+
+F-TERRAIN-002 remains Review on feat/rolling-terrain after removing terrain elevation from camera initialization/following. Fixed world-height and look-target behavior cover gameplay, preview, rolling showcase, restart and level replacement; original scale, angle and horizontal movement are retained. Actor and hover-glow support remain terrain-following.6/6 focused renderer cases and593/593 full regressions pass; fresh medium blind review9/10 has no confirmed blocker. This supersedes the previous elevation-following camera implementation. Dev publication and physical-device acceptance are separate milestones.
+
+
+
+
+### F-TERRAIN-HEIGHT-001 — ~~Double terrain range while retaining slope limits~~
+
+**Status:** Done. Owner: terrain experiment team.
+
+**Branch:** `feat/double-terrain-height`
+
+**Accept when:** Raise the allowed height range from 4.5 m to 9 m and approximately double actual seeded relief by widening rounded hills, while retaining 30-degree maximum pasture and support slopes, smooth shared surfaces, the fixed camera world height and flat first five levels. Keep actors, roads, goals, bridges and water coherent and mobile geometry bounded. The compact/steep bank work remains Deferred under F-TERRAIN-BANK-001. Record source checks separately from phone acceptance and deployment.
+
+**6 November 2026:** Prototype uses mean lift 4 m and wave amplitude 3.8 m, with doubled wave length scales 11/15/19. No bridge spans, river widths or bank profile algorithms are changed. Repeated height/grade scans across prior terrain sessions triggered extraction of `scripts/measure-terrain.mjs`; its parameterized levels/seeds/spacing and JSON evidence replace further one-off measurement scripts. Final `npm run build:checked:dev` passed 605/605 regressions, 7/7 documentation checks, release 33 files/zero QA assets and development 35 files/two QA assets. Fresh blind review initially scored 8/10 after finding a limiting bank slope; the corrected candidate scored 9/10 with no blockers. See QUALITY and the experiment record for measurements and validation limits. User acceptance and device checks remain pending; no deployment is claimed.
+
+**6 November 2026 deployment:** Published source `bd4dd79b7e3fef8a57bdd19244cd76a8c08db3d1` to `/Flock/dev/` through the documented connector-only fallback because workflow dispatch was unavailable. Local checked build passed 607/607 regressions, 7/7 documentation checks and both artifact modes. Source CI and native Pages run 42348571997 succeeded; all 35 live file hashes matched. Only the dev subtree changed. See [publication evidence](validation/double-height-dev-publication.json). Device checks and user acceptance remain pending; this item stays Review.
+
+**Closed:** 9 November 2026. Novy accepted the deployed double-height experiment and requested merge to main. Publication evidence remains in docs/validation/double-height-dev-publication.json; physical device measurements were not independently performed.
+
+
+
+### F-CAMERA-001 — ~~Lower camera height at fixed target distance~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/double-terrain-height`
+
+**Accept when:** Reduce fixed camera world height from 36 to 27 units, retaining the same look target and camera-to-target distance in gameplay and landing, portrait and landscape. Preserve orthographic scale and terrain-independent height. Move the horizontal camera offset along the same ground direction to maintain the orbit radius. Device framing and user acceptance remain separate.
+
+**9 November 2026:** Shared configuration implemented with unchanged look target, radius, zoom and follow behavior. Original full regression had one scenery-budget guard failure due to the lower viewing angle; measured static triangle cap adjusted from 45,000 to 61,000, and draw cap made inclusive at the documented 170. No extra world geometry is generated. See QUALITY for the measured five-level sweep and final validation. Device framing/FPS and user acceptance remain pending; no deployment requested or performed.
+
+**Closed:** 9 November 2026. Novy explicitly accepted the camera change and authorized its main merge with “Merge to main”. Source f3b6e25784fa23124d609338a9e1c599dc11c801 passed 607/607 regressions, both artifact modes and source CI run 42699094989. Native phone framing/FPS remain unmeasured; this acceptance does not establish those measurements. No new deployment is requested by this merge instruction.
+
+
+
+### F-VEG-001 — ~~Odd grass and reed clumps~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/odd-vegetation-clumps`.
+
+**Accept when:** All modeled grass/reed clumps use 3,5,7,9 or11 stems with varied heights, including field/bank/rough pasture and in-water plants. No single-blade instances. Water grass occurs at more varied bank distances while retaining edge preference and full wet footprints. Increase density on selected water bodies (30 clumps cap,22m² target area per clump) while preserving the seeded20% eligibility, downstream curved reeds, no plant shadows, bridge clearance, determinism and bounded owned resources. Independent source review and checks precede handoff; rendered phone acceptance remains separate. User has requested implementation, not publication or main merge.
+
+**Closed:** 9 November 2026. Novy explicitly approved the odd clumps, denser water vegetation and wider blade spread and requested main merge. Accepted source decee297. Source validation and limitations retained in QUALITY.md; source merge only, no production publication.
+
+
+
+## Wider grass blade spread — 9 November 2026
+
+F-VEG-001 follow-up: widen land grass/bank reed blade-center spread 2.5× (radius multiplier2→5), and water-grass spread .06–.09m→.11–.15m. Preserve counts, blade widths/heights, existing clump centers, wet/bridge clearance and shadows. Remains Review.
+
+User acceptance on 9 November 2026 supersedes the historical Review status above.
+
+## Closures requested — 9 November 2026
+
+### F-008 — ~~Clouds temporarily deferred~~
+
+**Current decision, 15 October 2026 at 11:22 America/Vancouver:** Novy requested removing clouds for now because they are not working as intended. Disable all visible cloud puffs and their associated ground shadows. Rain, fixed per-level weather, sky/fog/daylight, lightning/thunder, wet ground and wildlife remain active.
+
+**Status:** Deferred. The renderer no longer instantiates or updates `Atmosphere`; its source and unit tests are retained as dormant reference for future work. No cloud texture, billboard or shadow resource is allocated by normal game rendering. Earlier cloud appearance/opacity criteria and review evidence are historical, not current runtime requirements. Do not re-enable clouds as part of routine weather maintenance.
+
+
+**Closed — 9 November 2026:** Closed at Novy's request; no fix or validation is claimed. Documentation rebuild and checks waived for this closure.
+
+### F-AUDIO-003 — ~~Music requires audio off/on after browser or app launch~~
+
+**Status:** Open. Owner: Unassigned.
+
+**Branch:** `unassigned`
+
+**User report — 26 October 2026:** Music does not start automatically on app launch. The user must toggle audio off and on to start it. This persists in the browser and an iOS Home Screen launch after the attempted launch-recovery build. Workaround: turn audio off, then on.
+
+**Accept when:** reproduce and diagnose the remaining launch failure on the affected browser and iOS Home Screen path; enabled music begins at the earliest browser-permitted activation without requiring an off/on toggle; saved mute, foreground/background handling, existing playback and bounded resources remain intact. Record the actual browser/device and audible result. Browser autoplay policy may require interaction, but neither that policy nor passing mock tests establishes the cause or resolution of this reported defect.
+
+**26 October 2026:** Logged at Novy's explicit request while accepting the soundtrack feature for main merge. Prior automated activation tests, 9.5/10 source review, CI and live asset hashes did not establish physical launch resolution. This issue stays Open independently of F-MUSIC-001 acceptance. No new runtime fix is included in the merge/logging task.
+
+
+
+**Closed — 9 November 2026:** Closed at Novy's request; no fix or validation is claimed. Documentation rebuild and checks waived for this closure.
+
+
+### F-PERF-002 — ~~Readable source, separate delivery pipelines and allocation cleanup~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `refactor/performance-pipelines`
+
+**Accept when:** Source and Dev JavaScript are readable, live JavaScript is minified, game/tracker have independent build/test/deploy paths, regressions pass, bounded allocation improvements preserve appearance and gameplay, and the checked game build is published to the explicitly authorized `/dev_performance/`. User playtest sign-off remains separate.
+
+**10 November 2026:** Based on main `86a5b5d96d3ec38e50b76b0f32bdb5e41d58a0aa`. Extended existing delivery tools rather than making per-task publishers. Audit found a redundant glow update and avoidable rain/goal-pointer allocations. Source review also identified larger controller/renderer modules and mixed grazing/gate responsibilities; broad gameplay rewrites are deferred to retain validated behavior. Implementation and validation in progress.
+
+**Closed:** 10 November 2026. Novy accepted the code refactors and performance. No main merge requested; accepted source is retained in the parent feature branch.
+
+
+
+### F-ARCH-002 — ~~Organize source into system and functionality folders~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `refactor/system-folders`
+
+**Accept when:** Runtime files live in meaningful system folders, every static/dynamic module and asset reference resolves, behavior and the dependency graph match the accepted source, regression/build/docs checks pass, and the change receives independent review. Preserve source readability and independent delivery pipelines.
+
+**10 November 2026:** Based on accepted `refactor/performance-pipelines` head `aecb5ae`. Novy accepted F-PERF-002; its complete record is archived. Keeping a separate successor branch retains accepted changes without implying main merge or deployment permission. Implementing a pure relocation/import migration, with a one-time canonical AST and stylesheet equivalence check against the parent snapshot.
+
+**Validation - 10 November 2026:** Independent review9.5/10 after correcting a measurement tool import; no remaining findings. All72runtime/config/style files retained; release33/33 and Dev35/35 emitted files are byte-identical to the accepted parent. Recursive source/tool resolution and seeded measurement smoke4/4; configuration/QA fixtures pass; tracker16/16, docs7/7 and artifact guards pass. Final source CI follows the branch publication. No deployment or main merge requested.
+
+**Closed:** 10 November 2026. Novy approved the source organization and requested merge to main.
+
+
+
+### F-TERRAIN-BANK-001 — ~~Compact steep riverbanks and slope-based bank textures~~
+
+**Status:** Done. Owner: Codex terrain team.
+
+**Branch:** `feat/compact-riverbanks`
+
+**Requirement:** Allow steep banks beside raised river crossings so bridges do not extend deep into fields; vary other riverbank slopes smoothly and deterministically. Steeper banks show dirt texture; gentler banks show grass. Preserve continuous support, water coverage, deck joins, navigation and mobile budgets.
+
+**Accept when:** Raised spans use compact banks with smooth slopes, coherent textures, fully dry/crossable decks and no cracks, visible triangle facets or floating actors. Validate full regression, geometry budgets and fresh independent review, then rendered/device checks before acceptance.
+
+**Deferred:** 6 November 2026. Novy explicitly requested keeping bank work waiting. Earlier local prototype used 2.75m setbacks versus accepted 7m, but was not committed or deployed; its 595/596 regression result included a mobile scenery budget failure. Preserve that experimental work separately; do not import it into accepted main or the next height experiment. Historical bank-related scope is retained in the archived terrain execution records and QUALITY.md.
+
+**Closed:** 18 November 2026. Novy requested tracker closure after the implementation merged to main. The [compact riverbanks PR #38](https://github.com/novydhillon/Flock/pull/38) merged on 10 November. Development validation passed 616 tests and verified 35 published files. The synchronous setup-cost concern remains documented in the [quality record](QUALITY.md#main-integration-into-compact-banks--9-november-2026). See the [development publication record](validation/F-TERRAIN-BANK-001-dev-publication.json).
+
+
+### F-SHADOW-001 — ~~Baked static environment shadows~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/baked-environment-shadows`
+
+**Accept when:** Trees, bushes, bridges, fences, barns, pens, rocks and other static environment objects cast shadows from a per-level bake, with no recurring static shadow pass as the camera travels. Preserve terrain/bridge receiving shadows, dynamic actor and moving gate shadows, full-meadow coverage, level replacement/disposal and existing shadow-free grass/reeds. Inspect camera travel and barn cutaway behavior; verify bounded textures and repeated frame/level lifecycle. User requested source fix; deployment/main merge remain separate.
+
+
+**F-SHADOW-001 validation — 10 November 2026:** Implemented and independently reviewed9/10. Local full baseline620/620 and final scope CI pass; focused static/cutaway/water-effects32/32, independent static5/5. Release/development artifacts pass QA guards. Final shader-local identifier cleanup retained review9/10 and5/5 focused/build checks. Device appearance/fine-object resolution remain pending. Source only; no deployment or main merge.
+
+**Closed:** 18 November 2026. Novy requested tracker closure after the implementation merged to main. The [static shadows PR #39](https://github.com/novydhillon/Flock/pull/39) merged on 10 November. Development validation passed 621 tests and verified 35 published files. Device appearance and performance limits are recorded in the [development publication record](validation/F-SHADOW-001-dev-publication.json). This supersedes the source-only checkpoint above.
+
+## Compact-bank execution history
+
+The closure record supersedes these earlier checkpoints.
+
+## Bank work resumed — 9 November 2026
+
+Novy requested continuation of F-TERRAIN-BANK-001. Owner: Codex terrain team; branch `feat/compact-riverbanks`, based on current main `43184c5`. Preserve accepted doubled hills, fixed lower camera and full-width bridge validation. Recovered prototype is input only: revalidate geometry budgets, smooth support, water coverage, textures and navigation on current terrain. Novy subsequently authorized an80degree localized bank cap; ordinary pasture/decks remain30degrees. No deployment or main merge requested.
+
+## Terrain acceptance and bank deferral — 6 November 2026
+
+Accepted F-TERRAIN-001–004 are archived in [Closed issues](#rolling-terrain-user-acceptance--6-november-2026). F-TERRAIN-BANK-001 remains Deferred at Novy’s request. The accepted main merge includes hill readability and QA contours, while the compact/steep bank prototype remains outside committed source.
+
+Updated 29 October 2026 (America/Creston). Repository: `novydhillon/Flock`.
+
+This file contains active work only. The fourteen P1 items and three follow-ups on `p1_gameplay_polish` were accepted on 25 October 2026 and moved in full to [Closed issues](#p1-gameplay-and-follow-up-acceptance--25-october-2026). Clouds remain Deferred. Unimplemented bird, companion, UI and other queued work remain active; partial bird foundations in F-POLISH-001 do not close the broader bird plan.
+
+F-ARCH-001 was accepted on 28 October 2026 and its complete record moved to [Closed issues](#configuration-refactor-user-acceptance--28-october-2026). The user authorized its main source merge; F-AUDIO-003 was closed at Novy's request on 9 November 2026.
+
+## Main merged into bank work — 9 November 2026
+
+Merged main `16776d8` into `feat/compact-riverbanks`, retaining accepted vegetation clumps/spread, their tests and closure history alongside the80degree compact banks. Supersedes the earlier no-new-main checkpoint. F-TERRAIN-BANK-001 remains In progress with the recorded loading-cost blocker; no deployment or main publication is authorized by this integration.
+
+
+### F-BUTTERFLY-001 — ~~Butterfly wing flaps and colors~~
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/butterfly-wing-flap`
+
+**User report — 29 October 2026:** Butterfly wings currently appear to spin. They should flap.
+
+**Accept when:** Both wings visibly flap back and forth around their body attachments during flight. Preserve movement and pause/resume. Include yellow, orange, blue, purple and pink butterflies. Scale the body and wings to 75% of the initial Dev preview size, including the wing hinge offsets.
+
+**Validation:** Matrix tests verify attached, bounded strokes at several flight headings, pause/resume, seeded color pairs, and the body and wing scale. The [earlier dev publication](validation/F-BUTTERFLY-001-dev-publication.json) covers the wing and palette revision. User sign-off covers the completed feature. Independent rendered and device measurements were not recorded.
+
+**Closed:** 19 November 2026. Novy approved the wing flaps, five-color palette, and 25% size reduction. The accepted source is [5b78e07](https://github.com/novydhillon/Flock/commit/5b78e07c85f4bf753396f07ccb65078b9e889f5c) and passed [source CI](https://github.com/novydhillon/Flock/actions/runs/44471801038).
+
+
+### F-RENDER-002 — ~~Half-resolution 3D rendering~~
+
+**User acceptance — 26 November 2026:** Novy approved the changes and authorized merging the integrated branch into main. The validation notes below record the checks at the time they were run.
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/half-render-resolution`
+
+**Accept when:** The main 3D canvas uses half the native viewport width and height (1080 × 1920 → 540 × 960), and the real-time and baked shadow maps retain their existing sizes.
+
+**Validation:** Renderer regression covers a high-density portrait viewport and both shadow map sizes. Device smoke check and user sign-off are pending.
+
+### F-DOG-001 — ~~Pip and Buddy dog models and animation~~
+
+**User acceptance — 26 November 2026:** Novy approved the changes and authorized merging the integrated branch into main. The validation notes below record the checks at the time they were run.
+
+**Banded spacing:** Use Pip’s clearance as the reference and scale the boundary with each dog’s body size. Half the herd can enter the outer third, including the quarter that can enter the next third. Keep the innermost third clear.
+
+**Crowd readability feedback:** Preserve a clear space around each resting dog, including when livestock are already close. A play bow aims toward nearby livestock along clear ground.
+
+**Idle feedback:** Hold poses for randomly selected durations from two to five times the original, extending lying to eight times. Blend directly between poses. Scratching runs one to three times its original duration and returns to sitting. Nearby livestock can occasionally invite play bows while the dogs sit or lie down. Animals within eight world units approach idle dogs along clear ground and stay nearby until the player takes control. The dogs also take short walks between landing-screen rests. During play, Pip may take a short local walk after a tunable 60-second release delay.
+
+**Playtest feedback — 25 November 2026:** Lower the head at a gallop, extend the body and legs in flight and gather the feet beneath the belly. Increase top speed, expand walking control and hold full run from 90% of the stick radius. Recheck planted contact, full-flock journeys and gameplay-scale readability.
+
+**Status:** Done. Owner: Codex.
+
+**Branch:** `feat/clay-border-collies`
+
+**Request — 11 November 2026:** Replace Pip's robot model with a real dog in the claymation style, guided by [picture 1: model reference](https://chatgpt.com/library?file_id=libfile_8f164349a58c8191b78718b7d419d134&account_id=personal) and [picture 2: animation reference](https://chatgpt.com/library?file_id=libfile_9730d5a24fd081918e890bae9499b20b&account_id=personal). Buddy is a smaller, younger and more feisty version.
+
+**Accept when:** Pip's appearance follows the model reference, and expressive animations draw on the barking, sitting, rolled-over and play poses in the animation reference. Buddy reads as younger, smaller and feistier while remaining recognizable and readable at gameplay scale. Grounded locomotion and transitions suit the new dogs; preserve existing controls, herding behavior, collision and progression. Coordinate with F-COMP-004–006 and F-COMP-008. Verify animation, terrain contact and mobile performance in gameplay.
+
+**25 November 2026 reference clarification:** Use the multi-view turnaround (picture 2) for body proportions and the four-pose sheet (picture 1) for animation. Both dogs walk, run, blend gaits and make tighter turns at low speed. Idle actions include sitting, lying down, play bows, scratching and rolling. Buddy has a lower top speed and more energetic mannerisms.
+
+**Implementation — 25 November 2026:** Shared clay collie rig, grounded gait blend and idle poses, speed-dependent steering, puppy behavior, dog UI and regenerated icons. Independent review reached 9/10 after fixes for ground clipping, steady-turn paw drift and abrupt reversals. Native phone animation and performance remain awaiting playtest and sign-off.
+
+**Regression correction — 25 November 2026:** Source CI for the initial dog revision passed 622/623 tests; Meadow 16 seed 202 saved 45 of 50 under Node 22. Once Pip has completed a turn, movement now uses the normalized input vector directly, avoiding lateral floating-point drift while preserving turn arcs and braking. The original full-delivery assertions remain intact. Independent review scored 9/10; 80/80 targeted tests passed on both Node 22 and Node 24. Final full checked build and source CI are required before deployment.

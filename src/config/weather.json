@@ -1,0 +1,304 @@
+{
+  "unlock": {
+    "sunOnlyThrough": {
+      "value": 5,
+      "_comment": "Public levels through this number always use sun, including explicit requests.",
+      "min": 1,
+      "max": 100
+    },
+    "rainLevel": {
+      "value": 9,
+      "_comment": "First public rain level and reliable light-rain fixture.",
+      "min": 1,
+      "max": 100
+    },
+    "heavyRainLevel": {
+      "value": 16,
+      "_comment": "First public heavy-rain level and reliable fixture.",
+      "min": 1,
+      "max": 100
+    },
+    "stormLevel": {
+      "value": 24,
+      "_comment": "First public storm level and reliable fixture.",
+      "min": 1,
+      "max": 100
+    }
+  },
+  "selection": {
+    "earlySunCutoff": {
+      "value": 0.65,
+      "_comment": "Sun cutoff before rain unlocks; remaining seeds select wind.",
+      "min": 0,
+      "max": 1
+    },
+    "rainCutoffs": {
+      "value": [
+        0.35,
+        0.5
+      ],
+      "_comment": "Cumulative sun/wind cutoffs after rain unlocks; remainder is rain.",
+      "min": 0,
+      "max": 1
+    },
+    "heavyRainCutoffs": {
+      "value": [
+        0.25,
+        0.35,
+        0.65
+      ],
+      "_comment": "Cumulative sun/wind/rain cutoffs after heavy rain unlocks.",
+      "min": 0,
+      "max": 1
+    },
+    "stormCutoffs": {
+      "value": [
+        0.2,
+        0.3,
+        0.5,
+        0.75
+      ],
+      "_comment": "Cumulative sun/wind/rain/heavy-rain cutoffs after storms unlock.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "presets": {
+    "sun": {
+      "rainIntensity": {
+        "value": 0,
+        "_comment": "rainIntensity for the fixed sun preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "windIntensity": {
+        "value": 0.12,
+        "_comment": "windIntensity for the fixed sun preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "severity": {
+        "value": 0,
+        "_comment": "severity for the fixed sun preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "cloudCoverage": {
+        "value": 0.22,
+        "_comment": "cloudCoverage for the fixed sun preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "daylight": {
+        "value": 1,
+        "_comment": "daylight for the fixed sun preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      }
+    },
+    "wind": {
+      "rainIntensity": {
+        "value": 0,
+        "_comment": "rainIntensity for the fixed wind preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "windIntensity": {
+        "value": 0.6,
+        "_comment": "windIntensity for the fixed wind preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "severity": {
+        "value": 0.3,
+        "_comment": "severity for the fixed wind preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "cloudCoverage": {
+        "value": 0.4,
+        "_comment": "cloudCoverage for the fixed wind preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "daylight": {
+        "value": 0.96,
+        "_comment": "daylight for the fixed wind preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      }
+    },
+    "rain": {
+      "rainIntensity": {
+        "value": 0.3,
+        "_comment": "rainIntensity for the fixed rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "windIntensity": {
+        "value": 0.3,
+        "_comment": "windIntensity for the fixed rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "severity": {
+        "value": 0.28,
+        "_comment": "severity for the fixed rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "cloudCoverage": {
+        "value": 0.5,
+        "_comment": "cloudCoverage for the fixed rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "daylight": {
+        "value": 0.94,
+        "_comment": "daylight for the fixed rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      }
+    },
+    "heavy-rain": {
+      "rainIntensity": {
+        "value": 0.65,
+        "_comment": "rainIntensity for the fixed heavy-rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "windIntensity": {
+        "value": 0.55,
+        "_comment": "windIntensity for the fixed heavy-rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "severity": {
+        "value": 0.6,
+        "_comment": "severity for the fixed heavy-rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "cloudCoverage": {
+        "value": 0.7,
+        "_comment": "cloudCoverage for the fixed heavy-rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "daylight": {
+        "value": 0.82,
+        "_comment": "daylight for the fixed heavy-rain preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      }
+    },
+    "storm": {
+      "rainIntensity": {
+        "value": 0.9,
+        "_comment": "rainIntensity for the fixed storm preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "windIntensity": {
+        "value": 0.85,
+        "_comment": "windIntensity for the fixed storm preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "severity": {
+        "value": 0.88,
+        "_comment": "severity for the fixed storm preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "cloudCoverage": {
+        "value": 0.85,
+        "_comment": "cloudCoverage for the fixed storm preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      },
+      "daylight": {
+        "value": 0.7,
+        "_comment": "daylight for the fixed storm preset, normalized from zero to one.",
+        "min": 0,
+        "max": 1
+      }
+    }
+  },
+  "ambience": {
+    "windBase": {
+      "value": 0.2,
+      "_comment": "Base legacy wind amount before preset wind scaling.",
+      "min": 0,
+      "max": 5
+    },
+    "windScale": {
+      "value": 1.6,
+      "_comment": "Multiplier converting preset wind intensity to legacy wind amount.",
+      "min": 0,
+      "max": 10
+    },
+    "rainParticles": {
+      "value": 128,
+      "_comment": "Legacy particle budget advertised by a rainy weather state.",
+      "min": 0,
+      "max": 4096
+    },
+    "wetButterflies": {
+      "value": 4,
+      "_comment": "Legacy butterfly population advertised during rain; storms suppress it.",
+      "min": 0,
+      "max": 100
+    },
+    "dryButterflies": {
+      "value": 8,
+      "_comment": "Legacy butterfly population advertised without rain.",
+      "min": 0,
+      "max": 100
+    },
+    "birds": {
+      "value": 5,
+      "_comment": "Legacy bird population advertised outside storms.",
+      "min": 0,
+      "max": 100
+    },
+    "squirrels": {
+      "value": 3,
+      "_comment": "Legacy squirrel population advertised outside storms.",
+      "min": 0,
+      "max": 100
+    }
+  },
+  "lightning": {
+    "startSeconds": {
+      "value": 8,
+      "_comment": "Earliest first lightning event in a storm.",
+      "min": 0,
+      "max": 120
+    },
+    "intervalSeconds": {
+      "value": 24,
+      "_comment": "Interval between storm lightning events.",
+      "min": 0.1,
+      "max": 300
+    },
+    "thunderDelaySeconds": {
+      "value": 0.8,
+      "_comment": "Minimum paired thunder delay; seeded delay adds up to 0.8 seconds.",
+      "min": 0,
+      "max": 10
+    },
+    "flashSeconds": {
+      "value": 0.22,
+      "_comment": "Duration of a storm lightning flash.",
+      "min": 0.001,
+      "max": 5
+    },
+    "flashStrength": {
+      "value": 0.9,
+      "_comment": "Initial renderer flash intensity.",
+      "min": 0,
+      "max": 5
+    }
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "source": "54cc8c5791dd892810fa37b33987e2a6e110b0d6",
+  "pages": "d3bc2b860ccd1a8f174a4cf82b231558ffdbc6a0",
+  "sourceCI": 39200668701,
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "outsideDevBlobsPreserved": 49,
+  "localRegressionTests": 337,
+  "additionalSpatialQueryTest": "passed",
+  "independentSourceReview": 9,
+  "userAcceptance": "Pending native grazing review",
+  "nativeAppearanceAndFPS": "Not verified",
+  "files": {
+    "assets/dm-sans-latin-400-normal-BwCSEQnW.woff": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+    "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+    "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+    "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+    "assets/dm-sans-latin-700-normal-CUSSCpQX.woff": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+    "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+    "assets/index-B7u79i-O.js": "d613c8cf9dd6d945944aef69bbbf620d24d18dd25d45bca2a1783569fc3783ea",
+    "assets/index-BL6CDKMp.css": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+    "assets/outfit-latin-600-normal-B7SfZ07L.woff2": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+    "assets/outfit-latin-600-normal-BEfTtDA7.woff": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+    "assets/outfit-latin-700-normal-Cu9v6i1X.woff2": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+    "assets/outfit-latin-700-normal-D4itBLBr.woff": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+    "assets/outfit-latin-900-normal-D7VxKg29.woff2": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+    "assets/outfit-latin-900-normal-DBTzQ72N.woff": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+    "assets/qa-DGL2yE98.js": "d565197f143be0c79d847edede3c6e0985fe4e2a3c042dc5ea5c0c9d54e45c03",
+    "assets/qa-DWlVkWAo.css": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+    "index.html": "ffb603a85878a834a60f5d6697e1e22e77581a1e97e09f4db85ef092184a1db9"
+  },
+  "liveFiles": [
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "expected": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "actual": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "expected": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "actual": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "expected": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "actual": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "expected": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "actual": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "expected": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "actual": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "expected": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "actual": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "match": true
+    },
+    {
+      "path": "assets/index-B7u79i-O.js",
+      "expected": "d613c8cf9dd6d945944aef69bbbf620d24d18dd25d45bca2a1783569fc3783ea",
+      "actual": "d613c8cf9dd6d945944aef69bbbf620d24d18dd25d45bca2a1783569fc3783ea",
+      "match": true
+    },
+    {
+      "path": "assets/index-BL6CDKMp.css",
+      "expected": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+      "actual": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "expected": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "actual": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "expected": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "actual": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "expected": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "actual": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "expected": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "actual": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "expected": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "actual": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "expected": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "actual": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "match": true
+    },
+    {
+      "path": "assets/qa-DGL2yE98.js",
+      "expected": "d565197f143be0c79d847edede3c6e0985fe4e2a3c042dc5ea5c0c9d54e45c03",
+      "actual": "d565197f143be0c79d847edede3c6e0985fe4e2a3c042dc5ea5c0c9d54e45c03",
+      "match": true
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "expected": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "actual": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "expected": "ffb603a85878a834a60f5d6697e1e22e77581a1e97e09f4db85ef092184a1db9",
+      "actual": "ffb603a85878a834a60f5d6697e1e22e77581a1e97e09f4db85ef092184a1db9",
+      "match": true
+    }
+  ],
+  "nativePages": 39200819719,
+  "nativeConclusion": "success",
+  "sourceCIConclusion": "success",
+  "sourceCIRegressionTests": 338,
+  "reviewFollowupCandidate": "002b204",
+  "reviewModel": "Inherited session model, no override; exact backend identity unavailable",
+  "reviewScope": "Source only; native phone appearance and FPS pending",
+  "reviewPerfSample": "CPU-only generated level 100 approximately 1.08 ms/frame; not phone FPS"
+}

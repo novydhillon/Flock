@@ -1,0 +1,172 @@
+{
+  "issue": "F-054 organic branching follow-up",
+  "status": "Review; new user visual sign-off pending",
+  "branch": "pip_update",
+  "source_commit": "e143b210ab245a5b492a8aea129cfd79777c05b8",
+  "validated_tree": "5219e40d9dafd8d18f31fecc7cfcccbc76a64a78",
+  "local_runtime": "5399dcc",
+  "local_documented_snapshot": "a938cb6",
+  "publication_commit": "d2324ffc15118efb6c6c6d0ba6cd7f58db5370cb",
+  "url": "https://novydhillon.github.io/Flock/dev2/",
+  "source_ci": {
+    "run": 38993551566,
+    "result": "success"
+  },
+  "pages_deployment": {
+    "run": 38993673939,
+    "result": "success"
+  },
+  "source_tests": {
+    "passed": 283,
+    "total": 283
+  },
+  "independent_focused_tests": {
+    "render_vegetation": 24,
+    "nature": 18,
+    "passed": 42,
+    "total": 42
+  },
+  "independent_review": {
+    "score": 8,
+    "model": "gpt-6-luna",
+    "effort": "medium",
+    "source_geometry_defects": 0,
+    "documentation_follow_up": "Stale description corrected and independently rechecked; no remaining source/document inconsistency."
+  },
+  "implementation": {
+    "trunk": "Connected tapered bent open frusta with joint covers",
+    "fork_exponent": 2,
+    "fork_equation": "parent radius squared equals sum of child radii squared, including continuing trunk",
+    "staggered_forks": 4,
+    "branch_paths": "Three bent connected segments",
+    "crown_counts": [
+      7,
+      9,
+      11
+    ],
+    "central_crowns": 3,
+    "rotation": "Independent seeded full yaw for obstacle/background trees; layout randomness preserved",
+    "shared_skeleton_geometries": 2,
+    "bounded_foliage_geometries": 9,
+    "instance_radial_factor_range": [
+      0.7,
+      0.9
+    ],
+    "scale_range": [
+      1.015,
+      3.1
+    ],
+    "sampled_scenery_triangle_max": 39886,
+    "scenery_triangle_limit": 45000,
+    "sampled_draw_max": 117,
+    "draw_limit": 170
+  },
+  "preserved": "Pip size/glow, gameplay colliders and placements, production root",
+  "unrelated_pages_files_preserved": 31,
+  "live_artifacts": [
+    {
+      "path": "index.html",
+      "expected_sha256": "6d3ef281ab895039a1c294172f8e4e585461a923907971131471fa8d87c9288c",
+      "matches": true,
+      "live_sha256": "6d3ef281ab895039a1c294172f8e4e585461a923907971131471fa8d87c9288c"
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "expected_sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "matches": true,
+      "live_sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "expected_sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "matches": true,
+      "live_sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "expected_sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "matches": true,
+      "live_sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "assets/index-BpvKY9aw.css",
+      "expected_sha256": "9fc9f72a1843a488900f8d2e5e4f5ab854e9dbc5cbf63d6b076cb09c8d90ea7d",
+      "matches": true,
+      "live_sha256": "9fc9f72a1843a488900f8d2e5e4f5ab854e9dbc5cbf63d6b076cb09c8d90ea7d"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "expected_sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "matches": true,
+      "live_sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "expected_sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "matches": true,
+      "live_sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "expected_sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "matches": true,
+      "live_sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "expected_sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "matches": true,
+      "live_sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "expected_sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "matches": true,
+      "live_sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "expected_sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "matches": true,
+      "live_sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "expected_sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "matches": true,
+      "live_sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "expected_sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "matches": true,
+      "live_sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "expected_sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "matches": true,
+      "live_sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "assets/index-BuaToXqr.js",
+      "expected_sha256": "2ea8e22882ca05a3ba16c9d75df1144b79ff5f594c61277ec38298728f4213bf",
+      "matches": true,
+      "live_sha256": "2ea8e22882ca05a3ba16c9d75df1144b79ff5f594c61277ec38298728f4213bf"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "expected_sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "matches": true,
+      "live_sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "assets/qa-BRO7Tstr.js",
+      "expected_sha256": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f",
+      "matches": true,
+      "live_sha256": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f"
+    }
+  ],
+  "limits": "Cloud Chrome WebGL2 context creation failed. CPU projection inspected as geometry diagnostic only; no native game-pixel or phone FPS claim. Smoothness of tapered segment joints and overall likeness await user visual acceptance.",
+  "recorded_at": "2026-10-17T02:08:32.287Z"
+}

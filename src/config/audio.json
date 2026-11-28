@@ -1,0 +1,486 @@
+{
+  "mix": {
+    "masterGain": {
+      "value": 0.975,
+      "_comment": "Unmuted master gain; scales all audio buses.",
+      "min": 0,
+      "max": 1
+    },
+    "musicGain": {
+      "value": 0.63,
+      "_comment": "Normal music bus gain, including recovery after thunder.",
+      "min": 0,
+      "max": 1
+    },
+    "effectsGain": {
+      "value": 0.6,
+      "_comment": "Recorded animals and event sound bus gain.",
+      "min": 0,
+      "max": 1
+    },
+    "ambienceGain": {
+      "value": 0.38,
+      "_comment": "Weather and bird bus gain.",
+      "min": 0,
+      "max": 1
+    },
+    "smoothingSeconds": {
+      "value": 0.025,
+      "_comment": "Gain target time constant for activation, mute and pause.",
+      "min": 0.001,
+      "max": 2
+    }
+  },
+  "scheduler": {
+    "startLeadSeconds": {
+      "value": 0.06,
+      "_comment": "Initial look-ahead before the first music step.",
+      "min": 0,
+      "max": 1
+    },
+    "intervalMs": {
+      "value": 100,
+      "_comment": "Music scheduling timer interval in milliseconds.",
+      "min": 10,
+      "max": 1000
+    },
+    "lookAheadSeconds": {
+      "value": 0.25,
+      "_comment": "How far ahead each music scheduling callback queues notes.",
+      "min": 0.01,
+      "max": 2
+    },
+    "maxStepsPerTick": {
+      "value": 8,
+      "_comment": "Hard work budget per scheduler callback; missed beats are skipped.",
+      "min": 1,
+      "max": 64
+    }
+  },
+  "birds": {
+    "clearDelaySeconds": {
+      "value": 4,
+      "_comment": "Minimum delay between clear-weather bird calls.",
+      "min": 0.1,
+      "max": 120
+    },
+    "clearJitterSeconds": {
+      "value": 6,
+      "_comment": "Additional random clear-weather bird delay.",
+      "min": 0,
+      "max": 120
+    },
+    "rainDelaySeconds": {
+      "value": 10,
+      "_comment": "Minimum delay between rainy-weather bird calls.",
+      "min": 0.1,
+      "max": 120
+    },
+    "rainJitterSeconds": {
+      "value": 10,
+      "_comment": "Additional random rainy-weather bird delay.",
+      "min": 0,
+      "max": 120
+    },
+    "frameCapSeconds": {
+      "value": 0.25,
+      "_comment": "Maximum elapsed bird clock step; avoids return-from-background bursts.",
+      "min": 0.001,
+      "max": 1
+    },
+    "rainSuppressionIntensity": {
+      "value": 0.7,
+      "_comment": "Rain intensity at which bird calls stop; storms always suppress calls.",
+      "min": 0,
+      "max": 1
+    },
+    "clearGain": {
+      "value": 0.03,
+      "_comment": "Per-call bird gain in clear or windy weather.",
+      "min": 0,
+      "max": 1
+    },
+    "rainGain": {
+      "value": 0.018,
+      "_comment": "Per-call bird gain in light rain.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "livestock": {
+    "frameCapSeconds": {
+      "value": 0.1,
+      "_comment": "Maximum livestock clock step on one update.",
+      "min": 0.001,
+      "max": 1
+    },
+    "alertThreshold": {
+      "value": 0.03,
+      "_comment": "Alert above this level uses the herded call cadence.",
+      "min": 0,
+      "max": 1
+    },
+    "initialDelaySeconds": {
+      "value": 8,
+      "_comment": "Minimum initial call delay before species scaling.",
+      "min": 0,
+      "max": 300
+    },
+    "initialJitterSeconds": {
+      "value": 32,
+      "_comment": "Seeded initial delay spread before species scaling.",
+      "min": 0,
+      "max": 300
+    },
+    "calmDelaySeconds": {
+      "value": 26,
+      "_comment": "Minimum calm or wandering call interval before species scaling.",
+      "min": 0.1,
+      "max": 600
+    },
+    "calmJitterSeconds": {
+      "value": 24,
+      "_comment": "Seeded spread of calm call intervals.",
+      "min": 0,
+      "max": 600
+    },
+    "herdedDelaySeconds": {
+      "value": 60,
+      "_comment": "Minimum herded call interval; a new bolt still calls immediately.",
+      "min": 0.1,
+      "max": 600
+    },
+    "herdedJitterSeconds": {
+      "value": 60,
+      "_comment": "Seeded spread of herded call intervals.",
+      "min": 0,
+      "max": 600
+    },
+    "sheepIntervalScale": {
+      "value": 2,
+      "_comment": "Multiplier applied only to sheep call intervals.",
+      "min": 0.1,
+      "max": 10
+    },
+    "maxStartsPerFrame": {
+      "value": 2,
+      "_comment": "Ordinary call starts allowed per simulation update.",
+      "min": 1,
+      "max": 32
+    },
+    "maxVoices": {
+      "value": 6,
+      "_comment": "Maximum overlapping livestock calls; a new bolt replaces the oldest.",
+      "min": 1,
+      "max": 32
+    },
+    "maxDistance": {
+      "value": 38,
+      "_comment": "Listener distance beyond which calls are skipped, in world units.",
+      "min": 0,
+      "max": 500
+    },
+    "attenuationDistance": {
+      "value": 12,
+      "_comment": "World distance at which call gain halves.",
+      "min": 0.1,
+      "max": 500
+    },
+    "gain": {
+      "value": 0.0462,
+      "_comment": "Baseline per-call livestock gain before state and distance scaling.",
+      "min": 0,
+      "max": 1
+    },
+    "herdedGainScale": {
+      "value": 1.25,
+      "_comment": "Gain multiplier while herded or bolting.",
+      "min": 0,
+      "max": 4
+    },
+    "cowPitchBase": {
+      "value": 1.1,
+      "_comment": "Lowest identity playback rate for cows before per-call variation.",
+      "min": 0.1,
+      "max": 4
+    },
+    "cowPitchSpread": {
+      "value": 0.04,
+      "_comment": "Seeded identity playback-rate spread for cows.",
+      "min": 0,
+      "max": 1
+    },
+    "cowPitchVariation": {
+      "value": 0.008,
+      "_comment": "Peak-to-peak cow playback-rate variation between calls.",
+      "min": 0,
+      "max": 1
+    },
+    "sheepPitchBase": {
+      "value": 0.94,
+      "_comment": "Lowest identity playback rate for sheep before per-call variation.",
+      "min": 0.1,
+      "max": 4
+    },
+    "sheepPitchSpread": {
+      "value": 0.025,
+      "_comment": "Seeded identity playback-rate spread for sheep.",
+      "min": 0,
+      "max": 1
+    },
+    "sheepPitchVariation": {
+      "value": 0.006,
+      "_comment": "Peak-to-peak sheep playback-rate variation between calls.",
+      "min": 0,
+      "max": 1
+    },
+    "durationMinScale": {
+      "value": 0.93,
+      "_comment": "Minimum livestock duration multiplier.",
+      "min": 0.1,
+      "max": 1
+    },
+    "durationMaxScale": {
+      "value": 1,
+      "_comment": "Maximum livestock duration multiplier.",
+      "min": 0.1,
+      "max": 2
+    },
+    "durationBaseScale": {
+      "value": 0.94,
+      "_comment": "Base livestock duration multiplier before seeded variation.",
+      "min": 0.1,
+      "max": 2
+    },
+    "durationSpread": {
+      "value": 0.06,
+      "_comment": "Seeded identity duration spread.",
+      "min": 0,
+      "max": 1
+    },
+    "durationVariation": {
+      "value": 0.02,
+      "_comment": "Peak-to-peak per-call duration variation.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "voices": {
+    "loadTimeoutMs": {
+      "value": 10000,
+      "_comment": "Timeout for each recorded animal asset request.",
+      "min": 100,
+      "max": 60000
+    },
+    "noiseBufferSeconds": {
+      "value": 2,
+      "_comment": "Reusable weather/thunder noise buffer duration.",
+      "min": 0.1,
+      "max": 10
+    },
+    "startLeadSeconds": {
+      "value": 0.01,
+      "_comment": "Lead time before a recorded or fallback animal source starts.",
+      "min": 0,
+      "max": 0.5
+    },
+    "barkDurationSeconds": {
+      "value": 0.28,
+      "_comment": "Synthesized bark duration and missing-buffer duration fallback.",
+      "min": 0.02,
+      "max": 10
+    },
+    "cowDurationSeconds": {
+      "value": 1.25,
+      "_comment": "Synthesized cow duration and missing-buffer duration fallback.",
+      "min": 0.02,
+      "max": 10
+    },
+    "sheepDurationSeconds": {
+      "value": 0.85,
+      "_comment": "Synthesized sheep duration and missing-buffer duration fallback.",
+      "min": 0.02,
+      "max": 10
+    },
+    "livestockFadeSeconds": {
+      "value": 0.08,
+      "_comment": "Maximum livestock tail fade duration.",
+      "min": 0.001,
+      "max": 1
+    },
+    "livestockFadeFraction": {
+      "value": 0.15,
+      "_comment": "Maximum fraction of a livestock call used by its tail fade.",
+      "min": 0.001,
+      "max": 0.5
+    },
+    "livestockAttackSeconds": {
+      "value": 0.02,
+      "_comment": "Maximum livestock onset fade duration.",
+      "min": 0.001,
+      "max": 1
+    },
+    "livestockAttackFraction": {
+      "value": 0.1,
+      "_comment": "Maximum fraction of a livestock call used by its onset fade.",
+      "min": 0.001,
+      "max": 0.5
+    },
+    "stopPaddingSeconds": {
+      "value": 0.02,
+      "_comment": "Buffer-source stop padding after its audible envelope.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "weather": {
+    "defaultIntensity": {
+      "value": 0.3,
+      "_comment": "Intensity for a weather name without a structured state.",
+      "min": 0,
+      "max": 1
+    },
+    "stormRainScale": {
+      "value": 1,
+      "_comment": "Rain-bed scale for storms.",
+      "min": 0,
+      "max": 2
+    },
+    "heavyRainScale": {
+      "value": 0.85,
+      "_comment": "Rain-bed scale for heavy rain.",
+      "min": 0,
+      "max": 2
+    },
+    "lightRainScale": {
+      "value": 0.5,
+      "_comment": "Rain-bed scale for other rain.",
+      "min": 0,
+      "max": 2
+    },
+    "rainGain": {
+      "value": 0.032,
+      "_comment": "Rain noise gain before tier and intensity scaling.",
+      "min": 0,
+      "max": 1
+    },
+    "windGain": {
+      "value": 0.024,
+      "_comment": "Wind noise gain before intensity scaling.",
+      "min": 0,
+      "max": 1
+    },
+    "rainLowpassHz": {
+      "value": 2200,
+      "_comment": "Rain noise low-pass cutoff in hertz.",
+      "min": 20,
+      "max": 20000
+    },
+    "windLowpassHz": {
+      "value": 500,
+      "_comment": "Wind noise low-pass cutoff in hertz.",
+      "min": 20,
+      "max": 20000
+    },
+    "gainChangeThreshold": {
+      "value": 0.001,
+      "_comment": "Minimum weather gain change before scheduling a target.",
+      "min": 0,
+      "max": 0.1
+    },
+    "smoothingSeconds": {
+      "value": 0.8,
+      "_comment": "Time constant for weather gain changes.",
+      "min": 0.001,
+      "max": 10
+    }
+  },
+  "thunder": {
+    "eventToleranceSeconds": {
+      "value": 0.2,
+      "_comment": "Grace period after the paired thunder delay; older events are observed silently.",
+      "min": 0,
+      "max": 2
+    },
+    "startLeadSeconds": {
+      "value": 0.01,
+      "_comment": "Minimum lead before a thunder source begins.",
+      "min": 0,
+      "max": 0.5
+    },
+    "durationSeconds": {
+      "value": 3,
+      "_comment": "Minimum rolling thunder duration.",
+      "min": 0.1,
+      "max": 20
+    },
+    "durationJitterSeconds": {
+      "value": 2,
+      "_comment": "Additional random rolling thunder duration.",
+      "min": 0,
+      "max": 20
+    },
+    "duckMusicGain": {
+      "value": 0.24,
+      "_comment": "Music bus gain during thunder.",
+      "min": 0,
+      "max": 1
+    },
+    "duckSeconds": {
+      "value": 0.04,
+      "_comment": "Time constant when ducking music for thunder.",
+      "min": 0.001,
+      "max": 2
+    },
+    "recoveryFraction": {
+      "value": 0.72,
+      "_comment": "Fraction of thunder duration before music recovers.",
+      "min": 0,
+      "max": 1
+    },
+    "recoverySeconds": {
+      "value": 0.35,
+      "_comment": "Music recovery time constant after thunder.",
+      "min": 0.001,
+      "max": 5
+    }
+  },
+  "effects": {
+    "maxVoices": {
+      "value": 128,
+      "_comment": "Shared active-source ceiling for synthesized event notes.",
+      "min": 1,
+      "max": 512
+    },
+    "barkGain": {
+      "value": 0.2,
+      "_comment": "Per-voice dog bark gain.",
+      "min": 0,
+      "max": 1
+    },
+    "pipPitch": {
+      "value": 0.78,
+      "_comment": "Pip bark playback rate; Buddy keeps the source rate.",
+      "min": 0.1,
+      "max": 4
+    },
+    "phraseSpacingSeconds": {
+      "value": 0.115,
+      "_comment": "Spacing between reward/UI phrase notes.",
+      "min": 0.001,
+      "max": 2
+    },
+    "noteDurationSeconds": {
+      "value": 0.28,
+      "_comment": "Reward/UI phrase note duration.",
+      "min": 0.01,
+      "max": 5
+    },
+    "noteGain": {
+      "value": 0.16,
+      "_comment": "Reward/UI phrase note gain.",
+      "min": 0,
+      "max": 1
+    }
+  }
+}

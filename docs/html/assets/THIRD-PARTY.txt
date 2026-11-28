@@ -1,0 +1,1 @@
+Mermaid 11.12.1 — MIT license; see MERMAID-LICENSE.txt. Bundled diagram dependencies retain their license comments in mermaid.min.js. Marked 17.0.1 (MIT) is used at build time only.

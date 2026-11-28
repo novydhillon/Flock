@@ -1,0 +1,212 @@
+{
+  "transport": {
+    "tempo": {
+      "value": 70,
+      "_comment": "Score tempo in beats per minute; eighth-note timing is owned by FarmAudio.",
+      "min": 20,
+      "max": 300
+    }
+  },
+  "score": {
+    "swing": {
+      "value": 0.16,
+      "_comment": "Delay of odd eighth notes, expressed as a fraction of one eighth.",
+      "min": 0,
+      "max": 0.49
+    },
+    "chordRollSeconds": {
+      "value": 0.018,
+      "_comment": "Delay between consecutive notes in a chord.",
+      "min": 0,
+      "max": 0.2
+    },
+    "chordDurationEighths": {
+      "value": 7.2,
+      "_comment": "Duration of the electric-piano chord in eighth notes.",
+      "min": 0.1,
+      "max": 16
+    },
+    "chordGain": {
+      "value": 0.033,
+      "_comment": "First chord per phrase voice gain.",
+      "min": 0,
+      "max": 1
+    },
+    "answerChordGain": {
+      "value": 0.025,
+      "_comment": "Second chord per phrase voice gain.",
+      "min": 0,
+      "max": 1
+    },
+    "bassDurationEighths": {
+      "value": 3.5,
+      "_comment": "Duration of the main bass notes in eighth notes.",
+      "min": 0.1,
+      "max": 16
+    },
+    "bassGain": {
+      "value": 0.085,
+      "_comment": "Main bass per-voice gain.",
+      "min": 0,
+      "max": 1
+    },
+    "bassFillDurationEighths": {
+      "value": 1.65,
+      "_comment": "Duration of bass answer notes in eighth notes.",
+      "min": 0.1,
+      "max": 16
+    },
+    "bassFillGain": {
+      "value": 0.045,
+      "_comment": "Bass answer per-voice gain.",
+      "min": 0,
+      "max": 1
+    },
+    "melodyDurationEighths": {
+      "value": 3.2,
+      "_comment": "Duration of sparse melody notes in eighth notes.",
+      "min": 0.1,
+      "max": 16
+    },
+    "melodyGain": {
+      "value": 0.018,
+      "_comment": "Sparse melody per-voice gain.",
+      "min": 0,
+      "max": 1
+    },
+    "kickDurationSeconds": {
+      "value": 0.28,
+      "_comment": "Low kick note duration.",
+      "min": 0.01,
+      "max": 5
+    },
+    "kickGain": {
+      "value": 0.075,
+      "_comment": "Main kick per-voice gain.",
+      "min": 0,
+      "max": 1
+    },
+    "pickupKickGain": {
+      "value": 0.035,
+      "_comment": "Quiet pickup kick gain.",
+      "min": 0,
+      "max": 1
+    },
+    "tapDelaySeconds": {
+      "value": 0.018,
+      "_comment": "Offset of the rounded low taps.",
+      "min": 0,
+      "max": 0.5
+    },
+    "tapDurationSeconds": {
+      "value": 0.22,
+      "_comment": "Rounded low-tap duration.",
+      "min": 0.01,
+      "max": 5
+    },
+    "tapGain": {
+      "value": 0.017,
+      "_comment": "Rounded low-tap gain.",
+      "min": 0,
+      "max": 1
+    },
+    "answerTapDurationSeconds": {
+      "value": 0.19,
+      "_comment": "Quiet answer-tap duration.",
+      "min": 0.01,
+      "max": 5
+    },
+    "answerTapGain": {
+      "value": 0.009,
+      "_comment": "Quiet answer-tap gain.",
+      "min": 0,
+      "max": 1
+    },
+    "keyPartialDurationScale": {
+      "value": 0.55,
+      "_comment": "Duration scale for the quiet octave partial of keys.",
+      "min": 0.01,
+      "max": 1
+    },
+    "keyPartialGainScale": {
+      "value": 0.14,
+      "_comment": "Gain scale for the quiet octave partial of keys.",
+      "min": 0,
+      "max": 1
+    }
+  },
+  "voices": {
+    "maxActive": {
+      "value": 128,
+      "_comment": "Shared active-source ceiling before a new music voice is skipped.",
+      "min": 1,
+      "max": 512
+    },
+    "bassAttackSeconds": {
+      "value": 0.055,
+      "_comment": "Bass attack ramp duration.",
+      "min": 0.001,
+      "max": 2
+    },
+    "percussionAttackSeconds": {
+      "value": 0.03,
+      "_comment": "Kick and tap attack ramp duration.",
+      "min": 0.001,
+      "max": 2
+    },
+    "melodyAttackSeconds": {
+      "value": 0.08,
+      "_comment": "Melody attack ramp duration.",
+      "min": 0.001,
+      "max": 2
+    },
+    "keysAttackSeconds": {
+      "value": 0.055,
+      "_comment": "Key attack ramp duration.",
+      "min": 0.001,
+      "max": 2
+    },
+    "melodyLowpassHz": {
+      "value": 1050,
+      "_comment": "Melody low-pass cutoff in hertz.",
+      "min": 20,
+      "max": 20000
+    },
+    "keysLowpassHz": {
+      "value": 1450,
+      "_comment": "Key low-pass cutoff in hertz.",
+      "min": 20,
+      "max": 20000
+    },
+    "bassLowpassHz": {
+      "value": 700,
+      "_comment": "Low-pass cutoff for bass and low percussion in hertz.",
+      "min": 20,
+      "max": 20000
+    },
+    "releaseSeconds": {
+      "value": 0.06,
+      "_comment": "Final zero-gain envelope ramp after the audible decay.",
+      "min": 0.001,
+      "max": 2
+    },
+    "stopPaddingSeconds": {
+      "value": 0.07,
+      "_comment": "Source stop delay beyond the main note duration.",
+      "min": 0.001,
+      "max": 2
+    },
+    "pauseReleaseSeconds": {
+      "value": 0.012,
+      "_comment": "Separate gain gate time constant when stopping transport.",
+      "min": 0.001,
+      "max": 1
+    },
+    "pauseStopSeconds": {
+      "value": 0.08,
+      "_comment": "Source stop delay when transport pauses.",
+      "min": 0.001,
+      "max": 2
+    }
+  }
+}

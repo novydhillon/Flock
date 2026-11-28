@@ -1,0 +1,210 @@
+{
+  "upgrades": {
+    "speed": {
+      "costs": {
+        "value": [
+          80,
+          120,
+          200
+        ],
+        "_comment": "Bolt prices for Turbo paws tiers 1–3; one tier is purchased at a time.",
+        "min": 0
+      },
+      "unlockLevels": {
+        "value": [
+          2,
+          6,
+          11
+        ],
+        "_comment": "One-based campaign levels that unlock Turbo paws tiers 1–3.",
+        "min": 1,
+        "max": 100
+      }
+    },
+    "flock": {
+      "costs": {
+        "value": [
+          120,
+          180,
+          260
+        ],
+        "_comment": "Bolt prices for Friendly signal tiers 1–3.",
+        "min": 0
+      },
+      "unlockLevels": {
+        "value": [
+          7,
+          10,
+          15
+        ],
+        "_comment": "One-based campaign levels that unlock Friendly signal tiers 1–3.",
+        "min": 1,
+        "max": 100
+      }
+    },
+    "drone": {
+      "costs": {
+        "value": [
+          200,
+          360,
+          540
+        ],
+        "_comment": "Bolt prices for Scout drone tiers 1–3.",
+        "min": 0
+      },
+      "unlockLevels": {
+        "value": [
+          10,
+          14,
+          18
+        ],
+        "_comment": "One-based campaign levels that unlock Scout drone tiers 1–3.",
+        "min": 1,
+        "max": 100
+      }
+    },
+    "helper": {
+      "costs": {
+        "value": [
+          600,
+          850,
+          1200
+        ],
+        "_comment": "Bolt prices for Buddy dog tiers 1–3; Buddy stays a later campaign purchase.",
+        "min": 0
+      },
+      "unlockLevels": {
+        "value": [
+          20,
+          24,
+          28
+        ],
+        "_comment": "One-based campaign levels that unlock Buddy dog tiers 1–3.",
+        "min": 1,
+        "max": 100
+      }
+    },
+    "bark": {
+      "costs": {
+        "value": [
+          100,
+          160,
+          240
+        ],
+        "_comment": "Bolt prices for Happy bark tiers 1–3.",
+        "min": 0
+      },
+      "unlockLevels": {
+        "value": [
+          4,
+          8,
+          13
+        ],
+        "_comment": "One-based campaign levels that unlock Happy bark tiers 1–3.",
+        "min": 1,
+        "max": 100
+      }
+    },
+    "cohesion": {
+      "costs": {
+        "value": [
+          160,
+          220,
+          320
+        ],
+        "_comment": "Bolt prices for Flock harmony tiers 1–3.",
+        "min": 0
+      },
+      "unlockLevels": {
+        "value": [
+          12,
+          14,
+          15
+        ],
+        "_comment": "One-based campaign levels that unlock Flock harmony tiers 1–3.",
+        "min": 1,
+        "max": 100
+      }
+    }
+  },
+  "effects": {
+    "speedBoost": {
+      "value": [
+        0,
+        1.8,
+        2.7,
+        3.5
+      ],
+      "_comment": "Additional Pip speed in world units/second for unowned and tiers 1–3.",
+      "min": 0
+    },
+    "signalBoost": {
+      "value": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "_comment": "Additional herding radius in world units for unowned and tiers 1–3.",
+      "min": 0
+    },
+    "cohesionBoost": {
+      "value": [
+        0,
+        0.12,
+        0.23,
+        0.35
+      ],
+      "_comment": "Additional regrouping fraction for unowned and tiers 1–3.",
+      "min": 0
+    },
+    "droneStrength": {
+      "value": [
+        0,
+        0.7,
+        0.93,
+        1.17
+      ],
+      "_comment": "Absolute lateral-support strength for unowned and drone tiers 1–3.",
+      "min": 0
+    },
+    "helperStrength": {
+      "value": [
+        0,
+        1,
+        1.3,
+        1.58
+      ],
+      "_comment": "Absolute Buddy support strength for unowned and helper tiers 1–3.",
+      "min": 0
+    },
+    "bark": {
+      "baseMultiplier": {
+        "value": 1.65,
+        "_comment": "Unupgraded bark pressure multiplier; also the base used for additive bark boosts.",
+        "min": 0
+      },
+      "tierOneBoost": {
+        "value": 0.25,
+        "_comment": "Added to base pressure for the first bark tier; later tiers multiply that combined pressure.",
+        "min": 0
+      },
+      "advancedMultiplier": {
+        "value": 1.33,
+        "_comment": "Multiplier applied to first-tier pressure for tiers 2 and 3; both retain the same strength.",
+        "min": 0
+      },
+      "charges": {
+        "value": [
+          1,
+          1,
+          1,
+          2
+        ],
+        "_comment": "Available bark charges for unowned and tiers 1–3; the supported player capacities are one or two.",
+        "min": 1,
+        "max": 2
+      }
+    }
+  }
+}

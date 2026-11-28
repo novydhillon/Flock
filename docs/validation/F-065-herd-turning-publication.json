@@ -1,0 +1,100 @@
+{
+  "source": "1f96a37b22f04eb118a2317a43cb4b888431e656",
+  "pages": "718e56c06c5bae97a18ebd1a90a141263b57ba59",
+  "sourceCI": 39182947562,
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "files": {
+    "index.html": "2bfdf0ceeeb489a038c3767e25b8914342f7b7579a7d8baccda0984bb2445fb4",
+    "assets/outfit-latin-900-normal-DBTzQ72N.woff": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+    "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+    "assets/index-BL6CDKMp.css": "66d7f4f0fd416551192b8042779bb90450b613b6a40118bd947a02a9307d07f8",
+    "assets/outfit-latin-600-normal-B7SfZ07L.woff2": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+    "assets/dm-sans-latin-700-normal-CUSSCpQX.woff": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+    "assets/outfit-latin-700-normal-D4itBLBr.woff": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+    "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+    "assets/qa-DWlVkWAo.css": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+    "assets/index-B8a5SO7d.js": "b45305a0c0491bfb624822b0f9bbb9dfe4e18519ff5853e08d83406096eaf006",
+    "assets/outfit-latin-900-normal-D7VxKg29.woff2": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+    "assets/dm-sans-latin-400-normal-BwCSEQnW.woff": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+    "assets/outfit-latin-700-normal-Cu9v6i1X.woff2": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+    "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+    "assets/outfit-latin-600-normal-BEfTtDA7.woff": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+    "assets/qa-zi0fe21l.js": "5da403244232dcbe8b1491340a9a0afbc2aa67dd0d026161b9c5ff243b2a9e8f",
+    "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+  },
+  "liveFiles": [
+    {
+      "path": "index.html",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "match": true
+    },
+    {
+      "path": "assets/index-BL6CDKMp.css",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "match": true
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "match": true
+    },
+    {
+      "path": "assets/index-B8a5SO7d.js",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "match": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "match": true
+    },
+    {
+      "path": "assets/qa-zi0fe21l.js",
+      "match": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "match": true
+    }
+  ],
+  "nativePages": 39183051113,
+  "nativeConclusion": "success",
+  "preservedOutsideDev": true,
+  "independentReviewScore": 10,
+  "userAcceptance": "Pending dev test"
+}

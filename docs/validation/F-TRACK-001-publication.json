@@ -1,0 +1,79 @@
+{
+  "issue": "F-TRACK-001",
+  "status": "Done",
+  "owner": "Codex",
+  "branch": "feature/work-tracker",
+  "reviewed_source_sha": "d91fec7bf0e6606d098a995abb42c68c8d43c6f4",
+  "url": "https://novydhillon.github.io/Flock/tracker/",
+  "pages_sha": "c00405316357a5058633b7d149bfb00e936f06e4",
+  "pages_parent_sha": "9cf6a31b6cb6466392673dc38730f695cc2a4986",
+  "publication": "success",
+  "source_ci": {
+    "url": "https://github.com/novydhillon/Flock/actions/runs/39205727943",
+    "conclusion": "success"
+  },
+  "pages_workflow": {
+    "url": "https://github.com/novydhillon/Flock/actions/runs/39205854365",
+    "conclusion": "success"
+  },
+  "checks": {
+    "regressions": 350,
+    "focused_tracker_checks": 12,
+    "docs_behavior_checks": 4,
+    "docs_pages": 13,
+    "release_artifact": "pass, no QA",
+    "development_artifact": "pass, QA included",
+    "independent_source_review": 9,
+    "unchanged_existing_pages_files": 66,
+    "published_repository_files_byte_equal": 4
+  },
+  "files": [
+    {
+      "path": "tracker/index.html",
+      "bytes": 3995,
+      "sha256": "72f9c76594043f41c696fb8bc0760584dc5af36558dd7cbae879e4115fe264c2",
+      "git_blob_sha": "47e5a090d204e51fcb8017f0591f08f200758811"
+    },
+    {
+      "path": "tracker/app.js",
+      "bytes": 7864,
+      "sha256": "a7f1857e37662304c85f89eb2da31b3aafcca83b650858d3f244bc31656f8e79",
+      "git_blob_sha": "dbba67e949313bbc4ef46e591c0b216680e906b6"
+    },
+    {
+      "path": "tracker/parser.js",
+      "bytes": 6672,
+      "sha256": "aefc44da75deadfd6623c4c6ac13e4976dac8ad671e44ac453b6b53213c477ed",
+      "git_blob_sha": "5497147b13ead7d7f315a1fc154364b6ce9f052c"
+    },
+    {
+      "path": "tracker/styles.css",
+      "bytes": 9577,
+      "sha256": "928a3ec3dc4fa56894aed432011fcb2582692232a46c960d547bbb76a4de69d2",
+      "git_blob_sha": "068792b5bad182c1ec86cfc2ec978b0b7f36b722"
+    }
+  ],
+  "data_source": {
+    "repository": "novydhillon/Flock",
+    "ref": "main",
+    "files": [
+      "docs/ISSUES.md",
+      "docs/ISSUES_CLOSED.md"
+    ],
+    "snapshot": "Resolve main SHA before both reads; atomic refresh"
+  },
+  "limitations": [
+    "No rendered browser/mobile or native dialog/touch checks; jsdom substitutes only.",
+    "Published gh-pages bytes match checked files and native Pages reports success; live HTTP endpoint asset hashes unavailable through the repository connector.",
+    "Some historical tickets do not record working branches; UI says not recorded."
+  ],
+  "user_acceptance": {
+    "date": "2026-10-18T22:45:18-07:00",
+    "by": "Novy",
+    "instruction": "Signed off. Push changes to remote and merge to main."
+  },
+  "main_merge": {
+    "authorized": true,
+    "pr": 11
+  }
+}

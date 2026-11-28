@@ -1,0 +1,152 @@
+{
+  "date": "2026-10-24",
+  "timezone": "America/Creston",
+  "branch": "p1_gameplay_polish",
+  "base_sha": "2655525ed219f799ad0392a1e76bf94a3f0b4e04",
+  "status": "Review; not deployed; awaiting user acceptance",
+  "models": {
+    "implementation": "session model; identifier and inherited effort are not exposed",
+    "review": "session model; identifier not exposed; explicit high effort requested for each fresh critic"
+  },
+  "validation": {
+    "command": "npm run build:checked:dev",
+    "exit_code": 0,
+    "runtime_tests": {
+      "passed": 449,
+      "failed": 0
+    },
+    "docs_behavior_tests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "release": {
+      "files": 27,
+      "qa_assets": 0
+    },
+    "development": {
+      "files": 29,
+      "qa_assets": 2
+    },
+    "final_docs_check": "Passed after final quality/status regeneration: 13 pages, 1812 local links/anchors, 9 diagrams and 4 behavior tests"
+  },
+  "reviews": [
+    {
+      "scope": "controller/audio",
+      "effort": "high",
+      "passes": [
+        {
+          "score": 8,
+          "findings": [
+            "QA VM missing bark imports",
+            "restart retained pending double tap"
+          ]
+        },
+        {
+          "score": 9.2,
+          "findings": [],
+          "focused_tests_passed": 80
+        }
+      ]
+    },
+    {
+      "scope": "herd",
+      "effort": "high",
+      "passes": [
+        {
+          "score": 8,
+          "findings": [
+            "packed saved arrivals deadlocked in overlap",
+            "ordinary departure lacked anticipation"
+          ]
+        },
+        {
+          "score": 8.8,
+          "findings": [
+            "scheduled nonbolting wander lacked anticipation"
+          ]
+        },
+        {
+          "score": 9.2,
+          "findings": [],
+          "focused_tests_passed": 69
+        }
+      ]
+    },
+    {
+      "scope": "water/wildlife",
+      "effort": "high",
+      "passes": [
+        {
+          "score": 9,
+          "findings": [
+            "shelter paw horizontal offset",
+            "fabricated-only river fixture"
+          ]
+        },
+        {
+          "score": 8,
+          "findings": [
+            "bounded refinement left invisible campaign river regions"
+          ]
+        },
+        {
+          "score": 9.5,
+          "findings": [],
+          "focused_tests_passed": 38,
+          "campaign_rivers_scanned": 184,
+          "centerline_samples": 22824,
+          "inside_ribbon_samples": 91296,
+          "max_overlay_vertices": 453
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No rendered WebGL check: local browser binary unavailable and attempted Chromium download returned invalid empty archive.",
+    "No physical phone appearance, touch/herding feel, native GPU FPS or listening validation.",
+    "Vite retains advisory chunk-size warning; final release JS 730.41kB/209.25kB gzip, development JS 732.44kB/210.12kB gzip.",
+    "No PR, dev publication, production merge or production publication included."
+  ],
+  "source_files_sha256": {
+    "src/AGENTS.md": "52913b775e350da8ebab1c70b9d7708f4707224bcb318bc97f43fb20aca67c1a",
+    "src/animal-size.js": "355752caa759ade1ff4060ff0cfac57413d2506d19d04d9976c8c588bed857e8",
+    "src/animal-turn.js": "8dfd5977dbabb407fbe2a6a3eddd68c0a5492c68da87a75bd39c213cd5e8ca25",
+    "src/atmosphere.js": "6ccbbe3a703df6b404b90ab63041419d5bcccff80d1183b6b591baf573d1b710",
+    "src/audio.js": "cb94f4aa4163369aa44eaf4b403ead506e7a1509c8b46e17fd1c9a4892aaf7ee",
+    "src/bark.js": "3e99ef11df99d0565b4317b58035dc2e1a0665472445859f29d4c42011c1367d",
+    "src/bridge-crossing.js": "6178638263daee6cf47df507b5886647df1617410b03ac6ffbf2b1f84d4d83e8",
+    "src/buddy-navigation.js": "6b8773b7a796ef3a652004e16aa95a9c47d705455db45e58d903d74c5cb95364",
+    "src/buddy.js": "a255fd77a37664a4bf920308fb7a76ec2b49ff1f1b9956251c253280674e5d41",
+    "src/chokepoints.js": "3906bff0f030ab570253bafd5cbb458db83e48b436a2b2836a1a93456e121526",
+    "src/cutaway.js": "d7d76f3bca92fd9e0b43d5606d815ee0a87bce75e7551430afd3742ec4ea6592",
+    "src/gate-view.js": "b7775e1449c192cee65458028f5bef6a87be597b3dc16f8d636c413da4cdeaeb",
+    "src/gates.css": "b1110219a8f080785b46aaa61142fd0ba3d2d9224466d5d58c73ad05b4e751b7",
+    "src/gates.js": "59b4697e61d399eef492cd4934b9cbcb5e1b23e7c1af3eeaa78562855734bdbb",
+    "src/goal-view.js": "f9db03ca1c06425780b62a8c290ab915988213a95c917810d8bcf3ef7500c8a3",
+    "src/grazing.js": "97eb81feea797bb9a8064a8dedeb271b6685bd9883c2ec688766f54479842cbf",
+    "src/herd-behavior.js": "a012b37b8fc6d6ee4d26d321b32e68f80be120f5f86f45bedc548e15165e89bf",
+    "src/herd-pose.js": "eb5b3aeb2bda08930d40cd2daa1d6710fbd335979c564649043682444c07b73a",
+    "src/main.js": "094c81f9ab8fcdbfd52c52fc9ce9af4a8e4f63e4ac56f3b1d9127041e2584263",
+    "src/models.js": "d3022694983501edd69e3981173b500598927b30f7fe65019823f3fac53cd189",
+    "src/nature.js": "e232b834b836f452f281866de96ad16653c7178ab9b3dc9d90ebeb2b91170541",
+    "src/pip-motion.js": "c28bc1d0bb5ddfdb07ed3ca8cc4874de45c39c23e74a040b752cc0cd4f716f9e",
+    "src/progression.js": "929f0bc8f84e646494c75006d5787f654efb3c13e7edd3e74dad57e8fbfe0b67",
+    "src/qa.css": "fffafb9d6efcf7ebceac29c6b6c2e587380cea164183f66784b1d5f0a54bf3be",
+    "src/qa.js": "fa5509868a2503e787557e4bb382782061e951dcc9a6650953e821aaa707cf91",
+    "src/rain-view.js": "3db3bc1cce393ad785ed993873f3171ca138d362f6e2e6f40efdec39a00f7b8e",
+    "src/render.js": "e2741a23fccf853f7e95466bbb05aadbbc8f071cc602c1d4a113733040b616d5",
+    "src/simulation.js": "a7fae9fb0cc0c6b1453b4c7baac3314bd414111c777d14895dd64619f3216229",
+    "src/style.css": "f04e960bfda4d666e2f88944cae92b0d85fdffde3a933cfd5bbdac644d4c74c1",
+    "src/surfaces.js": "e271067e72465b3c9593bec858b66a885288be37f1dcf0c0cec2501aeb33dbf4",
+    "src/tail-light.js": "383e945d957d7bc71758ba5b558a1d88e0eb673e6c052787b4416f0ed5141038",
+    "src/thruster-glow.js": "d5b5a938c757a8ed0720cf77954fbbd7edec798a7398c47f141f86b30cc07a82",
+    "src/tree-geometry.js": "e3d6ca7b95075b9d035e86a87bd89c4dc5d7021b82ab1fb29d92c686abe5e22f",
+    "src/vegetation.js": "1437ce2622a23c81ac618184bdfcea01d72bc3669a399795c38f260c287ec8e3",
+    "src/wandering.js": "415b6887e1054d7141b0a7f2ef06dcbf2d9f203cfd5753e3412be47f62504c46",
+    "src/water-effects.js": "154d000e94c5f1e80c21e06e06f1095ad8799db90b583c82ae99eb8b20f93ab0",
+    "src/weather.js": "d0e77ea2d62ec382fd00fd2d6bde04c1cfa6c55532c25b87db3a362ea1cac55d",
+    "src/wildlife-models.js": "3cb53e9b03bc44ba8d27f925fa2c214009bf0e33bf800daf8dc3258c7c075470",
+    "src/wildlife.js": "ceb1268f5b96a4a61e06957dcbe8518266dd9011ab219590a88f8e987c0437b1",
+    "src/world.js": "191d2452f4e7a8f93300dca32b9dc1746b2cf94f723df1f6cfe7afec73c9681d"
+  }
+}

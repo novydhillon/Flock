@@ -1,0 +1,333 @@
+{
+  "task": "Integrate main into plan/bird-behaviour",
+  "main": "d2484b9b56aea9e37f64175603e6ca44da98bb1a",
+  "branch_parent": "6ca2b35e4d8a16f28944515a2aef2a1e5c9b9748",
+  "shared_base": "5fd8cf5a4d136a1f898f3d35a3cb67cb9533c2c0",
+  "main_commits_imported": 5,
+  "validation": {
+    "regression_tests_passed": 338,
+    "documentation_pages": 13,
+    "documentation_behavior_tests": 4,
+    "release_files": 15,
+    "release_qa_assets": 0,
+    "development_files": 17,
+    "development_qa_assets": 2,
+    "active_issues": 59,
+    "closed_issues": 49,
+    "planning_issues_open": 42,
+    "imported_runtime_and_tests_match_main": true
+  },
+  "matched_main_blobs": [
+    {
+      "path": ".github/workflows/deploy-dev2.yml",
+      "sha": "7cca387588d85ce28a6b1851af38985e3ac5435e"
+    },
+    {
+      "path": "docs/validation/F-066-grazing-production-publication.json",
+      "sha": "5b909ceba966cdf59d01f06815360563859da7da"
+    },
+    {
+      "path": "docs/validation/F-066-grazing-publication.json",
+      "sha": "02d84d433f67e7d7d887dff2af2329979b08505d"
+    },
+    {
+      "path": "src/animal-size.js",
+      "sha": "39d123359f5c89bdf41769c809063d48c3571bba"
+    },
+    {
+      "path": "src/animal-turn.js",
+      "sha": "20e0c85dd2a7e843f6a846924d8dc2265e6d3184"
+    },
+    {
+      "path": "src/atmosphere.js",
+      "sha": "b3d956793fc9862100cacda33fd021513601f5c7"
+    },
+    {
+      "path": "src/audio.js",
+      "sha": "fa92f9486e394dddc8128e6f754f295a7804d52f"
+    },
+    {
+      "path": "src/bridge-crossing.js",
+      "sha": "299b94f244eb7b1b93bd4e1608bfc012e1369a06"
+    },
+    {
+      "path": "src/buddy-navigation.js",
+      "sha": "b6301db4c42d296eb511402331d790308d2f612b"
+    },
+    {
+      "path": "src/buddy.js",
+      "sha": "57f984f43a08681bd9f5998b6fb58df193d60e9d"
+    },
+    {
+      "path": "src/cutaway.js",
+      "sha": "22dc035c3a05761565239071794bbe7e1bb70dba"
+    },
+    {
+      "path": "src/gate-view.js",
+      "sha": "0637d0ee81039077e0920b0d1b843748ad8600d2"
+    },
+    {
+      "path": "src/gates.css",
+      "sha": "bbebd75a5962192a443fa3dc9b9094c4325f973f"
+    },
+    {
+      "path": "src/gates.js",
+      "sha": "afb191681264089ed453115571dde386d883813b"
+    },
+    {
+      "path": "src/goal-view.js",
+      "sha": "17d216b05395cdb95c5c270582a68edce65ed825"
+    },
+    {
+      "path": "src/grazing.js",
+      "sha": "b65f70ab25d13d20c43cc39531c96cb4b49597e3"
+    },
+    {
+      "path": "src/main.js",
+      "sha": "f536621cdd65a083f3bd4bd624b96c9ac7c6333b"
+    },
+    {
+      "path": "src/models.js",
+      "sha": "01880a59db3c9b10e124c71e6105715ae0b0fd7f"
+    },
+    {
+      "path": "src/nature.js",
+      "sha": "cd4074a3cb3761bb3729bea2a450fff04bba1c68"
+    },
+    {
+      "path": "src/pip-motion.js",
+      "sha": "005c5186d700c8c782d9c760ec2e3feb0dbc17c0"
+    },
+    {
+      "path": "src/progression.js",
+      "sha": "663134c1e03f7510135591e555fb36f0883163ce"
+    },
+    {
+      "path": "src/qa.css",
+      "sha": "339bee557bfe7ccb9a25dd8fb62578b630a1b79e"
+    },
+    {
+      "path": "src/qa.js",
+      "sha": "f2adb30d4670475b12bc88344128d3778768df67"
+    },
+    {
+      "path": "src/rain-view.js",
+      "sha": "d866ef9cae27e16d41e6643f6133f6ed932eb649"
+    },
+    {
+      "path": "src/render.js",
+      "sha": "e0b5684b310a0f29451101c945cef0f577859598"
+    },
+    {
+      "path": "src/simulation.js",
+      "sha": "563f4c7352b229aa8e21275cb8b8dea22d14b011"
+    },
+    {
+      "path": "src/style.css",
+      "sha": "edeebdfd1463308b97c472f821ad3f4df277ae25"
+    },
+    {
+      "path": "src/surfaces.js",
+      "sha": "f4db4906848613d3201ede6eb9817fe2762174a9"
+    },
+    {
+      "path": "src/tail-light.js",
+      "sha": "c10d2dd5f935b92294991463ecff0ad6eb0a9435"
+    },
+    {
+      "path": "src/thruster-glow.js",
+      "sha": "0177abe02360df170479d89d225b49bab25ed7ef"
+    },
+    {
+      "path": "src/tree-geometry.js",
+      "sha": "0b07dbd8f257af490cbb7e7e39f76bea074c8818"
+    },
+    {
+      "path": "src/vegetation.js",
+      "sha": "c64f2639dc7d01ff0a90a081fef2493a885097d2"
+    },
+    {
+      "path": "src/wandering.js",
+      "sha": "5d9dea124db9a8daa92a11aaa9f72a35430fb4a8"
+    },
+    {
+      "path": "src/water-effects.js",
+      "sha": "73cbfd45a7e56fe48263d50abf8566a5a37da08c"
+    },
+    {
+      "path": "src/weather.js",
+      "sha": "af7c9e2609bb0ab689879fb5416acc6fcab6bb7b"
+    },
+    {
+      "path": "src/wildlife-models.js",
+      "sha": "9874cfc85f7fe7feb14ac704115f78c1b698e498"
+    },
+    {
+      "path": "src/wildlife.js",
+      "sha": "b9f88a899562042d71f26f1e42a7c598c8b92cae"
+    },
+    {
+      "path": "src/world.js",
+      "sha": "554a918030b4671c63983f6c4adf29efcd1b26a2"
+    },
+    {
+      "path": "tests/animal-turn.test.js",
+      "sha": "f1bfc9409d5f9b46d502d9bc91082962185ff7b5"
+    },
+    {
+      "path": "tests/audio.test.js",
+      "sha": "c4bfbae9a7bd880b36bd1277aea80cf77250489d"
+    },
+    {
+      "path": "tests/bridge-crossing.test.js",
+      "sha": "30ce415153edd959d62f2f1b8df708e2c7c39add"
+    },
+    {
+      "path": "tests/buddy-model.test.js",
+      "sha": "235878cf30ed8179768f632150f58ddb322e0b27"
+    },
+    {
+      "path": "tests/buddy.test.js",
+      "sha": "c8ba30030de5cf48e602f5e54d04dea56755469c"
+    },
+    {
+      "path": "tests/companions.test.js",
+      "sha": "7c9c8535d4910fc5fddc5c73a927647d9916d858"
+    },
+    {
+      "path": "tests/cow-model.test.js",
+      "sha": "0d39bb3ecdc1f2f43372b2528c1eedbb5dde773b"
+    },
+    {
+      "path": "tests/cow-sizes.test.js",
+      "sha": "3d66fddc366b1ba71ce771f778d589cc6b092aa6"
+    },
+    {
+      "path": "tests/cutaway.test.js",
+      "sha": "8f9921e315356a2a4cf96fd678a4209e2a91df3a"
+    },
+    {
+      "path": "tests/delivery.test.js",
+      "sha": "b29e660d8a4acd2c96896f371fc0b2899a70a494"
+    },
+    {
+      "path": "tests/deploy-pages.test.js",
+      "sha": "e43709f565c4ab667bcdc49bee3e8c1e61cf5236"
+    },
+    {
+      "path": "tests/enclosure-navigation.test.js",
+      "sha": "cc1b08a575bc56eff827d9d42ca855759a54fd71"
+    },
+    {
+      "path": "tests/flock-flow.test.js",
+      "sha": "3f8ae0da0e6586d810f0f5826ffadcdec4a3d7e6"
+    },
+    {
+      "path": "tests/gates.test.js",
+      "sha": "cd7e8e2c9be8014aa737a2769397c8cb7546b111"
+    },
+    {
+      "path": "tests/goal-view.test.js",
+      "sha": "c37e63f46dab96a68296a35d6e980400e38d0398"
+    },
+    {
+      "path": "tests/grazing.test.js",
+      "sha": "aefacd870e0710ec9212a718202407ae903a9d01"
+    },
+    {
+      "path": "tests/herding-journey.test.js",
+      "sha": "6c903bd2383faabed091ae94c7965834b08886ed"
+    },
+    {
+      "path": "tests/nature.test.js",
+      "sha": "4598c7983008be9a1ee95a3659a0d940d98fe428"
+    },
+    {
+      "path": "tests/pip-motion.test.js",
+      "sha": "b6fb5fe8e0bc96e6dd902c18a77d78c83b305ac3"
+    },
+    {
+      "path": "tests/progression.test.js",
+      "sha": "1a8f57ba902c72692f609ecc31f8c0a989315368"
+    },
+    {
+      "path": "tests/qa-debug.test.js",
+      "sha": "94d8e7420ce2c707de48e30144358d17e35673a9"
+    },
+    {
+      "path": "tests/qa-integration.test.js",
+      "sha": "0904c580ccabcd4f85348e37988c00ced739cc08"
+    },
+    {
+      "path": "tests/qa.test.js",
+      "sha": "bd536fe759f5cae1075c985500848e53e8736aa8"
+    },
+    {
+      "path": "tests/render.test.js",
+      "sha": "29b26992cbdb825970eb84eb2446e4a34bc041f2"
+    },
+    {
+      "path": "tests/simulation.test.js",
+      "sha": "d79ace84219e9917ebd748e446c5c757906a95e6"
+    },
+    {
+      "path": "tests/surfaces.test.js",
+      "sha": "d17742b684dd4eb62e47574e0d83a28695fe2b9e"
+    },
+    {
+      "path": "tests/tree-geometry.test.js",
+      "sha": "291626bc9b5de79659f83e1b99e46f8347974fcc"
+    },
+    {
+      "path": "tests/ui-layout.test.js",
+      "sha": "0ab13192a1aa603b47b8c1e800f7727e5323e43b"
+    },
+    {
+      "path": "tests/ui.test.js",
+      "sha": "e735bfa1d41fceb18916163f3f13a2cfba063737"
+    },
+    {
+      "path": "tests/vegetation.test.js",
+      "sha": "43f011cd07efce168f8f28d9848729f377d96bc8"
+    },
+    {
+      "path": "tests/wandering.test.js",
+      "sha": "6dce9e71f9ae6446aa6f47f243046a08636a9e8a"
+    },
+    {
+      "path": "tests/water-effects.test.js",
+      "sha": "ab8ae1237aaa9b15987dbd5d5a7537492c4b0139"
+    },
+    {
+      "path": "tests/weather-visibility.test.js",
+      "sha": "4e7ffa933522355809b1424e81d105a9393d79a7"
+    },
+    {
+      "path": "tests/weather.test.js",
+      "sha": "c357654acf1ef9059c06a516747791ae24cb6cd7"
+    },
+    {
+      "path": "tests/world-geometry.test.js",
+      "sha": "b15fb026df2aff716b5e359eda127e34931cd439"
+    },
+    {
+      "path": "tests/world.test.js",
+      "sha": "6ecffb9e2ab1911841aa5f40c210c44f7b1b9704"
+    }
+  ],
+  "deployment": "Not requested; no Pages change",
+  "native_evidence": "No new appearance or device performance claim",
+  "repository_operations": "GitHub connector only",
+  "independent_review": {
+    "score": 9.5,
+    "material_blockers": 0,
+    "isolated_snapshot": true,
+    "fresh_context": true,
+    "independently_passed": [
+      "338 regressions",
+      "documentation and four behaviors",
+      "release/development artifact modes"
+    ],
+    "scope": "source integration only"
+  }
+}

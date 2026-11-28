@@ -1,0 +1,26 @@
+{
+  "roughChance": {
+    "value": 0.48,
+    "_comment": "Independent seeded rough-pasture chance on public level 6 onward; implementation frequency, not a user-approved cadence.",
+    "min": 0,
+    "max": 1
+  },
+  "roughClumps": {
+    "value": 2000,
+    "_comment": "Hard cap on broad volumetric grass rosettes; dense cores and low loose fringes replace solid pasture discs.",
+    "min": 0,
+    "max": 2400
+  },
+  "roughPatches": {
+    "value": 24,
+    "_comment": "Maximum dense grass-cluster anchors. These control density only and never create ground polygons.",
+    "min": 0,
+    "max": 32
+  },
+  "roughRocks": {
+    "value": 8,
+    "_comment": "Maximum seeded physical pasture boulders outside routes, spawns, goals, water and structures; shares the existing 260-obstacle ceiling.",
+    "min": 0,
+    "max": 12
+  }
+}

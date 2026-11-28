@@ -1,0 +1,106 @@
+.modal:has(.meadow-party) {
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+.modal-card:has(.meadow-party) {
+  max-height: calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)));
+  width: min(660px, 100%);
+  overscroll-behavior: contain;
+}
+.meadow-party {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.party-positions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 108px), 1fr));
+  gap: 8px;
+}
+.party-dogs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(108px, 132px);
+  gap: 8px;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  padding-bottom: 6px;
+}
+.party-position,
+.party-dog,
+.party-clear {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-height: 44px;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  padding: 10px;
+  color: #294837;
+  background: #e7eddb;
+  border: 1px solid #cbd7bf;
+  border-radius: 12px;
+}
+.party-position[aria-pressed='true'],
+.party-dog[aria-pressed='true'] {
+  border-color: #446b4c;
+  box-shadow: inset 0 0 0 1px #446b4c;
+}
+.party-position:disabled,
+.party-dog:disabled {
+  color: #535b51;
+  background: #edece2;
+}
+.party-position span,
+.party-balance,
+.party-notice,
+.party-clear {
+  font-size: 13px;
+}
+.party-position small,
+.party-dog small {
+  font-size: 12px;
+}
+.party-picker {
+  min-width: 0;
+}
+.party-picker h3 {
+  font:
+    600 18px Outfit,
+    sans-serif;
+  margin: 0 0 8px;
+}
+.meadow-party .kennel-portrait {
+  width: min(100%, 54px);
+}
+.party-clear {
+  margin-top: 8px;
+  align-content: center;
+}
+.party-notice:empty {
+  margin-top: -12px;
+}
+.party-actions {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding: 8px 0;
+  background: var(--cream);
+}
+.party-actions :is(.primary, .secondary) {
+  flex: 1;
+  margin: 0;
+  justify-content: center;
+  min-height: 44px;
+}
+@media (max-width: 520px) {
+  .party-positions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

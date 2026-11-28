@@ -1,0 +1,138 @@
+{
+  "issue": "F-054",
+  "status": "Review; user visual acceptance pending",
+  "branch": "pip_update",
+  "source_commit": "91cde24117e09c438d3344a6f569f10192325280",
+  "validated_tree": "281b38cdbf82279739cdfca04047a8bbdfeb642e",
+  "local_reviewed_runtime": "bf5bb48",
+  "local_documented_snapshot": "88be65b",
+  "publication_commit": "575ab700c31a2ab8914dfefb2452314e244fc08c",
+  "url": "https://novydhillon.github.io/Flock/dev2/",
+  "source_ci": {
+    "run": 38991093565,
+    "result": "success"
+  },
+  "pages_deployment": {
+    "run": 38991218402,
+    "result": "success"
+  },
+  "tests": {
+    "source": 280,
+    "passed": 280,
+    "focused_independent": 21
+  },
+  "review": {
+    "initial": 6.5,
+    "follow_up": 9,
+    "documentation": 9,
+    "model": "gpt-6-luna",
+    "effort": "medium"
+  },
+  "unrelated_pages_files_preserved": 31,
+  "live_artifacts": [
+    {
+      "path": "index.html",
+      "expected_sha256": "11cffeaf1bea6ff2826c0d4b99f3908260936a4dd0cee6603776be51fb94dbec",
+      "live_sha256": "11cffeaf1bea6ff2826c0d4b99f3908260936a4dd0cee6603776be51fb94dbec",
+      "matches": true
+    },
+    {
+      "path": "assets/qa-DWlVkWAo.css",
+      "expected_sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "live_sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525",
+      "matches": true
+    },
+    {
+      "path": "assets/index-DXh-1hxn.js",
+      "expected_sha256": "30b123d90c8b48e7e8ef1220b2eabb8e09f39eb67e2a28567a374fba3a7708c9",
+      "live_sha256": "30b123d90c8b48e7e8ef1220b2eabb8e09f39eb67e2a28567a374fba3a7708c9",
+      "matches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "expected_sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "live_sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a",
+      "matches": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "expected_sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "live_sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "matches": true
+    },
+    {
+      "path": "assets/index-BpvKY9aw.css",
+      "expected_sha256": "9fc9f72a1843a488900f8d2e5e4f5ab854e9dbc5cbf63d6b076cb09c8d90ea7d",
+      "live_sha256": "9fc9f72a1843a488900f8d2e5e4f5ab854e9dbc5cbf63d6b076cb09c8d90ea7d",
+      "matches": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "expected_sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "live_sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb",
+      "matches": true
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "expected_sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "live_sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7",
+      "matches": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "expected_sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "live_sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36",
+      "matches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "expected_sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "live_sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9",
+      "matches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "expected_sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "live_sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120",
+      "matches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "expected_sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "live_sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad",
+      "matches": true
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "expected_sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "live_sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148",
+      "matches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "expected_sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "live_sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564",
+      "matches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "expected_sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "live_sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006",
+      "matches": true
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "expected_sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "live_sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "matches": true
+    },
+    {
+      "path": "assets/qa-BRO7Tstr.js",
+      "expected_sha256": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f",
+      "live_sha256": "862a3c28fe67d47dba677f0370ae62bb83d917279a8f4fed27f8658b28c6265f",
+      "matches": true
+    }
+  ],
+  "limitations": "Source scene/geometry tests use Canvas/GPU substitutes; no native rendered-pixel or phone FPS claim. Await Novy's visual sign-off.",
+  "recorded_at": "2026-10-17T01:32:23.352Z"
+}

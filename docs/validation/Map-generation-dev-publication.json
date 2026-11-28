@@ -1,0 +1,136 @@
+{
+  "environment": "dev",
+  "branch": "map_generation_improvements",
+  "sourceSha": "ed7a2cb4fb6b0572e075aee6f56ac4b3a14cdfa3",
+  "prefix": "dev/",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "files": [
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "dev/assets/index-CTeL47d3.css",
+      "sha256": "142a1694e0858f5c03a642e746681d9edba001999f931d4cb1a11b7d9fc38503"
+    },
+    {
+      "path": "dev/assets/index-DEwSQ6v1.js",
+      "sha256": "d98d1a15266304d88e6e88df824d5e812e1769a31705a0af73429d14fee6140a"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "dev/assets/qa-DS5F87nJ.js",
+      "sha256": "da47e2e748d6a2ee0bba0beb729405def77cc4fe638da9ab67dd1d282efd692a"
+    },
+    {
+      "path": "dev/assets/qa-DWlVkWAo.css",
+      "sha256": "01ff1f14c29e5862f675c459aa09623f656297638a83203d1e9cc2b19a6f4525"
+    },
+    {
+      "path": "dev/icons/pip-120.png",
+      "sha256": "fb70440c9997a6dc7f7fb0bbd102eab2561604640b0cd72869cd05240832add7"
+    },
+    {
+      "path": "dev/icons/pip-152.png",
+      "sha256": "13b8c7563f335d79e70d1a02d876f31bf42b0bd4b5c511f34347776a61c901ec"
+    },
+    {
+      "path": "dev/icons/pip-16.png",
+      "sha256": "3e0d692e39624ec7c16ed95ff3188c4884f2b057a075b0be43f623c53308e182"
+    },
+    {
+      "path": "dev/icons/pip-167.png",
+      "sha256": "202ecf51aa024ba1c6a9084a8c8f3f9904becfcc786bd79c4305fd9ffe953662"
+    },
+    {
+      "path": "dev/icons/pip-180.png",
+      "sha256": "1a82d7aa5c31365bf17c0b762b140fea9f0de7f836849ef1cc3d2b44164dc107"
+    },
+    {
+      "path": "dev/icons/pip-192.png",
+      "sha256": "fa3b827b6c763fb0a5e9779da4b4ddd99e0b79a1611c77723c9bdd41a50eb04e"
+    },
+    {
+      "path": "dev/icons/pip-32.png",
+      "sha256": "ce24d16dc27299a6fd72cbf1be50c85a4956c9908bb12e573a824fc2a57a1b76"
+    },
+    {
+      "path": "dev/icons/pip-48.png",
+      "sha256": "1e46345b62ae8a6e402eb92b160a72f03c3c05f6717519bc52b9e0eba4636c6e"
+    },
+    {
+      "path": "dev/icons/pip-512.png",
+      "sha256": "292e4397ebe91e7cb17f5f6d395259451dee4ba357d9e5460383af011fbd5841"
+    },
+    {
+      "path": "dev/icons/pip-96.png",
+      "sha256": "4eefaa3e44bdde665158365c4c7cac48f29342ed8361e19676650a2c6540e758"
+    },
+    {
+      "path": "dev/icons/pip.svg",
+      "sha256": "351f8aad2769721f14ce201c9488ec1e5f391e0ec89476066b67acadf0aeb1f6"
+    },
+    {
+      "path": "dev/index.html",
+      "sha256": "f3c17ef6bbde9bba322860b6faa9f8049f12e5c984aa91581db6d4b841670f79"
+    },
+    {
+      "path": "dev/site.webmanifest",
+      "sha256": "ab0952f3051a3b104d206048885d811cbea141c62489408c93e28ce2f31a2ef4"
+    }
+  ],
+  "pagesSha": "0108943cc9f02fecd285b16ffee861ef2af79bd2",
+  "pagesParent": "45110fa71db2922ed1cd6efe62d2f75984b8e886",
+  "transport": "GitHub connector Git Data fallback; workflow dispatch absent",
+  "sourceCI": "https://github.com/novydhillon/Flock/actions/runs/39866327413",
+  "sourceCIResult": "success",
+  "nativePagesRun": "https://github.com/novydhillon/Flock/actions/runs/39867134353",
+  "nativePagesResult": "success",
+  "liveVerification": "All 29 emitted files match SHA-256 via scripts/verify-deployment.mjs",
+  "preservedUnrelatedBlobs": 76,
+  "deviceChecks": "Pending; Chromium executable unavailable; no native touch/FPS claim",
+  "userAcceptance": "Pending; F-031/F-032/F-034/F-038 remain Review"
+}

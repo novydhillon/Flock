@@ -1,0 +1,212 @@
+# World generation, collision, and navigation
+
+## Double-height experimental profile — 6 November 2026
+
+On `feat/double-terrain-height`, mean lift is 4 m, wave amplitude 3.8 m and wave length scales 11/15/19 m per radian. Doubling height and horizontal wave scales preserves exact wave gradients, while the existing wet-edge-normalized channel field retains river coverage. The maximum allowed relief is 9 m and the pasture/support grade cap remains 30 degrees. The dry-bank rise scale changes 2 to 1.9 to widen the taller valley transition enough to preserve grades. This slope correction does not implement compact/steep banks. Channel floor, water depth, downstream drop, bridge dimensions, layout positions and compact-bank deferral are unchanged. Ground, actors, structures and decks continue reading the authoritative analytic field; no rendering-only vertical scale is applied.
+
+Sampled default public levels 6/20/50/100 use about 7.8–7.9 m actual range, compared with about 4.0–4.1 m previously. The cap is a ceiling, not an exact per-level target. `scripts/measure-terrain.mjs` records repeatable source measurements; its sampling does not prove rendered appearance or all possible seeded extrema.
+
+## Readable hill profile — 6 November 2026
+
+The analytic pasture profile uses normalized configurable wave weights0.7/0.2/0.1 and length scales5.5/7.5/9.5m per radian. The dominant wave avoids visible cancellation without increasing the relief amplitude. Exact derivatives remain authoritative for support, normals, pooling and road conformance. Elevated-deck endpoint matching is localized with power12. Completed-field landing checks downgrade raised candidates that another river corridor has lowered; routes remain safe because downgraded rails only shorten. Eligible rain-pool search extends the deterministic journey-verge offsets to16m on rolling levels because stronger grades narrow lowland sites; eligibility, obstacle footprint safety and pool count limits are unchanged.
+
+## Elevated bridge contract — 29 October 2026
+
+Selected rolling crossings may span above the low river channel between higher banks. The shared bridge descriptor must carry the same complete span in collision, navigation, route generation and presentation. Its support height joins the actual ground elevation and grade at both dry ends. Elevated crossings must not be assigned a compulsory low riverbank corridor; ordinary crossings may retain gentle low verges. Preserve all cow-size clearance, river coverage, bridge rail clearance and the overall 4.5m/30-degree limits.
+
+## Riverbank relief contract — 29 October 2026
+
+The current expanded terrain candidate targets 4.5m maximum playable relief and 30-degree maximum grade. Higher riverbanks are permitted away from bridges. Local crossing approaches retain gentler smooth grades; a universal broad low bank shelf is not required. Standing-water eligibility still requires low ground and grades below 3 degrees. This supersedes earlier 12-degree cap prose; source validation and publication evidence remain separate.
+
+Channel distance is warped analytically with a narrow ordinary-bank verge and a Gaussian widening near each bridge. The bridge widening fades along the river so higher banks can return between crossings. Wet-edge normalization preserves the submerged physical river ribbon while exact derivatives include the along-river transition. Rolling decks use the broader crown `bridgeLift * (1 - fraction^4)^2`, with zero lift and derivative at both dry ends, to clear the complete wet crossing. This supersedes the earlier narrow quartic-arch description.
+
+## Continuous terrain and water support — 29 October 2026
+
+`terrain.js` owns the renderer-independent analytic height field; `world.js` re-exports `groundHeight`, `terrainNormal`, `terrainSlope`, `riverSurfaceHeight`, `bridgeSurfaceHeight` and `poolingSite`. Existing `terrainHeight` (also exported as `surfaceHeight`) returns ground or bridge support inside the shared rotated deck footprint. Planar occupancy, collision, route/gate geometry and body widths remain authoritative; no separate 3D movement engine or controls are introduced.
+
+`createLevel` attaches a deterministic `level.terrain` descriptor using its own seed stream, without consuming layout RNG. The first five public levels remain flat. The default rolling selection probability is 65% thereafter; this is provisional implementation tuning, not a user-approved frequency. Spawn and goal locations are not flattened. Fields use broad smooth waves multiplied by analytic channel valleys; exact normals/grades have no height-sample seams. `src/config/terrain.json` documents relief, cap, water and pooling settings with comments/bounds. The 12-degree cap is deliberately fixed; lowering it requires deriving a new terrain/bridge construction.
+
+Rivers share a bounded smooth downstream reference along canonical lateral coordinates, descending toward their first sampled centerline point to match the existing animated current. Normalized valley shoulders keep the entire physical water strip submerged despite hill-wave variation. `groundHeight` includes the submerged bed; `riverSurfaceHeight` returns the separate downhill water plane. Rolling bridge support adds a smooth quartic lift over ground, with both lift and its first derivative vanishing at each dry end. Goals and bridge landings may gently slope.
+
+`poolingSite` screens the center and two footprint rings for grades below 3 degrees, height range no more than .035 units and lowland elevation relative to the local downstream reference. It returns eligibility plus a horizontal pool plane and footprint bounds for weather presentation; weather never rotates standing water onto a hillside. Selection/sampling limits are separate from rendered/device appearance, which remains pending playtest.
+
+## Bird landing contract — 24 October 2026
+
+birdLandingPositionSafe vetoes the full river footprint even where bridges are playable. Landing searches validate ground endpoints and the approach in bounded samples; failed searches leave birds airborne and defer retry. Hops validate their short dry-ground path. This is ambient wildlife movement only and does not change physical game collision or navigation.
+
+## Gate contact panels — 23 October 2026
+
+`gateSwitchPanels` returns fixed mounts beside the opening on both wall faces and separate body-clear approach points. `gateButtons` retains the approach-point helper for compatibility. Pip and active ground Buddy contacts use the actual mounted panel position, same-side checks, occupancy and a clear approach path. One shared latch requires all dogs to leave before rearming, avoiding simultaneous double toggles. Occupied closing is refused; successful toggles invalidate geometry/visibility caches. Simulation filters companions and moves Buddy before evaluating contacts. Drones/livestock do not activate panels; Buddy gains no automatic switch-seeking behavior. These contracts supersede older Pip-only ground-pad descriptions below.
+
+## Corner-route follow-up — 22 October 2026
+
+This follow-up supersedes the earlier cosmetic L/stepped cutout generator. From public level 40, a seeded choice builds L, U, Z or stepped fields by unioning the starter rectangle with wide connected arm rectangles. The goal sits at the end of the final arm, faces along that arm and can lie on either mirrored side. The boundary itself blocks direct shortcuts across the missing corner land. Crossing choices converge after the gate before the corner corridor; route samples, target enclosure, turf, minimap and collision share the resulting geometry. `layoutKind` records the shape; `startHeading` describes the initial travel direction, while `target.heading` describes the final approach. `bounds` remains an AABB for search/framing, not an occupiable rectangle.
+
+Later starter modules have bounded longitudinal/lateral extent; progression adds travel through the arms instead of moving the first river ever farther from spawn. From public level 60, seeded starter-biased groves supplement scattered trees, with up to 18 grove anchors and 260 physical trees total. Placement rejects spawn/destination space, routes, water, fences, other trees and gate approaches through shared occupancy/corridor checks. `groves` and each tree's `grove` ID are generated metadata only. Density and exact dimensions are tuning choices, not new user-specified constants or phone-performance claims.
+
+Non-early levels add dry spacing before the interior fence. A seeded subset from public level 20 uses stronger, longer river bends (`riverStyle: meandering`); these maps also separate the two rivers further and widen dry turning planes around bridges. Deck headings still follow the local sampled river normal. Rivers end beyond their local starter-field perimeter, which may lie inside the overall AABB of a returning U/stepped level. Validate against actual playable polygon occupancy rather than assuming every river must extend past the full-map AABB.
+
+Current contracts come from [world.js](../../src/world/world.js); [GAMEPLAY.md](GAMEPLAY.md) explains its simulation callers. The [issue tracker](../ISSUES.md) is the authority for proposed geometry and gameplay changes. This module imports neither renderer nor browser APIs.
+
+## Map generation candidate — 22 October 2026
+
+Current source on `map_generation_improvements` implements F-031/F-032/F-034/F-038; the tracker retains separate validation and acceptance state. This section supersedes the older fixed stone sequence, universally gated late maps and one-way contextual gate action described below.
+
+`level.boundary` is the ordered world-space polygon for the playable meadow; `bounds` is its axis-aligned framing/search extent. Ordinary early/medium maps retain a rectangle. From public level 40, an independent seeded shape choice produces a concave L-shaped or stepped angular outline, mirrored and rotated with the level. The cut stays beyond the route/destination envelope with clearance, and interior barriers stop at the polygon boundary. Boundary fence segments, occupancy/path checks, ground rendering and minimap consume the same outline. The renderer triangulates the concave polygon as brighter playable turf above darker surrounding countryside, with an owned geometry disposed on level replacement; a point inside the bounds rectangle may still be outside playable ground. Concave corners remain physical barriers. Large maps use a local minimap viewport following Pip, clamped to the map AABB; compact levels retain fit-to-map framing. The viewport height cap of 120 world units is source tuning, with width derived from the minimap aspect ratio. Boundary, roads and actor markers are clipped to its frame; the existing goal-direction arrow continues guidance outside the viewport.
+
+Early lessons retain their route layout. Public level 20 onward adds longitudinal and lateral growth, wider route spacing, alternating river-crossing offsets and a seeded lateral destination offset. Existing bridge turning planes and herd breathing room are preserved. Herds over 30 receive an extra .1-unit downstream breathing tolerance so the smallest measured gate/bridge exit gap stays at least 26 units; river bases remain unchanged. This is a precision/spacing implementation correction, not a new user balance target. These dimensions and shape weights are tuning choices for review, not user-provided balance numbers. Tree placement remains excluded from routes, spawns and goals and is restricted to occupiable ground.
+
+Gate distribution and stone selection use independent seeded streams, avoiding layout-RNG coupling. At public level 20 onward, a 65% gated-map choice and, on eligible multi-gap gated maps, a 50% omitted-panel choice provide gate-free maps and gated maps with an ungated alternative. The omitted panel does not fill its route gap. Below level 20, gaps remain open and non-operable. Stone uses the requested 15% per-level probability for boundary/interior segments; target walls retain their own material.
+
+`gateButtons(gate)` in `gates.js` derives two ground pads beside the traffic lane, forward ±2 units and lateral `width/2 - .9`, with a .65-unit pad radius. `updateGateContacts(level,dog)` runs in the active simulation for Pip only: fresh overlap toggles, remaining in contact is latched and leaving both pads by a .2-unit release margin rearms. Closing is refused while the panel intersects Pip, a livestock body at its actual radius or a ground Buddy. Success increments `geometryRevision`, clears flock visibility and emits `gateToggled`; safe refusal emits `gateBlocked`. Controller toasts use the existing status region. The normal game no longer creates the contextual Open button; legacy exports remain for compatibility.
+
+Both pad meshes read the same panel state, red when closed and green when open; gate panel, collision, navigation and minimap also read that descriptor. All pad/gate resources belong to the level view and are disposed with it. Contact state resets with a newly generated level and does not advance during pause. No profile, bark, reward or helper-activation semantics change.
+
+## Coordinates and generated state
+
+Positions use `{x, z}` on a flat ground plane; vertical height belongs to rendering. Distances are Euclidean world units. Heading is radians, with forward `{x:sin(h), z:cos(h)}` and lateral `{x:cos(h), z:-sin(h)}`. Do not assume destination progress always means increasing world X.
+
+`createLevel(index = 0, seed = index * 7919 + 42)` floors/clamps the index to 0–99 and converts the seed to unsigned 32-bit. The default parameter expression uses the argument before index normalization; pass explicit valid indexes for ordinary campaign reproducibility. The same index/seed yields deeply equal fresh state. Randomness is a private seeded generator, not `Math.random()`.
+
+| Field | Meaning |
+|---|---|
+| `index`, `seed`, `title`, `description`, `reward` | Campaign metadata; displayed level is `index + 1`; reward is `80 + index * 25`. |
+| `bounds`, `boundary` | Axis-aligned framing extent and ordered playable-boundary polygon; the polygon may be concave. |
+| `spawn`, `dog`, `animals` | Flock origin, Pip origin, initial body states. |
+| `target` | `{x,z,radius,type,heading}`; type cycles pen → field → barn by index modulo 3. |
+| `rivers` | Sampled centerline `points`, width, rotated bridge deck descriptors. |
+| `fenceSegments` | Physical `{a,b,kind,material}` segments: boundary, interior, target; material is wood or stone. `fences` currently starts empty. |
+| `gates` | `{id,x,z,width,heading,operable,open,material}` panels; displayed levels 20+ begin closed. |
+| `routes`, `roads` | Sampled routes `{id,points,length}`; roads reference route points plus width. |
+| `obstacles`, `sceneryHills` | Circular tree collision footprints; decorative hills outside bounds. |
+
+Simulation attaches runtime state such as time, completion, helpers and visibility caches. Do not reuse a stepped level as a pristine generation fixture.
+
+Generation starts in canonical longitudinal/lateral coordinates, then rotates by quarter turns. Early indexes 0–4 have a 48-unit lateral footprint, one route and longitudinal end `15 + 3*index`. Index 0 points east; other early levels choose east/west from seed parity. Later levels choose all four directions by `seed % 4`, use longitudinal end `48 + 3*index`, and lateral half-width `84 + floor(index/15)*14`; transformed bounds also retain at least that world-Z span. Thus rotated late bounds may be larger than simply rotating the canonical rectangle.
+
+Flock count is `min(5 + 3*index, 65)`. From index 3, every fourth animal is a cow. Bodies start in a compact grid with seeded jitter and Pip behind them. If a curved bank clips a body, the generator tries up to seven half-unit backward translations of the entire grid, preserving its shape. This finite correction is tested on selected custom seeds; it is not a formal proof for every unsigned seed.
+
+## Generation pipeline and routes
+
+```mermaid
+flowchart TD
+  A[Index and seed] --> B[Canonical bounds, destinations and routes]
+  B --> C[Sample curved rivers and place crossings]
+  C --> D[Rotate geometry into world coordinates]
+  D --> E[Build boundary, gate and target segments]
+  E --> F[Sample trails and check corridor clearance]
+  F --> G[Spawn flock, correct bank overlaps]
+  G --> H[Place trees away from routes and endpoints]
+  H --> I[Place exterior scenery hills]
+```
+
+Index 0 has no river. Indexes 1–4 have one; indexes 5–14 have one; indexes 15+ have two. River centerlines are gentle sinusoids sampled every 2 canonical lateral units, extending beyond the fenced map. Each route gets a bridge over each river. Route counts are one for early levels; thereafter one on even indexes/two on odd indexes below 15; indexes 15+ have three when divisible by 3, otherwise two. From index 2, an interior barrier has gate gaps for each route. Displayed levels 1–19 keep open, non-operable gaps; index 19 onward begins with closed operable panels. Gates open permanently for the current run through a contextual button while Pip is within 3.2 units and has an unobstructed ground approach to the panel. Helpers never activate gates. Recreating the level resets every panel. The button is independent of the Woof action and can be tapped after releasing the movement thumb.
+
+`gateSegment(gate)` derives the physical panel endpoints from width and heading. Closed panels participate in occupancy, solid path and player-signal queries; opening a gate removes that panel and clears the flock visibility cache. `accessibleGate` and `openNearbyGate` in `gates.js` select and revalidate the nearest accessible gate. `createGateControl` owns its contextual DOM button; no cooldown or bark dispatch is involved. A fresh `geometryRevision` increments on opening. `gate-view.js` owns its Three.js resources and returns groups with explicit `dispose()`; its gate group `update()` reads live state. Open panels slide into the adjacent solid barrier instead of projecting into the passage.
+
+Displayed levels 8, 12, 16, 20 and every fourth level thereafter use stone for boundary and interior segments (`index >= 7 && index % 4 === 3`). Target enclosures retain their own geometry and presentation. Stone segments have a .3-unit physical half-thickness and block player signals; ordinary wood remains .18 and transmits the low-fence call. Masonry is .6 units wide and 1.3 high, with gaps inherited from the same segment endpoints. Gate openings do not change width in stone variants.
+
+Routes connect spawn, bridge approaches/centers, gates and destination approaches. They express potential passage after Pip opens panels; generation and connectivity tests validate route clearance with panels open. Runtime movement/path queries always use current closed state. Closed gates are intentionally absent from corridor sampling, so they cannot erase a valid generated route or cause a straight fallback to replace the road. `wander` samples each leg roughly every 1.2 units; ordinary legs gain seeded meanders. Legs adjoining bridges/gates or ending at target stay straight. A candidate meander is kept only if every sampled segment has 0.85-unit ground clearance against already-built geometry; otherwise that leg uses straight interpolation. Trees are added afterward, excluded from a `7 + tree.radius` corridor around route segments, within 14 of spawn, or within `target.radius + 10` of destination. Maximum attempted tree count is `min(10 + 2*index,130)`, so actual counts vary.
+
+Roads are visual/guidance data, not forces. Nothing in `stepSimulation` attracts animals toward `routes` or `target`. The route API can guide Pip and ground companions; player pressure drives delivery.
+
+## Shared bridge and enclosure geometry
+
+A bridge `{x,z,width,length,heading}` is a straight rotated rectangle. In its local frame a body is over the deck when longitudinal distance is at most `length/2 + radius` and lateral distance at most `width/2 - radius`. The longitudinal extension lets bodies enter from dry ground; lateral contraction preserves body clearance. Bridge length is river width plus 1.5, leaving a short 0.75-unit landing on each bank while covering sampled river curvature across the full deck width. Deck heading is perpendicular to the actual sampled river segment at its center; the bridge approach, center and departure are collinear. Usable path widths are 9.4 at index 1, 4.1 at other early indexes and 4.8 later; deck width is exactly 1.25 × that width. Decorative shoulders are excluded. The wide level-2 crossing is preserved by widening its road together with its deck. Later branches retain their common dry trail turning planes independently of the shorter deck to avoid cutting neighboring rail ends. Pressured animals whose forward motion hits a bank or rail steer through collision-checked local waypoints around the nearest bridge end, including when already aligned with the opening; this does not select a destination. Steering uses each animal’s physical radius (0.55 for sheep, 0.78 for cows), so valid sheep bank positions are not rejected by cow-sized navigation clearance.
+
+Each side rail runs from `-length/2 - 0.1` to `length/2 + 0.1` at lateral `±width/2`, with beam radius 0.05 and four post footprints of radius 0.065 per side. Rails remain solid beyond the wet river edge, so a body on dry land beside a deck cannot cut sideways through its end rail. It must walk around an open end. Rail and river bounds are cached in WeakMaps keyed by geometry object; treat generated descriptors as static or replace the object when editing rather than mutating cached geometry in place.
+
+`terrainHeight(level,x,z)` returns a deck arch `0.18 + 0.12*sin(π*(along/length + 0.5))` inside the zero-radius bridge footprint, otherwise 0. It does not change collision into a 3D physics system. See [render.js](../../src/rendering/render.js) for presentation of these descriptors.
+
+`targetFootprint(target)` defines a rotated rectangle with half-length/half-width `target.radius + 1.4`, a 7-unit entrance on the upstream side, world corners and entrance point. `targetLocalPoint` converts positions to forward/lateral coordinates; `targetWorldPoint` performs the inverse. `containsTarget(target,point,bodyRadius)` requires the entire circular body within both edges. `createLevel` derives the five target wall segments from that same footprint. Thus corner regions outside the former circle are admissible when the full body is inside; a center sitting on a wall is insufficient.
+
+The renderer's `goal-view.js` uses these world corners for the highlight surface, outline and barn floor, and projects them for the minimap. Square enclosure rotation is expressed in world vertices, avoiding inconsistent plane rotation conventions. Target radius still sets size and Pip attendance distance; it no longer defines admission. See [admission](GAMEPLAY.md#admission-rewards-and-profile-lifecycle) and geometry/goal-view tests.
+
+## Clearance is not one query
+
+| Export | What it answers |
+|---|---|
+| `canOccupy(level,x,z,radius=.55)` | May a circular body occupy one point? Bounds inset by `radius + .18`, wood thickness .18/stone .3, closed gate panels, expanded trees/water and solid bridge rails all apply. Water is traversable only within a bridge footprint. |
+| `moveBody(level,body,dx,dz,radius=.55)` | Mutates position with steps of at most .25 units, tries combined displacement, then axis sliding; returns `{blockedX,blockedZ}`. It does not set velocity or heading. |
+| `hasClearGroundPath(level,a,b,radius=.55)` | Is a straight ground segment clear? Solid fences/rails, trees, water and inset endpoint bounds apply. Water checks sample at intervals no greater than .45 units. |
+| `hasClearPlayerSignal(level,a,b)` | Radius .15 audible pressure line: ignores low wooden fences and bridge rails; stone walls and closed gates shield, and target fence segments shield only barns. Trees, water outside decks and bounds still block. |
+| `separatedByBank(level,a,b)` | Specialized river/rail separation query, not general obstacle clearance or a substitute for ground path validation. |
+
+The player signal is used for Pip's pressure only. Flock cohesion/alignment visibility, companion selection/attendance/support and destination attendance use solid ground paths. A sheep can hear Pip over a low pen rail while neither body can cross it; that does not mean a companion may pull through it or admission may ignore it. Physical separation forces between very close animals are distinct from neighbor visibility.
+
+`moveBody` subdivides displacement to limit tunneling; `stepSimulation` additionally caps dt. Neither is a swept 3D rigid-body solver. Rivers are sampled polylines with radius-expanded checks, and trees are circular footprints, not mesh intersection tests.
+
+## Navigation exports
+
+| Export | Behavior and limit |
+|---|---|
+| `distance`, `closestOnSegment`, `segmentDistance` | Shared ground-plane geometry; projection result includes clamped `t`. |
+| `routeProgress(level,position,routeId?)` | Nearest projection on matching sampled route segments; returns route/id, segment index, point, off-route distance, arclength progress and route length; `null` if none. |
+| `nextNavigationPoint(level,position,routeId?)` | First sampled point at least 7 arclength units after projection, otherwise target. This is not exactly a point seven straight-line units away. |
+| `navigationTarget(level,body,desired,radius=.62)` | Returns desired when clear, otherwise route projection/lookahead; near bridge rails or the enclosure builds a small visibility graph around up to two bridges plus exterior enclosure corners and real entrance nodes. Route projection/lookahead and graph edges use the caller’s actual body radius. It is a local waypoint heuristic, not global pathfinding for arbitrary user geometry. |
+| `destinationApproach(level,body)` | Oriented waypoint around enclosure walls toward upstream entrance. Used by journey-test player policy, not an animal's automatic goal drive. |
+| `openingSteer(level,body,vx,vz,radius=.78)` | Adds steering toward the closest opening on a nearby pressed barrier, using the moving animal’s physical clearance and walking around bridge rail ends and enclosure side/far corners when necessary. A nearby pressed target wall selects the enclosure entrance detour; idle animals gain no goal force. Only used under player pressure; alias `steeringOpening` is also exported. |
+
+Run this from repository root with Node 22+:
+
+```sh
+node --input-type=module <<'JS'
+import assert from 'node:assert/strict';
+import {
+  createLevel, distance, canOccupy, moveBody,
+  hasClearGroundPath, routeProgress, nextNavigationPoint, terrainHeight,
+} from './src/world/world.js';
+const level = createLevel(23, 201);
+assert.deepEqual(level, createLevel(23, 201));
+const bridge = level.rivers[0].bridges[0];
+assert.equal(canOccupy(level, bridge.x, bridge.z, .8), true);
+assert.ok(Math.abs(terrainHeight(level, bridge.x, bridge.z) - .3) < 1e-8);
+for (const gate of level.gates) gate.open = true; // Validate passage after interaction.
+const route = level.routes[0], walker = {...level.spawn};
+for (const point of route.points) {
+  assert.ok(hasClearGroundPath(level, walker, point, .8));
+  moveBody(level, walker, point.x-walker.x, point.z-walker.z, .8);
+  assert.ok(distance(walker, point) < .001);
+}
+assert.ok(distance(walker, level.target) < .001);
+const info = routeProgress(level, level.spawn, route.id);
+assert.equal(info.routeId, route.id);
+assert.ok(nextNavigationPoint(level, level.spawn, route.id));
+console.log('deterministic world, deck height and traversable route passed');
+JS
+```
+
+## Evidence and queued changes
+
+[world.test.js](../../tests/world.test.js) checks all 100 default campaign indexes for cow-clear route traversal with actual `moveBody` calls, safe default spawns, destination margins, exterior hills and geometry constraints. It also covers selected custom seeds, four rotations, audible-versus-solid fences and dry-end rail navigation. [simulation.test.js](../../tests/simulation.test.js) checks actual movement against banks, bounds and destination walls. [herding-journey.test.js](../../tests/herding-journey.test.js) covers five bounded full-delivery journeys. Those scopes are narrower than all possible seeds or real-device verification.
+
+Bridge alignment/width and shared enclosure geometry are Done by user acceptance on 14 October 2026; interactive gates and stone walls have implementation and automated evidence in this P2 batch; rendered/device acceptance and broader environment changes remain tracked in [ISSUES.md](../ISSUES.md). F-025 deployment migration is Done; the P1 development batch is published and hash-verified (see the validation runbook). Geometry evidence is not rendered/device acceptance.
+
+`gates.test.js` exercises the level-20 transition, closed movement for dog/sheep/cow radii, four rotations, remote/obstructed interaction rejection, touch activation using the actual controller, restart, visibility-cache invalidation, stone signals, disposable visual state and a companion simulation that cannot open or deliver through a closed panel. Potential-route tests explicitly open panels before validating the full route; this does not assert closed routes are traversable.
+
+
+### P2 Node 22 enclosure retrieval regression
+
+Stone walls changed physical thickness and player-signal visibility, exposing late retrieval behind destination walls in the unchanged public level-16 journey: 46/50 delivered on Node 22. Threading the true radius through route fallback improved clearance but did not fully recover the flock. `30abd2a` adds exterior enclosure corners and real entrance nodes to the local visibility graph and selects this detour for pressured bodies against nearby target walls. The same five ordinary-input journeys pass on Node 22 and Node 24 without changing timers, collision/signal policy, wander cohort or test controls. `enclosure-navigation.test.js` checks 36 rotated side/far-wall paths at sheep, dog and cow radii and rejects unsafe smaller-radius fallback behavior. These are bounded source regressions, not human pacing evidence for F-013.
+
+
+## Room between crossings — 20 October 2026
+
+From public level 6, levels with more than 30 animals gain extra trail before the gate: 0.4 m per animal above 30, capped at 14 m. The river positions relative to the spawn are unchanged, so the space is added between the last bridge and the gate. For 65-animal levels the trail from the last bridge exit to the gate grows from about 22 m to 30–37 m. Levels 1–5 are unchanged. `tests/chokepoints.test.js` checks the gap on sampled large-herd levels.
+
+## Physical pasture rocks — 29 October 2026
+
+Shared seeded pasture selection and placement live in `pasture.js`, with a dedicated `config/pasture.json` area for selection/detail budgets. Rough rocks are ordinary authoritative circular obstacles marked `kind: rock`, sharing occupancy, movement, line clearance and navigation with other solid obstacles. Generation uses an independent stream and rejects routes, spawn/animals, destinations, water, walls and gate space before adding rocks. Rendered horizontal rock bounds must fit those disks. The existing total obstacle ceiling remains enforced. Dense grass is decorative and cannot invent collision.
+
+
+## Elevated crossing construction — 29 October 2026
+
+An independent seeded35% candidate selection applies only to rolling meadows; this is implementation tuning, not an agreed frequency. Eligible first-river crossings extend the shared span to the river width plus two7m bank setbacks, reserve turning/approach space and omit the compulsory low crossing verge. Both complete landing cross-sections must stand at least.25m above local water with suitable grades. Other bridges retain their short low-crossing form. Public level6 is an early default example and public100 a later example.
+
+`bridge.elevated` selects a bank-to-bank chord with localized smooth tangent corrections and a.08m crown. Endpoint samples vary across the full deck width, preserving both bank height and normal at each end. The shared `bridgeSurfaceHeight` drives actors, navigation support and visual components; the same extended descriptor drives physical footprint and rails. Endpoints and interior support remain subject to the global4.5m relief/30-degree grade bounds.
+
+
+
+## Compact elevated banks — 9 November 2026
+
+F-TERRAIN-BANK-001 separates bridge setback from layout clearance: raised crossings use2.75m per-bank span setbacks while retaining the existing7m meadow breathing room. A seeded slow shelf variation changes ordinary banks; a localized quintic rise beside selected elevated spans raises dry banks without changing the wet edge. Current doubled hills retain9m relief and30degree pasture/deck caps; localized compact faces have a user-authorized80degree cap. `compactBankRegion` classifies that analytic deformation for validation, not collision. Existing planar bank occupancy remains unchanged. Dense full-width landing/interior validation can downgrade invalid elevated candidates, rebuilding the terrain field before acceptance.

@@ -1,0 +1,174 @@
+{
+  "environment": "dev",
+  "branch": "feat/kennel-progression",
+  "sourceSha": "e8585db1e7ee04b4005d5707cc1618d6be9560d4",
+  "prefix": "dev/",
+  "url": "https://novydhillon.github.io/Flock/dev/",
+  "files": [
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "dev/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "dev/assets/index-B9v86Haa.js",
+      "sha256": "246ec2a1c073a0584c9d9c31e207afbd1cda6d015d6b3e6a81d4595eed0aa8ab"
+    },
+    {
+      "path": "dev/assets/index-Dc98lgwP.css",
+      "sha256": "2d07f1f6eaa7d4eeba6bf772f23631f21e5a4d3d314566ac903210d2ea0500c7"
+    },
+    {
+      "path": "dev/assets/main-BSAilOs0.js",
+      "sha256": "1d8714899fb635d6a4e7edad10ccf3e61e5f825dce6bda8fd44236dbe6268d9a"
+    },
+    {
+      "path": "dev/assets/main-DDTLibAd.css",
+      "sha256": "6e1a56c35c61d3fd61ebdb3ccb2c3ba4f93255a40904812023dbf79057253b6f"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "dev/assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "dev/assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "dev/assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "dev/assets/qa-Bd_Xqfoe.css",
+      "sha256": "57ef5a5c448592435c04d907a4c3e0be2ede331a34c0884af2ff8d8ef6ad9c2c"
+    },
+    {
+      "path": "dev/assets/qa-ClXznTh6.js",
+      "sha256": "27d6b60046e5255792ab2f23e96bcb4209cafca28bbd57bcdb8faa00f17bba7d"
+    },
+    {
+      "path": "dev/audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0"
+    },
+    {
+      "path": "dev/audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34"
+    },
+    {
+      "path": "dev/audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b"
+    },
+    {
+      "path": "dev/audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac"
+    },
+    {
+      "path": "dev/icons/pip-120.png",
+      "sha256": "9a695821386b3411b9b8c5d6e88cbc29af8e34c5e26665c8ee11b94e5ff825ba"
+    },
+    {
+      "path": "dev/icons/pip-152.png",
+      "sha256": "54475227feb0930cb9a8d454bfada159a2dacae394c52f663fc486c0b4070cab"
+    },
+    {
+      "path": "dev/icons/pip-16.png",
+      "sha256": "600fe8379c974210fa9086c38ede431b2811d68613dbaf814ef9cab3ad0ef269"
+    },
+    {
+      "path": "dev/icons/pip-167.png",
+      "sha256": "f2c804e57379e8f39a287d96a1fca15797e7b6de3399802a10620f73bb311631"
+    },
+    {
+      "path": "dev/icons/pip-180.png",
+      "sha256": "7d0227e421d69859cd70089660d4775170dab271493e03e148b81717bed0214c"
+    },
+    {
+      "path": "dev/icons/pip-192.png",
+      "sha256": "f4825ffe75a6a6d261ef683f4f59c3b71318a711344400b8c681201d727dcae7"
+    },
+    {
+      "path": "dev/icons/pip-32.png",
+      "sha256": "ee50f96b681f9d6048fcfe2a49db59da88fe4653dbdab142e16e59744c430d72"
+    },
+    {
+      "path": "dev/icons/pip-48.png",
+      "sha256": "1b0bf9745d2f1a3fd5ba39875a2a380305fdaa73afa7cdcd4b39cc1ed1ef55af"
+    },
+    {
+      "path": "dev/icons/pip-512.png",
+      "sha256": "463ecba5b86728d66bbb7fc70691fe519fa40c6292183ed34b4a26711dbdffbe"
+    },
+    {
+      "path": "dev/icons/pip-96.png",
+      "sha256": "af7ef8925d599d19bc32c8599ebfe96356daa945a38832b1114015bca7467e83"
+    },
+    {
+      "path": "dev/icons/pip.svg",
+      "sha256": "85c2d5159332f6ed50dac1d1531c5686dd48a62ca0dfcda6cd1b5a6150a0f40a"
+    },
+    {
+      "path": "dev/index.html",
+      "sha256": "b7ce66e04c6ecab230be2b0277c63724ba381b043abcf68a0d6d1d565387448f"
+    },
+    {
+      "path": "dev/site.webmanifest",
+      "sha256": "3a9f0515c8a5e2a78ea89ebaa72c60710c6cd2a26fbc0c56963528d71ec8cd89"
+    }
+  ],
+  "pagesSha": "30b6b7ef2df6c1e8dcbea49fc5f805fe84391ac7",
+  "publication": "connector-only Pages fallback",
+  "fallbackReason": "Workflow dispatch was unavailable in this session.",
+  "pagesParent": "043084a7652c81d72214d627b2df4b4f4d90dd21",
+  "sourceCI": {
+    "run": 46055575932,
+    "url": "https://github.com/novydhillon/Flock/actions/runs/46055575932",
+    "conclusion": "success"
+  },
+  "nativePages": {
+    "run": 46057547152,
+    "url": "https://github.com/novydhillon/Flock/actions/runs/46057547152",
+    "conclusion": "success"
+  },
+  "verification": {
+    "sourceCIArtifactSha256": "cb5d97229e8cda8b465360d54c7a2ecaa132c53657b509ecefc28c05c9381ad1",
+    "localCheckedBuildPassed": true,
+    "gameTestsPassed": 665,
+    "localBuildMatchesSourceCIArtifact": true,
+    "developmentArtifactModeVerified": true,
+    "liveManifestMatches": true,
+    "liveEntryMatches": true,
+    "liveFileHashesVerified": 35,
+    "deviceSmokeTest": "pending"
+  }
+}
