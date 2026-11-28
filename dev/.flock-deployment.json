@@ -1,7 +1,7 @@
 {
   "environment": "dev",
   "branch": "feat/buddy-starter-progression",
-  "sourceSha": "8b1ab52c3e4d5257968ee28ae6fe735dc0d3a825",
+  "sourceSha": "1c2564de63663a0dcfb501fb690b230a2830e500",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,20 +30,20 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-CMFaAwmL.js",
-      "sha256": "55ad3e8cd3d24ec2967bea7ea0dcc2af5b82c86a28455bb643362b0093d78687"
-    },
-    {
       "path": "dev/assets/index-Dc98lgwP.css",
       "sha256": "2d07f1f6eaa7d4eeba6bf772f23631f21e5a4d3d314566ac903210d2ea0500c7"
     },
     {
-      "path": "dev/assets/main-BiK0X9P-.css",
-      "sha256": "00dbf09fa4f90a11798e6e66753907302dc67d88adada94fc4d3aea0153cbfd6"
+      "path": "dev/assets/index-cnGi6sqo.js",
+      "sha256": "43ccc326bb923a67998d718ec5bb3644b39f8f9079a504f44613bfd47fcad744"
     },
     {
-      "path": "dev/assets/main-DfxcdBQX.js",
-      "sha256": "624c32ca12c5d52a0bc968c3720caad10421c93ecc30eacc6e2ca5a1e50ceba2"
+      "path": "dev/assets/main-CR8ud-pG.css",
+      "sha256": "3e3e5be48e8b9bbbc860e51a81c33dfdcb46b53cec1bcdf04cd53d6cd0c7dc8a"
+    },
+    {
+      "path": "dev/assets/main-r37Lo4Mu.js",
+      "sha256": "354a4b8c726b60d70aa279ef68f1991f4e73eff77b4467bcde2b702ffc1fb63b"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -70,12 +70,12 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-BF2tIlWG.js",
-      "sha256": "2fb5a3c0e0d053f78d390e6ecc4da3215b534e7f62d41abdc0555d16200b6bee"
-    },
-    {
       "path": "dev/assets/qa-Bd_Xqfoe.css",
       "sha256": "57ef5a5c448592435c04d907a4c3e0be2ede331a34c0884af2ff8d8ef6ad9c2c"
+    },
+    {
+      "path": "dev/assets/qa-ZdIl8vM5.js",
+      "sha256": "04fc05f00a83a8bc2071ba41fa14a503eaabfa41423136e3e4d7ab830a5be3d5"
     },
     {
       "path": "dev/audio/CREDITS.md",
@@ -143,7 +143,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "f950620fa8e515955a52bb1df60f12d76908a9ed370fd1d2c9b09301b8803745"
+      "sha256": "8125520c5d8c44b5e44a444fae628130bf1f779df672b33bcc6a1dcd791fd9ff"
     },
     {
       "path": "dev/site.webmanifest",
