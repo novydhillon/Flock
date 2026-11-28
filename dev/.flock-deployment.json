@@ -1,7 +1,7 @@
 {
   "environment": "dev",
-  "branch": "feat/kennel-progression",
-  "sourceSha": "e8585db1e7ee04b4005d5707cc1618d6be9560d4",
+  "branch": "feat/buddy-starter-progression",
+  "sourceSha": "8b1ab52c3e4d5257968ee28ae6fe735dc0d3a825",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,20 +30,20 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
-      "path": "dev/assets/index-B9v86Haa.js",
-      "sha256": "246ec2a1c073a0584c9d9c31e207afbd1cda6d015d6b3e6a81d4595eed0aa8ab"
+      "path": "dev/assets/index-CMFaAwmL.js",
+      "sha256": "55ad3e8cd3d24ec2967bea7ea0dcc2af5b82c86a28455bb643362b0093d78687"
     },
     {
       "path": "dev/assets/index-Dc98lgwP.css",
       "sha256": "2d07f1f6eaa7d4eeba6bf772f23631f21e5a4d3d314566ac903210d2ea0500c7"
     },
     {
-      "path": "dev/assets/main-BSAilOs0.js",
-      "sha256": "1d8714899fb635d6a4e7edad10ccf3e61e5f825dce6bda8fd44236dbe6268d9a"
+      "path": "dev/assets/main-BiK0X9P-.css",
+      "sha256": "00dbf09fa4f90a11798e6e66753907302dc67d88adada94fc4d3aea0153cbfd6"
     },
     {
-      "path": "dev/assets/main-DDTLibAd.css",
-      "sha256": "6e1a56c35c61d3fd61ebdb3ccb2c3ba4f93255a40904812023dbf79057253b6f"
+      "path": "dev/assets/main-DfxcdBQX.js",
+      "sha256": "624c32ca12c5d52a0bc968c3720caad10421c93ecc30eacc6e2ca5a1e50ceba2"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -70,12 +70,12 @@
       "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
     },
     {
-      "path": "dev/assets/qa-Bd_Xqfoe.css",
-      "sha256": "57ef5a5c448592435c04d907a4c3e0be2ede331a34c0884af2ff8d8ef6ad9c2c"
+      "path": "dev/assets/qa-BF2tIlWG.js",
+      "sha256": "2fb5a3c0e0d053f78d390e6ecc4da3215b534e7f62d41abdc0555d16200b6bee"
     },
     {
-      "path": "dev/assets/qa-ClXznTh6.js",
-      "sha256": "27d6b60046e5255792ab2f23e96bcb4209cafca28bbd57bcdb8faa00f17bba7d"
+      "path": "dev/assets/qa-Bd_Xqfoe.css",
+      "sha256": "57ef5a5c448592435c04d907a4c3e0be2ede331a34c0884af2ff8d8ef6ad9c2c"
     },
     {
       "path": "dev/audio/CREDITS.md",
@@ -92,6 +92,10 @@
     {
       "path": "dev/audio/sheep.mp3",
       "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac"
+    },
+    {
+      "path": "dev/icons/bone.svg",
+      "sha256": "02b4706e4e8f3bf7564ffaa005a708f2bdac7ba29d325dc8a8ea68237911a697"
     },
     {
       "path": "dev/icons/pip-120.png",
@@ -139,7 +143,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "b7ce66e04c6ecab230be2b0277c63724ba381b043abcf68a0d6d1d565387448f"
+      "sha256": "f950620fa8e515955a52bb1df60f12d76908a9ed370fd1d2c9b09301b8803745"
     },
     {
       "path": "dev/site.webmanifest",
