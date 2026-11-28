@@ -18,6 +18,7 @@ import {
   DOG_TRAINING_CATALOG,
   buyDogTraining,
   dogTrainingEffects,
+  dogStatRange,
   trainingAvailability,
 } from '../src/progression/dog-training.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from '../src/simulation/delivery.js';
@@ -57,8 +58,8 @@ test('profile defaults own fresh state and malformed saves cannot introduce tran
   });
   assert.equal(kennel.openedSlots, 1);
   assert.equal(kennel.dogs.length, 1);
-  assert.equal(kennel.dogs[0].catalogId, 'pip');
-  assert.equal(kennel.dogs[0].name, 'Pip');
+  assert.equal(kennel.dogs[0].catalogId, 'buddy');
+  assert.equal(kennel.dogs[0].name, 'Buddy');
   assert.deepEqual(kennel.lineup, [kennel.dogs[0].id, null, null, null]);
   for (const value of [null, undefined, false, 12, 'profile', [], {}]) assert.deepEqual(validateProfile(value), second);
   const result = validateProfile({
@@ -78,7 +79,7 @@ test('profile defaults own fresh state and malformed saves cannot introduce tran
   assert.equal(validateProfile({ points: 1e12 }).points, 1e9);
 });
 
-test('kennel slots open at the campaign milestones and grant Buddy only on the first successful purchase', () => {
+test('kennel slots keep their milestones and prices without duplicating the starter Buddy', () => {
   const profile = defaultProfile();
   const price = 100;
   profile.points = 360;
@@ -108,8 +109,7 @@ test('kennel slots open at the campaign milestones and grant Buddy only on the f
     assert.equal(profile.kennel.openedSlots, slot);
     const buddies = profile.kennel.dogs.filter((dog) => dog.catalogId === 'buddy');
     assert.equal(buddies.length, 1);
-    assert.equal(profile.kennel.lineup[1], buddies[0].id);
-    assert.deepEqual(profile.kennel.lineup.slice(2), [null, null]);
+    assert.deepEqual(profile.kennel.lineup, [buddies[0].id, null, null, null]);
 
     const purchased = structuredClone(profile);
     buyKennelSlot(profile, slot, price);
@@ -124,8 +124,7 @@ test('invalid opened-slot data cannot spend bolts or create assignments that val
     profile.points = 2_000;
     profile.kennel.openedSlots = openedSlots;
     assert.equal(buyKennelSlot(profile, 1, 600).ok, false);
-    assert.equal(adoptKennelDog(profile, 'dog-3').ok, false);
-    assert.equal(assignKennelDog(profile, 4, 'pip').ok, false);
+    assert.equal(assignKennelDog(profile, 4, 'buddy').ok, false);
     assert.equal(profile.points, 2_000);
     assert.equal(buyKennelSlot(profile, 2, 600).ok, true);
     assert.equal(profile.kennel.openedSlots, 2);
@@ -133,35 +132,44 @@ test('invalid opened-slot data cannot spend bolts or create assignments that val
   }
 });
 
-test('each adoption price becomes available at its public meadow, even after a late Buddy purchase', () => {
+test('Pip unlocks at meadow three as a one-time adoption and keeps Buddy in the player slot', () => {
+  const profile = defaultProfile();
+  profile.highestLevel = 1;
+  profile.points = 100;
+  assert.equal(adoptKennelDog(profile, 'pip').reason, 'locked');
+  profile.highestLevel = 2;
+  profile.points = 99;
+  assert.equal(adoptKennelDog(profile, 'pip').reason, 'points');
+  profile.points = 100;
+  assert.equal(adoptKennelDog(profile, 'pip').dog.id, 'pip');
+  assert.deepEqual(adoptKennelDog(profile, 'pip'), { ok: false, reason: 'owned' });
+  assert.deepEqual(validateProfile(profile), profile);
+  assert.equal(profile.points, 0);
+  assert.deepEqual(profile.kennel.lineup, ['buddy', null, null, null]);
+  assert.equal(assignKennelDog(profile, 1, 'pip').ok, true);
+});
+
+test('each paid adoption unlocks before or without a crew-position purchase', () => {
   for (let index = 0; index < 8; index++) {
     const profile = defaultProfile();
-    const meadow = 25 + 5 * index;
+    const meadow = 10 + 5 * index;
     const cost = 600 + 200 * index;
     const catalogId = `dog-${index + 3}`;
     profile.points = 5_000;
     profile.highestLevel = meadow - 2;
-    assert.equal(buyKennelSlot(profile, 2, 600).ok, true);
     assert.equal(adoptionAvailability(profile, catalogId).available, false);
     profile.highestLevel = meadow - 1;
     assert.equal(adoptionAvailability(profile, catalogId).available, true);
     assert.equal(adoptKennelDog(profile, catalogId).ok, true);
-    assert.equal(profile.points, 5_000 - 600 - cost);
+    assert.equal(profile.points, 5_000 - cost);
+    assert.equal(profile.kennel.openedSlots, 1);
+    assert.deepEqual(validateProfile(profile), profile);
   }
-
-  const late = defaultProfile();
-  late.highestLevel = 59;
-  late.points = 5_000;
-  assert.equal(adoptionAvailability(late, 'dog-3').available, false);
-  assert.equal(buyKennelSlot(late, 2).ok, true);
-  assert.equal(late.points, 4_400);
-  assert.equal(adoptionAvailability(late, 'dog-3').available, true);
-  assert.equal(adoptionAvailability(late, 'dog-10').available, true);
 });
 
 test('duplicate kennel adoptions and lineup changes persist alongside campaign rewards', () => {
   const profile = defaultProfile();
-  profile.highestLevel = 24;
+  profile.highestLevel = 8;
   profile.points = 10_000;
   profile.music = false;
   assert.equal(applyLevelReward(profile, finishedRun(2)), 32);
@@ -170,14 +178,13 @@ test('duplicate kennel adoptions and lineup changes persist alongside campaign r
   adoptKennelDog(profile, 'dog-3', 'Early');
   assert.deepEqual(profile, beforeSlot);
 
-  buyKennelSlot(profile, 2, 100);
-  profile.highestLevel = 23;
+  profile.highestLevel = 8;
   assert.equal(adoptionAvailability(profile, 'dog-3').available, false);
   const beforeGate = structuredClone(profile);
   adoptKennelDog(profile, 'dog-3', 'Early');
   assert.deepEqual(profile, beforeGate);
 
-  profile.highestLevel = 24;
+  profile.highestLevel = 9;
   const balance = profile.points;
   const { available, cost } = adoptionAvailability(profile, 'dog-3');
   assert.equal(available, true);
@@ -209,6 +216,8 @@ test('duplicate kennel adoptions and lineup changes persist alongside campaign r
   assignKennelDog(profile, 3, hazel.id);
   assignKennelDog(profile, 1, null);
   assert.deepEqual(profile, beforeLockedAssignment);
+  profile.highestLevel = 19;
+  assert.ok(buyKennelSlot(profile, 2, 100).ok);
   assignKennelDog(profile, 1, fern.id);
   assignKennelDog(profile, 2, hazel.id);
   assert.deepEqual(profile.kennel.lineup, [fern.id, hazel.id, null, null]);
@@ -484,6 +493,8 @@ test('personal training quotes one tier and rejects gated, unfunded, stale and m
         level: tier,
         meadow,
         cost,
+        base: skill.id === 'speed' ? 2 : 1,
+        upgrades: 3,
       });
       assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).ok, true);
       assert.equal(profile.points, 0);
@@ -497,6 +508,33 @@ test('personal training quotes one tier and rejects gated, unfunded, stale and m
     assert.equal(buyDogTraining(profile, 'missing', skill.id).reason, 'dog');
     assert.equal(buyDogTraining(profile, dog.id, 'helper').reason, 'unknown');
   }
+});
+
+test('each dog has bounded purchasable tiers and configured base stats that affect gameplay', () => {
+  const profile = defaultProfile();
+  profile.highestLevel = 99;
+  profile.points = 20000;
+  const buddy = profile.kennel.dogs[0];
+  const { dog: pip } = adoptKennelDog(profile, 'pip');
+  assert.equal(dogTrainingEffects(pip).maxSpeed, dogTrainingEffects(buddy).maxSpeed);
+  for (const catalogId of ['buddy', 'pip', ...Array.from({ length: 8 }, (_, i) => `dog-${i + 3}`)]) {
+    assert.ok(dogStatRange(catalogId, 'speed').base >= 2);
+    assert.ok(
+      dogTrainingEffects({ catalogId, training: { speed: 1 } }).maxSpeed > dogTrainingEffects({ catalogId }).maxSpeed,
+    );
+  }
+  assert.ok(dogTrainingEffects(pip).signalBoost > dogTrainingEffects(buddy).signalBoost);
+  for (let tier = 0; tier < 5; tier++) {
+    const state = trainingAvailability(profile, pip.id, 'bark');
+    assert.equal(state.upgrades, 5);
+    assert.equal(state.level, tier);
+    assert.ok(buyDogTraining(profile, pip.id, 'bark', tier).ok);
+  }
+  assert.equal(trainingAvailability(profile, pip.id, 'bark').reason, 'max');
+  assert.equal(validateProfile(profile).kennel.dogs[1].training.bark, 5);
+  assert.ok(
+    dogTrainingEffects(pip).barkMultiplier > dogTrainingEffects({ ...pip, training: { bark: 3 } }).barkMultiplier,
+  );
 });
 
 test('training survives reload and lineup swaps for individual copies, including runs in earlier meadows', () => {

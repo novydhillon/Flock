@@ -1,5 +1,21 @@
 # Flock revision quality record
 
+## Buddy starter follow-up — 28 November 2026
+
+Branch `feat/buddy-starter-progression`. Four requested speed, crew gallery, kennel roster and QA focus fixes were independently reviewed at 9/10 after correcting a test expectation. Session model, identifier not recorded; effort not exposed. Focused profile, kennel and QA tests passed. Phone rendering, touch and gameplay feel remain pending. Publication and user acceptance are separate milestones.
+
+## F-KENNEL-009 — Adoption prices, individual paw meters and bones — 27 November 2026
+
+Branch `feat/buddy-starter-progression`, base `16a5c9b`. Implementation was split between the kennel/gameplay and QA changes. Exact session model and effort identifiers were unavailable. Pip costs 100 bones. Each attribute uses one to three brown base paws and three to five purchasable paws, gray before purchase and green afterward. The QA roster grant fills only the isolated test kennel. The existing balance and earned reward fields are retained.
+
+Independent review scored 9.5/10, then 9.7/10 after singular currency copy was corrected. Ninety-eight focused tests passed, plus a direct sweep of all 40 dog and attribute combinations through their configured caps and save reload. The release artifact excluded QA, and the Dev artifact included the full-roster grant. Physical phone layout, rendered appearance and game balance remain for playtesting.
+
+## Buddy starter and adoption gates — 27 November 2026
+
+Branch `feat/buddy-starter-progression`, based on main `8f0934b`. Session model and effort identifiers were unavailable. New saves start with Buddy. Pip is a free one-time adoption at meadow 3. Paid adoption gates move to meadows 10–45, independently of slot purchases. A prior Pip-start kennel keeps its roster, assignments and any unclaimed Slot 2 Buddy reward.
+
+Independent review scored 9.0/10, then 9.5/10 after correcting the documented default kennel selection to use the active lead dog. There were no material blockers. Eighty-eight focused tests passed, including profile reload, kennel UI, crew selection, game-controller and QA coverage. The independent reviewer also checked exact slot prices and adoption during an earlier replay. Physical phone playtesting remains pending.
+
 ## Head-height dog previews and compact kennel — 27 November 2026
 
 Branch `feat/kennel-progression`, base `b7fd3342116bbe9253942546f0bec08e1d006191`. Sol High handled preview modeling and independent review. Both previews use a near-horizontal standing-head-height view and denser dog geometry built only for the preview. The kennel uses one roster for named, full-color dog portraits and four icon-led training rows. Short portrait viewports use a two-column training grid. Independent review scored 9/10 after fixes to color, duplicate names, touch help and short-screen layout. All 111 focused tests passed. Physical iOS safe-area fit and rendering performance remain pending.

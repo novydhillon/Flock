@@ -59,7 +59,8 @@
   color: #765328;
 }
 
-.kennel-wallet svg,
+.kennel-wallet .currency-bone,
+.kennel-action .currency-bone,
 .kennel-action svg {
   width: 15px;
   height: 15px;
@@ -78,10 +79,6 @@
   padding: 8px;
   border-radius: 13px;
   background: #eef0e1;
-}
-
-.kennel-actions:has(.kennel-training[hidden]):has(.kennel-adoption[hidden]):has(.kennel-adoption-state[hidden]) {
-  display: none;
 }
 
 .kennel-detail-heading {
@@ -160,7 +157,11 @@
 .kennel-action:disabled {
   opacity: 1;
   background: #d7dbd4;
-  color: #4f5852;
+  color: #666;
+}
+
+.kennel-action:disabled .currency-bone {
+  background-color: currentColor;
 }
 
 .kennel-training-row,
@@ -185,6 +186,7 @@
 }
 
 .kennel-training-info {
+  min-width: 0;
   min-height: 42px;
   border-radius: 8px;
   gap: clamp(3px, 1vw, 8px);
@@ -197,10 +199,46 @@
   margin-right: 3px;
 }
 
+.kennel-paw-meter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.kennel-paw.is-base {
+  color: #8b5c37;
+}
+
+.kennel-adoption-price {
+  position: absolute;
+  z-index: 1;
+  right: 7px;
+  bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  color: #684826;
+  background: #fbf8ecf5;
+  border: 1px solid #bca67b;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.dog-preview-solo:has(.kennel-adoption-price:not([hidden])) {
+  display: block;
+}
+
+.kennel-adoption:not([hidden]) + .kennel-training {
+  margin-top: 6px;
+}
+
 .kennel-paw {
+  flex: none;
   width: 18px;
   height: 18px;
-  color: #a5aba4;
+  color: #777e75;
 }
 
 .kennel-paw.is-trained {
@@ -329,6 +367,10 @@
     gap: 2px;
   }
 
+  .kennel-paw-meter {
+    max-width: 50px;
+  }
+
   .kennel-paw {
     width: 11px;
     height: 11px;
@@ -341,7 +383,8 @@
     font-size: 11px;
   }
 
-  .kennel-training .kennel-action svg {
+  .kennel-training .kennel-action svg,
+  .kennel-training .kennel-action .currency-bone {
     width: 11px;
     height: 11px;
   }

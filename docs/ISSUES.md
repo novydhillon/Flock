@@ -28,12 +28,13 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 | ID | Priority | Type | Item | Status | Depends on |
 |---|---|---|---|---|---|
-| F-KENNEL-001 | P1 | Progression/economy | Buy meadow slots and earn Buddy | In progress | Existing Buddy gate and bolt ledger |
-| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | In progress | F-DOG-001; F-KENNEL-001 |
+| F-KENNEL-001 | P1 | Progression/economy | Start with Buddy and buy meadow slots | In progress | Existing crew slot gates and bolt ledger |
+| F-KENNEL-002 | P1 | Progression/collection | Adopt and manage individual dogs | In progress | F-DOG-001; campaign meadow progress |
 | F-KENNEL-003 | P1 | Gameplay/progression | Assign and play a lineup of up to four dogs | In progress | F-KENNEL-001; F-KENNEL-002; F-046 |
 | F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
 | F-KENNEL-007 | P1 | Persistence/gameplay | Preserve campaign progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
 | F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
+| F-KENNEL-009 | P2 | UI/progression/QA | Show adoption prices and individual paw training | Review | F-KENNEL-002; F-KENNEL-004 |
 | F-ASSET-001 | P2 | Production/asset inventory | Inventory 3D assets and define the replacement contract | Open | Current rendering and content |
 | F-ASSET-002 | P2 | Tooling/CI | Build and validate 3D assets for Dev and production | Open | F-ASSET-001 |
 | F-ASSET-003 | P2 | Character art/animation | Move animated actors and their clips into replaceable files | Open | F-ASSET-001; F-ASSET-002 |
@@ -69,36 +70,38 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 
 F-KENNEL-001 to F-KENNEL-003 track the remaining slot, adoption and lineup work. See the [design and delivery plan](REQUIREMENTS.md#dog-kennel-and-meadow-lineups--26-november-2026) for proposed defaults and open decisions.
 
-### F-KENNEL-001 — Buy meadow slots and earn Buddy
+### F-KENNEL-001 — Start with Buddy and buy meadow slots
 
 **Status:** In progress. Owner Codex.
 
-**Branch:** `feat/kennel-progression`
+**Branch:** `feat/buddy-starter-progression`
 
 As a player, I want to grow my lineup at campaign milestones so I can take more dogs into a meadow.
 
 **Accept when:**
 
-- A new save starts with Slot 1 open, Pip assigned and no bolt charge. Slot 2 is gated until meadow 20, Slot 3 until 40 and Slot 4 until 60.
-- Reaching a gate makes the slot purchasable. Buying it charges the configured bolt price once and permanently opens the slot. Buying Slot 2 also grants exactly one Buddy in the same transaction. Slots 3 and 4 grant lineup space.
-- Locked, unaffordable, available and opened states are distinguishable. Failed or repeated purchases leave the balance and roster consistent. Reloading preserves ownership and the Buddy reward.
+- A new save starts with Slot 1 open, Buddy assigned and no bolt charge. Slot 2 is gated until meadow 20, Slot 3 until 40 and Slot 4 until 60.
+- Reaching a gate makes the slot purchasable. Buying it charges the configured bolt price once and permanently opens the slot. Slots 2–4 add lineup space. An existing Pip-start save without Buddy still receives Buddy when it buys Slot 2.
+- Locked, unaffordable, available and opened states are distinguishable. Failed or repeated purchases leave the balance and roster consistent. Reloading preserves ownership and crew assignments.
 - Once a slot opens, it stays available in every meadow, including replays that precede its purchase milestone.
 
 ### F-KENNEL-002 — Adopt and manage individual dogs
 
 **Status:** In progress. Owner Codex.
 
-**Branch:** `feat/kennel-progression`
+**Branch:** `feat/buddy-starter-progression`
 
 As a collector, I want to adopt and identify individual dogs so I can build a kennel larger than my active lineup.
 
 **Accept when:**
 
-- An eligible adoption spends bolts and adds one dog with a persistent identity, name, coat and fresh attribute tiers. The same dog entry can be adopted repeatedly, including Pip and Buddy when eligible.
+- An eligible adoption adds one dog with a persistent identity, name, coat and fresh attribute tiers. Pip is a one-time adoption for 100 bones at meadow 3. Players can adopt the eight paid entries repeatedly at their listed prices in bones.
 - Define stable catalog identities for Pip, Buddy and the eight placeholders, with configurable adoption gates, base models and supported coats. Adoption rules operate independently of portrait and preview artwork.
-- After Slot 2 opens and grants Buddy, one additional entry becomes adoptable per five-meadow milestone from 25 through 60. Entry 3 costs 600 bolts and each later entry adds 200 bolts, through 2,000 for entry 10. Each additional adoption of a given entry uses its listed price. Use the highest unlocked campaign meadow to evaluate its gate, including while replaying an earlier meadow.
+- The eight paid entries unlock at meadows 10, 15, 20, 25, 30, 35, 40 and 45, independently of crew-slot purchases. Entry 3 costs 600 bolts and each later entry adds 200 bolts, through 2,000 for entry 10. Each additional adoption of a given entry uses its listed price. Use the highest unlocked campaign meadow to evaluate its gate, including while replaying an earlier meadow.
 - Two copies can have different names, coats, stats and assignments. Editing or upgrading one leaves the other intact. An unavailable or unaffordable adoption leaves the kennel and bolt balance intact.
 - Owned dogs, their names, coat selections and upgrades survive reload. Unassigned dogs remain owned and can be selected later.
+
+**27 November 2026:** The Buddy starter and independent adoption gates are implemented on `feat/buddy-starter-progression`. Prior owned dogs, upgrades and valid assignments carry forward.
 
 ### F-KENNEL-003 — Assign and play a lineup of up to four dogs
 
@@ -113,7 +116,7 @@ As a player, I want to choose which dogs work with me so I can lead with my favo
 - Assign owned dogs to open slots and replace or remove CPU assignments. Slot 1 always has a valid owned dog. Only Slot 1 responds to player movement and bark input and drives the gameplay camera.
 - Purchased and assigned slots 2–4 independently move, herd and use their allowed behaviors. Distinct copies of the same dog can participate together. Empty or unopened slots spawn no actor.
 - Helpers coordinate among herd groups and avoid obstructing each other and the lead dog at bridges, gates and goal entrances. Preserve player-attended delivery and accepted Buddy behaviors under the agreed policy.
-- An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 60 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
+- An approved lineup persists across saves and is applied at the agreed boundary. Replaying any earlier meadow allows every owned dog and every opened slot. Assign a dog first available at meadow 45 to Slot 1 and fill Slots 2–4, then verify all four assignments work in meadow 1 with the expected player and CPU controls.
 
 **26 November 2026:** The first slice implements slot transactions, catalog adoption, persisted ownership and lineup assignment in the campaign profile. The original preview saved selections from pause and results. The revised flow stages assignments at meadow entry, where players select a role and then an owned dog by portrait. Simulation integration is pending.
 
@@ -157,11 +160,26 @@ As a player, I want the kennel and lineup to work consistently through the campa
 
 **Accept when:**
 
-- Check fresh and continuing saves, exact slot gates and all eight adoption gates at the meadow before and at each threshold. Verify the listed prices, a late Slot 2 purchase, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes and reload after purchases.
-- Replay meadow 1 with a meadow-60 dog, four opened slots and four assignments. Confirm all four participate and the replay does not change their eligibility or the campaign reward ledger rules.
+- Check fresh and continuing saves, exact slot gates and all nine adoption gates at the meadow before and at each threshold. Verify the listed prices, a late Slot 2 purchase, one through four dogs, insufficient bolts, repeated inputs, duplicate dogs, maxed attributes and reload after purchases.
+- Replay meadow 1 with a meadow-45 dog, four opened slots and four assignments. Confirm all four participate and the replay does not change their eligibility or the campaign reward ledger rules.
 - Verify the economy with attainable bolt earnings and mixed purchase paths. Playtest split herds, gates, bridges, goal admission, movement and bark behavior at baseline and max tiers.
 - With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.
 - Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.
+
+### F-KENNEL-009 — Show adoption prices and individual paw training
+
+**28 November follow-up:** Buddy and all dogs start with at least two speed paws; the crew picker scrolls horizontally; QA unlock-all shows owned dogs without duplicate offers; and QA opens with focus on its dialog. Implementation is in review; device testing and publication remain pending.
+
+**Status:** Review. Owner Codex.
+
+**Branch:** `feat/buddy-starter-progression`
+
+**Accept when:**
+
+- A paid adoption offer shows its price in bones at the lower-right corner of the kennel preview, including while the offer is gated. Pip costs 100 bones at meadow 3 and remains a one-time adoption. The purchase checks affordability and preserves existing ownership.
+- Each dog and attribute has its own base and cap. Show brown base paws, green purchased paws and gray remaining paws. Each attribute supports three to five purchases. The resulting stats apply to the selected dog in gameplay and in replays. Existing paid upgrades carry over as counts of green paws.
+- Player-facing balances, adoption and training prices, crew purchases and results use bones. Existing balances and the earned reward ledger retain their numeric values.
+- QA can grant one of every missing dog to the isolated test profile. Repeated clicks make no duplicates and normal campaign storage is unaffected.
 
 ### F-ASSET-001 — Inventory 3D assets and define the replacement contract
 

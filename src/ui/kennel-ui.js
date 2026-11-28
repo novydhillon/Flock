@@ -2,7 +2,12 @@ import { kennelIcon } from './kennel-icons.js';
 import { mountDogPreview } from '../rendering/dog-preview.js';
 import { KENNEL_CATALOG, adoptKennelDog, adoptionAvailability, validateKennel } from '../progression/kennel.js';
 
-import { DOG_TRAINING_CATALOG, buyDogTraining, trainingAvailability } from '../progression/dog-training.js';
+import {
+  DOG_TRAINING_CATALOG,
+  buyDogTraining,
+  dogStatRange,
+  trainingAvailability,
+} from '../progression/dog-training.js';
 
 export const coatNames = new Map([
   ['black-white', 'Black and white'],
@@ -17,9 +22,9 @@ export const coatNames = new Map([
   ['black-auburn-white', 'Black, auburn and white'],
 ]);
 
-const boltLabel = (amount) => (amount === 1 ? 'bolt' : 'bolts');
-const boltPrice = (amount) => `${amount.toLocaleString()} ${boltLabel(amount)}`;
-const boltShortfall = (amount) => `Need ${amount.toLocaleString()} more ${boltLabel(amount)}`;
+const boneLabel = (amount) => (amount === 1 ? 'bone' : 'bones');
+const bonePrice = (amount) => `${amount.toLocaleString()} ${boneLabel(amount)}`;
+const boneShortfall = (amount) => `Need ${amount.toLocaleString()} more ${boneLabel(amount)}`;
 
 function createNode(doc, tag, className = '', text = '') {
   const element = doc.createElement(tag);
@@ -51,14 +56,15 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   }
 
   let kennel = validateKennel(profile.kennel);
-  let selection = { entry: KENNEL_CATALOG[0], dog: kennel.dogs.find((dog) => dog.id === 'pip') };
+  const lead = kennel.dogs.find((dog) => dog.id === kennel.lineup[0]);
+  let selection = { entry: KENNEL_CATALOG.find((entry) => entry.id === lead.catalogId), dog: lead };
   let chosenCoat = selection.dog.coat;
 
   const panel = node('div', 'kennel-management');
   const wallet = node('div', 'kennel-wallet');
   wallet.setAttribute('role', 'img');
   const balance = node('span');
-  wallet.append(icon('bolt'), balance);
+  wallet.append(icon('bone'), balance);
   const notice = node('div', 'kennel-sr-only');
   notice.setAttribute('role', 'status');
   const content = node('div', 'kennel-content');
@@ -68,10 +74,18 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   const selectedTitle = node('h3', 'kennel-heading');
   heading.append(selectedArt, selectedTitle);
   const stage = node('div', 'dog-preview dog-preview-solo');
+  const priceBadge = node('div', 'kennel-adoption-price');
+  priceBadge.setAttribute('role', 'img');
+  const priceAmount = node('span');
+  priceBadge.append(icon('bone'), priceAmount);
+  stage.append(priceBadge);
   detail.append(heading, stage);
 
   const actions = node('div', 'kennel-actions');
   const adoptionState = node('p', 'kennel-adoption-state');
+  const adoptAnother = button('kennel-action kennel-adopt-another', 'Adopt another dog');
+  adoptAnother.append(icon('add'), node('span', '', 'Adopt another'));
+  adoptAnother.addEventListener('click', () => choose(selection.entry, null));
   const adoption = node('form', 'kennel-adoption');
   const name = node('input');
   name.type = 'text';
@@ -84,12 +98,11 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   coats.setAttribute('aria-label', 'Adoption coat');
   const adopt = button('kennel-action kennel-adopt', 'Adopt');
   adopt.type = 'submit';
-  const adoptionPrice = node('span');
-  adopt.append(icon('add'), icon('bolt'), adoptionPrice);
+  adopt.append(icon('add'), node('span', '', 'Adopt'));
   adoption.append(name, coats, adopt);
   const training = node('section', 'kennel-training');
   training.setAttribute('aria-label', 'Training');
-  actions.append(training, adoptionState, adoption);
+  actions.append(adoptionState, adoptAnother, adoption, training);
   content.append(detail, actions);
 
   const catalog = node('div', 'kennel-catalog');
@@ -124,7 +137,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     for (const entry of KENNEL_CATALOG) {
       const copies = kennel.dogs.filter((dog) => dog.catalogId === entry.id);
       const cards = copies.map((dog) => ({ dog, label: dog.name }));
-      if (!copies.length || entry.cost !== null) cards.push({ label: entry.name });
+      if (!copies.length) cards.push({ label: entry.name });
       const availability = adoptionAvailability(profile, entry.id);
       for (const { dog, label } of cards) {
         const locked = !dog && (entry.cost === null || availability.reason === 'locked');
@@ -162,33 +175,33 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     const { entry, dog } = selection;
     selectedTitle.textContent = dog?.name ?? entry.name;
     showDog();
-    training.hidden = !dog;
+    priceBadge.hidden = Boolean(dog) || entry.cost === null;
+    if (!priceBadge.hidden) {
+      priceAmount.textContent = entry.cost.toLocaleString();
+      priceBadge.setAttribute('aria-label', `Adoption price: ${bonePrice(entry.cost)}`);
+    }
     adoptionState.hidden = true;
     adoption.hidden = true;
-    if (dog) {
-      renderTraining();
-      return;
-    }
+    const canAdoptAnother =
+      dog && entry.cost !== null && !entry.once && adoptionAvailability(profile, entry.id).reason !== 'locked';
+    adoptAnother.hidden = !canAdoptAnother;
+    renderTraining();
+    if (dog) return;
     const state = adoptionAvailability(profile, entry.id);
     if (entry.id === 'buddy' || state.reason === 'locked') {
       adoptionState.hidden = false;
       adoptionState.textContent =
-        entry.id === 'buddy'
-          ? 'Joins with the second crew position · Meadow 20'
-          : kennel.openedSlots < 2
-            ? `Meadow ${state.meadow} · Open the second crew position first`
-            : `Meadow ${state.meadow}`;
+        entry.id === 'buddy' ? 'Joins with the second crew position · Meadow 20' : `Meadow ${state.meadow}`;
       return;
     }
 
     adoption.hidden = false;
     name.placeholder = entry.name;
-    adoptionPrice.textContent = state.cost.toLocaleString();
     adopt.disabled = !state.available;
-    adopt.setAttribute('aria-label', `Adopt ${entry.name} for ${boltPrice(state.cost)}`);
+    adopt.setAttribute('aria-label', `Adopt ${entry.name} for ${bonePrice(state.cost)}`);
     adopt.title = adopt.getAttribute('aria-label');
     if (state.reason === 'points') {
-      adoptionState.textContent = boltShortfall(state.cost - profile.points);
+      adoptionState.textContent = boneShortfall(state.cost - profile.points);
       adoptionState.hidden = false;
     }
     coats.replaceChildren();
@@ -206,7 +219,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   }
 
   function renderTraining() {
-    const { dog } = selection;
+    const { dog, entry } = selection;
     training.replaceChildren();
     const tip = node('p', 'kennel-stat-tip');
     tip.setAttribute('role', 'status');
@@ -214,15 +227,18 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     tip.hidden = true;
     let activeHelp;
     for (const skill of DOG_TRAINING_CATALOG) {
-      const state = trainingAvailability(profile, dog.id, skill.id);
+      const state = dog
+        ? trainingAvailability(profile, dog.id, skill.id)
+        : { ...dogStatRange(entry.id, skill.id), level: 0, cost: null };
       const row = node('div', 'kennel-training-row');
-      const progress = `${skill.name}, ${state.level} of ${skill.costs.length} upgrades`;
-      const nextTier = skill.tierDescriptions[state.level];
+      const progress = `${skill.name}, ${state.base} base paws, ${state.level} of ${state.upgrades} upgrades`;
+      const currentTier = skill.describe(state.base - 1 + state.level);
+      const nextTier = state.cost === null ? null : skill.describe(state.base + state.level);
       const reason =
         state.reason === 'locked'
           ? `Reach meadow ${state.meadow}`
           : state.reason === 'points'
-            ? boltShortfall(state.cost - profile.points)
+            ? boneShortfall(state.cost - profile.points)
             : '';
       const info = button('kennel-training-info', progress);
       info.setAttribute('aria-controls', tip.id);
@@ -234,22 +250,24 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
         activeHelp = willShow ? info : null;
         info.setAttribute('aria-expanded', String(willShow));
         tip.hidden = !willShow;
-        tip.textContent = `${skill.name} · ${reason || nextTier || 'Fully trained'}`;
+        tip.textContent = `${skill.name} · ${dog ? reason || nextTier || 'Fully trained' : currentTier}`;
       });
       info.append(icon(skill.id, 'kennel-stat-icon'));
-      for (let tier = 0; tier < skill.costs.length; tier++) {
-        info.append(icon('paw', tier < state.level ? 'kennel-paw is-trained' : 'kennel-paw'));
-      }
+      const meter = node('span', 'kennel-paw-meter');
+      for (let tier = 0; tier < state.base; tier++) meter.append(icon('paw', 'kennel-paw is-base'));
+      for (let tier = 0; tier < state.upgrades; tier++)
+        meter.append(icon('paw', tier < state.level ? 'kennel-paw is-trained' : 'kennel-paw'));
+      info.append(meter);
       row.append(info);
-      if (state.cost !== null) {
-        const label = [`Train ${dog.name} in ${skill.name} for ${boltPrice(state.cost)}`, nextTier, reason]
+      if (dog && state.cost !== null) {
+        const label = [`Train ${dog.name} in ${skill.name} for ${bonePrice(state.cost)}`, nextTier, reason]
           .filter(Boolean)
           .join('. ');
         const action = button('kennel-action', label);
         action.title = label;
         action.dataset.kennelTrain = skill.id;
         action.disabled = !state.available;
-        action.append(icon('bolt'), node('span', '', state.cost.toLocaleString()));
+        action.append(icon('bone'), node('span', '', state.cost.toLocaleString()));
         action.addEventListener('click', () => {
           if (!buyDogTraining(profile, dog.id, skill.id, state.level).ok) return;
           save(`${skill.name}, ${state.level + 1} upgrades`);
@@ -266,7 +284,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
 
   function save(message) {
     balance.textContent = profile.points.toLocaleString();
-    wallet.setAttribute('aria-label', boltPrice(profile.points));
+    wallet.setAttribute('aria-label', bonePrice(profile.points));
     notice.textContent = message;
     onChange?.(profile);
   }
@@ -298,7 +316,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   });
 
   balance.textContent = profile.points.toLocaleString();
-  wallet.setAttribute('aria-label', boltPrice(profile.points));
+  wallet.setAttribute('aria-label', bonePrice(profile.points));
   renderCatalog();
   renderSelection();
   return preview.dispose;

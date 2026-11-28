@@ -10,7 +10,8 @@ const source = (await readFile(new URL('../src/qa/qa.js', import.meta.url), 'utf
   .replace(
     "'../simulation/animal-size.js'",
     JSON.stringify(new URL('../src/simulation/animal-size.js', import.meta.url).href),
-  );
+  )
+  .replace("'../progression/kennel.js'", JSON.stringify(new URL('../src/progression/kennel.js', import.meta.url).href));
 const { qaLevelIndex, adjustQABolts, moveQAAnimal, exportQAScenario, installQA, installQAContours } = await import(
   `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`
 );

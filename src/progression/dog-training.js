@@ -4,52 +4,86 @@ import { UPGRADE_CATALOG, progressionLevel, upgradeEffects } from './progression
 
 const tuning = settings.training;
 const policies = new Map(UPGRADE_CATALOG.map((item) => [item.id, item]));
-function attribute(id, name, policy, tierDescriptions) {
+const legacyEffects = Array.from({ length: 4 }, (_, tier) =>
+  upgradeEffects({ flock: tier, bark: tier }, MAX_LEVEL_NUMBER),
+);
+const signalBoosts = [...legacyEffects.map((effect) => effect.signalBoost), ...tuning.advancedSignalBoost];
+const maxLegacyBark = legacyEffects.at(-1);
+const barkEffects = [
+  ...legacyEffects,
+  ...tuning.advancedBarkBonus.map((bonus) => ({
+    barkBoost: maxLegacyBark.barkBoost + bonus,
+    barkMultiplier: maxLegacyBark.barkMultiplier + bonus,
+    barkCharges: maxLegacyBark.barkCharges,
+  })),
+];
+
+function attribute(id, name, policy, describe) {
   return Object.freeze({
     id,
     name,
-    costs: Object.freeze(policy.costs),
-    unlockLevels: Object.freeze(policy.unlockLevels),
-    tierDescriptions: Object.freeze(tierDescriptions),
+    costs: Object.freeze([...policy.costs, ...tuning.advanced.costs]),
+    unlockLevels: Object.freeze([...policy.unlockLevels, ...tuning.advanced.unlockLevels]),
+    describe,
   });
 }
 
 export const DOG_TRAINING_CATALOG = Object.freeze([
-  attribute('speed', 'Speed', policies.get('speed'), ['Fast jog', 'Light run', 'All-out run']),
+  attribute('speed', 'Speed', policies.get('speed'), (tier) => `Up to ${tuning.maxSpeed[tier]} m/s`),
   attribute(
     'agility',
     'Agility',
     tuning.agility,
-    tuning.turnMultiplier
-      .slice(1)
-      .map((multiplier) => `Turns ${Math.round((multiplier - 1) * 100)}% faster while moving`),
+    (tier) => `Turns ${Math.round((tuning.turnMultiplier[tier] - 1) * 100)}% faster while moving`,
   ),
-  attribute('influence', 'Influence', policies.get('flock'), policies.get('flock').tierDescriptions),
-  attribute('bark', 'Bark intensity', policies.get('bark'), policies.get('bark').tierDescriptions),
+  attribute('influence', 'Influence', policies.get('flock'), (tier) => `+${signalBoosts[tier]} m herding range`),
+  attribute('bark', 'Bark intensity', policies.get('bark'), (tier) => {
+    const { barkMultiplier, barkCharges } = barkEffects[tier];
+    return `×${Number(barkMultiplier.toFixed(2))} bark strength · ${barkCharges} ${barkCharges === 1 ? 'charge' : 'charges'}`;
+  }),
 ]);
 
-function trainingTier(raw, id) {
-  const value = raw && Object.hasOwn(raw, id) ? raw[id] : 0;
-  return Number.isInteger(value) ? Math.min(3, Math.max(0, value)) : 0;
+const statRanges = new Map(
+  Object.entries(tuning.dogs).map(([catalogId, ranges]) => [
+    catalogId,
+    Object.fromEntries(DOG_TRAINING_CATALOG.map(({ id }, index) => [id, ranges[index]])),
+  ]),
+);
+
+function trainingRange(catalogId, skillId) {
+  return (statRanges.get(catalogId) ?? statRanges.get('buddy'))[skillId];
 }
 
-export function validateTraining(raw) {
-  return Object.fromEntries(DOG_TRAINING_CATALOG.map(({ id }) => [id, trainingTier(raw, id)]));
+export function dogStatRange(catalogId, skillId) {
+  const [base, upgrades] = trainingRange(catalogId, skillId);
+  return { base, upgrades };
+}
+
+function trainingTier(raw, id, upgrades) {
+  const value = raw && Object.hasOwn(raw, id) ? raw[id] : 0;
+  return Number.isInteger(value) ? Math.min(upgrades, Math.max(0, value)) : 0;
+}
+
+export function validateTraining(raw, catalogId) {
+  return Object.fromEntries(
+    DOG_TRAINING_CATALOG.map(({ id }) => [id, trainingTier(raw, id, trainingRange(catalogId, id)[1])]),
+  );
 }
 
 export function trainingAvailability(profile, dogId, skillId) {
   const skill = DOG_TRAINING_CATALOG.find(({ id }) => id === skillId);
   const dog = profile?.kennel?.dogs?.find((entry) => entry.id === dogId);
-  const level = skill ? trainingTier(dog?.training, skillId) : 0;
-  const cost = skill?.costs[level] ?? null;
-  const meadow = skill?.unlockLevels[level] ?? null;
+  const [base, upgrades] = skill ? trainingRange(dog?.catalogId, skillId) : [0, 0];
+  const level = trainingTier(dog?.training, skillId, upgrades);
+  const cost = level < upgrades ? skill.costs[level] : null;
+  const meadow = level < upgrades ? skill.unlockLevels[level] : null;
   let reason = null;
   if (!skill) reason = 'unknown';
   else if (!dog) reason = 'dog';
   else if (cost === null) reason = 'max';
   else if (progressionLevel(profile) < meadow) reason = 'locked';
   else if (!Number.isSafeInteger(profile.points) || profile.points < cost) reason = 'points';
-  return { available: reason === null, reason, level, meadow, cost };
+  return { available: reason === null, reason, level, meadow, cost, base, upgrades };
 }
 
 export function buyDogTraining(profile, dogId, skillId, expectedLevel) {
@@ -57,20 +91,21 @@ export function buyDogTraining(profile, dogId, skillId, expectedLevel) {
   if (!status.available) return { ok: false, reason: status.reason };
   if (expectedLevel !== undefined && expectedLevel !== status.level) return { ok: false, reason: 'stale' };
   const dog = profile.kennel.dogs.find((entry) => entry.id === dogId);
-  dog.training = { ...validateTraining(dog.training), [skillId]: status.level + 1 };
+  dog.training = { ...validateTraining(dog.training, dog.catalogId), [skillId]: status.level + 1 };
   profile.points -= status.cost;
   return { ok: true, level: status.level + 1, cost: status.cost };
 }
 
-// Purchases follow campaign gates. Their effects follow the dog into any replay.
-const tierEffects = tuning.maxSpeed.map((_, tier) => upgradeEffects({ flock: tier, bark: tier }, MAX_LEVEL_NUMBER));
+// A single base paw is the original untrained baseline. Base and purchased
+// paws contribute to the same effect curve, including in earlier replays.
 export function dogTrainingEffects(dog) {
-  const { speed, agility, influence, bark } = validateTraining(dog?.training);
-  const { barkBoost, barkMultiplier, barkCharges } = tierEffects[bark];
+  const training = validateTraining(dog?.training, dog?.catalogId);
+  const tier = (id) => trainingRange(dog?.catalogId, id)[0] - 1 + training[id];
+  const { barkBoost, barkMultiplier, barkCharges } = barkEffects[tier('bark')];
   return {
-    maxSpeed: tuning.maxSpeed[speed],
-    turnMultiplier: tuning.turnMultiplier[agility],
-    signalBoost: tierEffects[influence].signalBoost,
+    maxSpeed: tuning.maxSpeed[tier('speed')],
+    turnMultiplier: tuning.turnMultiplier[tier('agility')],
+    signalBoost: signalBoosts[tier('influence')],
     barkBoost,
     barkMultiplier,
     barkCharges,

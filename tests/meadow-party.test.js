@@ -29,7 +29,12 @@ function open(profile) {
 }
 
 test('opening a partner stages the price, Buddy and the lineup together until entering the meadow', () => {
-  const profile = { ...defaultProfile(), highestLevel: 19, points: 600 };
+  const profile = {
+    ...defaultProfile(),
+    highestLevel: 19,
+    points: 600,
+    kennel: { dogs: [{ id: 'pip', catalogId: 'pip' }], lineup: ['pip'] },
+  };
   const original = structuredClone(profile);
   for (const finish of ['cancel', 'confirm']) {
     const ui = open(profile);
@@ -48,7 +53,7 @@ test('opening a partner stages the price, Buddy and the lineup together until en
       ['pip', 'buddy'],
     );
     assert.match(ui.position(2).textContent, /Buddy/);
-    assert.match(ui.root.querySelector('.party-balance').textContent, /0 bolts/);
+    assert.match(ui.root.querySelector('.party-balance').textContent, /0 bones/);
     assert.deepEqual(ui.events, []);
     ui[finish]();
     ui.dispose();
@@ -70,7 +75,7 @@ test('same-name dogs stay distinct through assignment, swaps, and clearing an op
   const { dog: second } = adoptKennelDog(profile, 'dog-3', 'Fern');
   const ui = open(profile);
   ui.position(3).click();
-  assert.equal(ui.dog('pip').disabled, true);
+  assert.equal(ui.dog('buddy').disabled, true);
   assert.notEqual(ui.dog(first.id).textContent, ui.dog(second.id).textContent);
   ui.dog(first.id).click();
   assert.equal(ui.root.ownerDocument.activeElement, ui.position(3));
@@ -79,19 +84,19 @@ test('same-name dogs stay distinct through assignment, swaps, and clearing an op
   ui.position(1).click();
   assert.equal(ui.root.querySelector('.party-clear'), null);
   ui.dog(first.id).click();
-  assert.match(ui.position(3).textContent, /Pip/);
+  assert.match(ui.position(3).textContent, /Buddy/);
   ui.position(3).click();
   ui.clear();
   ui.confirm();
-  assert.deepEqual(ui.events[0].kennel.lineup, [first.id, 'buddy', null, second.id]);
-  assert.deepEqual(profile.kennel.lineup, ['pip', 'buddy', null, null]);
+  assert.deepEqual(ui.events[0].kennel.lineup, [first.id, null, null, second.id]);
+  assert.deepEqual(profile.kennel.lineup, ['buddy', null, null, null]);
 });
 
 test('partner opening shows the missing balance and sequential purchase gate', () => {
   const profile = { ...defaultProfile(), highestLevel: 59, points: 599 };
   const ui = open(profile);
   assert.equal(ui.position(2).disabled, true);
-  assert.match(ui.position(2).textContent, /Need 1 bolt more/);
+  assert.match(ui.position(2).textContent, /Need 1 bone more/);
   assert.match(ui.position(3).textContent, /Open Partner 1 first/);
   ui.position(2).click();
   ui.confirm();

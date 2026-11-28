@@ -14,6 +14,7 @@ import * as gates from '../src/simulation/gates.js';
 import * as barkAPI from '../src/simulation/bark.js';
 import * as landingUI from '../src/ui/landing-ui.js';
 import * as profileAPI from '../src/progression/profile.js';
+import { grantKennelCatalog, KENNEL_CATALOG } from '../src/progression/kennel.js';
 import { mountKennel } from '../src/ui/kennel-ui.js';
 import { mountMeadowParty } from '../src/ui/meadow-party.js';
 import { prepareMeadowLineup } from '../src/progression/meadow-lineup.js';
@@ -66,6 +67,7 @@ function launch({ music = false } = {}) {
     animalRadius,
     mountKennel,
     mountMeadowParty,
+    grantKennelCatalog,
     prepareMeadowLineup,
     ...simulation,
     ...profileAPI,
@@ -124,6 +126,54 @@ function submit(ui, id, submitter) {
   ui.document.getElementById(id).dispatchEvent(event);
 }
 
+test('QA unlocks each missing kennel dog only in the paused test profile', async () => {
+  const ui = launch();
+  try {
+    await settle();
+    const click = (id) => ui.document.getElementById(id).click();
+    const campaign = structuredClone(ui.app.state().profile);
+    click('qa-unlock-kennel');
+    assert.deepEqual(ui.app.state().profile, campaign);
+
+    click('qa-toggle');
+    await settle();
+    const { profile } = ui.app.state();
+    click('qa-unlock-kennel');
+    await settle();
+    const catalogIds = () => profile.kennel.dogs.map((dog) => dog.catalogId);
+    assert.deepEqual(new Set(catalogIds()), new Set(KENNEL_CATALOG.map((entry) => entry.id)));
+    const roster = structuredClone(profile.kennel.dogs);
+    assert.equal(roster.length, KENNEL_CATALOG.length);
+    assert.equal(profile.points, 0);
+    assert.equal(profile.kennel.openedSlots, 1);
+    assert.deepEqual(profile.kennel.lineup, ['buddy', null, null, null]);
+
+    click('qa-unlock-kennel');
+    await settle();
+    assert.deepEqual(profile.kennel.dogs, roster);
+    ui.document.getElementById('qa-level').value = '2';
+    submit(ui, 'qa-jump');
+    await settle();
+    assert.equal(ui.app.state().level.index, 1);
+    click('qa-close');
+    click('wallet');
+    assert.equal(ui.document.querySelectorAll('[data-kennel-dog]').length, KENNEL_CATALOG.length);
+    click('kennel-back');
+
+    click('qa-toggle');
+    await settle();
+    click('qa-reset');
+    await settle();
+    assert.deepEqual(
+      ui.app.state().profile.kennel.dogs.map((dog) => dog.catalogId),
+      ['buddy'],
+    );
+    assert.equal(ui.saved.get('flock-foundry-v1'), ui.initial);
+  } finally {
+    ui.close();
+  }
+});
+
 test('QA kennel and party use the tested meadow and test wallet without charging the campaign', async () => {
   const ui = launch();
   try {
@@ -154,7 +204,8 @@ test('QA kennel and party use the tested meadow and test wallet without charging
     assert.equal(buddy.disabled, false);
     buddy.click();
     doc.querySelector('.party-actions .primary').click();
-    assert.equal(ui.app.state().level.helpers[0].id, 'buddy');
+    assert.equal(ui.app.state().level.dog.id, 'buddy');
+    assert.deepEqual(ui.app.state().level.helpers, []);
     assert.equal(ui.app.state().profile.points, 80);
     click('wallet');
     doc.querySelector('[data-kennel-train="speed"]').click();
@@ -188,6 +239,12 @@ test('production controller and QA editor freeze timed delivery and protect the 
     ui.document.getElementById('qa-toggle').click();
     await settle();
     assert.equal(ui.app.state().mode, 'qa');
+    assert.equal(
+      ui.document.activeElement,
+      ui.document.getElementById('qa-panel'),
+      'opening QA focuses the dialog, not a control',
+    );
+    assert.notEqual(ui.document.activeElement, ui.document.getElementById('qa-level'));
     assert.equal(ui.app.state().qaSession, true);
     assert.equal(ui.app.state().level.index, 0);
     assert.equal(ui.app.state().profile.points, 0);

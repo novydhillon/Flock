@@ -23,6 +23,7 @@ test('a four-dog meadow-one replay runs the selected lead and three distinct CPU
   const second = adoptKennelDog(profile, 'dog-3', 'Moss').dog;
   for (const [slot, id] of [
     [1, lead.id],
+    [2, 'buddy'],
     [3, first.id],
     [4, second.id],
   ])
@@ -65,6 +66,6 @@ test('a four-dog meadow-one replay runs the selected lead and three distinct CPU
 test('an unassigned CPU position stays empty even with legacy helper purchases', () => {
   const level = enter(defaultProfile());
   stepSimulation(level, level.dog, {}, 1 / 60, { helper: 3, drone: 1 });
-  assert.equal(level.dog.id, 'pip');
+  assert.equal(level.dog.id, 'buddy');
   assert.deepEqual(level.helpers, []);
 });

@@ -9,7 +9,7 @@ import {
 import { coatNames, kennelPortrait } from './kennel-ui.js';
 
 const roleName = (position) => (position === 1 ? 'Player' : `Partner ${position - 1}`);
-const bolts = (amount) => `${amount.toLocaleString()} ${amount === 1 ? 'bolt' : 'bolts'}`;
+const bones = (amount) => `${amount.toLocaleString()} ${amount === 1 ? 'bone' : 'bones'}`;
 
 export function mountMeadowParty(root, { profile, onConfirm, onCancel, mountPreview = mountDogPreview }) {
   const draft = structuredClone(profile);
@@ -80,9 +80,10 @@ export function mountMeadowParty(root, { profile, onConfirm, onCancel, mountPrev
     const open = position <= draft.kennel.openedSlots;
     const card = action('party-position', '', () => {
       if (!open) {
-        if (!buyKennelSlot(draft, position).ok) return;
+        const result = buyKennelSlot(draft, position);
+        if (!result.ok) return;
         pickPosition(position);
-        notice.textContent = position === 2 ? 'Buddy joined your party.' : `${role} opened.`;
+        notice.textContent = result.grantedBuddy ? 'Buddy joined your party.' : `${role} opened.`;
       } else pickPosition(position);
     });
     card.dataset.partyPosition = String(position);
@@ -98,11 +99,11 @@ export function mountMeadowParty(root, { profile, onConfirm, onCancel, mountPrev
       const reason = {
         locked: `Meadow ${state.meadow}`,
         'previous-slot': `Open ${roleName(position - 1)} first`,
-        points: `Need ${bolts(Math.max(0, state.cost - draft.points))} more`,
+        points: `Need ${bones(Math.max(0, state.cost - draft.points))} more`,
       }[state.reason];
-      card.append(element('span', '', `Open for ${bolts(state.cost)}`));
+      card.append(element('span', '', `Open for ${bones(state.cost)}`));
       if (reason) card.append(element('small', '', reason));
-      if (position === 2) card.append(element('small', '', 'Includes Buddy'));
+      if (state.grantsBuddy) card.append(element('small', '', 'Includes Buddy'));
     }
     return card;
   }
@@ -134,7 +135,7 @@ export function mountMeadowParty(root, { profile, onConfirm, onCancel, mountPrev
     positions.replaceChildren(...kennel.lineup.map(positionCard));
     const cost = profile.points - draft.points;
     wallet.textContent =
-      cost > 0 ? `Spend ${bolts(cost)} on entry · ${bolts(draft.points)} left` : `Balance · ${bolts(draft.points)}`;
+      cost > 0 ? `Spend ${bones(cost)} on entry · ${bones(draft.points)} left` : `Balance · ${bones(draft.points)}`;
     picker.replaceChildren();
     picker.hidden = selected === null;
     if (selected === null) return;

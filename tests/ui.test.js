@@ -278,7 +278,11 @@ function launch({
 }
 
 test('party purchases and role swaps reach gameplay and storage only when confirmed', async () => {
-  const ui = launch({ points: 600, highestLevel: 19 });
+  const ui = launch({
+    points: 600,
+    highestLevel: 19,
+    kennel: { dogs: [{ id: 'pip', catalogId: 'pip' }], lineup: ['pip'] },
+  });
   const stored = () => ui.storage.get('flock-foundry-v1');
   const initial = stored();
   const partyButton = (selector) => ui.el('party-content').querySelector(selector);
@@ -363,14 +367,14 @@ test('manually reopening tips restarts at 01 and cycles through 02, 03, then 01'
   ui.advance(14.1);
   assert.ok(ui.el('tip').classList.contains('hidden'));
   await ui.click('toggle-tip');
-  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Buddy.');
   assert.equal(ui.el('tip').querySelector('.tip-number').textContent, '01');
   ui.advance(14.1);
   assert.equal(ui.el('tip-text').textContent, 'Move behind the flock to guide it.');
   ui.advance(14.1);
   assert.equal(ui.el('tip-text').textContent, 'Double-tap to woof.');
   ui.advance(14.1);
-  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Buddy.');
 });
 
 test('manual tip dwell time freezes while paused and closing then reopening resets to 01', async () => {
@@ -381,14 +385,14 @@ test('manual tip dwell time freezes while paused and closing then reopening rese
   ui.advance(8);
   await ui.click('pause');
   ui.advance(20);
-  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Buddy.');
   await ui.click('resume');
   ui.advance(6.1);
   assert.equal(ui.el('tip-text').textContent, 'Move behind the flock to guide it.');
   await ui.click('toggle-tip');
   assert.ok(ui.el('tip').classList.contains('hidden'));
   await ui.click('toggle-tip');
-  assert.equal(ui.el('tip-text').textContent, 'Drag to move Pip.');
+  assert.equal(ui.el('tip-text').textContent, 'Drag to move Buddy.');
   assert.equal(ui.el('tip').querySelector('.tip-number').textContent, '01');
 });
 
@@ -584,7 +588,7 @@ test('lost pointer capture stops Pip without a woof and ignores unrelated pointe
 });
 
 test('idle Pip stays in place while Buddy works independently', async () => {
-  const ui = launch({ highestLevel: 27, kennel: { openedSlots: 2 } });
+  const ui = launch({ highestLevel: 27, kennel: { openedSlots: 2, dogs: [{ id: 'pip', catalogId: 'pip' }] } });
   await ui.enter();
   ui.tick();
   const { level, dog } = ui.app.state();
@@ -985,7 +989,7 @@ test('mission identifies fixed weather without requiring a wait or affecting the
 });
 
 test('autonomous partner bark reaches audio and renderer without consuming Pip cooldown', async () => {
-  const ui = launch({ highestLevel: 23, kennel: { openedSlots: 2 } });
+  const ui = launch({ highestLevel: 23, kennel: { openedSlots: 2, dogs: [{ id: 'pip', catalogId: 'pip' }] } });
   await ui.enter();
   const state = ui.app.state(),
     l = state.level;

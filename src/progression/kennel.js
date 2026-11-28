@@ -18,7 +18,7 @@ function createDog(id, entry, name, coat, training) {
   return {
     id,
     catalogId: entry.id,
-    training: validateTraining(training),
+    training: validateTraining(training, entry.id),
     name: cleanName || entry.name || 'Dog',
     coat: coatModels.get(coat) === entry.model ? coat : entry.coat,
   };
@@ -27,8 +27,8 @@ function createDog(id, entry, name, coat, training) {
 export function defaultKennel() {
   return {
     openedSlots: 1,
-    dogs: [createDog('pip', catalog.get('pip'))],
-    lineup: ['pip', ...Array(slotCount - 1).fill(null)],
+    dogs: [createDog('buddy', catalog.get('buddy'))],
+    lineup: ['buddy', ...Array(slotCount - 1).fill(null)],
   };
 }
 
@@ -47,22 +47,23 @@ export function validateKennel(raw) {
       !id.trim() ||
       dogs.has(id) ||
       (id === 'pip' && entry.id !== 'pip') ||
-      (id === 'buddy' && entry.id !== 'buddy') ||
-      (kennel.openedSlots < 2 && entry.id !== 'pip')
+      (id === 'buddy' && entry.id !== 'buddy')
     )
       continue;
     dogs.set(id, createDog(id, entry, dog.name, dog.coat, dog.training));
   }
-  if (!dogs.has('pip')) dogs.set('pip', kennel.dogs[0]);
-  if (kennel.openedSlots >= 2 && !dogs.has('buddy')) dogs.set('buddy', createDog('buddy', catalog.get('buddy')));
+  if (!dogs.size) dogs.set('buddy', kennel.dogs[0]);
+  // Legacy kennels already entitled to Buddy keep the slot reward.
+  if (kennel.openedSlots >= 2 && ![...dogs.values()].some((dog) => dog.catalogId === 'buddy'))
+    dogs.set('buddy', createDog('buddy', catalog.get('buddy')));
   kennel.dogs = [...dogs.values()];
 
+  const lead = dogs.has(raw.lineup?.[0]) ? raw.lineup[0] : kennel.dogs[0].id;
+  kennel.lineup[0] = lead;
   if (!Array.isArray(raw.lineup)) {
-    if (kennel.openedSlots >= 2) kennel.lineup[1] = 'buddy';
+    if (kennel.openedSlots >= 2 && lead !== 'buddy' && dogs.has('buddy')) kennel.lineup[1] = 'buddy';
     return kennel;
   }
-  const lead = dogs.has(raw.lineup[0]) ? raw.lineup[0] : 'pip';
-  kennel.lineup[0] = lead;
   const assigned = new Set([lead]);
   for (let index = 1; index < kennel.openedSlots; index++) {
     const id = raw.lineup[index];
@@ -91,7 +92,9 @@ export function slotAvailability(profile, slotNumber, price) {
   else if (progressionLevel(profile) < meadow) reason = 'locked';
   else if (slotNumber !== opened + 1) reason = 'previous-slot';
   else reason = priceReason(profile, cost);
-  return { available: reason === null, reason, meadow, cost: cost ?? null };
+  const grantsBuddy =
+    slotNumber === 2 && opened < 2 && !validateKennel(profile?.kennel).dogs.some((dog) => dog.catalogId === 'buddy');
+  return { available: reason === null, reason, meadow, cost: cost ?? null, grantsBuddy };
 }
 
 export function buyKennelSlot(profile, slotNumber, cost) {
@@ -100,12 +103,12 @@ export function buyKennelSlot(profile, slotNumber, cost) {
 
   const kennel = validateKennel(profile.kennel);
   kennel.openedSlots = slotNumber;
-  if (slotNumber === 2) {
+  if (status.grantsBuddy) {
     kennel.dogs.push(createDog('buddy', catalog.get('buddy')));
     kennel.lineup[1] = 'buddy';
   }
   Object.assign(profile, { points: profile.points - status.cost, kennel });
-  return { ok: true };
+  return { ok: true, grantedBuddy: status.grantsBuddy };
 }
 
 export function adoptionAvailability(profile, catalogId) {
@@ -114,7 +117,9 @@ export function adoptionAvailability(profile, catalogId) {
   const cost = entry?.cost ?? null;
   let reason = null;
   if (!entry) reason = 'unknown';
-  else if (progressionLevel(profile) < meadow || openedSlots(profile?.kennel) < 2) reason = 'locked';
+  else if (entry.once && validateKennel(profile?.kennel).dogs.some((dog) => dog.catalogId === entry.id))
+    reason = 'owned';
+  else if (progressionLevel(profile) < meadow) reason = 'locked';
   else reason = priceReason(profile, cost);
   return { available: reason === null, reason, meadow, cost };
 }
@@ -127,10 +132,27 @@ export function adoptKennelDog(profile, catalogId, name, coat) {
   let sequence = kennel.dogs.length;
   const ids = new Set(kennel.dogs.map((dog) => dog.id));
   while (ids.has(`adoption-${sequence}`)) sequence++;
-  const dog = createDog(`adoption-${sequence}`, catalog.get(catalogId), name, coat);
+  const entry = catalog.get(catalogId);
+  const dog = createDog(entry.once ? entry.id : `adoption-${sequence}`, entry, name, coat);
   kennel.dogs.push(dog);
   Object.assign(profile, { points: profile.points - status.cost, kennel });
   return { ok: true, dog };
+}
+
+/** Give the isolated QA profile one copy of each missing catalog dog. */
+export function grantKennelCatalog(profile) {
+  const kennel = validateKennel(profile.kennel);
+  const owned = new Set(kennel.dogs.map((dog) => dog.catalogId));
+  const missing = KENNEL_CATALOG.filter((entry) => !owned.has(entry.id));
+  const ids = new Set(kennel.dogs.map((dog) => dog.id));
+  for (const entry of missing) {
+    let id = entry.id;
+    for (let suffix = 1; ids.has(id); suffix++) id = `${entry.id}-${suffix}`;
+    kennel.dogs.push(createDog(id, entry));
+    ids.add(id);
+  }
+  profile.kennel = kennel;
+  return missing.length;
 }
 
 export function assignKennelDog(profile, slotNumber, dogId) {

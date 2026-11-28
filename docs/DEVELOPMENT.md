@@ -1,10 +1,14 @@
 # Development, QA and release context
 
+## Buddy starter follow-up smoke check — 28 November 2026
+
+On a phone, check Buddy starts with two speed paws and feels faster, unlock all kennel dogs and verify each appears once, scroll the full crew roster while keeping the start button reachable, and open QA without the meadow dropdown opening. Repeat in portrait and landscape. Device testing pending.
+
 ## Kennel management smoke check — 27 November 2026
 
 Check that the kennel preview follows the selected dog, owned copy and adoption coat. In the meadow picker, swap two dogs, buy an eligible partner position and clear a partner while watching the 3D crew update. Change kennel selections rapidly and close and reopen both screens. With reduced motion enabled, the previews show standing dogs.
 
-On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster, full-color named portraits and lock badges. Select a dog and confirm that its preview, four paw meters and Back fit above the bottom edge. Buy an upgrade and check that the next paw turns green, gated prices appear grey and the price disappears at full training. Check head-height framing in both previews and return to the originating screen. At meadow entry, check assigning an owned dog, clearing a CPU partner, cancelling a purchase, and confirming the team. At meadow 20 buy the second slot once and verify Buddy and the bolt balance persist after reload. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
+On a phone in portrait and landscape, open the kennel from pause and from results. Check the horizontal roster, full-color named portraits and lock badges. Select a locked offer and check its bone price at the lower-right of the dog preview. Compare the brown base, gray remaining and green purchased paws across dogs, including one with five upgrade steps. Confirm that the preview, four meters and Back remain reachable. Buy an upgrade and check that the next paw turns green, gated prices appear grey and the price disappears at full training. Check head-height framing in both previews and return to the originating screen. At meadow entry, check assigning an owned dog, clearing a CPU partner, cancelling a purchase, and confirming the team. At meadow 20 buy the second slot once and verify the opening and bone balance survive reload. In a QA session, choose Unlock all kennel dogs and confirm that the entire roster appears once each in the test kennel. Use an earlier replay to confirm previously opened slots remain visible in the kennel. Device observation is pending.
 
 ## Half-resolution rendering smoke check — 25 November 2026
 
@@ -331,7 +335,7 @@ The manual [Deploy Flock workflow](../.github/workflows/deploy-pages.yml) perfor
 
 Historical F-025 migration evidence remains in [P0/P1 validation](validation/P0-P1.md). Its worktree/redirect staging procedure is retired; it is not a current command.
 
-The isolated QA panel supports level jumps, test bolts, session reset and scenario export. Animal selection and coordinate positioning are temporarily hidden; the panel can be closed with its × button or Resume.
+The isolated QA panel supports level jumps, test bones, a full kennel roster grant, session reset and scenario export. Animal selection and coordinate positioning are temporarily hidden; the panel can be closed with its × button or Resume.
 
 ```mermaid
 flowchart TD

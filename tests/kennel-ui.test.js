@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { defaultProfile } from '../src/progression/profile.js';
-import { adoptKennelDog, buyKennelSlot } from '../src/progression/kennel.js';
+import { adoptKennelDog, buyKennelSlot, grantKennelCatalog, KENNEL_CATALOG } from '../src/progression/kennel.js';
 import { mountKennel } from '../src/ui/kennel-ui.js';
 
 function kennelFixture(profile = defaultProfile()) {
@@ -21,14 +21,14 @@ function kennelFixture(profile = defaultProfile()) {
   return { window, root, changes, previews };
 }
 
-test('kennel defaults to Pip and keyboard browsing exposes unavailable dogs without changing the profile', () => {
+test('kennel defaults to Buddy and keyboard browsing exposes unavailable dogs without changing the profile', () => {
   const { root, window, changes, previews } = kennelFixture();
   const cards = Array.from(root.querySelectorAll('[data-kennel-catalog]'));
   assert.equal(cards.length, 10);
-  assert.equal(previews.at(-1).dogs[0].id, 'pip');
+  assert.equal(previews.at(-1).dogs[0].id, 'buddy');
   assert.equal(previews.at(-1).options.solo, true);
-  assert.equal(cards[0].textContent, 'Pip');
-  assert.equal(cards[0].getAttribute('aria-pressed'), 'true');
+  assert.equal(cards[0].textContent, 'Buddy');
+  assert.equal(root.querySelector('[data-kennel-dog="buddy"]').getAttribute('aria-pressed'), 'true');
   assert.equal(cards.at(-1).textContent, 'Rosie');
   assert.match(cards.at(-1).getAttribute('aria-label'), /locked/);
   assert.equal(cards.at(-1).querySelector('.kennel-portrait').dataset.coat, 'black-auburn-white');
@@ -38,18 +38,49 @@ test('kennel defaults to Pip and keyboard browsing exposes unavailable dogs with
   assert.equal(root.ownerDocument.activeElement, cards.at(-1));
   assert.deepEqual(previews.at(-1).dogs, [{ id: 'dog-10', model: 'buddy', coat: 'black-auburn-white' }]);
   assert.equal(cards.at(-1).getAttribute('aria-pressed'), 'true');
-  assert.match(root.querySelector('.kennel-adoption-state').textContent, /Meadow 60.*second crew position/);
+  assert.match(root.querySelector('.kennel-adoption-state').textContent, /Meadow 45/);
   assert.equal(root.querySelector('form').hidden, true);
   assert.deepEqual(changes, []);
 });
 
-test('Buddy explains the meadow entry grant and has no position or standalone purchase controls', () => {
-  const profile = { ...defaultProfile(), highestLevel: 19, points: 600 };
+test('Pip shows the meadow-three gate and can be adopted once for bones before buying a slot', () => {
+  const locked = kennelFixture({ ...defaultProfile(), highestLevel: 1 }).root;
+  locked.querySelector('[data-kennel-offer="pip"]').click();
+  assert.match(locked.querySelector('.kennel-adoption-state').textContent, /Meadow 3/);
+  assert.equal(locked.querySelector('form').hidden, true);
+
+  const profile = { ...defaultProfile(), highestLevel: 2, points: 100 };
+  const { root, changes } = kennelFixture(profile);
+  root.querySelector('[data-kennel-offer="pip"]').click();
+  const price = root.querySelector('.dog-preview .kennel-adoption-price');
+  assert.equal(price.hidden, false);
+  assert.equal(price.getAttribute('aria-label'), 'Adoption price: 100 bones');
+  assert.ok(price.querySelector('.currency-bone'));
+  assert.equal(root.querySelectorAll('.kennel-training-row').length, 4);
+  assert.equal(root.querySelector('[data-kennel-train]'), null);
+  root.querySelector('.kennel-adopt').click();
+  assert.equal(profile.points, 0);
+  assert.equal(profile.kennel.openedSlots, 1);
+  assert.equal(root.querySelector('[data-kennel-offer="pip"]'), null);
+  assert.equal(price.hidden, true);
+  assert.equal(root.querySelectorAll('.kennel-training-row:first-child .is-base').length, 2);
+  assert.equal(root.querySelector('[data-kennel-dog="pip"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(changes.length, 1);
+});
+
+test('legacy Pip saves show how Buddy joins without a standalone purchase', () => {
+  const profile = {
+    ...defaultProfile(),
+    highestLevel: 19,
+    points: 600,
+    kennel: { dogs: [{ id: 'pip', catalogId: 'pip' }], lineup: ['pip'] },
+  };
   const { root, changes } = kennelFixture(profile);
   root.querySelector('[data-kennel-catalog="buddy"]').click();
   assert.match(root.querySelector('.kennel-adoption-state').textContent, /second crew position.*Meadow 20/);
   assert.equal(root.querySelector('form').hidden, true);
-  assert.equal(root.querySelector('.kennel-training').hidden, true);
+  assert.equal(root.querySelectorAll('.kennel-training-row').length, 4);
+  assert.equal(root.querySelector('[data-kennel-train]'), null);
   assert.equal(root.querySelector('[data-kennel-buy-slot], [data-kennel-assign-slot], [data-kennel-apply-slot]'), null);
   assert.deepEqual(changes, []);
 });
@@ -68,7 +99,8 @@ test('the roster selects individual copies with their own coats and upgrades', (
   form.querySelector('[aria-label="Auburn and white"]').click();
   assert.equal(previews.at(-1).dogs[0].coat, 'auburn-white');
   adopt.click();
-  offer().click();
+  assert.equal(offer(), null);
+  root.querySelector('.kennel-adopt-another').click();
   assert.equal(previews.at(-1).dogs[0].coat, 'blonde-white');
   name.value = '<em>Fern</em>';
   adopt.click();
@@ -109,11 +141,11 @@ test('training fills each paw and hides its price at max, with greyed out prices
   const profile = { ...defaultProfile(), highestLevel: 19, points: 119 };
   const unaffordable = influence(kennelFixture(profile).root);
   assert.equal(unaffordable.disabled, true);
-  assert.match(unaffordable.getAttribute('aria-label'), /Need 1 more bolt/);
+  assert.match(unaffordable.getAttribute('aria-label'), /Need 1 more bone/);
   profile.points = 560;
   const { root } = kennelFixture(profile);
   const row = () => root.querySelector('[aria-label^="Influence,"]').parentElement;
-  assert.equal(row().querySelectorAll('.kennel-paw').length, 3);
+  assert.equal(row().querySelectorAll('.kennel-paw').length, 4);
   assert.equal(row().querySelectorAll('.is-trained').length, 0);
   for (let level = 1; level <= 3; level++) {
     influence(root).click();
@@ -134,4 +166,15 @@ test('same-name and same-coat dogs from different catalog entries have distinct 
   assert.equal(card(first).querySelector('.kennel-card-number').textContent, '1');
   assert.equal(card(second).querySelector('.kennel-card-number').textContent, '2');
   assert.notEqual(card(first).getAttribute('aria-label'), card(second).getAttribute('aria-label'));
+});
+
+test('unlocking the whole kennel shows one owned card per catalog entry without locked duplicates', () => {
+  for (const highestLevel of [0, 59]) {
+    const profile = { ...defaultProfile(), highestLevel, points: 10000 };
+    grantKennelCatalog(profile);
+    const { root } = kennelFixture(profile);
+    assert.equal(root.querySelectorAll('[data-kennel-dog]').length, KENNEL_CATALOG.length);
+    assert.equal(root.querySelectorAll('[data-kennel-offer]').length, 0);
+    assert.equal(root.querySelectorAll('.kennel-roster-badge').length, 0);
+  }
 });
