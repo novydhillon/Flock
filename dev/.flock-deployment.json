@@ -1,7 +1,7 @@
 {
   "environment": "dev",
   "branch": "feat/buddy-starter-progression",
-  "sourceSha": "1c2564de63663a0dcfb501fb690b230a2830e500",
+  "sourceSha": "b168f8e7d2af3afa884d51d3d265e3766edecbc6",
   "prefix": "dev/",
   "url": "https://novydhillon.github.io/Flock/dev/",
   "files": [
@@ -30,20 +30,20 @@
       "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
     },
     {
+      "path": "dev/assets/index-BQALNJ78.js",
+      "sha256": "8274619bd2f9e4b034a27c26291b6f7673c16b808816cfef2a733002b6d5008c"
+    },
+    {
       "path": "dev/assets/index-Dc98lgwP.css",
       "sha256": "2d07f1f6eaa7d4eeba6bf772f23631f21e5a4d3d314566ac903210d2ea0500c7"
     },
     {
-      "path": "dev/assets/index-cnGi6sqo.js",
-      "sha256": "43ccc326bb923a67998d718ec5bb3644b39f8f9079a504f44613bfd47fcad744"
+      "path": "dev/assets/main-CzTRy4YH.js",
+      "sha256": "63113baa9289ed1ccd2e57cdfe16a3cd0b765fc262e4137ad327a896fff8fbf2"
     },
     {
-      "path": "dev/assets/main-CR8ud-pG.css",
-      "sha256": "3e3e5be48e8b9bbbc860e51a81c33dfdcb46b53cec1bcdf04cd53d6cd0c7dc8a"
-    },
-    {
-      "path": "dev/assets/main-r37Lo4Mu.js",
-      "sha256": "354a4b8c726b60d70aa279ef68f1991f4e73eff77b4467bcde2b702ffc1fb63b"
+      "path": "dev/assets/main-gsm8Tey9.css",
+      "sha256": "34e27727e99ee2f626744745cdec3c232f948d035d5c70f4f2362a43e6606ec1"
     },
     {
       "path": "dev/assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -74,8 +74,8 @@
       "sha256": "57ef5a5c448592435c04d907a4c3e0be2ede331a34c0884af2ff8d8ef6ad9c2c"
     },
     {
-      "path": "dev/assets/qa-ZdIl8vM5.js",
-      "sha256": "04fc05f00a83a8bc2071ba41fa14a503eaabfa41423136e3e4d7ab830a5be3d5"
+      "path": "dev/assets/qa-DYYpmf1Z.js",
+      "sha256": "112ac3c70a523887b5411902c77a036742b61ff8f5479f62cf2a4ed469ac51e5"
     },
     {
       "path": "dev/audio/CREDITS.md",
@@ -143,7 +143,7 @@
     },
     {
       "path": "dev/index.html",
-      "sha256": "8125520c5d8c44b5e44a444fae628130bf1f779df672b33bcc6a1dcd791fd9ff"
+      "sha256": "a260d4a901b08e2060aa576355054437db59111ccdc634cd156d99d4908e8a76"
     },
     {
       "path": "dev/site.webmanifest",
