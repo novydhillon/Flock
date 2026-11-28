@@ -1,0 +1,161 @@
+{
+  "environment": "production",
+  "branch": "main",
+  "sourceSha": "378c3a7febe2b375d5b3479e14cd97b5fb29136a",
+  "pagesParent": "e8544340e1f9f534c9c0416006930c1e590cfe8a",
+  "pagesSha": "a8400ce9177bf7f005f5c6cefd81112f425b91fe",
+  "url": "https://novydhillon.github.io/Flock/",
+  "publication": "connector-only Pages fallback; workflow dispatch unavailable",
+  "sourceCI": {
+    "url": "https://github.com/novydhillon/Flock/actions/runs/46126859755",
+    "conclusion": "success"
+  },
+  "nativePages": {
+    "url": "https://github.com/novydhillon/Flock/actions/runs/46127496833",
+    "conclusion": "success"
+  },
+  "verification": {
+    "localGameTestsPassed": 670,
+    "liveFileHashesVerified": 34,
+    "releaseQaAssets": 0,
+    "deviceSmokeTest": "pending"
+  },
+  "files": [
+    {
+      "path": "assets/dm-sans-latin-400-normal-BwCSEQnW.woff",
+      "sha256": "38702875fe179437d200e7ba6f7fab4d497ffe48117ef332029b2081751186ad"
+    },
+    {
+      "path": "assets/dm-sans-latin-400-normal-CW0RaeGs.woff2",
+      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-Aqo67rzb.woff2",
+      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
+    },
+    {
+      "path": "assets/dm-sans-latin-600-normal-BmdmIIQ2.woff",
+      "sha256": "e7351257e49400eff05aca30a2007289194a900860d30c30770d8b8732897564"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-CUSSCpQX.woff",
+      "sha256": "af422a448ac00679a8dbb13532db3616829c5a35b58d3eeea5903ce17ad2e36a"
+    },
+    {
+      "path": "assets/dm-sans-latin-700-normal-DvUfVpUG.woff2",
+      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
+    },
+    {
+      "path": "assets/index-2H_xG-I6.css",
+      "sha256": "8ef959ed6ac5a3af1dcb24106ac0335cc0d56e0aee3ac797dff9f3a2370a0882"
+    },
+    {
+      "path": "assets/index-ujA_Z4Nl.js",
+      "sha256": "c216a389194a1d687287231fe525234d49b9d4044dc423acc34ebfae870758d5"
+    },
+    {
+      "path": "assets/main-B-an3eGM.css",
+      "sha256": "f08d7bb4798f4d2bb09adb91b5a8492390bcccb0970c565be834227063e74bec"
+    },
+    {
+      "path": "assets/main-BBFynkkl.js",
+      "sha256": "627efc431b1bfd41f51869e86ddec9fe0d1529d3cf1e9c8e321f8886b5eb611f"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
+      "sha256": "8cfe15c2c6de6ef8efff3eedbd52a383ac9ef23d6c23f6cd9f9b838f5f37dc36"
+    },
+    {
+      "path": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
+      "sha256": "3d1cd1b42cb525acde934764b2adec41dddf7932e1a965392d285efd56f2c148"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
+      "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    {
+      "path": "assets/outfit-latin-700-normal-D4itBLBr.woff",
+      "sha256": "fb730df77799be655b0028de3ff2952a6ebcd3ca85d32cbf188c6f3ea66f82b7"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
+      "sha256": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    {
+      "path": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
+      "sha256": "9f85951fad6b4b121f6a36561f78265b0cc37608eb7f42de910aaa7ebf9cdfeb"
+    },
+    {
+      "path": "audio/CREDITS.md",
+      "sha256": "39e03f337b1f584f851b777695d87e16f1615a1c80bbc68cea9e38c4069619b0"
+    },
+    {
+      "path": "audio/bark.mp3",
+      "sha256": "db55d143b9dfd2eb47d78f41620d504b23eccb67ab16a9b3eba2e18de0f35a34"
+    },
+    {
+      "path": "audio/cow.mp3",
+      "sha256": "b2ae06a22ae9d8bf59df12d02da8c744d2a3ce86c9f2442d346a5b2304e8e05b"
+    },
+    {
+      "path": "audio/sheep.mp3",
+      "sha256": "4f66e68774c02948bcbf4bb7fad53241a864c3ea2312adbef1a60fce834825ac"
+    },
+    {
+      "path": "icons/bone.svg",
+      "sha256": "02b4706e4e8f3bf7564ffaa005a708f2bdac7ba29d325dc8a8ea68237911a697"
+    },
+    {
+      "path": "icons/pip-120.png",
+      "sha256": "9a695821386b3411b9b8c5d6e88cbc29af8e34c5e26665c8ee11b94e5ff825ba"
+    },
+    {
+      "path": "icons/pip-152.png",
+      "sha256": "54475227feb0930cb9a8d454bfada159a2dacae394c52f663fc486c0b4070cab"
+    },
+    {
+      "path": "icons/pip-16.png",
+      "sha256": "600fe8379c974210fa9086c38ede431b2811d68613dbaf814ef9cab3ad0ef269"
+    },
+    {
+      "path": "icons/pip-167.png",
+      "sha256": "f2c804e57379e8f39a287d96a1fca15797e7b6de3399802a10620f73bb311631"
+    },
+    {
+      "path": "icons/pip-180.png",
+      "sha256": "7d0227e421d69859cd70089660d4775170dab271493e03e148b81717bed0214c"
+    },
+    {
+      "path": "icons/pip-192.png",
+      "sha256": "f4825ffe75a6a6d261ef683f4f59c3b71318a711344400b8c681201d727dcae7"
+    },
+    {
+      "path": "icons/pip-32.png",
+      "sha256": "ee50f96b681f9d6048fcfe2a49db59da88fe4653dbdab142e16e59744c430d72"
+    },
+    {
+      "path": "icons/pip-48.png",
+      "sha256": "1b0bf9745d2f1a3fd5ba39875a2a380305fdaa73afa7cdcd4b39cc1ed1ef55af"
+    },
+    {
+      "path": "icons/pip-512.png",
+      "sha256": "463ecba5b86728d66bbb7fc70691fe519fa40c6292183ed34b4a26711dbdffbe"
+    },
+    {
+      "path": "icons/pip-96.png",
+      "sha256": "af7ef8925d599d19bc32c8599ebfe96356daa945a38832b1114015bca7467e83"
+    },
+    {
+      "path": "icons/pip.svg",
+      "sha256": "85c2d5159332f6ed50dac1d1531c5686dd48a62ca0dfcda6cd1b5a6150a0f40a"
+    },
+    {
+      "path": "index.html",
+      "sha256": "71ea5e88a50c97e6d50f8bc34dc0aed3788d6a8e95c1380cf151bd6e422cae53"
+    },
+    {
+      "path": "site.webmanifest",
+      "sha256": "3a9f0515c8a5e2a78ea89ebaa72c60710c6cd2a26fbc0c56963528d71ec8cd89"
+    }
+  ]
+}
