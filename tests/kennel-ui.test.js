@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { defaultProfile } from '../src/progression/profile.js';
-import { adoptKennelDog, buyKennelSlot } from '../src/progression/kennel.js';
+import { adoptKennelDog, buyKennelSlot, grantKennelCatalog, KENNEL_CATALOG } from '../src/progression/kennel.js';
 import { mountKennel } from '../src/ui/kennel-ui.js';
 
 function kennelFixture(profile = defaultProfile()) {
@@ -99,7 +99,8 @@ test('the roster selects individual copies with their own coats and upgrades', (
   form.querySelector('[aria-label="Auburn and white"]').click();
   assert.equal(previews.at(-1).dogs[0].coat, 'auburn-white');
   adopt.click();
-  offer().click();
+  assert.equal(offer(), null);
+  root.querySelector('.kennel-adopt-another').click();
   assert.equal(previews.at(-1).dogs[0].coat, 'blonde-white');
   name.value = '<em>Fern</em>';
   adopt.click();
@@ -165,4 +166,15 @@ test('same-name and same-coat dogs from different catalog entries have distinct 
   assert.equal(card(first).querySelector('.kennel-card-number').textContent, '1');
   assert.equal(card(second).querySelector('.kennel-card-number').textContent, '2');
   assert.notEqual(card(first).getAttribute('aria-label'), card(second).getAttribute('aria-label'));
+});
+
+test('unlocking the whole kennel shows one owned card per catalog entry without locked duplicates', () => {
+  for (const highestLevel of [0, 59]) {
+    const profile = { ...defaultProfile(), highestLevel, points: 10000 };
+    grantKennelCatalog(profile);
+    const { root } = kennelFixture(profile);
+    assert.equal(root.querySelectorAll('[data-kennel-dog]').length, KENNEL_CATALOG.length);
+    assert.equal(root.querySelectorAll('[data-kennel-offer]').length, 0);
+    assert.equal(root.querySelectorAll('.kennel-roster-badge').length, 0);
+  }
 });

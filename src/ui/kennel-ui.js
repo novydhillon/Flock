@@ -83,6 +83,9 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
 
   const actions = node('div', 'kennel-actions');
   const adoptionState = node('p', 'kennel-adoption-state');
+  const adoptAnother = button('kennel-action kennel-adopt-another', 'Adopt another dog');
+  adoptAnother.append(icon('add'), node('span', '', 'Adopt another'));
+  adoptAnother.addEventListener('click', () => choose(selection.entry, null));
   const adoption = node('form', 'kennel-adoption');
   const name = node('input');
   name.type = 'text';
@@ -99,7 +102,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
   adoption.append(name, coats, adopt);
   const training = node('section', 'kennel-training');
   training.setAttribute('aria-label', 'Training');
-  actions.append(adoptionState, adoption, training);
+  actions.append(adoptionState, adoptAnother, adoption, training);
   content.append(detail, actions);
 
   const catalog = node('div', 'kennel-catalog');
@@ -134,7 +137,7 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     for (const entry of KENNEL_CATALOG) {
       const copies = kennel.dogs.filter((dog) => dog.catalogId === entry.id);
       const cards = copies.map((dog) => ({ dog, label: dog.name }));
-      if (!copies.length || (entry.cost !== null && !entry.once)) cards.push({ label: entry.name });
+      if (!copies.length) cards.push({ label: entry.name });
       const availability = adoptionAvailability(profile, entry.id);
       for (const { dog, label } of cards) {
         const locked = !dog && (entry.cost === null || availability.reason === 'locked');
@@ -179,6 +182,9 @@ export function mountKennel(root, { profile, onChange, mountPreview = mountDogPr
     }
     adoptionState.hidden = true;
     adoption.hidden = true;
+    const canAdoptAnother =
+      dog && entry.cost !== null && !entry.once && adoptionAvailability(profile, entry.id).reason !== 'locked';
+    adoptAnother.hidden = !canAdoptAnother;
     renderTraining();
     if (dog) return;
     const state = adoptionAvailability(profile, entry.id);

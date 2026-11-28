@@ -1,5 +1,9 @@
 # Flock revision quality record
 
+## Buddy starter follow-up — 28 November 2026
+
+Branch `feat/buddy-starter-progression`. Four requested speed, crew gallery, kennel roster and QA focus fixes were independently reviewed at 9/10 after correcting a test expectation. Session model, identifier not recorded; effort not exposed. Focused profile, kennel and QA tests passed. Phone rendering, touch and gameplay feel remain pending. Publication and user acceptance are separate milestones.
+
 ## F-KENNEL-009 — Adoption prices, individual paw meters and bones — 27 November 2026
 
 Branch `feat/buddy-starter-progression`, base `16a5c9b`. Implementation was split between the kennel/gameplay and QA changes. Exact session model and effort identifiers were unavailable. Pip costs 100 bones. Each attribute uses one to three brown base paws and three to five purchasable paws, gray before purchase and green afterward. The QA roster grant fills only the isolated test kennel. The existing balance and earned reward fields are retained.

@@ -8,7 +8,7 @@
     "_statRangesComment": "Each pair is [base paws, purchasable paws] in speed, agility, influence, bark order. Base paws apply immediately. Purchases persist as counts.",
     "dogs": {
       "buddy": [
-        [1, 3],
+        [2, 3],
         [1, 3],
         [1, 3],
         [1, 3]
@@ -26,7 +26,7 @@
         [1, 3]
       ],
       "dog-4": [
-        [1, 3],
+        [2, 3],
         [3, 4],
         [2, 4],
         [1, 3]
@@ -44,7 +44,7 @@
         [1, 3]
       ],
       "dog-7": [
-        [1, 3],
+        [2, 3],
         [1, 3],
         [3, 5],
         [2, 4]
@@ -62,7 +62,7 @@
         [2, 5]
       ],
       "dog-10": [
-        [1, 3],
+        [2, 3],
         [2, 4],
         [3, 5],
         [3, 4]

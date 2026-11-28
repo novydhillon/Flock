@@ -18,6 +18,7 @@ import {
   DOG_TRAINING_CATALOG,
   buyDogTraining,
   dogTrainingEffects,
+  dogStatRange,
   trainingAvailability,
 } from '../src/progression/dog-training.js';
 import { maximumLevelReward, MAX_LEVEL_INDEX } from '../src/simulation/delivery.js';
@@ -492,7 +493,7 @@ test('personal training quotes one tier and rejects gated, unfunded, stale and m
         level: tier,
         meadow,
         cost,
-        base: 1,
+        base: skill.id === 'speed' ? 2 : 1,
         upgrades: 3,
       });
       assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).ok, true);
@@ -515,7 +516,13 @@ test('each dog has bounded purchasable tiers and configured base stats that affe
   profile.points = 20000;
   const buddy = profile.kennel.dogs[0];
   const { dog: pip } = adoptKennelDog(profile, 'pip');
-  assert.ok(dogTrainingEffects(pip).maxSpeed > dogTrainingEffects(buddy).maxSpeed);
+  assert.equal(dogTrainingEffects(pip).maxSpeed, dogTrainingEffects(buddy).maxSpeed);
+  for (const catalogId of ['buddy', 'pip', ...Array.from({ length: 8 }, (_, i) => `dog-${i + 3}`)]) {
+    assert.ok(dogStatRange(catalogId, 'speed').base >= 2);
+    assert.ok(
+      dogTrainingEffects({ catalogId, training: { speed: 1 } }).maxSpeed > dogTrainingEffects({ catalogId }).maxSpeed,
+    );
+  }
   assert.ok(dogTrainingEffects(pip).signalBoost > dogTrainingEffects(buddy).signalBoost);
   for (let tier = 0; tier < 5; tier++) {
     const state = trainingAvailability(profile, pip.id, 'bark');

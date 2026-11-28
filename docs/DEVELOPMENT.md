@@ -1,5 +1,9 @@
 # Development, QA and release context
 
+## Buddy starter follow-up smoke check — 28 November 2026
+
+On a phone, check Buddy starts with two speed paws and feels faster, unlock all kennel dogs and verify each appears once, scroll the full crew roster while keeping the start button reachable, and open QA without the meadow dropdown opening. Repeat in portrait and landscape. Device testing pending.
+
 ## Kennel management smoke check — 27 November 2026
 
 Check that the kennel preview follows the selected dog, owned copy and adoption coat. In the meadow picker, swap two dogs, buy an eligible partner position and clear a partner while watching the 3D crew update. Change kennel selections rapidly and close and reopen both screens. With reduced motion enabled, the previews show standing dogs.

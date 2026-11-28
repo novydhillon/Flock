@@ -193,6 +193,7 @@ export function installQA(bridge, doc = document) {
   panel.className = 'qa-panel';
   panel.hidden = true;
   panel.setAttribute('role', 'dialog');
+  panel.tabIndex = -1;
   panel.setAttribute('aria-labelledby', 'qa-title');
   panel.innerHTML = `<h2 id="qa-title">Development QA · paused</h2><p>Isolated test session. Progress and bones never save to your normal game. Reload to leave QA.</p>
     <form id="qa-jump"><label>QA level <select id="qa-level"><option value="0">QA 0 · tutorial shortcut</option>${Array.from({ length: 100 }, (_, i) => `<option value="${i + 1}">Level ${i + 1}</option>`).join('')}</select></label><button>Jump · no unlock required</button></form>
@@ -294,7 +295,7 @@ export function installQA(bridge, doc = document) {
       refresh();
       freezeBackground();
       report('Simulation, delivery countdowns and rewards are frozen while editing.');
-      $('qa-level').focus();
+      panel.focus();
     });
   };
   const closePanel = () => {
@@ -378,7 +379,7 @@ export function installQA(bridge, doc = document) {
         ].filter((node) => !node.closest('[hidden]')),
         first = nodes[0],
         last = nodes.at(-1);
-      if (event.shiftKey && doc.activeElement === first) {
+      if (event.shiftKey && (doc.activeElement === first || doc.activeElement === panel)) {
         event.preventDefault();
         last.focus();
       } else if (!event.shiftKey && doc.activeElement === last) {

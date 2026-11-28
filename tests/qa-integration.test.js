@@ -239,6 +239,12 @@ test('production controller and QA editor freeze timed delivery and protect the 
     ui.document.getElementById('qa-toggle').click();
     await settle();
     assert.equal(ui.app.state().mode, 'qa');
+    assert.equal(
+      ui.document.activeElement,
+      ui.document.getElementById('qa-panel'),
+      'opening QA focuses the dialog, not a control',
+    );
+    assert.notEqual(ui.document.activeElement, ui.document.getElementById('qa-level'));
     assert.equal(ui.app.state().qaSession, true);
     assert.equal(ui.app.state().level.index, 0);
     assert.equal(ui.app.state().profile.points, 0);

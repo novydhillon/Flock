@@ -168,6 +168,8 @@ As a player, I want the kennel and lineup to work consistently through the campa
 
 ### F-KENNEL-009 — Show adoption prices and individual paw training
 
+**28 November follow-up:** Buddy and all dogs start with at least two speed paws; the crew picker scrolls horizontally; QA unlock-all shows owned dogs without duplicate offers; and QA opens with focus on its dialog. Implementation is in review; device testing and publication remain pending.
+
 **Status:** Review. Owner Codex.
 
 **Branch:** `feat/buddy-starter-progression`
