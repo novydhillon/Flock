@@ -56,6 +56,7 @@ export function installQAContours(material) {
 }
 
 import { animalRadius } from '../simulation/animal-size.js';
+import { grantKennelCatalog } from '../progression/kennel.js';
 import './qa.css';
 
 /** The displayed number is the next eligible animal's scheduled check. Read only. */
@@ -131,9 +132,9 @@ export function qaLevelIndex(value) {
 export function adjustQABolts(profile, amount, direction = 1) {
   const count = Number(amount);
   if (String(amount).trim() === '' || !Number.isSafeInteger(count) || count < 0 || ![1, -1].includes(direction))
-    throw new Error('Enter a finite, nonnegative whole number of bolts.');
+    throw new Error('Enter a finite, nonnegative whole number of bones.');
   const next = profile.points + count * direction;
-  if (!Number.isSafeInteger(next)) throw new Error('That bolt balance is too large.');
+  if (!Number.isSafeInteger(next)) throw new Error('That bone balance is too large.');
   profile.points = Math.max(0, next);
   return profile.points;
 }
@@ -193,14 +194,14 @@ export function installQA(bridge, doc = document) {
   panel.hidden = true;
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-labelledby', 'qa-title');
-  panel.innerHTML = `<h2 id="qa-title">Development QA · paused</h2><p>Isolated test session. Progress and bolts never save to your normal game. Reload to leave QA.</p>
+  panel.innerHTML = `<h2 id="qa-title">Development QA · paused</h2><p>Isolated test session. Progress and bones never save to your normal game. Reload to leave QA.</p>
     <form id="qa-jump"><label>QA level <select id="qa-level"><option value="0">QA 0 · tutorial shortcut</option>${Array.from({ length: 100 }, (_, i) => `<option value="${i + 1}">Level ${i + 1}</option>`).join('')}</select></label><button>Jump · no unlock required</button></form>
-    <form id="qa-bolts"><label>Bolts to add / remove <input id="qa-amount" type="number" min="0" step="1" value="100"></label><div><button value="add">Add bolts</button><button value="remove">Remove bolts</button></div><output id="qa-balance"></output></form>
+    <form id="qa-bolts"><label>Bones to add / remove <input id="qa-amount" type="number" min="0" step="1" value="100"></label><div><button value="add">Add bones</button><button value="remove">Remove bones</button></div><output id="qa-balance"></output></form>
     <label class="qa-check"><input id="qa-wander-debug" type="checkbox"> Flock debug: next check countdown and wander/bolt tints</label>
     <label class="qa-check"><input id="qa-contours" type="checkbox"> Terrain contours · 0.5 m lines, bold every 2 m</label>
     <button id="qa-close" class="qa-close" aria-label="Close QA">×</button>
     <form id="qa-move" hidden><label>Individual flock animal <select id="qa-animal"></select></label><div class="qa-coordinates"><label>World X <input id="qa-x" type="number" step="any" required></label><label>World Z <input id="qa-z" type="number" step="any" required></label></div><p id="qa-bounds"></p><label class="qa-check"><input id="qa-override" type="checkbox"> Allow invalid placement (water, fences, trees); meadow bounds still apply</label><button>Move selected animal</button></form>
-    <div class="qa-actions"><button id="qa-reset">Reset test session</button><button id="qa-export">Export scenario JSON</button><button id="qa-resume">Resume test play</button></div><p id="qa-status" role="status" aria-live="polite"></p>`;
+    <div class="qa-actions"><button id="qa-unlock-kennel" type="button">Unlock all kennel dogs</button><button id="qa-reset">Reset test session</button><button id="qa-export">Export scenario JSON</button><button id="qa-resume">Resume test play</button></div><p id="qa-status" role="status" aria-live="polite"></p>`;
   doc.body.append(button, panel);
   const countdown = doc.createElement('output');
   countdown.id = 'qa-wander-countdown';
@@ -262,7 +263,7 @@ export function installQA(bridge, doc = document) {
         return option;
       }),
     );
-    $('qa-balance').textContent = `Test balance: ${profile.points} bolts`;
+    $('qa-balance').textContent = `Test balance: ${profile.points} bones`;
     $('qa-bounds').textContent =
       `Bounds: X ${b.minX.toFixed(2)}…${b.maxX.toFixed(2)}, Z ${b.minZ.toFixed(2)}…${b.maxZ.toFixed(2)}. Delivered state is preserved when moved.`;
     $('qa-override').checked = false;
@@ -321,8 +322,17 @@ export function installQA(bridge, doc = document) {
     run(() => {
       adjustQABolts(bridge.getState().profile, $('qa-amount').value, event.submitter?.value === 'remove' ? -1 : 1);
       bridge.updateWallet();
-      $('qa-balance').textContent = `Test balance: ${bridge.getState().profile.points} bolts`;
+      $('qa-balance').textContent = `Test balance: ${bridge.getState().profile.points} bones`;
       report('Test balance updated.');
+    });
+  };
+  $('qa-unlock-kennel').onclick = () => {
+    if (!open || !bridge.isPaused()) return;
+    run(() => {
+      const added = grantKennelCatalog(bridge.getState().profile);
+      report(
+        added ? `Added ${added} ${added === 1 ? 'dog' : 'dogs'} to the test kennel.` : 'All kennel dogs are unlocked.',
+      );
     });
   };
   $('qa-animal').onchange = coordinates;

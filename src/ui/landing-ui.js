@@ -76,12 +76,12 @@ export function workshopHTML(profile, levelNumber, qaSession = false) {
           : status.reason === 'locked'
             ? `Locked · reach level ${status.unlockLevel}`
             : status.reason === 'points'
-              ? `Need ${status.cost - profile.points} more bolts`
+              ? `Need ${status.cost - profile.points} more bones`
               : 'Ready to upgrade';
       const preview = ['helper', 'bark'].includes(u.id)
         ? `<div class="upgrade-preview ${u.id}" aria-hidden="true"><i class="preview-dog"></i><i class="preview-ring"></i><i class="preview-sheep"></i></div><button class="preview-button" data-preview="${u.id}" aria-label="Preview ${escape(u.name)}${next ? ' next tier' : ' owned tier'} animation">Preview motion</button><small class="preview-caption">Illustration only · ${escape(u.tierNames[Math.min(tier, u.maxLevel - 1)])}</small>`
         : '';
-      return `<article class="upgrade-detail ${status.reason || 'available'}"><h3>${escape(u.name)} <small>${tier}/${u.maxLevel} owned</small></h3><dl><div><dt>Currently owned${tier ? ' · ' + escape(u.tierNames[tier - 1]) : ''}</dt><dd>${escape(current)}</dd></div><div><dt>${next ? 'Next · ' + escape(u.tierNames[tier]) : 'Maximum tier'}</dt><dd>${escape(next || 'All benefits owned')}</dd></div></dl>${inactive ? `<p class="inactive-owned">${escape(inactive)}</p>` : ''}${preview}<div class="upgrade-purchase"><p>${status.cost === null ? 'No further purchase' : `${status.cost} bolts · unlocks at level ${status.unlockLevel}`}<strong>${state}</strong></p><button data-buy="${u.id}" ${!status.available ? 'disabled' : ''}>${status.cost === null ? 'Maxed' : 'Buy tier ' + (tier + 1)}</button></div></article>`;
+      return `<article class="upgrade-detail ${status.reason || 'available'}"><h3>${escape(u.name)} <small>${tier}/${u.maxLevel} owned</small></h3><dl><div><dt>Currently owned${tier ? ' · ' + escape(u.tierNames[tier - 1]) : ''}</dt><dd>${escape(current)}</dd></div><div><dt>${next ? 'Next · ' + escape(u.tierNames[tier]) : 'Maximum tier'}</dt><dd>${escape(next || 'All benefits owned')}</dd></div></dl>${inactive ? `<p class="inactive-owned">${escape(inactive)}</p>` : ''}${preview}<div class="upgrade-purchase"><p>${status.cost === null ? 'No further purchase' : `${status.cost} bones · unlocks at level ${status.unlockLevel}`}<strong>${state}</strong></p><button data-buy="${u.id}" ${!status.available ? 'disabled' : ''}>${status.cost === null ? 'Maxed' : 'Buy tier ' + (tier + 1)}</button></div></article>`;
     })
     .join('');
 }

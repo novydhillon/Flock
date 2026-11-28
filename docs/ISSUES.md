@@ -34,6 +34,7 @@ Priority: P0 highest; P1 correctness/gameplay foundation; P2 planned features/po
 | F-KENNEL-004 | P1 | Gameplay/progression | Train each dog's speed, agility, influence and bark | Open | F-KENNEL-002; F-KENNEL-003 |
 | F-KENNEL-007 | P1 | Persistence/gameplay | Preserve campaign progress and retire marketplace upgrades | Open | F-KENNEL-001–005 |
 | F-KENNEL-008 | P1 | Validation | Verify the kennel progression loop | Open | F-KENNEL-001–007 |
+| F-KENNEL-009 | P2 | UI/progression/QA | Show adoption prices and individual paw training | Review | F-KENNEL-002; F-KENNEL-004 |
 | F-ASSET-001 | P2 | Production/asset inventory | Inventory 3D assets and define the replacement contract | Open | Current rendering and content |
 | F-ASSET-002 | P2 | Tooling/CI | Build and validate 3D assets for Dev and production | Open | F-ASSET-001 |
 | F-ASSET-003 | P2 | Character art/animation | Move animated actors and their clips into replaceable files | Open | F-ASSET-001; F-ASSET-002 |
@@ -94,7 +95,7 @@ As a collector, I want to adopt and identify individual dogs so I can build a ke
 
 **Accept when:**
 
-- An eligible adoption adds one dog with a persistent identity, name, coat and fresh attribute tiers. Pip is a free one-time adoption at meadow 3. Players can adopt the eight paid entries repeatedly at their listed bolt prices.
+- An eligible adoption adds one dog with a persistent identity, name, coat and fresh attribute tiers. Pip is a one-time adoption for 100 bones at meadow 3. Players can adopt the eight paid entries repeatedly at their listed prices in bones.
 - Define stable catalog identities for Pip, Buddy and the eight placeholders, with configurable adoption gates, base models and supported coats. Adoption rules operate independently of portrait and preview artwork.
 - The eight paid entries unlock at meadows 10, 15, 20, 25, 30, 35, 40 and 45, independently of crew-slot purchases. Entry 3 costs 600 bolts and each later entry adds 200 bolts, through 2,000 for entry 10. Each additional adoption of a given entry uses its listed price. Use the highest unlocked campaign meadow to evaluate its gate, including while replaying an earlier meadow.
 - Two copies can have different names, coats, stats and assignments. Editing or upgrading one leaves the other intact. An unavailable or unaffordable adoption leaves the kennel and bolt balance intact.
@@ -164,6 +165,19 @@ As a player, I want the kennel and lineup to work consistently through the campa
 - Verify the economy with attainable bolt earnings and mixed purchase paths. Playtest split herds, gates, bridges, goal admission, movement and bark behavior at baseline and max tiers.
 - With three helpers active, run a seeded narrow bridge and gate scenario. Lead the flock through each crossing and record herding and obstruction outcomes, including a pause and restart. The lead dog and flock can clear both passages with helpers yielding or rerouting, and only normal goal admission advances delivery.
 - Run focused and full regressions, checked Dev and release builds, and the project blind review. On representative phones, verify layout, transitions, animation and frame pacing with four dogs and a late-game flock. Record any pending device evidence separately from source checks.
+
+### F-KENNEL-009 — Show adoption prices and individual paw training
+
+**Status:** Review. Owner Codex.
+
+**Branch:** `feat/buddy-starter-progression`
+
+**Accept when:**
+
+- A paid adoption offer shows its price in bones at the lower-right corner of the kennel preview, including while the offer is gated. Pip costs 100 bones at meadow 3 and remains a one-time adoption. The purchase checks affordability and preserves existing ownership.
+- Each dog and attribute has its own base and cap. Show brown base paws, green purchased paws and gray remaining paws. Each attribute supports three to five purchases. The resulting stats apply to the selected dog in gameplay and in replays. Existing paid upgrades carry over as counts of green paws.
+- Player-facing balances, adoption and training prices, crew purchases and results use bones. Existing balances and the earned reward ledger retain their numeric values.
+- QA can grant one of every missing dog to the isolated test profile. Repeated clicks make no duplicates and normal campaign storage is unaffected.
 
 ### F-ASSET-001 — Inventory 3D assets and define the replacement contract
 

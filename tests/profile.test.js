@@ -131,11 +131,15 @@ test('invalid opened-slot data cannot spend bolts or create assignments that val
   }
 });
 
-test('Pip unlocks at meadow three as a free one-time adoption and keeps Buddy in the player slot', () => {
+test('Pip unlocks at meadow three as a one-time adoption and keeps Buddy in the player slot', () => {
   const profile = defaultProfile();
   profile.highestLevel = 1;
-  assert.equal(adoptKennelDog(profile, 'pip').ok, false);
+  profile.points = 100;
+  assert.equal(adoptKennelDog(profile, 'pip').reason, 'locked');
   profile.highestLevel = 2;
+  profile.points = 99;
+  assert.equal(adoptKennelDog(profile, 'pip').reason, 'points');
+  profile.points = 100;
   assert.equal(adoptKennelDog(profile, 'pip').dog.id, 'pip');
   assert.deepEqual(adoptKennelDog(profile, 'pip'), { ok: false, reason: 'owned' });
   assert.deepEqual(validateProfile(profile), profile);
@@ -488,6 +492,8 @@ test('personal training quotes one tier and rejects gated, unfunded, stale and m
         level: tier,
         meadow,
         cost,
+        base: 1,
+        upgrades: 3,
       });
       assert.equal(buyDogTraining(profile, dog.id, skill.id, tier).ok, true);
       assert.equal(profile.points, 0);
@@ -501,6 +507,27 @@ test('personal training quotes one tier and rejects gated, unfunded, stale and m
     assert.equal(buyDogTraining(profile, 'missing', skill.id).reason, 'dog');
     assert.equal(buyDogTraining(profile, dog.id, 'helper').reason, 'unknown');
   }
+});
+
+test('each dog has bounded purchasable tiers and configured base stats that affect gameplay', () => {
+  const profile = defaultProfile();
+  profile.highestLevel = 99;
+  profile.points = 20000;
+  const buddy = profile.kennel.dogs[0];
+  const { dog: pip } = adoptKennelDog(profile, 'pip');
+  assert.ok(dogTrainingEffects(pip).maxSpeed > dogTrainingEffects(buddy).maxSpeed);
+  assert.ok(dogTrainingEffects(pip).signalBoost > dogTrainingEffects(buddy).signalBoost);
+  for (let tier = 0; tier < 5; tier++) {
+    const state = trainingAvailability(profile, pip.id, 'bark');
+    assert.equal(state.upgrades, 5);
+    assert.equal(state.level, tier);
+    assert.ok(buyDogTraining(profile, pip.id, 'bark', tier).ok);
+  }
+  assert.equal(trainingAvailability(profile, pip.id, 'bark').reason, 'max');
+  assert.equal(validateProfile(profile).kennel.dogs[1].training.bark, 5);
+  assert.ok(
+    dogTrainingEffects(pip).barkMultiplier > dogTrainingEffects({ ...pip, training: { bark: 3 } }).barkMultiplier,
+  );
 });
 
 test('training survives reload and lineup swaps for individual copies, including runs in earlier meadows', () => {

@@ -8,7 +8,7 @@ The migration covers the [F-ASSET-001 asset inventory and replacement contract](
 
 ## Dog kennel and meadow lineups — 26 November 2026
 
-This is the next P1 gameplay initiative. The [kennel stories](ISSUES.md#f-kennel-001--start-with-buddy-and-buy-meadow-slots) are open for planning. The kennel replaces the Workshop marketplace. The campaign still awards bolts through its existing reward ledger, and players spend them on slot openings, adoptions and individual dog upgrades.
+This is the next P1 gameplay initiative. The [kennel stories](ISSUES.md#f-kennel-001--start-with-buddy-and-buy-meadow-slots) are open for planning. The kennel replaces the Workshop marketplace. The campaign still awards bones through its existing reward ledger, and players spend them on slot openings, adoptions and individual dog upgrades.
 
 ### Slot progression
 
@@ -17,9 +17,9 @@ All numbers below are public meadow numbers. Reaching a milestone makes the slot
 | Slot | Available from | Control | How the player fills it |
 | --- | --- | --- | --- |
 | 1 | Meadow 1 | Player | Already open with Buddy. Assign another owned dog from the kennel when desired. |
-| 2 | Meadow 20 | CPU | Buy the slot with bolts. Existing Pip-start saves without Buddy still receive Buddy with this purchase. |
-| 3 | Meadow 40 | CPU | Buy the slot with bolts and assign an owned dog. |
-| 4 | Meadow 60 | CPU | Buy the slot with bolts and assign an owned dog. |
+| 2 | Meadow 20 | CPU | Buy the slot with bones. Existing Pip-start saves without Buddy still receive Buddy with this purchase. |
+| 3 | Meadow 40 | CPU | Buy the slot with bones and assign an owned dog. |
+| 4 | Meadow 60 | CPU | Buy the slot with bones and assign an owned dog. |
 
 The highest unlocked campaign meadow determines purchase eligibility. Reaching the threshold, paying for a slot, owning a dog and assigning a dog are distinct steps. Every opened slot can be used in an earlier meadow replay, and any owned dog can be assigned to an opened slot regardless of when it became adoptable. A player with four opened slots can take a full lineup into meadow 1. The preview shows the lineup that will play.
 
@@ -27,28 +27,28 @@ Players can own more dogs than they have opened slots. Proposed defaults are seq
 
 ### Owned dogs and training
 
-The initial roster has ten dog entries. Buddy is the starter, Pip is a free one-time adoption at meadow 3, and entries 3–10 use Pip and Buddy models with distinct combinations of white, blonde, brown, black and auburn. Each entry gets a matching 2D portrait. A bolt adoption creates a separate owned dog with its own name, coat, upgrades and assignment. Players can own multiple copies of each paid catalog dog. The placeholder roster precedes the distinct breeds in [F-DOG-002](ISSUES.md#f-dog-002--ten-additional-dog-breeds-and-progression).
+The initial roster has ten dog entries. Buddy is the starter, Pip is a one-time adoption for 100 bones at meadow 3, and entries 3–10 use Pip and Buddy models with distinct combinations of white, blonde, brown, black and auburn. Each entry gets a matching 2D portrait. A bone adoption creates a separate owned dog with its own name, coat, upgrades and assignment. Players can own multiple copies of each paid catalog dog. The placeholder roster precedes the distinct breeds in [F-DOG-002](ISSUES.md#f-dog-002--ten-additional-dog-breeds-and-progression).
 
-The eight additional entries become adoptable at meadow 10 and one at a time every five meadows through meadow 45. The first paid entry costs 600 bolts, the existing price for the first paid dog. Each successive entry costs 200 bolts more. Prices are per adoption of that catalog entry. Adoption gates follow the highest unlocked campaign meadow independently of slot purchases. Coats in the table are proposed defaults for the preview and portraits.
+The eight additional entries become adoptable at meadow 10 and one at a time every five meadows through meadow 45. The first paid entry costs 600 bones, the existing price for the first paid dog. Each successive entry costs 200 bones more. Prices are per adoption of that catalog entry. Adoption gates follow the highest unlocked campaign meadow independently of slot purchases. Coats in the table are proposed defaults for the preview and portraits.
 
 | Entry | Base model | Default coat | First availability | Adoption cost |
 | --- | --- | --- | --- | ---: |
 | 1 | Buddy | Existing Buddy coat | Meadow 1 starter | Starter included |
-| 2 | Pip | Existing Pip coat | Meadow 3 | Free, once |
-| 3 | Pip | Blonde and white | Meadow 10 | 600 bolts |
-| 4 | Buddy | Brown and white | Meadow 15 | 800 bolts |
-| 5 | Pip | Auburn and white | Meadow 20 | 1,000 bolts |
-| 6 | Buddy | Black and blonde | Meadow 25 | 1,200 bolts |
-| 7 | Pip | Black, brown and white | Meadow 30 | 1,400 bolts |
-| 8 | Buddy | Blonde and auburn | Meadow 35 | 1,600 bolts |
-| 9 | Pip | Brown and auburn | Meadow 40 | 1,800 bolts |
-| 10 | Buddy | Black, auburn and white | Meadow 45 | 2,000 bolts |
+| 2 | Pip | Existing Pip coat | Meadow 3 | 100 bones, once |
+| 3 | Pip | Blonde and white | Meadow 10 | 600 bones |
+| 4 | Buddy | Brown and white | Meadow 15 | 800 bones |
+| 5 | Pip | Auburn and white | Meadow 20 | 1,000 bones |
+| 6 | Buddy | Black and blonde | Meadow 25 | 1,200 bones |
+| 7 | Pip | Black, brown and white | Meadow 30 | 1,400 bones |
+| 8 | Buddy | Blonde and auburn | Meadow 35 | 1,600 bones |
+| 9 | Pip | Brown and auburn | Meadow 40 | 1,800 bones |
+| 10 | Buddy | Black, auburn and white | Meadow 45 | 2,000 bones |
 
 | Attribute | In-meadow effect | Proposed icon |
 | --- | --- | --- |
 | Speed | Walk and light jog at baseline. Successive upgrades add fast jog, light run and all-out run as maximum gaits. | Dog running |
 | Agility | Successive upgrades tighten the moving turn radius. All tiers use continuous forward travel to turn. Dogs never spin in place. | Dog turning |
-| Influence | Increases effect range using the existing Friendly signal progression. Current tiers open at meadows 7, 10 and 15, cost 120, 180 and 260 bolts, and add 2, 3 and 4 m respectively. | Dog with signal rings |
+| Influence | Increases effect range using the existing Friendly signal progression. Current tiers open at meadows 7, 10 and 15, cost 120, 180 and 260 bones, and add 2, 3 and 4 m respectively. | Dog with signal rings |
 | Bark intensity | Increases the effect of that dog's bark. Bark reach, charges and cooldown need an explicit balance decision if they change. | Dog barking |
 
 Apply trained attributes to the actual dog assigned to each slot. Player input, camera follow and the bark control belong to slot 1. CPU dogs use their own movement, influence and bark state. Start with the accepted Buddy behavior as the CPU baseline and define how helpers divide the work. Four dogs should remain controllable around tight crossings and may support delivery without assuming the player's role.
@@ -59,27 +59,29 @@ Apply trained attributes to the actual dog assigned to each slot. Player input, 
 - Dock a single, horizontally scrolling row of square 2D dog portraits at the bottom center. Default to the dog assigned to Slot 1 on entry. Keep each portrait in its coat colors and mark unavailable dogs with a lock. Name each dog. Give each owned copy its own roster card so a single selection controls the preview and training.
 - Above the row, show the selected dog from head height in a higher-detail 3D preview. Use the same camera and model detail in the meadow crew preview. Reuse the in-game random idle poses and hold timing. The dog occasionally play-bows toward the player as it would toward nearby livestock. When it turns around, its head finishes facing the player and its body settles within 30° left or right. Show a playful, happy demeanor.
 - On a change of selection, the outgoing dog runs offscreen right and the incoming dog runs in from the left. Rapid selection changes must settle on the latest selection with one visible dog. Keep the preview separate from paused meadow actors and timing.
-- Stack the four attribute icons on the opposite side of the preview. Use dog illustrations for speed, agility, influence and bark. Show three paws per stat, green for earned upgrades and grey for unearned upgrades. Show the next bolt price, grey out blocked purchases, and hide the price when all paws are green. On phones, reserve space for the dog, portrait strip, controls and safe areas in portrait and landscape.
+- Stack the four attribute icons on the opposite side of the preview. Use dog illustrations for speed, agility, influence and bark. Show base paws in brown, purchased paws in green and remaining paws in gray. Each dog has a configured base and three to five purchasable paws per attribute. Show the next bone price, grey out blocked purchases, and hide the training price when all purchasable paws are green. On phones, reserve space for the dog, portrait strip, controls and safe areas in portrait and landscape.
 - Replace all marketplace items with kennel functions. Remove Flock harmony and its purchased effect. Keep ordinary baseline flock behavior. Handling older Scout drone and other Workshop purchases is a deferred decision.
 
 ### Delivery plan
 
 | Order | Work | Exit criteria |
 | --- | --- | --- |
-| 1 | Complete the economy and saved lineup rules. See F-KENNEL-001, F-KENNEL-002 and F-KENNEL-004. | Validate the adoption ladder and tune the remaining bolt prices against attainable earnings. |
+| 1 | Complete the economy and saved lineup rules. See F-KENNEL-001, F-KENNEL-002 and F-KENNEL-004. | Validate the adoption ladder and tune the remaining bone prices against attainable earnings. |
 | 2 | Wire the gameplay loop in stages. Prove Buddy as the starter, Pip adoption, and two-, three- and four-slot lineups. See F-KENNEL-003. | Each slot uses its assigned dog and control source. Personal upgrades, helper behavior and pause/restart work on the relevant meadow gates. |
 | 3 | Deliver the kennel UI and art. Build selection, adoption, assignment, stats and previews. Cut over every Workshop entry and preserve campaign progress under the new rules. See F-KENNEL-005, F-KENNEL-006 and F-KENNEL-007. | Players can reach the core actions, with readable price, ownership and lock states. |
 | 4 | Validate the full loop in Dev once implementation is authorized. See F-KENNEL-008. | Review gameplay, economy, saved progress, mobile presentation and performance. Record evidence for playtest and sign-off. |
 
 Before implementation, resolve these design decisions:
 
-- Set prices for slots 2–4, gates and prices for additional copies of Pip and Buddy, and prices and gates for speed, agility and bark. Use spendable bolt totals and reward ledgers at slot and adoption milestones to test typical and low-scoring play and check that sensible earlier spending leaves a route to each slot.
+- Set prices for slots 2–4, gates and prices for additional copies of Pip and Buddy, and prices and gates for speed, agility and bark. Use spendable bone totals and reward ledgers at slot and adoption milestones to test typical and low-scoring play and check that sensible earlier spending leaves a route to each slot.
 - Confirm repeat-adoption presentation, coat/name selection, wardrobe limits if any, and assignment timing. Decide how to show slot eligibility, adoption availability and next-tier prices before a player can act. Confirm whether training tier effects on replay follow campaign ownership or the meadow being played.
 - Confirm how CPU dogs coordinate around the same herd, how upgraded influence combines across dogs, how advanced Buddy behaviors work under the new model, and how bark strength and charges progress.
 
 **Deferred decision — 26 November 2026**
 
-Legacy Workshop purchase conversion and refunds can be decided later because this progression has yet to ship live. Revisit how to handle prior Buddy, dog attribute, Scout drone and Flock harmony purchases before a release that needs that compatibility. Preserve campaign progress and the existing earned-bolt ledger as part of the kennel cutover.
+Legacy Workshop purchase conversion and refunds can be decided later because this progression has yet to ship live. Revisit how to handle prior Buddy, dog attribute, Scout drone and Flock harmony purchases before a release that needs that compatibility. Preserve campaign progress and the existing earned-bone ledger as part of the kennel cutover.
+
+F-KENNEL-009 puts the adoption price in bones at the lower-right of the dog preview, shows base and maximum training potential before adoption, and adds a development-only full-roster grant.
 
 ## F-RENDER-002 — Half-resolution 3D rendering — 25 November 2026
 

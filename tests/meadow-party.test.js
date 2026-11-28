@@ -53,7 +53,7 @@ test('opening a partner stages the price, Buddy and the lineup together until en
       ['pip', 'buddy'],
     );
     assert.match(ui.position(2).textContent, /Buddy/);
-    assert.match(ui.root.querySelector('.party-balance').textContent, /0 bolts/);
+    assert.match(ui.root.querySelector('.party-balance').textContent, /0 bones/);
     assert.deepEqual(ui.events, []);
     ui[finish]();
     ui.dispose();
@@ -96,7 +96,7 @@ test('partner opening shows the missing balance and sequential purchase gate', (
   const profile = { ...defaultProfile(), highestLevel: 59, points: 599 };
   const ui = open(profile);
   assert.equal(ui.position(2).disabled, true);
-  assert.match(ui.position(2).textContent, /Need 1 bolt more/);
+  assert.match(ui.position(2).textContent, /Need 1 bone more/);
   assert.match(ui.position(3).textContent, /Open Partner 1 first/);
   ui.position(2).click();
   ui.confirm();

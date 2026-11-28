@@ -1,17 +1,83 @@
 {
-  "_comment": "Public meadow gates and approved per-adoption bolt prices. Buddy starts in Slot 1 and Pip can be adopted once.",
+  "_comment": "Public meadow gates and adoption prices in bones. Buddy starts in Slot 1 and Pip can be adopted once.",
   "slotMeadows": [1, 20, 40, 60],
   "_slotBoltPricesComment": "Provisional playtest values based on the old Buddy tier prices.",
   "slotBoltPrices": [0, 600, 850, 1200],
   "training": {
     "_comment": "Provisional gait caps (world units/second), agility turn-rate multipliers and agility economy for playtesting. Other costs, gates, signal and bark effects use the existing progression policy.",
-    "maxSpeed": [4.4, 6.2, 8.8, 12.3],
-    "turnMultiplier": [1, 1.2, 1.45, 1.75],
+    "_statRangesComment": "Each pair is [base paws, purchasable paws] in speed, agility, influence, bark order. Base paws apply immediately. Purchases persist as counts.",
+    "dogs": {
+      "buddy": [
+        [1, 3],
+        [1, 3],
+        [1, 3],
+        [1, 3]
+      ],
+      "pip": [
+        [2, 4],
+        [1, 3],
+        [2, 4],
+        [1, 5]
+      ],
+      "dog-3": [
+        [2, 5],
+        [2, 4],
+        [1, 3],
+        [1, 3]
+      ],
+      "dog-4": [
+        [1, 3],
+        [3, 4],
+        [2, 4],
+        [1, 3]
+      ],
+      "dog-5": [
+        [2, 4],
+        [1, 3],
+        [1, 3],
+        [3, 5]
+      ],
+      "dog-6": [
+        [3, 5],
+        [2, 5],
+        [1, 3],
+        [1, 3]
+      ],
+      "dog-7": [
+        [1, 3],
+        [1, 3],
+        [3, 5],
+        [2, 4]
+      ],
+      "dog-8": [
+        [2, 4],
+        [3, 5],
+        [1, 3],
+        [1, 4]
+      ],
+      "dog-9": [
+        [3, 4],
+        [1, 3],
+        [2, 4],
+        [2, 5]
+      ],
+      "dog-10": [
+        [1, 3],
+        [2, 4],
+        [3, 5],
+        [3, 4]
+      ]
+    },
+    "advanced": { "costs": [360, 500], "unlockLevels": [24, 35] },
+    "maxSpeed": [4.4, 6.2, 8.8, 12.3, 12.9, 13.5, 14.1, 14.7],
+    "advancedSignalBoost": [5, 6, 7, 8],
+    "advancedBarkBonus": [0.12, 0.24, 0.36, 0.48],
+    "turnMultiplier": [1, 1.2, 1.45, 1.75, 1.88, 2, 2.12, 2.24],
     "agility": { "costs": [80, 130, 210], "unlockLevels": [3, 7, 12] }
   },
   "dogs": [
     { "id": "buddy", "model": "buddy", "name": "Buddy", "coat": "buddy-original", "meadow": 1, "cost": null },
-    { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 3, "cost": 0, "once": true },
+    { "id": "pip", "model": "pip", "name": "Pip", "coat": "black-white", "meadow": 3, "cost": 100, "once": true },
     { "id": "dog-3", "name": "Daisy", "model": "pip", "coat": "blonde-white", "meadow": 10, "cost": 600 },
     { "id": "dog-4", "name": "Cooper", "model": "buddy", "coat": "brown-white", "meadow": 15, "cost": 800 },
     { "id": "dog-5", "name": "Ruby", "model": "pip", "coat": "auburn-white", "meadow": 20, "cost": 1000 },

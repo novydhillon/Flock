@@ -74,9 +74,12 @@ function toast(message) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => visible('toast', false), CONTROLS.feedback.toastMs);
 }
+const boneUnit = (amount) => (amount === 1 ? 'bone' : 'bones');
 function updateWallet() {
   $('play').textContent = continuation(profile).label;
   $('points').textContent = profile.points;
+  $('currency-label').textContent = ` ${boneUnit(profile.points)}`;
+  $('wallet').setAttribute('aria-label', `Open dog kennel · ${profile.points} ${boneUnit(profile.points)}`);
   $('sound').textContent = profile.music ? '♫' : '♪';
   $('sound').setAttribute('aria-label', profile.music ? 'Mute sound' : 'Enable sound');
   $('sound').style.opacity = profile.music ? '1' : '.55';
@@ -358,7 +361,7 @@ function menu() {
   }
   if (mode === 'complete') return;
   openModal(
-    `<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode === 'intro' ? 'Hello, shepherd.' : 'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode === 'intro' ? 'Back to the meadow' : 'Keep herding'} <span>→</span></button><button class="secondary" id="kennel-menu">Visit the kennel · ${profile.points} bolts</button><button class="secondary" id="choose-meadow-menu">Choose meadow</button>${mode === 'playing' ? '<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>' : ''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music ? 'On' : 'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart whole game</button>`,
+    `<button class="close-modal" id="close" aria-label="Close menu">×</button><div class="eyebrow">A BREATHER IN THE MEADOW</div><h2>${mode === 'intro' ? 'Hello, shepherd.' : 'Paws for a moment.'}</h2><p>Move behind the flock to push it forward. Circle around stragglers. A woof gives a gentle burst of encouragement.</p><button class="primary" id="resume">${mode === 'intro' ? 'Back to the meadow' : 'Keep herding'} <span>→</span></button><button class="secondary" id="kennel-menu">Visit the kennel · ${profile.points} ${boneUnit(profile.points)}</button><button class="secondary" id="choose-meadow-menu">Choose meadow</button>${mode === 'playing' ? '<button class="secondary" id="restart">Restart this meadow</button><button class="secondary" id="quit">Quit to landing page</button>' : ''}<button class="secondary" id="menu-sound" aria-pressed="${profile.music}">Sound: ${profile.music ? 'On' : 'Off'}</button><button class="secondary danger" id="restart-game-menu">Restart whole game</button>`,
   );
   $('close').onclick = () => closeModal();
   $('resume').onclick = () => closeModal();
@@ -426,7 +429,7 @@ function confirmRestart() {
     }
   };
   openModal(
-    `<button class="close-modal" id="close" aria-label="Cancel restart">×</button><div class="eyebrow">A FRESH START</div><h2>Restart the whole game?</h2><p>This clears your meadow progress, bolts, adopted dogs, partner positions and training. You’ll start again at level 1. This cannot be undone.</p><button class="secondary" id="cancel-reset">Keep my progress</button><button class="primary" id="confirm-reset">Restart Game <span>↻</span></button>`,
+    `<button class="close-modal" id="close" aria-label="Cancel restart">×</button><div class="eyebrow">A FRESH START</div><h2>Restart the whole game?</h2><p>This clears your meadow progress, bones, adopted dogs, partner positions and training. You’ll start again at level 1. This cannot be undone.</p><button class="secondary" id="cancel-reset">Keep my progress</button><button class="primary" id="confirm-reset">Restart Game <span>↻</span></button>`,
     'reset-confirm',
   );
   $('close').onclick = cancel;
@@ -483,7 +486,7 @@ function complete(award = true) {
     total = level.animals.length,
     score = level.result?.score ?? 0;
   openModal(
-    `<div class="complete-seal">✦</div><div class="eyebrow">${saved === total ? 'A GOOD DAY’S HERDING' : 'DELIVERY TIME IS UP'}</div><h2>${saved === total ? 'Everyone’s home.' : saved > 0 ? 'A flock brought home.' : 'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index] || 0} / ${level.reward}<br>${Math.floor(elapsed / 60)}m ${Math.floor(elapsed % 60)}s in the countryside.</p><div class="reward">+${lastReward}<span style="font-size:20px"> ✦</span></div><p>${lastReward ? 'Bolts earned from your improved delivery score.' : 'No extra bolts this time. Deliver more robots to improve your best score.'}${saved > 0 && saved < total ? ' The next meadow is open.' : ''}</p><button class="primary" id="next">${saved === 0 ? 'Try again' : level.index >= 99 ? 'Return to the first meadow' : 'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-kennel">Visit the kennel</button><button class="secondary" id="replay">Roam this meadow again</button>`,
+    `<div class="complete-seal">✦</div><div class="eyebrow">${saved === total ? 'A GOOD DAY’S HERDING' : 'DELIVERY TIME IS UP'}</div><h2>${saved === total ? 'Everyone’s home.' : saved > 0 ? 'A flock brought home.' : 'Try this meadow again.'}</h2><p>${saved} / ${total} robots delivered.<br>Score ${score} / ${level.reward} · Best ${profile.bestScores[level.index] || 0} / ${level.reward}<br>${Math.floor(elapsed / 60)}m ${Math.floor(elapsed % 60)}s in the countryside.</p><div class="reward">+${lastReward} <span class="currency-bone" aria-hidden="true"></span></div><p>${lastReward ? 'Bones earned from your improved delivery score.' : 'No extra bones this time. Deliver more robots to improve your best score.'}${saved > 0 && saved < total ? ' The next meadow is open.' : ''}</p><button class="primary" id="next">${saved === 0 ? 'Try again' : level.index >= 99 ? 'Return to the first meadow' : 'Next meadow'} <span>➜</span></button><button class="secondary" id="reward-kennel">Visit the kennel</button><button class="secondary" id="replay">Roam this meadow again</button>`,
     'complete',
   );
   const selectParty = (index, trigger) =>

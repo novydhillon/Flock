@@ -27,6 +27,7 @@ const signatures = [
   'Development QA',
   'qa-wander-debug',
   'qa-wander-countdown',
+  'qa-unlock-kennel',
 ];
 if (mode === 'release' && (qaFiles.length || signatures.some((s) => text.includes(s))))
   throw Error('Release artifact contains development QA code or assets.');

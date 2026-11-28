@@ -15,12 +15,17 @@ const icons = {
     '</g><path d="M5 9a10 10 0 0 0 0 14m22-14a10 10 0 0 1 0 14M2 6a15 15 0 0 0 0 20M30 6a15 15 0 0 1 0 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
   bark: '<path d="M4 24v-7l3-5-1-5 5 3 5-1 3 4 5 1v3l-6 1 4 3-3 2-5-2-3 6H5z"/><circle cx="15.5" cy="13.5" r="1" fill="var(--kennel-icon-detail,#eef0e1)"/><path d="m24 11 4-4m-1 8 4-1m-4 5 4 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   paw: '<ellipse cx="7" cy="13" rx="3.2" ry="4.2" transform="rotate(-24 7 13)"/><ellipse cx="13" cy="8" rx="3.2" ry="4.4" transform="rotate(-8 13 8)"/><ellipse cx="20" cy="8" rx="3.2" ry="4.4" transform="rotate(8 20 8)"/><ellipse cx="26" cy="13" rx="3.2" ry="4.2" transform="rotate(24 26 13)"/><path d="M8 24c0-3 5-9 8-9s9 6 9 9c0 3-3 5-5 4l-4-1-4 1c-2 1-4-1-4-4z"/>',
-  bolt: '<path d="M18 1 5 18h9l-1 13 14-19h-9z"/>',
   lock: '<path d="M9 14v-4a7 7 0 0 1 14 0v4h2v15H7V14zm3 0h8v-4a4 4 0 0 0-8 0zm3 5v6h2v-6z" fill-rule="evenodd"/>',
   add: '<path d="M14 5h4v9h9v4h-9v9h-4v-9H5v-4h9z"/>',
 };
 
 export function kennelIcon(doc, name, className = '') {
+  if (name === 'bone') {
+    const bone = doc.createElement('span');
+    bone.className = `currency-bone ${className}`.trim();
+    bone.setAttribute('aria-hidden', 'true');
+    return bone;
+  }
   const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 32 32');
   svg.setAttribute('class', className);

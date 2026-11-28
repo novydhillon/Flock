@@ -1,5 +1,11 @@
 # Flock revision quality record
 
+## F-KENNEL-009 — Adoption prices, individual paw meters and bones — 27 November 2026
+
+Branch `feat/buddy-starter-progression`, base `16a5c9b`. Implementation was split between the kennel/gameplay and QA changes. Exact session model and effort identifiers were unavailable. Pip costs 100 bones. Each attribute uses one to three brown base paws and three to five purchasable paws, gray before purchase and green afterward. The QA roster grant fills only the isolated test kennel. The existing balance and earned reward fields are retained.
+
+Independent review scored 9.5/10, then 9.7/10 after singular currency copy was corrected. Ninety-eight focused tests passed, plus a direct sweep of all 40 dog and attribute combinations through their configured caps and save reload. The release artifact excluded QA, and the Dev artifact included the full-roster grant. Physical phone layout, rendered appearance and game balance remain for playtesting.
+
 ## Buddy starter and adoption gates — 27 November 2026
 
 Branch `feat/buddy-starter-progression`, based on main `8f0934b`. Session model and effort identifiers were unavailable. New saves start with Buddy. Pip is a free one-time adoption at meadow 3. Paid adoption gates move to meadows 10–45, independently of slot purchases. A prior Pip-start kennel keeps its roster, assignments and any unclaimed Slot 2 Buddy reward.

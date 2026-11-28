@@ -48,3 +48,17 @@
 .tip{margin-top:var(--map-orbit-gap)}
 
 
+
+.currency-bone {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  vertical-align: -.12em;
+  background: currentColor;
+  mask: url('/icons/bone.svg') center / contain no-repeat;
+}
+.reward .currency-bone {
+  width: .64em;
+  height: .64em;
+}

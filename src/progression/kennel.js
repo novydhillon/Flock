@@ -18,7 +18,7 @@ function createDog(id, entry, name, coat, training) {
   return {
     id,
     catalogId: entry.id,
-    training: validateTraining(training),
+    training: validateTraining(training, entry.id),
     name: cleanName || entry.name || 'Dog',
     coat: coatModels.get(coat) === entry.model ? coat : entry.coat,
   };
@@ -137,6 +137,22 @@ export function adoptKennelDog(profile, catalogId, name, coat) {
   kennel.dogs.push(dog);
   Object.assign(profile, { points: profile.points - status.cost, kennel });
   return { ok: true, dog };
+}
+
+/** Give the isolated QA profile one copy of each missing catalog dog. */
+export function grantKennelCatalog(profile) {
+  const kennel = validateKennel(profile.kennel);
+  const owned = new Set(kennel.dogs.map((dog) => dog.catalogId));
+  const missing = KENNEL_CATALOG.filter((entry) => !owned.has(entry.id));
+  const ids = new Set(kennel.dogs.map((dog) => dog.id));
+  for (const entry of missing) {
+    let id = entry.id;
+    for (let suffix = 1; ids.has(id); suffix++) id = `${entry.id}-${suffix}`;
+    kennel.dogs.push(createDog(id, entry));
+    ids.add(id);
+  }
+  profile.kennel = kennel;
+  return missing.length;
 }
 
 export function assignKennelDog(profile, slotNumber, dogId) {

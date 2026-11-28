@@ -43,20 +43,27 @@ test('kennel defaults to Buddy and keyboard browsing exposes unavailable dogs wi
   assert.deepEqual(changes, []);
 });
 
-test('Pip shows the meadow-three gate and can be adopted once for free before buying a slot', () => {
+test('Pip shows the meadow-three gate and can be adopted once for bones before buying a slot', () => {
   const locked = kennelFixture({ ...defaultProfile(), highestLevel: 1 }).root;
   locked.querySelector('[data-kennel-offer="pip"]').click();
   assert.match(locked.querySelector('.kennel-adoption-state').textContent, /Meadow 3/);
   assert.equal(locked.querySelector('form').hidden, true);
 
-  const profile = { ...defaultProfile(), highestLevel: 2 };
+  const profile = { ...defaultProfile(), highestLevel: 2, points: 100 };
   const { root, changes } = kennelFixture(profile);
   root.querySelector('[data-kennel-offer="pip"]').click();
-  assert.match(root.querySelector('.kennel-adopt').textContent, /Free/);
+  const price = root.querySelector('.dog-preview .kennel-adoption-price');
+  assert.equal(price.hidden, false);
+  assert.equal(price.getAttribute('aria-label'), 'Adoption price: 100 bones');
+  assert.ok(price.querySelector('.currency-bone'));
+  assert.equal(root.querySelectorAll('.kennel-training-row').length, 4);
+  assert.equal(root.querySelector('[data-kennel-train]'), null);
   root.querySelector('.kennel-adopt').click();
   assert.equal(profile.points, 0);
   assert.equal(profile.kennel.openedSlots, 1);
   assert.equal(root.querySelector('[data-kennel-offer="pip"]'), null);
+  assert.equal(price.hidden, true);
+  assert.equal(root.querySelectorAll('.kennel-training-row:first-child .is-base').length, 2);
   assert.equal(root.querySelector('[data-kennel-dog="pip"]').getAttribute('aria-pressed'), 'true');
   assert.equal(changes.length, 1);
 });
@@ -72,7 +79,8 @@ test('legacy Pip saves show how Buddy joins without a standalone purchase', () =
   root.querySelector('[data-kennel-catalog="buddy"]').click();
   assert.match(root.querySelector('.kennel-adoption-state').textContent, /second crew position.*Meadow 20/);
   assert.equal(root.querySelector('form').hidden, true);
-  assert.equal(root.querySelector('.kennel-training').hidden, true);
+  assert.equal(root.querySelectorAll('.kennel-training-row').length, 4);
+  assert.equal(root.querySelector('[data-kennel-train]'), null);
   assert.equal(root.querySelector('[data-kennel-buy-slot], [data-kennel-assign-slot], [data-kennel-apply-slot]'), null);
   assert.deepEqual(changes, []);
 });
@@ -132,11 +140,11 @@ test('training fills each paw and hides its price at max, with greyed out prices
   const profile = { ...defaultProfile(), highestLevel: 19, points: 119 };
   const unaffordable = influence(kennelFixture(profile).root);
   assert.equal(unaffordable.disabled, true);
-  assert.match(unaffordable.getAttribute('aria-label'), /Need 1 more bolt/);
+  assert.match(unaffordable.getAttribute('aria-label'), /Need 1 more bone/);
   profile.points = 560;
   const { root } = kennelFixture(profile);
   const row = () => root.querySelector('[aria-label^="Influence,"]').parentElement;
-  assert.equal(row().querySelectorAll('.kennel-paw').length, 3);
+  assert.equal(row().querySelectorAll('.kennel-paw').length, 4);
   assert.equal(row().querySelectorAll('.is-trained').length, 0);
   for (let level = 1; level <= 3; level++) {
     influence(root).click();

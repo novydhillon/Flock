@@ -2,7 +2,9 @@
 
 ## Buddy starter and adoption gates — 27 November 2026
 
-Fresh kennel profiles open Slot 1 with Buddy. Pip is a free one-time adoption at meadow 3. The eight paid dogs unlock at meadows 10–45 in five-meadow steps, using the highest campaign meadow and independent of slot purchases. Slot gates and prices stay at 20/40/60 and 600/850/1,200 bolts. Existing kennel rosters and valid assignments carry forward. A Pip-start save that still lacks Buddy retains its Slot 2 reward. This replaces the starter and adoption rules described in the foundation record below.
+Fresh kennel profiles open Slot 1 with Buddy. Pip is a one-time adoption for 100 bones at meadow 3. The eight paid dogs unlock at meadows 10–45 in five-meadow steps, using the highest campaign meadow and independent of slot purchases. Slot gates and prices stay at 20/40/60 and 600/850/1,200 bones. Existing kennel rosters and valid assignments carry forward. A Pip-start save that still lacks Buddy retains its Slot 2 reward. This replaces the starter and adoption rules described in the foundation record below.
+
+Training stores earned upgrades separately from each catalog dog’s base paws. The base and purchased paws index the same gameplay effect curves. The first three purchase steps retain their price and meadow gates. If supported by the dog, a fourth costs 360 bones from meadow 24 and a fifth costs 500 from meadow 35. The currency presentation uses bones, with the existing saved balance and reward entitlement fields.
 
 ## Kennel progression foundation — 26 November 2026
 
